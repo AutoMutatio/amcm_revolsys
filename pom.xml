@@ -7,7 +7,7 @@
   <artifactId>revolsys-parent</artifactId>
   <packaging>pom</packaging>
   <name>Revolution Systems Open Library</name>
-  <version>MAIN-SNAPSHOT</version>
+  <version>0.AUTOMUTATIO-2021.09.01-01</version>
   <description>The parent module of the Revolution Systems Open Library.</description>
   <url>http://revolsys.github.com/com.revolsys.open/</url>
 
@@ -603,7 +603,7 @@
     <org.docx4j.version>11.2.9</org.docx4j.version>
     <org.gdal.version>2.4.0</org.gdal.version>
     <org.graalvm.version>21.2.0</org.graalvm.version>
-    <org.jeometry.version>MAIN-SNAPSHOT</org.jeometry.version>
+    <org.jeometry.version>0.AUTOMUTATIO-2021.09.01-01</org.jeometry.version>
     <org.slf4j.version>1.7.32</org.slf4j.version>
     <org.springframework.version>5.3.9</org.springframework.version>
     <org.springframework.security.version>5.5.2</org.springframework.security.version>
