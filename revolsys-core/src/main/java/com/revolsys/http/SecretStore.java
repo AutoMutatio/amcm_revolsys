@@ -27,10 +27,34 @@ public interface SecretStore {
     return null;
   }
 
+  static void setSecretValue(final ObjectFactoryConfig factoryConfig, final String secretName,
+    final String value) {
+    final SecretStore secretStore = factoryConfig.getValue("secretStore");
+    if (secretStore != null) {
+      secretStore.setSecretValue(secretName, value);
+    }
+  }
+
+  static String setSecretValue(final ObjectFactoryConfig factoryConfig, final String secretName,
+    final String propertyName, final String value) {
+    final SecretStore secretStore = factoryConfig.getValue("secretStore");
+    if (secretStore != null) {
+      final String config = secretStore.getSecretValue(secretName);
+      if (config != null && config.charAt(0) == '{') {
+        final JsonObject json = JsonParser.read(config);
+        json.addValue(secretName, value);
+        secretStore.setSecretValue(propertyName, value);
+      }
+    }
+    return null;
+  }
+
   default ObjectFactoryConfig addTo(final ObjectFactoryConfig factoryConfig) {
     factoryConfig.addValue("secretStore", this);
     return factoryConfig;
   }
 
   String getSecretValue(String secretId);
+
+  void setSecretValue(String name, String value);
 }

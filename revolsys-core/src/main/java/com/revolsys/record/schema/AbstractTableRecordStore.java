@@ -509,6 +509,9 @@ public class AbstractTableRecordStore {
 
   public JsonObject schemaToJson() {
     final RecordDefinition recordDefinition = getRecordDefinition();
+    if (recordDefinition == null) {
+      return JsonObject.EMPTY;
+    }
     final JsonList jsonFields = JsonList.array();
     final String idFieldName = recordDefinition.getIdFieldName();
     final JsonObject jsonSchema = JsonObject.hash()

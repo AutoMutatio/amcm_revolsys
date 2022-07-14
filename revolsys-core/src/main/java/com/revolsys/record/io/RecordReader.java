@@ -199,6 +199,9 @@ public interface RecordReader extends Reader<Record>, RecordDefinitionProxy {
     return ClockDirection.NONE;
   }
 
+  default void init() {
+  }
+
   default Map<Identifier, Record> readRecordsById() {
     try (
       BaseCloseable closeable = this) {
