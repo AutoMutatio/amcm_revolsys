@@ -10,6 +10,10 @@ public class BearerTokenRequestBuilderFactory extends ApacheHttpRequestBuilderFa
 
   private BearerToken token;
 
+  public BearerTokenRequestBuilderFactory() {
+    this.tokenRefesh = this::refreshTokenDo;
+  }
+
   public BearerTokenRequestBuilderFactory(final Function<BearerToken, BearerToken> tokenRefesh) {
     this.tokenRefesh = tokenRefesh;
   }
@@ -33,5 +37,9 @@ public class BearerTokenRequestBuilderFactory extends ApacheHttpRequestBuilderFa
   @Override
   public ApacheHttpRequestBuilder newRequestBuilder() {
     return new BearerTokenRequestBuilder(this);
+  }
+
+  protected BearerToken refreshTokenDo(final BearerToken token) {
+    return null;
   }
 }
