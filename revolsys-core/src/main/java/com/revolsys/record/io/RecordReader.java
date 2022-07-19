@@ -76,7 +76,7 @@ public interface RecordReader extends Reader<Record>, RecordDefinitionProxy {
 
   static Builder builder(final Object source) {
     final RecordReaderFactory readerFactory = IoFactory.factory(RecordReaderFactory.class, source);
-    return new Builder(readerFactory).setSource(source);
+    return builder(readerFactory).setSource(source);
 
   }
 
@@ -88,12 +88,16 @@ public interface RecordReader extends Reader<Record>, RecordDefinitionProxy {
       final String fileName = fileNameProxy.getFileName();
       readerFactory = IoFactory.factoryByFileName(RecordReaderFactory.class, fileName);
     }
-    return new Builder(readerFactory);
+    return builder(readerFactory);
   }
 
   static Builder builderFileName(final String fileName) {
     final RecordReaderFactory readerFactory = IoFactory.factoryByFileName(RecordReaderFactory.class,
       fileName);
+    return builder(readerFactory);
+  }
+
+  static Builder builder(final RecordReaderFactory readerFactory) {
     return new Builder(readerFactory);
   }
 
