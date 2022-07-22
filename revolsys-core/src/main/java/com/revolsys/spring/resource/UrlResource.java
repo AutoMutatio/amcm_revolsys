@@ -13,7 +13,9 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.nio.ByteBuffer;
 import java.nio.channels.ReadableByteChannel;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.util.Base64;
 import java.util.Map;
 
 import org.jeometry.common.exception.Exceptions;
@@ -39,7 +41,9 @@ public class UrlResource extends AbstractResource {
     } else {
       userpass = username + ":" + password;
     }
-    return "Basic " + Base64Util.encodeToString(userpass);
+    final byte[] bytes = userpass.getBytes(StandardCharsets.ISO_8859_1);
+    final String encoded = Base64.getEncoder().encodeToString(bytes);
+    return "Basic " + encoded;
   }
 
   /**
