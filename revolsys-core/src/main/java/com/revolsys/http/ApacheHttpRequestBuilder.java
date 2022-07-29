@@ -52,8 +52,6 @@ import com.revolsys.util.UriBuilder;
 
 public class ApacheHttpRequestBuilder {
 
-  public static final StringEntity EMPTY_ENTITY = new StringEntity("", ContentType.TEXT_PLAIN);
-
   static class InternalEntityEclosingRequest extends HttpEntityEnclosingRequestBase {
 
     private final String method;
@@ -85,6 +83,8 @@ public class ApacheHttpRequestBuilder {
     }
 
   }
+
+  public static final StringEntity EMPTY_ENTITY = new StringEntity("", ContentType.TEXT_PLAIN);
 
   public static ApacheHttpRequestBuilder copy(final HttpRequest request) {
     Args.notNull(request, "HTTP request");
@@ -231,6 +231,13 @@ public class ApacheHttpRequestBuilder {
   public ApacheHttpRequestBuilder addHeader(final String name, final String value) {
     final BasicHeader header = new BasicHeader(name, value);
     return addHeader(header);
+  }
+
+  public ApacheHttpRequestBuilder addHeaders(final Header[] headers) {
+    for (final Header header : headers) {
+      addHeader(header);
+    }
+    return this;
   }
 
   public ApacheHttpRequestBuilder addParameter(final NameValuePair parameter) {
