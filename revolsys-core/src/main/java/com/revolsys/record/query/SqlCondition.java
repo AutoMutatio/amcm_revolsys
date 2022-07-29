@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.BiFunction;
 
 import org.jeometry.common.data.type.DataType;
 import org.jeometry.common.exception.Exceptions;
@@ -24,6 +25,8 @@ public class SqlCondition implements Condition {
   private List<Object> parameterValues = new ArrayList<>();
 
   private final String sql;
+
+  private BiFunction<ResultSet, Integer, Object> valueFromResultSet;
 
   public SqlCondition(final String sql) {
     this.sql = sql;
@@ -136,7 +139,18 @@ public class SqlCondition implements Condition {
   public Object getValueFromResultSet(final RecordDefinition recordDefinition,
     final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings)
     throws SQLException {
-    return resultSet.getString(indexes.incrementAndGet());
+    final int index = indexes.incrementAndGet();
+    if (this.valueFromResultSet == null) {
+      return resultSet.getString(index);
+    } else {
+      return this.valueFromResultSet.apply(resultSet, index);
+    }
+  }
+
+  public SqlCondition setValueFromResultSet(
+    final BiFunction<ResultSet, Integer, Object> valueFromResultSet) {
+    this.valueFromResultSet = valueFromResultSet;
+    return this;
   }
 
   @Override

@@ -13,7 +13,9 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.nio.ByteBuffer;
 import java.nio.channels.ReadableByteChannel;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.util.Base64;
 import java.util.Map;
 
 import org.jeometry.common.exception.Exceptions;
@@ -31,6 +33,18 @@ import com.revolsys.util.Property;
 import com.revolsys.util.UrlUtil;
 
 public class UrlResource extends AbstractResource {
+
+  public static String getBasicAuthorization(final String username, final String password) {
+    final String userpass;
+    if (password == null) {
+      userpass = username + ":";
+    } else {
+      userpass = username + ":" + password;
+    }
+    final byte[] bytes = userpass.getBytes(StandardCharsets.ISO_8859_1);
+    final String encoded = Base64.getEncoder().encodeToString(bytes);
+    return "Basic " + encoded;
+  }
 
   /**
    * Cleaned URL (with normalized path), used for comparisons.
@@ -569,14 +583,10 @@ public class UrlResource extends AbstractResource {
   }
 
   private void setAuthorization(final URL url, final HttpURLConnection connection) {
-    if (Property.hasValue(this.username)) {
-      final String userpass;
-      if (this.password == null) {
-        userpass = this.username + ":";
-      } else {
-        userpass = this.username + ":" + this.password;
-      }
-      final String basicAuth = "Basic " + Base64Util.encodeToString(userpass);
+    final String username = this.username;
+    final String password = this.password;
+    if (Property.hasValue(username)) {
+      final String basicAuth = getBasicAuthorization(username, password);
       connection.setRequestProperty("Authorization", basicAuth);
     } else {
       final String userInfo = url.getUserInfo();

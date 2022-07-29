@@ -6,6 +6,15 @@ import com.revolsys.record.io.format.json.JsonParser;
 
 public interface SecretStore {
 
+  static JsonObject getSecretJsonObject(final ObjectFactoryConfig factoryConfig,
+    final String secretName) {
+    final SecretStore secretStore = factoryConfig.getValue("secretStore");
+    if (secretStore != null) {
+      return secretStore.getSecretJsonObject(secretName);
+    }
+    return JsonObject.hash();
+  }
+
   static String getSecretValue(final ObjectFactoryConfig factoryConfig, final String secretName) {
     final SecretStore secretStore = factoryConfig.getValue("secretStore");
     if (secretStore != null) {
@@ -54,7 +63,19 @@ public interface SecretStore {
     return factoryConfig;
   }
 
+  default JsonObject getSecretJsonObject(final String secretId) {
+    final String value = getSecretValue(secretId);
+    if (value != null) {
+      return JsonParser.read(value);
+    }
+    return JsonObject.hash();
+  }
+
   String getSecretValue(String secretId);
+
+  default void setSecretValue(final String name, final JsonObject value) {
+    setSecretValue(name, value.toJsonString(false));
+  }
 
   void setSecretValue(String name, String value);
 }
