@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.sql.Date;
 import java.sql.Types;
+import java.time.Instant;
 
 import org.jeometry.common.data.identifier.Identifier;
 import org.jeometry.common.data.identifier.TypedIdentifier;
@@ -80,6 +81,8 @@ public class JdbcFieldDefinitions {
       return FIELD_BIG_DECIMAL;
     } else if (value instanceof Date) {
       return FIELD_DATE;
+    } else if (value instanceof Instant) {
+      return FIELD_TIMESTAMP;
     } else if (value instanceof java.util.Date) {
       return FIELD_TIMESTAMP;
     } else if (value instanceof Boolean) {

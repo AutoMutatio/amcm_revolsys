@@ -96,6 +96,12 @@ public class Q {
     return new Between(field, minCondition, maxCondition);
   }
 
+  public static Between between(final QueryValue field, final Object min, final Object max) {
+    final Value minCondition = Value.newValue(min);
+    final Value maxCondition = Value.newValue(max);
+    return new Between(field, minCondition, maxCondition);
+  }
+
   public static Condition binary(final FieldDefinition field, final String operator,
     final Object value) {
     final Value queryValue = Value.newValue(field, value);
