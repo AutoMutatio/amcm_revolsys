@@ -45,12 +45,10 @@
     <dependency>
       <groupId>com.revolsys.open</groupId>
       <artifactId>revolsys-core</artifactId>
-      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>com.revolsys.open</groupId>
       <artifactId>revolsys-gdal</artifactId>
-      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.swinglabs.swingx</groupId>

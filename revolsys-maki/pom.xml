@@ -38,7 +38,6 @@
     <dependency>
       <groupId>com.revolsys.open</groupId>
       <artifactId>revolsys-swing</artifactId>
-      <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

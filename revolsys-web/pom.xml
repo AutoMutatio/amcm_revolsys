@@ -47,7 +47,6 @@
     <dependency>
       <groupId>com.revolsys.open</groupId>
       <artifactId>revolsys-core</artifactId>
-      <version>${project.version}</version>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
