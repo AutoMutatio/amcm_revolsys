@@ -44,6 +44,17 @@
       </dependency>
       <dependency>
         <groupId>org.apache.pdfbox</groupId>
+        <artifactId>pdfbox-tools</artifactId>
+        <version>${org.apache.pdfbox.version}</version>
+        <exclusions>
+          <exclusion>
+            <artifactId>commons-logging</artifactId>
+            <groupId>commons-logging</groupId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.pdfbox</groupId>
         <artifactId>xmpbox</artifactId>
         <version>${org.apache.pdfbox.version}</version>
         <exclusions>
@@ -381,6 +392,29 @@
           </exclusion>
         </exclusions>
       </dependency>
+      
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-web</artifactId>
+        <version>${org.springframework.boot.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-webflux</artifactId>
+        <version>${org.springframework.boot.version}</version>
+      </dependency>   
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-thymeleaf</artifactId>
+        <version>${org.springframework.boot.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-devtools</artifactId>
+        <version>${org.springframework.boot.version}</version>
+        <optional>true</optional>
+      </dependency>
+
       <dependency>
         <groupId>org.springframework.security</groupId>
         <artifactId>spring-security-web</artifactId>
@@ -453,6 +487,78 @@
         <artifactId>netty-resolver-dns</artifactId>
         <version>${io.netty.version}</version>
       </dependency>
+            <dependency>
+        <groupId>com.revolsys.open</groupId>
+        <artifactId>revolsys-bom</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.revolsys.open</groupId>
+        <artifactId>revolsys-core</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.revolsys.open</groupId>
+        <artifactId>revolsys-testapi</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.revolsys.open</groupId>
+        <artifactId>revolsys-fgdb</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.revolsys.open</groupId>
+        <artifactId>revolsys-gdal</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.revolsys.open</groupId>
+        <artifactId>revolsys-geopackage</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.revolsys.open</groupId>
+        <artifactId>revolsys-oracle</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.revolsys.open</groupId>
+        <artifactId>revolsys-postgresql</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.revolsys.open</groupId>
+        <artifactId>revolsys-maki</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.revolsys.open</groupId>
+        <artifactId>revolsys-swing</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.revolsys.open</groupId>
+        <artifactId>revolsys-web</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.revolsys.open</groupId>
+        <artifactId>revolsys-odata</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
     </dependencies>
   </dependencyManagement>
 
@@ -465,6 +571,8 @@
     <org.graalvm.version>22.0.0.2</org.graalvm.version>
     <org.slf4j.version>1.7.36</org.slf4j.version>
     <org.springframework.version>5.3.22</org.springframework.version>
+    <org.springframework.boot.version>2.7.2</org.springframework.boot.version>
+    <org.springboot.version>${org.springframework.boot.version}</org.springboot.version>
     <org.springframework.security.version>5.7.2</org.springframework.security.version>
     <io.netty.version>4.1.79.Final</io.netty.version>
   </properties>
