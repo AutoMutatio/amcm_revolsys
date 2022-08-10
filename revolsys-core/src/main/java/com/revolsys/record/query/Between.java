@@ -25,6 +25,12 @@ public class Between extends AbstractUnaryQueryValue implements Condition {
     this.max = max;
   }
 
+  public Between(final QueryValue queryValue, final Value min, final Value max) {
+    super(queryValue);
+    this.min = min;
+    this.max = max;
+  }
+
   @Override
   public void appendDefaultSql(final Query query, final RecordStore recordStore,
     final Appendable buffer) {
