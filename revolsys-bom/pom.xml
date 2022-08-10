@@ -470,11 +470,6 @@
         <artifactId>netty-resolver-dns</artifactId>
         <version>${io.netty.version}</version>
       </dependency>
-            <dependency>
-        <groupId>com.revolsys.open</groupId>
-        <artifactId>revolsys-bom</artifactId>
-        <version>${project.version}</version>
-      </dependency>
 
       <dependency>
         <groupId>com.revolsys.open</groupId>
