@@ -186,6 +186,7 @@ public class UriBuilder {
    * Constructs an empty instance.
    */
   public UriBuilder() {
+    setScheme("https");
   }
 
   /**

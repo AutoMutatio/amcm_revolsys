@@ -5,6 +5,10 @@ import java.net.URI;
 
 import org.apache.http.HttpRequest;
 
+import reactor.netty.Connection;
+import reactor.netty.http.client.HttpClient;
+import reactor.netty.http.client.HttpClientRequest;
+
 public class ApacheHttpRequestBuilderFactory {
   public static final ApacheHttpRequestBuilderFactory FACTORY = new ApacheHttpRequestBuilderFactory();
 
@@ -18,6 +22,10 @@ public class ApacheHttpRequestBuilderFactory {
 
   public ApacheHttpRequestBuilder create(final HttpMethod method, final URI uri) {
     return newRequestBuilder().setMethod(method).setUri(uri);
+  }
+
+  public HttpClient createNettyHttpClient() {
+    return HttpClient.create().doOnRequest(this::onNettyRequest);
   }
 
   public ApacheHttpRequestBuilder delete(final String uri) {
@@ -58,6 +66,9 @@ public class ApacheHttpRequestBuilderFactory {
     return new ApacheHttpRequestBuilder(this);
   }
 
+  protected void onNettyRequest(final HttpClientRequest request, final Connection connection) {
+  }
+
   public ApacheHttpRequestBuilder post(final String uri) {
     return create(HttpMethod.POST, uri);
   }
@@ -73,5 +84,4 @@ public class ApacheHttpRequestBuilderFactory {
   public ApacheHttpRequestBuilder put(final URI uri) {
     return create(HttpMethod.PUT, uri);
   }
-
 }

@@ -9,6 +9,9 @@ import org.apache.http.message.BasicHeader;
 
 import com.revolsys.net.http.SimpleNameValuePair;
 
+import reactor.netty.Connection;
+import reactor.netty.http.client.HttpClientRequest;
+
 public class ConfigurableRequestBuilderFactory extends ApacheHttpRequestBuilderFactory {
 
   private final List<Header> headers = new ArrayList<>();
@@ -47,6 +50,17 @@ public class ConfigurableRequestBuilderFactory extends ApacheHttpRequestBuilderF
   @Override
   public ApacheHttpRequestBuilder newRequestBuilder() {
     return new ConfigurableRequestBuilder(this);
+  }
+
+  @Override
+  protected void onNettyRequest(final HttpClientRequest request, final Connection connection) {
+    super.onNettyRequest(request, connection);
+    for (final Header header : this.headers) {
+      request.addHeader(header.getName(), header.getValue());
+    }
+    for (final NameValuePair parameter : this.parameters) {
+      // request.Parameter(parameter.getName(), parameter.getValue());
+    }
   }
 
   public void preBuild(final ConfigurableRequestBuilder requestBuilder) {

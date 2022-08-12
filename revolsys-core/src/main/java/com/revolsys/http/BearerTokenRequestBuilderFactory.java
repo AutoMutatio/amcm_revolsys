@@ -4,6 +4,9 @@ import java.util.function.Function;
 
 import com.revolsys.net.oauth.BearerToken;
 
+import reactor.netty.Connection;
+import reactor.netty.http.client.HttpClientRequest;
+
 public class BearerTokenRequestBuilderFactory extends ApacheHttpRequestBuilderFactory {
 
   private final Function<BearerToken, BearerToken> tokenRefesh;
@@ -37,6 +40,13 @@ public class BearerTokenRequestBuilderFactory extends ApacheHttpRequestBuilderFa
   @Override
   public ApacheHttpRequestBuilder newRequestBuilder() {
     return new BearerTokenRequestBuilder(this);
+  }
+
+  @Override
+  protected void onNettyRequest(final HttpClientRequest request, final Connection connection) {
+    super.onNettyRequest(request, connection);
+    final String authorization = getAuthorizationHeader();
+    request.header("Authorization", authorization);
   }
 
   protected BearerToken refreshTokenDo(final BearerToken token) {
