@@ -28,7 +28,7 @@ public class AzureQueueSharedKeyRequestBuilder extends ApacheHttpRequestBuilder 
 
   private static final List<String> HEADERS = Arrays.asList("Content-MD5", "Content-Type", "Date");
 
-  public AzureQueueSharedKeyRequestBuilder(final ApacheHttpRequestBuilderFactory factory) {
+  public AzureQueueSharedKeyRequestBuilder(final HttpRequestBuilderFactory factory) {
     super(factory);
   }
 

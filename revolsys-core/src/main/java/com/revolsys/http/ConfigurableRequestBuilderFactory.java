@@ -7,12 +7,10 @@ import org.apache.http.Header;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicHeader;
 
+import com.revolsys.http.reactor.ReactorHttpRequestBuilder;
 import com.revolsys.net.http.SimpleNameValuePair;
 
-import reactor.netty.Connection;
-import reactor.netty.http.client.HttpClientRequest;
-
-public class ConfigurableRequestBuilderFactory extends ApacheHttpRequestBuilderFactory {
+public class ConfigurableRequestBuilderFactory extends HttpRequestBuilderFactory {
 
   private final List<Header> headers = new ArrayList<>();
 
@@ -52,17 +50,6 @@ public class ConfigurableRequestBuilderFactory extends ApacheHttpRequestBuilderF
     return new ConfigurableRequestBuilder(this);
   }
 
-  @Override
-  protected void onNettyRequest(final HttpClientRequest request, final Connection connection) {
-    super.onNettyRequest(request, connection);
-    for (final Header header : this.headers) {
-      request.addHeader(header.getName(), header.getValue());
-    }
-    for (final NameValuePair parameter : this.parameters) {
-      // request.Parameter(parameter.getName(), parameter.getValue());
-    }
-  }
-
   public void preBuild(final ConfigurableRequestBuilder requestBuilder) {
     for (final Header header : this.headers) {
       requestBuilder.addHeader(header);
@@ -70,5 +57,21 @@ public class ConfigurableRequestBuilderFactory extends ApacheHttpRequestBuilderF
     for (final NameValuePair parameter : this.parameters) {
       requestBuilder.setParameter(parameter);
     }
+  }
+
+  @Override
+  public ReactorHttpRequestBuilder reactorBuilder() {
+    final ReactorHttpRequestBuilder builder = super.reactorBuilder();
+    for (final Header header : this.headers) {
+      final String name = header.getName();
+      final String value = header.getValue();
+      builder.addHeader(name, value);
+    }
+    for (final NameValuePair parameter : this.parameters) {
+      final String name = parameter.getName();
+      final String value = parameter.getValue();
+      builder.addParameter(name, value);
+    }
+    return builder;
   }
 }

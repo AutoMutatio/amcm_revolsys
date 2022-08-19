@@ -210,12 +210,12 @@ public class ApacheHttpRequestBuilder {
 
   private final Set<String> headerNames = new TreeSet<>();
 
-  private ApacheHttpRequestBuilderFactory factory;
+  private HttpRequestBuilderFactory factory;
 
   ApacheHttpRequestBuilder() {
   }
 
-  public ApacheHttpRequestBuilder(final ApacheHttpRequestBuilderFactory factory) {
+  public ApacheHttpRequestBuilder(final HttpRequestBuilderFactory factory) {
     this.factory = factory;
   }
 
@@ -343,7 +343,7 @@ public class ApacheHttpRequestBuilder {
     return this.entity;
   }
 
-  public ApacheHttpRequestBuilderFactory getFactory() {
+  public HttpRequestBuilderFactory getFactory() {
     return this.factory;
   }
 

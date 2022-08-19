@@ -1,11 +1,9 @@
 package com.revolsys.http.reactor;
 
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.function.Consumer;
-
-import org.apache.http.NameValuePair;
 
 import com.revolsys.util.UriBuilder;
 
@@ -18,16 +16,19 @@ import reactor.netty.http.client.HttpClient.ResponseReceiver;
 
 public class ReactorHttpRequestBuilder {
 
-  private final HttpClient client = HttpClient.create();
-
   private final DefaultHttpHeaders headers = new DefaultHttpHeaders();
+
+  private final Map<String, ReactorHttpHeaderProvider> headerProviders = new LinkedHashMap<>();
 
   private final UriBuilder uriBuilder = new UriBuilder();
 
-  private final Map<String, List<NameValuePair>> parameters = new LinkedHashMap<>();
-
   public ReactorHttpRequestBuilder addHeader(final CharSequence name, final Object value) {
     this.headers.add(name, value);
+    return this;
+  }
+
+  public ReactorHttpRequestBuilder addParameter(final CharSequence name, final Object value) {
+    this.uriBuilder.addParameter(name, value);
     return this;
   }
 
@@ -44,7 +45,7 @@ public class ReactorHttpRequestBuilder {
   }
 
   public ReactorHttpRequestBuilder headers(final Consumer<HttpHeaders> action) {
-    this.client.headers(action);
+    action.accept(this.headers);
     return this;
   }
 
@@ -84,12 +85,23 @@ public class ReactorHttpRequestBuilder {
     return this;
   }
 
+  public ReactorHttpRequestBuilder removeParameter(final CharSequence name, final Object value) {
+    this.uriBuilder.removeParameter(name);
+    return this;
+  }
+
   public RequestSender request(final HttpMethod method) {
-    final String uri = uri();
-    return HttpClient.create()
-      .headers(headers -> headers.add(this.headers))
-      .request(method)
-      .uri(uri);
+    final UriBuilder uriBuilder = this.uriBuilder;
+    final DefaultHttpHeaders headers = this.headers;
+    final String uri = uriBuilder.buildString();
+    return HttpClient.create().headers(requestHeaders -> {
+      requestHeaders.add(headers);
+      for (final Entry<String, ReactorHttpHeaderProvider> entry : this.headerProviders.entrySet()) {
+        final String name = entry.getKey();
+        final ReactorHttpHeaderProvider provider = entry.getValue();
+        requestHeaders.add(name, provider.provide(this, uri, method, requestHeaders));
+      }
+    }).request(method).uri(uri);
   }
 
   public ReactorHttpRequestBuilder setHeader(final CharSequence name, final Object value) {
@@ -97,7 +109,19 @@ public class ReactorHttpRequestBuilder {
     return this;
   }
 
+  public ReactorHttpRequestBuilder setHeader(final String name,
+    final ReactorHttpHeaderProvider provider) {
+    this.headerProviders.put(name, provider);
+    return this;
+  }
+
+  public ReactorHttpRequestBuilder setParameter(final CharSequence name, final Object value) {
+    this.uriBuilder.setParameter(name, value);
+    return this;
+  }
+
   public String uri() {
     return this.uriBuilder.buildString();
   }
+
 }

@@ -11,7 +11,7 @@ import org.jeometry.common.data.type.DataTypes;
 
 import com.revolsys.collection.iterator.AbstractIterator;
 import com.revolsys.http.ApacheHttpRequestBuilder;
-import com.revolsys.http.ApacheHttpRequestBuilderFactory;
+import com.revolsys.http.HttpRequestBuilderFactory;
 import com.revolsys.record.Record;
 import com.revolsys.record.RecordFactory;
 import com.revolsys.record.RecordState;
@@ -48,7 +48,7 @@ public class ODataQueryIterator extends AbstractIterator<Record>
 
   private URI nextURI;
 
-  private final ApacheHttpRequestBuilderFactory requestFactory;
+  private final HttpRequestBuilderFactory requestFactory;
 
   private RecordFactory<Record> recordFactory;
 
@@ -62,7 +62,7 @@ public class ODataQueryIterator extends AbstractIterator<Record>
 
   private int limit = Integer.MAX_VALUE;
 
-  public ODataQueryIterator(final ApacheHttpRequestBuilderFactory requestFactory,
+  public ODataQueryIterator(final HttpRequestBuilderFactory requestFactory,
     final ApacheHttpRequestBuilder request, final Function<JsonObject, Record> recordConverter,
     final RecordDefinition recordDefinition) {
     this.requestFactory = requestFactory;
@@ -72,7 +72,7 @@ public class ODataQueryIterator extends AbstractIterator<Record>
     this.queryLabel = request.getUri().toString();
   }
 
-  public ODataQueryIterator(final ApacheHttpRequestBuilderFactory requestFactory,
+  public ODataQueryIterator(final HttpRequestBuilderFactory requestFactory,
     final ApacheHttpRequestBuilder request, final RecordFactory<Record> recordFactory,
     final RecordDefinition recordDefinition) {
     this.requestFactory = requestFactory;
@@ -83,7 +83,7 @@ public class ODataQueryIterator extends AbstractIterator<Record>
   }
 
   public ODataQueryIterator(final ODataRecordStore recordStore,
-    final ApacheHttpRequestBuilderFactory requestFactory, final Query query,
+    final HttpRequestBuilderFactory requestFactory, final Query query,
     final Map<String, Object> properties) {
     RecordFactory<Record> recordFactory = query.getRecordFactory();
     if (recordFactory == null) {

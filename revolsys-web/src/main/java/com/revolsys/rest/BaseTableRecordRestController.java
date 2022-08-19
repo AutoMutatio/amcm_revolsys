@@ -66,5 +66,4 @@ public class BaseTableRecordRestController extends AbstractTableRecordRestContro
     final HttpServletRequest request) {
     return super.newQuery(connection, request, this.tablePath);
   }
-
 }

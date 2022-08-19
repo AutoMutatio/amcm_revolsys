@@ -5,9 +5,7 @@ import java.util.function.Supplier;
 import com.revolsys.io.map.ObjectFactoryConfig;
 import com.revolsys.record.io.format.json.JsonObject;
 
-import reactor.netty.http.client.HttpClient;
-
-public class AzureTableSasRequestBuilderFactory extends ApacheHttpRequestBuilderFactory {
+public class AzureTableSasRequestBuilderFactory extends HttpRequestBuilderFactory {
   public static AzureTableSasRequestBuilderFactory fromConfig(
     final ObjectFactoryConfig factoryConfig, final JsonObject config) {
     return new AzureTableSasRequestBuilderFactory(() -> {
@@ -36,11 +34,6 @@ public class AzureTableSasRequestBuilderFactory extends ApacheHttpRequestBuilder
     if (this.token != null) {
       this.token.applyTo(builder);
     }
-  }
-
-  @Override
-  public HttpClient createNettyHttpClient() {
-    throw new UnsupportedOperationException();
   }
 
   @Override

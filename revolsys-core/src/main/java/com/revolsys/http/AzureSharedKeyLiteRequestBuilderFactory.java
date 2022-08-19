@@ -11,9 +11,7 @@ import javax.crypto.spec.SecretKeySpec;
 import com.revolsys.io.map.ObjectFactoryConfig;
 import com.revolsys.record.io.format.json.JsonObject;
 
-import reactor.netty.http.client.HttpClient;
-
-public class AzureSharedKeyLiteRequestBuilderFactory extends ApacheHttpRequestBuilderFactory {
+public class AzureSharedKeyLiteRequestBuilderFactory extends HttpRequestBuilderFactory {
 
   public static AzureSharedKeyLiteRequestBuilderFactory forConnectionString(
     final JsonObject connectionParameters) {
@@ -53,11 +51,6 @@ public class AzureSharedKeyLiteRequestBuilderFactory extends ApacheHttpRequestBu
     this.accountName = accountName;
     final byte[] accountKeyBytes = Base64.getDecoder().decode(accountKey);
     this.secretKey = new SecretKeySpec(accountKeyBytes, "HmacSHA256");
-  }
-
-  @Override
-  public HttpClient createNettyHttpClient() {
-    throw new UnsupportedOperationException();
   }
 
   public String getAccountName() {

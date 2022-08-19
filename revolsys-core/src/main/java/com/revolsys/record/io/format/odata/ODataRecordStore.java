@@ -19,7 +19,7 @@ import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryFactoryProxy;
 import com.revolsys.geometry.model.Polygon;
 import com.revolsys.http.ApacheHttpRequestBuilder;
-import com.revolsys.http.ApacheHttpRequestBuilderFactory;
+import com.revolsys.http.HttpRequestBuilderFactory;
 import com.revolsys.http.ConfigurableRequestBuilderFactory;
 import com.revolsys.net.http.SimpleNameValuePair;
 import com.revolsys.record.Record;
@@ -301,11 +301,11 @@ public class ODataRecordStore extends AbstractRecordStore {
     }
   }
 
-  private final ApacheHttpRequestBuilderFactory requestFactory;
+  private final HttpRequestBuilderFactory requestFactory;
 
   private final URI uri;
 
-  public ODataRecordStore(final ApacheHttpRequestBuilderFactory requestFactory, final URI uri) {
+  public ODataRecordStore(final HttpRequestBuilderFactory requestFactory, final URI uri) {
     this.requestFactory = requestFactory;
     this.uri = uri;
   }
