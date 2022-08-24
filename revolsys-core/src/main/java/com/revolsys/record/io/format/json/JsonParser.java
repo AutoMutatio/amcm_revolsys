@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
 import java.math.BigDecimal;
+import java.nio.file.NoSuchFileException;
 import java.sql.Clob;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -16,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
+import org.jeometry.common.exception.Exceptions;
 import org.jeometry.common.exception.WrappedException;
 import org.jeometry.common.logging.Logs;
 import org.jeometry.common.number.Doubles;
@@ -84,7 +86,11 @@ public class JsonParser implements Iterator<JsonParser.EventType>, Closeable {
         final Resource resource = Resource.getResource(source);
         reader = resource.newBufferedReader();
       } catch (final WrappedException e) {
-        reader = new StringReader(source.toString());
+        if (Exceptions.hasCause(e, NoSuchFileException.class)) {
+          return null;
+        } else {
+          reader = new StringReader(source.toString());
+        }
       }
     }
     final JsonParser parser = new JsonParser(reader);
@@ -99,7 +105,7 @@ public class JsonParser implements Iterator<JsonParser.EventType>, Closeable {
 
   @SuppressWarnings("unchecked")
   public static <V> V read(final JsonParser parser) {
-    if (parser.hasNext()) {
+    if (parser != null && parser.hasNext()) {
       final EventType event = parser.next();
       if (event == EventType.startDocument) {
         final V value = (V)parser.getValue();

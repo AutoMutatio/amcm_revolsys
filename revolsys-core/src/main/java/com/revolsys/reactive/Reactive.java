@@ -2,8 +2,8 @@ package com.revolsys.reactive;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.AsynchronousFileChannel;
 import java.nio.channels.FileChannel;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.function.BiConsumer;
@@ -16,6 +16,7 @@ import org.jeometry.common.exception.Exceptions;
 import org.reactivestreams.Publisher;
 
 import com.revolsys.io.FileUtil;
+import com.revolsys.io.file.Paths;
 import com.revolsys.reactive.ReaderWriterCollector.ReaderWriter;
 
 import io.netty.buffer.ByteBuf;
@@ -26,6 +27,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.publisher.SynchronousSink;
 
 public class Reactive {
+
   public static final ReaderWriter<ByteBuf, FileChannel> BYTE_BUF_READER_WRITER = (buf, channel,
     position) -> {
     final int capacity = buf.capacity();
@@ -65,16 +67,6 @@ public class Reactive {
     };
   }
 
-  public static BiConsumer<ByteBuffer, SynchronousSink<Integer>> asFileChannelWriter(
-    final AsynchronousFileChannel channel) {
-    return new AsynchronousFileChannelWriter(channel);
-  }
-
-  public static Function<ByteBuffer, Publisher<Integer>> flatMapByteBufferToFileChannel(
-    final AsynchronousFileChannel channel) {
-    return new AsynchronousFileChannelFlatMap(channel);
-  }
-
   public static <IN, OUT> Flux<OUT> fluxCreate(final Publisher<IN> source,
     final Function<FluxSink<OUT>, BaseSubscriber<IN>> subscriberConstructor) {
     return Flux.create(sink -> {
@@ -83,6 +75,14 @@ public class Reactive {
       sink.onDispose(subscriber);
       flux.subscribe(subscriber);
     });
+  }
+
+  public static <T> Mono<T> monoJust(final T value, final Consumer<T> discarder) {
+    @SuppressWarnings({
+      "rawtypes", "unchecked"
+    })
+    final Class<? extends T> clazz = (Class)value.getClass();
+    return Mono.just(value).doOnDiscard(clazz, discarder);
   }
 
   public static <T> Consumer<T> once(final Runnable action) {
@@ -151,4 +151,17 @@ public class Reactive {
     };
     return new ReaderWriterCollector<>(readerWriter, supplier, closer);
   }
+
+  public static <T> Mono<T> usingPath(final String baseName, final String extension,
+    final Function<Path, Mono<T>> action) {
+    final Flux<T> f = Flux.using(() -> {
+      try {
+        return Files.createTempFile(baseName + "_", "." + extension);
+      } catch (final IOException e) {
+        throw Exceptions.wrap(e);
+      }
+    }, file -> action.apply(file), Paths::deleteFile);
+    return f.single();
+  }
+
 }

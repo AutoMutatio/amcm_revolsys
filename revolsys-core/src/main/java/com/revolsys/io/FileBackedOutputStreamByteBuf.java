@@ -2,86 +2,36 @@ package com.revolsys.io;
 
 import java.io.BufferedOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.ByteBuffer;
-import java.nio.channels.Channels;
-import java.nio.channels.ClosedChannelException;
-import java.nio.channels.FileChannel;
-import java.nio.channels.ReadableByteChannel;
-import java.nio.channels.spi.AbstractInterruptibleChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
 import org.jeometry.common.exception.Exceptions;
 
+import com.revolsys.reactive.ReactiveByteBuf;
+
+import io.netty.buffer.ByteBuf;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-public class FileBackedOutputStreamBuffer extends OutputStream implements BaseCloseable {
-
-  private final class ReadChannel extends AbstractInterruptibleChannel
-    implements ReadableByteChannel {
-
-    private int offset;
-
-    private FileChannel fileChannel;
-
-    @Override
-    protected void implCloseChannel() throws IOException {
-    }
-
-    @Override
-    public int read(final ByteBuffer dst) throws IOException {
-      if (!isOpen()) {
-        throw new ClosedChannelException();
-      }
-      int bufferSize = FileBackedOutputStreamBuffer.this.bufferSize;
-      if (this.offset < bufferSize) {
-        final int dstRemaining = dst.remaining();
-        if (FileBackedOutputStreamBuffer.this.size < bufferSize) {
-          if (this.offset < FileBackedOutputStreamBuffer.this.size) {
-            bufferSize = (int)FileBackedOutputStreamBuffer.this.size;
-          } else {
-            return -1;
-          }
-        }
-        final int count = Math.min(bufferSize - this.offset, dstRemaining);
-        final ByteBuffer buffer = FileBackedOutputStreamBuffer.this.buffer;
-        buffer.limit(buffer.position() + count);
-        dst.put(buffer);
-        buffer.limit(bufferSize);
-        this.offset += count;
-        return count;
-      } else {
-        if (this.fileChannel == null) {
-          if (FileBackedOutputStreamBuffer.this.file == null) {
-            return -1;
-          } else {
-            this.fileChannel = FileChannel.open(FileBackedOutputStreamBuffer.this.file,
-              StandardOpenOption.READ);
-          }
-        }
-        return this.fileChannel.read(dst);
-      }
-    }
-  }
+public class FileBackedOutputStreamByteBuf extends OutputStream implements BaseCloseable {
 
   public static <T> Mono<T> using(final int bufferSize,
-    final Function<? super FileBackedOutputStreamBuffer, Mono<T>> action) {
-    final Callable<FileBackedOutputStreamBuffer> supplier = () -> new FileBackedOutputStreamBuffer(
+    final Function<? super FileBackedOutputStreamByteBuf, Mono<T>> action) {
+    final Callable<FileBackedOutputStreamByteBuf> supplier = () -> new FileBackedOutputStreamByteBuf(
       bufferSize);
-    final Consumer<FileBackedOutputStreamBuffer> closer = FileBackedOutputStreamBuffer::close;
-    return Flux.using(supplier, action, closer).single();
+    return Flux.using(supplier, action, BaseCloseable.closer()).single();
   }
 
   final ByteBuffer buffer;
+
+  private final byte[] bytes;
 
   private OutputStream out;
 
@@ -93,9 +43,18 @@ public class FileBackedOutputStreamBuffer extends OutputStream implements BaseCl
 
   Path file;
 
-  public FileBackedOutputStreamBuffer(final int bufferSize) {
+  public FileBackedOutputStreamByteBuf(final int bufferSize) {
     this.bufferSize = bufferSize;
-    this.buffer = ByteBuffer.allocate(bufferSize);
+    this.bytes = new byte[bufferSize];
+    this.buffer = ByteBuffer.wrap(this.bytes);
+  }
+
+  public Flux<ByteBuf> asByteBufFlux() {
+    if (this.file == null) {
+      return ReactiveByteBuf.read(this.bytes);
+    } else {
+      return ReactiveByteBuf.read(this.file);
+    }
   }
 
   @Override
@@ -146,19 +105,6 @@ public class FileBackedOutputStreamBuffer extends OutputStream implements BaseCl
     return this.size;
   }
 
-  public InputStream newInputStream() {
-    return Channels.newInputStream(newReadChannel());
-  }
-
-  public ReadableByteChannel newReadChannel() {
-    this.buffer.flip();
-    return new ReadChannel();
-  }
-
-  public java.io.Reader newReader() {
-    return Channels.newReader(newReadChannel(), StandardCharsets.UTF_8);
-  }
-
   public java.io.Writer newWriter() {
     return new OutputStreamWriter(new IgnoreCloseDelegatingOutputStream(this),
       StandardCharsets.UTF_8);
@@ -168,6 +114,7 @@ public class FileBackedOutputStreamBuffer extends OutputStream implements BaseCl
     if (this.file == null) {
       this.file = Files.createTempFile("file", ".bin");
       this.out = new BufferedOutputStream(Files.newOutputStream(this.file));
+      this.out.write(this.bytes, 0, this.buffer.position());
     }
   }
 
@@ -205,7 +152,7 @@ public class FileBackedOutputStreamBuffer extends OutputStream implements BaseCl
   public synchronized void write(final int b) throws IOException {
     if (this.closed) {
       throw new IOException("Closed");
-    } else {
+    } else if (this.file == null) {
       final int remaining = this.buffer.remaining();
       if (remaining > 0) {
         this.buffer.put((byte)b);
@@ -215,6 +162,8 @@ public class FileBackedOutputStreamBuffer extends OutputStream implements BaseCl
 
       }
       this.size += 1;
+    } else {
+      this.out.write(b);
     }
   }
 

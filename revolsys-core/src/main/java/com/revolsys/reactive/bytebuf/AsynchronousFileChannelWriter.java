@@ -1,4 +1,4 @@
-package com.revolsys.reactive;
+package com.revolsys.reactive.bytebuf;
 
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousFileChannel;

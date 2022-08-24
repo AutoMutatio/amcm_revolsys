@@ -437,42 +437,46 @@ public class AbstractTableRecordStore {
 
   public Query newQuery(final TableRecordStoreConnection connection,
     final HttpServletRequest request, final int maxSize) {
-    final String select = request.getParameter("$select");
-    final String filter = request.getParameter("$filter");
-    final String search = request.getParameter("$search");
-    final String orderBy = request.getParameter("$orderby");
     int skip = 0;
-    try {
-      final String value = request.getParameter("$skip");
-      skip = Integer.parseInt(value);
-    } catch (final Exception e) {
-    }
     int top = maxSize;
-    try {
-      final String value = request.getParameter("$top");
-      top = Math.min(Integer.parseInt(value), maxSize);
-      if (top <= 0) {
-        throw new IllegalArgumentException("$top must be > 1: " + top);
+    if (request != null) {
+      try {
+        final String value = request.getParameter("$skip");
+        skip = Integer.parseInt(value);
+      } catch (final Exception e) {
       }
-    } catch (final Exception e) {
+      try {
+        final String value = request.getParameter("$top");
+        top = Math.min(Integer.parseInt(value), maxSize);
+        if (top <= 0) {
+          throw new IllegalArgumentException("$top must be > 1: " + top);
+        }
+      } catch (final Exception e) {
+      }
     }
 
     final Query query = newQuery(connection).setOffset(skip).setLimit(top);
+    if (request != null) {
+      final String select = request.getParameter("$select");
+      final String filter = request.getParameter("$filter");
+      final String search = request.getParameter("$search");
+      final String orderBy = request.getParameter("$orderby");
 
-    if (Property.hasValue(select)) {
-      for (String selectItem : select.split(",")) {
-        selectItem = selectItem.trim();
-        addSelect(query, selectItem);
+      if (Property.hasValue(select)) {
+        for (String selectItem : select.split(",")) {
+          selectItem = selectItem.trim();
+          addSelect(query, selectItem);
+        }
       }
-    }
 
-    Condition filterCondition = newODataFilter(filter);
-    if (filterCondition != null) {
-      filterCondition = alterCondition(request, connection, query, filterCondition);
-      query.and(filterCondition.clone(null, query.getTable()));
+      Condition filterCondition = newODataFilter(filter);
+      if (filterCondition != null) {
+        filterCondition = alterCondition(request, connection, query, filterCondition);
+        query.and(filterCondition.clone(null, query.getTable()));
+      }
+      applySearchCondition(query, search);
+      addQueryOrderBy(query, orderBy);
     }
-    applySearchCondition(query, search);
-    addQueryOrderBy(query, orderBy);
     return query;
   }
 

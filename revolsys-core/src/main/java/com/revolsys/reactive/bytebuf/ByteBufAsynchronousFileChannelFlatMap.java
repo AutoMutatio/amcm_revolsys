@@ -1,4 +1,4 @@
-package com.revolsys.reactive;
+package com.revolsys.reactive.bytebuf;
 
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousFileChannel;
@@ -8,29 +8,32 @@ import java.util.function.Function;
 
 import org.reactivestreams.Publisher;
 
+import io.netty.buffer.ByteBuf;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.MonoSink;
 
-public class AsynchronousFileChannelFlatMap implements Function<ByteBuffer, Publisher<Integer>> {
+public class ByteBufAsynchronousFileChannelFlatMap
+  implements Function<ByteBuf, Publisher<Integer>> {
 
   private class Handler
     implements CompletionHandler<Integer, MonoSink<Integer>>, Consumer<MonoSink<Integer>> {
-    private final ByteBuffer source;
+    private final ByteBuf source;
 
-    public Handler(final ByteBuffer source) {
+    public Handler(final ByteBuf source) {
       this.source = source;
     }
 
     @Override
     public void accept(final MonoSink<Integer> sink) {
-      AsynchronousFileChannelFlatMap parent = AsynchronousFileChannelFlatMap.this;
+      final ByteBufAsynchronousFileChannelFlatMap parent = ByteBufAsynchronousFileChannelFlatMap.this;
       final long position = parent.position;
-      final int count = this.source.remaining();
+      final ByteBuffer buffer = this.source.nioBuffer();
+      final int count = buffer.remaining();
       if (count == 0) {
         sink.success(count);
       } else {
         parent.position += count;
-        parent.channel.write(this.source, position, sink, this);
+        parent.channel.write(buffer, position, sink, this);
       }
     }
 
@@ -51,12 +54,12 @@ public class AsynchronousFileChannelFlatMap implements Function<ByteBuffer, Publ
 
   private final AsynchronousFileChannel channel;
 
-  public AsynchronousFileChannelFlatMap(final AsynchronousFileChannel channel) {
+  public ByteBufAsynchronousFileChannelFlatMap(final AsynchronousFileChannel channel) {
     this.channel = channel;
   }
 
   @Override
-  public Publisher<Integer> apply(final ByteBuffer source) {
+  public Publisher<Integer> apply(final ByteBuf source) {
     return Mono.create(new Handler(source));
   }
 }

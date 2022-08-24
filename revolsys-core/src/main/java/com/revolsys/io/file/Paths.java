@@ -7,6 +7,7 @@ import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
+import java.nio.channels.AsynchronousFileChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryStream;
 import java.nio.file.FileAlreadyExistsException;
@@ -29,6 +30,7 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -72,6 +74,11 @@ public interface Paths {
     final String newFileName = fileName + "." + extension;
     final Path parent = path.getParent();
     return parent.resolve(newFileName);
+  }
+
+  static Callable<? extends AsynchronousFileChannel> asyncWriteFileChannel(final Path file) {
+    return () -> AsynchronousFileChannel.open(file, StandardOpenOption.CREATE,
+      StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE);
   }
 
   static void copyDirectory(final Path source, final Path target) {
@@ -192,6 +199,14 @@ public interface Paths {
       return !exists(path);
     } catch (final IOException e) {
       return false;
+    }
+  }
+
+  static void deleteFile(final Path path) {
+    try {
+      Files.delete(path);
+    } catch (final IOException e) {
+      throw Exceptions.wrap(e);
     }
   }
 

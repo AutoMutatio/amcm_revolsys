@@ -2,7 +2,7 @@ package com.revolsys.core.test.record.io.test;
 
 import java.nio.file.Path;
 import java.sql.Date;
-import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
