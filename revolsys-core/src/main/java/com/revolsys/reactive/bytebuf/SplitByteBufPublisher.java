@@ -85,19 +85,40 @@ public class SplitByteBufPublisher implements Publisher<Flux<ByteBuf>> {
 
       @Override
       public void request(final long n) {
-        SplitSubscription.this.sourceSubscription.request(n);
+        if (!this.complete) {
+          SplitSubscription.this.sourceSubscription.request(n);
+        }
       }
 
       public void setSubscriber(final Subscriber<? super ByteBuf> subscriber) {
-        if (this.subscriber != null) {
-          throw new IllegalStateException("Cannot subscribe twice");
-        } else if (this.exception != null) {
-          subscriber.onError(this.exception);
-        } else if (this.complete) {
-          subscriber.onComplete();
+        Throwable exception;
+        boolean complete;
+        ByteBuf buffer;
+        synchronized (this) {
+          if (this.subscriber != null) {
+            throw new IllegalStateException("Cannot subscribe twice");
+          } else {
+            this.subscriber = subscriber;
+            exception = this.exception;
+            complete = this.complete;
+            buffer = this.buffer;
+            this.buffer = null;
+            this.exception = null;
+          }
+
         }
-        this.subscriber = subscriber;
         subscriber.onSubscribe(this);
+
+        if (exception != null) {
+          subscriber.onError(exception);
+        } else {
+          if (buffer != null) {
+            subscriber.onNext(buffer);
+          }
+          if (complete) {
+            subscriber.onComplete();
+          }
+        }
       }
     }
 

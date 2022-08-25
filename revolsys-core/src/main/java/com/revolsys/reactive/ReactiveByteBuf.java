@@ -10,25 +10,24 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.concurrent.Callable;
 import java.util.function.BiFunction;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 import org.reactivestreams.Publisher;
 
 import com.revolsys.io.FileUtil;
 import com.revolsys.io.file.Paths;
-import com.revolsys.reactive.bytebuf.AsynchronousFileChannelByteBufGenerator;
+import com.revolsys.reactive.bytebuf.AsynchronousFileChannelToFluxByteBufHandler;
 import com.revolsys.reactive.bytebuf.ByteBufAsynchronousFileChannelFlatMap;
+import com.revolsys.reactive.bytebuf.ByteBufChannelWriter;
 import com.revolsys.reactive.bytebuf.SplitByteBufPublisher;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.util.ReferenceCountUtil;
-import reactor.core.publisher.BaseSubscriber;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.FluxSink;
 import reactor.core.publisher.Hooks;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.SynchronousSink;
@@ -114,29 +113,30 @@ public class ReactiveByteBuf {
     return new ByteBufAsynchronousFileChannelFlatMap(channel);
   }
 
-  public static Flux<ByteBuf> read(final byte[] bytes) {
-    final BiFunction<Integer, SynchronousSink<ByteBuf>, Integer> generator = (offset, sink) -> {
+  public static Flux<ByteBuf> read(final byte[] bytes, final int offset, final int length) {
+    final BiFunction<Integer, SynchronousSink<ByteBuf>, Integer> generator = (currentOffset,
+      sink) -> {
       try {
         final ByteBuf buffer = PooledByteBufAllocator.DEFAULT.heapBuffer(8192);
         final int bufferSize = buffer.capacity();
-        int writeSize = bytes.length - offset;
+        int writeSize = length - currentOffset;
         if (writeSize <= 0) {
           sink.complete();
-          return offset;
+          return currentOffset;
         } else {
           if (writeSize > bufferSize) {
             writeSize = bufferSize;
           }
-          buffer.writeBytes(bytes, offset, writeSize);
+          buffer.writeBytes(bytes, currentOffset, writeSize);
           sink.next(buffer);
         }
-        return offset + writeSize;
+        return currentOffset + writeSize;
       } catch (final Exception e) {
         sink.error(e);
-        return offset;
+        return currentOffset;
       }
     };
-    return Flux.generate(ZERO_SUPPLIER, generator)
+    return Flux.generate(() -> offset, generator)
       .doOnDiscard(ByteBuf.class, ReferenceCountUtil::release);
   }
 
@@ -145,26 +145,14 @@ public class ReactiveByteBuf {
   }
 
   public static Flux<ByteBuf> read(final Path file) {
-    return Flux.generate(() -> FileChannel.open(file), (fc, sink) -> {
-      final ByteBuf buf = PooledByteBufAllocator.DEFAULT.heapBuffer(8192);
-      try {
-        if (buf.writeBytes(fc, buf.capacity()) < 0) {
-          buf.release();
-          sink.complete();
-        } else {
-          sink.next(buf);
-        }
-      } catch (final Exception e) {
-        buf.release();
-        sink.error(e);
-      }
-      return fc;
-    }, FileUtil::close);
+    return readAsyncFile(() -> AsynchronousFileChannel.open(file, StandardOpenOption.READ));
   }
 
   public static Flux<ByteBuf> readAsyncFile(final Callable<AsynchronousFileChannel> source) {
-    final AsynchronousFileChannelByteBufGenerator generator = new AsynchronousFileChannelByteBufGenerator();
-    return Flux.generate(source, generator, FileUtil::close)
+    return Flux
+      .using(source,
+        channel -> Flux.create(AsynchronousFileChannelToFluxByteBufHandler.create(channel)),
+        FileUtil::closeSilent)
       .doOnDiscard(ByteBuf.class, ReferenceCountUtil::release);
   }
 
@@ -177,36 +165,13 @@ public class ReactiveByteBuf {
     return Flux.from(new SplitByteBufPublisher(source, pageSize));
   }
 
-  public static BaseSubscriber<ByteBuf> subscriberWritableByteChannel(final FluxSink<Integer> sink,
-    final WritableByteChannel channel) {
-    final FluxSinkSubscriber<ByteBuf, Integer> fluxSinkSubscriber = new FluxSinkSubscriber<ByteBuf, Integer>(
-      sink) {
-      private final ByteBuffer byteBuffer = ByteBuffer.allocateDirect(8192);
-
-      @Override
-      protected void hookOnNext(final ByteBuf buffer) {
-        final int count = buffer.readableBytes();
-        try {
-          for (int remaining = buffer.readableBytes(); remaining > 0; remaining = buffer
-            .readableBytes()) {
-            this.byteBuffer.clear();
-            this.byteBuffer.limit(Math.min(remaining, 8192));
-            buffer.readBytes(this.byteBuffer);
-            this.byteBuffer.flip();
-            while (this.byteBuffer.hasRemaining()) {
-              channel.write(this.byteBuffer);
-            }
-          }
-          this.sink.next(count);
-          request(1);
-        } catch (final IOException ex) {
-          this.sink.error(ex);
-        } finally {
-          buffer.release();
-        }
-      }
-    };
-    return fluxSinkSubscriber;
+  public static Flux<Publisher<ByteBuf>> split(final Flux<ByteBuf> source, final long size,
+    final long pageSize) {
+    if (size < pageSize) {
+      return Flux.just(source);
+    } else {
+      return Flux.from(new SplitByteBufPublisher(source, pageSize));
+    }
   }
 
   public static <T> Mono<T> usingPath(final String baseName, final String extension,
@@ -214,33 +179,41 @@ public class ReactiveByteBuf {
     return Reactive.usingPath(baseName, extension, file -> write(file, source).flatMap(action));
   }
 
+  public static Mono<Long> write(final Flux<ByteBuf> source, final OutputStream outputStream) {
+    return writeByteChannel(source, () -> Channels.newChannel(outputStream));
+  }
+
+  public static Flux<Integer> write(final Flux<ByteBuf> source, final WritableByteChannel channel) {
+    final var writer = new ByteBufChannelWriter(channel);
+    return source.doOnNext(ByteBuf::retain).publishOn(Schedulers.boundedElastic()).map(writer);
+  }
+
   public static Mono<Path> write(final Path file, final Flux<ByteBuf> source) {
     final Flux<Path> f = Flux.using(Paths.asyncWriteFileChannel(file),
       channel -> source.flatMap(flatMapToFileChannel(channel)).then(Mono.just(file)),
-      FileUtil::close);
+      FileUtil::closeSilent);
     return f.single();
   }
 
-  public static Flux<Integer> write(final Publisher<ByteBuf> source,
-    final OutputStream outputStream) {
-    final WritableByteChannel channel = Channels.newChannel(outputStream);
-    return write(source, channel);
-  }
+  public static Mono<Long> writeByteChannel(final Flux<ByteBuf> source,
+    final Callable<WritableByteChannel> channelSupplier) {
+    return Flux.using(channelSupplier, channel -> {
+      final ByteBufChannelWriter writer = new ByteBufChannelWriter(channel);
+      return source.doOnNext(ByteBuf::retain).publishOn(Schedulers.boundedElastic()).map(writer);
+    }, FileUtil::closeSilent)
+      .subscribeOn(Schedulers.boundedElastic())
+      .reduce(1L, (sum, count) -> sum += count);
 
-  public static Flux<Integer> write(final Publisher<ByteBuf> source,
-    final WritableByteChannel channel) {
-    final Function<FluxSink<Integer>, BaseSubscriber<ByteBuf>> subscriberConstructor = sink -> subscriberWritableByteChannel(
-      sink, channel);
-    return Reactive.fluxCreate(source, subscriberConstructor);
-  }
-
-  public static Mono<Long> writeByteChannel(final Publisher<ByteBuf> source,
-    final Supplier<WritableByteChannel> channelSupplier) {
-    return Mono.fromSupplier(channelSupplier)
-      .publishOn(Schedulers.parallel())
-      .flatMap(channel -> write(source, channel)//
-        .doOnTerminate(() -> FileUtil.close(channel))
-        .reduce(1L, (sum, count) -> sum += count));
+    // return Mono.fromSupplier(channelSupplier) //
+    // .subscribeOn(Schedulers.boundedElastic())
+    // .flatMap(channel -> {
+    // final var writer = new ByteBufChannelWriter(channel);
+    // return source.doOnNext(ByteBuf::retain)
+    // .publishOn(Schedulers.boundedElastic())
+    // .map(writer)
+    // .doOnTerminate(() -> FileUtil.close(channel))
+    // .reduce(1L, (sum, count) -> sum += count);
+    // });
   }
 
 }

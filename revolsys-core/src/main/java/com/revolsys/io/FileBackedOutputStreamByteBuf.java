@@ -51,7 +51,7 @@ public class FileBackedOutputStreamByteBuf extends OutputStream implements BaseC
 
   public Flux<ByteBuf> asByteBufFlux() {
     if (this.file == null) {
-      return ReactiveByteBuf.read(this.bytes);
+      return ReactiveByteBuf.read(this.bytes, 0, (int)this.size);
     } else {
       return ReactiveByteBuf.read(this.file);
     }

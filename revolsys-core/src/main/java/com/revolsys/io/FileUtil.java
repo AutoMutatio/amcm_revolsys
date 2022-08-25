@@ -110,8 +110,8 @@ public final class FileUtil {
     if (channel != null && channel.isOpen()) {
       try {
         channel.close();
-      } catch (final IOException e) {
-        throw Exceptions.wrap(e);
+      } catch (final Exception e) {
+        // Ignore exceptions in closing
       }
     }
   }

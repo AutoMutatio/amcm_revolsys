@@ -17,6 +17,13 @@ public interface BaseCloseable extends Closeable {
   @Override
   void close();
 
+  default void closeSilent() {
+    try {
+      close();
+    } catch (final Exception e) {
+    }
+  }
+
   default BaseCloseable wrap() {
     return new CloseableWrapper(this);
   }
