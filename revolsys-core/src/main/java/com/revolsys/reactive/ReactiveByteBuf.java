@@ -43,62 +43,6 @@ public class ReactiveByteBuf {
     Hooks.onNextDropped(ReferenceCountUtil::release);
   }
 
-  private static Flux<ByteBuf> asByteBuf(final ReadableByteChannel channel) {
-    BiFunction<Long, SynchronousSink<ByteBuf>, Long> generator;
-    try {
-      if (channel instanceof final FileChannel fileChannel) {
-        final long fileSize = fileChannel.size();
-        generator = (position, sink) -> {
-          try {
-            if (position < fileSize) {
-              final ByteBuf buffer = PooledByteBufAllocator.DEFAULT.buffer();
-              final int writeCount = buffer.writeBytes(fileChannel, position, 0);
-              sink.next(buffer);
-              return position + writeCount;
-            } else {
-              sink.complete();
-            }
-          } catch (final IOException e) {
-            sink.error(e);
-          }
-          return position;
-        };
-
-      } else if (channel instanceof final AsynchronousFileChannel fileChannel) {
-        return readAsyncFile(() -> fileChannel);
-      } else {
-        final ByteBuffer tempBuffer = ByteBuffer.allocate(8192);
-        generator = (position, sink) -> {
-          try {
-            if (channel.isOpen()) {
-              final int count = channel.read(tempBuffer);
-              if (count == -1) {
-                sink.complete();
-              } else {
-                final ByteBuf buffer = PooledByteBufAllocator.DEFAULT.heapBuffer(8192);
-                tempBuffer.flip();
-                buffer.writeBytes(tempBuffer);
-                tempBuffer.clear();
-                sink.next(buffer);
-                return position + count;
-              }
-            } else {
-              sink.complete();
-            }
-          } catch (final Exception e) {
-            sink.error(e);
-          }
-          return position;
-        };
-      }
-      return Flux.generate(LONG_ZERO_SUPPLIER, generator)
-        .doOnDiscard(ByteBuf.class, ReferenceCountUtil::release);
-
-    } catch (final IOException e) {
-      return Flux.error(e);
-    }
-  }
-
   public static Mono<ByteBuffer> collect(final int length, final Flux<ByteBuf> flux) {
     return flux.collect(() -> ByteBuffer.allocate(length), (target, source) -> {
       final int readableBytes = source.readableBytes();
@@ -157,8 +101,72 @@ public class ReactiveByteBuf {
   }
 
   public static Flux<ByteBuf> readChannel(final Callable<ReadableByteChannel> channelSupplier) {
-    return Flux.using(channelSupplier, ReactiveByteBuf::asByteBuf, FileUtil::close)
+    return Flux.using(channelSupplier, ReactiveByteBuf::readChannel, FileUtil::closeSilent);
+  }
+
+  public static Flux<ByteBuf> readChannel(final ReadableByteChannel channel) {
+    if (channel instanceof final FileChannel fileChannel) {
+      return readFileChannel(fileChannel);
+    } else if (channel instanceof final AsynchronousFileChannel fileChannel) {
+      return readAsyncFile(() -> fileChannel);
+    } else {
+      return readChannelImpl(channel);
+    }
+  }
+
+  private static Flux<ByteBuf> readChannelImpl(final ReadableByteChannel channel) {
+    final ByteBuffer tempBuffer = ByteBuffer.allocate(8192);
+    BiFunction<Long, SynchronousSink<ByteBuf>, Long> generator;
+    generator = (position, sink) -> {
+      try {
+        if (channel.isOpen()) {
+          final int count = channel.read(tempBuffer);
+          if (count == -1) {
+            sink.complete();
+          } else {
+            final ByteBuf buffer = PooledByteBufAllocator.DEFAULT.heapBuffer(8192);
+            tempBuffer.flip();
+            buffer.writeBytes(tempBuffer);
+            tempBuffer.clear();
+            sink.next(buffer);
+            return position + count;
+          }
+        } else {
+          sink.complete();
+        }
+      } catch (final Exception e) {
+        sink.error(e);
+      }
+      return position;
+    };
+    return Flux.generate(LONG_ZERO_SUPPLIER, generator)
       .doOnDiscard(ByteBuf.class, ReferenceCountUtil::release);
+  }
+
+  public static Flux<ByteBuf> readFileChannel(final FileChannel fileChannel) {
+    BiFunction<Long, SynchronousSink<ByteBuf>, Long> generator;
+    try {
+      final long fileSize = fileChannel.size();
+      generator = (position, sink) -> {
+        try {
+          if (position < fileSize) {
+            final ByteBuf buffer = PooledByteBufAllocator.DEFAULT.buffer();
+            final int writeCount = buffer.writeBytes(fileChannel, position, 0);
+            sink.next(buffer);
+            return position + writeCount;
+          } else {
+            sink.complete();
+          }
+        } catch (final IOException e) {
+          sink.error(e);
+        }
+        return position;
+      };
+      return Flux.generate(LONG_ZERO_SUPPLIER, generator)
+        .doOnDiscard(ByteBuf.class, ReferenceCountUtil::release);
+    } catch (final IOException e) {
+      return Flux.error(e);
+    }
   }
 
   public static Flux<Publisher<ByteBuf>> split(final Flux<ByteBuf> source, final long pageSize) {
