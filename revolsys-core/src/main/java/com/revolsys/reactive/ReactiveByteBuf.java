@@ -80,7 +80,8 @@ public class ReactiveByteBuf {
         return currentOffset;
       }
     };
-    return Flux.generate(() -> offset, generator)
+    final Flux<ByteBuf> flux = Flux.generate(() -> offset, generator);
+    return ReactiveSchedulers.scheduleNonBlocking(flux)
       .doOnDiscard(ByteBuf.class, ReferenceCountUtil::release);
   }
 
@@ -93,15 +94,16 @@ public class ReactiveByteBuf {
   }
 
   public static Flux<ByteBuf> readAsyncFile(final Callable<AsynchronousFileChannel> source) {
-    return Flux
-      .using(source,
-        channel -> Flux.create(AsynchronousFileChannelToFluxByteBufHandler.create(channel)),
-        FileUtil::closeSilent)
+    final Flux<ByteBuf> flux = Flux.using(source,
+      channel -> Flux.create(AsynchronousFileChannelToFluxByteBufHandler.create(channel)),
+      FileUtil::closeSilent);
+    return ReactiveSchedulers.scheduleBlocking(flux)
       .doOnDiscard(ByteBuf.class, ReferenceCountUtil::release);
   }
 
   public static Flux<ByteBuf> readChannel(final Callable<ReadableByteChannel> channelSupplier) {
-    return Flux.using(channelSupplier, ReactiveByteBuf::readChannel, FileUtil::closeSilent);
+    return Flux.using(channelSupplier, ReactiveByteBuf::readChannel, FileUtil::closeSilent)
+      .subscribeOn(Schedulers.boundedElastic());
   }
 
   public static Flux<ByteBuf> readChannel(final ReadableByteChannel channel) {
@@ -116,8 +118,7 @@ public class ReactiveByteBuf {
 
   private static Flux<ByteBuf> readChannelImpl(final ReadableByteChannel channel) {
     final ByteBuffer tempBuffer = ByteBuffer.allocate(8192);
-    BiFunction<Long, SynchronousSink<ByteBuf>, Long> generator;
-    generator = (position, sink) -> {
+    final BiFunction<Long, SynchronousSink<ByteBuf>, Long> generator = (position, sink) -> {
       try {
         if (channel.isOpen()) {
           final int count = channel.read(tempBuffer);
@@ -139,7 +140,8 @@ public class ReactiveByteBuf {
       }
       return position;
     };
-    return Flux.generate(LONG_ZERO_SUPPLIER, generator)
+    final Flux<ByteBuf> flux = Flux.generate(LONG_ZERO_SUPPLIER, generator);
+    return ReactiveSchedulers.scheduleBlocking(flux)
       .doOnDiscard(ByteBuf.class, ReferenceCountUtil::release);
   }
 
@@ -162,7 +164,8 @@ public class ReactiveByteBuf {
         }
         return position;
       };
-      return Flux.generate(LONG_ZERO_SUPPLIER, generator)
+      final Flux<ByteBuf> flux = Flux.generate(LONG_ZERO_SUPPLIER, generator);
+      return ReactiveSchedulers.scheduleBlocking(flux)
         .doOnDiscard(ByteBuf.class, ReferenceCountUtil::release);
     } catch (final IOException e) {
       return Flux.error(e);

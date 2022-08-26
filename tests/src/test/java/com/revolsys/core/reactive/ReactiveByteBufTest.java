@@ -9,6 +9,7 @@ import org.junit.Test;
 
 import com.revolsys.io.BaseCloseable;
 import com.revolsys.io.FileBackedOutputStreamByteBuf;
+import com.revolsys.reactive.Reactive;
 import com.revolsys.reactive.ReactiveByteBuf;
 import com.revolsys.util.Debug;
 
@@ -26,9 +27,9 @@ public class ReactiveByteBufTest {
 
   }
 
-  private void assertCollect(final Flux<ByteBuf> flux) {
+  private Mono<ByteBuffer> assertCollect(final Flux<ByteBuf> flux) {
     final int length = testData.length;
-    ReactiveByteBuf.collect(length, flux).subscribe(data -> {
+    return ReactiveByteBuf.collect(length, flux).doOnNext(data -> {
       assertTestData(data);
     });
   }
@@ -49,7 +50,7 @@ public class ReactiveByteBufTest {
   @Test
   public void test_asByteBuf_bytea() {
     final Flux<ByteBuf> flux = ReactiveByteBuf.read(testData, 0, testData.length);
-    assertCollect(flux);
+    Reactive.waitOn(assertCollect(flux));
   }
 
   @Test
@@ -69,7 +70,7 @@ public class ReactiveByteBufTest {
   public void test_asByteBuf_InputStream() {
     final ByteArrayInputStream in = new ByteArrayInputStream(testData);
     final Flux<ByteBuf> flux = ReactiveByteBuf.read(in);
-    assertCollect(flux);
+    Reactive.waitOn(assertCollect(flux));
   }
 
   @Test
@@ -77,8 +78,7 @@ public class ReactiveByteBufTest {
     final Flux<ByteBuf> source = ReactiveByteBuf.read(testData, 0, testData.length);
     final int blockSize = 8192 * 10;
     final ByteBuffer allData = ByteBuffer.allocate(testData.length);
-
-    ReactiveByteBuf//
+    Reactive.waitOn(ReactiveByteBuf//
       .split(source, blockSize)
       .flatMap(data -> {
         final Mono<Long> r = Flux.from(data).reduce(0L, (count, buffer) -> {
@@ -95,7 +95,7 @@ public class ReactiveByteBufTest {
         return r;
       })
       .reduce(0L, (t, c) -> t + c)
-      .subscribe(count -> Assert.assertEquals("total", testData.length, count.intValue()));
+      .doOnNext(count -> Assert.assertEquals("total", testData.length, count.intValue())));
     assertTestData(allData);
     Debug.noOp();
   }

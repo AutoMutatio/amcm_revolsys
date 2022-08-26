@@ -20,6 +20,7 @@ import com.revolsys.io.file.Paths;
 import com.revolsys.reactive.ReaderWriterCollector.ReaderWriter;
 
 import io.netty.buffer.ByteBuf;
+import reactor.core.Disposable;
 import reactor.core.publisher.BaseSubscriber;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.FluxSink;
@@ -36,6 +37,8 @@ public class Reactive {
 
   public static final ReaderWriter<ByteBuffer, FileChannel> BYTE_BUFFER_READER_WRITER = (buf,
     channel, position) -> channel.write(buf, position);
+
+  private static Object WAIT_SYNC = new Object();
 
   public static BiConsumer<ByteBuf, SynchronousSink<ByteBuffer>> asByteBuffer() {
     return new BiConsumer<ByteBuf, SynchronousSink<ByteBuffer>>() {
@@ -162,6 +165,39 @@ public class Reactive {
       }
     }, file -> action.apply(file), Paths::deleteFile);
     return f.single();
+  }
+
+  public static void waitOn(final Disposable s) {
+    waitOn(s, 1000);
+  }
+
+  public static void waitOn(final Disposable s, final long pollInterval) {
+    synchronized (WAIT_SYNC) {
+      while (!s.isDisposed()) {
+        try {
+          WAIT_SYNC.wait(pollInterval);
+        } catch (final InterruptedException e) {
+        }
+      }
+    }
+  }
+
+  public static void waitOn(final Flux<?> publisher) {
+    waitOn(publisher, 1000);
+  }
+
+  public static void waitOn(final Flux<?> publisher, final long pollInterval) {
+    final Disposable subscription = publisher.subscribe();
+    waitOn(subscription, pollInterval);
+  }
+
+  public static void waitOn(final Mono<?> publisher) {
+    waitOn(publisher, 1000);
+  }
+
+  public static void waitOn(final Mono<?> publisher, final long pollInterval) {
+    final Disposable subscription = publisher.subscribe();
+    waitOn(subscription, pollInterval);
   }
 
 }

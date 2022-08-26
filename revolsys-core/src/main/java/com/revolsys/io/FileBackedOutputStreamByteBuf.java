@@ -9,7 +9,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.Callable;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 import org.jeometry.common.exception.Exceptions;
@@ -42,6 +41,8 @@ public class FileBackedOutputStreamByteBuf extends OutputStream implements BaseC
   private long size = 0;
 
   Path file;
+
+  private OutputStreamWriter writer;
 
   public FileBackedOutputStreamByteBuf(final int bufferSize) {
     this.bufferSize = bufferSize;
@@ -78,9 +79,15 @@ public class FileBackedOutputStreamByteBuf extends OutputStream implements BaseC
     }
   }
 
-  public void flip() {
+  public void closeWriter() {
+    FileUtil.closeSilent(this.writer);
+    this.writer = null;
+  }
 
+  public void flip() {
     try {
+      closeWriter();
+      this.writer = null;
       this.buffer.flip();
       if (this.out != null) {
         this.out.flush();
@@ -106,8 +113,9 @@ public class FileBackedOutputStreamByteBuf extends OutputStream implements BaseC
   }
 
   public java.io.Writer newWriter() {
-    return new OutputStreamWriter(new IgnoreCloseDelegatingOutputStream(this),
+    this.writer = new OutputStreamWriter(new IgnoreCloseDelegatingOutputStream(this),
       StandardCharsets.UTF_8);
+    return this.writer;
   }
 
   private void requireFile() throws IOException {
@@ -119,9 +127,7 @@ public class FileBackedOutputStreamByteBuf extends OutputStream implements BaseC
   }
 
   public <T> Mono<T> usingWriter(final Function<? super java.io.Writer, Mono<T>> action) {
-    final Callable<java.io.Writer> supplier = this::newWriter;
-    final Consumer<java.io.Writer> closer = FileUtil::closeSilent;
-    return Flux.using(supplier, action, closer).single();
+    return Mono.using(this::newWriter, action, writer -> closeWriter());
   }
 
   @Override
