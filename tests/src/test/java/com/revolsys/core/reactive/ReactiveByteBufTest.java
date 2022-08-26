@@ -7,8 +7,6 @@ import java.nio.ByteBuffer;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.revolsys.io.BaseCloseable;
-import com.revolsys.io.FileBackedOutputStreamByteBuf;
 import com.revolsys.reactive.Reactive;
 import com.revolsys.reactive.ReactiveByteBuf;
 import com.revolsys.util.Debug;
@@ -49,25 +47,26 @@ public class ReactiveByteBufTest {
 
   @Test
   public void test_asByteBuf_bytea() {
+    System.out.println("test_asByteBuf_bytea");
     final Flux<ByteBuf> flux = ReactiveByteBuf.read(testData, 0, testData.length);
     Reactive.waitOn(assertCollect(flux));
   }
 
   @Test
   public void test_asByteBuf_File() throws IOException {
-    Flux.using(() -> {
-      final FileBackedOutputStreamByteBuf fileBuf = new FileBackedOutputStreamByteBuf(1024);
-      fileBuf.write(testData, 0, testData.length);
-      fileBuf.flip();
-      return fileBuf;
-    }, fileBuf -> {
-      final Flux<ByteBuf> flux = fileBuf.asByteBufFlux();
-      return ReactiveByteBuf.collect(testData.length, flux);
-    }, BaseCloseable::closeSilent).doOnNext(this::assertTestData).blockFirst();
+    System.out.println("test_asByteBuf_File");
+    final Mono<ByteBuffer> task$ = ReactiveByteBuf.usingPath("test", "bin",
+      ReactiveByteBuf.read(testData, 0, testData.length), path$ -> path$.flatMap(path -> {
+        final Flux<ByteBuf> flux = ReactiveByteBuf.read(path);
+        return assertCollect(flux);
+      })).doOnNext(this::assertTestData);
+
+    Reactive.waitOn(task$);
   }
 
   @Test
   public void test_asByteBuf_InputStream() {
+    System.out.println("test_asByteBuf_InputStream");
     final ByteArrayInputStream in = new ByteArrayInputStream(testData);
     final Flux<ByteBuf> flux = ReactiveByteBuf.read(in);
     Reactive.waitOn(assertCollect(flux));
@@ -75,6 +74,7 @@ public class ReactiveByteBufTest {
 
   @Test
   public void test_split() {
+    System.out.println("test_split");
     final Flux<ByteBuf> source = ReactiveByteBuf.read(testData, 0, testData.length);
     final int blockSize = 8192 * 10;
     final ByteBuffer allData = ByteBuffer.allocate(testData.length);

@@ -16,12 +16,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.concurrent.Callable;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 import org.jeometry.common.exception.Exceptions;
 
-import reactor.core.publisher.Flux;
+import com.revolsys.reactive.Reactive;
+
 import reactor.core.publisher.Mono;
 
 public class FileBackedOutputStreamBuffer extends OutputStream implements BaseCloseable {
@@ -77,8 +77,7 @@ public class FileBackedOutputStreamBuffer extends OutputStream implements BaseCl
     final Function<? super FileBackedOutputStreamBuffer, Mono<T>> action) {
     final Callable<FileBackedOutputStreamBuffer> supplier = () -> new FileBackedOutputStreamBuffer(
       bufferSize);
-    final Consumer<FileBackedOutputStreamBuffer> closer = FileBackedOutputStreamBuffer::close;
-    return Flux.using(supplier, action, closer).single();
+    return Reactive.monoCloseable(supplier, action);
   }
 
   final ByteBuffer buffer;
@@ -172,9 +171,7 @@ public class FileBackedOutputStreamBuffer extends OutputStream implements BaseCl
   }
 
   public <T> Mono<T> usingWriter(final Function<? super java.io.Writer, Mono<T>> action) {
-    final Callable<java.io.Writer> supplier = this::newWriter;
-    final Consumer<java.io.Writer> closer = FileUtil::closeSilent;
-    return Flux.using(supplier, action, closer).single();
+    return Reactive.monoCloseable(this::newWriter, action);
   }
 
   @Override

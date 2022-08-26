@@ -14,7 +14,7 @@ public class CleanableProxy<R> implements BaseCloseable {
 
   public static <RI extends BaseCloseable> CleanableProxy<RI> newProxy(
     final Supplier<RI> resourceFactory, final Class<?>... interfaces) {
-    return new CleanableProxy<>(resourceFactory, BaseCloseable::close, interfaces);
+    return new CleanableProxy<>(resourceFactory, BaseCloseable.closer(), interfaces);
   }
 
   private Cleanable cleaner;

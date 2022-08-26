@@ -13,6 +13,7 @@ import java.util.function.Function;
 
 import org.jeometry.common.exception.Exceptions;
 
+import com.revolsys.reactive.Reactive;
 import com.revolsys.reactive.ReactiveByteBuf;
 
 import io.netty.buffer.ByteBuf;
@@ -22,10 +23,10 @@ import reactor.core.publisher.Mono;
 public class FileBackedOutputStreamByteBuf extends OutputStream implements BaseCloseable {
 
   public static <T> Mono<T> using(final int bufferSize,
-    final Function<? super FileBackedOutputStreamByteBuf, Mono<T>> action) {
+    final Function<FileBackedOutputStreamByteBuf, Mono<T>> action) {
     final Callable<FileBackedOutputStreamByteBuf> supplier = () -> new FileBackedOutputStreamByteBuf(
       bufferSize);
-    return Flux.using(supplier, action, BaseCloseable.closer()).single();
+    return Reactive.monoCloseable(supplier, action);
   }
 
   final ByteBuffer buffer;

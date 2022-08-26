@@ -2,22 +2,18 @@ package com.revolsys.reactive;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
+import java.util.concurrent.Callable;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Supplier;
-import java.util.stream.Collector;
 
 import org.jeometry.common.exception.Exceptions;
 import org.reactivestreams.Publisher;
 
-import com.revolsys.io.FileUtil;
+import com.revolsys.io.BaseCloseable;
 import com.revolsys.io.file.Paths;
-import com.revolsys.reactive.ReaderWriterCollector.ReaderWriter;
 
 import io.netty.buffer.ByteBuf;
 import reactor.core.Disposable;
@@ -28,15 +24,6 @@ import reactor.core.publisher.Mono;
 import reactor.core.publisher.SynchronousSink;
 
 public class Reactive {
-
-  public static final ReaderWriter<ByteBuf, FileChannel> BYTE_BUF_READER_WRITER = (buf, channel,
-    position) -> {
-    final int capacity = buf.capacity();
-    return buf.readBytes(channel, position, capacity);
-  };
-
-  public static final ReaderWriter<ByteBuffer, FileChannel> BYTE_BUFFER_READER_WRITER = (buf,
-    channel, position) -> channel.write(buf, position);
 
   private static Object WAIT_SYNC = new Object();
 
@@ -70,6 +57,12 @@ public class Reactive {
     };
   }
 
+  public static <R extends AutoCloseable, V> Flux<V> fluxCloseable(
+    final Callable<? extends R> supplier,
+    final Function<? super R, ? extends Flux<? extends V>> mapper) {
+    return Flux.using(supplier, mapper, BaseCloseable.closer());
+  }
+
   public static <IN, OUT> Flux<OUT> fluxCreate(final Publisher<IN> source,
     final Function<FluxSink<OUT>, BaseSubscriber<IN>> subscriberConstructor) {
     return Flux.create(sink -> {
@@ -78,6 +71,12 @@ public class Reactive {
       sink.onDispose(subscriber);
       flux.subscribe(subscriber);
     });
+  }
+
+  public static <R extends AutoCloseable, V> Mono<V> monoCloseable(
+    final Callable<? extends R> supplier,
+    final Function<? super R, ? extends Mono<? extends V>> mapper) {
+    return Mono.using(supplier, mapper, BaseCloseable.closer());
   }
 
   public static <T> Mono<T> monoJust(final T value, final Consumer<T> discarder) {
@@ -106,65 +105,15 @@ public class Reactive {
     return source$.handle(asByteBuffer());
   }
 
-  /**
-   * Collect the {@Link Flux} stream to a {@Path}.
-   *
-   * @param flux The stream of source data.
-   * @param file The file to write to
-   * @param readerWriter The function to read from the source and write to the channel.
-   * @return The collector;
-   */
-  public static <S> Mono<Path> toFile(final Flux<S> flux, final Path file,
-    final ReaderWriter<S, FileChannel> readerWriter) {
-    final Collector<S, FileChannel, Path> collector = toFile(file, readerWriter);
-    return flux.collect(collector).doOnDiscard(FileChannel.class, FileUtil::close);
-  }
-
-  /**
-   * Create a collector to write the {@Link Flux} stream to a {@Path}.
-   *
-   * To ensure the intermediate {@link FileChannel} is closed use the doOnDiscard as shown below
-   * or use the {@link #toFile(Flux, Path, ReaderWriter) function instead.
-   *
-   * <pre>
-   * Flux<ByteBuf> source = ...;
-   * Path file = ...;
-   * source.
-   *   collect(toFile(file, ReactiveIo.BYTE_BUF_READER_WRITER))
-   *   .doOnDiscard(FileChannel.class, FileUtil::close)
-   *   :
-   * </pre>
-   *
-   * @param file The file to write to
-   * @param readerWriter The function to read from the source and write to the channel.
-   * @return The collector;
-   */
-  public static <S> Collector<S, FileChannel, Path> toFile(final Path file,
-    final ReaderWriter<S, FileChannel> readerWriter) {
-    final Supplier<FileChannel> supplier = () -> {
-      try {
-        return FileChannel.open(file, StandardOpenOption.CREATE, StandardOpenOption.WRITE);
-      } catch (final IOException e) {
-        throw Exceptions.wrap(e);
-      }
-    };
-    final Function<FileChannel, Path> closer = channel -> {
-      FileUtil.closeSilent(channel);
-      return file;
-    };
-    return new ReaderWriterCollector<>(readerWriter, supplier, closer);
-  }
-
   public static <T> Mono<T> usingPath(final String baseName, final String extension,
     final Function<Path, Mono<T>> action) {
-    final Flux<T> f = Flux.using(() -> {
+    return Mono.using(() -> {
       try {
         return Files.createTempFile(baseName + "_", "." + extension);
       } catch (final IOException e) {
         throw Exceptions.wrap(e);
       }
-    }, file -> action.apply(file), Paths::deleteFile);
-    return f.single();
+    }, path -> action.apply(path), Paths::deleteFile);
   }
 
   public static void waitOn(final Disposable s) {

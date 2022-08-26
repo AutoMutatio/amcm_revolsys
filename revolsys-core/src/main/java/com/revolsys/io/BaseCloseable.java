@@ -5,7 +5,13 @@ import java.util.function.Consumer;
 
 @FunctionalInterface
 public interface BaseCloseable extends Closeable {
-  public Consumer<? extends BaseCloseable> CLOSER = BaseCloseable::close;
+  public Consumer<? extends AutoCloseable> CLOSER = closeable -> {
+    try {
+      closeable.close();
+    } catch (final Exception e) {
+      // Ignore
+    }
+  };
 
   @SuppressWarnings({
     "unchecked", "rawtypes"

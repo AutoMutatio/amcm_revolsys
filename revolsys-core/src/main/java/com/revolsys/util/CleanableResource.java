@@ -15,7 +15,7 @@ public class CleanableResource<R> implements BaseCloseable {
 
   public static <RI extends BaseCloseable> CleanableResource<RI> newResource(
     final Supplier<RI> resourceFactory) {
-    return new CleanableResource<>(resourceFactory, BaseCloseable::close);
+    return new CleanableResource<>(resourceFactory, BaseCloseable.closer());
   }
 
   private Cleanable cleaner;

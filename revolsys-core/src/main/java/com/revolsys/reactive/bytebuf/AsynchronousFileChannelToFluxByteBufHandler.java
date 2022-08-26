@@ -3,23 +3,25 @@ package com.revolsys.reactive.bytebuf;
 import java.nio.ByteBuffer;
 import java.nio.channels.AsynchronousFileChannel;
 import java.nio.channels.CompletionHandler;
-import java.util.function.Consumer;
+import java.util.function.Function;
 
 import com.revolsys.io.FileUtil;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.FluxSink;
 
-public class AsynchronousFileChannelToFluxByteBufHandler implements CompletionHandler<Integer, Void> {
+public class AsynchronousFileChannelToFluxByteBufHandler
+  implements CompletionHandler<Integer, Void> {
 
-  public static Consumer<FluxSink<ByteBuf>> create(final AsynchronousFileChannel channel) {
-    return create(channel, 8192);
+  public static Function<AsynchronousFileChannel, Flux<ByteBuf>> create() {
+    return create(8192);
   }
 
-  public static Consumer<FluxSink<ByteBuf>> create(final AsynchronousFileChannel channel,
-    final int bufferSize) {
-    return sink -> new AsynchronousFileChannelToFluxByteBufHandler(channel, bufferSize, sink);
+  public static Function<AsynchronousFileChannel, Flux<ByteBuf>> create(final int bufferSize) {
+    return channel -> Flux
+      .create(sink -> new AsynchronousFileChannelToFluxByteBufHandler(channel, bufferSize, sink));
   }
 
   private long position = 0;

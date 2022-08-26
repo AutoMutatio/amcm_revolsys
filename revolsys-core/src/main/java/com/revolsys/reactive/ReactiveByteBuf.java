@@ -17,10 +17,9 @@ import java.util.function.Function;
 
 import org.reactivestreams.Publisher;
 
-import com.revolsys.io.FileUtil;
 import com.revolsys.io.file.Paths;
+import com.revolsys.reactive.bytebuf.AsynchronousFileChannelFromFluxByteBufHandler;
 import com.revolsys.reactive.bytebuf.AsynchronousFileChannelToFluxByteBufHandler;
-import com.revolsys.reactive.bytebuf.ByteBufAsynchronousFileChannelFlatMap;
 import com.revolsys.reactive.bytebuf.ByteBufChannelWriter;
 import com.revolsys.reactive.bytebuf.SplitByteBufPublisher;
 
@@ -31,7 +30,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Hooks;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.SynchronousSink;
-import reactor.core.scheduler.Schedulers;
 
 public class ReactiveByteBuf {
 
@@ -50,11 +48,6 @@ public class ReactiveByteBuf {
       source.readBytes(target);
       source.release();
     });
-  }
-
-  public static Function<ByteBuf, Publisher<Integer>> flatMapToFileChannel(
-    final AsynchronousFileChannel channel) {
-    return new ByteBufAsynchronousFileChannelFlatMap(channel);
   }
 
   public static Flux<ByteBuf> read(final byte[] bytes, final int offset, final int length) {
@@ -80,8 +73,8 @@ public class ReactiveByteBuf {
         return currentOffset;
       }
     };
-    final Flux<ByteBuf> flux = Flux.generate(() -> offset, generator);
-    return ReactiveSchedulers.scheduleNonBlocking(flux)
+    return Flux.generate(() -> offset, generator)
+      .subscribeOn(ReactiveSchedulers.nonBlocking())
       .doOnDiscard(ByteBuf.class, ReferenceCountUtil::release);
   }
 
@@ -94,16 +87,14 @@ public class ReactiveByteBuf {
   }
 
   public static Flux<ByteBuf> readAsyncFile(final Callable<AsynchronousFileChannel> source) {
-    final Flux<ByteBuf> flux = Flux.using(source,
-      channel -> Flux.create(AsynchronousFileChannelToFluxByteBufHandler.create(channel)),
-      FileUtil::closeSilent);
-    return ReactiveSchedulers.scheduleBlocking(flux)
+    return Reactive.fluxCloseable(source, AsynchronousFileChannelToFluxByteBufHandler.create())
+      .subscribeOn(ReactiveSchedulers.nonBlocking())
       .doOnDiscard(ByteBuf.class, ReferenceCountUtil::release);
   }
 
   public static Flux<ByteBuf> readChannel(final Callable<ReadableByteChannel> channelSupplier) {
-    return Flux.using(channelSupplier, ReactiveByteBuf::readChannel, FileUtil::closeSilent)
-      .subscribeOn(Schedulers.boundedElastic());
+    return Reactive.fluxCloseable(channelSupplier, ReactiveByteBuf::readChannel)
+      .subscribeOn(ReactiveSchedulers.blocking());
   }
 
   public static Flux<ByteBuf> readChannel(final ReadableByteChannel channel) {
@@ -140,16 +131,15 @@ public class ReactiveByteBuf {
       }
       return position;
     };
-    final Flux<ByteBuf> flux = Flux.generate(LONG_ZERO_SUPPLIER, generator);
-    return ReactiveSchedulers.scheduleBlocking(flux)
+    return Flux.generate(LONG_ZERO_SUPPLIER, generator)
+      .subscribeOn(ReactiveSchedulers.blocking())
       .doOnDiscard(ByteBuf.class, ReferenceCountUtil::release);
   }
 
   public static Flux<ByteBuf> readFileChannel(final FileChannel fileChannel) {
-    BiFunction<Long, SynchronousSink<ByteBuf>, Long> generator;
     try {
       final long fileSize = fileChannel.size();
-      generator = (position, sink) -> {
+      final BiFunction<Long, SynchronousSink<ByteBuf>, Long> generator = (position, sink) -> {
         try {
           if (position < fileSize) {
             final ByteBuf buffer = PooledByteBufAllocator.DEFAULT.buffer();
@@ -164,8 +154,8 @@ public class ReactiveByteBuf {
         }
         return position;
       };
-      final Flux<ByteBuf> flux = Flux.generate(LONG_ZERO_SUPPLIER, generator);
-      return ReactiveSchedulers.scheduleBlocking(flux)
+      return Flux.generate(LONG_ZERO_SUPPLIER, generator)
+        .subscribeOn(ReactiveSchedulers.blocking())
         .doOnDiscard(ByteBuf.class, ReferenceCountUtil::release);
     } catch (final IOException e) {
       return Flux.error(e);
@@ -186,45 +176,36 @@ public class ReactiveByteBuf {
   }
 
   public static <T> Mono<T> usingPath(final String baseName, final String extension,
-    final Flux<ByteBuf> source, final Function<Path, Mono<T>> action) {
-    return Reactive.usingPath(baseName, extension, file -> write(file, source).flatMap(action));
+    final Flux<ByteBuf> source, final Function<Mono<Path>, Mono<T>> action) {
+    return Reactive.usingPath(baseName, extension, file -> {
+      final Mono<Path> path$ = write(source, file);
+      return action.apply(path$);
+    });
   }
 
   public static Mono<Long> write(final Flux<ByteBuf> source, final OutputStream outputStream) {
     return writeByteChannel(source, () -> Channels.newChannel(outputStream));
   }
 
-  public static Flux<Integer> write(final Flux<ByteBuf> source, final WritableByteChannel channel) {
-    final var writer = new ByteBufChannelWriter(channel);
-    return source.doOnNext(ByteBuf::retain).publishOn(Schedulers.boundedElastic()).map(writer);
+  public static Mono<Path> write(final Flux<ByteBuf> source, final Path file) {
+    return Reactive
+      .fluxCloseable(Paths.asyncWriteFileChannel(file),
+        AsynchronousFileChannelFromFluxByteBufHandler.create(source))
+      .subscribeOn(ReactiveSchedulers.nonBlocking())
+      .then(Mono.just(file));
   }
 
-  public static Mono<Path> write(final Path file, final Flux<ByteBuf> source) {
-    final Flux<Path> f = Flux.using(Paths.asyncWriteFileChannel(file),
-      channel -> source.flatMap(flatMapToFileChannel(channel)).then(Mono.just(file)),
-      FileUtil::closeSilent);
-    return f.single();
+  public static Flux<Integer> write(final Flux<ByteBuf> source, final WritableByteChannel channel) {
+    final var writer = new ByteBufChannelWriter(channel);
+    return source.doOnNext(ByteBuf::retain).publishOn(ReactiveSchedulers.blocking()).map(writer);
   }
 
   public static Mono<Long> writeByteChannel(final Flux<ByteBuf> source,
     final Callable<WritableByteChannel> channelSupplier) {
-    return Flux.using(channelSupplier, channel -> {
+    return Reactive.fluxCloseable(channelSupplier, channel -> {
       final ByteBufChannelWriter writer = new ByteBufChannelWriter(channel);
-      return source.doOnNext(ByteBuf::retain).publishOn(Schedulers.boundedElastic()).map(writer);
-    }, FileUtil::closeSilent)
-      .subscribeOn(Schedulers.boundedElastic())
-      .reduce(1L, (sum, count) -> sum += count);
-
-    // return Mono.fromSupplier(channelSupplier) //
-    // .subscribeOn(Schedulers.boundedElastic())
-    // .flatMap(channel -> {
-    // final var writer = new ByteBufChannelWriter(channel);
-    // return source.doOnNext(ByteBuf::retain)
-    // .publishOn(Schedulers.boundedElastic())
-    // .map(writer)
-    // .doOnTerminate(() -> FileUtil.close(channel))
-    // .reduce(1L, (sum, count) -> sum += count);
-    // });
+      return source.doOnNext(ByteBuf::retain).publishOn(ReactiveSchedulers.blocking()).map(writer);
+    }).subscribeOn(ReactiveSchedulers.blocking()).reduce(1L, (sum, count) -> sum += count);
   }
 
 }
