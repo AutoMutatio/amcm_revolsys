@@ -7,9 +7,10 @@ import org.apache.http.Header;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicHeader;
 
+import com.revolsys.http.reactor.ReactorHttpRequestBuilder;
 import com.revolsys.net.http.SimpleNameValuePair;
 
-public class ConfigurableRequestBuilderFactory extends ApacheHttpRequestBuilderFactory {
+public class ConfigurableRequestBuilderFactory extends HttpRequestBuilderFactory {
 
   private final List<Header> headers = new ArrayList<>();
 
@@ -56,5 +57,21 @@ public class ConfigurableRequestBuilderFactory extends ApacheHttpRequestBuilderF
     for (final NameValuePair parameter : this.parameters) {
       requestBuilder.setParameter(parameter);
     }
+  }
+
+  @Override
+  public ReactorHttpRequestBuilder reactorBuilder() {
+    final ReactorHttpRequestBuilder builder = super.reactorBuilder();
+    for (final Header header : this.headers) {
+      final String name = header.getName();
+      final String value = header.getValue();
+      builder.addHeader(name, value);
+    }
+    for (final NameValuePair parameter : this.parameters) {
+      final String name = parameter.getName();
+      final String value = parameter.getValue();
+      builder.addParameter(name, value);
+    }
+    return builder;
   }
 }

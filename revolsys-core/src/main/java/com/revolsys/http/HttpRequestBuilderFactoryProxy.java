@@ -3,7 +3,7 @@ package com.revolsys.http;
 import java.io.InputStream;
 import java.net.URI;
 
-public interface ApacheHttpRequestBuilderFactoryProxy {
+public interface HttpRequestBuilderFactoryProxy {
 
   default ApacheHttpRequestBuilder delete(final String uri) {
     final ApacheHttpRequestBuilder requestBuilder = getRequestBuilderFactory().delete(uri);
@@ -35,7 +35,7 @@ public interface ApacheHttpRequestBuilderFactoryProxy {
     return requestBuilder.newInputStream();
   }
 
-  ApacheHttpRequestBuilderFactory getRequestBuilderFactory();
+  HttpRequestBuilderFactory getRequestBuilderFactory();
 
   default ApacheHttpRequestBuilder head(final String uri) {
     final ApacheHttpRequestBuilder requestBuilder = getRequestBuilderFactory().head(uri);

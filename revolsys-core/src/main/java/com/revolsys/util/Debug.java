@@ -12,6 +12,10 @@ import com.revolsys.record.Record;
 import com.revolsys.record.RecordState;
 
 public class Debug {
+  public static void breakpoint() {
+    noOp();
+  }
+
   public static boolean equals(final Geometry geometry, final double x, final double y) {
     final Point firstPoint = geometry.getPoint();
     if (firstPoint.equalsVertex(x, y)) {

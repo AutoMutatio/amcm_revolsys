@@ -5,8 +5,13 @@ import java.net.URI;
 
 import org.apache.http.HttpRequest;
 
-public class ApacheHttpRequestBuilderFactory {
-  public static final ApacheHttpRequestBuilderFactory FACTORY = new ApacheHttpRequestBuilderFactory();
+import com.revolsys.http.reactor.ReactorHttpRequestBuilder;
+
+import reactor.netty.Connection;
+import reactor.netty.http.client.HttpClientRequest;
+
+public class HttpRequestBuilderFactory {
+  public static final HttpRequestBuilderFactory FACTORY = new HttpRequestBuilderFactory();
 
   public ApacheHttpRequestBuilder copy(final HttpRequest request) {
     return newRequestBuilder().setRequest(request);
@@ -58,6 +63,9 @@ public class ApacheHttpRequestBuilderFactory {
     return new ApacheHttpRequestBuilder(this);
   }
 
+  protected void onNettyRequest(final HttpClientRequest request, final Connection connection) {
+  }
+
   public ApacheHttpRequestBuilder post(final String uri) {
     return create(HttpMethod.POST, uri);
   }
@@ -74,4 +82,7 @@ public class ApacheHttpRequestBuilderFactory {
     return create(HttpMethod.PUT, uri);
   }
 
+  public ReactorHttpRequestBuilder reactorBuilder() {
+    return new ReactorHttpRequestBuilder();
+  }
 }

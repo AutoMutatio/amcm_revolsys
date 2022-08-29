@@ -2,13 +2,19 @@ package com.revolsys.util;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import com.revolsys.io.BaseCloseable;
 
-public interface ValueWrapper<R> extends BaseCloseable {
+public interface ValueWrapper<R> extends BaseCloseable, Supplier<R> {
 
   default ValueWrapper<R> connect() {
     return this;
+  }
+
+  @Override
+  default R get() {
+    return getValue();
   }
 
   R getValue();

@@ -4,6 +4,7 @@ import com.revolsys.io.BaseCloseable;
 import com.revolsys.util.Emptyable;
 
 public interface ValueHolder<T> extends Emptyable {
+
   default BaseCloseable closeable(final T value) {
     return new ValueCloseable<>(this, value);
   }

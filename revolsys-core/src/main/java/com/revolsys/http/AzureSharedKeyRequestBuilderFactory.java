@@ -11,7 +11,7 @@ import javax.crypto.spec.SecretKeySpec;
 import com.revolsys.io.map.ObjectFactoryConfig;
 import com.revolsys.record.io.format.json.JsonObject;
 
-public class AzureSharedKeyRequestBuilderFactory extends ApacheHttpRequestBuilderFactory {
+public class AzureSharedKeyRequestBuilderFactory extends HttpRequestBuilderFactory {
 
   public static AzureSharedKeyRequestBuilderFactory forConnectionString(
     final JsonObject connectionParameters) {

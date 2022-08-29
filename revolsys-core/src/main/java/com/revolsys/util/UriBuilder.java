@@ -186,6 +186,7 @@ public class UriBuilder {
    * Constructs an empty instance.
    */
   public UriBuilder() {
+    setScheme("https");
   }
 
   /**
@@ -235,6 +236,11 @@ public class UriBuilder {
     this.fragment = uri.getFragment();
   }
 
+  public UriBuilder addParameter(final CharSequence name, final Object value) {
+    final String string = value == null ? null : value.toString();
+    return addParameter(name, string);
+  }
+
   /**
    * Adds parameter to URI query. The parameter name and value are expected to be unescaped
    * and may contain non ASCII characters.
@@ -243,11 +249,11 @@ public class UriBuilder {
    * will remove custom query if present.
    * </p>
    */
-  public UriBuilder addParameter(final String param, final String value) {
+  public UriBuilder addParameter(final CharSequence name, final String value) {
     if (this.queryParams == null) {
       this.queryParams = new ArrayList<NameValuePair>();
     }
-    this.queryParams.add(new BasicNameValuePair(param, value));
+    this.queryParams.add(new BasicNameValuePair(name.toString(), value));
     this.encodedQuery = null;
     this.encodedSchemeSpecificPart = null;
     this.query = null;
@@ -541,6 +547,22 @@ public class UriBuilder {
     return null;
   }
 
+  public UriBuilder removeParameter(final CharSequence name) {
+    final String nameString = name.toString();
+    if (this.queryParams != null && !this.queryParams.isEmpty()) {
+      for (final Iterator<NameValuePair> it = this.queryParams.iterator(); it.hasNext();) {
+        final NameValuePair nvp = it.next();
+        if (nvp.getName().equals(nameString)) {
+          it.remove();
+        }
+      }
+    }
+    this.encodedQuery = null;
+    this.encodedSchemeSpecificPart = null;
+    this.query = null;
+    return this;
+  }
+
   /**
    * Removes URI query.
    */
@@ -602,9 +624,9 @@ public class UriBuilder {
     return this;
   }
 
-  public UriBuilder setParameter(final String param, final Object value) {
+  public UriBuilder setParameter(final CharSequence name, final Object value) {
     final String string = value == null ? null : value.toString();
-    return setParameter(param, string);
+    return setParameter(name, string);
   }
 
   /**
@@ -615,19 +637,20 @@ public class UriBuilder {
    * will remove custom query if present.
    * </p>
    */
-  public UriBuilder setParameter(final String param, final String value) {
+  public UriBuilder setParameter(final CharSequence name, final String value) {
+    final String nameString = name.toString();
     if (this.queryParams == null) {
       this.queryParams = new ArrayList<NameValuePair>();
     }
     if (!this.queryParams.isEmpty()) {
       for (final Iterator<NameValuePair> it = this.queryParams.iterator(); it.hasNext();) {
         final NameValuePair nvp = it.next();
-        if (nvp.getName().equals(param)) {
+        if (nvp.getName().equals(nameString)) {
           it.remove();
         }
       }
     }
-    this.queryParams.add(new BasicNameValuePair(param, value));
+    this.queryParams.add(new BasicNameValuePair(nameString, value));
     this.encodedQuery = null;
     this.encodedSchemeSpecificPart = null;
     this.query = null;

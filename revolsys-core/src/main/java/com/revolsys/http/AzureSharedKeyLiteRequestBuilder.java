@@ -28,7 +28,7 @@ public class AzureSharedKeyLiteRequestBuilder extends ApacheHttpRequestBuilder {
   private static final List<String> STANDARD_HEADERS = Arrays.asList("Content-MD5", "Content-Type",
     "Date");
 
-  public AzureSharedKeyLiteRequestBuilder(final ApacheHttpRequestBuilderFactory factory) {
+  public AzureSharedKeyLiteRequestBuilder(final HttpRequestBuilderFactory factory) {
     super(factory);
   }
 

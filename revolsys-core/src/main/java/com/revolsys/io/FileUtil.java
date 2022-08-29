@@ -37,6 +37,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.channels.Channel;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
@@ -102,6 +103,16 @@ public final class FileUtil {
         }
       }
       return encoded.toString();
+    }
+  }
+
+  public static void close(final Channel channel) {
+    if (channel != null && channel.isOpen()) {
+      try {
+        channel.close();
+      } catch (final Exception e) {
+        // Ignore exceptions in closing
+      }
     }
   }
 
