@@ -1,5 +1,7 @@
 package com.revolsys.reactive;
 
+import org.jeometry.common.logging.Logs;
+
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
@@ -37,6 +39,15 @@ public class ReactiveSchedulers {
   }
 
   public static int limitDefaultParallelLimit() {
+    final String envLimit = System.getenv("REVOLSYS_SCHEDULER_LIMIT_SIZE");
+    if (envLimit != null) {
+      try {
+        return Integer.parseInt(envLimit);
+      } catch (final NumberFormatException e) {
+        Logs.error(ReactiveSchedulers.class, "com.revolsys.scheduler.limitSize=" + envLimit
+          + " is not a valid integer, using the default");
+      }
+    }
     final Runtime runtime = Runtime.getRuntime();
     final int size = runtime.availableProcessors();
     long maxMemory = runtime.maxMemory();
@@ -81,10 +92,10 @@ public class ReactiveSchedulers {
     if (task == null) {
       synchronized (ReactiveSchedulers.class) {
         if (task == null) {
-          task = Schedulers.newBoundedElastic(2, 100, "task");
+          // task = Schedulers.newBoundedElastic(2, 100, "task");
+          task = Schedulers.boundedElastic();
         }
       }
-      // task = Schedulers.boundedElastic();
     }
     return task;
   }
