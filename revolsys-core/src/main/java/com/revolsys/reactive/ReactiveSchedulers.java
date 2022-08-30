@@ -1,5 +1,7 @@
 package com.revolsys.reactive;
 
+import org.jeometry.common.logging.Logs;
+
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
@@ -14,7 +16,11 @@ public class ReactiveSchedulers {
 
   public static Scheduler blocking() {
     if (blocking == null) {
-      blocking = Schedulers.boundedElastic();
+      synchronized (ReactiveSchedulers.class) {
+        if (blocking == null) {
+          blocking = Schedulers.boundedElastic();
+        }
+      }
     }
     return blocking;
   }
@@ -25,15 +31,23 @@ public class ReactiveSchedulers {
         if (limit == null) {
           final int parallelLimit = limitDefaultParallelLimit();
           final int queueSize = limitDefaultQueueSize();
-          return ReactiveSchedulers.newLimit(parallelLimit, queueSize);
+          limit = ReactiveSchedulers.newLimit(parallelLimit, queueSize);
         }
-
       }
     }
     return limit;
   }
 
   public static int limitDefaultParallelLimit() {
+    final String envLimit = System.getenv("REVOLSYS_SCHEDULER_LIMIT_THREAD_COUNT");
+    if (envLimit != null) {
+      try {
+        return Integer.parseInt(envLimit);
+      } catch (final NumberFormatException e) {
+        Logs.error(ReactiveSchedulers.class, "com.revolsys.scheduler.limitSize=" + envLimit
+          + " is not a valid integer, using the default");
+      }
+    }
     final Runtime runtime = Runtime.getRuntime();
     final int size = runtime.availableProcessors();
     long maxMemory = runtime.maxMemory();
@@ -57,21 +71,31 @@ public class ReactiveSchedulers {
 
   public static LimitScheduler newLimit(final Scheduler scheduler, final int paralellLimit,
     final int queueSize) {
-    final LimitScheduler limitScheduler = new LimitScheduler(scheduler, paralellLimit, queueSize);
+    final LimitScheduler limitScheduler = new LimitScheduler(scheduler, paralellLimit, queueSize,
+      null);
     limitScheduler.start();
     return limitScheduler;
   }
 
   public static Scheduler nonBlocking() {
     if (nonBlocking == null) {
-      nonBlocking = Schedulers.parallel();
+      synchronized (ReactiveSchedulers.class) {
+        if (nonBlocking == null) {
+          nonBlocking = Schedulers.parallel();
+        }
+      }
     }
     return nonBlocking;
   }
 
   public static Scheduler task() {
     if (task == null) {
-      task = Schedulers.boundedElastic();
+      synchronized (ReactiveSchedulers.class) {
+        if (task == null) {
+          // task = Schedulers.newBoundedElastic(2, 100, "task");
+          task = Schedulers.boundedElastic();
+        }
+      }
     }
     return task;
   }
