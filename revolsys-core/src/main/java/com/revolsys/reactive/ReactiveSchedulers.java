@@ -14,7 +14,11 @@ public class ReactiveSchedulers {
 
   public static Scheduler blocking() {
     if (blocking == null) {
-      blocking = Schedulers.boundedElastic();
+      synchronized (ReactiveSchedulers.class) {
+        if (blocking == null) {
+          blocking = Schedulers.boundedElastic();
+        }
+      }
     }
     return blocking;
   }
@@ -25,9 +29,8 @@ public class ReactiveSchedulers {
         if (limit == null) {
           final int parallelLimit = limitDefaultParallelLimit();
           final int queueSize = limitDefaultQueueSize();
-          return ReactiveSchedulers.newLimit(parallelLimit, queueSize);
+          limit = ReactiveSchedulers.newLimit(parallelLimit, queueSize);
         }
-
       }
     }
     return limit;
@@ -57,21 +60,31 @@ public class ReactiveSchedulers {
 
   public static LimitScheduler newLimit(final Scheduler scheduler, final int paralellLimit,
     final int queueSize) {
-    final LimitScheduler limitScheduler = new LimitScheduler(scheduler, paralellLimit, queueSize);
+    final LimitScheduler limitScheduler = new LimitScheduler(scheduler, paralellLimit, queueSize,
+      null);
     limitScheduler.start();
     return limitScheduler;
   }
 
   public static Scheduler nonBlocking() {
     if (nonBlocking == null) {
-      nonBlocking = Schedulers.parallel();
+      synchronized (ReactiveSchedulers.class) {
+        if (nonBlocking == null) {
+          nonBlocking = Schedulers.parallel();
+        }
+      }
     }
     return nonBlocking;
   }
 
   public static Scheduler task() {
     if (task == null) {
-      task = Schedulers.boundedElastic();
+      synchronized (ReactiveSchedulers.class) {
+        if (task == null) {
+          task = Schedulers.newBoundedElastic(2, 100, "task");
+        }
+      }
+      // task = Schedulers.boundedElastic();
     }
     return task;
   }

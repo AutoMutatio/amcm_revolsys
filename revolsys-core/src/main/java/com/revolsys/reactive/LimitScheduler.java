@@ -1,6 +1,9 @@
 package com.revolsys.reactive;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.ConcurrentModificationException;
 import java.util.Deque;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -21,7 +24,7 @@ import reactor.core.scheduler.Scheduler;
 
 public class LimitScheduler implements Scheduler {
 
-  private class LimitSchedulerTask implements Disposable {
+  private static abstract class AbstractLimitSchedulerTask implements Disposable, Queueable {
 
     private Runnable task;
 
@@ -29,11 +32,27 @@ public class LimitScheduler implements Scheduler {
 
     private boolean disposed;
 
-    public LimitSchedulerTask(final Runnable task) {
+    public AbstractLimitSchedulerTask(final Runnable task) {
       this.task = task;
     }
 
-    private boolean cleanIfNeeded() {
+    @Override
+    public void dispose() {
+      Disposable disposable;
+      synchronized (this) {
+        disposable = this.disposable;
+        postDisposed();
+      }
+      if (disposable != null && !disposable.isDisposed()) {
+        disposable.dispose();
+        disposeDo();
+      }
+    }
+
+    protected abstract void disposeDo();
+
+    @Override
+    public boolean isDisposed() {
       synchronized (this) {
         if (this.disposed) {
           return true;
@@ -46,57 +65,103 @@ public class LimitScheduler implements Scheduler {
       }
     }
 
-    @Override
-    public void dispose() {
-      Disposable disposable;
-      synchronized (this) {
-        disposable = this.disposable;
-        postDisposed();
-      }
-      if (disposable != null && !disposable.isDisposed()) {
-        disposable.dispose();
-        onDispose(this);
-      }
-    }
-
-    @Override
-    public boolean isDisposed() {
-      return this.disposed;
-    }
-
     private void postDisposed() {
       this.disposed = true;
       this.disposable = null;
       this.task = null;
     }
 
-    private void run() {
+    public void run() {
       Runnable task;
       synchronized (this) {
         task = this.task;
       }
-      if (task != null && !LimitScheduler.this.schedulerDisposed && !this.disposed) {
+      if (task != null && !this.disposed) {
         try {
           task.run();
         } finally {
-          onDispose(this);
+          disposeDo();
           postDisposed();
         }
       }
     }
 
-    private void runOnScheduler(final Scheduler scheduler) {
-      this.disposable = scheduler.schedule(this::run);
+    public void schedule(final Worker worker) {
+      this.disposable = worker.schedule(this.task);
+    }
+
+    @Override
+    public void start() {
+      this.disposable = startDo();
+    }
+
+    protected abstract Disposable startDo();
+  }
+
+  private class LimitSchedulerTask extends AbstractLimitSchedulerTask {
+
+    public LimitSchedulerTask(final Runnable task) {
+      super(task);
+    }
+
+    @Override
+    protected void disposeDo() {
+      onDispose(this);
+    }
+
+    @Override
+    protected Disposable startDo() {
+      return LimitScheduler.this.scheduler.schedule(this::run);
     }
   }
 
-  private final class LimitSchedulerWorker implements Worker {
+  private final class LimitSchedulerWorker implements Worker, Queueable {
 
-    final Composite disposables = Disposables.composite();
+    private class Task extends AbstractLimitSchedulerTask {
+
+      public Task(final Runnable task) {
+        super(task);
+      }
+
+      @Override
+      protected void disposeDo() {
+        LimitSchedulerWorker.this.disposables.remove(this);
+      }
+
+      @Override
+      protected Disposable startDo() {
+        return LimitSchedulerWorker.this.worker.schedule(this::run);
+      }
+    }
+
+    private Worker worker;
+
+    private Composite disposables = Disposables.composite();
+
+    private final boolean disposed = false;
+
+    private List<Queueable> queue = new ArrayList<>();
 
     @Override
     public void dispose() {
-      this.disposables.dispose();
+      Composite disposables = null;
+      Worker worker = null;
+
+      synchronized (this) {
+        if (!this.disposed) {
+          disposables = this.disposables;
+          this.disposables = null;
+          worker = this.worker;
+          this.worker = null;
+        }
+      }
+      if (disposables != null) {
+        disposables.dispose();
+      }
+      if (worker != null) {
+        worker.dispose();
+      }
+      onDispose(this);
     }
 
     @Override
@@ -105,12 +170,37 @@ public class LimitScheduler implements Scheduler {
     }
 
     @Override
-    public Disposable schedule(final Runnable task) {
-      final Disposable disposable = LimitScheduler.this.schedule(task);
-      this.disposables.add(disposable);
-      return disposable;
+    public Disposable schedule(final Runnable action) {
+      final LimitSchedulerTask task = new LimitSchedulerTask(action);
+      synchronized (this) {
+        this.disposables.add(task);
+        if (this.worker == null) {
+          this.queue.add(task);
+        } else {
+          task.schedule(this.worker);
+        }
+
+      }
+      return task;
     }
 
+    @Override
+    public void start() {
+      synchronized (this) {
+        if (this.worker == null) {
+          this.worker = LimitScheduler.this.scheduler.createWorker();
+          for (final Queueable task : this.queue) {
+            task.start();
+          }
+          this.queue = null;
+        }
+      }
+
+    }
+  }
+
+  private interface Queueable extends Disposable {
+    public void start();
   }
 
   static final AtomicLong EVICTOR_COUNTER = new AtomicLong();
@@ -121,124 +211,141 @@ public class LimitScheduler implements Scheduler {
     return t;
   };
 
-  private boolean schedulerDisposed;
+  private boolean disposed;
 
   private final Scheduler scheduler;
 
   private final int limit;
 
-  private final int queueSize;
+  private final int maxQueueSize;
 
-  private final Deque<LimitSchedulerTask> queuedTasks = new LinkedList<>();
+  private final Deque<Queueable> queue = new LinkedList<>();
 
-  private final Set<LimitSchedulerTask> scheduledTasks = new LinkedHashSet<>();
+  private final Set<Disposable> active = new LinkedHashSet<>();
+
+  private final Set<Disposable> disposables = new LinkedHashSet<>();
 
   private ScheduledFuture<?> cleaner$;
 
-  public LimitScheduler(final Scheduler scheduler, final int paralellLimit, final int queueSize) {
+  private String name;
+
+  LimitScheduler(final Scheduler scheduler, final int paralellLimit, final int queueSize,
+    final String suffix) {
     this.scheduler = scheduler;
     this.limit = paralellLimit;
-    this.queueSize = paralellLimit + Math.max(0, queueSize);
+    this.maxQueueSize = paralellLimit + Math.max(0, queueSize);
+    if (suffix == null) {
+      this.name = "limit";
+    } else {
+      this.name = "limit" + "-" + suffix;
+    }
   }
 
   @Override
   public Worker createWorker() {
-    return new LimitSchedulerWorker();
+    final LimitSchedulerWorker worker = new LimitSchedulerWorker();
+    enqueue(worker);
+    return worker;
+  }
+
+  private Queueable dequeue() {
+    synchronized (this.queue) {
+      if (!this.queue.isEmpty()) {
+        if (this.active.size() < this.limit) {
+          final Queueable item = this.queue.removeFirst();
+          this.active.add(item);
+          return item;
+        }
+      }
+      return null;
+    }
   }
 
   @Override
   public void dispose() {
-    if (!this.schedulerDisposed) {
-      this.schedulerDisposed = true;
+
+    boolean disposed;
+    synchronized (this.queue) {
+      disposed = this.disposed;
+      this.disposed = true;
+    }
+    if (disposed) {
       if (this.cleaner$ != null) {
         this.cleaner$.cancel(true);
       }
-      final List<LimitSchedulerTask> tasksToClean = new ArrayList<>();
-      synchronized (this.queuedTasks) {
-        tasksToClean.addAll(this.queuedTasks);
-        this.queuedTasks.clear();
-      }
-      synchronized (this.scheduledTasks) {
-        tasksToClean.addAll(this.scheduledTasks);
-        this.scheduledTasks.clear();
-      }
-      for (final LimitSchedulerTask task : tasksToClean) {
-        task.dispose();
-      }
-    }
-  }
-
-  private void eviction() {
-    synchronized (this.scheduledTasks) {
-      if (!this.schedulerDisposed) {
-        for (final Iterator<LimitSchedulerTask> iterator = this.scheduledTasks.iterator(); iterator
-          .hasNext();) {
-          final LimitSchedulerTask limitDisposable = iterator.next();
-          if (limitDisposable.cleanIfNeeded()) {
-            iterator.remove();
-          }
+      for (final Collection<? extends Disposable> disposables : Arrays.asList(this.active,
+        this.disposables)) {
+        for (final Disposable disposable : disposables) {
+          disposable.dispose();
         }
+        disposables.clear();
       }
     }
-    reschedule();
+
   }
 
-  private LimitSchedulerTask nextTask() {
-    synchronized (this.queuedTasks) {
-      if (this.queuedTasks.isEmpty()) {
-        return null;
-      } else {
-        return this.queuedTasks.removeFirst();
-      }
-    }
-  }
-
-  private void onDispose(final LimitSchedulerTask task) {
-    synchronized (this.scheduledTasks) {
-      this.scheduledTasks.remove(task);
-    }
-    reschedule();
-  }
-
-  private void reschedule() {
-    LimitSchedulerTask taskToSchedule;
-    do {
-      synchronized (this.scheduledTasks) {
-        if (this.scheduledTasks.size() < this.limit) {
-          taskToSchedule = nextTask();
-          if (taskToSchedule != null) {
-            this.scheduledTasks.add(taskToSchedule);
-          }
-        } else {
-          taskToSchedule = null;
-        }
-      }
-      if (taskToSchedule != null && !this.schedulerDisposed) {
-        taskToSchedule.runOnScheduler(this.scheduler);
-      }
-    } while (taskToSchedule != null);
-  }
-
-  @Override
-  public Disposable schedule(final Runnable task) {
-    final LimitSchedulerTask disposable = new LimitSchedulerTask(task);
-    synchronized (this.queuedTasks) {
-      if (this.schedulerDisposed) {
+  private void enqueue(final Queueable task) {
+    synchronized (this.queue) {
+      if (this.disposed) {
         throw new IllegalStateException("Scheduler is closed");
-      } else if (this.queuedTasks.size() < this.queueSize) {
-        this.queuedTasks.addLast(disposable);
+      } else if (this.queue.size() < this.maxQueueSize) {
+        this.queue.addLast(task);
       } else {
         throw new IllegalStateException("Maximum number of queued tasks exceeded");
       }
     }
     reschedule();
-    return disposable;
+  }
+
+  private void eviction() {
+    try {
+      for (final Iterator<Disposable> iterator = this.disposables.iterator(); iterator.hasNext();) {
+        final Disposable disposable = iterator.next();
+        if (disposable.isDisposed()) {
+          iterator.remove();
+        }
+      }
+    } catch (final ConcurrentModificationException e) {
+      // Ignore as it will get run next time
+    }
+    reschedule();
+  }
+
+  @Override
+  public boolean isDisposed() {
+    return this.disposed;
+  }
+
+  private void onDispose(final Queueable item) {
+    synchronized (this.queue) {
+      if (!this.disposed) {
+        this.active.remove(item);
+        this.disposables.remove(item);
+      }
+    }
+    reschedule();
+  }
+
+  private void reschedule() {
+    Queueable itemToSchedule;
+    do {
+      itemToSchedule = dequeue();
+      if (itemToSchedule != null) {
+        itemToSchedule.start();
+      }
+    } while (itemToSchedule != null);
+  }
+
+  @Override
+  public Disposable schedule(final Runnable action) {
+    final LimitSchedulerTask task = new LimitSchedulerTask(action);
+    enqueue(task);
+    return task;
   }
 
   @Override
   public void start() {
     final ScheduledExecutorService e = Executors.newScheduledThreadPool(1, EVICTOR_FACTORY);
-
     try {
       this.cleaner$ = e.scheduleAtFixedRate(this::eviction, 60L, 60L, TimeUnit.SECONDS);
     } catch (final RejectedExecutionException ree) {
@@ -247,6 +354,11 @@ public class LimitScheduler implements Scheduler {
         throw ree;
       } // else swallow
     }
+  }
+
+  @Override
+  public String toString() {
+    return this.name.toString();
   }
 
 }
