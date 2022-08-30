@@ -39,7 +39,7 @@ public class ReactiveSchedulers {
   }
 
   public static int limitDefaultParallelLimit() {
-    final String envLimit = System.getenv("REVOLSYS_SCHEDULER_LIMIT_SIZE");
+    final String envLimit = System.getenv("REVOLSYS_SCHEDULER_LIMIT_THREAD_COUNT");
     if (envLimit != null) {
       try {
         return Integer.parseInt(envLimit);
