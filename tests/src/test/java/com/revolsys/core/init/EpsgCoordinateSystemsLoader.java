@@ -3,7 +3,6 @@ package com.revolsys.core.init;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,7 +16,6 @@ import org.jeometry.coordinatesystem.model.systems.EpsgCoordinateSystems.EpsgCoo
 import org.jeometry.coordinatesystem.model.unit.UnitOfMeasure;
 
 import com.revolsys.collection.map.IntHashMap;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.collection.map.Maps;
 import com.revolsys.geometry.model.BoundingBox;
@@ -26,6 +24,7 @@ import com.revolsys.record.Record;
 import com.revolsys.record.io.RecordReader;
 import com.revolsys.record.io.RecordWriter;
 import com.revolsys.record.io.format.json.Json;
+import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.record.query.Query;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordStore;
@@ -87,7 +86,7 @@ public final class EpsgCoordinateSystemsLoader {
   private final IntHashMap<MapEx> coordinateReferenceSystemById = new IntHashMap<>();
 
   public EpsgCoordinateSystemsLoader() {
-    final Map<String, Object> parameters = new HashMap<>();
+    final JsonObject parameters = JsonObject.hash();
     parameters.put("url", "jdbc:postgresql://localhost:5432/epsg");
     parameters.put("user", "epsg");
     parameters.put("password", "epsg");
