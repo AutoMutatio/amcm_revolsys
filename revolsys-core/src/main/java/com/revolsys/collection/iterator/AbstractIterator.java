@@ -2,6 +2,7 @@ package com.revolsys.collection.iterator;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.function.Function;
 
 import javax.annotation.PreDestroy;
 
@@ -28,6 +29,10 @@ public abstract class AbstractIterator<T> extends BaseObjectWithProperties
   }
 
   protected void closeDo() {
+  }
+
+  public <V> V convert(final Function<? super Iterator<T>, V> converter) {
+    return converter.apply(this);
   }
 
   @Override
