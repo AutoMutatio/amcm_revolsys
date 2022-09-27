@@ -6,12 +6,16 @@ import java.util.function.Consumer;
 @FunctionalInterface
 public interface BaseCloseable extends Closeable {
   public Consumer<? extends AutoCloseable> CLOSER = closeable -> {
+    close(closeable);
+  };
+
+  static void close(final AutoCloseable closeable) {
     try {
       closeable.close();
     } catch (final Exception e) {
       // Ignore
     }
-  };
+  }
 
   @SuppressWarnings({
     "unchecked", "rawtypes"

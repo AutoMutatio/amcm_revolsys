@@ -5,6 +5,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.Consumer;
 
+import org.apache.http.NameValuePair;
+
 import com.revolsys.util.UriBuilder;
 
 import io.netty.handler.codec.http.DefaultHttpHeaders;
@@ -30,6 +32,20 @@ public class ReactorHttpRequestBuilder {
   public ReactorHttpRequestBuilder addParameter(final CharSequence name, final Object value) {
     this.uriBuilder.addParameter(name, value);
     return this;
+  }
+
+  public ReactorHttpRequestBuilder appendPathSegment(final String segment) {
+    this.uriBuilder.appendPathSegment(segment);
+    return this;
+  }
+
+  public ReactorHttpRequestBuilder appendPathSegments(final String... segments) {
+    this.uriBuilder.appendPathSegments(segments);
+    return this;
+  }
+
+  public ReactorHttpRequestBuilder contentType(final String contentType) {
+    return addHeader("Content-Type", contentType);
   }
 
   public final RequestSender delete() {
@@ -107,6 +123,12 @@ public class ReactorHttpRequestBuilder {
   public ReactorHttpRequestBuilder setHeader(final CharSequence name, final Object value) {
     this.headers.set(name, value);
     return this;
+  }
+
+  public ReactorHttpRequestBuilder setHeader(final NameValuePair header) {
+    final String name = header.getName();
+    final String value = header.getValue();
+    return setHeader(name, value);
   }
 
   public ReactorHttpRequestBuilder setHeader(final String name,

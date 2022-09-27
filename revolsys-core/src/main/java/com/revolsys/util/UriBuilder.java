@@ -281,6 +281,13 @@ public class UriBuilder {
     return this;
   }
 
+  public UriBuilder appendPathSegment(final String segment) {
+    this.pathSegments.add(segment);
+    this.encodedSchemeSpecificPart = null;
+    this.encodedPath = null;
+    return this;
+  }
+
   public UriBuilder appendPathSegments(final String... segments) {
     for (final String segment : segments) {
       this.pathSegments.add(segment);
