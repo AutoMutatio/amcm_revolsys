@@ -49,8 +49,16 @@ public class LeftUnaryCondition extends AbstractUnaryQueryValue implements Condi
     return false;
   }
 
+  public Condition getCondition() {
+    return getValue();
+  }
+
   public String getOperator() {
     return this.operator;
+  }
+
+  public void setCondition(final Condition condition) {
+    setValue(condition);
   }
 
   @Override
