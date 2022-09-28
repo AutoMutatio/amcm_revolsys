@@ -2,6 +2,7 @@ package com.revolsys.net.http;
 
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.security.NoSuchAlgorithmException;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -13,12 +14,12 @@ import org.apache.http.StatusLine;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.methods.RequestBuilder;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.ssl.SSLContextBuilder;
+import org.apache.http.ssl.TrustStrategy;
 import org.jeometry.common.exception.Exceptions;
 import org.jeometry.common.exception.WrappedException;
 
@@ -30,6 +31,17 @@ public class ApacheHttp {
 
   public static final ContentType XML = ContentType.create("application/xml",
     StandardCharsets.UTF_8);
+
+  private static SSLContext DEFAULT_SSL_CONTEXT;
+
+  static {
+    try {
+      DEFAULT_SSL_CONTEXT = SSLContext.getDefault();
+    } catch (final NoSuchAlgorithmException e) {
+    }
+  }
+
+  private static SSLContext sslContext = DEFAULT_SSL_CONTEXT;
 
   public static void execute(final HttpUriRequest request, final Consumer<HttpResponse> action) {
     try (
@@ -133,6 +145,10 @@ public class ApacheHttp {
     return getResponse(httpClient, request);
   }
 
+  public static SSLContext getSslContext() {
+    return sslContext;
+  }
+
   public static String getString(final HttpResponse response) {
     final HttpEntity entity = response.getEntity();
     try (
@@ -150,9 +166,6 @@ public class ApacheHttp {
 
   public static CloseableHttpClient newClient() {
     try {
-      final SSLContext sslContext = SSLContextBuilder.create()
-        .loadTrustMaterial(new TrustSelfSignedStrategy())
-        .build();
       final SSLConnectionSocketFactory connectionFactory = new SSLConnectionSocketFactory(
         sslContext, (hostname, session) -> true);
       return HttpClientBuilder//
@@ -163,6 +176,18 @@ public class ApacheHttp {
       throw Exceptions.wrap(e);
     }
 
+  }
+
+  public static void setDefaultTrustStrategy(final TrustStrategy trustStrategy) {
+    if (trustStrategy == null) {
+      ApacheHttp.sslContext = DEFAULT_SSL_CONTEXT;
+    } else {
+      try {
+        ApacheHttp.sslContext = SSLContextBuilder.create().loadTrustMaterial(trustStrategy).build();
+      } catch (final Exception e) {
+        e.printStackTrace();
+      }
+    }
   }
 
   public static RequestBuilder setJsonBody(final RequestBuilder requestBuilder,

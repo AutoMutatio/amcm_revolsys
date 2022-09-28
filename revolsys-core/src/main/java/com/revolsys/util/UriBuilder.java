@@ -221,19 +221,7 @@ public class UriBuilder {
    */
   public UriBuilder(final URI uri, final Charset charset) {
     setCharset(charset);
-    this.scheme = uri.getScheme();
-    this.encodedSchemeSpecificPart = uri.getRawSchemeSpecificPart();
-    this.encodedAuthority = uri.getRawAuthority();
-    this.host = uri.getHost();
-    this.port = uri.getPort();
-    this.encodedUserInfo = uri.getRawUserInfo();
-    this.userInfo = uri.getUserInfo();
-    this.encodedPath = uri.getRawPath();
-    this.pathSegments = parsePath(uri.getRawPath());
-    this.encodedQuery = uri.getRawQuery();
-    this.queryParams = parseQuery(uri.getRawQuery());
-    this.encodedFragment = uri.getRawFragment();
-    this.fragment = uri.getFragment();
+    setUri(uri);
   }
 
   public UriBuilder addParameter(final CharSequence name, final Object value) {
@@ -768,6 +756,22 @@ public class UriBuilder {
   public UriBuilder setScheme(final String scheme) {
     this.scheme = scheme;
     return this;
+  }
+
+  public void setUri(final URI uri) {
+    this.scheme = uri.getScheme();
+    this.encodedSchemeSpecificPart = uri.getRawSchemeSpecificPart();
+    this.encodedAuthority = uri.getRawAuthority();
+    this.host = uri.getHost();
+    this.port = uri.getPort();
+    this.encodedUserInfo = uri.getRawUserInfo();
+    this.userInfo = uri.getUserInfo();
+    this.encodedPath = uri.getRawPath();
+    this.pathSegments = parsePath(uri.getRawPath());
+    this.encodedQuery = uri.getRawQuery();
+    this.queryParams = parseQuery(uri.getRawQuery());
+    this.encodedFragment = uri.getRawFragment();
+    this.fragment = uri.getFragment();
   }
 
   /**

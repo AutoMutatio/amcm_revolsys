@@ -31,7 +31,7 @@ public abstract class AbstractIterator<T> extends BaseObjectWithProperties
   protected void closeDo() {
   }
 
-  public <V> V convert(final Function<? super Iterator<T>, V> converter) {
+  public <V> V convert(final Function<? super Iterable<T>, V> converter) {
     return converter.apply(this);
   }
 

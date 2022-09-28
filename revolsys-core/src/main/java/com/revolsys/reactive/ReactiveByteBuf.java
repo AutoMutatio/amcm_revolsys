@@ -9,6 +9,7 @@ import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.concurrent.Callable;
@@ -22,9 +23,11 @@ import com.revolsys.reactive.bytebuf.AsynchronousFileChannelFromFluxByteBufHandl
 import com.revolsys.reactive.bytebuf.AsynchronousFileChannelToFluxByteBufHandler;
 import com.revolsys.reactive.bytebuf.ByteBufChannelWriter;
 import com.revolsys.reactive.bytebuf.SplitByteBufPublisher;
+import com.revolsys.record.io.format.json.JsonType;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
+import io.netty.buffer.Unpooled;
 import io.netty.util.ReferenceCountUtil;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Hooks;
@@ -173,6 +176,13 @@ public class ReactiveByteBuf {
     } else {
       return Flux.from(new SplitByteBufPublisher(source, pageSize));
     }
+  }
+
+  public static Publisher<ByteBuf> toByteBuf(final JsonType json) {
+    final String string = json.toJsonString(false);
+    final byte[] bytes = string.getBytes(StandardCharsets.UTF_8);
+    final ByteBuf buffer = Unpooled.wrappedBuffer(bytes);
+    return Mono.just(buffer);
   }
 
   public static <T> Mono<T> usingPath(final String baseName, final String extension,

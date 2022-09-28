@@ -1,5 +1,6 @@
 package com.revolsys.http.reactor;
 
+import java.net.URI;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -7,16 +8,42 @@ import java.util.function.Consumer;
 
 import org.apache.http.NameValuePair;
 
+import com.revolsys.util.Debug;
 import com.revolsys.util.UriBuilder;
 
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
+import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
+import reactor.netty.http.Http11SslContextSpec;
 import reactor.netty.http.client.HttpClient;
 import reactor.netty.http.client.HttpClient.RequestSender;
 import reactor.netty.http.client.HttpClient.ResponseReceiver;
+import reactor.netty.tcp.SslProvider.SslContextSpec;
 
 public class ReactorHttpRequestBuilder {
+
+  private static Consumer<? super SslContextSpec> defaultSslSecure;
+
+  public static void setAcceptSelfSigned() {
+    System.setProperty("javax.net.ssl.trustStore", "NUL");
+    System.setProperty("javax.net.ssl.trustStoreType", "Windows-ROOT");
+    final Http11SslContextSpec sslContextSpec = Http11SslContextSpec.forClient()
+      .configure(builder -> builder.trustManager(InsecureTrustManagerFactory.INSTANCE));
+    setDefaultSsl(sslContextSpec);
+  }
+
+  public static void setDefaultSsl(final Http11SslContextSpec sslContextSpec) {
+    if (sslContextSpec == null) {
+      ReactorHttpRequestBuilder.defaultSslSecure = null;
+    } else {
+      ReactorHttpRequestBuilder.defaultSslSecure = spec -> {
+        spec.sslContext(sslContextSpec);
+
+        Debug.noOp();
+      };
+    }
+  }
 
   private final DefaultHttpHeaders headers = new DefaultHttpHeaders();
 
@@ -110,7 +137,11 @@ public class ReactorHttpRequestBuilder {
     final UriBuilder uriBuilder = this.uriBuilder;
     final DefaultHttpHeaders headers = this.headers;
     final String uri = uriBuilder.buildString();
-    return HttpClient.create().headers(requestHeaders -> {
+    final HttpClient client = HttpClient.create();
+    if (defaultSslSecure != null) {
+      client.secure(defaultSslSecure);
+    }
+    return client.headers(requestHeaders -> {
       requestHeaders.add(headers);
       for (final Entry<String, ReactorHttpHeaderProvider> entry : this.headerProviders.entrySet()) {
         final String name = entry.getKey();
@@ -144,6 +175,15 @@ public class ReactorHttpRequestBuilder {
 
   public String uri() {
     return this.uriBuilder.buildString();
+  }
+
+  public ReactorHttpRequestBuilder uri(final String uri) {
+    return uri(URI.create(uri));
+  }
+
+  public ReactorHttpRequestBuilder uri(final URI uri) {
+    this.uriBuilder.setUri(uri);
+    return this;
   }
 
 }
