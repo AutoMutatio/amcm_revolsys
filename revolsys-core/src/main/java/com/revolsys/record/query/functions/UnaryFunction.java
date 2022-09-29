@@ -1,6 +1,7 @@
 package com.revolsys.record.query.functions;
 
 import java.io.IOException;
+import java.sql.PreparedStatement;
 import java.util.Collections;
 import java.util.List;
 
@@ -44,6 +45,11 @@ public abstract class UnaryFunction extends AbstractUnaryQueryValue implements F
     } catch (final IOException e) {
       throw Exceptions.wrap(e);
     }
+  }
+
+  @Override
+  public int appendParameters(final int index, final PreparedStatement statement) {
+    return getValue().appendParameters(index, statement);
   }
 
   @Override

@@ -99,6 +99,10 @@ public class Alias implements QueryValue {
     return this.value.getStringValue(record);
   }
 
+  public QueryValue getValue() {
+    return this.value;
+  }
+
   @Override
   @SuppressWarnings("unchecked")
   public <V> V getValue(final MapEx record) {
@@ -119,7 +123,7 @@ public class Alias implements QueryValue {
   @Override
   public String toString() {
     final StringBuilder sql = new StringBuilder();
-    this.value.appendDefaultSelect(null, null, sql);
+    this.value.appendDefaultSelect(new Query(), null, sql);
     sql.append(" as ");
     appendAlias(sql);
     return sql.toString();

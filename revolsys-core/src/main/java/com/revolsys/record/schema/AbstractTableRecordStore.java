@@ -177,7 +177,8 @@ public class AbstractTableRecordStore {
   }
 
   protected void addSelect(final Query query, final String selectItem) {
-    query.select(selectItem);
+    final QueryValue selectClause = newSelectClause(query, selectItem);
+    query.select(selectClause);
   }
 
   protected Condition alterCondition(final HttpServletRequest request,
@@ -497,6 +498,10 @@ public class AbstractTableRecordStore {
       }
       return record;
     }
+  }
+
+  public QueryValue newSelectClause(final Query query, final String selectItem) {
+    return query.newSelectClause(selectItem);
   }
 
   public Transaction newTransaction() {

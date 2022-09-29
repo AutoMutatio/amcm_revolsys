@@ -887,6 +887,31 @@ public class Query extends BaseObjectWithProperties
     return operator.apply(column);
   }
 
+  public QueryValue newSelectClause(final Object select) {
+    QueryValue selectExpression;
+    if (select instanceof QueryValue) {
+      selectExpression = (QueryValue)select;
+    } else if (select instanceof CharSequence) {
+      final String name = ((CharSequence)select).toString();
+      final int dotIndex = name.indexOf('.');
+      if (dotIndex == -1) {
+        selectExpression = this.table.getColumn(name);
+      } else {
+        final ColumnReference column = this.table.getColumn(name.substring(0, dotIndex));
+        if (column.getDataType() == Json.JSON_TYPE) {
+          final String remainder = name.substring(dotIndex + 1);
+          selectExpression = new SelectAlias(Q.jsonRawValue(column, remainder), remainder);
+        } else {
+          selectExpression = Q.sql(name);
+        }
+      }
+
+    } else {
+      throw new IllegalArgumentException("Not a valid select expression :" + select);
+    }
+    return selectExpression;
+  }
+
   public String newSelectSql(final List<OrderBy> orderBy, final TableReference table) {
 
     From from = getFrom();
@@ -998,27 +1023,7 @@ public class Query extends BaseObjectWithProperties
   }
 
   public Query select(final Object select) {
-    QueryValue selectExpression;
-    if (select instanceof QueryValue) {
-      selectExpression = (QueryValue)select;
-    } else if (select instanceof CharSequence) {
-      final String name = ((CharSequence)select).toString();
-      final int dotIndex = name.indexOf('.');
-      if (dotIndex == -1) {
-        selectExpression = this.table.getColumn(name);
-      } else {
-        final ColumnReference column = this.table.getColumn(name.substring(0, dotIndex));
-        if (column.getDataType() == Json.JSON_TYPE) {
-          final String remainder = name.substring(dotIndex + 1);
-          selectExpression = new Alias(Q.jsonRawValue(column, remainder), remainder);
-        } else {
-          selectExpression = Q.sql(name);
-        }
-      }
-
-    } else {
-      throw new IllegalArgumentException("Not a valid select expression :" + select);
-    }
+    final QueryValue selectExpression = newSelectClause(select);
     this.selectExpressions.add(selectExpression);
     return this;
   }
@@ -1028,6 +1033,11 @@ public class Query extends BaseObjectWithProperties
     for (final Object selectItem : select) {
       select(selectItem);
     }
+    return this;
+  }
+
+  public Query select(final QueryValue select) {
+    this.selectExpressions.add(select);
     return this;
   }
 
