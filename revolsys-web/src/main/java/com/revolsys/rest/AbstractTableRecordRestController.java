@@ -136,31 +136,36 @@ public class AbstractTableRecordRestController extends AbstractWebController {
     if ("csv".equals(request.getParameter("format"))) {
       responseRecordsCsv(response, reader);
     } else {
-      responseRecordsJson(connection, request, response, query, reader, count);
+      responseRecordsJson(connection, request, response, query, reader, count, null);
     }
   }
 
   public void responseRecordsJson(final TableRecordStoreConnection connection,
     final HttpServletRequest request, final HttpServletResponse response, final Query query,
-    final Long count) throws IOException {
+    final Long count, final JsonObject extraData) throws IOException {
     try (
       Transaction transaction = connection.newTransaction(TransactionOptions.REQUIRES_NEW_READONLY);
       final RecordReader records = query.getRecordReader(transaction)) {
-      responseRecordsJson(connection, request, response, query, records, count);
+      responseRecordsJson(connection, request, response, query, records, count, extraData);
     }
   }
 
   protected void responseRecordsJson(final TableRecordStoreConnection connection,
     final HttpServletRequest request, final HttpServletResponse response, final Query query,
-    final RecordReader reader, final Long count) throws IOException {
+    final RecordReader reader, final Long count, final JsonObject extraData) throws IOException {
     reader.open();
     setContentTypeJson(response);
     response.setStatus(200);
     try (
       PrintWriter writer = response.getWriter();
       JsonRecordWriter jsonWriter = new JsonRecordWriter(reader, writer);) {
+      final JsonObject header = JsonObject.hash();
+      jsonWriter.setHeader(header);
       if (count != null) {
-        jsonWriter.setHeader(JsonObject.hash("@odata.count", count));
+        header.addValue("@odata.count", count);
+      }
+      if (extraData != null) {
+        header.addValues(extraData);
       }
       jsonWriter.setItemsPropertyName("value");
       final int writeCount = jsonWriter.writeAll(reader);
