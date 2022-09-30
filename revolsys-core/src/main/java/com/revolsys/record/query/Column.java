@@ -86,9 +86,9 @@ public class Column implements QueryValue, ColumnReference {
   }
 
   @Override
-  public ColumnReference clone() {
+  public Column clone() {
     try {
-      return (ColumnReference)super.clone();
+      return (Column)super.clone();
     } catch (final CloneNotSupportedException e) {
       return null;
     }
