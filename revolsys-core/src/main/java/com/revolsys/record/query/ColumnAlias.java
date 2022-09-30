@@ -64,20 +64,20 @@ public class ColumnAlias implements QueryValue, ColumnReference {
 
   @Override
   public int appendParameters(final int index, final PreparedStatement statement) {
-    return index;
+    return this.column.appendParameters(index, statement);
   }
 
   @Override
-  public ColumnReference clone() {
+  public ColumnAlias clone() {
     try {
-      return (ColumnReference)super.clone();
+      return (ColumnAlias)super.clone();
     } catch (final CloneNotSupportedException e) {
       return null;
     }
   }
 
   @Override
-  public ColumnReference clone(final TableReference oldTable, final TableReference newTable) {
+  public ColumnAlias clone(final TableReference oldTable, final TableReference newTable) {
     if (oldTable != newTable) {
       final ColumnReference clonedColumn = this.column.clone(oldTable, newTable);
       return new ColumnAlias(clonedColumn, this.alias);

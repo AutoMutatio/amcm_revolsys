@@ -61,9 +61,9 @@ public class SelectAlias implements QueryValue {
   }
 
   @Override
-  public ColumnReference clone() {
+  public SelectAlias clone() {
     try {
-      return (ColumnReference)super.clone();
+      return (SelectAlias)super.clone();
     } catch (final CloneNotSupportedException e) {
       return null;
     }
@@ -75,7 +75,7 @@ public class SelectAlias implements QueryValue {
       final QueryValue clonedColumn = this.value.clone(oldTable, newTable);
       return new SelectAlias(clonedColumn, this.alias);
     }
-    return (SelectAlias)clone();
+    return clone();
   }
 
   @Override
