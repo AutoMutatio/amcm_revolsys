@@ -123,13 +123,13 @@ public class RunnableChannelExecutor extends ThreadPoolExecutor implements Proce
   public void run() {
     preRun();
     try {
-      final MultiInputSelector selector = new MultiInputSelector();
+      final List<Channel<Runnable>> channels = this.channels;
+      final MultiInputSelector selector = new MultiInputSelector().addInputs(channels);
 
       while (!isShutdown()) {
-        final List<Channel<Runnable>> channels = this.channels;
         try {
           if (!isShutdown()) {
-            final Channel<Runnable> channel = selector.selectChannelInput(channels);
+            final Channel<Runnable> channel = selector.selectInput();
             if (channel != null) {
               final Runnable runnable = channel.read();
               execute(runnable);

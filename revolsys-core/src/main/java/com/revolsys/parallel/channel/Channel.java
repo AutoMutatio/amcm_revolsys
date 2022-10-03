@@ -7,7 +7,7 @@ import com.revolsys.parallel.channel.store.ZeroBuffer;
 
 public class Channel<T> implements SelectableChannelInput<T>, ChannelOutput<T> {
   /** The Alternative class which will control the selection */
-  protected MultiInputSelector alt;
+  private AbstractMultiInputSelector selector;
 
   /** Flag indicating if the channel has been closed. */
   private boolean closed = false;
@@ -67,16 +67,16 @@ public class Channel<T> implements SelectableChannelInput<T>, ChannelOutput<T> {
   }
 
   @Override
-  public boolean disable() {
-    this.alt = null;
+  public boolean disable(AbstractMultiInputSelector selector) {
+    this.selector = null;
     return this.data.getState() != ChannelValueStore.EMPTY;
   }
 
   @Override
-  public boolean enable(final MultiInputSelector alt) {
+  public boolean enable(final AbstractMultiInputSelector selector) {
     synchronized (this.monitor) {
       if (this.data.getState() == ChannelValueStore.EMPTY) {
-        this.alt = alt;
+        this.selector = selector;
         return false;
       } else {
         return true;
@@ -210,10 +210,10 @@ public class Channel<T> implements SelectableChannelInput<T>, ChannelOutput<T> {
         if (this.closed) {
           throw new ClosedException();
         }
-        final MultiInputSelector tempAlt = this.alt;
+        final AbstractMultiInputSelector selector = this.selector;
         this.data.put(value);
-        if (tempAlt != null) {
-          tempAlt.schedule();
+        if (selector != null) {
+          selector.schedule(this);
         } else {
           this.monitor.notifyAll();
         }
@@ -256,9 +256,9 @@ public class Channel<T> implements SelectableChannelInput<T>, ChannelOutput<T> {
         this.numWriters--;
         if (this.numWriters <= 0) {
           this.writeClosed = true;
-          final MultiInputSelector tempAlt = this.alt;
-          if (tempAlt != null) {
-            tempAlt.closeChannel();
+          final AbstractMultiInputSelector selector = this.selector;
+          if (selector != null) {
+            selector.closeInput(this);
           } else {
             this.monitor.notifyAll();
           }

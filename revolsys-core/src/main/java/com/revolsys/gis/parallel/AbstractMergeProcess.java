@@ -4,6 +4,7 @@ import com.revolsys.collection.ArrayUtil;
 import com.revolsys.parallel.channel.Channel;
 import com.revolsys.parallel.channel.ClosedException;
 import com.revolsys.parallel.channel.MultiInputSelector;
+import com.revolsys.parallel.channel.MultiInputSelector.Guard;
 import com.revolsys.parallel.channel.store.Buffer;
 import com.revolsys.parallel.process.AbstractInOutProcess;
 import com.revolsys.record.Record;
@@ -19,8 +20,8 @@ public abstract class AbstractMergeProcess extends AbstractInOutProcess<Record, 
 
   private int otherInBufferSize = 0;
 
-  private void addObjectFromOtherChannel(final Channel<Record>[] channels, final boolean[] guard,
-    final Record[] objects, final int channelIndex) {
+  private void addObjectFromOtherChannel(final Channel<Record>[] channels,
+    final MultiInputSelector alt, final Record[] objects, final int channelIndex) {
     int otherIndex;
     if (channelIndex == SOURCE_INDEX) {
       otherIndex = OTHER_INDEX;
@@ -29,9 +30,8 @@ public abstract class AbstractMergeProcess extends AbstractInOutProcess<Record, 
     }
     final Channel<Record> otherChannel = channels[otherIndex];
     if (otherChannel == null) {
-      guard[otherIndex] = false;
-      guard[channelIndex] = true;
-    } else if (guard[otherIndex]) {
+      alt.setGuard(otherIndex, Guard.DISABLED);
+      alt.setGuard(channelIndex, Guard.ENABLED);
       while (objects[otherIndex] == null) {
         try {
           final Record object = otherChannel.read();
@@ -40,8 +40,8 @@ public abstract class AbstractMergeProcess extends AbstractInOutProcess<Record, 
             return;
           }
         } catch (final ClosedException e) {
-          guard[otherIndex] = false;
-          guard[channelIndex] = true;
+          alt.setGuard(otherIndex, Guard.DISABLED);
+          alt.setGuard(channelIndex, Guard.ENABLED);
           return;
         }
       }
@@ -56,7 +56,7 @@ public abstract class AbstractMergeProcess extends AbstractInOutProcess<Record, 
   protected abstract void addOtherObject(Record object);
 
   private RecordDefinition addSavedObjects(final RecordDefinition currentType,
-    final String currentTypeName, final Channel<Record> out, final boolean[] guard,
+    final String currentTypeName, final Channel<Record> out, final MultiInputSelector alt,
     final Record[] objects) {
     final Record sourceObject = objects[SOURCE_INDEX];
     final Record otherObject = objects[OTHER_INDEX];
@@ -66,18 +66,14 @@ public abstract class AbstractMergeProcess extends AbstractInOutProcess<Record, 
       } else {
         addOtherObject(otherObject);
         objects[OTHER_INDEX] = null;
-        guard[OTHER_INDEX] = true;
+        alt.setGuard(OTHER_INDEX, Guard.ENABLED);
         return otherObject.getRecordDefinition();
       }
     } else if (otherObject == null) {
-      if (sourceObject == null) {
-        return null;
-      } else {
-        addSourceObject(sourceObject);
-        objects[SOURCE_INDEX] = null;
-        guard[SOURCE_INDEX] = true;
-        return sourceObject.getRecordDefinition();
-      }
+      addSourceObject(sourceObject);
+      objects[SOURCE_INDEX] = null;
+      alt.setGuard(SOURCE_INDEX, Guard.ENABLED);
+      return sourceObject.getRecordDefinition();
     } else {
       final RecordDefinition sourceType = sourceObject.getRecordDefinition();
       final String sourceTypeName = sourceType.getPath();
@@ -86,16 +82,16 @@ public abstract class AbstractMergeProcess extends AbstractInOutProcess<Record, 
       if (sourceTypeName.equals(currentTypeName)) {
         addSourceObject(sourceObject);
         objects[SOURCE_INDEX] = null;
-        guard[SOURCE_INDEX] = true;
+        alt.setGuard(SOURCE_INDEX, Guard.ENABLED);
         objects[OTHER_INDEX] = otherObject;
-        guard[OTHER_INDEX] = false;
+        alt.setGuard(OTHER_INDEX, Guard.DISABLED);
         return currentType;
       } else if (otherTypeName.equals(currentTypeName)) {
         addOtherObject(otherObject);
         objects[SOURCE_INDEX] = sourceObject;
-        guard[SOURCE_INDEX] = false;
+        alt.setGuard(SOURCE_INDEX, Guard.DISABLED);
         objects[OTHER_INDEX] = null;
-        guard[OTHER_INDEX] = true;
+        alt.setGuard(OTHER_INDEX, Guard.ENABLED);
         return currentType;
       } else {
         processObjects(currentType, out);
@@ -107,18 +103,18 @@ public abstract class AbstractMergeProcess extends AbstractInOutProcess<Record, 
           // for later
           addSourceObject(sourceObject);
           objects[SOURCE_INDEX] = null;
-          guard[SOURCE_INDEX] = true;
+          alt.setGuard(SOURCE_INDEX, Guard.ENABLED);
           objects[OTHER_INDEX] = otherObject;
-          guard[OTHER_INDEX] = false;
+          alt.setGuard(OTHER_INDEX, Guard.DISABLED);
           return sourceType;
         } else if (nameCompare == 0) {
           // If both features have the same type them add them
           addSourceObject(sourceObject);
           addOtherObject(otherObject);
           objects[SOURCE_INDEX] = null;
-          guard[SOURCE_INDEX] = true;
+          alt.setGuard(SOURCE_INDEX, Guard.ENABLED);
           objects[OTHER_INDEX] = null;
-          guard[OTHER_INDEX] = true;
+          alt.setGuard(OTHER_INDEX, Guard.ENABLED);
           return sourceType;
         } else {
           // If the first feature type name is > second feature type
@@ -127,9 +123,9 @@ public abstract class AbstractMergeProcess extends AbstractInOutProcess<Record, 
           // for later
           addOtherObject(otherObject);
           objects[SOURCE_INDEX] = sourceObject;
-          guard[SOURCE_INDEX] = false;
+          alt.setGuard(SOURCE_INDEX, Guard.DISABLED);
           objects[OTHER_INDEX] = null;
-          guard[OTHER_INDEX] = true;
+          alt.setGuard(OTHER_INDEX, Guard.ENABLED);
           return otherType;
         }
       }
@@ -169,7 +165,6 @@ public abstract class AbstractMergeProcess extends AbstractInOutProcess<Record, 
   protected abstract void processObjects(RecordDefinition currentType, Channel<Record> out);
 
   @Override
-  @SuppressWarnings("unchecked")
   protected void run(final Channel<Record> in, final Channel<Record> out) {
     setUp();
     try {
@@ -177,16 +172,14 @@ public abstract class AbstractMergeProcess extends AbstractInOutProcess<Record, 
       String currentTypeName = null;
       final Channel<Record>[] channels = ArrayUtil.newArray(in, this.otherIn);
 
-      final boolean[] guard = new boolean[] {
-        true, true
-      };
+      final MultiInputSelector selector = new MultiInputSelector().addInputs(in, this.otherIn);
       final Record[] objects = new Record[2];
       final String[] typePaths = new String[2];
       for (int i = 0; i < 2; i++) {
         try {
           final Channel<Record> channel = channels[i];
           if (channel == null) {
-            guard[i] = false;
+            selector.setGuard(i, Guard.DISABLED);
           } else {
             Record object = null;
             boolean test = false;
@@ -201,7 +194,7 @@ public abstract class AbstractMergeProcess extends AbstractInOutProcess<Record, 
 
           }
         } catch (final ClosedException e) {
-          guard[i] = false;
+          selector.setGuard(i, Guard.DISABLED);
         }
       }
       final Record otherObject = objects[OTHER_INDEX];
@@ -216,7 +209,7 @@ public abstract class AbstractMergeProcess extends AbstractInOutProcess<Record, 
             addSourceObject(sourceObject);
             objects[SOURCE_INDEX] = null;
             if (nameCompare != 0) {
-              guard[OTHER_INDEX] = false;
+              selector.setGuard(OTHER_INDEX, Guard.DISABLED);
             }
           }
           if (nameCompare >= 0) {
@@ -225,7 +218,7 @@ public abstract class AbstractMergeProcess extends AbstractInOutProcess<Record, 
             addOtherObject(otherObject);
             objects[OTHER_INDEX] = null;
             if (nameCompare != 0) {
-              guard[SOURCE_INDEX] = false;
+              selector.setGuard(SOURCE_INDEX, Guard.DISABLED);
             }
           }
         } else {
@@ -244,10 +237,9 @@ public abstract class AbstractMergeProcess extends AbstractInOutProcess<Record, 
         objects[OTHER_INDEX] = null;
       }
       try {
-        final MultiInputSelector alt = new MultiInputSelector();
         final boolean running = true;
         while (running) {
-          final int channelIndex = alt.select(channels, guard, 1000);
+          final int channelIndex = selector.select(1000);
           if (channelIndex >= 0) {
             final Record object = channels[channelIndex].read();
             if (testObject(object)) {
@@ -269,8 +261,8 @@ public abstract class AbstractMergeProcess extends AbstractInOutProcess<Record, 
                 }
               } else {
                 objects[channelIndex] = object;
-                addObjectFromOtherChannel(channels, guard, objects, channelIndex);
-                currentType = addSavedObjects(currentType, currentTypeName, out, guard, objects);
+                addObjectFromOtherChannel(channels, selector, objects, channelIndex);
+                currentType = addSavedObjects(currentType, currentTypeName, out, selector, objects);
                 if (currentType != null) {
                   currentTypeName = currentType.getPath();
                 }
@@ -278,15 +270,16 @@ public abstract class AbstractMergeProcess extends AbstractInOutProcess<Record, 
             }
           } else {
             if (channels[0].isClosed()) {
-              guard[1] = true;
-            } else if (channels[1].isClosed()) {
-              guard[0] = true;
+              selector.setGuard(0, Guard.DISABLED);
+            }
+            if (channels[1].isClosed()) {
+              selector.setGuard(0, Guard.ENABLED);
             }
           }
         }
       } finally {
         try {
-          while (addSavedObjects(currentType, currentTypeName, out, guard, objects) != null) {
+          while (addSavedObjects(currentType, currentTypeName, out, selector, objects) != null) {
           }
           processObjects(currentType, out);
         } finally {

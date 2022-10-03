@@ -1,256 +1,308 @@
 package com.revolsys.parallel.channel;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
+import java.util.function.BiFunction;
 
+import com.revolsys.collection.list.Lists;
 import com.revolsys.parallel.ThreadInterruptedException;
 
-public class MultiInputSelector {
-  private int enabledChannels = 0;
+import reactor.core.publisher.Flux;
 
-  private int guardEnabledChannels = 0;
+public class MultiInputSelector extends AbstractMultiInputSelector {
+  public interface Guard {
+    static Guard ENABLED = () -> true;
 
-  private long maxWait;
+    static Guard DISABLED = () -> false;
+
+    static Guard from(final boolean enabled) {
+      if (enabled) {
+        return ENABLED;
+      } else {
+        return DISABLED;
+      }
+    }
+
+    boolean isEnabled();
+  }
+
+  private int enabledInputCount = 0;
+
+  private int guardEnabledInputCount = 0;
+
+  private Instant maxWait;
 
   private final Object monitor = new Object();
 
   private boolean scheduled;
 
-  void closeChannel() {
+  private List<SelectableInput> inputs = Collections.emptyList();
+
+  private List<Guard> guards = Collections.emptyList();
+
+  private boolean blockOnNoInput = false;
+
+  public MultiInputSelector addInput(final SelectableInput input) {
+    return addInput(input, Guard.ENABLED);
+  }
+
+  public MultiInputSelector addInput(final SelectableInput input, final Guard guard) {
+    final List<SelectableInput> inputs = Collections.singletonList(input);
+    final List<Guard> guards = Collections.singletonList(guard);
+    return addInputs(inputs, guards);
+  }
+
+  public MultiInputSelector addInputs(final Iterable<? extends SelectableInput> inputs) {
+    final List<Guard> guards = Collections.emptyList();
+    return addInputs(inputs, guards);
+  }
+
+  public MultiInputSelector addInputs(final Iterable<? extends SelectableInput> inputs,
+    final Iterable<Guard> guards) {
     synchronized (this.monitor) {
-      this.enabledChannels--;
-      if (this.enabledChannels <= 0) {
+      // Outer synchronization required to safely get existing inputs and guards
+      final List<SelectableInput> newInputs = Lists.toArray(this.inputs);
+      final List<Guard> newGuards = Lists.toArray(this.guards);
+      return updateInputs(newInputs, newGuards, inputs, guards);
+    }
+  }
+
+  public MultiInputSelector addInputs(final SelectableInput... inputs) {
+    return addInputs(Arrays.asList(inputs));
+  }
+
+  public <C extends SelectableInput> Flux<C> asFlux() {
+    return Flux.generate(sink -> {
+      while (true) {
+        try {
+          final C input = selectInput();
+          if (input != null) {
+            sink.next(input);
+            return;
+          }
+        } catch (final ClosedException e) {
+          sink.complete();
+          return;
+        } catch (final Throwable e) {
+          sink.error(e);
+          return;
+        }
+      }
+    });
+  }
+
+  @Override
+  void closeInput(final SelectableInput source) {
+    synchronized (this.monitor) {
+      this.enabledInputCount--;
+      if (this.enabledInputCount <= 0) {
         this.monitor.notifyAll();
       }
     }
   }
 
-  private int disableChannels(final List<? extends SelectableInput> channels) {
+  private int disableInputs(final List<? extends SelectableInput> inputs,
+    final List<Guard> guards) {
     int closedCount = 0;
     int selected = -1;
-    for (int i = channels.size() - 1; i >= 0; i--) {
-      final SelectableInput channel = channels.get(i);
-      if (channel.disable()) {
+    for (int i = inputs.size() - 1; i >= 0; i--) {
+      final SelectableInput input = inputs.get(i);
+      if (guards.get(i).isEnabled() && input.disable(this)) {
         selected = i;
-      } else if (channel.isClosed()) {
+      } else if (input.isClosed()) {
         closedCount++;
       }
     }
-    if (closedCount == channels.size()) {
-      throw new ClosedException();
-    } else {
-      return selected;
-    }
-
-  }
-
-  private int disableChannels(final List<? extends SelectableInput> channels,
-    final List<Boolean> guard) {
-    int closedCount = 0;
-    int selected = -1;
-    for (int i = channels.size() - 1; i >= 0; i--) {
-      final SelectableInput channel = channels.get(i);
-      if (guard.get(i) && channel.disable()) {
-        selected = i;
-      } else if (channel == null || channel.isClosed()) {
-        closedCount++;
-      }
-    }
-    if (closedCount == channels.size()) {
+    if (!inputs.isEmpty() && closedCount == inputs.size()) {
       throw new ClosedException();
     } else {
       return selected;
     }
   }
 
-  private boolean enableChannels(final List<? extends SelectableInput> channels) {
-    this.enabledChannels = 0;
+  private boolean enableInputs(final List<? extends SelectableInput> inputs,
+    final List<Guard> guard) {
+    this.enabledInputCount = 0;
     this.scheduled = false;
-    this.maxWait = Long.MAX_VALUE;
+    this.maxWait = Instant.MAX;
     int closedCount = 0;
-    for (final SelectableInput channel : channels) {
-      if (!channel.isClosed()) {
-        if (channel.enable(this)) {
-          this.enabledChannels++;
-          return true;
-        } else if (channel instanceof Timer) {
-          final Timer timer = (Timer)channel;
-          this.maxWait = Math.min(this.maxWait, timer.getWaitTime());
-        }
-      } else {
-        closedCount++;
-      }
-    }
-    return closedCount == channels.size();
-  }
-
-  private boolean enableChannels(final List<? extends SelectableInput> channels,
-    final List<Boolean> guard) {
-    this.enabledChannels = 0;
-    this.scheduled = false;
-    this.maxWait = Long.MAX_VALUE;
-    int closedCount = 0;
-    int activeChannelCount = 0;
-    for (int i = 0; i < channels.size(); i++) {
-      final SelectableInput channel = channels.get(i);
-      if (guard.get(i)) {
-        activeChannelCount++;
-        if (!channel.isClosed()) {
-          if (channel.enable(this)) {
-            this.enabledChannels++;
+    int activeInputCount = 0;
+    for (int i = 0; i < inputs.size(); i++) {
+      final SelectableInput input = inputs.get(i);
+      if (guard.get(i).isEnabled()) {
+        activeInputCount++;
+        if (!input.isClosed()) {
+          if (input.enable(this)) {
+            this.enabledInputCount++;
             return true;
-          } else if (channel instanceof Timer) {
-            final Timer timer = (Timer)channel;
-            this.maxWait = Math.min(this.maxWait, timer.getWaitTime());
+          } else if (input instanceof Timer) {
+            final Timer timer = (Timer)input;
+            final Instant disabledTime = timer.getDisabledTime(this);
+            if (disabledTime.isBefore(this.maxWait)) {
+              this.maxWait = disabledTime;
+            }
           }
         } else {
           closedCount++;
         }
       }
     }
-    this.guardEnabledChannels = activeChannelCount - closedCount;
-    return closedCount == activeChannelCount;
+    this.guardEnabledInputCount = activeInputCount - closedCount;
+    return closedCount == activeInputCount;
   }
 
-  void schedule() {
+  public boolean isEnabled(final int index) {
+    return this.guards.get(index).isEnabled();
+  }
+
+  @Override
+  void schedule(final SelectableInput source) {
     synchronized (this.monitor) {
       this.scheduled = true;
       this.monitor.notifyAll();
     }
   }
 
-  public synchronized int select(final List<? extends SelectableInput> channels) {
-    return select(Long.MAX_VALUE, channels);
+  public synchronized int select() {
+    return select(Long.MAX_VALUE);
   }
 
-  public synchronized int select(final List<? extends SelectableInput> channels,
-    final boolean skip) {
+  public synchronized int select(final boolean skip) {
     if (skip) {
-      enableChannels(channels);
-      return disableChannels(channels);
-    } else {
-      return select(channels);
-    }
-  }
-
-  public synchronized int select(final List<? extends SelectableInput> channels,
-    final List<Boolean> guard) {
-    return select(channels, guard, Long.MAX_VALUE);
-  }
-
-  public synchronized int select(final List<? extends SelectableInput> channels,
-    final List<Boolean> guard, final boolean skip) {
-    if (skip) {
-      enableChannels(channels, guard);
-      return disableChannels(channels, guard);
-    } else {
-      return select(channels, guard);
-    }
-  }
-
-  public synchronized int select(final List<? extends SelectableInput> channels,
-    final List<Boolean> guard, final long msecs) {
-    return select(channels, guard, msecs, 0);
-  }
-
-  public synchronized int select(final List<? extends SelectableInput> channels,
-    final List<Boolean> guard, final long msecs, final int nsecs) {
-    if (!enableChannels(channels, guard) && this.guardEnabledChannels > 0) {
+      final List<SelectableInput> inputs;
+      final List<Guard> guards;
       synchronized (this.monitor) {
-        if (!this.scheduled) {
-          try {
-            try {
-              this.monitor.wait(Math.min(msecs, this.maxWait), nsecs);
-            } catch (final InterruptedException e) {
-              throw new ThreadInterruptedException(e);
-            }
-          } catch (final ThreadInterruptedException e) {
-            throw new ClosedException(e);
-          }
-        }
+        inputs = this.inputs;
+        guards = this.guards;
       }
+      enableInputs(inputs, guards);
+      return disableInputs(inputs, guards);
+    } else {
+      return select();
     }
-    return disableChannels(channels, guard);
   }
 
-  public synchronized int select(final long msecs, final int nsecs,
-    final List<? extends SelectableInput> channels) {
-    if (!enableChannels(channels)) {
-      if (msecs + nsecs >= 0) {
-        synchronized (this.monitor) {
-          try {
+  public synchronized int select(final long msecs) {
+    return select(msecs, 0);
+  }
+
+  public synchronized int select(final long msecs, final int nsecs) {
+    return selectInternal(msecs, nsecs, (i, input) -> i);
+  }
+
+  public synchronized <T extends SelectableInput> T selectInput() {
+    return selectInternal(Long.MAX_VALUE, 0, (final Integer i, final T input) -> input);
+  }
+
+  private <I, R> R selectInternal(final long msecs, final int nsecs,
+    final BiFunction<Integer, I, R> handler) {
+    List<SelectableInput> inputs;
+    List<Guard> guards;
+    do {
+      synchronized (this.monitor) {
+        inputs = this.inputs;
+        guards = this.guards;
+      }
+      if (!enableInputs(inputs, guards)
+        && (this.blockOnNoInput || this.guardEnabledInputCount > 0)) {
+        if (msecs + nsecs >= 0) {
+          synchronized (this.monitor) {
             if (!this.scheduled) {
               try {
-                this.monitor.wait(Math.min(msecs, this.maxWait), nsecs);
-              } catch (final InterruptedException e) {
-                throw new ThreadInterruptedException(e);
+                try {
+                  if (Instant.MAX == this.maxWait) {
+                    this.monitor.wait(msecs, nsecs);
+                  } else {
+                    final Instant now = Instant.now();
+                    final long waitTime = Duration.between(now, this.maxWait).toMillis();
+                    if (waitTime >= 0) {
+                      this.monitor.wait(waitTime);
+                    }
+                  }
+                } catch (final InterruptedException e) {
+                  throw new ThreadInterruptedException(e);
+                }
+              } catch (final ThreadInterruptedException e) {
+                throw new ClosedException(e);
               }
             }
-          } catch (final ThreadInterruptedException e) {
-            throw new ClosedException(e);
           }
         }
       }
+      final int selectedInput = disableInputs(inputs, guards);
+      if (selectedInput != -1) {
+        @SuppressWarnings("unchecked")
+        final I input = (I)inputs.get(selectedInput);
+        return handler.apply(selectedInput, input);
+      }
+    } while (this.inputs != inputs || this.blockOnNoInput);
+    return handler.apply(-1, null);
+  }
+
+  public MultiInputSelector setBlockOnNoInput(final boolean blockOnNoInput) {
+    this.blockOnNoInput = blockOnNoInput;
+    return this;
+  }
+
+  public MultiInputSelector setGuard(final int index, final Guard gaurd) {
+    synchronized (this.monitor) {
+      if (index >= 0) {
+        this.guards.set(index, gaurd);
+        this.monitor.notifyAll();
+      }
     }
-    return disableChannels(channels);
+    return this;
   }
 
-  public synchronized int select(final long msecs, final int nsecs,
-    final SelectableInput... channels) {
-    return select(msecs, nsecs, Arrays.asList(channels));
-  }
-
-  public synchronized int select(final long msecs, final List<? extends SelectableInput> channels) {
-    return select(msecs, 0, channels);
-  }
-
-  public synchronized int select(final long msecs, final SelectableInput... channels) {
-    return select(msecs, 0, channels);
-  }
-
-  public synchronized int select(final SelectableInput... channels) {
-    return select(Long.MAX_VALUE, channels);
-  }
-
-  public synchronized int select(final SelectableInput[] channels, final boolean skip) {
-    return select(Arrays.asList(channels), skip);
-  }
-
-  public synchronized int select(final SelectableInput[] channels, final boolean[] guard) {
-    return select(channels, guard, Long.MAX_VALUE);
-  }
-
-  public synchronized int select(final SelectableInput[] channels, final boolean[] guard,
-    final boolean skip) {
-    final List<Boolean> guardList = new ArrayList<>();
-    for (final boolean enabled : guard) {
-      guardList.add(enabled);
-    }
-    return select(Arrays.asList(channels), guardList, skip);
-  }
-
-  public synchronized int select(final SelectableInput[] channels, final boolean[] guard,
-    final long msecs) {
-    return select(channels, guard, msecs, 0);
-  }
-
-  public synchronized int select(final SelectableInput[] channels, final boolean[] guard,
-    final long msecs, final int nsecs) {
-    final List<Boolean> guardList = new ArrayList<>();
-    for (final boolean enabled : guard) {
-      guardList.add(enabled);
-    }
-    return select(Arrays.asList(channels), guardList, msecs, nsecs);
-  }
-
-  public synchronized <T extends SelectableInput> T selectChannelInput(final List<T> channels) {
-    final int index = select(Long.MAX_VALUE, channels);
-    if (index == -1) {
-      return null;
-    } else {
-      return channels.get(index);
+  public MultiInputSelector setGuard(final SelectableInput input, final Guard gaurd) {
+    synchronized (this.monitor) {
+      final int index = this.inputs.indexOf(input);
+      return setGuard(index, gaurd);
     }
   }
 
+  public MultiInputSelector setInputs(final Iterable<? extends SelectableInput> inputs,
+    final Iterable<Guard> guards) {
+    final List<SelectableInput> newInputs = new ArrayList<>();
+    final List<Guard> newGuards = new ArrayList<>();
+    return updateInputs(newInputs, newGuards, inputs, guards);
+  }
+
+  private MultiInputSelector updateInputs(final List<SelectableInput> newInputs,
+    final List<Guard> newGuards, final Iterable<? extends SelectableInput> inputs,
+    final Iterable<Guard> guards) {
+    if (newInputs != null) {
+      synchronized (this.monitor) {
+        Iterator<Guard> guardIterator;
+        if (guards == null) {
+          guardIterator = Collections.emptyIterator();
+        } else {
+          guardIterator = guards.iterator();
+        }
+        for (final SelectableInput input : inputs) {
+          Guard guard = null;
+          ;
+          if (guardIterator.hasNext()) {
+            guard = guardIterator.next();
+          }
+          if (input != null) {
+            newInputs.add(input);
+            if (guard == null) {
+              guard = Guard.ENABLED;
+            }
+            newGuards.add(guard);
+          }
+        }
+        this.inputs = newInputs;
+        this.guards = newGuards;
+        this.monitor.notifyAll();
+      }
+    }
+    return this;
+  }
 }

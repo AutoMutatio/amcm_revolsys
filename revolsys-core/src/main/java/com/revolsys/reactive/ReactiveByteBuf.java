@@ -44,6 +44,11 @@ public class ReactiveByteBuf {
     Hooks.onNextDropped(ReferenceCountUtil::release);
   }
 
+  public static Mono<Path> asPath(final String baseName, final String extension,
+    final Flux<ByteBuf> source) {
+    return Reactive.asPath(baseName, extension, file -> write(source, file));
+  }
+
   public static Mono<ByteBuffer> collect(final int length, final Flux<ByteBuf> flux) {
     return flux.collect(() -> ByteBuffer.allocate(length), (target, source) -> {
       final int readableBytes = source.readableBytes();

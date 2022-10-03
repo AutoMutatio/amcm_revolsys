@@ -12,6 +12,7 @@ import org.jeometry.common.logging.Logs;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.parallel.channel.Channel;
 import com.revolsys.parallel.channel.MultiInputSelector;
+import com.revolsys.parallel.channel.MultiInputSelector.Guard;
 import com.revolsys.parallel.channel.store.Buffer;
 import com.revolsys.parallel.process.AbstractInProcess;
 import com.revolsys.record.Record;
@@ -190,18 +191,16 @@ public class OrderedEqualCompareProcessor extends AbstractInProcess<Record> {
     Record previousEqualObject = null;
 
     final Record[] objects = new Record[2];
-    final boolean[] guard = new boolean[] {
-      true, true
-    };
-    final MultiInputSelector alt = new MultiInputSelector();
+
+    final MultiInputSelector selector = new MultiInputSelector().addInputs(in, this.otherIn);
     while (this.running) {
-      final int index = alt.select(channels, guard);
+      final int index = selector.select();
       if (index == -1) {
         if (in.isClosed()) {
-          logNoMatch(objects, this.otherIn, true);
+          logNoMatch(objects, this.otherIn, false);
           return;
         } else if (this.otherIn.isClosed()) {
-          logNoMatch(objects, in, false);
+          logNoMatch(objects, in, true);
           return;
         } else {
         }
@@ -237,8 +236,8 @@ public class OrderedEqualCompareProcessor extends AbstractInProcess<Record> {
               RecordLog.error(getClass(), "Missing key value for " + this.fieldName, readObject);
             } else if (objects[oppositeIndex] == null) {
               objects[index] = readObject;
-              guard[index] = false;
-              guard[oppositeIndex] = true;
+              selector.setGuard(index, Guard.DISABLED);
+              selector.setGuard(oppositeIndex, Guard.ENABLED);
             } else {
               final Object sourceValue = sourceObject.getValue(this.fieldName);
               final Comparable<Object> sourceComparator;
@@ -271,23 +270,23 @@ public class OrderedEqualCompareProcessor extends AbstractInProcess<Record> {
                 }
                 objects[0] = null;
                 objects[1] = null;
-                guard[0] = true;
-                guard[1] = true;
+                selector.setGuard(0, Guard.ENABLED);
+                selector.setGuard(1, Guard.ENABLED);
                 previousEqualObject = sourceObject;
               } else if (compare < 0) { // other object is bigger, keep other
                 // object
                 logNoMatch(sourceObject, false);
                 objects[0] = null;
                 objects[1] = otherObject;
-                guard[0] = true;
-                guard[1] = false;
+                selector.setGuard(0, Guard.ENABLED);
+                selector.setGuard(1, Guard.DISABLED);
 
               } else { // source is bigger, keep source object
                 logNoMatch(otherObject, true);
                 objects[0] = sourceObject;
                 objects[1] = null;
-                guard[0] = false;
-                guard[1] = true;
+                selector.setGuard(0, Guard.DISABLED);
+                selector.setGuard(1, Guard.ENABLED);
               }
             }
           }

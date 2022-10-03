@@ -7,9 +7,9 @@ public interface SelectableInput {
 
   int EMPTY = 0;
 
-  boolean disable();
+  boolean disable(AbstractMultiInputSelector selector);
 
-  boolean enable(MultiInputSelector alt);
+  boolean enable(AbstractMultiInputSelector selector);
 
   boolean isClosed();
 }

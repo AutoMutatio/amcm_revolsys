@@ -5,6 +5,7 @@ import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CountDownLatch;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -25,7 +26,31 @@ import reactor.core.publisher.SynchronousSink;
 
 public class Reactive {
 
-  private static Object WAIT_SYNC = new Object();
+  private static class LatchDisposable implements Disposable {
+    private final CountDownLatch latch;
+
+    private final Disposable disposable;
+
+    public LatchDisposable(final CountDownLatch latch, final Disposable disposable) {
+      this.latch = latch;
+      this.disposable = disposable;
+    }
+
+    @Override
+    public void dispose() {
+      this.latch.countDown();
+      this.disposable.dispose();
+    }
+
+    @Override
+    public boolean isDisposed() {
+      return this.latch.getCount() <= 0 || this.disposable.isDisposed();
+    }
+
+  }
+
+  private static final Consumer<Disposable> NOOPCALLBACK = d -> {
+  };
 
   public static BiConsumer<ByteBuf, SynchronousSink<ByteBuffer>> asByteBuffer() {
     return new BiConsumer<ByteBuf, SynchronousSink<ByteBuffer>>() {
@@ -55,6 +80,20 @@ public class Reactive {
         }
       };
     };
+  }
+
+  public static <T> Mono<T> asPath(final String baseName, final String extension,
+    final Function<Path, Mono<T>> action) {
+    return Mono.using(() -> {
+      try {
+        final Path file = Files.createTempFile(baseName + "_", "." + extension);
+        file.toFile().deleteOnExit();
+        return file;
+      } catch (final IOException e) {
+        throw Exceptions.wrap(e);
+      }
+    }, path -> action.apply(path).doOnError(e -> Paths.deleteFile(path)), c -> {
+    });
   }
 
   public static <R extends AutoCloseable, V> Flux<V> fluxCloseable(
@@ -109,44 +148,50 @@ public class Reactive {
     final Function<Path, Mono<T>> action) {
     return Mono.using(() -> {
       try {
-        return Files.createTempFile(baseName + "_", "." + extension);
+        final Path file = Files.createTempFile(baseName + "_", "." + extension);
+        file.toFile().deleteOnExit();
+        return file;
       } catch (final IOException e) {
         throw Exceptions.wrap(e);
       }
     }, path -> action.apply(path), Paths::deleteFile);
   }
 
-  public static void waitOn(final Disposable s) {
-    waitOn(s, 1000);
+  public static void waitOn(final Flux<?> publisher) {
+    waitOn(publisher, NOOPCALLBACK);
   }
 
-  public static void waitOn(final Disposable s, final long pollInterval) {
-    synchronized (WAIT_SYNC) {
-      while (!s.isDisposed()) {
-        try {
-          WAIT_SYNC.wait(pollInterval);
-        } catch (final InterruptedException e) {
-        }
-      }
+  public static void waitOn(final Flux<?> publisher,
+    final Consumer<Disposable> subscriptionCallback) {
+    final Function<CountDownLatch, Disposable> supplier = latch -> publisher
+      .doAfterTerminate(latch::countDown)
+      .subscribe();
+    waitOn(supplier, subscriptionCallback);
+  }
+
+  private static void waitOn(final Function<CountDownLatch, Disposable> subscriptionSupplier,
+    final Consumer<? super Disposable> subscriptionCallback) {
+    final CountDownLatch latch = new CountDownLatch(1);
+    final Disposable subscription = subscriptionSupplier.apply(latch);
+    final Disposable latchDisposable = new LatchDisposable(latch, subscription);
+    subscriptionCallback.accept(latchDisposable);
+    try {
+      latch.await();
+    } catch (final InterruptedException e) {
+      throw Exceptions.wrap(e);
     }
   }
 
-  public static void waitOn(final Flux<?> publisher) {
-    waitOn(publisher, 1000);
-  }
-
-  public static void waitOn(final Flux<?> publisher, final long pollInterval) {
-    final Disposable subscription = publisher.subscribe();
-    waitOn(subscription, pollInterval);
-  }
-
   public static void waitOn(final Mono<?> publisher) {
-    waitOn(publisher, 1000);
+    waitOn(publisher, NOOPCALLBACK);
   }
 
-  public static void waitOn(final Mono<?> publisher, final long pollInterval) {
-    final Disposable subscription = publisher.subscribe();
-    waitOn(subscription, pollInterval);
+  public static void waitOn(final Mono<?> publisher,
+    final Consumer<Disposable> subscriptionCallback) {
+    final Function<CountDownLatch, Disposable> supplier = latch -> publisher
+      .doAfterTerminate(latch::countDown)
+      .subscribe();
+    waitOn(supplier, subscriptionCallback);
   }
 
 }

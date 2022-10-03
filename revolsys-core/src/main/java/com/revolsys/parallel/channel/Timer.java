@@ -1,25 +1,45 @@
 package com.revolsys.parallel.channel;
 
+import java.time.Duration;
+import java.time.Instant;
+
 public class Timer implements SelectableInput {
-  private final long time;
+  private long timeoutMillis;
 
-  public Timer(final long time) {
-    this.time = time;
+  private final Duration timeout;
+
+  private final ThreadLocal<Instant> disabledTime = new ThreadLocal<>();
+
+  public Timer(final Duration timeout) {
+    this.timeout = timeout;
+  }
+
+  public Timer(final long timeout) {
+    this(Duration.ofMillis(timeout));
+    this.timeoutMillis = timeout;
   }
 
   @Override
-  public boolean disable() {
-    return isTimeout();
+  public boolean disable(final AbstractMultiInputSelector selector) {
+    final Instant disabledTime = this.disabledTime.get();
+    if (disabledTime == null) {
+      return false;
+    } else {
+      final Instant now = Instant.now();
+      return !now.isBefore(disabledTime);
+    }
   }
 
   @Override
-  public boolean enable(final MultiInputSelector alt) {
-    return isTimeout();
+  public boolean enable(final AbstractMultiInputSelector selector) {
+    final Instant now = Instant.now();
+    final Instant disabledTime = now.plus(this.timeout);
+    this.disabledTime.set(disabledTime);
+    return false;
   }
 
-  public long getWaitTime() {
-    final long waitTime = this.time - System.currentTimeMillis();
-    return waitTime;
+  public Instant getDisabledTime(final AbstractMultiInputSelector selector) {
+    return this.disabledTime.get();
   }
 
   @Override
@@ -28,7 +48,7 @@ public class Timer implements SelectableInput {
   }
 
   public boolean isTimeout() {
-    final boolean timeout = System.currentTimeMillis() > this.time;
+    final boolean timeout = System.currentTimeMillis() > this.timeoutMillis;
     return timeout;
   }
 }
