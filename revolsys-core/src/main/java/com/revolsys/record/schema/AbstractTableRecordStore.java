@@ -159,7 +159,7 @@ public class AbstractTableRecordStore {
     final String searchText = search.trim().toLowerCase();
     search = '%' + searchText + '%';
     for (final String fieldName : this.searchFieldNames) {
-      final ColumnReference column = query.getTable().getColumn(fieldName);
+      final ColumnReference column = getTable().getColumn(fieldName);
       QueryValue left = column;
       final DataType dataType = column.getDataType();
       if (dataType != DataTypes.STRING) {

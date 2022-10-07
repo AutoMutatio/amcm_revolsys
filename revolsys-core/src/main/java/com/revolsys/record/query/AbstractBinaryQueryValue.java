@@ -92,8 +92,19 @@ public abstract class AbstractBinaryQueryValue implements QueryValue {
   public AbstractBinaryQueryValue clone(final TableReference oldTable,
     final TableReference newTable) {
     final AbstractBinaryQueryValue clone = clone();
-    clone.left = this.left.clone(oldTable, newTable);
-    clone.right = this.right.clone(oldTable, newTable);
+    QueryValue left = this.left.clone(oldTable, newTable);
+    QueryValue right = this.right.clone(oldTable, newTable);
+    if (left instanceof ColumnReference && right instanceof Value) {
+      final ColumnReference column = (ColumnReference)left;
+      final Object rightValue = ((Value)right).getValue();
+      right = new Value(column, rightValue);
+    } else if (left instanceof Value && right instanceof ColumnReference) {
+      final ColumnReference column = (ColumnReference)right;
+      final Object leftValue = ((Value)left).getValue();
+      left = new Value(column, leftValue);
+    }
+    clone.left = left;
+    clone.right = right;
     return clone;
   }
 
