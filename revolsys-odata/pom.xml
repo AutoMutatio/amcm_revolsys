@@ -11,7 +11,7 @@
   <parent>
     <artifactId>revolsys-parent</artifactId>
     <groupId>com.revolsys.open</groupId>
-    <version>MAIN-SNAPSHOT</version>
+    <version>0.AUTOMUTATIO-2022.10.13-02</version>
   </parent>
 
   <dependencyManagement>
