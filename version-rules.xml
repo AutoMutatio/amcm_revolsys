@@ -14,8 +14,14 @@
     <ignoreVersion type="regex">.*-RC.*</ignoreVersion>
     <ignoreVersion type="regex">.*-preview.*</ignoreVersion>
 	  <ignoreVersion type="regex">.*-b.*</ignoreVersion>
-  </ignoreVersions>
+    <ignoreVersion type="regex">.*-M.*</ignoreVersion>
+   </ignoreVersions>
 	<rules>
+    <rule groupId="ch.qos.logback" comparisonMethod="maven">
+      <ignoreVersions>
+        <ignoreVersion type="regex">1.4..*</ignoreVersion>
+      </ignoreVersions>
+    </rule>
 		<rule groupId="org.jeometry" comparisonMethod="maven">
 			<ignoreVersions>
 				<ignoreVersion type="regex">.*</ignoreVersion>
