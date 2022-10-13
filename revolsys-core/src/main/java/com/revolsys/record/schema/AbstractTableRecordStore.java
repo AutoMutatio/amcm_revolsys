@@ -110,6 +110,8 @@ public class AbstractTableRecordStore {
 
   private final Set<String> searchFieldNames = new LinkedHashSet<>();
 
+  private String tableAlias;
+
   public AbstractTableRecordStore(final PathName typePath) {
     this.tablePath = typePath;
     this.typeName = typePath.getName();
@@ -312,6 +314,10 @@ public class AbstractTableRecordStore {
 
   public TableReference getTable() {
     return getRecordDefinition();
+  }
+
+  public String getTableAlias() {
+    return this.tableAlias;
   }
 
   public PathName getTablePath() {
@@ -608,6 +614,7 @@ public class AbstractTableRecordStore {
       Logs.error(this, "Table doesn't exist\t" + getTypeName());
     } else {
       setRecordDefinitionPost(recordDefinition);
+      this.tableAlias = recordDefinition.getTableAlias();
     }
   }
 
