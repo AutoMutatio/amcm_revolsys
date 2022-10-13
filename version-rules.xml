@@ -19,7 +19,13 @@
 	<rules>
     <rule groupId="ch.qos.logback" comparisonMethod="maven">
       <ignoreVersions>
+        <ignoreVersion type="regex">1.3..*</ignoreVersion>
         <ignoreVersion type="regex">1.4..*</ignoreVersion>
+      </ignoreVersions>
+    </rule>
+    <rule groupId="org.slf4j" comparisonMethod="maven">
+      <ignoreVersions>
+        <ignoreVersion type="regex">2..*</ignoreVersion>
       </ignoreVersions>
     </rule>
 		<rule groupId="org.jeometry" comparisonMethod="maven">
