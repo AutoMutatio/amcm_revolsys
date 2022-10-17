@@ -130,6 +130,16 @@ public class AbstractTableRecordRestController extends AbstractWebController {
     responseRecordJson(response, record);
   }
 
+  public void responseRecords(final TableRecordStoreConnection connection,
+    final HttpServletRequest request, final HttpServletResponse response, final Query query,
+    final Long count) throws IOException {
+    try (
+      Transaction transaction = connection.newTransaction(TransactionOptions.REQUIRES_NEW_READONLY);
+      final RecordReader records = query.getRecordReader(transaction)) {
+      responseRecords(connection, request, response, query, records, count);
+    }
+  }
+
   protected void responseRecords(final TableRecordStoreConnection connection,
     final HttpServletRequest request, final HttpServletResponse response, final Query query,
     final RecordReader reader, final Long count) throws IOException {
