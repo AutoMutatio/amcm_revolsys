@@ -215,12 +215,12 @@ public class Query extends BaseObjectWithProperties
     this(PathName.newPathName(typePath), whereCondition);
   }
 
-  public Query(final TableReference table) {
-    this.table = table;
+  public Query(final TableReferenceProxy table) {
+    this.table = table.getTableReference();
   }
 
-  public Query(final TableReference table, final Condition whereCondition) {
-    this.table = table;
+  public Query(final TableReferenceProxy table, final Condition whereCondition) {
+    this.table = table.getTableReference();
     setWhereCondition(whereCondition);
   }
 
@@ -298,7 +298,7 @@ public class Query extends BaseObjectWithProperties
     return this;
   }
 
-  public void addOrderBy(final StringBuilder sql, final TableReference table,
+  public void addOrderBy(final StringBuilder sql, final TableReferenceProxy table,
     final List<OrderBy> orderBy) {
     if (!orderBy.isEmpty()) {
       sql.append(" ORDER BY ");
@@ -423,7 +423,7 @@ public class Query extends BaseObjectWithProperties
     return this;
   }
 
-  public StringBuilder appendOrderByFields(final StringBuilder sql, final TableReference table,
+  public StringBuilder appendOrderByFields(final StringBuilder sql, final TableReferenceProxy table,
     final List<OrderBy> orderBy) {
     boolean first = true;
     for (final OrderBy order : orderBy) {
@@ -625,6 +625,10 @@ public class Query extends BaseObjectWithProperties
     return this.selectExpressions;
   }
 
+  public int getSelectCount() {
+    return this.selectExpressions.size();
+  }
+
   @SuppressWarnings({
     "unchecked", "rawtypes"
   })
@@ -799,7 +803,7 @@ public class Query extends BaseObjectWithProperties
     return join;
   }
 
-  public Join join(final TableReference table) {
+  public Join join(final TableReferenceProxy table) {
     final Join join = JoinType.JOIN.build(table);
     this.joins.add(join);
     return join;
@@ -912,11 +916,11 @@ public class Query extends BaseObjectWithProperties
     return selectExpression;
   }
 
-  public String newSelectSql(final List<OrderBy> orderBy, final TableReference table) {
+  public String newSelectSql(final List<OrderBy> orderBy, final TableReferenceProxy table) {
 
     From from = getFrom();
     if (from == null) {
-      from = table;
+      from = table.getTableReference();
     }
     final List<Join> joins = getJoins();
     final LockMode lockMode = getLockMode();
@@ -944,7 +948,7 @@ public class Query extends BaseObjectWithProperties
           sql.append(" GROUP BY ");
           hasGroupBy = true;
         }
-        table.appendQueryValue(this, sql, groupByItem);
+        table.getTableReference().appendQueryValue(this, sql, groupByItem);
       }
     }
 
@@ -1041,13 +1045,13 @@ public class Query extends BaseObjectWithProperties
     return this;
   }
 
-  public Query select(final TableReference table, final String fieldName) {
+  public Query select(final TableReferenceProxy table, final String fieldName) {
     final ColumnReference column = table.getColumn(fieldName);
     this.selectExpressions.add(column);
     return this;
   }
 
-  public Query select(final TableReference table, final String... fieldNames) {
+  public Query select(final TableReferenceProxy table, final String... fieldNames) {
     for (final String fieldName : fieldNames) {
       final ColumnReference column = table.getColumn(fieldName);
       this.selectExpressions.add(column);
@@ -1069,6 +1073,12 @@ public class Query extends BaseObjectWithProperties
 
   public Query selectAlias(final String name, final String alias) {
     final ColumnReference column = this.table.getColumn(name);
+    return selectAlias(column, alias);
+  }
+
+  public Query selectAlias(final TableReferenceProxy table, final String fieldName,
+    final String alias) {
+    final ColumnReference column = table.getColumn(fieldName);
     return selectAlias(column, alias);
   }
 
@@ -1212,7 +1222,7 @@ public class Query extends BaseObjectWithProperties
     return this;
   }
 
-  public Query setSelect(final TableReference table, final String... fieldNames) {
+  public Query setSelect(final TableReferenceProxy table, final String... fieldNames) {
     this.selectExpressions.clear();
     return select(table, fieldNames);
   }

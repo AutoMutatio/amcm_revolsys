@@ -20,7 +20,6 @@ import com.revolsys.record.io.FileRecordStoreFactory;
 import com.revolsys.record.io.RecordStoreRecordAndGeometryWriterFactory;
 import com.revolsys.record.schema.RecordStore;
 import com.revolsys.util.Property;
-import com.revolsys.util.UrlUtil;
 
 public class FileGdbRecordStoreFactory implements FileRecordStoreFactory {
   public static final String DESCRIPTION = "ESRI File Geodatabase";
@@ -154,8 +153,7 @@ public class FileGdbRecordStoreFactory implements FileRecordStoreFactory {
   }
 
   @Override
-  public FileGdbRecordStore newRecordStore(
-    final MapEx connectionProperties) {
+  public FileGdbRecordStore newRecordStore(final MapEx connectionProperties) {
     final Map<String, Object> properties = new LinkedHashMap<>(connectionProperties);
     final String url = (String)properties.remove("url");
     final File file = FileUtil.getUrlFile(url);

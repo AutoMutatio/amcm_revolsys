@@ -337,6 +337,11 @@ public interface RecordDefinition extends Cloneable, GeometryFactoryProxy, Recor
   @Override
   <V extends RecordStore> V getRecordStore();
 
+  @Override
+  default RecordDefinition getTableReference() {
+    return this;
+  }
+
   default String getTitle() {
     final PathName typeName = getPathName();
     final String name = typeName.getName();

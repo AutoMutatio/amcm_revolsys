@@ -16,8 +16,8 @@ public class OrderBy implements Cloneable {
     this.ascending = ascending;
   }
 
-  public void appendSql(final Query query, final TableReference table, final Appendable sql) {
-    table.appendSelect(query, sql, this.field);
+  public void appendSql(final Query query, final TableReferenceProxy table, final Appendable sql) {
+    table.getTableReference().appendSelect(query, sql, this.field);
     try {
       if (!this.ascending) {
         sql.append(" desc");

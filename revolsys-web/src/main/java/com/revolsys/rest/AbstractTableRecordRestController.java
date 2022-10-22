@@ -145,6 +145,8 @@ public class AbstractTableRecordRestController extends AbstractWebController {
     final RecordReader reader, final Long count) throws IOException {
     if ("csv".equals(request.getParameter("format"))) {
       responseRecordsCsv(response, reader);
+    } else if ("xlsx".equals(request.getParameter("format"))) {
+      responseRecords(response, reader, "Export", "xlsx");
     } else {
       responseRecordsJson(connection, request, response, query, reader, count, null);
     }
