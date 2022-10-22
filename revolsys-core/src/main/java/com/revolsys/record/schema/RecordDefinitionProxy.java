@@ -14,9 +14,11 @@ import com.revolsys.record.Record;
 import com.revolsys.record.RecordFactory;
 import com.revolsys.record.query.Condition;
 import com.revolsys.record.query.Query;
+import com.revolsys.record.query.TableReferenceProxy;
 import com.revolsys.util.IconNameProxy;
 
-public interface RecordDefinitionProxy extends PathNameProxy, IconNameProxy, GeometryFactoryProxy {
+public interface RecordDefinitionProxy
+  extends PathNameProxy, IconNameProxy, GeometryFactoryProxy, TableReferenceProxy {
   default int getFieldCount() {
     final RecordDefinition recordDefinition = getRecordDefinition();
     if (recordDefinition == null) {
@@ -234,6 +236,11 @@ public interface RecordDefinitionProxy extends PathNameProxy, IconNameProxy, Geo
     } else {
       return recordDefinition.getRecordStore();
     }
+  }
+
+  @Override
+  default RecordDefinition getTableReference() {
+    return getRecordDefinition();
   }
 
   /**

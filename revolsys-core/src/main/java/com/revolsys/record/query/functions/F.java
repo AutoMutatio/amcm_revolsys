@@ -102,6 +102,16 @@ public class F {
     return new Lower(value);
   }
 
+  public static Max max(final String name) {
+    final Column column = new Column(name);
+    return new Max(column);
+  }
+
+  public static Min min(final String name) {
+    final Column column = new Column(name);
+    return new Min(column);
+  }
+
   public static RegexpReplace regexpReplace(final QueryValue value, final String pattern,
     final String replace) {
     return new RegexpReplace(value, pattern, replace);
@@ -112,7 +122,7 @@ public class F {
     return new RegexpReplace(value, pattern, replace, flags);
   }
 
-  public static ToChar toChar(final ColumnReference column, final String format) {
+  public static ToChar toChar(final QueryValue column, final String format) {
     return new ToChar(column, format);
   }
 

@@ -143,11 +143,11 @@ public class Join implements QueryValue {
     return on(fromFieldName, toTable, toFieldName);
   }
 
-  public Join on(final String fieldName, final TableReference toTable) {
+  public Join on(final String fieldName, final TableReferenceProxy toTable) {
     return on(fieldName, toTable, fieldName);
   }
 
-  public Join on(final String fromFieldName, final TableReference toTable,
+  public Join on(final String fromFieldName, final TableReferenceProxy toTable,
     final String toFieldName) {
     final Condition condition = this.table.equal(fromFieldName, toTable, toFieldName);
     return and(condition);
@@ -174,8 +174,8 @@ public class Join implements QueryValue {
     return this;
   }
 
-  public Join table(final TableReference table) {
-    this.table = table;
+  public Join table(final TableReferenceProxy table) {
+    this.table = table.getTableReference();
     return this;
   }
 

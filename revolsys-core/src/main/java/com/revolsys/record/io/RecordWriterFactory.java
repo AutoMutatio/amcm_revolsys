@@ -1,6 +1,7 @@
 package com.revolsys.record.io;
 
 import java.io.OutputStream;
+import java.io.Writer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
@@ -9,6 +10,8 @@ import com.revolsys.geometry.io.GeometryWriter;
 import com.revolsys.geometry.io.GeometryWriterFactory;
 import com.revolsys.io.FileIoFactory;
 import com.revolsys.record.Records;
+import com.revolsys.record.io.format.csv.Csv;
+import com.revolsys.record.io.format.csv.CsvRecordWriter;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordDefinitionProxy;
 import com.revolsys.spring.resource.Resource;
@@ -43,6 +46,11 @@ public interface RecordWriterFactory extends FileIoFactory, GeometryWriterFactor
     final OutputStream out = resource.newBufferedOutputStream();
     final String baseName = resource.getBaseName();
     return newRecordWriter(baseName, recordDefinition, out);
+  }
+
+  default RecordWriter newRecordWriter(final RecordDefinitionProxy recordDefinition,
+    final Writer writer) {
+    return new CsvRecordWriter(recordDefinition, writer, Csv.FIELD_SEPARATOR, true, true);
   }
 
   default RecordWriter newRecordWriter(final String baseName,
