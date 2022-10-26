@@ -6,7 +6,7 @@
   <parent>
     <groupId>com.revolsys.open</groupId>
     <artifactId>revolsys-parent</artifactId>
-    <version>MAIN-SNAPSHOT</version>
+    <version>0.AUTOMUTATIO-2022.10.26-03</version>
   </parent>
   <artifactId>tests</artifactId>
   <name>GIS Tools</name>
