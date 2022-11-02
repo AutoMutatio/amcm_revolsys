@@ -39,6 +39,8 @@ import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.record.query.Condition;
 import com.revolsys.record.query.Query;
 import com.revolsys.record.query.QueryValue;
+import com.revolsys.record.query.SqlAppendable;
+import com.revolsys.record.query.StringBuilderSqlAppendable;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordStore;
 import com.revolsys.util.Property;
@@ -46,7 +48,7 @@ import com.revolsys.util.Strings;
 
 public final class JdbcUtils {
 
-  public static void appendQueryValue(final StringBuilder sql, final Query query,
+  public static void appendQueryValue(final SqlAppendable sql, final Query query,
     final QueryValue queryValue) {
     final RecordDefinition recordDefinition = query.getRecordDefinition();
     if (recordDefinition == null) {
@@ -57,7 +59,8 @@ public final class JdbcUtils {
     }
   }
 
-  public static void appendWhere(final StringBuilder sql, final Query query) {
+  public static void appendWhere(final SqlAppendable sql, final Query query,
+    final boolean usePlaceholders) {
     final Condition where = query.getWhereCondition();
     if (!where.isEmpty()) {
       sql.append(" WHERE ");
@@ -176,12 +179,12 @@ public final class JdbcUtils {
     final PathName tablePath = query.getTablePath();
     final String dbTableName = getQualifiedTableName(tablePath);
 
-    final StringBuilder sql = new StringBuilder();
+    final StringBuilderSqlAppendable sql = SqlAppendable.stringBuilder();
     sql.append("DELETE FROM ");
     sql.append(dbTableName);
     sql.append(" T ");
-    appendWhere(sql, query);
-    return sql.toString();
+    appendWhere(sql, query, true);
+    return sql.toSqlString();
   }
 
   public static RuntimeException getException(final DataSource dataSource, final String task,

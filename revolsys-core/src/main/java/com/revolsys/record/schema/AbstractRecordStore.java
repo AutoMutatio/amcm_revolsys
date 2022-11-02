@@ -29,6 +29,7 @@ import com.revolsys.record.io.RecordStoreExtension;
 import com.revolsys.record.property.RecordDefinitionProperty;
 import com.revolsys.record.query.Query;
 import com.revolsys.record.query.QueryValue;
+import com.revolsys.record.query.SqlAppendable;
 import com.revolsys.util.Property;
 import com.revolsys.util.UrlUtil;
 import com.revolsys.util.count.CategoryLabelCountMap;
@@ -46,7 +47,7 @@ public abstract class AbstractRecordStore extends BaseObjectWithProperties imple
 
   private RecordStoreConnection recordStoreConnection;
 
-  private final Map<Class<?>, Consumer3<Query, Appendable, QueryValue>> sqlQueryAppenderByClass = new HashMap<>();
+  private final Map<Class<?>, Consumer3<Query, SqlAppendable, QueryValue>> sqlQueryAppenderByClass = new HashMap<>();
 
   private GeometryFactory geometryFactory;
 
@@ -154,15 +155,15 @@ public abstract class AbstractRecordStore extends BaseObjectWithProperties imple
   }
 
   protected void addSqlQueryAppender(final Class<?> clazz,
-    final Consumer3<Query, Appendable, QueryValue> appender) {
+    final Consumer3<Query, SqlAppendable, QueryValue> appender) {
     this.sqlQueryAppenderByClass.put(clazz, appender);
   }
 
   @Override
-  public void appendQueryValue(final Query query, final Appendable sql,
+  public void appendQueryValue(final Query query, final SqlAppendable sql,
     final QueryValue queryValue) {
     final Class<?> valueClass = queryValue.getClass();
-    final Consumer3<Query, Appendable, QueryValue> appender = this.sqlQueryAppenderByClass
+    final Consumer3<Query, SqlAppendable, QueryValue> appender = this.sqlQueryAppenderByClass
       .get(valueClass);
     if (appender == null) {
       queryValue.appendDefaultSql(query, this, sql);

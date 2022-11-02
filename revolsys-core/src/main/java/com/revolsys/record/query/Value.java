@@ -1,6 +1,5 @@
 package com.revolsys.record.query;
 
-import java.io.IOException;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -14,7 +13,6 @@ import org.jeometry.common.data.identifier.TypedIdentifier;
 import org.jeometry.common.data.type.DataType;
 import org.jeometry.common.data.type.DataTypes;
 import org.jeometry.common.date.Dates;
-import org.jeometry.common.exception.Exceptions;
 
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.jdbc.field.JdbcFieldDefinition;
@@ -109,15 +107,23 @@ public class Value implements QueryValue {
 
   @Override
   public void appendDefaultSql(final Query query, final RecordStore recordStore,
-    final Appendable buffer) {
-    try {
+    final SqlAppendable sql) {
+    if (sql.isUsePlaceholders()) {
       if (this.jdbcField == null) {
-        buffer.append('?');
+        sql.append('?');
       } else {
-        this.jdbcField.addSelectStatementPlaceHolder(buffer);
+        this.jdbcField.addSelectStatementPlaceHolder(sql);
       }
-    } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+    } else {
+      if (this.jdbcField == null) {
+        if (recordStore == null) {
+          RecordStore.appendDefaultSql(sql, this.queryValue);
+        } else {
+          recordStore.appendSqlValue(sql, this.queryValue);
+        }
+      } else {
+        this.jdbcField.appendSqlValue(sql, recordStore, this.queryValue);
+      }
     }
   }
 

@@ -33,4 +33,5 @@ public class WebServiceFeatureLayerQuery extends Query {
   public RecordReader getRecordReader(final Transaction transaction) {
     return getRecordReader();
   }
+
 }

@@ -1,13 +1,11 @@
 package com.revolsys.record.query;
 
-import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.jeometry.common.data.type.DataType;
 import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.common.exception.Exceptions;
 
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.record.RecordState;
@@ -38,7 +36,7 @@ public class Column implements QueryValue, ColumnReference {
 
   @Override
   public void appendDefaultSelect(final Query query, final RecordStore recordStore,
-    final Appendable sql) {
+    final SqlAppendable sql) {
     if (this.fieldDefinition == null) {
       appendName(sql);
     } else {
@@ -48,35 +46,27 @@ public class Column implements QueryValue, ColumnReference {
 
   @Override
   public void appendDefaultSql(final Query query, final RecordStore recordStore,
-    final Appendable sql) {
-    try {
-      if (this.fieldDefinition == null) {
-        sql.append(toString());
-      } else {
-        this.fieldDefinition.appendColumnName(sql, null);
-      }
-    } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+    final SqlAppendable sql) {
+    if (this.fieldDefinition == null) {
+      sql.append(toString());
+    } else {
+      this.fieldDefinition.appendColumnName(sql, null);
     }
   }
 
   @Override
-  public void appendName(final Appendable string) {
-    try {
-      if (this.table != null) {
-        this.table.appendColumnPrefix(string);
-      }
-      final String name = this.name;
-      if ("*".equals(name) || name.indexOf('"') != -1 || name.indexOf('.') != -1
-        || name.matches("([A-Z][_A-Z1-9]*\\.)?[A-Z][_A-Z1-9]*\\*")) {
-        string.append(name);
-      } else {
-        string.append('"');
-        string.append(name);
-        string.append('"');
-      }
-    } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+  public void appendName(final SqlAppendable string) {
+    if (this.table != null) {
+      this.table.appendColumnPrefix(string);
+    }
+    final String name = this.name;
+    if ("*".equals(name) || name.indexOf('"') != -1 || name.indexOf('.') != -1
+      || name.matches("([A-Z][_A-Z1-9]*\\.)?[A-Z][_A-Z1-9]*\\*")) {
+      string.append(name);
+    } else {
+      string.append('"');
+      string.append(name);
+      string.append('"');
     }
   }
 
@@ -230,9 +220,9 @@ public class Column implements QueryValue, ColumnReference {
 
   @Override
   public String toString() {
-    final StringBuilder sb = new StringBuilder();
-    appendName(sb);
-    return sb.toString();
+    final StringBuilderSqlAppendable sql = SqlAppendable.stringBuilder();
+    appendName(sql);
+    return sql.toString();
   }
 
   @Override

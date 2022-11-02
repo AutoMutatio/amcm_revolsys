@@ -1,6 +1,5 @@
 package com.revolsys.record.schema;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -9,7 +8,6 @@ import java.util.Set;
 import org.jeometry.common.data.identifier.Identifier;
 import org.jeometry.common.data.identifier.ListIdentifier;
 import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.exception.Exceptions;
 import org.jeometry.common.io.PathName;
 
 import com.revolsys.collection.map.MapEx;
@@ -25,6 +23,7 @@ import com.revolsys.record.code.CodeTable;
 import com.revolsys.record.property.RecordDefinitionProperty;
 import com.revolsys.record.query.Query;
 import com.revolsys.record.query.QueryValue;
+import com.revolsys.record.query.SqlAppendable;
 import com.revolsys.record.query.TableReference;
 import com.revolsys.util.CaseConverter;
 
@@ -57,33 +56,30 @@ public interface RecordDefinition extends Cloneable, GeometryFactoryProxy, Recor
   void addProperty(RecordDefinitionProperty property);
 
   @Override
-  default void appendQueryValue(final Query query, final StringBuilder sql,
+  default void appendQueryValue(final Query query, final SqlAppendable sql,
     final QueryValue queryValue) {
     final RecordStore recordStore = getRecordStore();
     queryValue.appendSql(query, recordStore, sql);
   }
 
   @Override
-  default void appendSelect(final Query query, final Appendable sql, final QueryValue queryValue) {
+  default void appendSelect(final Query query, final SqlAppendable sql,
+    final QueryValue queryValue) {
     final RecordStore recordStore = getRecordStore();
     queryValue.appendSelect(query, recordStore, sql);
   }
 
   @Override
-  default void appendSelectAll(final Query query, final Appendable sql) {
-    try {
-      boolean first = true;
-      for (final FieldDefinition field : getFields()) {
-        if (first) {
-          first = false;
-        } else {
-          sql.append(", ");
-        }
-        final RecordStore recordStore = getRecordStore();
-        field.appendSelect(query, recordStore, sql);
+  default void appendSelectAll(final Query query, final SqlAppendable sql) {
+    boolean first = true;
+    for (final FieldDefinition field : getFields()) {
+      if (first) {
+        first = false;
+      } else {
+        sql.append(", ");
       }
-    } catch (final IOException e) {
-      Exceptions.throwUncheckedException(e);
+      final RecordStore recordStore = getRecordStore();
+      field.appendSelect(query, recordStore, sql);
     }
   }
 

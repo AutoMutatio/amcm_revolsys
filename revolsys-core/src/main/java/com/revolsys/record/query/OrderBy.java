@@ -1,7 +1,5 @@
 package com.revolsys.record.query;
 
-import java.io.IOException;
-
 import org.jeometry.common.exception.Exceptions;
 
 public class OrderBy implements Cloneable {
@@ -16,19 +14,16 @@ public class OrderBy implements Cloneable {
     this.ascending = ascending;
   }
 
-  public void appendSql(final Query query, final TableReferenceProxy table, final Appendable sql) {
+  public void appendSql(final Query query, final TableReferenceProxy table,
+    final SqlAppendable sql) {
     table.getTableReference().appendSelect(query, sql, this.field);
-    try {
-      if (!this.ascending) {
-        sql.append(" desc");
-      }
+    if (!this.ascending) {
+      sql.append(" desc");
+    }
 
-      if (this.collate != null) {
-        sql.append(" collate ");
-        sql.append(this.collate);
-      }
-    } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+    if (this.collate != null) {
+      sql.append(" collate ");
+      sql.append(this.collate);
     }
   }
 

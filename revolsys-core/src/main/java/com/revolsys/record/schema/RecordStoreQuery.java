@@ -8,6 +8,7 @@ import com.revolsys.record.Record;
 import com.revolsys.record.io.RecordReader;
 import com.revolsys.record.query.InsertUpdateAction;
 import com.revolsys.record.query.Query;
+import com.revolsys.record.query.StringBuilderSqlAppendable;
 import com.revolsys.transaction.Transaction;
 import com.revolsys.transaction.TransactionOption;
 import com.revolsys.transaction.TransactionOptions;
@@ -71,6 +72,13 @@ public class RecordStoreQuery extends Query {
   @Override
   public Record insertRecord(final Supplier<Record> newRecordSupplier) {
     return this.recordStore.insertRecord(this, newRecordSupplier);
+  }
+
+  @Override
+  protected StringBuilderSqlAppendable newSqlAppendable() {
+    final StringBuilderSqlAppendable sql = super.newSqlAppendable();
+    sql.setRecordStore(this.recordStore);
+    return sql;
   }
 
   @Override

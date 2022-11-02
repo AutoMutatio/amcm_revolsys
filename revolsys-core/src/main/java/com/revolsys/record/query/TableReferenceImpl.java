@@ -1,10 +1,8 @@
 package com.revolsys.record.query;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
-import org.jeometry.common.exception.Exceptions;
 import org.jeometry.common.io.PathName;
 
 import com.revolsys.jdbc.JdbcUtils;
@@ -51,19 +49,15 @@ public class TableReferenceImpl implements TableReference {
   }
 
   @Override
-  public void appendColumnPrefix(final Appendable string) {
+  public void appendColumnPrefix(final SqlAppendable string) {
     if (this.tableAlias != null) {
-      try {
-        string.append(this.tableAlias);
-        string.append('.');
-      } catch (final IOException e) {
-        Exceptions.throwUncheckedException(e);
-      }
+      string.append(this.tableAlias);
+      string.append('.');
     }
   }
 
   @Override
-  public void appendQueryValue(final Query query, final StringBuilder sql,
+  public void appendQueryValue(final Query query, final SqlAppendable sql,
     final QueryValue queryValue) {
     final RecordDefinition recordDefinition = this.recordDefinition;
     if (recordDefinition == null) {
@@ -75,7 +69,8 @@ public class TableReferenceImpl implements TableReference {
   }
 
   @Override
-  public void appendSelect(final Query query, final Appendable sql, final QueryValue queryValue) {
+  public void appendSelect(final Query query, final SqlAppendable sql,
+    final QueryValue queryValue) {
     final RecordDefinition recordDefinition = this.recordDefinition;
     if (recordDefinition == null) {
       queryValue.appendSelect(query, null, sql);
@@ -85,16 +80,12 @@ public class TableReferenceImpl implements TableReference {
   }
 
   @Override
-  public void appendSelectAll(final Query query, final Appendable sql) {
-    try {
-      if (this.recordDefinition == null) {
-        appendColumnPrefix(sql);
-        sql.append('*');
-      } else {
-        this.recordDefinition.appendSelectAll(query, sql);
-      }
-    } catch (final IOException e) {
-      Exceptions.throwUncheckedException(e);
+  public void appendSelectAll(final Query query, final SqlAppendable sql) {
+    if (this.recordDefinition == null) {
+      appendColumnPrefix(sql);
+      sql.append('*');
+    } else {
+      this.recordDefinition.appendSelectAll(query, sql);
     }
   }
 

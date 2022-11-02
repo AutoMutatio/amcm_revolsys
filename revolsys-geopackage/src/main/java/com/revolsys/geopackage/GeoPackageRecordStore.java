@@ -1,6 +1,5 @@
 package com.revolsys.geopackage;
 
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.ByteBuffer;
 import java.nio.file.Path;
@@ -23,7 +22,6 @@ import javax.annotation.PostConstruct;
 import org.jeometry.common.data.identifier.Identifier;
 import org.jeometry.common.data.type.DataType;
 import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.common.exception.Exceptions;
 import org.jeometry.common.io.PathName;
 import org.jeometry.common.logging.Logs;
 import org.jeometry.coordinatesystem.model.CoordinateSystem;
@@ -50,6 +48,7 @@ import com.revolsys.record.query.CollectionValue;
 import com.revolsys.record.query.ColumnReference;
 import com.revolsys.record.query.Query;
 import com.revolsys.record.query.QueryValue;
+import com.revolsys.record.query.SqlAppendable;
 import com.revolsys.record.query.Value;
 import com.revolsys.record.query.functions.EnvelopeIntersects;
 import com.revolsys.record.schema.FieldDefinition;
@@ -102,50 +101,45 @@ public class GeoPackageRecordStore extends AbstractJdbcRecordStore {
     }
   }
 
-  private void appendEvelopeIntersects(final Query query, final Appendable sql,
+  private void appendEvelopeIntersects(final Query query, final SqlAppendable sql,
     final QueryValue queryValue) {
-    try {
-      final EnvelopeIntersects envelopeIntersects = (EnvelopeIntersects)queryValue;
-      final JdbcRecordDefinition recordDefinition = (JdbcRecordDefinition)query
-        .getRecordDefinition();
-      final QueryValue boundingBox1Value = envelopeIntersects.getBoundingBox1Value();
-      final QueryValue boundingBox2Value = envelopeIntersects.getBoundingBox2Value();
-      if (boundingBox1Value instanceof ColumnReference && boundingBox2Value instanceof Value) {
-        final ColumnReference column = (ColumnReference)boundingBox1Value;
-        final Value value = (Value)boundingBox2Value;
-        final Object bboxValue = value.getQueryValue();
+    final EnvelopeIntersects envelopeIntersects = (EnvelopeIntersects)queryValue;
+    final JdbcRecordDefinition recordDefinition = (JdbcRecordDefinition)query.getRecordDefinition();
+    final QueryValue boundingBox1Value = envelopeIntersects.getBoundingBox1Value();
+    final QueryValue boundingBox2Value = envelopeIntersects.getBoundingBox2Value();
+    if (boundingBox1Value instanceof ColumnReference && boundingBox2Value instanceof Value) {
+      final ColumnReference column = (ColumnReference)boundingBox1Value;
+      final Value value = (Value)boundingBox2Value;
+      final Object bboxValue = value.getQueryValue();
 
-        final String fieldName = column.getName();
-        if (recordDefinition.isGeometryField(fieldName) && bboxValue instanceof BoundingBox) {
-          final BoundingBox boundingBox = (BoundingBox)bboxValue;
-          final String idFieldName = recordDefinition.getIdFieldName();
-          sql.append(idFieldName);
-          sql.append(" in (select id from rtree_" + recordDefinition.getDbTableName() + "_"
-            + fieldName.toLowerCase()
-            + " where minx >= ? and maxx <= ? and miny >= ? and maxy <= ?)");
-          final double minX = boundingBox.getMinX();
-          final double maxX = boundingBox.getMaxX();
-          final double minY = boundingBox.getMinY();
-          final double maxY = boundingBox.getMaxY();
-          envelopeIntersects.setRight(new CollectionValue(Arrays.asList(minX, maxX, minY, maxY)));
-          return;
-        }
+      final String fieldName = column.getName();
+      if (recordDefinition.isGeometryField(fieldName) && bboxValue instanceof BoundingBox) {
+        final BoundingBox boundingBox = (BoundingBox)bboxValue;
+        final String idFieldName = recordDefinition.getIdFieldName();
+        sql.append(idFieldName);
+        sql.append(" in (select id from rtree_" + recordDefinition.getDbTableName() + "_"
+          + fieldName.toLowerCase()
+          + " where minx >= ? and maxx <= ? and miny >= ? and maxy <= ?)");
+        final double minX = boundingBox.getMinX();
+        final double maxX = boundingBox.getMaxX();
+        final double minY = boundingBox.getMinY();
+        final double maxY = boundingBox.getMaxY();
+        envelopeIntersects.setRight(new CollectionValue(Arrays.asList(minX, maxX, minY, maxY)));
+        return;
       }
-      sql.append("1 == 2");
-      // if (boundingBox1Value == null) {
-      // sql.append("NULL");
-      // } else {
-      // boundingBox1Value.appendSql(query, this, sql);
-      // }
-      // sql.append(" && ");
-      // if (boundingBox2Value == null) {
-      // sql.append("NULL");
-      // } else {
-      // boundingBox2Value.appendSql(query, this, sql);
-      // }
-    } catch (final IOException e) {
-      throw Exceptions.wrap(e);
     }
+    sql.append("1 == 2");
+    // if (boundingBox1Value == null) {
+    // sql.append("NULL");
+    // } else {
+    // boundingBox1Value.appendSql(query, this, sql);
+    // }
+    // sql.append(" && ");
+    // if (boundingBox2Value == null) {
+    // sql.append("NULL");
+    // } else {
+    // boundingBox2Value.appendSql(query, this, sql);
+    // }
   }
 
   private String createIdFieldName(final RecordDefinition recordDefinition) {

@@ -47,7 +47,9 @@ import com.revolsys.record.query.OrderBy;
 import com.revolsys.record.query.Query;
 import com.revolsys.record.query.QueryValue;
 import com.revolsys.record.query.RightUnaryCondition;
+import com.revolsys.record.query.SqlAppendable;
 import com.revolsys.record.query.SqlCondition;
+import com.revolsys.record.query.StringBuilderSqlAppendable;
 import com.revolsys.record.query.Value;
 import com.revolsys.record.query.functions.EnvelopeIntersects;
 import com.revolsys.record.query.functions.WithinDistance;
@@ -90,7 +92,7 @@ public class OgrRecordStore extends AbstractRecordStore {
   }
 
   @Override
-  public void appendQueryValue(final Query query, final Appendable sql,
+  public void appendQueryValue(final Query query, final SqlAppendable sql,
     final QueryValue condition) {
     try {
       if (condition instanceof Like || condition instanceof ILike) {
@@ -239,7 +241,7 @@ public class OgrRecordStore extends AbstractRecordStore {
     }
   }
 
-  private void appendValue(final Appendable sql, final Object value) throws IOException {
+  private void appendValue(final SqlAppendable sql, final Object value) throws IOException {
     if (value == null) {
       sql.append("''");
     } else if (value instanceof Number) {
@@ -390,9 +392,9 @@ public class OgrRecordStore extends AbstractRecordStore {
       } else {
         typePath = recordDefinition.getPathName();
       }
-      final StringBuilder whereClause = getWhereClause(query);
+      final StringBuilderSqlAppendable whereClause = getWhereClause(query);
 
-      final StringBuilder sql = new StringBuilder();
+      final StringBuilderSqlAppendable sql = SqlAppendable.stringBuilder();
       sql.append("SELECT COUNT(*) FROM ");
       final String layerName = getLayerName(typePath.toString());
       sql.append(layerName);
@@ -402,7 +404,7 @@ public class OgrRecordStore extends AbstractRecordStore {
       }
       final DataSource dataSource = getDataSource();
       if (dataSource != null) {
-        final Layer result = dataSource.ExecuteSQL(sql.toString());
+        final Layer result = dataSource.ExecuteSQL(sql.toSqlString());
         if (result != null) {
 
           addLayerToClose(result);
@@ -448,13 +450,13 @@ public class OgrRecordStore extends AbstractRecordStore {
     final RecordDefinition recordDefinition = query.getRecordDefinition();
     final String typePath = recordDefinition.getPath();
     final List<OrderBy> orderBy = query.getOrderBy();
-    final StringBuilder sql = new StringBuilder();
+    final StringBuilderSqlAppendable sql = SqlAppendable.stringBuilder();
     sql.append("SELECT ");
     query.appendSelect(sql);
     sql.append(" FROM ");
     final String layerName = getLayerName(typePath);
     sql.append(layerName);
-    final StringBuilder whereClause = getWhereClause(query);
+    final StringBuilderSqlAppendable whereClause = getWhereClause(query);
     if (whereClause.length() > 0) {
       sql.append(" WHERE ");
       sql.append(whereClause);
@@ -474,11 +476,11 @@ public class OgrRecordStore extends AbstractRecordStore {
         sql.append(" DESC");
       }
     }
-    return sql.toString();
+    return sql.toSqlString();
   }
 
-  protected StringBuilder getWhereClause(final Query query) {
-    final StringBuilder whereClause = new StringBuilder();
+  protected StringBuilderSqlAppendable getWhereClause(final Query query) {
+    final StringBuilderSqlAppendable whereClause = SqlAppendable.stringBuilder();
     final Condition whereCondition = query.getWhereCondition();
     if (!whereCondition.isEmpty()) {
       appendQueryValue(query, whereClause, whereCondition);

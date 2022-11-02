@@ -1,10 +1,7 @@
 package com.revolsys.record.query;
 
-import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
-import org.jeometry.common.exception.Exceptions;
 
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordStore;
@@ -41,17 +38,13 @@ public class Count extends AbstractUnaryQueryValue {
 
   @Override
   public void appendDefaultSql(final Query query, final RecordStore recordStore,
-    final Appendable buffer) {
-    try {
-      buffer.append("count(");
-      if (this.distinct) {
-        buffer.append("distinct ");
-      }
-      super.appendDefaultSql(query, recordStore, buffer);
-      buffer.append(")");
-    } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+    final SqlAppendable buffer) {
+    buffer.append("count(");
+    if (this.distinct) {
+      buffer.append("distinct ");
     }
+    super.appendDefaultSql(query, recordStore, buffer);
+    buffer.append(")");
   }
 
   @Override

@@ -298,7 +298,7 @@ public class Query extends BaseObjectWithProperties
     return this;
   }
 
-  public void addOrderBy(final StringBuilder sql, final TableReferenceProxy table,
+  public void addOrderBy(final SqlAppendable sql, final TableReferenceProxy table,
     final List<OrderBy> orderBy) {
     if (!orderBy.isEmpty()) {
       sql.append(" ORDER BY ");
@@ -423,7 +423,7 @@ public class Query extends BaseObjectWithProperties
     return this;
   }
 
-  public StringBuilder appendOrderByFields(final StringBuilder sql, final TableReferenceProxy table,
+  public SqlAppendable appendOrderByFields(final SqlAppendable sql, final TableReferenceProxy table,
     final List<OrderBy> orderBy) {
     boolean first = true;
     for (final OrderBy order : orderBy) {
@@ -437,7 +437,7 @@ public class Query extends BaseObjectWithProperties
     return sql;
   }
 
-  public void appendSelect(final StringBuilder sql) {
+  public void appendSelect(final SqlAppendable sql) {
     final TableReference table = this.table;
     final List<QueryValue> select = getSelect();
     if (select.isEmpty()) {
@@ -643,28 +643,35 @@ public class Query extends BaseObjectWithProperties
   }
 
   public String getSelectSql() {
+    final boolean usePlaceholders = true;
+    return getSelectSql(usePlaceholders);
+  }
+
+  private String getSelectSql(final boolean usePlaceholders) {
     String sql = getSql();
     final List<OrderBy> orderBy = getOrderBy();
     final TableReference table = getTable();
     final RecordDefinition recordDefinition = getRecordDefinition();
     if (sql == null) {
-      sql = newSelectSql(orderBy, table);
+      sql = newSelectSql(orderBy, table, usePlaceholders);
     } else {
       if (sql.toUpperCase().startsWith("SELECT * FROM ")) {
-        final StringBuilder newSql = new StringBuilder("SELECT ");
+        final StringBuilderSqlAppendable sqlBuilder = newSqlAppendable();
+        sqlBuilder.append("SELECT ");
         if (recordDefinition == null) {
-          newSql.append("*");
+          sqlBuilder.append("*");
         } else {
-          recordDefinition.appendSelectAll(this, newSql);
+          recordDefinition.appendSelectAll(this, sqlBuilder);
         }
-        newSql.append(" FROM ");
-        newSql.append(sql.substring(14));
-        sql = newSql.toString();
+        sqlBuilder.append(" FROM ");
+        sqlBuilder.append(sql.substring(14));
+        sql = sqlBuilder.toSqlString();
       }
       if (!orderBy.isEmpty()) {
-        final StringBuilder builder = new StringBuilder(sql);
-        addOrderBy(builder, table, orderBy);
-        sql = builder.toString();
+        final StringBuilderSqlAppendable sqlBuilder = newSqlAppendable();
+        sqlBuilder.append(sql);
+        addOrderBy(sqlBuilder, table, orderBy);
+        sql = sqlBuilder.toSqlString();
       }
     }
     return sql;
@@ -856,15 +863,15 @@ public class Query extends BaseObjectWithProperties
   }
 
   public String newDeleteSql() {
-    final StringBuilder sql = new StringBuilder();
+    final StringBuilderSqlAppendable sql = newSqlAppendable();
     sql.append("DELETE FROM ");
     From from = getFrom();
     if (from == null) {
       from = this.table;
     }
     from.appendFromWithAlias(sql);
-    JdbcUtils.appendWhere(sql, this);
-    return sql.toString();
+    JdbcUtils.appendWhere(sql, this, true);
+    return sql.toSqlString();
   }
 
   public Query newQuery(final RecordDefinition recordDefinition) {
@@ -916,7 +923,8 @@ public class Query extends BaseObjectWithProperties
     return selectExpression;
   }
 
-  public String newSelectSql(final List<OrderBy> orderBy, final TableReferenceProxy table) {
+  public String newSelectSql(final List<OrderBy> orderBy, final TableReferenceProxy table,
+    final boolean usePlaceholders) {
 
     From from = getFrom();
     if (from == null) {
@@ -926,7 +934,8 @@ public class Query extends BaseObjectWithProperties
     final LockMode lockMode = getLockMode();
     final boolean distinct = isDistinct();
     final List<QueryValue> groupBy = getGroupBy();
-    final StringBuilder sql = new StringBuilder();
+    final StringBuilderSqlAppendable sql = newSqlAppendable();
+    sql.setUsePlaceholders(usePlaceholders);
     sql.append("SELECT ");
     if (distinct) {
       sql.append("DISTINCT ");
@@ -937,7 +946,7 @@ public class Query extends BaseObjectWithProperties
     for (final Join join : joins) {
       JdbcUtils.appendQueryValue(sql, this, join);
     }
-    JdbcUtils.appendWhere(sql, this);
+    JdbcUtils.appendWhere(sql, this, usePlaceholders);
 
     if (groupBy != null) {
       boolean hasGroupBy = false;
@@ -955,7 +964,16 @@ public class Query extends BaseObjectWithProperties
     addOrderBy(sql, table, orderBy);
 
     lockMode.append(sql);
-    return sql.toString();
+    return sql.toSqlString();
+  }
+
+  protected StringBuilderSqlAppendable newSqlAppendable() {
+    final StringBuilderSqlAppendable sql = SqlAppendable.stringBuilder();
+    final RecordDefinition recordDefinition = getRecordDefinition();
+    if (recordDefinition != null) {
+      sql.setRecordStore(recordDefinition.getRecordStore());
+    }
+    return sql;
   }
 
   public Query or(final CharSequence fieldName,
@@ -1193,7 +1211,9 @@ public class Query extends BaseObjectWithProperties
   }
 
   public Query setRecordDefinition(final RecordDefinition recordDefinition) {
-    this.table = recordDefinition;
+    if (this.table == null) {
+      this.table = recordDefinition;
+    }
     if (this.whereCondition != null) {
       this.whereCondition.changeRecordDefinition(getRecordDefinition(), recordDefinition);
     }
@@ -1266,10 +1286,10 @@ public class Query extends BaseObjectWithProperties
 
   @Override
   public String toString() {
+    final StringBuilder string = new StringBuilder();
     try {
-      final StringBuilder string = new StringBuilder();
       if (this.sql == null) {
-        final String sql = getSelectSql();
+        final String sql = getSelectSql(false);
         string.append(sql);
 
         if (this.offset > 0) {
@@ -1286,11 +1306,10 @@ public class Query extends BaseObjectWithProperties
         string.append(" ");
         string.append(this.parameters);
       }
-      return string.toString();
     } catch (final Throwable t) {
       t.printStackTrace();
-      return "";
     }
+    return string.toString();
   }
 
   public Record updateRecord(final Consumer<Record> updateAction) {

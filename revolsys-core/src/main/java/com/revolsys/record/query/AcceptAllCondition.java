@@ -18,7 +18,7 @@ public class AcceptAllCondition implements Condition {
 
   @Override
   public void appendDefaultSql(final Query query, final RecordStore recordStore,
-    final Appendable sql) {
+    final SqlAppendable sql) {
   }
 
   @Override

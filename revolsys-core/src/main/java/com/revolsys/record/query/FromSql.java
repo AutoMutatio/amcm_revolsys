@@ -1,9 +1,5 @@
 package com.revolsys.record.query;
 
-import java.io.IOException;
-
-import org.jeometry.common.exception.Exceptions;
-
 public class FromSql implements From {
 
   private final String from;
@@ -13,13 +9,9 @@ public class FromSql implements From {
   }
 
   @Override
-  public void appendFrom(final Appendable sql) {
-    try {
-      sql.append('(');
-      sql.append(this.from);
-      sql.append(')');
-    } catch (final IOException e) {
-      throw Exceptions.wrap(e);
-    }
+  public void appendFrom(final SqlAppendable sql) {
+    sql.append('(');
+    sql.append(this.from);
+    sql.append(')');
   }
 }
