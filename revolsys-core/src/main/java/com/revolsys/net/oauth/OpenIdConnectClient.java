@@ -168,6 +168,10 @@ public class OpenIdConnectClient extends BaseObjectWithProperties {
     return this.authorizationEndpoint;
   }
 
+  public String getClientId() {
+    return this.clientId;
+  }
+
   public String getDeviceAuthorizationEndpoint() {
     return this.deviceAuthorizationEndpoint;
   }
