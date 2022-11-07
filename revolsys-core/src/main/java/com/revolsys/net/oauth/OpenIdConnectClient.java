@@ -35,9 +35,19 @@ public class OpenIdConnectClient extends BaseObjectWithProperties {
   public static OpenIdConnectClient newClient(final ObjectFactoryConfig factoryConfig,
     final JsonObject config, final String defaultPrefix) {
     final String url = config.getString("wellKnownUrl");
-    OpenIdConnectClient client;
+    OpenIdConnectClient client = null;
     if (url == null) {
-      client = factoryConfig.getValue(defaultPrefix + "OidcClient");
+      final String oidcTenantKey = config.getString("oidcTenantKey");
+      if (oidcTenantKey != null) {
+        final Function<String, OpenIdConnectClient> oidcClientFactory = factoryConfig
+          .getValue("oidcClientFactory");
+        if (oidcClientFactory != null) {
+          client = oidcClientFactory.apply(oidcTenantKey);
+        }
+      }
+      if (client == null) {
+        client = factoryConfig.getValue(defaultPrefix + "OidcClient");
+      }
     } else {
       client = newClient(url);
     }
@@ -148,6 +158,10 @@ public class OpenIdConnectClient extends BaseObjectWithProperties {
       .get(this.endSessionEndpoint)
       .addParameter("post_logout_redirect_uri", redirectUrl);
     return builder.build().getURI();
+  }
+
+  public OpenIdConnectClient forTenant(final String tenantKey) {
+    return this;
   }
 
   public String getAuthorizationEndpoint() {
