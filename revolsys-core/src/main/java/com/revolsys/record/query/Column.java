@@ -15,11 +15,9 @@ import com.revolsys.record.schema.RecordStore;
 
 public class Column implements QueryValue, ColumnReference {
 
-  private FieldDefinition fieldDefinition;
-
   private final String name;
 
-  private TableReference table;
+  private TableReferenceProxy table;
 
   public Column(final CharSequence name) {
     this(name.toString());
@@ -29,7 +27,7 @@ public class Column implements QueryValue, ColumnReference {
     this.name = name;
   }
 
-  public Column(final TableReference tableReference, final CharSequence name) {
+  public Column(final TableReferenceProxy tableReference, final CharSequence name) {
     this.table = tableReference;
     this.name = name.toString();
   }
@@ -37,20 +35,22 @@ public class Column implements QueryValue, ColumnReference {
   @Override
   public void appendDefaultSelect(final Query query, final RecordStore recordStore,
     final SqlAppendable sql) {
-    if (this.fieldDefinition == null) {
+    final FieldDefinition fieldDefinition = getFieldDefinition();
+    if (fieldDefinition == null) {
       appendName(sql);
     } else {
-      this.fieldDefinition.appendSelect(query, recordStore, sql);
+      fieldDefinition.appendSelect(query, recordStore, sql);
     }
   }
 
   @Override
   public void appendDefaultSql(final Query query, final RecordStore recordStore,
     final SqlAppendable sql) {
-    if (this.fieldDefinition == null) {
+    final FieldDefinition fieldDefinition = getFieldDefinition();
+    if (fieldDefinition == null) {
       sql.append(toString());
     } else {
-      this.fieldDefinition.appendColumnName(sql, null);
+      fieldDefinition.appendColumnName(sql, null);
     }
   }
 
@@ -107,15 +107,19 @@ public class Column implements QueryValue, ColumnReference {
 
   @Override
   public FieldDefinition getFieldDefinition() {
-    return this.fieldDefinition;
+    if (this.table != null) {
+      return this.table.getField(this.name);
+    }
+    return null;
   }
 
   @Override
   public int getFieldIndex() {
-    if (this.fieldDefinition == null) {
+    final FieldDefinition fieldDefinition = getFieldDefinition();
+    if (fieldDefinition == null) {
       return -1;
     } else {
-      return this.fieldDefinition.getIndex();
+      return fieldDefinition.getIndex();
     }
   }
 
@@ -127,15 +131,16 @@ public class Column implements QueryValue, ColumnReference {
   @Override
   public String getStringValue(final MapEx record) {
     final Object value = getValue(record);
-    if (this.fieldDefinition == null) {
+    final FieldDefinition fieldDefinition = getFieldDefinition();
+    if (fieldDefinition == null) {
       return DataTypes.toString(value);
     } else {
-      return this.fieldDefinition.toString(value);
+      return fieldDefinition.toString(value);
     }
   }
 
   @Override
-  public TableReference getTable() {
+  public TableReferenceProxy getTable() {
     return this.table;
   }
 
@@ -158,10 +163,7 @@ public class Column implements QueryValue, ColumnReference {
   public Object getValueFromResultSet(final RecordDefinition recordDefinition,
     final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings)
     throws SQLException {
-    FieldDefinition field = this.fieldDefinition;
-    if (field == null) {
-      field = recordDefinition.getField(this.name);
-    }
+    final FieldDefinition field = recordDefinition.getField(this.name);
     return field.getValueFromResultSet(recordDefinition, resultSet, indexes, internStrings);
   }
 
@@ -169,51 +171,54 @@ public class Column implements QueryValue, ColumnReference {
   public Object getValueFromResultSet(final RecordDefinition recordDefinition,
     final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings,
     final String alias) throws SQLException {
-    FieldDefinition field = this.fieldDefinition;
+    FieldDefinition field = recordDefinition.getField(this.name);
     if (field == null) {
-      field = recordDefinition.getField(this.name);
-      if (field == null) {
-        field = recordDefinition.getField(alias);
-      }
+      field = recordDefinition.getField(alias);
     }
     return field.getValueFromResultSet(recordDefinition, resultSet, indexes, internStrings);
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public <V> V toColumnTypeException(final Object value) {
     if (value == null) {
       return null;
     } else {
-      if (this.fieldDefinition == null) {
+      final FieldDefinition fieldDefinition = getFieldDefinition();
+      if (fieldDefinition == null) {
         return (V)value;
       } else {
-        return this.fieldDefinition.toColumnTypeException(value);
+        return fieldDefinition.toColumnTypeException(value);
       }
     }
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public <V> V toFieldValueException(final Object value) {
     if (value == null) {
       return null;
     } else {
-      if (this.fieldDefinition == null) {
+      final FieldDefinition fieldDefinition = getFieldDefinition();
+      if (fieldDefinition == null) {
         return (V)value;
       } else {
-        return this.fieldDefinition.toFieldValueException(value);
+        return fieldDefinition.toFieldValueException(value);
       }
     }
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public <V> V toFieldValueException(final RecordState state, final Object value) {
     if (value == null) {
       return null;
     } else {
-      if (this.fieldDefinition == null) {
+      final FieldDefinition fieldDefinition = getFieldDefinition();
+      if (fieldDefinition == null) {
         return (V)value;
       } else {
-        return this.fieldDefinition.toFieldValueException(state, value);
+        return fieldDefinition.toFieldValueException(state, value);
       }
     }
   }
@@ -227,10 +232,11 @@ public class Column implements QueryValue, ColumnReference {
 
   @Override
   public String toString(final Object value) {
-    if (this.fieldDefinition == null) {
+    final FieldDefinition fieldDefinition = getFieldDefinition();
+    if (fieldDefinition == null) {
       return DataTypes.toString(value);
     } else {
-      return this.fieldDefinition.toString(value);
+      return fieldDefinition.toString(value);
     }
   }
 }

@@ -109,7 +109,7 @@ public class ColumnAlias implements QueryValue, ColumnReference {
   }
 
   @Override
-  public TableReference getTable() {
+  public TableReferenceProxy getTable() {
     return this.column.getTable();
   }
 

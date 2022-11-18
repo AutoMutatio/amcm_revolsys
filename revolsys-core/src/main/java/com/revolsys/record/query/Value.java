@@ -247,28 +247,31 @@ public class Value implements QueryValue {
       }
 
       CodeTable codeTable = null;
-      final TableReference table = column.getTable();
-      if (table instanceof RecordDefinition) {
-        final RecordDefinition recordDefinition = (RecordDefinition)table;
-        final String fieldName = column.getName();
-        codeTable = recordDefinition.getCodeTableByFieldName(fieldName);
-        if (codeTable instanceof RecordDefinitionProxy) {
-          final RecordDefinitionProxy proxy = (RecordDefinitionProxy)codeTable;
-          if (proxy.getRecordDefinition() == recordDefinition) {
-            codeTable = null;
+      final TableReferenceProxy table = column.getTable();
+      if (table != null) {
+        final TableReference tableRef = table.getTableReference();
+        if (tableRef instanceof RecordDefinition) {
+          final RecordDefinition recordDefinition = (RecordDefinition)tableRef;
+          final String fieldName = column.getName();
+          codeTable = recordDefinition.getCodeTableByFieldName(fieldName);
+          if (codeTable instanceof RecordDefinitionProxy) {
+            final RecordDefinitionProxy proxy = (RecordDefinitionProxy)codeTable;
+            if (proxy.getRecordDefinition() == recordDefinition) {
+              codeTable = null;
+            }
           }
-        }
-        if (codeTable != null) {
-          final Identifier id = codeTable.getIdentifier(this.queryValue);
-          if (id == null) {
-            this.displayValue = this.queryValue;
-          } else {
-            setQueryValue(id);
-            final List<Object> values = codeTable.getValues(id);
-            if (values.size() == 1) {
-              this.displayValue = values.get(0);
+          if (codeTable != null) {
+            final Identifier id = codeTable.getIdentifier(this.queryValue);
+            if (id == null) {
+              this.displayValue = this.queryValue;
             } else {
-              this.displayValue = Strings.toString(":", values);
+              setQueryValue(id);
+              final List<Object> values = codeTable.getValues(id);
+              if (values.size() == 1) {
+                this.displayValue = values.get(0);
+              } else {
+                this.displayValue = Strings.toString(":", values);
+              }
             }
           }
         }

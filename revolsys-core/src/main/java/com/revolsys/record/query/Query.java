@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -805,15 +806,19 @@ public class Query extends BaseObjectWithProperties
   }
 
   public Join join(final JoinType joinType) {
-    final Join join = joinType.build();
+    final Join join = new Join(joinType);
     this.joins.add(join);
     return join;
   }
 
+  public Query join(final JoinType joinType, final BiConsumer<Query, Join> action) {
+    final Join join = join(joinType);
+    action.accept(this, join);
+    return this;
+  }
+
   public Join join(final TableReferenceProxy table) {
-    final Join join = JoinType.JOIN.build(table);
-    this.joins.add(join);
-    return join;
+    return join(JoinType.JOIN).table(table);
   }
 
   public Condition newCondition(final CharSequence fieldName,

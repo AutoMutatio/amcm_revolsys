@@ -40,7 +40,7 @@ public interface ColumnReference extends QueryValue {
   @Override
   String getStringValue(final MapEx record);
 
-  TableReference getTable();
+  TableReferenceProxy getTable();
 
   @Override
   @SuppressWarnings("unchecked")

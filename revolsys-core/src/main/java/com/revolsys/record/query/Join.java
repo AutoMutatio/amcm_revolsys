@@ -9,7 +9,7 @@ import com.revolsys.collection.map.MapEx;
 import com.revolsys.record.schema.RecordDefinitionProxy;
 import com.revolsys.record.schema.RecordStore;
 
-public class Join implements QueryValue {
+public class Join implements QueryValue, TableReferenceProxy {
 
   private final JoinType joinType;
 
@@ -106,6 +106,15 @@ public class Join implements QueryValue {
     return this;
   }
 
+  @Override
+  public ColumnReference getColumn(final CharSequence name) {
+    if (this.table.hasColumn(name)) {
+      return new Column(this, name);
+    }
+    throw new IllegalArgumentException(
+      "Column not found: " + this.table.getTableReference().getTablePath() + "." + name);
+  }
+
   public Condition getCondition() {
     return this.condition;
   }
@@ -114,8 +123,22 @@ public class Join implements QueryValue {
     return this.table;
   }
 
+  @Override
+  public String getTableAlias() {
+    if (this.alias == null) {
+      return this.table.getTableAlias();
+    } else {
+      return this.alias;
+    }
+  }
+
   public PathName getTableName() {
     return this.tablePath;
+  }
+
+  @Override
+  public TableReference getTableReference() {
+    return this.table;
   }
 
   @Override
@@ -144,7 +167,9 @@ public class Join implements QueryValue {
 
   public Join on(final String fromFieldName, final TableReferenceProxy toTable,
     final String toFieldName) {
-    final Condition condition = this.table.equal(fromFieldName, toTable, toFieldName);
+    final ColumnReference fromColumn = getColumn(fromFieldName);
+    final ColumnReference toColumn = toTable.getColumn(toFieldName);
+    final Equal condition = new Equal(fromColumn, toColumn);
     return and(condition);
   }
 
@@ -189,4 +214,5 @@ public class Join implements QueryValue {
   public String toString() {
     return toSql();
   }
+
 }
