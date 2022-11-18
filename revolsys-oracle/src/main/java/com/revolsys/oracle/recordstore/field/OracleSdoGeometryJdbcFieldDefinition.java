@@ -1,6 +1,5 @@
 package com.revolsys.oracle.recordstore.field;
 
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -15,7 +14,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.exception.Exceptions;
 
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.ClockDirection;
@@ -37,6 +35,7 @@ import com.revolsys.jdbc.io.AbstractJdbcRecordStore;
 import com.revolsys.jdbc.io.JdbcRecordDefinition;
 import com.revolsys.record.query.ColumnIndexes;
 import com.revolsys.record.query.Query;
+import com.revolsys.record.query.SqlAppendable;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordStore;
 import com.revolsys.util.Property;
@@ -135,23 +134,20 @@ public class OracleSdoGeometryJdbcFieldDefinition extends JdbcFieldDefinition {
   }
 
   @Override
-  public void appendSelect(final Query query, final RecordStore recordStore, final Appendable sql) {
-    try {
-      super.appendName(sql);
-      sql.append(".SDO_GTYPE, ");
-      super.appendName(sql);
-      sql.append(".SDO_POINT.X, ");
-      super.appendName(sql);
-      sql.append(".SDO_POINT.Y, ");
-      super.appendName(sql);
-      sql.append(".SDO_POINT.Z, ");
-      super.appendName(sql);
-      sql.append(".SDO_ELEM_INFO, ");
-      super.appendName(sql);
-      sql.append(".SDO_ORDINATES");
-    } catch (final IOException e) {
-      throw Exceptions.wrap(e);
-    }
+  public void appendSelect(final Query query, final RecordStore recordStore,
+    final SqlAppendable sql) {
+    super.appendName(sql);
+    sql.append(".SDO_GTYPE, ");
+    super.appendName(sql);
+    sql.append(".SDO_POINT.X, ");
+    super.appendName(sql);
+    sql.append(".SDO_POINT.Y, ");
+    super.appendName(sql);
+    sql.append(".SDO_POINT.Z, ");
+    super.appendName(sql);
+    sql.append(".SDO_ELEM_INFO, ");
+    super.appendName(sql);
+    sql.append(".SDO_ORDINATES");
   }
 
   @Override

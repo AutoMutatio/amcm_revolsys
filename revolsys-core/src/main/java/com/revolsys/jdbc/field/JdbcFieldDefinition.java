@@ -1,6 +1,5 @@
 package com.revolsys.jdbc.field;
 
-import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -9,14 +8,15 @@ import java.sql.Types;
 import java.util.Map;
 
 import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.exception.Exceptions;
 
 import com.revolsys.jdbc.io.AbstractJdbcRecordStore;
 import com.revolsys.jdbc.io.JdbcRecordDefinition;
 import com.revolsys.record.Record;
 import com.revolsys.record.query.ColumnIndexes;
+import com.revolsys.record.query.SqlAppendable;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
+import com.revolsys.record.schema.RecordStore;
 
 public class JdbcFieldDefinition extends FieldDefinition {
   private String dbName;
@@ -49,41 +49,42 @@ public class JdbcFieldDefinition extends FieldDefinition {
     return newField;
   }
 
-  public void addInsertStatementPlaceHolder(final StringBuilder sql, final boolean generateKeys) {
+  public void addInsertStatementPlaceHolder(final SqlAppendable sql, final boolean generateKeys) {
     addStatementPlaceHolder(sql);
   }
 
-  public void addSelectStatementPlaceHolder(final Appendable sql) throws IOException {
+  public void addSelectStatementPlaceHolder(final SqlAppendable sql) {
     addStatementPlaceHolder(sql);
   }
 
-  public void addStatementPlaceHolder(final Appendable sql) {
-    try {
-      sql.append('?');
-    } catch (final IOException e) {
-      throw Exceptions.wrap(e);
-    }
+  public void addStatementPlaceHolder(final SqlAppendable sql) {
+    sql.append('?');
   }
 
   @Override
-  public void appendColumnName(final Appendable sql) {
+  public void appendColumnName(final SqlAppendable sql) {
     appendColumnName(sql, this.quoteName);
   }
 
   @Override
-  public void appendColumnName(final Appendable sql, boolean quoteName) {
-    try {
-      quoteName |= this.quoteName;
-      if (quoteName) {
-        sql.append('"');
-      }
-      final String dbName = getDbName();
-      sql.append(dbName);
-      if (quoteName) {
-        sql.append('"');
-      }
-    } catch (final IOException e) {
-      Exceptions.throwUncheckedException(e);
+  public void appendColumnName(final SqlAppendable sql, boolean quoteName) {
+    quoteName |= this.quoteName;
+    if (quoteName) {
+      sql.append('"');
+    }
+    final String dbName = getDbName();
+    sql.append(dbName);
+    if (quoteName) {
+      sql.append('"');
+    }
+  }
+
+  public void appendSqlValue(final SqlAppendable sql, final RecordStore recordStore,
+    final Object queryValue) {
+    if (recordStore == null) {
+      RecordStore.appendDefaultSql(sql, queryValue);
+    } else {
+      recordStore.appendSqlValue(sql, queryValue);
     }
   }
 

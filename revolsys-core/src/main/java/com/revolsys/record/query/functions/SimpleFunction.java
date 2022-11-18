@@ -1,18 +1,17 @@
 package com.revolsys.record.query.functions;
 
-import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.exception.Exceptions;
 
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.record.query.AbstractMultiQueryValue;
 import com.revolsys.record.query.Query;
 import com.revolsys.record.query.QueryValue;
+import com.revolsys.record.query.SqlAppendable;
 import com.revolsys.record.schema.RecordStore;
 import com.revolsys.util.Strings;
 
@@ -51,23 +50,19 @@ public class SimpleFunction extends AbstractMultiQueryValue implements Function 
 
   @Override
   public void appendDefaultSql(final Query query, final RecordStore recordStore,
-    final Appendable buffer) {
-    try {
-      buffer.append(this.name);
-      buffer.append("(");
-      boolean first = true;
-      for (final QueryValue parameter : getParameters()) {
-        if (first) {
-          first = false;
-        } else {
-          buffer.append(", ");
-        }
-        parameter.appendSql(query, recordStore, buffer);
+    final SqlAppendable buffer) {
+    buffer.append(this.name);
+    buffer.append("(");
+    boolean first = true;
+    for (final QueryValue parameter : getParameters()) {
+      if (first) {
+        first = false;
+      } else {
+        buffer.append(", ");
       }
-      buffer.append(")");
-    } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      parameter.appendSql(query, recordStore, buffer);
     }
+    buffer.append(")");
   }
 
   @Override

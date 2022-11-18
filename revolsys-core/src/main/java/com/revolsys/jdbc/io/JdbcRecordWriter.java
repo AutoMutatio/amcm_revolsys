@@ -23,6 +23,8 @@ import com.revolsys.jdbc.field.JdbcFieldDefinition;
 import com.revolsys.record.Record;
 import com.revolsys.record.RecordState;
 import com.revolsys.record.property.GlobalIdProperty;
+import com.revolsys.record.query.SqlAppendable;
+import com.revolsys.record.query.StringBuilderSqlAppendable;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinitionProxy;
 import com.revolsys.record.schema.RecordStore;
@@ -93,7 +95,7 @@ public class JdbcRecordWriter extends AbstractRecordWriter {
     this(recordStore, recordDefinition, recordStore.getStatistics(), batchSize);
   }
 
-  public void appendIdEquals(final StringBuilder sqlBuffer, final List<FieldDefinition> idFields) {
+  public void appendIdEquals(final SqlAppendable sqlBuffer, final List<FieldDefinition> idFields) {
     boolean first = true;
     for (final FieldDefinition idField : idFields) {
       if (first) {
@@ -254,7 +256,7 @@ public class JdbcRecordWriter extends AbstractRecordWriter {
       throw new RuntimeException("No primary key found for: " + recordDefinition);
     } else {
       final String tableName = recordDefinition.getDbTableQualifiedName();
-      final StringBuilder sqlBuffer = new StringBuilder();
+      final StringBuilderSqlAppendable sqlBuffer = SqlAppendable.stringBuilder();
       if (this.sqlPrefix != null) {
         sqlBuffer.append(this.sqlPrefix);
       }
@@ -267,7 +269,7 @@ public class JdbcRecordWriter extends AbstractRecordWriter {
       if (this.sqlSuffix != null) {
         sqlBuffer.append(this.sqlSuffix);
       }
-      return sqlBuffer.toString();
+      return sqlBuffer.toSqlString();
     }
   }
 
@@ -276,7 +278,7 @@ public class JdbcRecordWriter extends AbstractRecordWriter {
     final JdbcRecordStore recordStore = this.recordStore;
     final String tableName = recordDefinition.getDbTableQualifiedName();
     final boolean hasRowIdField = recordStore.isIdFieldRowid(recordDefinition);
-    final StringBuilder sqlBuffer = new StringBuilder();
+    final StringBuilderSqlAppendable sqlBuffer = SqlAppendable.stringBuilder();
     if (this.sqlPrefix != null) {
       sqlBuffer.append(this.sqlPrefix);
     }
@@ -325,7 +327,7 @@ public class JdbcRecordWriter extends AbstractRecordWriter {
     if (this.sqlSuffix != null) {
       sqlBuffer.append(this.sqlSuffix);
     }
-    return sqlBuffer.toString();
+    return sqlBuffer.toSqlString();
   }
 
   public String getLabel() {
@@ -365,7 +367,7 @@ public class JdbcRecordWriter extends AbstractRecordWriter {
       throw new RuntimeException("No primary key found for: " + recordDefinition);
     } else {
       final String tableName = recordDefinition.getDbTableQualifiedName();
-      final StringBuilder sqlBuffer = new StringBuilder();
+      final StringBuilderSqlAppendable sqlBuffer = SqlAppendable.stringBuilder();
       if (this.sqlPrefix != null) {
         sqlBuffer.append(this.sqlPrefix);
       }
@@ -396,7 +398,7 @@ public class JdbcRecordWriter extends AbstractRecordWriter {
       if (this.sqlSuffix != null) {
         sqlBuffer.append(this.sqlSuffix);
       }
-      return sqlBuffer.toString();
+      return sqlBuffer.toSqlString();
 
     }
   }

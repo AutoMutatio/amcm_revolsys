@@ -1,16 +1,15 @@
 package com.revolsys.record.query.functions;
 
-import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.util.Collections;
 import java.util.List;
 
 import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.exception.Exceptions;
 
 import com.revolsys.record.query.AbstractUnaryQueryValue;
 import com.revolsys.record.query.Query;
 import com.revolsys.record.query.QueryValue;
+import com.revolsys.record.query.SqlAppendable;
 import com.revolsys.record.schema.RecordStore;
 
 public abstract class UnaryFunction extends AbstractUnaryQueryValue implements Function {
@@ -36,15 +35,11 @@ public abstract class UnaryFunction extends AbstractUnaryQueryValue implements F
 
   @Override
   public void appendDefaultSql(final Query query, final RecordStore recordStore,
-    final Appendable buffer) {
-    try {
-      buffer.append(getName());
-      buffer.append("(");
-      super.appendDefaultSql(query, recordStore, buffer);
-      buffer.append(")");
-    } catch (final IOException e) {
-      throw Exceptions.wrap(e);
-    }
+    final SqlAppendable buffer) {
+    buffer.append(getName());
+    buffer.append("(");
+    super.appendDefaultSql(query, recordStore, buffer);
+    buffer.append(")");
   }
 
   @Override

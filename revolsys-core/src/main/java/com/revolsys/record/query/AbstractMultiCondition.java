@@ -1,11 +1,9 @@
 package com.revolsys.record.query;
 
-import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.util.List;
 
 import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.exception.Exceptions;
 
 import com.revolsys.record.schema.RecordStore;
 
@@ -35,29 +33,25 @@ public abstract class AbstractMultiCondition extends AbstractMultiQueryValue
 
   @Override
   public void appendDefaultSql(final Query query, final RecordStore recordStore,
-    final Appendable buffer) {
-    try {
-      buffer.append("(");
-      boolean first = true;
+    final SqlAppendable buffer) {
+    buffer.append("(");
+    boolean first = true;
 
-      for (final QueryValue value : this.values) {
-        if (first) {
-          first = false;
-        } else {
-          buffer.append(" ");
-          buffer.append(this.operator);
-          buffer.append(" ");
-        }
-        if (value == null) {
-          buffer.append("NULL");
-        } else {
-          value.appendSql(query, recordStore, buffer);
-        }
+    for (final QueryValue value : this.values) {
+      if (first) {
+        first = false;
+      } else {
+        buffer.append(" ");
+        buffer.append(this.operator);
+        buffer.append(" ");
       }
-      buffer.append(")");
-    } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      if (value == null) {
+        buffer.append("NULL");
+      } else {
+        value.appendSql(query, recordStore, buffer);
+      }
     }
+    buffer.append(")");
   }
 
   @Override

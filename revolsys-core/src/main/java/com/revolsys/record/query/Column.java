@@ -1,13 +1,11 @@
 package com.revolsys.record.query;
 
-import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.jeometry.common.data.type.DataType;
 import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.common.exception.Exceptions;
 
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.record.RecordState;
@@ -17,11 +15,9 @@ import com.revolsys.record.schema.RecordStore;
 
 public class Column implements QueryValue, ColumnReference {
 
-  private FieldDefinition fieldDefinition;
-
   private final String name;
 
-  private TableReference table;
+  private TableReferenceProxy table;
 
   public Column(final CharSequence name) {
     this(name.toString());
@@ -31,52 +27,46 @@ public class Column implements QueryValue, ColumnReference {
     this.name = name;
   }
 
-  public Column(final TableReference tableReference, final CharSequence name) {
+  public Column(final TableReferenceProxy tableReference, final CharSequence name) {
     this.table = tableReference;
     this.name = name.toString();
   }
 
   @Override
   public void appendDefaultSelect(final Query query, final RecordStore recordStore,
-    final Appendable sql) {
-    if (this.fieldDefinition == null) {
+    final SqlAppendable sql) {
+    final FieldDefinition fieldDefinition = getFieldDefinition();
+    if (fieldDefinition == null) {
       appendName(sql);
     } else {
-      this.fieldDefinition.appendSelect(query, recordStore, sql);
+      fieldDefinition.appendSelect(query, recordStore, sql);
     }
   }
 
   @Override
   public void appendDefaultSql(final Query query, final RecordStore recordStore,
-    final Appendable sql) {
-    try {
-      if (this.fieldDefinition == null) {
-        sql.append(toString());
-      } else {
-        this.fieldDefinition.appendColumnName(sql, null);
-      }
-    } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+    final SqlAppendable sql) {
+    final FieldDefinition fieldDefinition = getFieldDefinition();
+    if (fieldDefinition == null) {
+      sql.append(toString());
+    } else {
+      fieldDefinition.appendColumnName(sql, null);
     }
   }
 
   @Override
-  public void appendName(final Appendable string) {
-    try {
-      if (this.table != null) {
-        this.table.appendColumnPrefix(string);
-      }
-      final String name = this.name;
-      if ("*".equals(name) || name.indexOf('"') != -1 || name.indexOf('.') != -1
-        || name.matches("([A-Z][_A-Z1-9]*\\.)?[A-Z][_A-Z1-9]*\\*")) {
-        string.append(name);
-      } else {
-        string.append('"');
-        string.append(name);
-        string.append('"');
-      }
-    } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+  public void appendName(final SqlAppendable string) {
+    if (this.table != null) {
+      this.table.appendColumnPrefix(string);
+    }
+    final String name = this.name;
+    if ("*".equals(name) || name.indexOf('"') != -1 || name.indexOf('.') != -1
+      || name.matches("([A-Z][_A-Z1-9]*\\.)?[A-Z][_A-Z1-9]*\\*")) {
+      string.append(name);
+    } else {
+      string.append('"');
+      string.append(name);
+      string.append('"');
     }
   }
 
@@ -117,15 +107,19 @@ public class Column implements QueryValue, ColumnReference {
 
   @Override
   public FieldDefinition getFieldDefinition() {
-    return this.fieldDefinition;
+    if (this.table != null) {
+      return this.table.getField(this.name);
+    }
+    return null;
   }
 
   @Override
   public int getFieldIndex() {
-    if (this.fieldDefinition == null) {
+    final FieldDefinition fieldDefinition = getFieldDefinition();
+    if (fieldDefinition == null) {
       return -1;
     } else {
-      return this.fieldDefinition.getIndex();
+      return fieldDefinition.getIndex();
     }
   }
 
@@ -137,15 +131,16 @@ public class Column implements QueryValue, ColumnReference {
   @Override
   public String getStringValue(final MapEx record) {
     final Object value = getValue(record);
-    if (this.fieldDefinition == null) {
+    final FieldDefinition fieldDefinition = getFieldDefinition();
+    if (fieldDefinition == null) {
       return DataTypes.toString(value);
     } else {
-      return this.fieldDefinition.toString(value);
+      return fieldDefinition.toString(value);
     }
   }
 
   @Override
-  public TableReference getTable() {
+  public TableReferenceProxy getTable() {
     return this.table;
   }
 
@@ -168,10 +163,7 @@ public class Column implements QueryValue, ColumnReference {
   public Object getValueFromResultSet(final RecordDefinition recordDefinition,
     final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings)
     throws SQLException {
-    FieldDefinition field = this.fieldDefinition;
-    if (field == null) {
-      field = recordDefinition.getField(this.name);
-    }
+    final FieldDefinition field = recordDefinition.getField(this.name);
     return field.getValueFromResultSet(recordDefinition, resultSet, indexes, internStrings);
   }
 
@@ -179,68 +171,72 @@ public class Column implements QueryValue, ColumnReference {
   public Object getValueFromResultSet(final RecordDefinition recordDefinition,
     final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings,
     final String alias) throws SQLException {
-    FieldDefinition field = this.fieldDefinition;
+    FieldDefinition field = recordDefinition.getField(this.name);
     if (field == null) {
-      field = recordDefinition.getField(this.name);
-      if (field == null) {
-        field = recordDefinition.getField(alias);
-      }
+      field = recordDefinition.getField(alias);
     }
     return field.getValueFromResultSet(recordDefinition, resultSet, indexes, internStrings);
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public <V> V toColumnTypeException(final Object value) {
     if (value == null) {
       return null;
     } else {
-      if (this.fieldDefinition == null) {
+      final FieldDefinition fieldDefinition = getFieldDefinition();
+      if (fieldDefinition == null) {
         return (V)value;
       } else {
-        return this.fieldDefinition.toColumnTypeException(value);
+        return fieldDefinition.toColumnTypeException(value);
       }
     }
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public <V> V toFieldValueException(final Object value) {
     if (value == null) {
       return null;
     } else {
-      if (this.fieldDefinition == null) {
+      final FieldDefinition fieldDefinition = getFieldDefinition();
+      if (fieldDefinition == null) {
         return (V)value;
       } else {
-        return this.fieldDefinition.toFieldValueException(value);
+        return fieldDefinition.toFieldValueException(value);
       }
     }
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public <V> V toFieldValueException(final RecordState state, final Object value) {
     if (value == null) {
       return null;
     } else {
-      if (this.fieldDefinition == null) {
+      final FieldDefinition fieldDefinition = getFieldDefinition();
+      if (fieldDefinition == null) {
         return (V)value;
       } else {
-        return this.fieldDefinition.toFieldValueException(state, value);
+        return fieldDefinition.toFieldValueException(state, value);
       }
     }
   }
 
   @Override
   public String toString() {
-    final StringBuilder sb = new StringBuilder();
-    appendName(sb);
-    return sb.toString();
+    final StringBuilderSqlAppendable sql = SqlAppendable.stringBuilder();
+    appendName(sql);
+    return sql.toString();
   }
 
   @Override
   public String toString(final Object value) {
-    if (this.fieldDefinition == null) {
+    final FieldDefinition fieldDefinition = getFieldDefinition();
+    if (fieldDefinition == null) {
       return DataTypes.toString(value);
     } else {
-      return this.fieldDefinition.toString(value);
+      return fieldDefinition.toString(value);
     }
   }
 }

@@ -1,6 +1,5 @@
 package com.revolsys.gdal.record;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,7 +10,6 @@ import org.gdal.ogr.Layer;
 import org.gdal.osr.SpatialReference;
 import org.jeometry.common.data.type.DataType;
 import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.common.exception.Exceptions;
 import org.jeometry.common.io.PathName;
 import org.jeometry.common.logging.Logs;
 
@@ -19,6 +17,7 @@ import com.revolsys.gdal.Gdal;
 import com.revolsys.geometry.model.GeometryDataTypes;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.record.query.Query;
+import com.revolsys.record.query.SqlAppendable;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinitionImpl;
 import com.revolsys.record.schema.RecordStoreSchema;
@@ -161,19 +160,15 @@ public class OgrRecordDefinition extends RecordDefinitionImpl {
   }
 
   @Override
-  public void appendSelectAll(final Query query, final Appendable sql) {
-    try {
-      boolean first = true;
-      for (final String columnName : this.columnNames) {
-        if (first) {
-          first = false;
-        } else {
-          sql.append(", ");
-        }
-        sql.append(columnName);
+  public void appendSelectAll(final Query query, final SqlAppendable sql) {
+    boolean first = true;
+    for (final String columnName : this.columnNames) {
+      if (first) {
+        first = false;
+      } else {
+        sql.append(", ");
       }
-    } catch (final IOException e) {
-      Exceptions.throwUncheckedException(e);
+      sql.append(columnName);
     }
   }
 }

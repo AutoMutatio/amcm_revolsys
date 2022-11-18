@@ -1,11 +1,8 @@
 package com.revolsys.record.query;
 
-import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
-import org.jeometry.common.exception.Exceptions;
 
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.record.schema.RecordDefinition;
@@ -21,12 +18,8 @@ public class ColumnIndex implements QueryValue {
 
   @Override
   public void appendDefaultSql(final Query query, final RecordStore recordStore,
-    final Appendable sql) {
-    try {
-      sql.append(Integer.toString(this.index));
-    } catch (final IOException e) {
-      throw Exceptions.wrap(e);
-    }
+    final SqlAppendable sql) {
+    sql.append(Integer.toString(this.index));
   }
 
   @Override

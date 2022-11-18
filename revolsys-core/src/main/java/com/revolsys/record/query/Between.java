@@ -1,6 +1,5 @@
 package com.revolsys.record.query;
 
-import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.util.Arrays;
 import java.util.List;
@@ -8,7 +7,6 @@ import java.util.function.Function;
 
 import org.jeometry.common.compare.CompareUtil;
 import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.exception.Exceptions;
 
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.record.schema.RecordStore;
@@ -33,16 +31,12 @@ public class Between extends AbstractUnaryQueryValue implements Condition {
 
   @Override
   public void appendDefaultSql(final Query query, final RecordStore recordStore,
-    final Appendable buffer) {
-    try {
-      super.appendDefaultSql(query, recordStore, buffer);
-      buffer.append(" BETWEEN ");
-      this.min.appendSql(query, recordStore, buffer);
-      buffer.append(" AND ");
-      this.max.appendSql(query, recordStore, buffer);
-    } catch (final IOException e) {
-      throw Exceptions.wrap(e);
-    }
+    final SqlAppendable buffer) {
+    super.appendDefaultSql(query, recordStore, buffer);
+    buffer.append(" BETWEEN ");
+    this.min.appendSql(query, recordStore, buffer);
+    buffer.append(" AND ");
+    this.max.appendSql(query, recordStore, buffer);
   }
 
   @Override

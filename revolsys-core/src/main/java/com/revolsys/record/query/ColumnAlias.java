@@ -1,12 +1,10 @@
 package com.revolsys.record.query;
 
-import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.exception.Exceptions;
 
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.record.RecordState;
@@ -25,40 +23,28 @@ public class ColumnAlias implements QueryValue, ColumnReference {
     this.alias = alias.toString();
   }
 
-  protected void appendAlias(final Appendable sql) {
-    try {
-      sql.append('"');
-      sql.append(this.alias);
-      sql.append('"');
-    } catch (final IOException e) {
-      throw Exceptions.wrap(e);
-    }
+  protected void appendAlias(final SqlAppendable sql) {
+    sql.append('"');
+    sql.append(this.alias);
+    sql.append('"');
   }
 
   @Override
   public void appendDefaultSelect(final Query query, final RecordStore recordStore,
-    final Appendable sql) {
+    final SqlAppendable sql) {
     this.column.appendDefaultSelect(query, recordStore, sql);
-    try {
-      sql.append(" as ");
-    } catch (final IOException e) {
-      throw Exceptions.wrap(e);
-    }
+    sql.append(" as ");
     appendAlias(sql);
   }
 
   @Override
   public void appendDefaultSql(final Query query, final RecordStore recordStore,
-    final Appendable sql) {
-    try {
-      sql.append(this.alias);
-    } catch (final IOException e) {
-      throw Exceptions.wrap(e);
-    }
+    final SqlAppendable sql) {
+    sql.append(this.alias);
   }
 
   @Override
-  public void appendName(final Appendable string) {
+  public void appendName(final SqlAppendable string) {
     this.column.appendName(string);
   }
 
@@ -123,7 +109,7 @@ public class ColumnAlias implements QueryValue, ColumnReference {
   }
 
   @Override
-  public TableReference getTable() {
+  public TableReferenceProxy getTable() {
     return this.column.getTable();
   }
 
@@ -175,11 +161,11 @@ public class ColumnAlias implements QueryValue, ColumnReference {
 
   @Override
   public String toString() {
-    final StringBuilder sql = new StringBuilder();
+    final StringBuilderSqlAppendable sql = SqlAppendable.stringBuilder();
     this.column.appendName(sql);
     sql.append(" as ");
     appendAlias(sql);
-    return sql.toString();
+    return sql.toSqlString();
   }
 
   @Override

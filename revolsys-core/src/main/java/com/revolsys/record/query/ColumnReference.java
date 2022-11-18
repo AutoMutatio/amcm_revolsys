@@ -13,7 +13,7 @@ import com.revolsys.record.schema.RecordDefinition;
 
 public interface ColumnReference extends QueryValue {
 
-  void appendName(final Appendable string);
+  void appendName(final SqlAppendable string);
 
   @Override
   default int appendParameters(final int index, final PreparedStatement statement) {
@@ -40,7 +40,7 @@ public interface ColumnReference extends QueryValue {
   @Override
   String getStringValue(final MapEx record);
 
-  TableReference getTable();
+  TableReferenceProxy getTable();
 
   @Override
   @SuppressWarnings("unchecked")

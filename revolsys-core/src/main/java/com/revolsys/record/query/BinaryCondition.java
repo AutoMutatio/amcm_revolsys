@@ -1,10 +1,7 @@
 package com.revolsys.record.query;
 
-import java.io.IOException;
-
 import org.jeometry.common.data.type.DataType;
 import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.common.exception.Exceptions;
 
 import com.revolsys.record.schema.RecordStore;
 
@@ -23,16 +20,12 @@ public class BinaryCondition extends AbstractBinaryQueryValue implements Conditi
 
   @Override
   public void appendDefaultSql(final Query query, final RecordStore recordStore,
-    final Appendable buffer) {
-    try {
-      appendLeft(buffer, query, recordStore);
-      buffer.append(" ");
-      buffer.append(this.operator);
-      buffer.append(" ");
-      appendRight(buffer, query, recordStore);
-    } catch (final IOException e) {
-      throw Exceptions.wrap(e);
-    }
+    final SqlAppendable buffer) {
+    appendLeft(buffer, query, recordStore);
+    buffer.append(" ");
+    buffer.append(this.operator);
+    buffer.append(" ");
+    appendRight(buffer, query, recordStore);
   }
 
   @Override

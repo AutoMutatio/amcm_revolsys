@@ -1,13 +1,11 @@
 package com.revolsys.record.query;
 
-import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 
 import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.exception.Exceptions;
 
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordStore;
@@ -29,19 +27,14 @@ public abstract class AbstractBinaryQueryValue implements QueryValue {
     }
   }
 
-  protected void appendLeft(final Appendable sql, final Query query,
+  protected void appendLeft(final SqlAppendable sql, final Query query,
     final RecordStore recordStore) {
-    try {
-      if (this.left == null) {
-        sql.append("NULL");
-      } else {
-        this.left.appendSql(query, recordStore, sql);
-      }
-      sql.append(" ");
-    } catch (final IOException e) {
-      throw Exceptions.wrap(e);
-
+    if (this.left == null) {
+      sql.append("NULL");
+    } else {
+      this.left.appendSql(query, recordStore, sql);
     }
+    sql.append(" ");
   }
 
   @Override
@@ -65,17 +58,13 @@ public abstract class AbstractBinaryQueryValue implements QueryValue {
     return index;
   }
 
-  protected void appendRight(final Appendable sql, final Query query,
+  protected void appendRight(final SqlAppendable sql, final Query query,
     final RecordStore recordStore) {
-    try {
-      sql.append(" ");
-      if (this.right == null) {
-        sql.append("NULL");
-      } else {
-        this.right.appendSql(query, recordStore, sql);
-      }
-    } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+    sql.append(" ");
+    if (this.right == null) {
+      sql.append("NULL");
+    } else {
+      this.right.appendSql(query, recordStore, sql);
     }
   }
 

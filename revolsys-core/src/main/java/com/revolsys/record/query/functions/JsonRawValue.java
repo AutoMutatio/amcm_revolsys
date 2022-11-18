@@ -1,12 +1,9 @@
 package com.revolsys.record.query.functions;
 
-import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
-
-import org.jeometry.common.exception.Exceptions;
 
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.record.io.format.json.Json;
@@ -14,6 +11,7 @@ import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.record.query.ColumnIndexes;
 import com.revolsys.record.query.Query;
 import com.revolsys.record.query.QueryValue;
+import com.revolsys.record.query.SqlAppendable;
 import com.revolsys.record.query.Value;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordStore;
@@ -48,19 +46,15 @@ public class JsonRawValue extends SimpleFunction {
 
   @Override
   public void appendDefaultSql(final Query query, final RecordStore recordStore,
-    final Appendable buffer) {
-    try {
-      final QueryValue jsonParameter = getParameter(0);
+    final SqlAppendable buffer) {
+    final QueryValue jsonParameter = getParameter(0);
 
-      buffer.append(getName());
-      buffer.append("(");
-      jsonParameter.appendSql(query, recordStore, buffer);
-      buffer.append(", '");
-      buffer.append(this.path);
-      buffer.append("')");
-    } catch (final IOException e) {
-      throw Exceptions.wrap(e);
-    }
+    buffer.append(getName());
+    buffer.append("(");
+    jsonParameter.appendSql(query, recordStore, buffer);
+    buffer.append(", '");
+    buffer.append(this.path);
+    buffer.append("')");
   }
 
   @Override

@@ -1,6 +1,5 @@
 package com.revolsys.record.query;
 
-import java.io.IOException;
 import java.sql.PreparedStatement;
 
 import org.jeometry.common.exception.Exceptions;
@@ -10,7 +9,7 @@ import com.revolsys.collection.map.MapEx;
 import com.revolsys.record.schema.RecordDefinitionProxy;
 import com.revolsys.record.schema.RecordStore;
 
-public class Join implements QueryValue {
+public class Join implements QueryValue, TableReferenceProxy {
 
   private final JoinType joinType;
 
@@ -35,31 +34,27 @@ public class Join implements QueryValue {
 
   @Override
   public void appendDefaultSql(final Query query, final RecordStore recordStore,
-    final Appendable sql) {
-    try {
-      sql.append(' ');
-      sql.append(this.joinType.toString());
-      sql.append(' ');
-      if (this.table != null) {
-        if (this.alias == null) {
-          this.table.appendFromWithAlias(sql);
-        } else {
-          this.table.appendFromWithAlias(sql, this.alias);
-        }
+    final SqlAppendable sql) {
+    sql.append(' ');
+    sql.append(this.joinType.toString());
+    sql.append(' ');
+    if (this.table != null) {
+      if (this.alias == null) {
+        this.table.appendFromWithAlias(sql);
+      } else {
+        this.table.appendFromWithAlias(sql, this.alias);
       }
-      if (this.statement != null) {
-        this.statement.appendDefaultSelect(query, recordStore, sql);
-        if (this.alias != null) {
-          sql.append(" ");
-          sql.append(this.alias);
-        }
+    }
+    if (this.statement != null) {
+      this.statement.appendDefaultSelect(query, recordStore, sql);
+      if (this.alias != null) {
+        sql.append(" ");
+        sql.append(this.alias);
       }
-      if (!this.condition.isEmpty()) {
-        sql.append(" ON ");
-        this.condition.appendSql(query, recordStore, sql);
-      }
-    } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+    }
+    if (!this.condition.isEmpty()) {
+      sql.append(" ON ");
+      this.condition.appendSql(query, recordStore, sql);
     }
   }
 
@@ -68,7 +63,7 @@ public class Join implements QueryValue {
     return this.condition.appendParameters(index, statement);
   }
 
-  private void appendSql(final StringBuilder sql) {
+  private void appendSql(final SqlAppendable sql) {
     sql.append(' ');
     sql.append(this.joinType);
     sql.append(' ');
@@ -111,6 +106,15 @@ public class Join implements QueryValue {
     return this;
   }
 
+  @Override
+  public ColumnReference getColumn(final CharSequence name) {
+    if (this.table.hasColumn(name)) {
+      return new Column(this, name);
+    }
+    throw new IllegalArgumentException(
+      "Column not found: " + this.table.getTableReference().getTablePath() + "." + name);
+  }
+
   public Condition getCondition() {
     return this.condition;
   }
@@ -119,8 +123,22 @@ public class Join implements QueryValue {
     return this.table;
   }
 
+  @Override
+  public String getTableAlias() {
+    if (this.alias == null) {
+      return this.table.getTableAlias();
+    } else {
+      return this.alias;
+    }
+  }
+
   public PathName getTableName() {
     return this.tablePath;
+  }
+
+  @Override
+  public TableReference getTableReference() {
+    return this.table;
   }
 
   @Override
@@ -149,7 +167,9 @@ public class Join implements QueryValue {
 
   public Join on(final String fromFieldName, final TableReferenceProxy toTable,
     final String toFieldName) {
-    final Condition condition = this.table.equal(fromFieldName, toTable, toFieldName);
+    final ColumnReference fromColumn = getColumn(fromFieldName);
+    final ColumnReference toColumn = toTable.getColumn(toFieldName);
+    final Equal condition = new Equal(fromColumn, toColumn);
     return and(condition);
   }
 
@@ -185,7 +205,7 @@ public class Join implements QueryValue {
   }
 
   public String toSql() {
-    final StringBuilder string = new StringBuilder();
+    final StringBuilderSqlAppendable string = SqlAppendable.stringBuilder();
     appendSql(string);
     return string.toString();
   }
@@ -194,4 +214,5 @@ public class Join implements QueryValue {
   public String toString() {
     return toSql();
   }
+
 }

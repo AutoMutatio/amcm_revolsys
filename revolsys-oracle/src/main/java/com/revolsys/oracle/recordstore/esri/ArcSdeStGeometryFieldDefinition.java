@@ -27,6 +27,7 @@ import com.revolsys.geometry.model.Polygon;
 import com.revolsys.jdbc.field.JdbcFieldDefinition;
 import com.revolsys.record.query.ColumnIndexes;
 import com.revolsys.record.query.Query;
+import com.revolsys.record.query.SqlAppendable;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordStore;
 
@@ -92,26 +93,19 @@ public class ArcSdeStGeometryFieldDefinition extends JdbcFieldDefinition {
   }
 
   @Override
-  public void addStatementPlaceHolder(final Appendable sql) {
-    try {
-      sql.append("SDE.ST_GEOMETRY(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-    } catch (final IOException e) {
-      throw Exceptions.wrap(e);
-    }
+  public void addStatementPlaceHolder(final SqlAppendable sql) {
+    sql.append("SDE.ST_GEOMETRY(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
   }
 
   @Override
-  public void appendSelect(final Query query, final RecordStore recordStore, final Appendable sql) {
-    try {
-      super.appendName(sql);
-      sql.append(".ENTITY, ");
-      super.appendName(sql);
-      sql.append(".NUMPTS, ");
-      super.appendName(sql);
-      sql.append(".POINTS");
-    } catch (final IOException e) {
-      throw Exceptions.wrap(e);
-    }
+  public void appendSelect(final Query query, final RecordStore recordStore,
+    final SqlAppendable sql) {
+    super.appendName(sql);
+    sql.append(".ENTITY, ");
+    super.appendName(sql);
+    sql.append(".NUMPTS, ");
+    super.appendName(sql);
+    sql.append(".POINTS");
   }
 
   @Override

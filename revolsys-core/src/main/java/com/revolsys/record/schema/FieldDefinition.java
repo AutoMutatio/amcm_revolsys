@@ -1,6 +1,5 @@
 package com.revolsys.record.schema;
 
-import java.io.IOException;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.math.BigDecimal;
@@ -18,7 +17,6 @@ import org.jeometry.common.data.type.CollectionDataType;
 import org.jeometry.common.data.type.DataType;
 import org.jeometry.common.data.type.DataTypeProxy;
 import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.common.exception.Exceptions;
 
 import com.revolsys.beans.ObjectPropertyException;
 import com.revolsys.collection.map.MapEx;
@@ -35,6 +33,7 @@ import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.record.io.format.json.JsonObjectHash;
 import com.revolsys.record.query.ColumnReference;
 import com.revolsys.record.query.Query;
+import com.revolsys.record.query.SqlAppendable;
 import com.revolsys.record.query.TableReference;
 import com.revolsys.util.BaseCloneable;
 import com.revolsys.util.CaseConverter;
@@ -309,54 +308,42 @@ public class FieldDefinition extends BaseObjectWithProperties implements CharSeq
     this.allowedValues.put(value, text);
   }
 
-  public void appendColumnName(final Appendable sql) {
-    try {
-      sql.append(this.name);
-    } catch (final IOException e) {
-      Exceptions.throwUncheckedException(e);
+  public void appendColumnName(final SqlAppendable sql) {
+    sql.append(this.name);
+  }
+
+  public void appendColumnName(final SqlAppendable sql, final boolean quoteName) {
+    if (quoteName) {
+      sql.append('"');
+    }
+    sql.append(this.name);
+    if (quoteName) {
+      sql.append('"');
     }
   }
 
-  public void appendColumnName(final Appendable sql, final boolean quoteName) {
-    try {
-      if (quoteName) {
-        sql.append('"');
-      }
-      sql.append(this.name);
-      if (quoteName) {
-        sql.append('"');
-      }
-    } catch (final IOException e) {
-      Exceptions.throwUncheckedException(e);
+  public void appendColumnName(final SqlAppendable sql, final String tablePrefix) {
+    if (tablePrefix != null) {
+      sql.append(tablePrefix);
+      sql.append(".");
     }
-  }
-
-  public void appendColumnName(final Appendable sql, final String tablePrefix) {
-    try {
-      if (tablePrefix != null) {
-        sql.append(tablePrefix);
-        sql.append(".");
-      }
-      appendColumnName(sql);
-    } catch (final IOException e) {
-      Exceptions.throwUncheckedException(e);
-    }
+    appendColumnName(sql);
   }
 
   @Override
   public void appendDefaultSelect(final Query query, final RecordStore recordStore,
-    final Appendable sql) {
+    final SqlAppendable sql) {
     appendName(sql);
   }
 
   @Override
   public void appendDefaultSql(final Query query, final RecordStore recordStore,
-    final Appendable sql) {
+    final SqlAppendable sql) {
     appendName(sql);
   }
 
   @Override
-  public void appendName(final Appendable sql) {
+  public void appendName(final SqlAppendable sql) {
     final String tableAlias = getTableAlias();
     appendColumnName(sql, tableAlias);
   }
