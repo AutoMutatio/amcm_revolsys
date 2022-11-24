@@ -26,7 +26,11 @@ public interface TableReferenceProxy {
 
   default String getTableAlias() {
     final TableReference table = getTableReference();
-    return table.getTableAlias();
+    if (table == null) {
+      return null;
+    } else {
+      return table.getTableAlias();
+    }
   }
 
   TableReference getTableReference();

@@ -463,12 +463,14 @@ public class Query extends BaseObjectWithProperties
     return index;
   }
 
-  public void clearOrderBy() {
+  public Query clearOrderBy() {
     this.orderBy.clear();
+    return this;
   }
 
-  public void clearSelect() {
+  public Query clearSelect() {
     this.selectExpressions.clear();
+    return this;
   }
 
   @Override
@@ -599,7 +601,11 @@ public class Query extends BaseObjectWithProperties
   }
 
   public RecordDefinition getRecordDefinition() {
-    return this.table.getRecordDefinition();
+    if (this.table == null) {
+      return null;
+    } else {
+      return this.table.getRecordDefinition();
+    }
   }
 
   @SuppressWarnings("unchecked")
@@ -691,7 +697,11 @@ public class Query extends BaseObjectWithProperties
   }
 
   public PathName getTablePath() {
-    return this.table.getTablePath();
+    if (this.table == null) {
+      return null;
+    } else {
+      return this.table.getTablePath();
+    }
   }
 
   @Override
@@ -1122,6 +1132,11 @@ public class Query extends BaseObjectWithProperties
 
   public Query setDistinct(final boolean distinct) {
     this.distinct = distinct;
+    return this;
+  }
+
+  public Query setFrom(final From from) {
+    this.from = from;
     return this;
   }
 

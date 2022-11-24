@@ -136,7 +136,8 @@ public interface QueryValue extends Cloneable {
     }
   }
 
-  default void appendSql(final Query query, final RecordStore recordStore, final SqlAppendable sql) {
+  default void appendSql(final Query query, final RecordStore recordStore,
+    final SqlAppendable sql) {
     if (recordStore == null) {
       appendDefaultSql(query, null, sql);
     } else {
