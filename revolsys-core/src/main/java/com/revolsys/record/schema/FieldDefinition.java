@@ -308,6 +308,7 @@ public class FieldDefinition extends BaseObjectWithProperties implements CharSeq
     this.allowedValues.put(value, text);
   }
 
+  @Override
   public void appendColumnName(final SqlAppendable sql) {
     sql.append(this.name);
   }
@@ -322,30 +323,21 @@ public class FieldDefinition extends BaseObjectWithProperties implements CharSeq
     }
   }
 
-  public void appendColumnName(final SqlAppendable sql, final String tablePrefix) {
-    if (tablePrefix != null) {
-      sql.append(tablePrefix);
-      sql.append(".");
-    }
-    appendColumnName(sql);
+  @Override
+  public void appendColumnPrefix(final SqlAppendable string) {
+    RecordDefinitionProxy.super.appendColumnPrefix(string);
   }
 
   @Override
   public void appendDefaultSelect(final Query query, final RecordStore recordStore,
     final SqlAppendable sql) {
-    appendName(sql);
+    appendColumnNameWithPrefix(sql);
   }
 
   @Override
   public void appendDefaultSql(final Query query, final RecordStore recordStore,
     final SqlAppendable sql) {
-    appendName(sql);
-  }
-
-  @Override
-  public void appendName(final SqlAppendable sql) {
-    final String tableAlias = getTableAlias();
-    appendColumnName(sql, tableAlias);
+    appendColumnNameWithPrefix(sql);
   }
 
   public void appendType(final StringBuilder string) {
@@ -544,6 +536,7 @@ public class FieldDefinition extends BaseObjectWithProperties implements CharSeq
     return getRecordDefinition();
   }
 
+  @Override
   public String getTableAlias() {
     final RecordDefinition recordDefinition = getRecordDefinition();
     if (recordDefinition == null) {

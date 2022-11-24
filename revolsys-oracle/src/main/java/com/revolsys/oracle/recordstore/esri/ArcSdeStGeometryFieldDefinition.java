@@ -100,11 +100,11 @@ public class ArcSdeStGeometryFieldDefinition extends JdbcFieldDefinition {
   @Override
   public void appendSelect(final Query query, final RecordStore recordStore,
     final SqlAppendable sql) {
-    super.appendName(sql);
+    super.appendColumnName(sql);
     sql.append(".ENTITY, ");
-    super.appendName(sql);
+    super.appendColumnName(sql);
     sql.append(".NUMPTS, ");
-    super.appendName(sql);
+    super.appendColumnName(sql);
     sql.append(".POINTS");
   }
 

@@ -49,14 +49,6 @@ public class TableReferenceImpl implements TableReference {
   }
 
   @Override
-  public void appendColumnPrefix(final SqlAppendable string) {
-    if (this.tableAlias != null) {
-      string.append(this.tableAlias);
-      string.append('.');
-    }
-  }
-
-  @Override
   public void appendQueryValue(final Query query, final SqlAppendable sql,
     final QueryValue queryValue) {
     final RecordDefinition recordDefinition = this.recordDefinition;

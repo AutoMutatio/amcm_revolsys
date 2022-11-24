@@ -79,8 +79,37 @@ public class AbstractWebController {
     return json;
   }
 
+  protected void responseRecords(final HttpServletResponse response, final RecordReader reader,
+    final String prefix, final String fileExtension) throws IOException {
+    final RecordWriterFactory factory = IoFactory.factoryByFileExtension(RecordWriterFactory.class,
+      fileExtension);
+    if (factory == null) {
+      response.sendError(HttpServletResponse.SC_BAD_REQUEST,
+        "File type not supported: " + fileExtension);
+    } else {
+      reader.open();
+      response.setHeader("Content-Disposition",
+        "attachment; filename=" + prefix + "." + fileExtension);
+      final String mediaType = factory.getMediaType(fileExtension);
+      if (factory.isBinary()) {
+        response.setContentType(mediaType);
+      } else {
+        setContentTypeText(response, mediaType);
+      }
+      response.setStatus(200);
+
+      try (
+        OutputStream out = response.getOutputStream();
+        RecordWriter recordWriter = factory.newRecordWriter("Export", reader, out,
+          StandardCharsets.UTF_8)) {
+        recordWriter.writeAll(reader);
+      }
+    }
+  }
+
   protected void responseRecordsCsv(final HttpServletResponse response, final RecordReader reader)
     throws IOException {
+    reader.open();
     response.setHeader("Content-Disposition", "attachment; filename=Export.csv");
     setContentTypeText(response, Csv.MIME_TYPE);
     response.setStatus(200);
@@ -102,33 +131,6 @@ public class AbstractWebController {
       final JsonObject result = JsonObject.hash("@odata.count", records.size())
         .addValue("value", records);
       writer.write(result.toJsonString(true));
-    }
-  }
-
-  protected void responseRecords(final HttpServletResponse response, final RecordReader reader,
-    final String prefix, final String fileExtension) throws IOException {
-    final RecordWriterFactory factory = IoFactory.factoryByFileExtension(RecordWriterFactory.class,
-      fileExtension);
-    if (factory == null) {
-      response.sendError(HttpServletResponse.SC_BAD_REQUEST,
-        "File type not supported: " + fileExtension);
-    } else {
-      response.setHeader("Content-Disposition",
-        "attachment; filename=" + prefix + "." + fileExtension);
-      final String mediaType = factory.getMediaType(fileExtension);
-      if (factory.isBinary()) {
-        response.setContentType(mediaType);
-      } else {
-        setContentTypeText(response, mediaType);
-      }
-      response.setStatus(200);
-
-      try (
-        OutputStream out = response.getOutputStream();
-        RecordWriter recordWriter = factory.newRecordWriter("Export", reader, out,
-          StandardCharsets.UTF_8)) {
-        recordWriter.writeAll(reader);
-      }
     }
   }
 

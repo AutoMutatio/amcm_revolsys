@@ -12,21 +12,15 @@ import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordStore;
 
-public class ColumnAlias implements QueryValue, ColumnReference {
+public class ColumnWithPrefix implements QueryValue, ColumnReference {
 
-  private final String alias;
+  private final String columnPrefix;
 
   private final ColumnReference column;
 
-  public ColumnAlias(final ColumnReference column, final CharSequence alias) {
+  public ColumnWithPrefix(final ColumnReference column, final CharSequence columnPrefix) {
+    this.columnPrefix = columnPrefix.toString();
     this.column = column;
-    this.alias = alias.toString();
-  }
-
-  protected void appendAlias(final SqlAppendable sql) {
-    sql.append('"');
-    sql.append(this.alias);
-    sql.append('"');
   }
 
   @Override
@@ -36,21 +30,22 @@ public class ColumnAlias implements QueryValue, ColumnReference {
 
   @Override
   public void appendColumnPrefix(final SqlAppendable string) {
-    this.column.appendColumnPrefix(string);
+    if (this.columnPrefix != null) {
+      string.append(this.columnPrefix);
+      string.append(".");
+    }
   }
 
   @Override
   public void appendDefaultSelect(final Query query, final RecordStore recordStore,
     final SqlAppendable sql) {
-    this.column.appendDefaultSelect(query, recordStore, sql);
-    sql.append(" as ");
-    appendAlias(sql);
+    appendColumnNameWithPrefix(sql);
   }
 
   @Override
   public void appendDefaultSql(final Query query, final RecordStore recordStore,
     final SqlAppendable sql) {
-    sql.append(this.alias);
+    appendColumnNameWithPrefix(sql);
   }
 
   @Override
@@ -59,37 +54,32 @@ public class ColumnAlias implements QueryValue, ColumnReference {
   }
 
   @Override
-  public ColumnAlias clone() {
+  public ColumnWithPrefix clone() {
     try {
-      return (ColumnAlias)super.clone();
+      return (ColumnWithPrefix)super.clone();
     } catch (final CloneNotSupportedException e) {
       return null;
     }
   }
 
   @Override
-  public ColumnAlias clone(final TableReference oldTable, final TableReference newTable) {
+  public ColumnWithPrefix clone(final TableReference oldTable, final TableReference newTable) {
     if (oldTable != newTable) {
       final ColumnReference clonedColumn = this.column.clone(oldTable, newTable);
-      return new ColumnAlias(clonedColumn, this.alias);
+      return new ColumnWithPrefix(clonedColumn, this.columnPrefix);
     }
     return clone();
   }
 
   @Override
   public boolean equals(final Object obj) {
-    if (obj instanceof ColumnAlias) {
-      final ColumnAlias alias = (ColumnAlias)obj;
-      if (this.column.equals(alias.column)) {
-        return DataType.equal(alias.getName(), getName());
+    if (obj instanceof ColumnWithPrefix) {
+      final ColumnWithPrefix columnWithPrefix = (ColumnWithPrefix)obj;
+      if (this.column.equals(columnWithPrefix.column)) {
+        return DataType.equal(columnWithPrefix.getName(), getName());
       }
     }
     return false;
-  }
-
-  @Override
-  public String getAliasName() {
-    return this.alias;
   }
 
   @Override
@@ -104,7 +94,7 @@ public class ColumnAlias implements QueryValue, ColumnReference {
 
   @Override
   public String getName() {
-    return this.alias;
+    return this.column.getName();
   }
 
   @Override
@@ -134,7 +124,7 @@ public class ColumnAlias implements QueryValue, ColumnReference {
     final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings)
     throws SQLException {
     return this.column.getValueFromResultSet(recordDefinition, resultSet, indexes, internStrings,
-      this.alias);
+      null);
   }
 
   @Override
@@ -167,9 +157,7 @@ public class ColumnAlias implements QueryValue, ColumnReference {
   @Override
   public String toString() {
     final StringBuilderSqlAppendable sql = SqlAppendable.stringBuilder();
-    this.column.appendColumnNameWithPrefix(sql);
-    sql.append(" as ");
-    appendAlias(sql);
+    appendColumnNameWithPrefix(sql);
     return sql.toSqlString();
   }
 

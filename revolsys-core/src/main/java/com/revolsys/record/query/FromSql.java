@@ -14,4 +14,14 @@ public class FromSql implements From {
     sql.append(this.from);
     sql.append(')');
   }
+
+  @Override
+  public ColumnReference getColumn(final CharSequence name) {
+    return new Column(this, name);
+  }
+
+  @Override
+  public TableReference getTableReference() {
+    return null;
+  }
 }

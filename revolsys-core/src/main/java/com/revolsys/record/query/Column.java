@@ -33,11 +33,31 @@ public class Column implements QueryValue, ColumnReference {
   }
 
   @Override
+  public void appendColumnName(final SqlAppendable string) {
+    final String name = this.name;
+    if ("*".equals(name) || name.indexOf('"') != -1 || name.indexOf('.') != -1
+      || name.matches("([A-Z][_A-Z1-9]*\\.)?[A-Z][_A-Z1-9]*\\*")) {
+      string.append(name);
+    } else {
+      string.append('"');
+      string.append(name);
+      string.append('"');
+    }
+  }
+
+  @Override
+  public void appendColumnPrefix(final SqlAppendable string) {
+    if (this.table != null) {
+      this.table.appendColumnPrefix(string);
+    }
+  }
+
+  @Override
   public void appendDefaultSelect(final Query query, final RecordStore recordStore,
     final SqlAppendable sql) {
     final FieldDefinition fieldDefinition = getFieldDefinition();
     if (fieldDefinition == null) {
-      appendName(sql);
+      appendColumnNameWithPrefix(sql);
     } else {
       fieldDefinition.appendSelect(query, recordStore, sql);
     }
@@ -48,25 +68,9 @@ public class Column implements QueryValue, ColumnReference {
     final SqlAppendable sql) {
     final FieldDefinition fieldDefinition = getFieldDefinition();
     if (fieldDefinition == null) {
-      sql.append(toString());
+      appendColumnNameWithPrefix(sql);
     } else {
-      fieldDefinition.appendColumnName(sql, null);
-    }
-  }
-
-  @Override
-  public void appendName(final SqlAppendable string) {
-    if (this.table != null) {
-      this.table.appendColumnPrefix(string);
-    }
-    final String name = this.name;
-    if ("*".equals(name) || name.indexOf('"') != -1 || name.indexOf('.') != -1
-      || name.matches("([A-Z][_A-Z1-9]*\\.)?[A-Z][_A-Z1-9]*\\*")) {
-      string.append(name);
-    } else {
-      string.append('"');
-      string.append(name);
-      string.append('"');
+      fieldDefinition.appendColumnNameWithPrefix(sql);
     }
   }
 
@@ -226,7 +230,7 @@ public class Column implements QueryValue, ColumnReference {
   @Override
   public String toString() {
     final StringBuilderSqlAppendable sql = SqlAppendable.stringBuilder();
-    appendName(sql);
+    appendColumnNameWithPrefix(sql);
     return sql.toString();
   }
 

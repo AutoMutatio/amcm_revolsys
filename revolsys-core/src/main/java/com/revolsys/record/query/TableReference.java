@@ -17,14 +17,6 @@ public interface TableReference extends From, TableReferenceProxy {
     }
   }
 
-  default void appendColumnPrefix(final SqlAppendable string) {
-    final String alias = getTableAlias();
-    if (alias != null) {
-      string.append(alias);
-      string.append('.');
-    }
-  }
-
   @Override
   default void appendFrom(final SqlAppendable sql) {
     final String tableName = getQualifiedTableName();
@@ -90,6 +82,7 @@ public interface TableReference extends From, TableReferenceProxy {
 
   RecordDefinition getRecordDefinition();
 
+  @Override
   String getTableAlias();
 
   PathName getTablePath();

@@ -1,5 +1,7 @@
 package com.revolsys.record.query;
 
+import com.revolsys.record.schema.FieldDefinition;
+
 public class FromAlias implements From {
   private final From from;
 
@@ -20,5 +22,25 @@ public class FromAlias implements From {
     appendFrom(sql);
     sql.append(" ");
     sql.append(this.alias);
+  }
+
+  @Override
+  public ColumnReference getColumn(final CharSequence name) {
+    return new ColumnWithPrefix(this.from.getColumn(name), this.alias);
+  }
+
+  @Override
+  public FieldDefinition getField(final CharSequence name) {
+    return this.from.getField(name);
+  }
+
+  @Override
+  public String getTableAlias() {
+    return this.alias;
+  }
+
+  @Override
+  public TableReference getTableReference() {
+    return this.from.getTableReference();
   }
 }

@@ -4,7 +4,7 @@ public enum JoinType {
 
   CROSS_JOIN, INNER_JOIN, LEFT_OUTER_JOIN, RIGHT_OUTER_JOIN, FULL_OUTER_JOIN, COMMA(", ");
 
-  static JoinType JOIN = INNER_JOIN;
+  public static final JoinType JOIN = INNER_JOIN;
 
   private String sql;
 

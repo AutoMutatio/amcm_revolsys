@@ -13,7 +13,15 @@ import com.revolsys.record.schema.RecordDefinition;
 
 public interface ColumnReference extends QueryValue {
 
-  void appendName(final SqlAppendable string);
+  void appendColumnName(final SqlAppendable string);
+
+  default void appendColumnNameWithPrefix(final SqlAppendable string) {
+    appendColumnPrefix(string);
+    appendColumnName(string);
+  }
+
+  default void appendColumnPrefix(final SqlAppendable string) {
+  }
 
   @Override
   default int appendParameters(final int index, final PreparedStatement statement) {
