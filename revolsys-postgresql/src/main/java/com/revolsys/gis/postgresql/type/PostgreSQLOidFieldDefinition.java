@@ -12,6 +12,7 @@ import com.revolsys.jdbc.field.JdbcFieldDefinition;
 import com.revolsys.record.Record;
 import com.revolsys.record.RecordState;
 import com.revolsys.record.query.ColumnIndexes;
+import com.revolsys.record.query.SqlAppendable;
 import com.revolsys.record.schema.RecordDefinition;
 
 public class PostgreSQLOidFieldDefinition extends JdbcFieldDefinition {
@@ -22,7 +23,7 @@ public class PostgreSQLOidFieldDefinition extends JdbcFieldDefinition {
   }
 
   @Override
-  public void addInsertStatementPlaceHolder(final StringBuilder sql, final boolean generateKeys) {
+  public void addInsertStatementPlaceHolder(final SqlAppendable sql, final boolean generateKeys) {
   }
 
   @Override

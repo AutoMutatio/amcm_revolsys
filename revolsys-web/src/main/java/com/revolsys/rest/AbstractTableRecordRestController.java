@@ -5,8 +5,8 @@ import java.io.PrintWriter;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.jeometry.common.data.identifier.Identifier;
 import org.jeometry.common.io.PathName;
@@ -22,7 +22,7 @@ import com.revolsys.record.schema.AbstractTableRecordStore;
 import com.revolsys.record.schema.TableRecordStoreConnection;
 import com.revolsys.transaction.Transaction;
 import com.revolsys.transaction.TransactionOptions;
-import com.revolsys.ui.web.utils.HttpServletUtils;
+import com.revolsys.web.utils.HttpServletUtils;
 
 public class AbstractTableRecordRestController extends AbstractWebController {
 
@@ -130,37 +130,54 @@ public class AbstractTableRecordRestController extends AbstractWebController {
     responseRecordJson(response, record);
   }
 
-  protected void responseRecords(final TableRecordStoreConnection connection,
-    final HttpServletRequest request, final HttpServletResponse response, final Query query,
-    final RecordReader reader, final Long count) throws IOException {
-    if ("csv".equals(request.getParameter("format"))) {
-      responseRecordsCsv(response, reader);
-    } else {
-      responseRecordsJson(connection, request, response, query, reader, count);
-    }
-  }
-
-  public void responseRecordsJson(final TableRecordStoreConnection connection,
+  public void responseRecords(final TableRecordStoreConnection connection,
     final HttpServletRequest request, final HttpServletResponse response, final Query query,
     final Long count) throws IOException {
     try (
       Transaction transaction = connection.newTransaction(TransactionOptions.REQUIRES_NEW_READONLY);
       final RecordReader records = query.getRecordReader(transaction)) {
-      responseRecordsJson(connection, request, response, query, records, count);
+      responseRecords(connection, request, response, query, records, count);
+    }
+  }
+
+  protected void responseRecords(final TableRecordStoreConnection connection,
+    final HttpServletRequest request, final HttpServletResponse response, final Query query,
+    final RecordReader reader, final Long count) throws IOException {
+    if ("csv".equals(request.getParameter("format"))) {
+      responseRecordsCsv(response, reader);
+    } else if ("xlsx".equals(request.getParameter("format"))) {
+      responseRecords(response, reader, "Export", "xlsx");
+    } else {
+      responseRecordsJson(connection, request, response, query, reader, count, null);
+    }
+  }
+
+  public void responseRecordsJson(final TableRecordStoreConnection connection,
+    final HttpServletRequest request, final HttpServletResponse response, final Query query,
+    final Long count, final JsonObject extraData) throws IOException {
+    try (
+      Transaction transaction = connection.newTransaction(TransactionOptions.REQUIRES_NEW_READONLY);
+      final RecordReader records = query.getRecordReader(transaction)) {
+      responseRecordsJson(connection, request, response, query, records, count, extraData);
     }
   }
 
   protected void responseRecordsJson(final TableRecordStoreConnection connection,
     final HttpServletRequest request, final HttpServletResponse response, final Query query,
-    final RecordReader reader, final Long count) throws IOException {
+    final RecordReader reader, final Long count, final JsonObject extraData) throws IOException {
     reader.open();
     setContentTypeJson(response);
     response.setStatus(200);
     try (
       PrintWriter writer = response.getWriter();
       JsonRecordWriter jsonWriter = new JsonRecordWriter(reader, writer);) {
+      final JsonObject header = JsonObject.hash();
+      jsonWriter.setHeader(header);
       if (count != null) {
-        jsonWriter.setHeader(JsonObject.hash("@odata.count", count));
+        header.addValue("@odata.count", count);
+      }
+      if (extraData != null) {
+        header.addValues(extraData);
       }
       jsonWriter.setItemsPropertyName("value");
       final int writeCount = jsonWriter.writeAll(reader);

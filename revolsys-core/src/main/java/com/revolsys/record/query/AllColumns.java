@@ -1,13 +1,11 @@
 package com.revolsys.record.query;
 
-import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 
 import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.exception.Exceptions;
 
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.record.schema.RecordStore;
@@ -25,14 +23,9 @@ public class AllColumns implements QueryValue {
 
   @Override
   public void appendDefaultSql(final Query query, final RecordStore recordStore,
-    final Appendable sql) {
-    try {
-      this.table.appendColumnPrefix(sql);
-      sql.append("*");
-    } catch (final IOException e) {
-      throw Exceptions.wrap(e);
-
-    }
+    final SqlAppendable sql) {
+    this.table.appendColumnPrefix(sql);
+    sql.append("*");
   }
 
   @Override
@@ -40,7 +33,7 @@ public class AllColumns implements QueryValue {
     return index;
   }
 
-  protected void appendValue(final StringBuilder sql, final Query query,
+  protected void appendValue(final SqlAppendable sql, final Query query,
     final RecordStore recordStore) {
     appendDefaultSql(query, recordStore, sql);
   }
@@ -90,7 +83,7 @@ public class AllColumns implements QueryValue {
 
   @Override
   public String toString() {
-    final StringBuilder string = new StringBuilder();
+    final StringBuilderSqlAppendable string = SqlAppendable.stringBuilder();
     if (this.table != null) {
       this.table.appendColumnPrefix(string);
     }

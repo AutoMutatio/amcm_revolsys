@@ -1,6 +1,5 @@
 package com.revolsys.record.query;
 
-import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -44,33 +43,26 @@ public class CollectionValue extends AbstractMultiQueryValue {
 
   @Override
   public void appendDefaultSql(final Query query, final RecordStore recordStore,
-    final Appendable buffer) {
-    try {
-      buffer.append('(');
+    final SqlAppendable sql) {
+    sql.append('(');
 
-      final QueryValue[] values = this.values;
-      final int valueCount = values.length;
-      for (int i = 0; i < valueCount; i++) {
-        if (i > 0) {
-          buffer.append(", ");
-        }
-
-        final QueryValue queryValue = values[i];
-        if (queryValue instanceof Value) {
-          if (this.jdbcField == null) {
-            queryValue.appendSql(query, recordStore, buffer);
-          } else {
-            this.jdbcField.addSelectStatementPlaceHolder(buffer);
-          }
-        } else {
-          queryValue.appendSql(query, recordStore, buffer);
-        }
-
+    final QueryValue[] values = this.values;
+    final int valueCount = values.length;
+    for (int i = 0; i < valueCount; i++) {
+      if (i > 0) {
+        sql.append(", ");
       }
-      buffer.append(')');
-    } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+
+      final QueryValue queryValue = values[i];
+      if (queryValue instanceof Value) {
+        final Value value = (Value)queryValue;
+        value.appendDefaultSql(query, recordStore, sql);
+      } else {
+        queryValue.appendSql(query, recordStore, sql);
+      }
+
     }
+    sql.append(')');
   }
 
   @Override

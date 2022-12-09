@@ -1,5 +1,7 @@
 package com.revolsys.record.schema;
 
+import com.revolsys.record.query.SqlAppendable;
+
 public enum LockMode {
   NONE(""), //
   FOR_UPDATE(" FOR UPDATE"), //
@@ -14,7 +16,7 @@ public enum LockMode {
     this.clause = clause;
   }
 
-  public StringBuilder append(final StringBuilder string) {
+  public SqlAppendable append(final SqlAppendable string) {
     string.append(this.clause);
     return string;
   }

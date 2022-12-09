@@ -1,6 +1,5 @@
 package com.revolsys.record.query;
 
-import java.io.IOException;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -14,7 +13,6 @@ import org.jeometry.common.data.identifier.TypedIdentifier;
 import org.jeometry.common.data.type.DataType;
 import org.jeometry.common.data.type.DataTypes;
 import org.jeometry.common.date.Dates;
-import org.jeometry.common.exception.Exceptions;
 
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.jdbc.field.JdbcFieldDefinition;
@@ -109,15 +107,23 @@ public class Value implements QueryValue {
 
   @Override
   public void appendDefaultSql(final Query query, final RecordStore recordStore,
-    final Appendable buffer) {
-    try {
+    final SqlAppendable sql) {
+    if (sql.isUsePlaceholders()) {
       if (this.jdbcField == null) {
-        buffer.append('?');
+        sql.append('?');
       } else {
-        this.jdbcField.addSelectStatementPlaceHolder(buffer);
+        this.jdbcField.addSelectStatementPlaceHolder(sql);
       }
-    } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+    } else {
+      if (this.jdbcField == null) {
+        if (recordStore == null) {
+          RecordStore.appendDefaultSql(sql, this.queryValue);
+        } else {
+          recordStore.appendSqlValue(sql, this.queryValue);
+        }
+      } else {
+        this.jdbcField.appendSqlValue(sql, recordStore, this.queryValue);
+      }
     }
   }
 
@@ -241,28 +247,31 @@ public class Value implements QueryValue {
       }
 
       CodeTable codeTable = null;
-      final TableReference table = column.getTable();
-      if (table instanceof RecordDefinition) {
-        final RecordDefinition recordDefinition = (RecordDefinition)table;
-        final String fieldName = column.getName();
-        codeTable = recordDefinition.getCodeTableByFieldName(fieldName);
-        if (codeTable instanceof RecordDefinitionProxy) {
-          final RecordDefinitionProxy proxy = (RecordDefinitionProxy)codeTable;
-          if (proxy.getRecordDefinition() == recordDefinition) {
-            codeTable = null;
+      final TableReferenceProxy table = column.getTable();
+      if (table != null) {
+        final TableReference tableRef = table.getTableReference();
+        if (tableRef instanceof RecordDefinition) {
+          final RecordDefinition recordDefinition = (RecordDefinition)tableRef;
+          final String fieldName = column.getName();
+          codeTable = recordDefinition.getCodeTableByFieldName(fieldName);
+          if (codeTable instanceof RecordDefinitionProxy) {
+            final RecordDefinitionProxy proxy = (RecordDefinitionProxy)codeTable;
+            if (proxy.getRecordDefinition() == recordDefinition) {
+              codeTable = null;
+            }
           }
-        }
-        if (codeTable != null) {
-          final Identifier id = codeTable.getIdentifier(this.queryValue);
-          if (id == null) {
-            this.displayValue = this.queryValue;
-          } else {
-            setQueryValue(id);
-            final List<Object> values = codeTable.getValues(id);
-            if (values.size() == 1) {
-              this.displayValue = values.get(0);
+          if (codeTable != null) {
+            final Identifier id = codeTable.getIdentifier(this.queryValue);
+            if (id == null) {
+              this.displayValue = this.queryValue;
             } else {
-              this.displayValue = Strings.toString(":", values);
+              setQueryValue(id);
+              final List<Object> values = codeTable.getValues(id);
+              if (values.size() == 1) {
+                this.displayValue = values.get(0);
+              } else {
+                this.displayValue = Strings.toString(":", values);
+              }
             }
           }
         }

@@ -12,6 +12,7 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import org.jeometry.common.data.identifier.Identifier;
+import org.jeometry.common.data.type.DataTypes;
 import org.jeometry.common.io.PathName;
 import org.jeometry.common.io.PathNameProxy;
 import org.springframework.beans.DirectFieldAccessor;
@@ -46,6 +47,7 @@ import com.revolsys.record.query.InsertUpdateAction;
 import com.revolsys.record.query.Q;
 import com.revolsys.record.query.Query;
 import com.revolsys.record.query.QueryValue;
+import com.revolsys.record.query.SqlAppendable;
 import com.revolsys.transaction.Propagation;
 import com.revolsys.transaction.Transaction;
 import com.revolsys.transaction.TransactionOptions;
@@ -57,6 +59,18 @@ import com.revolsys.util.count.LabelCounters;
 
 public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFactory, Transactionable,
   BaseCloseable, ObjectWithProperties {
+
+  static void appendDefaultSql(final SqlAppendable sql, final Object queryValue) {
+    if (queryValue == null) {
+      sql.append("NULL");
+    } else if (queryValue instanceof Number) {
+      final Number number = (Number)queryValue;
+      sql.append(DataTypes.toString(number));
+    } else {
+      final String string = DataTypes.toString(queryValue).replaceAll("'", "''");
+      sql.append('\'').append(string).append('\'');
+    }
+  }
 
   static boolean isRecordStore(final Path path) {
     for (final RecordStoreFactory recordStoreFactory : IoFactory
@@ -211,13 +225,18 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
     }
   }
 
-  default void appendQueryValue(final Query query, final Appendable sql,
+  default void appendQueryValue(final Query query, final SqlAppendable sql,
     final QueryValue queryValue) {
     queryValue.appendDefaultSql(query, this, sql);
   }
 
-  default void appendSelect(final Query query, final Appendable sql, final QueryValue queryValue) {
+  default void appendSelect(final Query query, final SqlAppendable sql,
+    final QueryValue queryValue) {
     queryValue.appendDefaultSelect(query, this, sql);
+  }
+
+  default void appendSqlValue(final SqlAppendable sql, final Object queryValue) {
+    appendDefaultSql(sql, queryValue);
   }
 
   @Override

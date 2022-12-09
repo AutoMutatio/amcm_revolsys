@@ -23,7 +23,7 @@ public abstract class AbstractUnaryQueryValue implements QueryValue {
 
   @Override
   public void appendDefaultSql(final Query query, final RecordStore recordStore,
-    final Appendable buffer) {
+    final SqlAppendable buffer) {
     this.value.appendSql(query, recordStore, buffer);
   }
 
@@ -35,7 +35,7 @@ public abstract class AbstractUnaryQueryValue implements QueryValue {
     return index;
   }
 
-  protected void appendValue(final StringBuilder sql, final Query query,
+  protected void appendValue(final SqlAppendable sql, final Query query,
     final RecordStore recordStore) {
     if (this.value == null) {
       sql.append("NULL");

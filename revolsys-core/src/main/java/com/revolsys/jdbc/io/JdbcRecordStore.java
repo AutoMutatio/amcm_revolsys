@@ -18,6 +18,8 @@ import com.revolsys.record.Record;
 import com.revolsys.record.query.Condition;
 import com.revolsys.record.query.Join;
 import com.revolsys.record.query.Query;
+import com.revolsys.record.query.SqlAppendable;
+import com.revolsys.record.query.StringBuilderSqlAppendable;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordStore;
 import com.revolsys.transaction.Propagation;
@@ -71,10 +73,10 @@ public interface JdbcRecordStore extends RecordStore {
   default void lockTable(final PathName typeName) {
     try (
       final JdbcConnection connection = getJdbcConnection()) {
-      final StringBuilder sql = new StringBuilder("LOCK TABLE ");
+      final StringBuilderSqlAppendable sql = SqlAppendable.stringBuilder("LOCK TABLE ");
       getRecordDefinition(typeName).appendFrom(sql);
       sql.append(" IN SHARE MODE");
-      connection.executeUpdate(sql.toString());
+      connection.executeUpdate(sql.toSqlString());
     }
   }
 

@@ -1,6 +1,5 @@
 package com.revolsys.record.query.functions;
 
-import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.util.Arrays;
 import java.util.List;
@@ -14,6 +13,7 @@ import com.revolsys.geometry.model.Geometry;
 import com.revolsys.record.query.Condition;
 import com.revolsys.record.query.Query;
 import com.revolsys.record.query.QueryValue;
+import com.revolsys.record.query.SqlAppendable;
 import com.revolsys.record.query.TableReference;
 import com.revolsys.record.schema.RecordStore;
 
@@ -35,22 +35,17 @@ public class WithinDistance implements Condition, Function {
 
   @Override
   public void appendDefaultSql(final Query query, final RecordStore recordStore,
-    final Appendable sql) {
-    try {
-      if (this.geometry1Value == null || this.geometry2Value == null
-        || this.distanceValue == null) {
-        sql.append("1 = 0");
-      } else {
-        sql.append(NAME + "(");
-        this.geometry1Value.appendSql(query, recordStore, sql);
-        sql.append(", ");
-        this.geometry2Value.appendSql(query, recordStore, sql);
-        sql.append(", ");
-        this.distanceValue.appendSql(query, recordStore, sql);
-        sql.append(")");
-      }
-    } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+    final SqlAppendable sql) {
+    if (this.geometry1Value == null || this.geometry2Value == null || this.distanceValue == null) {
+      sql.append("1 = 0");
+    } else {
+      sql.append(NAME + "(");
+      this.geometry1Value.appendSql(query, recordStore, sql);
+      sql.append(", ");
+      this.geometry2Value.appendSql(query, recordStore, sql);
+      sql.append(", ");
+      this.distanceValue.appendSql(query, recordStore, sql);
+      sql.append(")");
     }
   }
 

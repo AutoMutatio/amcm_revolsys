@@ -1,12 +1,10 @@
 package com.revolsys.record.query;
 
-import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.exception.Exceptions;
 
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.record.schema.RecordDefinition;
@@ -23,36 +21,24 @@ public class SelectAlias implements QueryValue {
     this.alias = alias.toString();
   }
 
-  protected void appendAlias(final Appendable sql) {
-    try {
-      sql.append('"');
-      sql.append(this.alias);
-      sql.append('"');
-    } catch (final IOException e) {
-      throw Exceptions.wrap(e);
-    }
+  protected void appendAlias(final SqlAppendable sql) {
+    sql.append('"');
+    sql.append(this.alias);
+    sql.append('"');
   }
 
   @Override
   public void appendDefaultSelect(final Query query, final RecordStore recordStore,
-    final Appendable sql) {
+    final SqlAppendable sql) {
     this.value.appendDefaultSelect(query, recordStore, sql);
-    try {
-      sql.append(" as ");
-    } catch (final IOException e) {
-      throw Exceptions.wrap(e);
-    }
+    sql.append(" as ");
     appendAlias(sql);
   }
 
   @Override
   public void appendDefaultSql(final Query query, final RecordStore recordStore,
-    final Appendable sql) {
-    try {
-      sql.append(this.alias);
-    } catch (final IOException e) {
-      throw Exceptions.wrap(e);
-    }
+    final SqlAppendable sql) {
+    sql.append(this.alias);
   }
 
   @Override
@@ -61,9 +47,9 @@ public class SelectAlias implements QueryValue {
   }
 
   @Override
-  public ColumnReference clone() {
+  public SelectAlias clone() {
     try {
-      return (ColumnReference)super.clone();
+      return (SelectAlias)super.clone();
     } catch (final CloneNotSupportedException e) {
       return null;
     }
@@ -75,7 +61,7 @@ public class SelectAlias implements QueryValue {
       final QueryValue clonedColumn = this.value.clone(oldTable, newTable);
       return new SelectAlias(clonedColumn, this.alias);
     }
-    return (SelectAlias)clone();
+    return clone();
   }
 
   @Override
@@ -99,6 +85,10 @@ public class SelectAlias implements QueryValue {
     return this.value.getStringValue(record);
   }
 
+  public QueryValue getValue() {
+    return this.value;
+  }
+
   @Override
   @SuppressWarnings("unchecked")
   public <V> V getValue(final MapEx record) {
@@ -114,11 +104,11 @@ public class SelectAlias implements QueryValue {
 
   @Override
   public String toString() {
-    final StringBuilder sql = new StringBuilder();
+    final StringBuilderSqlAppendable sql = SqlAppendable.stringBuilder();
     this.value.appendSelect(null, null, sql);
     sql.append(" as ");
     appendAlias(sql);
-    return sql.toString();
+    return sql.toSqlString();
   }
 
 }

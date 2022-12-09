@@ -1,5 +1,8 @@
 package com.revolsys.jdbc.io;
 
+import com.revolsys.record.query.SqlAppendable;
+import com.revolsys.record.query.StringBuilderSqlAppendable;
+
 public class SqlFunction {
   private final String prefix;
 
@@ -15,7 +18,7 @@ public class SqlFunction {
   }
 
   public String toSql(final Object... parameters) {
-    final StringBuilder sql = new StringBuilder();
+    final StringBuilderSqlAppendable sql = SqlAppendable.stringBuilder();
     sql.append(this.prefix);
     if (parameters.length > 0) {
       Object value = parameters[0];
@@ -35,6 +38,6 @@ public class SqlFunction {
       }
     }
     sql.append(this.suffix);
-    return sql.toString();
+    return sql.toSqlString();
   }
 }

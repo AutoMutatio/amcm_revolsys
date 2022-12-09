@@ -9,7 +9,7 @@ import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.jeometry.common.data.identifier.Identifier;
 import org.jeometry.common.data.type.DataType;
@@ -45,7 +45,7 @@ import com.revolsys.transaction.TransactionOptions;
 import com.revolsys.transaction.TransactionRecordReader;
 import com.revolsys.util.Property;
 
-public class AbstractTableRecordStore {
+public class AbstractTableRecordStore implements RecordDefinitionProxy {
 
   public static JsonObject schemaToJson(final RecordDefinition recordDefinition) {
     final JsonList jsonFields = JsonList.array();
@@ -110,6 +110,8 @@ public class AbstractTableRecordStore {
 
   private final Set<String> searchFieldNames = new LinkedHashSet<>();
 
+  private String tableAlias;
+
   public AbstractTableRecordStore(final PathName typePath) {
     this.tablePath = typePath;
     this.typeName = typePath.getName();
@@ -159,7 +161,7 @@ public class AbstractTableRecordStore {
     final String searchText = search.trim().toLowerCase();
     search = '%' + searchText + '%';
     for (final String fieldName : this.searchFieldNames) {
-      final ColumnReference column = query.getTable().getColumn(fieldName);
+      final ColumnReference column = getTable().getColumn(fieldName);
       QueryValue left = column;
       final DataType dataType = column.getDataType();
       if (dataType != DataTypes.STRING) {
@@ -177,7 +179,8 @@ public class AbstractTableRecordStore {
   }
 
   protected void addSelect(final Query query, final String selectItem) {
-    query.select(selectItem);
+    final QueryValue selectClause = newSelectClause(query, selectItem);
+    query.select(selectClause);
   }
 
   protected Condition alterCondition(final HttpServletRequest request,
@@ -284,6 +287,7 @@ public class AbstractTableRecordStore {
     }
   }
 
+  @Override
   public RecordDefinition getRecordDefinition() {
     return this.recordDefinition;
   }
@@ -304,6 +308,7 @@ public class AbstractTableRecordStore {
     }
   }
 
+  @Override
   @SuppressWarnings("unchecked")
   public <R extends RecordStore> R getRecordStore() {
     return (R)this.recordStore;
@@ -311,6 +316,10 @@ public class AbstractTableRecordStore {
 
   public TableReference getTable() {
     return getRecordDefinition();
+  }
+
+  public String getTableAlias() {
+    return this.tableAlias;
   }
 
   public PathName getTablePath() {
@@ -503,6 +512,10 @@ public class AbstractTableRecordStore {
     }
   }
 
+  public QueryValue newSelectClause(final Query query, final String selectItem) {
+    return query.newSelectClause(selectItem);
+  }
+
   public Transaction newTransaction() {
     return this.recordStore.newTransaction();
   }
@@ -607,6 +620,7 @@ public class AbstractTableRecordStore {
       Logs.error(this, "Table doesn't exist\t" + getTypeName());
     } else {
       setRecordDefinitionPost(recordDefinition);
+      this.tableAlias = recordDefinition.getTableAlias();
     }
   }
 

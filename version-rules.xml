@@ -14,7 +14,8 @@
     <ignoreVersion type="regex">.*-RC.*</ignoreVersion>
     <ignoreVersion type="regex">.*-preview.*</ignoreVersion>
 	  <ignoreVersion type="regex">.*-b.*</ignoreVersion>
-  </ignoreVersions>
+    <ignoreVersion type="regex">.*-M.*</ignoreVersion>
+   </ignoreVersions>
 	<rules>
 		<rule groupId="org.jeometry" comparisonMethod="maven">
 			<ignoreVersions>

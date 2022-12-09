@@ -1,12 +1,13 @@
 package com.revolsys.rest;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
@@ -15,6 +16,7 @@ import com.revolsys.io.IoConstants;
 import com.revolsys.io.IoFactory;
 import com.revolsys.record.Record;
 import com.revolsys.record.io.RecordReader;
+import com.revolsys.record.io.RecordWriter;
 import com.revolsys.record.io.RecordWriterFactory;
 import com.revolsys.record.io.format.csv.Csv;
 import com.revolsys.record.io.format.csv.CsvRecordWriter;
@@ -77,8 +79,37 @@ public class AbstractWebController {
     return json;
   }
 
+  protected void responseRecords(final HttpServletResponse response, final RecordReader reader,
+    final String prefix, final String fileExtension) throws IOException {
+    final RecordWriterFactory factory = IoFactory.factoryByFileExtension(RecordWriterFactory.class,
+      fileExtension);
+    if (factory == null) {
+      response.sendError(HttpServletResponse.SC_BAD_REQUEST,
+        "File type not supported: " + fileExtension);
+    } else {
+      reader.open();
+      response.setHeader("Content-Disposition",
+        "attachment; filename=" + prefix + "." + fileExtension);
+      final String mediaType = factory.getMediaType(fileExtension);
+      if (factory.isBinary()) {
+        response.setContentType(mediaType);
+      } else {
+        setContentTypeText(response, mediaType);
+      }
+      response.setStatus(200);
+
+      try (
+        OutputStream out = response.getOutputStream();
+        RecordWriter recordWriter = factory.newRecordWriter("Export", reader, out,
+          StandardCharsets.UTF_8)) {
+        recordWriter.writeAll(reader);
+      }
+    }
+  }
+
   protected void responseRecordsCsv(final HttpServletResponse response, final RecordReader reader)
     throws IOException {
+    reader.open();
     response.setHeader("Content-Disposition", "attachment; filename=Export.csv");
     setContentTypeText(response, Csv.MIME_TYPE);
     response.setStatus(200);

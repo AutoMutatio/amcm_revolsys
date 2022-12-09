@@ -1,16 +1,14 @@
 package com.revolsys.record.query;
 
-import java.io.IOException;
 import java.util.List;
 
-import org.jeometry.common.exception.Exceptions;
 import org.jeometry.common.io.PathName;
 
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordDefinitionProxy;
 
-public interface TableReference extends From {
+public interface TableReference extends From, TableReferenceProxy {
   static TableReference getTableReference(final RecordDefinitionProxy recordDefinition) {
     if (recordDefinition == null) {
       return null;
@@ -19,51 +17,31 @@ public interface TableReference extends From {
     }
   }
 
-  default void appendColumnPrefix(final Appendable string) {
-    final String alias = getTableAlias();
-    if (alias != null) {
-      try {
-        string.append(alias);
-        string.append('.');
-      } catch (final IOException e) {
-        Exceptions.throwUncheckedException(e);
-      }
-    }
-  }
-
   @Override
-  default void appendFrom(final Appendable sql) {
+  default void appendFrom(final SqlAppendable sql) {
     final String tableName = getQualifiedTableName();
-    try {
-      sql.append(tableName);
-    } catch (final IOException e) {
-      throw Exceptions.wrap(e);
-    }
+    sql.append(tableName);
   }
 
   @Override
-  default void appendFromWithAlias(final Appendable sql) {
+  default void appendFromWithAlias(final SqlAppendable sql) {
     final String tableAlias = getTableAlias();
     appendFromWithAlias(sql, tableAlias);
   }
 
-  default void appendFromWithAlias(final Appendable sql, final String tableAlias) {
-    try {
-      appendFrom(sql);
-      if (tableAlias != null) {
-        sql.append(" ");
-        sql.append(tableAlias);
-      }
-    } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+  default void appendFromWithAlias(final SqlAppendable sql, final String tableAlias) {
+    appendFrom(sql);
+    if (tableAlias != null) {
+      sql.append(" ");
+      sql.append(tableAlias);
     }
   }
 
-  void appendQueryValue(final Query query, final StringBuilder sql, final QueryValue queryValue);
+  void appendQueryValue(final Query query, final SqlAppendable sql, final QueryValue queryValue);
 
-  void appendSelect(final Query query, final Appendable string, final QueryValue queryValue);
+  void appendSelect(final Query query, final SqlAppendable string, final QueryValue queryValue);
 
-  void appendSelectAll(Query query, final Appendable string);
+  void appendSelectAll(Query query, final SqlAppendable string);
 
   default QueryValue count(final String fieldName) {
     final ColumnReference field = getColumn(fieldName);
@@ -85,16 +63,17 @@ public interface TableReference extends From {
     return new Equal(field, right);
   }
 
-  default Condition equal(final String fieldName, final TableReference toTable) {
+  default Condition equal(final String fieldName, final TableReferenceProxy toTable) {
     return equal(fieldName, toTable, fieldName);
   }
 
-  default Condition equal(final String fromFieldName, final TableReference toTable,
+  default Condition equal(final String fromFieldName, final TableReferenceProxy toTable,
     final String toFieldName) {
     final ColumnReference toColumn = toTable.getColumn(toFieldName);
     return equal(fromFieldName, toColumn);
   }
 
+  @Override
   ColumnReference getColumn(final CharSequence name);
 
   List<FieldDefinition> getFields();
@@ -103,9 +82,15 @@ public interface TableReference extends From {
 
   RecordDefinition getRecordDefinition();
 
+  @Override
   String getTableAlias();
 
   PathName getTablePath();
+
+  @Override
+  default TableReference getTableReference() {
+    return this;
+  }
 
   boolean hasColumn(CharSequence name);
 

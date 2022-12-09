@@ -10,6 +10,7 @@ import org.jeometry.common.data.type.DataTypes;
 import com.revolsys.jdbc.field.JdbcFieldDefinition;
 import com.revolsys.record.Record;
 import com.revolsys.record.query.ColumnIndexes;
+import com.revolsys.record.query.SqlAppendable;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordDefinitionImpl;
 
@@ -55,7 +56,7 @@ public class ArcSdeObjectIdJdbcFieldDefinition extends JdbcFieldDefinition {
    * function.
    */
   @Override
-  public void addInsertStatementPlaceHolder(final StringBuilder sql, final boolean generateKeys) {
+  public void addInsertStatementPlaceHolder(final SqlAppendable sql, final boolean generateKeys) {
     sql.append(" sde.version_user_ddl.next_row_id('");
     sql.append(this.schemaName);
     sql.append("', ");

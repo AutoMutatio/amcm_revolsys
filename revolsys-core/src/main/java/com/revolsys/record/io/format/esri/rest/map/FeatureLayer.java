@@ -25,6 +25,7 @@ import com.revolsys.record.io.format.json.Json;
 import com.revolsys.record.query.Condition;
 import com.revolsys.record.query.OrderBy;
 import com.revolsys.record.query.Query;
+import com.revolsys.record.query.StringBuilderSqlAppendable;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordDefinitionImpl;
@@ -282,9 +283,9 @@ public class FeatureLayer extends LayerDescription implements WebServiceFeatureL
       // ORDER BY
       final List<OrderBy> orderBy = query.getOrderBy();
       if (!orderBy.isEmpty()) {
-        final String orderByFields = query
-          .appendOrderByFields(new StringBuilder(), this.recordDefinition, orderBy)
-          .toString();
+        final StringBuilderSqlAppendable sql = StringBuilderSqlAppendable.stringBuilder();
+        query.appendOrderByFields(sql, this.recordDefinition, orderBy);
+        final String orderByFields = sql.toSqlString();
         parameters.put("orderByFields", orderByFields);
       }
     }

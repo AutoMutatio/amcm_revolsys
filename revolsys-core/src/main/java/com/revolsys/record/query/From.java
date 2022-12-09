@@ -1,9 +1,9 @@
 package com.revolsys.record.query;
 
-public interface From {
-  void appendFrom(final Appendable string);
+public interface From extends TableReferenceProxy {
+  void appendFrom(final SqlAppendable string);
 
-  default void appendFromWithAlias(final Appendable string) {
+  default void appendFromWithAlias(final SqlAppendable string) {
     appendFrom(string);
   }
 }

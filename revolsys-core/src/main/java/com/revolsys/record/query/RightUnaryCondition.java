@@ -1,9 +1,6 @@
 package com.revolsys.record.query;
 
-import java.io.IOException;
-
 import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.exception.Exceptions;
 
 import com.revolsys.record.schema.RecordStore;
 
@@ -18,14 +15,10 @@ public class RightUnaryCondition extends AbstractUnaryQueryValue implements Cond
 
   @Override
   public void appendDefaultSql(final Query query, final RecordStore recordStore,
-    final Appendable buffer) {
+    final SqlAppendable buffer) {
     super.appendDefaultSql(query, recordStore, buffer);
-    try {
-      buffer.append(" ");
-      buffer.append(this.operator);
-    } catch (final IOException e) {
-      throw Exceptions.wrap(e);
-    }
+    buffer.append(" ");
+    buffer.append(this.operator);
   }
 
   @Override
