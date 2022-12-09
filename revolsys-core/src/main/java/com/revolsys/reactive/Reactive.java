@@ -22,6 +22,7 @@ import reactor.core.publisher.BaseSubscriber;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.FluxSink;
 import reactor.core.publisher.Mono;
+import reactor.core.publisher.ParallelFlux;
 import reactor.core.publisher.SynchronousSink;
 
 public class Reactive {
@@ -187,6 +188,14 @@ public class Reactive {
   }
 
   public static void waitOn(final Mono<?> publisher,
+    final Consumer<Disposable> subscriptionCallback) {
+    final Function<CountDownLatch, Disposable> supplier = latch -> publisher
+      .doAfterTerminate(latch::countDown)
+      .subscribe();
+    waitOn(supplier, subscriptionCallback);
+  }
+
+  public static void waitOn(final ParallelFlux<?> publisher,
     final Consumer<Disposable> subscriptionCallback) {
     final Function<CountDownLatch, Disposable> supplier = latch -> publisher
       .doAfterTerminate(latch::countDown)
