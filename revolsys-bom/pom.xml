@@ -14,11 +14,6 @@
   <dependencyManagement>
     <dependencies>
       <dependency>
-        <groupId>commons-fileupload</groupId>
-        <artifactId>commons-fileupload</artifactId>
-        <version>1.4</version>
-      </dependency>
-      <dependency>
         <groupId>org.jeometry</groupId>
         <artifactId>jeometry-bom</artifactId>
         <version>${org.jeometry.version}</version>
@@ -54,6 +49,11 @@
         <groupId>jakarta.websocket</groupId>
         <artifactId>jakarta.websocket-client-api</artifactId>
         <version>2.1.0</version>
+      </dependency>
+        <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-api</artifactId>
+        <version>${org.apache.logging.log4j}</version>
       </dependency>
       <dependency>
         <groupId>org.apache.logging.log4j</groupId>
@@ -622,7 +622,7 @@
   </dependencyManagement>
 
   <properties>
-    <ch.qos.logback.version>1.2.11</ch.qos.logback.version>
+    <ch.qos.logback.version>1.4.5</ch.qos.logback.version>
     <com.fasterxml.jackson.version>2.14.1</com.fasterxml.jackson.version>
     <org.apache.logging.log4j>2.19.0</org.apache.logging.log4j>
     <org.apache.pdfbox.version>2.0.27</org.apache.pdfbox.version>
