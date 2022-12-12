@@ -6,6 +6,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -94,6 +96,24 @@ public class Reactive {
         throw Exceptions.wrap(e);
       }
     }, path -> action.apply(path).doOnError(e -> Paths.deleteFile(path)), c -> {
+    });
+  }
+
+  public static <T> Flux<T> debugTime(final String message, final Flux<T> flux) {
+    final AtomicReference<Long> startTime = new AtomicReference<>();
+    return flux.doOnSubscribe(x -> startTime.set(System.nanoTime()))
+      .doFinally(x -> System.out.println("message : "
+        + TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startTime.get()) + " ms."));
+  }
+
+  public static <T> Mono<T> debugTime(final String message, final Mono<T> mono) {
+    final AtomicReference<Long> startTime = new AtomicReference<>();
+    return mono.doOnSubscribe(x -> {
+      System.out.println("Start\t" + message);
+      startTime.set(System.nanoTime());
+    }).doFinally(x -> {
+      System.out.println("End\t" + message + "\t"
+        + TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startTime.get()) + " ms.");
     });
   }
 
@@ -193,6 +213,10 @@ public class Reactive {
       .doAfterTerminate(latch::countDown)
       .subscribe();
     waitOn(supplier, subscriptionCallback);
+  }
+
+  public static void waitOn(final ParallelFlux<?> publisher) {
+    waitOn(publisher, NOOPCALLBACK);
   }
 
   public static void waitOn(final ParallelFlux<?> publisher,
