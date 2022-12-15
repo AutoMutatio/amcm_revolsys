@@ -14,7 +14,6 @@ import com.revolsys.record.Record;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordDefinitionProxy;
 import com.revolsys.spring.resource.Resource;
-import com.revolsys.util.Property;
 
 public interface RecordWriter extends Writer<Record>, RecordDefinitionProxy {
   static boolean isWritable(final File file) {
@@ -87,7 +86,7 @@ public interface RecordWriter extends Writer<Record>, RecordDefinitionProxy {
   boolean isIndent();
 
   default boolean isValueWritable(final Object value) {
-    return Property.hasValue(value) || isWriteNulls() || value instanceof Geometry;
+    return value != null || isWriteNulls() || value instanceof Geometry;
   }
 
   boolean isWriteCodeValues();
