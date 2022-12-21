@@ -5,7 +5,7 @@
   <artifactId>revolsys-parent</artifactId>
   <packaging>pom</packaging>
   <name>Revolution Systems Open Library</name>
-  <version>MAIN-SNAPSHOT</version>
+  <version>0.AUTOMUTATIO-2022.12.20-04</version>
   <description>The parent module of the Revolution Systems Open Library.</description>
   <url>http://revolsys.github.com/com.revolsys.open/</url>
 
@@ -396,7 +396,7 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <org.jeometry.version>MAIN-SNAPSHOT</org.jeometry.version>
+    <org.jeometry.version>0.AUTOMUTATIO-2022.12.20-04</org.jeometry.version>
     <gpg.skip>true</gpg.skip>
     <github.global.server>github</github.global.server>
     <skipTests>true</skipTests>
