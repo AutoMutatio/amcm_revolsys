@@ -1,6 +1,5 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
-
   <artifactId>revolsys-bom</artifactId>
   <packaging>pom</packaging>
   <name>RS BOM</name>
@@ -10,7 +9,6 @@
     <version>MAIN-SNAPSHOT</version>
   </parent>
   <description>Dependency management library</description>
-
   <dependencyManagement>
     <dependencies>
       <dependency>
@@ -88,13 +86,12 @@
           </exclusion>
         </exclusions>
       </dependency>
-
       <dependency>
         <groupId>org.docx4j</groupId>
         <artifactId>docx4j-ImportXHTML</artifactId>
         <version>${org.docx4j.version}</version>
       </dependency>
-       <dependency>
+      <dependency>
         <groupId>org.docx4j</groupId>
         <artifactId>docx4j-JAXB-MOXy</artifactId>
         <version>${org.docx4j.version}</version>
@@ -139,7 +136,6 @@
           </exclusion>
         </exclusions>
       </dependency>
-  
       <dependency>
         <groupId>org.apache.xmlgraphics</groupId>
         <artifactId>batik-all</artifactId>
@@ -292,7 +288,7 @@
         <artifactId>postgresql</artifactId>
         <version>42.5.0</version>
       </dependency>
-       <dependency>
+      <dependency>
         <groupId>org.springframework</groupId>
         <artifactId>spring-parent</artifactId>
         <version>${org.springframework.version}</version>
@@ -418,7 +414,6 @@
           </exclusion>
         </exclusions>
       </dependency>
-      
       <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-web</artifactId>
@@ -426,9 +421,19 @@
       </dependency>
       <dependency>
         <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-web-services</artifactId>
+        <version>${org.springframework.boot.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-test</artifactId>
+        <version>${org.springframework.boot.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-webflux</artifactId>
         <version>${org.springframework.boot.version}</version>
-      </dependency>   
+      </dependency>
       <dependency>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-thymeleaf</artifactId>
@@ -477,7 +482,6 @@
         <artifactId>jackson-databind</artifactId>
         <version>2.13.4.1</version>
       </dependency>
-
       <dependency>
         <groupId>io.netty</groupId>
         <artifactId>netty-codec-http</artifactId>
@@ -530,25 +534,21 @@
         <artifactId>netty-resolver-dns</artifactId>
         <version>${io.netty.version}</version>
       </dependency>
-
       <dependency>
         <groupId>com.revolsys.open</groupId>
         <artifactId>revolsys-core</artifactId>
         <version>${project.version}</version>
       </dependency>
-
       <dependency>
         <groupId>com.revolsys.open</groupId>
         <artifactId>revolsys-testapi</artifactId>
         <version>${project.version}</version>
       </dependency>
-
       <dependency>
         <groupId>com.revolsys.open</groupId>
         <artifactId>revolsys-fgdb</artifactId>
         <version>${project.version}</version>
       </dependency>
-
       <dependency>
         <groupId>com.revolsys.open</groupId>
         <artifactId>revolsys-gdal</artifactId>
@@ -571,43 +571,36 @@
         <version>${org.gdal.version}</version>
         <classifier>osx_64</classifier>
       </dependency>
-
       <dependency>
         <groupId>com.revolsys.open</groupId>
         <artifactId>revolsys-geopackage</artifactId>
         <version>${project.version}</version>
       </dependency>
-
       <dependency>
         <groupId>com.revolsys.open</groupId>
         <artifactId>revolsys-oracle</artifactId>
         <version>${project.version}</version>
       </dependency>
-
       <dependency>
         <groupId>com.revolsys.open</groupId>
         <artifactId>revolsys-postgresql</artifactId>
         <version>${project.version}</version>
       </dependency>
-
       <dependency>
         <groupId>com.revolsys.open</groupId>
         <artifactId>revolsys-maki</artifactId>
         <version>${project.version}</version>
       </dependency>
-
       <dependency>
         <groupId>com.revolsys.open</groupId>
         <artifactId>revolsys-swing</artifactId>
         <version>${project.version}</version>
       </dependency>
-
       <dependency>
         <groupId>com.revolsys.open</groupId>
         <artifactId>revolsys-web</artifactId>
         <version>${project.version}</version>
       </dependency>
-
       <dependency>
         <groupId>com.revolsys.open</groupId>
         <artifactId>revolsys-odata</artifactId>
@@ -624,10 +617,8 @@
           </exclusion>
         </exclusions>
       </dependency>
-
     </dependencies>
   </dependencyManagement>
-
   <properties>
     <ch.qos.logback.version>1.2.11</ch.qos.logback.version>
     <com.fasterxml.jackson.version>2.13.4</com.fasterxml.jackson.version>
