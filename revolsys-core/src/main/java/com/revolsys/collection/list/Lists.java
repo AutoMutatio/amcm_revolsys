@@ -17,6 +17,7 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import org.jeometry.common.data.type.DataType;
+import org.jeometry.common.data.type.DataTypeValueFactory;
 import org.jeometry.common.data.type.DataTypes;
 
 import com.revolsys.record.io.format.json.JsonParser;
@@ -24,9 +25,9 @@ import com.revolsys.util.Cancellable;
 import com.revolsys.util.Property;
 
 public interface Lists {
-  Supplier<List<?>> FACTORY_ARRAY = () -> {
-    return new ArrayList<>();
-  };
+  Supplier<List<?>> FACTORY_ARRAY = ArrayList::new;
+
+  DataTypeValueFactory<List<?>> ARRAY_FACTORY = DataTypes.LIST.newFactory(ArrayList::new);
 
   static <V> void addAll(final List<V> list, final Iterable<? extends V> values) {
     if (values != null) {
@@ -34,7 +35,7 @@ public interface Lists {
         list.add(value);
       }
     }
-  }
+  };
 
   static <V> void addAll(final List<V> list, final Stream<? extends V> values) {
     if (values != null) {
@@ -136,6 +137,13 @@ public interface Lists {
     }
   }
 
+  @SuppressWarnings({
+    "unchecked", "rawtypes"
+  })
+  static <V> DataTypeValueFactory<List<V>> arrayFactory() {
+    return (DataTypeValueFactory)ARRAY_FACTORY;
+  }
+
   static List<? extends Object> arrayToList(final Object value) {
     final List<Object> list = new ArrayList<>();
     if (value instanceof boolean[]) {
@@ -232,9 +240,7 @@ public interface Lists {
   }
 
   static <V> Supplier<List<V>> factoryLinked() {
-    return () -> {
-      return new LinkedList<>();
-    };
+    return LinkedList::new;
   }
 
   static <V> List<V> filter(final Cancellable cancellable, final List<V> list,
