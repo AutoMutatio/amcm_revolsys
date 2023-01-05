@@ -1,12 +1,11 @@
 package com.revolsys.record.schema;
 
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
+import com.revolsys.record.ArrayChangeTrackRecord;
 import com.revolsys.record.ChangeTrackRecord;
 import com.revolsys.record.Record;
 import com.revolsys.record.io.RecordReader;
-import com.revolsys.record.query.InsertUpdateAction;
 import com.revolsys.record.query.Query;
 import com.revolsys.record.query.StringBuilderSqlAppendable;
 import com.revolsys.transaction.Transaction;
@@ -58,20 +57,20 @@ public class RecordStoreQuery extends Query {
   }
 
   @Override
-  public Record insertOrUpdateRecord(final InsertUpdateAction action) {
-    return this.recordStore.insertOrUpdateRecord(this, action);
-
-  }
-
-  @Override
-  public Record insertOrUpdateRecord(final Supplier<Record> newRecordSupplier,
+  public Record insertOrUpdateRecord(final Consumer<Record> insertAction,
     final Consumer<Record> updateAction) {
-    return this.recordStore.insertOrUpdateRecord(this, newRecordSupplier, updateAction);
+    try (
+      Transaction transaction = newTransaction(TransactionOptions.REQUIRED)) {
+      setRecordFactory(ArrayChangeTrackRecord.FACTORY);
+      return super.insertOrUpdateRecord(insertAction, updateAction);
+    }
   }
 
   @Override
-  public Record insertRecord(final Supplier<Record> newRecordSupplier) {
-    return this.recordStore.insertRecord(this, newRecordSupplier);
+  protected Record insertRecordDo(final Consumer<Record> action) {
+    final Record newRecord = getRecordDefinition().newRecord();
+    this.recordStore.insertRecord(newRecord);
+    return newRecord;
   }
 
   @Override
@@ -92,8 +91,12 @@ public class RecordStoreQuery extends Query {
   }
 
   @Override
-  public Record updateRecord(final Consumer<Record> updateAction) {
-    return this.recordStore.updateRecord(this, updateAction);
+  protected Record updateRecordDo(final Record record, final Consumer<Record> updateAction) {
+    updateAction.accept(record);
+    if (record.isModified()) {
+      this.recordStore.updateRecord(record);
+    }
+    return record;
   }
 
   @Override

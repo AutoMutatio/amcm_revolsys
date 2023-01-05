@@ -64,11 +64,12 @@ public class AbstractTableRecordRestController extends AbstractWebController {
     final HttpServletRequest request, final HttpServletResponse response,
     final CharSequence tablePath) throws IOException {
     final JsonObject json = readJsonBody(request);
-    Record record = connection.newRecord(tablePath, json);
+    Record record = null;
     try (
       Transaction transaction = connection.newTransaction()) {
       try {
-        record = connection.insertRecord(record);
+        record = getTableRecordStore(connection, tablePath).insertRecord(connection,
+          insertRecord -> insertRecord.addValues(json));
       } catch (final Exception e) {
         // TODO return error
         transaction.setRollbackOnly(e);
@@ -109,8 +110,8 @@ public class AbstractTableRecordRestController extends AbstractWebController {
 
   protected Record insertRecord(final TableRecordStoreConnection connection,
     final PathName tablePath, final JsonObject values) {
-    final Record record = connection.newRecord(tablePath, values);
-    return connection.insertRecord(record);
+    return connection.getTableRecordStore(tablePath)
+      .insertRecord(connection, record -> record.addValues(values));
   }
 
   protected boolean isUpdateable(final TableRecordStoreConnection connection, final Identifier id) {

@@ -14,7 +14,6 @@ import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
-import java.util.function.Supplier;
 
 import org.jeometry.common.io.PathName;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -740,55 +739,43 @@ public class Query extends BaseObjectWithProperties
     return !this.selectExpressions.isEmpty();
   }
 
-  public Record insertOrUpdateRecord(final InsertUpdateAction action) {
-
-    final Record record = getRecord();
-    if (record == null) {
-      final Record newRecord = action.newRecord();
-      if (newRecord == null) {
-        return null;
-      } else {
-        getRecordDefinition().getRecordStore().insertRecord(newRecord);
-        return newRecord;
-      }
-    } else {
-      action.updateRecord(record);
-      getRecordDefinition().getRecordStore().updateRecord(record);
-      return record;
-    }
-  }
-
-  public Record insertOrUpdateRecord(final Supplier<Record> newRecordSupplier,
+  public Record insertOrUpdateRecord(final Consumer<Record> insertAction,
     final Consumer<Record> updateAction) {
-
-    final Record record = getRecord();
+    Record record = getRecord();
     if (record == null) {
-      final Record newRecord = newRecordSupplier.get();
-      if (newRecord == null) {
+      if (insertAction == null) {
         return null;
       } else {
-        getRecordDefinition().getRecordStore().insertRecord(newRecord);
-        return newRecord;
+        return insertRecordDo(insertAction);
       }
     } else {
-      updateAction.accept(record);
-      getRecordDefinition().getRecordStore().updateRecord(record);
-      return record;
+      if (updateAction != null) {
+        record = updateRecordDo(record, updateAction);
+      }
+      if (record instanceof ChangeTrackRecord) {
+        return ((ChangeTrackRecord)record).newRecord();
+      } else {
+        return record;
+      }
     }
   }
 
-  public Record insertRecord(final Supplier<Record> newRecordSupplier) {
-    final ChangeTrackRecord changeTrackRecord = getRecord();
-    if (changeTrackRecord == null) {
-      final Record newRecord = newRecordSupplier.get();
-      if (newRecord == null) {
-        return null;
-      } else {
-        getRecordDefinition().getRecordStore().insertRecord(newRecord);
-        return newRecord;
-      }
+  public Record insertOrUpdateRecord(final InsertUpdateAction action) {
+    return insertOrUpdateRecord(action::insertRecord, action::updateRecord);
+  }
+
+  public Record insertRecord(final Consumer<Record> insertAction) {
+    return insertOrUpdateRecord(insertAction, null);
+  }
+
+  protected Record insertRecordDo(final Consumer<Record> insertAction) {
+    final Record newRecord = getRecordDefinition().newRecord();
+    if (newRecord == null) {
+      return null;
     } else {
-      return changeTrackRecord.newRecord();
+      insertAction.accept(newRecord);
+      getRecordDefinition().getRecordStore().insertRecord(newRecord);
+      return newRecord;
     }
   }
 
@@ -1333,14 +1320,13 @@ public class Query extends BaseObjectWithProperties
   }
 
   public Record updateRecord(final Consumer<Record> updateAction) {
-    final Record record = getRecord();
-    if (record == null) {
-      return null;
-    } else {
-      updateAction.accept(record);
-      getRecordDefinition().getRecordStore().updateRecord(record);
-      return record;
-    }
+    return insertOrUpdateRecord(null, updateAction);
+  }
+
+  protected Record updateRecordDo(final Record record, final Consumer<Record> updateAction) {
+    updateAction.accept(record);
+    getRecordDefinition().getRecordStore().updateRecord(record);
+    return record;
   }
 
   public int updateRecords(final Consumer<? super ChangeTrackRecord> updateAction) {

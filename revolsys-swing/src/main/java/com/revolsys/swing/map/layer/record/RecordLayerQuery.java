@@ -1,7 +1,6 @@
 package com.revolsys.swing.map.layer.record;
 
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 import com.revolsys.record.ChangeTrackRecord;
 import com.revolsys.record.Record;
@@ -53,13 +52,8 @@ public class RecordLayerQuery extends Query {
   }
 
   @Override
-  public Record insertOrUpdateRecord(final Supplier<Record> newRecordSupplier,
+  public Record insertOrUpdateRecord(final Consumer<Record> insertAction,
     final Consumer<Record> updateAction) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public Record insertRecord(final Supplier<Record> newRecordSupplier) {
     throw new UnsupportedOperationException();
   }
 
@@ -71,11 +65,6 @@ public class RecordLayerQuery extends Query {
   @Override
   public Transaction newTransaction(final TransactionOption... options) {
     return this.layer.newTransaction(options);
-  }
-
-  @Override
-  public Record updateRecord(final Consumer<Record> updateAction) {
-    throw new UnsupportedOperationException();
   }
 
   @Override

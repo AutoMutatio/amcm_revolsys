@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 import org.jeometry.common.data.identifier.Identifier;
 import org.jeometry.common.data.type.DataTypes;
@@ -43,7 +42,6 @@ import com.revolsys.record.io.RecordStoreQueryReader;
 import com.revolsys.record.io.RecordWriter;
 import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.record.query.Condition;
-import com.revolsys.record.query.InsertUpdateAction;
 import com.revolsys.record.query.Q;
 import com.revolsys.record.query.Query;
 import com.revolsys.record.query.QueryValue;
@@ -517,7 +515,7 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
 
   void initializeRecordDefinition(RecordDefinition recordDefinition);
 
-  default Record insertOrUpdateRecord(final Query query, final Supplier<Record> newRecordSupplier,
+  default Record insertOrUpdateRecord(final Query query, final Consumer<Record> insertAction,
     final Consumer<Record> updateAction) {
     query.setRecordFactory(ArrayChangeTrackRecord.FACTORY);
 
@@ -525,40 +523,12 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
       Transaction transaction = newTransaction(TransactionOptions.REQUIRED)) {
       final ChangeTrackRecord changeTrackRecord = query.getRecord();
       if (changeTrackRecord == null) {
-        final Record newRecord = newRecordSupplier.get();
-        if (newRecord == null) {
-          return null;
-        } else {
-          insertRecord(newRecord);
-          return newRecord;
-        }
+        final Record newRecord = query.getRecordDefinition().newRecord();
+        insertAction.accept(newRecord);
+        insertRecord(newRecord);
+        return newRecord;
       } else {
         updateAction.accept(changeTrackRecord);
-        if (changeTrackRecord.isModified()) {
-          updateRecord(changeTrackRecord);
-        }
-        return changeTrackRecord.newRecord();
-      }
-    }
-  }
-
-  default Record insertOrUpdateRecord(final RecordStoreQuery query,
-    final InsertUpdateAction action) {
-    query.setRecordFactory(ArrayChangeTrackRecord.FACTORY);
-
-    try (
-      Transaction transaction = newTransaction(TransactionOptions.REQUIRED)) {
-      final ChangeTrackRecord changeTrackRecord = query.getRecord();
-      if (changeTrackRecord == null) {
-        final Record newRecord = action.insertRecord();
-        if (newRecord == null) {
-          return null;
-        } else {
-          insertRecord(newRecord);
-          return newRecord;
-        }
-      } else {
-        action.updateRecord(changeTrackRecord);
         if (changeTrackRecord.isModified()) {
           updateRecord(changeTrackRecord);
         }
@@ -572,22 +542,6 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
     final Record record = new ArrayRecord(recordDefinition, values);
     insertRecord(record);
     return record;
-  }
-
-  default Record insertRecord(final Query query, final Supplier<Record> newRecordSupplier) {
-    query.setRecordFactory(ArrayChangeTrackRecord.FACTORY);
-    final ChangeTrackRecord changeTrackRecord = query.getRecord();
-    if (changeTrackRecord == null) {
-      final Record newRecord = newRecordSupplier.get();
-      if (newRecord == null) {
-        return null;
-      } else {
-        insertRecord(newRecord);
-        return newRecord;
-      }
-    } else {
-      return changeTrackRecord.newRecord();
-    }
   }
 
   default void insertRecord(final Record record) {
@@ -810,23 +764,6 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
     final CategoryLabelCountMap categoryLabelCountMap = getStatistics();
     if (categoryLabelCountMap != null) {
       categoryLabelCountMap.setLabelCounters(name, labelCountMap);
-    }
-  }
-
-  default Record updateRecord(final Query query, final Consumer<Record> updateAction) {
-    try (
-      Transaction transaction = newTransaction(TransactionOptions.REQUIRED)) {
-      query.setRecordFactory(ArrayChangeTrackRecord.FACTORY);
-      final ChangeTrackRecord record = query.getRecord();
-      if (record == null) {
-        return null;
-      } else {
-        updateAction.accept(record);
-        if (record.isModified()) {
-          updateRecord(record);
-        }
-        return record.newRecord();
-      }
     }
   }
 

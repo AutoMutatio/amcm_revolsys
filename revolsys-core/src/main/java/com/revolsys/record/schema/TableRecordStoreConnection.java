@@ -1,8 +1,6 @@
 package com.revolsys.record.schema;
 
 import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Supplier;
 
 import org.jeometry.common.data.identifier.Identifier;
 import org.jeometry.common.io.PathName;
@@ -43,20 +41,9 @@ public interface TableRecordStoreConnection extends Transactionable {
     return recordStore.getTransactionManager();
   }
 
-  default <TRS extends AbstractTableRecordStore> Record insertOrUpdateRecord(
-    final CharSequence tablePath, final Function<TRS, Query> querySupplier,
-    final Function<TRS, Record> newRecordSupplier, final Consumer<Record> updateAction) {
-    final TRS tableRecordStore = getTableRecordStore(tablePath);
-    final Query query = querySupplier.apply(tableRecordStore);
-    final Supplier<Record> insertSupplier = () -> newRecordSupplier.apply(tableRecordStore);
-    return query.insertOrUpdateRecord(insertSupplier, updateAction);
-  }
-
-  default <TRS extends AbstractTableRecordStore> Record insertRecord(final CharSequence tablePath,
-    final Function<TRS, Query> querySupplier, final Function<TRS, Record> newRecordSupplier) {
-    final Consumer<Record> updateAction = record -> {
-    };
-    return insertOrUpdateRecord(tablePath, querySupplier, newRecordSupplier, updateAction);
+  default Record insertRecord(final CharSequence tablePath, final Consumer<Record> action) {
+    final AbstractTableRecordStore tableRecordStore = getTableRecordStore(tablePath);
+    return tableRecordStore.insertRecord(this, action);
   }
 
   default Record insertRecord(final Record record) {
@@ -67,16 +54,6 @@ public interface TableRecordStoreConnection extends Transactionable {
   default Query newQuery(final CharSequence tablePath) {
     final AbstractTableRecordStore recordStore = getTableRecordStore(tablePath);
     return recordStore.newQuery(this);
-  }
-
-  default Record newRecord(final CharSequence tablePath) {
-    final AbstractTableRecordStore tableRecordStore = getTableRecordStore(tablePath);
-    return tableRecordStore.newRecord();
-  }
-
-  default Record newRecord(final CharSequence tablePath, final JsonObject json) {
-    final AbstractTableRecordStore tableRecordStore = getTableRecordStore(tablePath);
-    return tableRecordStore.newRecord(json);
   }
 
   default Record updateRecord(final CharSequence tablePath, final Identifier id,

@@ -4,19 +4,15 @@ import com.revolsys.record.Record;
 
 public interface InsertUpdateAction {
 
-  default void insertOrupdateRecord(final Record record) {
+  default void insertOrUpdateRecord(final Record record) {
   }
 
-  default Record insertRecord() {
-    final Record record = newRecord();
-    insertOrupdateRecord(record);
-    return record;
+  default void insertRecord(final Record record) {
+    insertOrUpdateRecord(record);
   }
-
-  Record newRecord();
 
   default void updateRecord(final Record record) {
-    insertOrupdateRecord(record);
+    insertOrUpdateRecord(record);
   }
 
 }

@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -19,6 +18,7 @@ import org.jeometry.common.logging.Logs;
 
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.geometry.model.GeometryFactory;
+import com.revolsys.io.BaseCloseable;
 import com.revolsys.jdbc.JdbcConnection;
 import com.revolsys.jdbc.field.JdbcFieldDefinition;
 import com.revolsys.jdbc.io.JdbcRecordStore;
@@ -26,6 +26,7 @@ import com.revolsys.record.ArrayChangeTrackRecord;
 import com.revolsys.record.ChangeTrackRecord;
 import com.revolsys.record.ODataParser;
 import com.revolsys.record.Record;
+import com.revolsys.record.RecordFactory;
 import com.revolsys.record.code.CodeTable;
 import com.revolsys.record.io.RecordReader;
 import com.revolsys.record.io.RecordWriter;
@@ -34,7 +35,6 @@ import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.record.query.Cast;
 import com.revolsys.record.query.ColumnReference;
 import com.revolsys.record.query.Condition;
-import com.revolsys.record.query.InsertUpdateAction;
 import com.revolsys.record.query.Or;
 import com.revolsys.record.query.Q;
 import com.revolsys.record.query.Query;
@@ -46,7 +46,6 @@ import com.revolsys.transaction.TransactionRecordReader;
 import com.revolsys.util.Property;
 
 public class AbstractTableRecordStore implements RecordDefinitionProxy {
-
   public static JsonObject schemaToJson(final RecordDefinition recordDefinition) {
     final JsonList jsonFields = JsonList.array();
     final String idFieldName = recordDefinition.getIdFieldName();
@@ -110,7 +109,14 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
 
   private final Set<String> searchFieldNames = new LinkedHashSet<>();
 
+  protected final FieldNameSet insertFieldNames = new FieldNameSet();
+
+  protected final FieldNameSet updateFieldNames = new FieldNameSet();
+
   private String tableAlias;
+
+  protected final RecordFactory<RecordStoreChangeTrackRecord> changeTrackRecordFactory = recordDefinition -> new RecordStoreChangeTrackRecord(
+    this);
 
   public AbstractTableRecordStore(final PathName typePath) {
     this.tablePath = typePath;
@@ -209,6 +215,26 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     }
     if (this.recordDefinition.isIdField(fieldName)) {
       return false;
+    }
+    return true;
+  }
+
+  public boolean canSetField(final TableRecordStoreConnection connection,
+    final ChangeMode changeMode, final FieldDefinition field, final Object value) {
+    final String fieldName = field.getName();
+    switch (changeMode) {
+      case INSERT:
+        if (this.insertFieldNames != null) {
+          return this.insertFieldNames.contains(fieldName);
+        }
+      break;
+      case UPDATE:
+        if (this.updateFieldNames != null) {
+          return this.updateFieldNames.contains(fieldName);
+        }
+      break;
+      default:
+      break;
     }
     return true;
   }
@@ -318,6 +344,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     return getRecordDefinition();
   }
 
+  @Override
   public String getTableAlias() {
     return this.tableAlias;
   }
@@ -341,61 +368,45 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
   }
 
   protected Record insertOrUpdateRecord(final TableRecordStoreConnection connection,
-    final Query query, final Supplier<Record> newRecordSupplier,
+    final TableRecordStoreQuery query, final Consumer<Record> insertAction,
     final Consumer<Record> updateAction) {
     query.setRecordFactory(ArrayChangeTrackRecord.FACTORY);
-
     try (
       Transaction transaction = connection.newTransaction(TransactionOptions.REQUIRED)) {
-      final ChangeTrackRecord changeTrackRecord = query.getRecord();
-      if (changeTrackRecord == null) {
-        final Record newRecord = newRecordSupplier.get();
-        if (newRecord == null) {
-          return null;
-        } else {
-          return insertRecord(connection, newRecord);
-        }
+      final ChangeTrackRecord record = query.getRecord();
+      if (record == null) {
+        return insertRecord(connection, insertAction);
       } else {
-        updateAction.accept(changeTrackRecord);
-        updateRecordDo(connection, changeTrackRecord);
-        return changeTrackRecord.newRecord();
+        updateAction.accept(record);
+        updateRecordDo(connection, record);
+        return record.newRecord();
       }
     }
   }
 
-  protected Record insertOrUpdateRecord(final TableRecordStoreConnection connection,
-    final TableRecordStoreQuery query, final InsertUpdateAction action) {
-    query.setRecordFactory(ArrayChangeTrackRecord.FACTORY);
-
+  public Record insertRecord(final TableRecordStoreConnection connection,
+    final Consumer<Record> action) {
+    final RecordStoreChangeTrackRecord record = new RecordStoreChangeTrackRecord(this);
+    try (
+      BaseCloseable c = record.startUpdates(connection, ChangeMode.INSERT)) {
+      action.accept(record);
+    }
     try (
       Transaction transaction = connection.newTransaction(TransactionOptions.REQUIRED)) {
-      final ChangeTrackRecord changeTrackRecord = query.getRecord();
-      if (changeTrackRecord == null) {
-        final Record newRecord = action.insertRecord();
-        if (newRecord == null) {
-          return null;
-        } else {
-          return insertRecord(connection, newRecord);
-        }
-      } else {
-        action.updateRecord(changeTrackRecord);
-        updateRecordDo(connection, changeTrackRecord);
-        return changeTrackRecord.newRecord();
-      }
+      insertRecordBefore(connection, record);
+      validateRecord(record);
+      this.recordStore.insertRecord(record);
+      insertRecordAfter(connection, record);
     }
+    return record.newRecord();
   }
 
   protected Record insertRecord(final TableRecordStoreConnection connection, final Query query,
-    final Supplier<Record> newRecordSupplier) {
+    final Consumer<Record> insertAction) {
     query.setRecordFactory(ArrayChangeTrackRecord.FACTORY);
     final ChangeTrackRecord changeTrackRecord = query.getRecord();
     if (changeTrackRecord == null) {
-      final Record newRecord = newRecordSupplier.get();
-      if (newRecord == null) {
-        return null;
-      } else {
-        return insertRecord(connection, newRecord);
-      }
+      return insertRecord(connection, insertAction);
     } else {
       return changeTrackRecord.newRecord();
     }
@@ -489,23 +500,8 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     applySearchCondition(query, search);
   }
 
-  public Record newRecord() {
+  public Record newRecord(final TableRecordStoreConnection connection) {
     return getRecordDefinition().newRecord();
-  }
-
-  public Record newRecord(final MapEx values) {
-    if (values == null) {
-      return null;
-    } else {
-      final Record record = newRecord();
-      for (final String fieldName : values.keySet()) {
-        final Object value = values.getValue(fieldName);
-        if (Property.hasValue(value)) {
-          record.setValue(fieldName, value);
-        }
-      }
-      return record;
-    }
   }
 
   public QueryValue newSelectClause(final Query query, final String selectItem) {
@@ -615,6 +611,8 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     if (recordDefinition == null) {
       Logs.error(this, "Table doesn't exist\t" + getTypeName());
     } else {
+      this.insertFieldNames.setRecordDefinition(recordDefinition);
+      this.updateFieldNames.setRecordDefinition(recordDefinition);
       setRecordDefinitionPost(recordDefinition);
       this.tableAlias = recordDefinition.getTableAlias();
     }
@@ -660,22 +658,6 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     return query.updateRecord(updateAction);
   }
 
-  protected Record updateRecord(final TableRecordStoreConnection connection, final Query query,
-    final Consumer<Record> updateAction) {
-    try (
-      Transaction transaction = connection.newTransaction(TransactionOptions.REQUIRED)) {
-      query.setRecordFactory(ArrayChangeTrackRecord.FACTORY);
-      final ChangeTrackRecord record = query.getRecord();
-      if (record == null) {
-        return null;
-      } else {
-        updateAction.accept(record);
-        updateRecordDo(connection, record);
-        return record.newRecord();
-      }
-    }
-  }
-
   protected void updateRecordAfter(final TableRecordStoreConnection connection,
     final ChangeTrackRecord record) {
   }
@@ -691,6 +673,16 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
       this.recordStore.updateRecord(record);
       updateRecordAfter(connection, record);
     }
+  }
+
+  protected Record updateRecordDo(final TableRecordStoreConnection connection,
+    final RecordStoreChangeTrackRecord record, final Consumer<Record> updateAction) {
+    try (
+      BaseCloseable c = record.startUpdates(connection, ChangeMode.UPDATE)) {
+      updateAction.accept(record);
+    }
+    updateRecordDo(connection, record);
+    return record.newRecord();
   }
 
   public int updateRecords(final TableRecordStoreConnection connection, final Query query,

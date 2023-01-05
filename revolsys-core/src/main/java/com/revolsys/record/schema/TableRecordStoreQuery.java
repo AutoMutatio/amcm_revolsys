@@ -1,12 +1,10 @@
 package com.revolsys.record.schema;
 
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 import com.revolsys.record.ChangeTrackRecord;
 import com.revolsys.record.Record;
 import com.revolsys.record.io.RecordReader;
-import com.revolsys.record.query.InsertUpdateAction;
 import com.revolsys.record.query.Query;
 import com.revolsys.transaction.Transaction;
 import com.revolsys.transaction.TransactionOption;
@@ -54,20 +52,18 @@ public class TableRecordStoreQuery extends Query {
   }
 
   @Override
-  public Record insertOrUpdateRecord(final InsertUpdateAction action) {
-    return this.recordStore.insertOrUpdateRecord(this.connection, this, action);
-  }
-
-  @Override
-  public Record insertOrUpdateRecord(final Supplier<Record> newRecordSupplier,
+  public Record insertOrUpdateRecord(final Consumer<Record> insertAction,
     final Consumer<Record> updateAction) {
-    return this.recordStore.insertOrUpdateRecord(this.connection, this, newRecordSupplier,
-      updateAction);
+    try (
+      Transaction transaction = this.connection.newTransaction(TransactionOptions.REQUIRED)) {
+      setRecordFactory(this.recordStore.changeTrackRecordFactory);
+      return super.insertOrUpdateRecord(insertAction, updateAction);
+    }
   }
 
   @Override
-  public Record insertRecord(final Supplier<Record> newRecordSupplier) {
-    return this.recordStore.insertRecord(this.connection, this, newRecordSupplier);
+  protected Record insertRecordDo(final Consumer<Record> action) {
+    return this.recordStore.insertRecord(this.connection, action);
   }
 
   @Override
@@ -81,8 +77,9 @@ public class TableRecordStoreQuery extends Query {
   }
 
   @Override
-  public Record updateRecord(final Consumer<Record> updateAction) {
-    return this.recordStore.updateRecord(this.connection, this, updateAction);
+  protected Record updateRecordDo(final Record record, final Consumer<Record> updateAction) {
+    return this.recordStore.updateRecordDo(this.connection, (RecordStoreChangeTrackRecord)record,
+      updateAction);
   }
 
   @Override
