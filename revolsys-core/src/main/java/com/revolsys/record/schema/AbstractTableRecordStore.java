@@ -15,6 +15,7 @@ import org.jeometry.common.data.type.DataType;
 import org.jeometry.common.data.type.DataTypes;
 import org.jeometry.common.io.PathName;
 import org.jeometry.common.logging.Logs;
+import org.springframework.dao.PermissionDeniedDataAccessException;
 
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.geometry.model.GeometryFactory;
@@ -46,6 +47,8 @@ import com.revolsys.transaction.TransactionRecordReader;
 import com.revolsys.util.Property;
 
 public class AbstractTableRecordStore implements RecordDefinitionProxy {
+  protected static String DEFAULT_GROUP_NAME = "Default_" + UUID.randomUUID();
+
   public static JsonObject schemaToJson(final RecordDefinition recordDefinition) {
     final JsonList jsonFields = JsonList.array();
     final String idFieldName = recordDefinition.getIdFieldName();
@@ -109,9 +112,10 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
 
   private final Set<String> searchFieldNames = new LinkedHashSet<>();
 
-  protected final FieldNameSet insertFieldNames = new FieldNameSet();
+  protected final RecordStoreSecurityPolicy defaultSecurityPolicy = new RecordStoreSecurityPolicy(
+    "default");
 
-  protected final FieldNameSet updateFieldNames = new FieldNameSet();
+  protected Map<String, RecordStoreSecurityPolicy> securityPolicyByGroup = new LinkedHashMap<>();
 
   private String tableAlias;
 
@@ -140,6 +144,18 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
         this.defaultSortOrder.put(field, ascending);
       }
     }
+  }
+
+  protected void addGroupSecurityPolicy(final RecordStoreSecurityPolicy securityPolicy,
+    final String... groupNames) {
+    for (final String groupName : groupNames) {
+      this.securityPolicyByGroup.put(groupName, securityPolicy);
+    }
+  }
+
+  protected void addGroupSecurityPolicy(final String groupName,
+    final RecordStoreSecurityPolicy securityPolicy) {
+    this.securityPolicyByGroup.put(groupName, securityPolicy);
   }
 
   public void addQueryOrderBy(final Query query, final String orderBy) {
@@ -209,32 +225,22 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     return query;
   }
 
+  protected void applyUpdates(final TableRecordStoreConnection connection,
+    final RecordStoreChangeTrackRecord record, final RecordAccessType accessType,
+    final Consumer<Record> action) {
+    final RecordFieldSecurityPolicy policy = getRecordFieldSecurityPolicy(connection, accessType);
+    try (
+      BaseCloseable c = record.startUpdates(policy)) {
+      action.accept(record);
+    }
+  }
+
   public boolean canEditField(final String fieldName) {
     if (!this.recordDefinition.hasField(fieldName)) {
       return false;
     }
     if (this.recordDefinition.isIdField(fieldName)) {
       return false;
-    }
-    return true;
-  }
-
-  public boolean canSetField(final TableRecordStoreConnection connection,
-    final ChangeMode changeMode, final FieldDefinition field, final Object value) {
-    final String fieldName = field.getName();
-    switch (changeMode) {
-      case INSERT:
-        if (this.insertFieldNames != null) {
-          return this.insertFieldNames.contains(fieldName);
-        }
-      break;
-      case UPDATE:
-        if (this.updateFieldNames != null) {
-          return this.updateFieldNames.contains(fieldName);
-        }
-      break;
-      default:
-      break;
     }
     return true;
   }
@@ -257,6 +263,18 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     try (
       Transaction transaction = connection.newTransaction(TransactionOptions.REQUIRED)) {
       return this.recordStore.deleteRecords(query);
+    }
+  }
+
+  protected void ensureGroupSecurityPolicies(final String... groupNames) {
+    final RecordDefinition recordDefinition = getRecordDefinition();
+    for (final String groupName : groupNames) {
+      RecordStoreSecurityPolicy policy = this.securityPolicyByGroup.get(groupName);
+      if (policy == null) {
+        policy = new RecordStoreSecurityPolicy().setRecordDefinition(recordDefinition)
+          .setLabel(groupName);
+        this.securityPolicyByGroup.put(groupName, policy);
+      }
     }
   }
 
@@ -318,6 +336,12 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     return this.recordDefinition;
   }
 
+  public RecordFieldSecurityPolicy getRecordFieldSecurityPolicy(
+    final TableRecordStoreConnection connection, final RecordAccessType accessType) {
+    final Set<RecordStoreSecurityPolicy> policies = getSecurityPolicies(connection, accessType);
+    return RecordFieldSecurityPolicy.create(policies, accessType);
+  }
+
   protected RecordReader getRecordReader(final TableRecordStoreConnection connection,
     final Query query) {
     final Transaction transaction = connection.newTransaction(TransactionOptions.REQUIRED);
@@ -338,6 +362,25 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
   @SuppressWarnings("unchecked")
   public <R extends RecordStore> R getRecordStore() {
     return (R)this.recordStore;
+  }
+
+  public Set<RecordStoreSecurityPolicy> getSecurityPolicies(
+    final TableRecordStoreConnection connection, final RecordAccessType accessType) {
+    final Set<RecordStoreSecurityPolicy> policies = new LinkedHashSet<>();
+    for (final String groupName : connection.getGroupNames()) {
+      final RecordStoreSecurityPolicy policy = this.securityPolicyByGroup.get(groupName);
+      if (policy != null && policy.isRecordChangeAllowed(accessType)) {
+        policies.add(policy);
+      }
+    }
+    if (this.defaultSecurityPolicy.isRecordChangeAllowed(accessType)) {
+      policies.add(this.defaultSecurityPolicy);
+    }
+    if (policies.isEmpty()) {
+      throw new PermissionDeniedDataAccessException(
+        "No " + accessType + " permission on " + getRecordDefinition(), null);
+    }
+    return policies;
   }
 
   public TableReference getTable() {
@@ -367,6 +410,15 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     return hasRecord(connection, query);
   }
 
+  protected Record initNewRecord(final TableRecordStoreConnection connection,
+    final Record newRecord) {
+    return newRecord;
+  }
+
+  protected void initSecurityPolicies() {
+    withGroupSecurityPolicy(DEFAULT_GROUP_NAME, policy -> policy.setLabel("Default"));
+  }
+
   protected Record insertOrUpdateRecord(final TableRecordStoreConnection connection,
     final TableRecordStoreQuery query, final Consumer<Record> insertAction,
     final Consumer<Record> updateAction) {
@@ -387,10 +439,8 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
   public Record insertRecord(final TableRecordStoreConnection connection,
     final Consumer<Record> action) {
     final RecordStoreChangeTrackRecord record = new RecordStoreChangeTrackRecord(this);
-    try (
-      BaseCloseable c = record.startUpdates(connection, ChangeMode.INSERT)) {
-      action.accept(record);
-    }
+    initNewRecord(connection, record);
+    applyUpdates(connection, record, RecordAccessType.INSERT, action);
     try (
       Transaction transaction = connection.newTransaction(TransactionOptions.REQUIRED)) {
       insertRecordBefore(connection, record);
@@ -501,7 +551,8 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
   }
 
   public Record newRecord(final TableRecordStoreConnection connection) {
-    return getRecordDefinition().newRecord();
+    final Record newRecord = getRecordDefinition().newRecord();
+    return initNewRecord(connection, newRecord);
   }
 
   public QueryValue newSelectClause(final Query query, final String selectItem) {
@@ -611,9 +662,9 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     if (recordDefinition == null) {
       Logs.error(this, "Table doesn't exist\t" + getTypeName());
     } else {
-      this.insertFieldNames.setRecordDefinition(recordDefinition);
-      this.updateFieldNames.setRecordDefinition(recordDefinition);
+      this.defaultSecurityPolicy.setRecordDefinition(recordDefinition);
       setRecordDefinitionPost(recordDefinition);
+      initSecurityPolicies();
       this.tableAlias = recordDefinition.getTableAlias();
     }
   }
@@ -677,10 +728,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
 
   protected Record updateRecordDo(final TableRecordStoreConnection connection,
     final RecordStoreChangeTrackRecord record, final Consumer<Record> updateAction) {
-    try (
-      BaseCloseable c = record.startUpdates(connection, ChangeMode.UPDATE)) {
-      updateAction.accept(record);
-    }
+    applyUpdates(connection, record, RecordAccessType.UPDATE, updateAction);
     updateRecordDo(connection, record);
     return record.newRecord();
   }
@@ -712,4 +760,19 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     getRecordDefinition().validateRecord(record);
   }
 
+  protected void withGroupSecurityPolicy(final Consumer<RecordStoreSecurityPolicy> action,
+    final String... groupNames) {
+    ensureGroupSecurityPolicies(groupNames);
+    for (final String groupName : groupNames) {
+      final RecordStoreSecurityPolicy policy = this.securityPolicyByGroup.get(groupName);
+      action.accept(policy);
+    }
+  }
+
+  protected void withGroupSecurityPolicy(final String groupName,
+    final Consumer<RecordStoreSecurityPolicy> action) {
+    ensureGroupSecurityPolicies(groupName);
+    final RecordStoreSecurityPolicy policy = this.securityPolicyByGroup.get(groupName);
+    action.accept(policy);
+  }
 }

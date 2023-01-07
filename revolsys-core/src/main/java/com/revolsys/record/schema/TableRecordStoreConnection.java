@@ -1,5 +1,6 @@
 package com.revolsys.record.schema;
 
+import java.util.Set;
 import java.util.function.Consumer;
 
 import org.jeometry.common.data.identifier.Identifier;
@@ -13,6 +14,8 @@ import com.revolsys.record.query.Query;
 import com.revolsys.transaction.Transactionable;
 
 public interface TableRecordStoreConnection extends Transactionable {
+
+  Set<String> getGroupNames();
 
   default RecordDefinition getRecordDefinition(final CharSequence tableName) {
     final AbstractTableRecordStore recordStore = getTableRecordStore(tableName);
@@ -49,6 +52,10 @@ public interface TableRecordStoreConnection extends Transactionable {
   default Record insertRecord(final Record record) {
     final AbstractTableRecordStore tableRecordStore = getTableRecordStore(record);
     return tableRecordStore.insertRecord(this, record);
+  }
+
+  default boolean isInGroup(final String name) {
+    return getGroupNames().contains(name);
   }
 
   default Query newQuery(final CharSequence tablePath) {
