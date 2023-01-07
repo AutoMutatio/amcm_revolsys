@@ -10,7 +10,7 @@
   <parent>
     <artifactId>revolsys-parent</artifactId>
     <groupId>com.revolsys.open</groupId>
-    <version>MAIN-SNAPSHOT</version>
+    <version>0.AUTOMUTATIO-2023.01.05-02</version>
   </parent>
 
   <url>https://github.com/mapbox/maki</url>
