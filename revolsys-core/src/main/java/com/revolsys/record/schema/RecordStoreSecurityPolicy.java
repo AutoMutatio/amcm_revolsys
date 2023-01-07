@@ -41,7 +41,7 @@ public class RecordStoreSecurityPolicy {
     this.label = label;
   }
 
-  public RecordStoreSecurityPolicy allowField(final String fieldName) {
+  public RecordStoreSecurityPolicy allowFieldChange(final String fieldName) {
     allowFieldInsert(fieldName);
     allowFieldUpdate(fieldName);
     return this;
@@ -167,6 +167,13 @@ public class RecordStoreSecurityPolicy {
 
   public RecordStoreSecurityPolicy denyFieldUpdate(final String fieldName) {
     this.updateFieldNames.remove(fieldName);
+    return this;
+  }
+
+  public RecordStoreSecurityPolicy denyRecordChange() {
+    this.recordDeleteAllowed = false;
+    this.recordInsertAllowed = false;
+    this.recordUpdateAllowed = false;
     return this;
   }
 

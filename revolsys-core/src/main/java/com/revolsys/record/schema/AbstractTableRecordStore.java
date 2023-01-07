@@ -47,7 +47,7 @@ import com.revolsys.transaction.TransactionRecordReader;
 import com.revolsys.util.Property;
 
 public class AbstractTableRecordStore implements RecordDefinitionProxy {
-  protected static String DEFAULT_GROUP_NAME = "Default_" + UUID.randomUUID();
+  protected static String DEFAULT = "Default_" + UUID.randomUUID();
 
   public static JsonObject schemaToJson(final RecordDefinition recordDefinition) {
     final JsonList jsonFields = JsonList.array();
@@ -416,7 +416,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
   }
 
   protected void initSecurityPolicies() {
-    withGroupSecurityPolicy(DEFAULT_GROUP_NAME, policy -> policy.setLabel("Default"));
+    withGroupSecurityPolicy(DEFAULT, policy -> policy.setLabel("Default"));
   }
 
   protected Record insertOrUpdateRecord(final TableRecordStoreConnection connection,
