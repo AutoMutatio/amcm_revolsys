@@ -20,6 +20,11 @@ public class BearerToken {
 
   public BearerToken(final JsonObject config, final String scope) {
     this.accessToken = config.getString("access_token");
+    this.scope = scope;
+  }
+
+  public BearerToken(final String accessToken) {
+    this.accessToken = accessToken;
   }
 
   public String getAccessToken() {
