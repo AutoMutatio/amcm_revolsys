@@ -44,16 +44,6 @@ public interface TableRecordStoreConnection extends Transactionable {
     return recordStore.getTransactionManager();
   }
 
-  default Record insertRecord(final CharSequence tablePath, final Consumer<Record> action) {
-    final AbstractTableRecordStore tableRecordStore = getTableRecordStore(tablePath);
-    return tableRecordStore.insertRecord(this, action);
-  }
-
-  default Record insertRecord(final Record record) {
-    final AbstractTableRecordStore tableRecordStore = getTableRecordStore(record);
-    return tableRecordStore.insertRecord(this, record);
-  }
-
   default boolean isInGroup(final String name) {
     return getGroupNames().contains(name);
   }
@@ -75,15 +65,4 @@ public interface TableRecordStoreConnection extends Transactionable {
     return tableRecordStore.updateRecord(this, id, values);
   }
 
-  default Record updateRecord(final CharSequence tablePath, final Object id,
-    final Consumer<Record> updateAction) {
-    final AbstractTableRecordStore tableRecordStore = getTableRecordStore(tablePath);
-    return tableRecordStore.updateRecord(this, id, updateAction);
-  }
-
-  default Record updateRecord(final Record record, final Consumer<Record> updateAction) {
-    final PathName tablePath = record.getPathName();
-    final Identifier id = record.getIdentifier();
-    return updateRecord(tablePath, id, updateAction);
-  }
 }

@@ -15,6 +15,9 @@ public interface RecordFieldSecurityPolicy {
 
   public static RecordFieldSecurityPolicy create(final Set<RecordStoreSecurityPolicy> policies,
     final RecordAccessType accessType) {
+    if (policies == null) {
+      return ALLOW;
+    }
     final int policyCount = policies.size();
     if (policyCount == 0) {
       throw new PermissionDeniedDataAccessException("No " + accessType + " permission", null);

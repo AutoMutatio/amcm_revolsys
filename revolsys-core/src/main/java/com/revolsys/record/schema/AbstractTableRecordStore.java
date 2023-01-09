@@ -112,9 +112,6 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
 
   private final Set<String> searchFieldNames = new LinkedHashSet<>();
 
-  protected final RecordStoreSecurityPolicy defaultSecurityPolicy = new RecordStoreSecurityPolicy(
-    "default");
-
   protected Map<String, RecordStoreSecurityPolicy> securityPolicyByGroup = new LinkedHashMap<>();
 
   private String tableAlias;
@@ -144,18 +141,6 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
         this.defaultSortOrder.put(field, ascending);
       }
     }
-  }
-
-  protected void addGroupSecurityPolicy(final RecordStoreSecurityPolicy securityPolicy,
-    final String... groupNames) {
-    for (final String groupName : groupNames) {
-      this.securityPolicyByGroup.put(groupName, securityPolicy);
-    }
-  }
-
-  protected void addGroupSecurityPolicy(final String groupName,
-    final RecordStoreSecurityPolicy securityPolicy) {
-    this.securityPolicyByGroup.put(groupName, securityPolicy);
   }
 
   public void addQueryOrderBy(final Query query, final String orderBy) {
@@ -266,18 +251,6 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     }
   }
 
-  protected void ensureGroupSecurityPolicies(final String... groupNames) {
-    final RecordDefinition recordDefinition = getRecordDefinition();
-    for (final String groupName : groupNames) {
-      RecordStoreSecurityPolicy policy = this.securityPolicyByGroup.get(groupName);
-      if (policy == null) {
-        policy = new RecordStoreSecurityPolicy().setRecordDefinition(recordDefinition)
-          .setLabel(groupName);
-        this.securityPolicyByGroup.put(groupName, policy);
-      }
-    }
-  }
-
   protected void executeUpdate(final TableRecordStoreConnection connection, final String sql,
     final Object... parameters) {
     if (this.recordStore instanceof JdbcRecordStore) {
@@ -292,6 +265,17 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
 
   public Map<QueryValue, Boolean> getDefaultSortOrder() {
     return this.defaultSortOrder;
+  }
+
+  protected RecordStoreSecurityPolicy getGroupSecurityPolicy(final String groupName) {
+    final RecordDefinition recordDefinition = getRecordDefinition();
+    RecordStoreSecurityPolicy policy = this.securityPolicyByGroup.get(groupName);
+    if (policy == null) {
+      policy = new RecordStoreSecurityPolicy().setRecordDefinition(recordDefinition)
+        .setLabel(groupName);
+      this.securityPolicyByGroup.put(groupName, policy);
+    }
+    return policy;
   }
 
   protected JdbcConnection getJdbcConnection() {
@@ -366,21 +350,22 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
 
   public Set<RecordStoreSecurityPolicy> getSecurityPolicies(
     final TableRecordStoreConnection connection, final RecordAccessType accessType) {
-    final Set<RecordStoreSecurityPolicy> policies = new LinkedHashSet<>();
-    for (final String groupName : connection.getGroupNames()) {
-      final RecordStoreSecurityPolicy policy = this.securityPolicyByGroup.get(groupName);
-      if (policy != null && policy.isRecordChangeAllowed(accessType)) {
-        policies.add(policy);
+    if (this.securityPolicyByGroup.isEmpty()) {
+      return null;
+    } else {
+      final Set<RecordStoreSecurityPolicy> policies = new LinkedHashSet<>();
+      for (final String groupName : connection.getGroupNames()) {
+        final RecordStoreSecurityPolicy policy = this.securityPolicyByGroup.get(groupName);
+        if (policy != null && policy.isRecordChangeAllowed(accessType)) {
+          policies.add(policy);
+        }
       }
+      if (policies.isEmpty()) {
+        throw new PermissionDeniedDataAccessException(
+          "No " + accessType + " permission on " + getRecordDefinition(), null);
+      }
+      return policies;
     }
-    if (this.defaultSecurityPolicy.isRecordChangeAllowed(accessType)) {
-      policies.add(this.defaultSecurityPolicy);
-    }
-    if (policies.isEmpty()) {
-      throw new PermissionDeniedDataAccessException(
-        "No " + accessType + " permission on " + getRecordDefinition(), null);
-    }
-    return policies;
   }
 
   public TableReference getTable() {
@@ -662,7 +647,6 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     if (recordDefinition == null) {
       Logs.error(this, "Table doesn't exist\t" + getTypeName());
     } else {
-      this.defaultSecurityPolicy.setRecordDefinition(recordDefinition);
       setRecordDefinitionPost(recordDefinition);
       initSecurityPolicies();
       this.tableAlias = recordDefinition.getTableAlias();
@@ -762,17 +746,14 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
 
   protected void withGroupSecurityPolicy(final Consumer<RecordStoreSecurityPolicy> action,
     final String... groupNames) {
-    ensureGroupSecurityPolicies(groupNames);
     for (final String groupName : groupNames) {
-      final RecordStoreSecurityPolicy policy = this.securityPolicyByGroup.get(groupName);
-      action.accept(policy);
+      withGroupSecurityPolicy(groupName, action);
     }
   }
 
   protected void withGroupSecurityPolicy(final String groupName,
     final Consumer<RecordStoreSecurityPolicy> action) {
-    ensureGroupSecurityPolicies(groupName);
-    final RecordStoreSecurityPolicy policy = this.securityPolicyByGroup.get(groupName);
+    final RecordStoreSecurityPolicy policy = getGroupSecurityPolicy(groupName);
     action.accept(policy);
   }
 }

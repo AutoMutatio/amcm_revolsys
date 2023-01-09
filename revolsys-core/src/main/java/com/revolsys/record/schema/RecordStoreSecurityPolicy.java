@@ -2,7 +2,6 @@ package com.revolsys.record.schema;
 
 import java.util.Collection;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
 
 import org.springframework.dao.PermissionDeniedDataAccessException;
@@ -13,6 +12,8 @@ public class RecordStoreSecurityPolicy {
   private String label;
 
   private final Set<String> updateFieldNames = new LinkedHashSet<>();
+
+  private final Set<String> readFieldNames = new LinkedHashSet<>();
 
   private boolean recordInsertAllowed = true;
 
@@ -25,6 +26,8 @@ public class RecordStoreSecurityPolicy {
   private final RecordFieldSecurityPolicy insertFieldPolicy = this::canInsertField;
 
   private final RecordFieldSecurityPolicy updateFieldPolicy = this::canUpdateField;
+
+  private final RecordFieldSecurityPolicy readFieldPolicy = this::canReadField;
 
   private RecordDefinition recordDefinition;
 
@@ -52,13 +55,13 @@ public class RecordStoreSecurityPolicy {
     return this;
   }
 
-  public RecordStoreSecurityPolicy allowFields(final Collection<String> fieldNames) {
+  public RecordStoreSecurityPolicy allowFieldsChange(final Collection<String> fieldNames) {
     allowFieldsInsert(fieldNames);
     allowFieldsUpdate(fieldNames);
     return this;
   }
 
-  public RecordStoreSecurityPolicy allowFields(final String... fieldNames) {
+  public RecordStoreSecurityPolicy allowFieldsChange(final String... fieldNames) {
     allowFieldsInsert(fieldNames);
     allowFieldsUpdate(fieldNames);
     return this;
@@ -121,8 +124,18 @@ public class RecordStoreSecurityPolicy {
     return this.recordInsertAllowed && this.insertFieldNames.contains(fieldName);
   }
 
+  public boolean canReadField(final String fieldName) {
+    return this.recordReadAllowed && this.readFieldNames.contains(fieldName);
+  }
+
   public boolean canUpdateField(final String fieldName) {
     return this.recordUpdateAllowed && this.updateFieldNames.contains(fieldName);
+  }
+
+  public void clear() {
+    this.insertFieldNames.clear();
+    this.updateFieldNames.clear();
+    this.readFieldNames.clear();
   }
 
   @Override
@@ -133,7 +146,7 @@ public class RecordStoreSecurityPolicy {
     return policy;
   }
 
-  public RecordStoreSecurityPolicy denyField(final String fieldName) {
+  public RecordStoreSecurityPolicy denyFieldChange(final String fieldName) {
     denyFieldInsert(fieldName);
     denyFieldUpdate(fieldName);
     return this;
@@ -144,9 +157,9 @@ public class RecordStoreSecurityPolicy {
     return this;
   }
 
-  public RecordStoreSecurityPolicy denyFields(final String... fieldNames) {
+  public RecordStoreSecurityPolicy denyFieldsChange(final String... fieldNames) {
     for (final String fieldName : fieldNames) {
-      denyField(fieldName);
+      denyFieldChange(fieldName);
     }
     return this;
   }
@@ -244,6 +257,10 @@ public class RecordStoreSecurityPolicy {
     return this.insertFieldPolicy;
   }
 
+  public RecordFieldSecurityPolicy getReadFieldPolicy() {
+    return this.readFieldPolicy;
+  }
+
   public RecordFieldSecurityPolicy getUpdateFieldPolicy() {
     return this.updateFieldPolicy;
   }
@@ -279,13 +296,13 @@ public class RecordStoreSecurityPolicy {
     return this.recordUpdateAllowed;
   }
 
-  public RecordStoreSecurityPolicy setAllowFields(final Collection<String> fieldNames) {
+  public RecordStoreSecurityPolicy setAllowFieldsChange(final Collection<String> fieldNames) {
     setAllowFieldsInsert(fieldNames);
     setAllowFieldsUpdate(fieldNames);
     return this;
   }
 
-  public RecordStoreSecurityPolicy setAllowFields(final String... fieldNames) {
+  public RecordStoreSecurityPolicy setAllowFieldsChange(final String... fieldNames) {
     setAllowFieldsInsert(fieldNames);
     setAllowFieldsUpdate(fieldNames);
     return this;
@@ -293,12 +310,12 @@ public class RecordStoreSecurityPolicy {
 
   public RecordStoreSecurityPolicy setAllowFieldsInsert(final Collection<String> fieldNames) {
     this.insertFieldNames.clear();
-    return allowFields(fieldNames);
+    return allowFieldsChange(fieldNames);
   }
 
   public RecordStoreSecurityPolicy setAllowFieldsInsert(final String... fieldNames) {
     this.insertFieldNames.clear();
-    return allowFields(fieldNames);
+    return allowFieldsChange(fieldNames);
   }
 
   public RecordStoreSecurityPolicy setAllowFieldsUpdate(final Collection<String> fieldNames) {
@@ -318,8 +335,15 @@ public class RecordStoreSecurityPolicy {
 
   public RecordStoreSecurityPolicy setRecordDefinition(final RecordDefinition recordDefinition) {
     this.recordDefinition = recordDefinition;
-    final List<String> fieldNames = recordDefinition.getFieldNames();
-    setAllowFields(fieldNames);
+    clear();
+    for (final FieldDefinition field : recordDefinition.getFields()) {
+      final String fieldName = field.getName();
+      if (!field.isGenerated()) {
+        this.insertFieldNames.add(fieldName);
+        this.updateFieldNames.add(fieldName);
+      }
+      this.readFieldNames.add(fieldName);
+    }
     return this;
   }
 
