@@ -421,6 +421,18 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     }
   }
 
+  protected Record insertRecord(final TableRecordStoreConnection connection,
+    final ChangeTrackRecord record) {
+    try (
+      Transaction transaction = connection.newTransaction(TransactionOptions.REQUIRED)) {
+      insertRecordBefore(connection, record);
+      validateRecord(record);
+      this.recordStore.insertRecord(record);
+      insertRecordAfter(connection, record);
+    }
+    return record;
+  }
+
   public Record insertRecord(final TableRecordStoreConnection connection,
     final Consumer<Record> action) {
     final RecordStoreChangeTrackRecord record = new RecordStoreChangeTrackRecord(this);
@@ -447,23 +459,12 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     }
   }
 
-  public Record insertRecord(final TableRecordStoreConnection connection, final Record record) {
-    try (
-      Transaction transaction = connection.newTransaction(TransactionOptions.REQUIRED)) {
-      insertRecordBefore(connection, record);
-      validateRecord(record);
-      this.recordStore.insertRecord(record);
-      insertRecordAfter(connection, record);
-    }
-    return record;
-  }
-
   protected void insertRecordAfter(final TableRecordStoreConnection connection,
     final Record record) {
   }
 
   protected void insertRecordBefore(final TableRecordStoreConnection connection,
-    final Record record) {
+    final ChangeTrackRecord record) {
   }
 
   protected boolean isFieldReadonly(final String fieldName) {
