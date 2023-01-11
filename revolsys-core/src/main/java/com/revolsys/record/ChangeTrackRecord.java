@@ -9,6 +9,13 @@ public interface ChangeTrackRecord extends Record {
     return new ChangeTrackRecordImpl(record);
   }
 
+  default ChangeTrackRecord addValueIfNotModified(final String fieldName, final Object value) {
+    if (!hasValue(fieldName) || getState() != RecordState.NEW && !isModified(fieldName)) {
+      addValue(fieldName, value);
+    }
+    return this;
+  }
+
   default JsonList getModifiedValueList() {
     JsonList modifiedValues = JsonList.EMPTY;
     final int fieldCount = getFieldCount();

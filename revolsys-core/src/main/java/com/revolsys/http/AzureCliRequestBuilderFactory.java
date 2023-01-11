@@ -12,10 +12,10 @@ import com.revolsys.record.io.format.json.JsonObject;
 
 public class AzureCliRequestBuilderFactory extends BearerTokenRequestBuilderFactory {
 
-  public static BearerToken newToken(String scope) {
-    System.out.println(scope);
-    List<String> command = Lists.newArray("cmd", "/c", "az", "account", "get-access-token", "--scope", scope);
-    ProcessBuilder builder = new ProcessBuilder(command);
+  public static BearerToken newToken(final String scope) {
+    final List<String> command = Lists.newArray("cmd", "/c", "az", "account", "get-access-token",
+      "--scope", scope);
+    final ProcessBuilder builder = new ProcessBuilder(command);
     final File logFile = FileUtil.newTempFile("file", "json");
     builder.redirectErrorStream(true);
     builder.redirectOutput(logFile);
@@ -23,14 +23,15 @@ public class AzureCliRequestBuilderFactory extends BearerTokenRequestBuilderFact
       final Process process = builder.start();
       if (process.waitFor() == 0) {
         final String commandOutput = FileUtil.getString(logFile).trim();
-        JsonObject result = JsonObject.parse(commandOutput);
+        final JsonObject result = JsonObject.parse(commandOutput);
         return new AzureCliBearerToken(result);
       } else {
         final String commandOutput = FileUtil.getString(logFile).trim();
         try {
           throw new RuntimeException(commandOutput);
         } catch (final Exception e) {
-          Logs.error(AzureCliRequestBuilderFactory.class, "Unknown error getting token\n" + e.getMessage(), e);
+          Logs.error(AzureCliRequestBuilderFactory.class,
+            "Unknown error getting token\n" + e.getMessage(), e);
         }
       }
     } catch (final InterruptedException e) {
@@ -42,7 +43,7 @@ public class AzureCliRequestBuilderFactory extends BearerTokenRequestBuilderFact
     return null;
   }
 
-  public AzureCliRequestBuilderFactory(String resource) {
+  public AzureCliRequestBuilderFactory(final String resource) {
     super(token -> newToken(resource));
   }
 
