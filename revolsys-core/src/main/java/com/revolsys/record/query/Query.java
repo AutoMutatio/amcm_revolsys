@@ -739,6 +739,10 @@ public class Query extends BaseObjectWithProperties
     return !this.selectExpressions.isEmpty();
   }
 
+  public Record insertOrUpdateRecord(final Consumer<Record> insertAndUpdateAction) {
+    return insertOrUpdateRecord(insertAndUpdateAction, insertAndUpdateAction);
+  }
+
   public Record insertOrUpdateRecord(final Consumer<Record> insertAction,
     final Consumer<Record> updateAction) {
     Record record = getRecord();

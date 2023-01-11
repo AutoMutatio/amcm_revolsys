@@ -62,7 +62,7 @@ public interface JsonList extends List<Object>, JsonType {
 
     @Override
     public boolean equals(final Object object,
-        final Collection<? extends CharSequence> excludeFieldNames) {
+      final Collection<? extends CharSequence> excludeFieldNames) {
       return false;
     }
 
@@ -175,7 +175,7 @@ public interface JsonList extends List<Object>, JsonType {
   }
 
   default boolean addIfNotContains(final Object value,
-      final Collection<? extends CharSequence> excludeFieldNames) {
+    final Collection<? extends CharSequence> excludeFieldNames) {
     final boolean notContains = !contains(value, excludeFieldNames);
     if (notContains) {
       add(value);
@@ -215,11 +215,11 @@ public interface JsonList extends List<Object>, JsonType {
 
   @Override
   default JsonList asJson() {
-    return (JsonList) JsonType.super.asJson();
+    return (JsonList)JsonType.super.asJson();
   }
 
   default boolean contains(final Object value,
-      final Collection<? extends CharSequence> excludeFieldNames) {
+    final Collection<? extends CharSequence> excludeFieldNames) {
     final int size = size();
     for (int i = 0; i < size; i++) {
       final Object listValue = get(i);
@@ -231,9 +231,9 @@ public interface JsonList extends List<Object>, JsonType {
   }
 
   default boolean equals(final Object value1, final Object value2,
-      final Collection<? extends CharSequence> excludeFieldNames) {
-    final List<?> list1 = (List<?>) value1;
-    final List<?> list2 = (List<?>) value2;
+    final Collection<? extends CharSequence> excludeFieldNames) {
+    final List<?> list1 = (List<?>)value1;
+    final List<?> list2 = (List<?>)value2;
     if (list1.size() != list2.size()) {
       return false;
     } else {
@@ -250,7 +250,7 @@ public interface JsonList extends List<Object>, JsonType {
 
   default <V> void forEachType(final Consumer<V> action) {
     List.super.forEach(value -> {
-      action.accept((V) value);
+      action.accept((V)value);
     });
   }
 
@@ -286,7 +286,7 @@ public interface JsonList extends List<Object>, JsonType {
 
   @SuppressWarnings("unchecked")
   default <V> V getValue(final int index) {
-    return (V) get(index);
+    return (V)get(index);
   }
 
   default <T extends Object> T getValue(final int index, final DataType dataType) {
@@ -295,17 +295,17 @@ public interface JsonList extends List<Object>, JsonType {
   }
 
   @SuppressWarnings({
-      "unchecked", "rawtypes"
+    "unchecked", "rawtypes"
   })
   default <V> Iterable<V> iterable() {
-    return (Iterable) this;
+    return (Iterable)this;
   }
 
   @SuppressWarnings({
-      "unchecked", "rawtypes"
+    "unchecked", "rawtypes"
   })
   default Reader<JsonObject> jsonObjects() {
-    return (Reader) this;
+    return (Reader)Reader.wrap(iterator());
   }
 
   default <V> List<V> mapTo(final Function<JsonObject, V> mapper) {
@@ -323,7 +323,7 @@ public interface JsonList extends List<Object>, JsonType {
     for (final Iterator<Object> iterator = iterator(); iterator.hasNext();) {
       final Object value = iterator.next();
       if (value instanceof JsonType) {
-        final JsonType jsonValue = (JsonType) value;
+        final JsonType jsonValue = (JsonType)value;
         jsonValue.removeEmptyProperties();
         if (jsonValue.isEmpty()) {
           iterator.remove();
@@ -339,7 +339,7 @@ public interface JsonList extends List<Object>, JsonType {
 
   @Override
   default JsonList toJson() {
-    return (JsonList) JsonType.super.toJson();
+    return (JsonList)JsonType.super.toJson();
   }
 
   @Override
