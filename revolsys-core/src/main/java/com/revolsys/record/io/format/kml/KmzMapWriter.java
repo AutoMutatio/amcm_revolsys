@@ -2,6 +2,7 @@ package com.revolsys.record.io.format.kml;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -17,7 +18,7 @@ public class KmzMapWriter extends AbstractMapWriter {
 
   public KmzMapWriter(final OutputStream out) {
     try {
-      this.zipOut = new ZipOutputStream(out);
+      this.zipOut = new ZipOutputStream(out, StandardCharsets.UTF_8);
       final ZipEntry entry = new ZipEntry("doc.kml");
       this.zipOut.putNextEntry(entry);
       final java.io.Writer writer = FileUtil.newUtf8Writer(this.zipOut);
