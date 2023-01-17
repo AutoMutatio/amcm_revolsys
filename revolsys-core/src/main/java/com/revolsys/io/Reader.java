@@ -57,7 +57,7 @@ public interface Reader<T> extends Iterable<T>, ObjectWithProperties, BaseClosea
 
   @SuppressWarnings("unchecked")
   static <V> Reader<V> empty() {
-    return (Reader<V>) EMPTY;
+    return (Reader<V>)EMPTY;
   }
 
   static <V> Reader<V> wrap(final Iterator<V> iterator) {
@@ -71,12 +71,12 @@ public interface Reader<T> extends Iterable<T>, ObjectWithProperties, BaseClosea
   default void close() {
   }
 
-  default Reader<T> filter(Predicate<T> filter) {
+  default Reader<T> filter(final Predicate<T> filter) {
     final Iterator<T> iterator = iterator();
     return new FilterIterator<>(filter, iterator);
   }
 
-  default <O> Reader<O> filter(Predicate<T> filter, final Function<T, O> converter) {
+  default <O> Reader<O> filter(final Predicate<T> filter, final Function<T, O> converter) {
     return filter(filter).map(converter);
   }
 
@@ -85,9 +85,9 @@ public interface Reader<T> extends Iterable<T>, ObjectWithProperties, BaseClosea
   }
 
   default void forEach(final Cancellable cancellable,
-      final BiConsumer<Cancellable, ? super T> action) {
+    final BiConsumer<Cancellable, ? super T> action) {
     try (
-        Reader<?> reader = this) {
+      Reader<?> reader = this) {
       if (iterator() != null) {
         try {
           for (final T item : this) {
@@ -105,7 +105,7 @@ public interface Reader<T> extends Iterable<T>, ObjectWithProperties, BaseClosea
 
   default void forEach(final Cancellable cancellable, final Consumer<? super T> action) {
     try (
-        Reader<?> reader = this) {
+      Reader<?> reader = this) {
       if (iterator() != null) {
         try {
           for (final T item : this) {
@@ -130,7 +130,7 @@ public interface Reader<T> extends Iterable<T>, ObjectWithProperties, BaseClosea
   @Override
   default void forEach(final Consumer<? super T> action) {
     try (
-        Reader<?> reader = this) {
+      Reader<?> reader = this) {
       if (iterator() != null) {
         try {
           for (final T item : this) {
@@ -145,10 +145,10 @@ public interface Reader<T> extends Iterable<T>, ObjectWithProperties, BaseClosea
   @SuppressWarnings("unchecked")
   default <V extends T> V getFirst() {
     try (
-        Reader<?> reader = this) {
+      Reader<?> reader = this) {
       if (iterator() != null) {
         for (final Object value : this) {
-          return (V) value;
+          return (V)value;
         }
       }
     }
@@ -157,7 +157,7 @@ public interface Reader<T> extends Iterable<T>, ObjectWithProperties, BaseClosea
 
   @SuppressWarnings("unchecked")
   default <V extends T> Iterable<V> i() {
-    return (Iterable<V>) this;
+    return (Iterable<V>)this;
   }
 
   default <O> Reader<O> map(final Function<T, O> converter) {
@@ -175,6 +175,11 @@ public interface Reader<T> extends Iterable<T>, ObjectWithProperties, BaseClosea
     return StreamSupport.stream(spliterator(), true);
   }
 
+  default void skipAll() {
+    for (final Iterator<T> iterator = iterator(); iterator.hasNext();) {
+    }
+  }
+
   default Stream<T> stream() {
     return StreamSupport.stream(spliterator(), false);
   }
@@ -187,7 +192,7 @@ public interface Reader<T> extends Iterable<T>, ObjectWithProperties, BaseClosea
   default List<T> toList() {
     final List<T> items = new ArrayList<>();
     try (
-        Reader<?> reader = this) {
+      Reader<?> reader = this) {
       if (iterator() != null) {
         for (final T item : this) {
           items.add(item);
