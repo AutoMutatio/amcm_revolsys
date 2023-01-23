@@ -4,18 +4,18 @@ import java.util.List;
 
 import com.revolsys.collection.list.Lists;
 
-public class MultiRecordFieldSecurityPolicy implements RecordFieldSecurityPolicy {
+public class MultiRecordFieldSecurityPolicy implements RecordStoreAccessTypeSecurityPolicy {
 
-  private final List<RecordFieldSecurityPolicy> policies;
+  private final List<RecordStoreAccessTypeSecurityPolicy> policies;
 
-  MultiRecordFieldSecurityPolicy(final List<RecordFieldSecurityPolicy> policies) {
+  MultiRecordFieldSecurityPolicy(final List<RecordStoreAccessTypeSecurityPolicy> policies) {
     this.policies = policies;
   }
 
   @Override
-  public boolean canSetFieldName(final String fieldName) {
-    for (final RecordFieldSecurityPolicy policy : this.policies) {
-      if (policy.canSetFieldName(fieldName)) {
+  public boolean isFieldAllowed(final String fieldName) {
+    for (final RecordStoreAccessTypeSecurityPolicy policy : this.policies) {
+      if (policy.isFieldAllowed(fieldName)) {
         return true;
       }
     }

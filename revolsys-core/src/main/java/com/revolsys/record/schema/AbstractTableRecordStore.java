@@ -112,7 +112,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
 
   private final Set<String> searchFieldNames = new LinkedHashSet<>();
 
-  protected Map<String, RecordStoreSecurityPolicy> securityPolicyByGroup = new LinkedHashMap<>();
+  protected Map<String, RecordStoreSecurityPolicies> securityPolicyByGroup = new LinkedHashMap<>();
 
   private String tableAlias;
 
@@ -213,7 +213,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
   protected void applyUpdates(final TableRecordStoreConnection connection,
     final RecordStoreChangeTrackRecord record, final RecordAccessType accessType,
     final Consumer<Record> action) {
-    final RecordFieldSecurityPolicy policy = getRecordFieldSecurityPolicy(connection, accessType);
+    final RecordStoreAccessTypeSecurityPolicy policy = getRecordFieldSecurityPolicy(connection, accessType);
     try (
       BaseCloseable c = record.startUpdates(policy)) {
       action.accept(record);
@@ -267,11 +267,11 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     return this.defaultSortOrder;
   }
 
-  protected RecordStoreSecurityPolicy getGroupSecurityPolicy(final String groupName) {
+  protected RecordStoreSecurityPolicies getGroupSecurityPolicy(final String groupName) {
     final RecordDefinition recordDefinition = getRecordDefinition();
-    RecordStoreSecurityPolicy policy = this.securityPolicyByGroup.get(groupName);
+    RecordStoreSecurityPolicies policy = this.securityPolicyByGroup.get(groupName);
     if (policy == null) {
-      policy = new RecordStoreSecurityPolicy().setRecordDefinition(recordDefinition)
+      policy = new RecordStoreSecurityPolicies().setRecordDefinition(recordDefinition)
         .setLabel(groupName);
       this.securityPolicyByGroup.put(groupName, policy);
     }
@@ -320,10 +320,10 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     return this.recordDefinition;
   }
 
-  public RecordFieldSecurityPolicy getRecordFieldSecurityPolicy(
+  public RecordStoreAccessTypeSecurityPolicy getRecordFieldSecurityPolicy(
     final TableRecordStoreConnection connection, final RecordAccessType accessType) {
-    final Set<RecordStoreSecurityPolicy> policies = getSecurityPolicies(connection, accessType);
-    return RecordFieldSecurityPolicy.create(policies, accessType);
+    final Set<RecordStoreSecurityPolicies> policies = getSecurityPolicies(connection, accessType);
+    return RecordStoreAccessTypeSecurityPolicy.create(policies, accessType);
   }
 
   protected RecordReader getRecordReader(final TableRecordStoreConnection connection,
@@ -348,14 +348,14 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     return (R)this.recordStore;
   }
 
-  public Set<RecordStoreSecurityPolicy> getSecurityPolicies(
+  public Set<RecordStoreSecurityPolicies> getSecurityPolicies(
     final TableRecordStoreConnection connection, final RecordAccessType accessType) {
     if (this.securityPolicyByGroup.isEmpty()) {
       return null;
     } else {
-      final Set<RecordStoreSecurityPolicy> policies = new LinkedHashSet<>();
+      final Set<RecordStoreSecurityPolicies> policies = new LinkedHashSet<>();
       for (final String groupName : connection.getGroupNames()) {
-        final RecordStoreSecurityPolicy policy = this.securityPolicyByGroup.get(groupName);
+        final RecordStoreSecurityPolicies policy = this.securityPolicyByGroup.get(groupName);
         if (policy != null && policy.isRecordChangeAllowed(accessType)) {
           policies.add(policy);
         }
@@ -745,7 +745,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     getRecordDefinition().validateRecord(record);
   }
 
-  protected void withGroupSecurityPolicy(final Consumer<RecordStoreSecurityPolicy> action,
+  protected void withGroupSecurityPolicy(final Consumer<RecordStoreSecurityPolicies> action,
     final String... groupNames) {
     for (final String groupName : groupNames) {
       withGroupSecurityPolicy(groupName, action);
@@ -753,8 +753,8 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
   }
 
   protected void withGroupSecurityPolicy(final String groupName,
-    final Consumer<RecordStoreSecurityPolicy> action) {
-    final RecordStoreSecurityPolicy policy = getGroupSecurityPolicy(groupName);
+    final Consumer<RecordStoreSecurityPolicies> action) {
+    final RecordStoreSecurityPolicies policy = getGroupSecurityPolicy(groupName);
     action.accept(policy);
   }
 }
