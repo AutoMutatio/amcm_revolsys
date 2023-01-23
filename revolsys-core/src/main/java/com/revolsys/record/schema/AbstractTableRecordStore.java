@@ -631,13 +631,13 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     addDefaultSortOrder(fieldName, ascending);
   }
 
-  protected void setGeneratedFields(final String... fieldNames) {
+  protected void setFieldsGenerated(final boolean generated, final String... fieldNames) {
     if (getRecordDefinition() != null) {
       for (final String fieldName : fieldNames) {
         final JdbcFieldDefinition field = (JdbcFieldDefinition)getRecordDefinition()
           .getField(fieldName);
         if (field != null) {
-          field.setGenerated(true);
+          field.setGenerated(generated);
         }
       }
     }
