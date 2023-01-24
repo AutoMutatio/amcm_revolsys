@@ -8,12 +8,16 @@ import java.util.TreeSet;
 import org.springframework.dao.PermissionDeniedDataAccessException;
 
 public final class RecordStoreSecurityPolicyFieldsSet
-  implements RecordStoreAccessTypeSecurityPolicy, RecordStoreSecurityPolicyFields {
+  implements RecordStoreSecurityPolicyForField, RecordStoreSecurityPolicyFields {
   private final Set<String> fieldNames = new TreeSet<>();
 
   private boolean accessAllowed = true;
 
   private final String label;
+
+  private RecordDefinition recordDefinition;
+
+  private RecordDefinition permissionRecordDefinition;
 
   public RecordStoreSecurityPolicyFieldsSet(final String label) {
     this.label = label;
@@ -21,12 +25,14 @@ public final class RecordStoreSecurityPolicyFieldsSet
 
   @Override
   public RecordStoreSecurityPolicyFieldsSet allow(final String fieldName) {
+    this.permissionRecordDefinition = null;
     this.fieldNames.add(fieldName);
     return this;
   }
 
   @Override
   public RecordStoreSecurityPolicyFieldsSet allow(final String... fieldNames) {
+    this.permissionRecordDefinition = null;
     for (final String fieldName : fieldNames) {
       this.fieldNames.add(fieldName);
     }
@@ -40,12 +46,14 @@ public final class RecordStoreSecurityPolicyFieldsSet
 
   @Override
   public RecordStoreSecurityPolicyFieldsSet deny(final String fieldName) {
+    this.permissionRecordDefinition = null;
     this.fieldNames.remove(fieldName);
     return this;
   }
 
   @Override
   public RecordStoreSecurityPolicyFieldsSet deny(final String... fieldNames) {
+    this.permissionRecordDefinition = null;
     for (final String fieldName : fieldNames) {
       this.fieldNames.remove(fieldName);
     }
@@ -54,6 +62,7 @@ public final class RecordStoreSecurityPolicyFieldsSet
 
   @Override
   public RecordStoreSecurityPolicyFieldsSet denyAll() {
+    this.permissionRecordDefinition = null;
     this.fieldNames.clear();
     return this;
   }
@@ -67,6 +76,19 @@ public final class RecordStoreSecurityPolicyFieldsSet
 
   public Collection<String> getAllowedFieldNames() {
     return new ArrayList<>(this.fieldNames);
+  }
+
+  public RecordDefinition getPermissionRecordDefinition() {
+    if (this.permissionRecordDefinition == null) {
+      this.permissionRecordDefinition = new RecordDefinitionBuilder(this.recordDefinition,
+        this.fieldNames).getRecordDefinition();
+    }
+    return this.permissionRecordDefinition;
+  }
+
+  @Override
+  public RecordDefinition getRecordDefinition() {
+    return this.recordDefinition.cloneFields(this.fieldNames);
   }
 
   @Override
@@ -87,6 +109,7 @@ public final class RecordStoreSecurityPolicyFieldsSet
 
   @Override
   public RecordStoreSecurityPolicyFieldsSet setAllowed(final Collection<String> fieldNames) {
+    this.permissionRecordDefinition = null;
     this.fieldNames.clear();
     for (final String fieldName : fieldNames) {
       this.fieldNames.add(fieldName);
@@ -96,11 +119,18 @@ public final class RecordStoreSecurityPolicyFieldsSet
 
   @Override
   public RecordStoreSecurityPolicyFieldsSet setAllowed(final String... fieldNames) {
+    this.permissionRecordDefinition = null;
     this.fieldNames.clear();
     for (final String fieldName : fieldNames) {
       this.fieldNames.add(fieldName);
     }
     return this;
+  }
+
+  @Override
+  public void setRecordDefinition(final RecordDefinition recordDefinition) {
+    this.recordDefinition = recordDefinition;
+    this.permissionRecordDefinition = null;
   }
 
   @Override

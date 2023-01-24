@@ -12,13 +12,29 @@ import com.revolsys.transaction.TransactionOptions;
 
 public class TableRecordStoreQuery extends Query {
 
+  public static TableRecordStoreQuery create(final TableRecordStoreConnection connection,
+    final AbstractTableRecordStore recordStore, final RecordAccessType accessType) {
+    final RecordStoreSecurityPolicyForField securityPolicy = recordStore
+      .getSecurityPolicyForField(connection, accessType);
+    securityPolicy.enforceAccessAllowed();
+    final RecordDefinition recordDefinition = securityPolicy.getRecordDefinition();
+    return new TableRecordStoreQuery(connection, recordStore, recordDefinition);
+  }
+
   private final AbstractTableRecordStore recordStore;
 
   private final TableRecordStoreConnection connection;
 
-  public TableRecordStoreQuery(final AbstractTableRecordStore recordStore,
-    final TableRecordStoreConnection connection) {
+  public TableRecordStoreQuery(final TableRecordStoreConnection connection,
+    final AbstractTableRecordStore recordStore) {
     super(recordStore.getRecordDefinition());
+    this.recordStore = recordStore;
+    this.connection = connection;
+  }
+
+  private TableRecordStoreQuery(final TableRecordStoreConnection connection,
+    final AbstractTableRecordStore recordStore, final RecordDefinition recordDefinition) {
+    super(recordDefinition);
     this.recordStore = recordStore;
     this.connection = connection;
   }
@@ -43,11 +59,13 @@ public class TableRecordStoreQuery extends Query {
 
   @Override
   public RecordReader getRecordReader() {
+    this.recordStore.enforceAccessTypeSecurityPolicy(this.connection, RecordAccessType.READ);
     return this.recordStore.getRecordReader(this.connection, this);
   }
 
   @Override
   public RecordReader getRecordReader(final Transaction transaction) {
+    this.recordStore.enforceAccessTypeSecurityPolicy(this.connection, RecordAccessType.READ);
     return this.recordStore.getRecordReader(this.connection, this, transaction);
   }
 

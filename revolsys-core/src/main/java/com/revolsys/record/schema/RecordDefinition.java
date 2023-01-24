@@ -1,6 +1,7 @@
 package com.revolsys.record.schema;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -83,6 +84,10 @@ public interface RecordDefinition extends Cloneable, GeometryFactoryProxy, Recor
     }
   }
 
+  default RecordDefinition cloneFields(final Collection<String> fieldNames) {
+    throw new UnsupportedOperationException("clone not supported");
+  }
+
   void deleteRecord(Record record);
 
   void destroy();
@@ -110,6 +115,7 @@ public interface RecordDefinition extends Cloneable, GeometryFactoryProxy, Recor
 
   Map<String, Object> getDefaultValues();
 
+  @Override
   FieldDefinition getField(CharSequence name);
 
   FieldDefinition getField(int index);

@@ -33,13 +33,14 @@ public class RecordDefinitionBuilder {
 
   public RecordDefinitionBuilder(final RecordDefinitionProxy recordDefinition,
     final Collection<String> fieldNames) {
-    this(recordDefinition.getPathName());
+    this.recordDefinition = new RecordDefinitionImpl(
+      recordDefinition.getRecordDefinition().getSchema(), recordDefinition.getPathName());
     for (final String fieldName : fieldNames) {
       final FieldDefinition fieldDefinition = recordDefinition.getFieldDefinition(fieldName);
       addField(fieldDefinition);
     }
     this.recordDefinition.setIdFieldNames(
-      Lists.filter(recordDefinition.getIdFieldNames(), (name) -> fieldNames.contains(name)));
+      Lists.filter(recordDefinition.getIdFieldNames(), name -> fieldNames.contains(name)));
     this.recordDefinition.setGeometryFieldName(recordDefinition.getGeometryFieldName());
     this.recordDefinition.setGeometryFactory(recordDefinition.getGeometryFactory());
   }

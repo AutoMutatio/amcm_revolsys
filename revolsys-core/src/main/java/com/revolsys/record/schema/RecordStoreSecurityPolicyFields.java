@@ -27,4 +27,6 @@ public interface RecordStoreSecurityPolicyFields {
   RecordStoreSecurityPolicyFields setAllowed(Collection<String> fieldNames);
 
   RecordStoreSecurityPolicyFields setAllowed(String... fieldNames);
+
+  void setRecordDefinition(RecordDefinition recordDefinition);
 }

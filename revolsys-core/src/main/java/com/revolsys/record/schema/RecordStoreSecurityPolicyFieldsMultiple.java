@@ -77,6 +77,13 @@ public class RecordStoreSecurityPolicyFieldsMultiple implements RecordStoreSecur
   }
 
   @Override
+  public void setRecordDefinition(final RecordDefinition recordDefinition) {
+    for (final RecordStoreSecurityPolicyFields policy : this.policies) {
+      policy.setRecordDefinition(recordDefinition);
+    }
+  }
+
+  @Override
   public String toString() {
     return Arrays.asList(this.policies).toString();
   }

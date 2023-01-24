@@ -66,9 +66,9 @@ public class RecordDefinitionImpl extends AbstractRecordStoreSchemaElement
 
   private String description;
 
-  private final Map<String, Integer> fieldIdMap = new HashMap<>();
+  private Map<String, Integer> fieldIdMap = new HashMap<>();
 
-  private final Map<String, FieldDefinition> fieldMap = new HashMap<>();
+  private Map<String, FieldDefinition> fieldMap = new HashMap<>();
 
   private List<String> fieldNames = Collections.emptyList();
 
@@ -79,37 +79,37 @@ public class RecordDefinitionImpl extends AbstractRecordStoreSchemaElement
   /** The index of the primary geometry field. */
   private int geometryFieldDefinitionIndex = -1;
 
-  private final List<Integer> geometryFieldDefinitionIndexes = new ArrayList<>();
+  private List<Integer> geometryFieldDefinitionIndexes = new ArrayList<>();
 
-  private final List<Integer> geometryFieldDefinitionIndexesUnmod = Collections
+  private List<Integer> geometryFieldDefinitionIndexesUnmod = Collections
     .unmodifiableList(this.geometryFieldDefinitionIndexes);
 
-  private final List<String> geometryFieldDefinitionNames = new ArrayList<>();
+  private List<String> geometryFieldDefinitionNames = new ArrayList<>();
 
-  private final List<String> geometryFieldDefinitionNamesUnmod = Collections
+  private List<String> geometryFieldDefinitionNamesUnmod = Collections
     .unmodifiableList(this.geometryFieldDefinitionNames);
 
   /** The index of the ID field. */
   private int idFieldDefinitionIndex = -1;
 
-  private final List<Integer> idFieldDefinitionIndexes = new ArrayList<>();
+  private List<Integer> idFieldDefinitionIndexes = new ArrayList<>();
 
-  private final List<Integer> idFieldDefinitionIndexesUnmod = Collections
+  private List<Integer> idFieldDefinitionIndexesUnmod = Collections
     .unmodifiableList(this.idFieldDefinitionIndexes);
 
-  private final List<String> idFieldDefinitionNames = new ArrayList<>();
+  private List<String> idFieldDefinitionNames = new ArrayList<>();
 
-  private final List<FieldDefinition> idFieldDefinitions = new ArrayList<>();
+  private List<FieldDefinition> idFieldDefinitions = new ArrayList<>();
 
-  private final List<FieldDefinition> idFieldDefinitionsUnmod = Collections
+  private List<FieldDefinition> idFieldDefinitionsUnmod = Collections
     .unmodifiableList(this.idFieldDefinitions);
 
-  private final List<String> internalFieldNames = new ArrayList<>();
+  private List<String> internalFieldNames = new ArrayList<>();
 
-  private final List<String> idFieldDefinitionNamesUnmod = Collections
+  private List<String> idFieldDefinitionNamesUnmod = Collections
     .unmodifiableList(this.idFieldDefinitionNames);
 
-  private final List<FieldDefinition> internalFields = new ArrayList<>();
+  private List<FieldDefinition> internalFields = new ArrayList<>();
 
   private RecordDefinitionFactory recordDefinitionFactory;
 
@@ -118,9 +118,9 @@ public class RecordDefinitionImpl extends AbstractRecordStoreSchemaElement
   })
   private RecordFactory<Record> recordFactory = (RecordFactory)ArrayRecord.FACTORY;
 
-  private final Map<String, Collection<Object>> restrictions = new HashMap<>();
+  private Map<String, Collection<Object>> restrictions = new HashMap<>();
 
-  private final List<RecordDefinition> superClasses = new ArrayList<>();
+  private List<RecordDefinition> superClasses = new ArrayList<>();
 
   private GeometryFactory geometryFactory;
 
@@ -357,6 +357,22 @@ public class RecordDefinitionImpl extends AbstractRecordStoreSchemaElement
     }
   }
 
+  private synchronized void clearFields() {
+    this.internalFieldNames.clear();
+    this.internalFields.clear();
+    this.fieldIdMap.clear();
+    this.fieldMap.clear();
+    this.geometryFieldDefinitionNames.clear();
+    this.geometryFieldDefinitionIndexes.clear();
+    this.idFieldDefinitionIndexes.clear();
+    this.idFieldDefinitionNames.clear();
+    this.idFieldDefinitions.clear();
+
+    this.fieldNames = Lists.unmodifiable(this.internalFieldNames);
+    this.fieldNamesSet = Sets.unmodifiableLinked(this.internalFieldNames);
+    this.fields = Lists.unmodifiable(this.internalFields);
+  }
+
   private void clearIdFields() {
     for (final FieldDefinition fieldDefinition : this.fields) {
       fieldDefinition.setIdField(false);
@@ -365,6 +381,54 @@ public class RecordDefinitionImpl extends AbstractRecordStoreSchemaElement
     this.idFieldDefinitionIndexes.clear();
     this.idFieldDefinitionNames.clear();
     this.idFieldDefinitions.clear();
+  }
+
+  @Override
+  public RecordDefinitionImpl clone() {
+    final RecordDefinitionImpl clone = (RecordDefinitionImpl)super.clone();
+    clone.internalFields = new ArrayList<>(this.internalFields);
+    clone.internalFieldNames = new ArrayList<>(this.internalFieldNames);
+
+    clone.codeTableByFieldNameMap = new HashMap<>(this.codeTableByFieldNameMap);
+    clone.defaultValues = JsonObject.hash(this.defaultValues);
+    clone.boundingBox = this.boundingBox.clone();
+    clone.fieldIdMap = new HashMap<>(this.fieldIdMap);
+    clone.fieldMap = new HashMap<>(this.fieldMap);
+    this.fieldNames = Lists.unmodifiable(this.internalFieldNames);
+    this.fieldNamesSet = Sets.unmodifiableLinked(this.internalFieldNames);
+    this.fields = Lists.unmodifiable(this.internalFields);
+    clone.geometryFieldDefinitionIndexes = new ArrayList<>(this.geometryFieldDefinitionIndexes);
+    clone.geometryFieldDefinitionIndexesUnmod = Collections
+      .unmodifiableList(clone.geometryFieldDefinitionIndexes);
+    clone.geometryFieldDefinitionNames = new ArrayList<>(this.geometryFieldDefinitionNames);
+    clone.geometryFieldDefinitionNamesUnmod = Collections
+      .unmodifiableList(clone.geometryFieldDefinitionNamesUnmod);
+    clone.idFieldDefinitionIndexes = new ArrayList<>(this.idFieldDefinitionIndexes);
+    clone.idFieldDefinitionIndexesUnmod = Collections
+      .unmodifiableList(clone.idFieldDefinitionIndexesUnmod);
+    clone.idFieldDefinitionNames = new ArrayList<>(this.idFieldDefinitionNames);
+    clone.idFieldDefinitions = new ArrayList<>(this.idFieldDefinitions);
+    clone.idFieldDefinitionsUnmod = Collections.unmodifiableList(clone.idFieldDefinitions);
+    clone.idFieldDefinitionNamesUnmod = Collections.unmodifiableList(clone.idFieldDefinitionNames);
+    clone.restrictions = new HashMap<>(this.restrictions);
+    clone.superClasses = new ArrayList<>(this.superClasses);
+    return clone;
+  }
+
+  @Override
+  public RecordDefinitionImpl cloneFields(final Collection<String> fieldNames) {
+    final RecordDefinitionImpl clone = clone();
+    clone.clearFields();
+    for (final String fieldName : fieldNames) {
+      final FieldDefinition fieldDefinition = getFieldDefinition(fieldName);
+      final FieldDefinition field = fieldDefinition.clone();
+      field.setRecordDefinition(clone);
+      clone.addField(field);
+    }
+    clone.setIdFieldNames(Lists.filter(getIdFieldNames(), name -> fieldNames.contains(name)));
+    clone.setGeometryFieldName(getGeometryFieldName());
+    clone.setGeometryFactory(getGeometryFactory());
+    return clone;
   }
 
   public void cloneProperties(final Map<String, Object> properties) {

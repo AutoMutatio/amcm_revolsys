@@ -5,10 +5,14 @@ import com.revolsys.record.ArrayChangeTrackRecord;
 
 public class RecordStoreChangeTrackRecord extends ArrayChangeTrackRecord {
 
-  private RecordStoreAccessTypeSecurityPolicy policy = RecordStoreAccessTypeSecurityPolicy.ALLOW;
+  private final RecordStoreSecurityPolicyForField allowPolicy;
+
+  private RecordStoreSecurityPolicyForField policy;
 
   public RecordStoreChangeTrackRecord(final AbstractTableRecordStore recordStore) {
     super(recordStore.getRecordDefinition());
+    this.allowPolicy = RecordStoreSecurityPolicyForField.allow(getRecordDefinition());
+    this.policy = this.allowPolicy;
   }
 
   @Override
@@ -21,8 +25,8 @@ public class RecordStoreChangeTrackRecord extends ArrayChangeTrackRecord {
     }
   }
 
-  public BaseCloseable startUpdates(final RecordStoreAccessTypeSecurityPolicy policy) {
+  public BaseCloseable startUpdates(final RecordStoreSecurityPolicyForField policy) {
     this.policy = policy;
-    return () -> this.policy = RecordStoreAccessTypeSecurityPolicy.ALLOW;
+    return () -> this.policy = this.allowPolicy;
   }
 }

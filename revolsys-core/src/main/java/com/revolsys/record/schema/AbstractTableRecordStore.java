@@ -213,7 +213,8 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
   protected void applyUpdates(final TableRecordStoreConnection connection,
     final RecordStoreChangeTrackRecord record, final RecordAccessType accessType,
     final Consumer<Record> action) {
-    final RecordStoreAccessTypeSecurityPolicy policy = getRecordFieldSecurityPolicy(connection, accessType);
+    final RecordStoreSecurityPolicyForField policy = getSecurityPolicyForField(connection,
+      accessType);
     try (
       BaseCloseable c = record.startUpdates(policy)) {
       action.accept(record);
@@ -249,6 +250,12 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
       Transaction transaction = connection.newTransaction(TransactionOptions.REQUIRED)) {
       return this.recordStore.deleteRecords(query);
     }
+  }
+
+  public void enforceAccessTypeSecurityPolicy(final TableRecordStoreConnection connection,
+    final RecordAccessType accessType) {
+    getSecurityPolicyForField(connection, accessType)//
+      .enforceAccessAllowed();
   }
 
   protected void executeUpdate(final TableRecordStoreConnection connection, final String sql,
@@ -320,12 +327,6 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     return this.recordDefinition;
   }
 
-  public RecordStoreAccessTypeSecurityPolicy getRecordFieldSecurityPolicy(
-    final TableRecordStoreConnection connection, final RecordAccessType accessType) {
-    final Set<RecordStoreSecurityPolicies> policies = getSecurityPolicies(connection, accessType);
-    return RecordStoreAccessTypeSecurityPolicy.create(policies, accessType);
-  }
-
   protected RecordReader getRecordReader(final TableRecordStoreConnection connection,
     final Query query) {
     final Transaction transaction = connection.newTransaction(TransactionOptions.REQUIRED);
@@ -366,6 +367,12 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
       }
       return policies;
     }
+  }
+
+  public RecordStoreSecurityPolicyForField getSecurityPolicyForField(
+    final TableRecordStoreConnection connection, final RecordAccessType accessType) {
+    final Set<RecordStoreSecurityPolicies> policies = getSecurityPolicies(connection, accessType);
+    return RecordStoreSecurityPolicyForField.create(this.recordDefinition, policies, accessType);
   }
 
   public TableReference getTable() {
@@ -477,18 +484,22 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     }
   }
 
-  public Condition newODataFilter(String filter) {
+  protected Condition newODataFilter(final RecordDefinition recordDefinition, String filter) {
     if (Property.hasValue(filter)) {
       filter = filter.replace("%2B", "+");
-      final TableReference table = getTable();
-      return (Condition)ODataParser.parseFilter(table, filter);
+      return (Condition)ODataParser.parseFilter(recordDefinition, filter);
     } else {
       return null;
     }
   }
 
+  public Condition newODataFilter(final String filter) {
+    final RecordDefinition recordDefinition = getRecordDefinition();
+    return newODataFilter(recordDefinition, filter);
+  }
+
   public Query newQuery(final TableRecordStoreConnection connection) {
-    return new TableRecordStoreQuery(this, connection);
+    return new TableRecordStoreQuery(connection, this);
   }
 
   public Query newQuery(final TableRecordStoreConnection connection,
@@ -513,7 +524,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     } catch (final Exception e) {
     }
 
-    final Query query = newQuery(connection).setOffset(skip).setLimit(top);
+    final Query query = newQuery(connection, RecordAccessType.READ).setOffset(skip).setLimit(top);
 
     if (Property.hasValue(select)) {
       for (String selectItem : select.split(",")) {
@@ -522,14 +533,20 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
       }
     }
 
-    Condition filterCondition = newODataFilter(filter);
+    final RecordDefinition recordDefinition = query.getRecordDefinition();
+    Condition filterCondition = newODataFilter(recordDefinition, filter);
     if (filterCondition != null) {
       filterCondition = alterCondition(request, connection, query, filterCondition);
-      query.and(filterCondition.clone(null, query.getTable()));
+      query.and(filterCondition.clone(null, recordDefinition));
     }
     applySearchCondition(query, search);
     addQueryOrderBy(query, orderBy);
     return query;
+  }
+
+  public Query newQuery(final TableRecordStoreConnection connection,
+    final RecordAccessType accessType) {
+    return TableRecordStoreQuery.create(connection, this, accessType);
   }
 
   protected void newQueryFilterConditionSearch(final Query query, final String search) {

@@ -50,7 +50,7 @@ public class RecordStoreSecurityPolicies {
     this.allPolicies.denyAll();
   }
 
-  public RecordStoreSecurityPolicyFieldsMultiple getAllFieldNames() {
+  public RecordStoreSecurityPolicyFieldsMultiple getAllPolicies() {
     return this.allPolicies;
   }
 
@@ -66,13 +66,13 @@ public class RecordStoreSecurityPolicies {
     return this.insertPolicies;
   }
 
-  public RecordStoreAccessTypeSecurityPolicy getReadFieldPolicies() {
+  public RecordStoreSecurityPolicyFieldsSet getReadFieldPolicies() {
     return this.readPolicies;
   }
 
-  public RecordStoreAccessTypeSecurityPolicy getSecurityPolicy(final RecordAccessType accessType) {
+  public RecordStoreSecurityPolicyForField getSecurityPolicy(final RecordAccessType accessType) {
     if (accessType == null) {
-      return RecordStoreAccessTypeSecurityPolicy.DENY;
+      return RecordStoreSecurityPolicyForField.DENY;
     } else {
       switch (accessType) {
         case READ:
@@ -84,7 +84,7 @@ public class RecordStoreSecurityPolicies {
         case DELETE:
           return this.deletePolicies;
         default:
-          return RecordStoreAccessTypeSecurityPolicy.DENY;
+          return RecordStoreSecurityPolicyForField.DENY;
       }
     }
   }
@@ -104,6 +104,7 @@ public class RecordStoreSecurityPolicies {
 
   public RecordStoreSecurityPolicies setRecordDefinition(final RecordDefinition recordDefinition) {
     this.recordDefinition = recordDefinition;
+    this.allPolicies.setRecordDefinition(recordDefinition);
     this.allPolicies.denyAll(); // Clear existing field policies
     for (final FieldDefinition field : recordDefinition.getFields()) {
       final String fieldName = field.getName();
