@@ -168,6 +168,26 @@ public interface RecordDefinition extends Cloneable, GeometryFactoryProxy, Recor
   @Override
   List<String> getFieldNames();
 
+  default List<String> getFieldNames(final Iterable<String> fieldNames) {
+    final List<String> names = new ArrayList<>();
+    for (final String fieldName : fieldNames) {
+      if (hasField(fieldName)) {
+        names.add(fieldName);
+      }
+    }
+    return names;
+  }
+
+  default List<String> getFieldNames(final String... fieldNames) {
+    final List<String> names = new ArrayList<>();
+    for (final String fieldName : fieldNames) {
+      if (hasField(fieldName)) {
+        names.add(fieldName);
+      }
+    }
+    return names;
+  }
+
   Set<String> getFieldNamesSet();
 
   @Override

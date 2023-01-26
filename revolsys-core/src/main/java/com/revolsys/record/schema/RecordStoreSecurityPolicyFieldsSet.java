@@ -2,14 +2,14 @@ package com.revolsys.record.schema;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashSet;
 import java.util.Set;
-import java.util.TreeSet;
 
 import org.springframework.dao.PermissionDeniedDataAccessException;
 
 public final class RecordStoreSecurityPolicyFieldsSet
   implements RecordStoreSecurityPolicyForField, RecordStoreSecurityPolicyFields {
-  private final Set<String> fieldNames = new TreeSet<>();
+  private final Set<String> fieldNames = new LinkedHashSet<>();
 
   private boolean accessAllowed = true;
 
@@ -24,9 +24,20 @@ public final class RecordStoreSecurityPolicyFieldsSet
   }
 
   @Override
+  public RecordStoreSecurityPolicyFieldsSet allow(final Iterable<String> fieldNames) {
+    this.permissionRecordDefinition = null;
+    for (final String fieldName : fieldNames) {
+      allow(fieldName);
+    }
+    return this;
+  }
+
+  @Override
   public RecordStoreSecurityPolicyFieldsSet allow(final String fieldName) {
     this.permissionRecordDefinition = null;
-    this.fieldNames.add(fieldName);
+    if (this.recordDefinition == null || this.recordDefinition.hasField(fieldName)) {
+      this.fieldNames.add(fieldName);
+    }
     return this;
   }
 
@@ -34,7 +45,7 @@ public final class RecordStoreSecurityPolicyFieldsSet
   public RecordStoreSecurityPolicyFieldsSet allow(final String... fieldNames) {
     this.permissionRecordDefinition = null;
     for (final String fieldName : fieldNames) {
-      this.fieldNames.add(fieldName);
+      allow(fieldName);
     }
     return this;
   }
@@ -42,6 +53,15 @@ public final class RecordStoreSecurityPolicyFieldsSet
   public void copyFrom(final RecordStoreSecurityPolicyFieldsSet policy) {
     this.accessAllowed = policy.accessAllowed;
     setAllowed(policy.fieldNames);
+  }
+
+  @Override
+  public RecordStoreSecurityPolicyFieldsSet deny(final Iterable<String> fieldNames) {
+    this.permissionRecordDefinition = null;
+    for (final String fieldName : fieldNames) {
+      this.fieldNames.remove(fieldName);
+    }
+    return this;
   }
 
   @Override
@@ -78,17 +98,19 @@ public final class RecordStoreSecurityPolicyFieldsSet
     return new ArrayList<>(this.fieldNames);
   }
 
-  public RecordDefinition getPermissionRecordDefinition() {
-    if (this.permissionRecordDefinition == null) {
-      this.permissionRecordDefinition = new RecordDefinitionBuilder(this.recordDefinition,
-        this.fieldNames).getRecordDefinition();
-    }
-    return this.permissionRecordDefinition;
-  }
-
   @Override
   public RecordDefinition getRecordDefinition() {
-    return this.recordDefinition.cloneFields(this.fieldNames);
+    if (this.permissionRecordDefinition == null && this.recordDefinition != null) {
+      final RecordDefinition recordDefinition = this.recordDefinition;
+      final Set<String> fieldNames = this.fieldNames;
+      if (fieldNames.size() == recordDefinition.getFieldCount()
+        && fieldNames.containsAll(recordDefinition.getFieldNames())) {
+        this.permissionRecordDefinition = recordDefinition;
+      } else {
+        this.permissionRecordDefinition = recordDefinition.cloneFields(fieldNames);
+      }
+    }
+    return this.permissionRecordDefinition;
   }
 
   @Override
@@ -112,7 +134,7 @@ public final class RecordStoreSecurityPolicyFieldsSet
     this.permissionRecordDefinition = null;
     this.fieldNames.clear();
     for (final String fieldName : fieldNames) {
-      this.fieldNames.add(fieldName);
+      allow(fieldName);
     }
     return this;
   }
@@ -122,7 +144,7 @@ public final class RecordStoreSecurityPolicyFieldsSet
     this.permissionRecordDefinition = null;
     this.fieldNames.clear();
     for (final String fieldName : fieldNames) {
-      this.fieldNames.add(fieldName);
+      allow(fieldName);
     }
     return this;
   }

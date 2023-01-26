@@ -4,6 +4,8 @@ import java.util.Collection;
 
 public interface RecordStoreSecurityPolicyFields {
 
+  RecordStoreSecurityPolicyFields allow(Iterable<String> fieldNames);
+
   RecordStoreSecurityPolicyFields allow(String fieldName);
 
   RecordStoreSecurityPolicyFields allow(String... fieldNames);
@@ -11,6 +13,8 @@ public interface RecordStoreSecurityPolicyFields {
   default RecordStoreSecurityPolicyFields allowAccess() {
     return setAccessAllowed(true);
   }
+
+  RecordStoreSecurityPolicyFields deny(Iterable<String> fieldNames);
 
   RecordStoreSecurityPolicyFields deny(String fieldName);
 

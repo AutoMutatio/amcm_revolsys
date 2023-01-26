@@ -26,7 +26,11 @@ public class RecordStoreSecurityPolicyForFieldMultiple
     if (this.permissionRecordDefinition == null) {
       final List<String> fieldNames = Lists.filter(this.recordDefinition.getFieldNames(),
         this::isFieldAllowed);
-      this.permissionRecordDefinition = this.recordDefinition.cloneFields(fieldNames);
+      if (fieldNames.size() == this.recordDefinition.getFieldCount()) {
+        this.permissionRecordDefinition = this.recordDefinition;
+      } else {
+        this.permissionRecordDefinition = this.recordDefinition.cloneFields(fieldNames);
+      }
     }
     return this.permissionRecordDefinition;
   }

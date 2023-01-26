@@ -13,6 +13,14 @@ public class RecordStoreSecurityPolicyFieldsMultiple implements RecordStoreSecur
   }
 
   @Override
+  public RecordStoreSecurityPolicyFieldsMultiple allow(final Iterable<String> fieldNames) {
+    for (final RecordStoreSecurityPolicyFields policy : this.policies) {
+      policy.allow(fieldNames);
+    }
+    return this;
+  }
+
+  @Override
   public RecordStoreSecurityPolicyFieldsMultiple allow(final String fieldName) {
     for (final RecordStoreSecurityPolicyFields policy : this.policies) {
       policy.allow(fieldName);
@@ -24,6 +32,14 @@ public class RecordStoreSecurityPolicyFieldsMultiple implements RecordStoreSecur
   public RecordStoreSecurityPolicyFieldsMultiple allow(final String... fieldNames) {
     for (final RecordStoreSecurityPolicyFields policy : this.policies) {
       policy.allow(fieldNames);
+    }
+    return this;
+  }
+
+  @Override
+  public RecordStoreSecurityPolicyFieldsMultiple deny(final Iterable<String> fieldNames) {
+    for (final RecordStoreSecurityPolicyFields policy : this.policies) {
+      policy.deny(fieldNames);
     }
     return this;
   }

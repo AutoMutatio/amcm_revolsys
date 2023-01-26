@@ -66,7 +66,7 @@ public class RecordStoreSecurityPolicies {
     return this.insertPolicies;
   }
 
-  public RecordStoreSecurityPolicyFieldsSet getReadFieldPolicies() {
+  public RecordStoreSecurityPolicyFieldsSet getReadPolicies() {
     return this.readPolicies;
   }
 
