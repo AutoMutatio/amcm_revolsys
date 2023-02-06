@@ -58,6 +58,10 @@ public class ApacheHttpRequestBuilderFactory {
     return new ApacheHttpRequestBuilder(this);
   }
 
+  public ApacheHttpRequestBuilder patch(final URI uri) {
+    return create(HttpMethod.PATCH, uri);
+  }
+
   public ApacheHttpRequestBuilder post(final String uri) {
     return create(HttpMethod.POST, uri);
   }
