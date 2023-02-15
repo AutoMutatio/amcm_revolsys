@@ -46,7 +46,7 @@ public class Channels {
       copy((FileChannel)in, out, size);
     } else {
       long ofset = 0;
-      final int blockSize = 8196;
+      final int blockSize = 8192;
       while (ofset < size) {
         long remaining = size - ofset;
         long readCount;

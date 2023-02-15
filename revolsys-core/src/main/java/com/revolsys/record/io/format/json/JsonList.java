@@ -15,6 +15,7 @@ import org.jeometry.common.data.type.DataType;
 import org.jeometry.common.data.type.DataTypes;
 import org.jeometry.common.exception.Exceptions;
 
+import com.revolsys.io.Reader;
 import com.revolsys.util.Property;
 
 public interface JsonList extends List<Object>, JsonType {
@@ -303,8 +304,8 @@ public interface JsonList extends List<Object>, JsonType {
   @SuppressWarnings({
     "unchecked", "rawtypes"
   })
-  default Iterable<JsonObject> jsonObjects() {
-    return (Iterable)this;
+  default Reader<JsonObject> jsonObjects() {
+    return (Reader)Reader.wrap(iterator());
   }
 
   default <V> List<V> mapTo(final Function<JsonObject, V> mapper) {

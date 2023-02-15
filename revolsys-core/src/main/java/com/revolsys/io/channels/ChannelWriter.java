@@ -7,6 +7,7 @@ import java.nio.ByteOrder;
 import java.nio.channels.Channels;
 import java.nio.channels.SeekableByteChannel;
 import java.nio.channels.WritableByteChannel;
+import java.nio.charset.StandardCharsets;
 import java.util.zip.GZIPOutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -37,7 +38,7 @@ public class ChannelWriter extends AbstractChannelWriter implements BaseCloseabl
       try {
         final OutputStream bufferedOut = resource.newBufferedOutputStream();
         final String fileName = resource.getBaseName();
-        final ZipOutputStream zipOut = new ZipOutputStream(bufferedOut);
+        final ZipOutputStream zipOut = new ZipOutputStream(bufferedOut, StandardCharsets.UTF_8);
         final ZipEntry zipEntry = new ZipEntry(fileName);
         zipOut.putNextEntry(zipEntry);
         final WritableByteChannel channel = Channels.newChannel(zipOut);
