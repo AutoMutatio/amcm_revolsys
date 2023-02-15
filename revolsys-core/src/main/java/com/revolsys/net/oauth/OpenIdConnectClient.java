@@ -272,7 +272,8 @@ public class OpenIdConnectClient extends BaseObjectWithProperties {
     if (scope != null) {
       requestBuilder.addParameter("scope", scope);
     }
-    return getOpenIdBearerToken(requestBuilder, scope);
+    return getOpenIdBearerToken(requestBuilder, scope)
+      .setTokenRefresh(this::tokenClientCredentials);
   }
 
   public OpenIdBearerToken tokenDeviceCode(final String deviceCode, final String scope) {

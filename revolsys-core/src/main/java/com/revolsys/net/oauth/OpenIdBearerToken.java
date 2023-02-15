@@ -1,5 +1,7 @@
 package com.revolsys.net.oauth;
 
+import java.util.function.Function;
+
 import com.revolsys.record.io.format.json.JsonObject;
 
 public class OpenIdBearerToken extends BearerToken {
@@ -11,6 +13,8 @@ public class OpenIdBearerToken extends BearerToken {
   private final String idToken;
 
   private final OpenIdConnectClient client;
+
+  private Function<String, OpenIdBearerToken> tokenRefresh;
 
   public OpenIdBearerToken(final OpenIdConnectClient client, final JsonObject config,
     final OpenIdResource resource) {
@@ -48,7 +52,11 @@ public class OpenIdBearerToken extends BearerToken {
 
   protected JsonWebToken getJwt() {
     if (this.jwt == null) {
-      this.jwt = new JsonWebToken(this.idToken);
+      String token = this.idToken;
+      if (token == null) {
+        token = getAccessToken();
+      }
+      this.jwt = new JsonWebToken(token);
     }
     return this.jwt;
   }
@@ -70,11 +78,18 @@ public class OpenIdBearerToken extends BearerToken {
   }
 
   public OpenIdBearerToken refreshToken() {
-    if (this.refreshToken == null || this.client == null) {
+    final String scope = getScope();
+    if (this.tokenRefresh != null) {
+      return this.tokenRefresh.apply(scope);
+    } else if (this.refreshToken == null || this.client == null) {
       return null;
     } else {
-      final String scope = getScope();
       return this.client.tokenRefresh(this.refreshToken, scope);
     }
+  }
+
+  public OpenIdBearerToken setTokenRefresh(final Function<String, OpenIdBearerToken> tokenRefresh) {
+    this.tokenRefresh = tokenRefresh;
+    return this;
   }
 }

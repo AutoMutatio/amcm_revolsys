@@ -1,5 +1,7 @@
 package com.revolsys.http;
 
+import org.jeometry.common.data.type.DataType;
+
 import com.revolsys.io.map.ObjectFactoryConfig;
 import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.record.io.format.json.JsonParser;
@@ -21,6 +23,12 @@ public interface SecretStore {
       return secretStore.getSecretValue(secretName);
     }
     return null;
+  }
+
+  static <V> V getSecretValue(final ObjectFactoryConfig factoryConfig, final String secretName,
+    final DataType dataType) {
+    final String value = getSecretValue(factoryConfig, secretName);
+    return dataType.toObject(value);
   }
 
   static String getSecretValue(final ObjectFactoryConfig factoryConfig, final String secretName,
