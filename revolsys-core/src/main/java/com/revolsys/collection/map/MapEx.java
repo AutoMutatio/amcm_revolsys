@@ -3,11 +3,15 @@ package com.revolsys.collection.map;
 import java.sql.Clob;
 import java.sql.SQLException;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import org.jeometry.common.compare.CompareUtil;
@@ -265,6 +269,20 @@ public interface MapEx extends MapDefault<String, Object>, Cloneable, DataTypedV
     }
   }
 
+  default <IN, OUT> List<OUT> getList(final CharSequence name, final Function<IN, OUT> mapper) {
+    final List<IN> inList = getValue(name, DataTypes.LIST);
+    if (inList == null) {
+      return Collections.emptyList();
+    } else {
+      final List<OUT> outList = new ArrayList<>();
+      for (final IN in : inList) {
+        final OUT out = mapper.apply(in);
+        outList.add(out);
+      }
+      return outList;
+    }
+  }
+
   default Long getLong(final CharSequence name) {
     return getValue(name, DataTypes.LONG);
   }
@@ -369,6 +387,15 @@ public interface MapEx extends MapDefault<String, Object>, Cloneable, DataTypedV
       return defaultValueFactory.get();
     } else {
       return value;
+    }
+  }
+
+  default <IN, OUT> OUT getValue(final CharSequence name, final Function<IN, OUT> mapper) {
+    final IN in = getValue(name);
+    if (in == null) {
+      return null;
+    } else {
+      return mapper.apply(in);
     }
   }
 
