@@ -146,10 +146,9 @@ public interface Reader<T> extends Iterable<T>, ObjectWithProperties, BaseClosea
   default <V extends T> V getFirst() {
     try (
       Reader<?> reader = this) {
-      if (iterator() != null) {
-        for (final Object value : this) {
-          return (V)value;
-        }
+      final Iterator<T> iterator = iterator();
+      if (iterator.hasNext()) {
+        return (V)iterator.next();
       }
     }
     return null;

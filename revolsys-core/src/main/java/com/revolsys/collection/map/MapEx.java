@@ -493,4 +493,10 @@ public interface MapEx extends MapDefault<String, Object>, Cloneable, DataTypedV
       return value;
     }
   }
+
+  default void removeValues(final String... names) {
+    for (final String name : names) {
+      removeValue(name);
+    }
+  }
 }
