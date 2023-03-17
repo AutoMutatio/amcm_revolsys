@@ -238,7 +238,7 @@ public class Reactive {
     final Callable<Path> resource = () -> file.getParent().resolve("_" + file.getFileName());
 
     Function<Path, Flux<R>> publisher = tempFile -> action.apply(tempFile)
-      .doOnError((e) -> Paths.deleteDirectories(tempFile));
+      .doOnError(e -> Paths.deleteDirectories(tempFile));
 
     final Consumer<Path> closer = tempPath -> {
       try {
@@ -264,7 +264,7 @@ public class Reactive {
     final Callable<Path> resource = () -> file.getParent().resolve("_" + file.getFileName());
 
     final Function<Path, Mono<R>> publisher = tempFile -> action.apply(tempFile)
-      .doOnError((e) -> Paths.deleteDirectories(tempFile));
+      .doOnError(e -> Paths.deleteDirectories(tempFile));
 
     final Consumer<Path> closer = tempPath -> {
       try {
