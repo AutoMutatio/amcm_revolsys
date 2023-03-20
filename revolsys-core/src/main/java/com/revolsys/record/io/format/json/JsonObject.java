@@ -289,6 +289,12 @@ public interface JsonObject extends MapEx, JsonType {
     return removed;
   }
 
+  @Override
+  default JsonObject removeValues(final String... names) {
+    MapEx.super.removeValues(names);
+    return this;
+  }
+
   default JsonObject renameProperty(final String oldName, final String newName) {
     if (hasValue(oldName)) {
       final Object value = removeValue(oldName);

@@ -112,6 +112,7 @@
           </execution>
         </executions>
         <configuration>
+          <skip>${gitCommitSkip}</skip>
           <dotGitDirectory>${project.basedir}/.git</dotGitDirectory>
           <failOnNoGitDirectory>false</failOnNoGitDirectory>
         </configuration>
@@ -401,5 +402,6 @@
     <github.global.server>github</github.global.server>
     <skipTests>true</skipTests>
     <gitHubRepo>revolsys/com.revolsys.open</gitHubRepo>
+    <gitCommitSkip>false</gitCommitSkip>
   </properties>
 </project>

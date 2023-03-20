@@ -31,6 +31,8 @@ import com.revolsys.properties.ObjectWithProperties;
 import com.revolsys.util.Cancellable;
 import com.revolsys.util.ExitLoopException;
 
+import reactor.core.publisher.Flux;
+
 /**
  * <p>
  * The Reader interface defines methods for reading objects of type T. Objects
@@ -78,6 +80,10 @@ public interface Reader<T> extends Iterable<T>, ObjectWithProperties, BaseClosea
 
   default <O> Reader<O> filter(final Predicate<T> filter, final Function<T, O> converter) {
     return filter(filter).map(converter);
+  }
+
+  default Flux<T> flux() {
+    return Flux.fromIterable(this);
   }
 
   default void forEach(final BiConsumer<Cancellable, ? super T> action) {
@@ -146,10 +152,9 @@ public interface Reader<T> extends Iterable<T>, ObjectWithProperties, BaseClosea
   default <V extends T> V getFirst() {
     try (
       Reader<?> reader = this) {
-      if (iterator() != null) {
-        for (final Object value : this) {
-          return (V)value;
-        }
+      final Iterator<T> iterator = iterator();
+      if (iterator.hasNext()) {
+        return (V)iterator.next();
       }
     }
     return null;
