@@ -16,6 +16,8 @@ import org.jeometry.common.exception.Exceptions;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.util.Property;
 
+import reactor.core.publisher.Mono;
+
 public interface JsonObject extends MapEx, JsonType {
   JsonObject EMPTY = new JsonObject() {
     @Override
@@ -266,6 +268,10 @@ public interface JsonObject extends MapEx, JsonType {
 
   default <V> V mapTo(final Function<JsonObject, V> mapper) {
     return mapper.apply(this);
+  }
+
+  default Mono<JsonObject> mono() {
+    return Mono.just(this);
   }
 
   @Override

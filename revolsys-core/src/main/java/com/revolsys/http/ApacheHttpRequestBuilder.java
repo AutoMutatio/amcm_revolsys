@@ -360,6 +360,7 @@ public class ApacheHttpRequestBuilder {
   }
 
   public JsonObject getJson() {
+    setHeader("Accept", "application/json");
     final Function<HttpResponse, JsonObject> function = ApacheHttp::getJson;
     return execute(function);
   }
