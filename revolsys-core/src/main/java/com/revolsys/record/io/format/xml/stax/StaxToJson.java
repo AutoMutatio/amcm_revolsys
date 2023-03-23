@@ -21,6 +21,17 @@ public class StaxToJson {
 
   private final Set<String> listElements = new TreeSet<>();
 
+  private final Set<String> textElements = new TreeSet<>();
+
+  private final Set<String> dontLogDuplicateElements = new TreeSet<>();
+
+  public StaxToJson dontLogDuplicateElements(final String... names) {
+    for (final String name : names) {
+      this.dontLogDuplicateElements.add(name);
+    }
+    return this;
+  }
+
   public StaxToJson listElements(final String... names) {
     for (final String name : names) {
       this.listElements.add(name);
@@ -45,6 +56,15 @@ public class StaxToJson {
     }
   }
 
+  public <V> V process(final HttpResponse r, final V defaultValue) {
+    final V value = process(r);
+    if (value == null) {
+      return defaultValue;
+    } else {
+      return value;
+    }
+  }
+
   public <V> V process(final InputStream in) {
     return process(StaxReader.newXmlReader(in));
   }
@@ -65,12 +85,18 @@ public class StaxToJson {
       if (this.listParentElements.contains(name)) {
         return processList(in);
       } else {
-        final int state = in.skipWhitespace();
+        int state = in.skipWhitespace();
         switch (state) {
           case XMLStreamConstants.CHARACTERS: {
-            final String text = in.getText();
-            in.next();
-            return text;
+            final StringBuilder s = new StringBuilder();
+            do {
+              if (state == XMLStreamConstants.CHARACTERS) {
+                final String text = in.getText();
+                s.append(text);
+              }
+              state = in.next();
+            } while (state == XMLStreamConstants.CHARACTERS || state == XMLStreamConstants.SPACE);
+            return s.toString();
           }
           case XMLStreamConstants.END_ELEMENT:
             return null;
@@ -100,14 +126,31 @@ public class StaxToJson {
     final int depth = in.getDepth() - 1;
     do {
       final String name = in.getLocalName();
-      final Object value = processElement(in);
-      if (this.listElements.contains(name)) {
-        final JsonList list = object.ensureValue(name, JsonList.ARRAY_SUPPLIER);
-        list.add(value);
+      final Object value;
+      if (this.textElements.contains(name)) {
+        value = in.getAsText();
       } else {
-        object.addNotEmpty(name, value);
+        value = processElement(in);
+      }
+      if (value != null) {
+        if (this.listElements.contains(name)) {
+          final JsonList list = object.ensureValue(name, JsonList.ARRAY_SUPPLIER);
+          list.add(value);
+        } else {
+          if (object.hasValue(name) && !this.dontLogDuplicateElements.contains(name)) {
+            System.out.println(name);
+          }
+          object.addNotEmpty(name, value);
+        }
       }
     } while (in.skipToStartElement(depth));
     return object;
+  }
+
+  public StaxToJson textElements(final String... names) {
+    for (final String name : names) {
+      this.textElements.add(name);
+    }
+    return this;
   }
 }
