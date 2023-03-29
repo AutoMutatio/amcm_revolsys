@@ -46,7 +46,7 @@ public class AbstractTableRecordRestController extends AbstractWebController {
     responseRecordJson(connection, request, response, query);
   }
 
-  protected void handleGetRecords(final TableRecordStoreConnection connection,
+  public void handleGetRecords(final TableRecordStoreConnection connection,
     final HttpServletRequest request, final HttpServletResponse response, final Query query)
     throws IOException {
     try (

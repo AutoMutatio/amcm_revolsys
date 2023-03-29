@@ -18,6 +18,8 @@ import org.jeometry.common.exception.Exceptions;
 import com.revolsys.io.Reader;
 import com.revolsys.util.Property;
 
+import reactor.core.publisher.Flux;
+
 public interface JsonList extends List<Object>, JsonType {
 
   JsonList EMPTY = new JsonList() {
@@ -246,6 +248,13 @@ public interface JsonList extends List<Object>, JsonType {
       }
     }
     return true;
+  }
+
+  @SuppressWarnings({
+    "unchecked", "rawtypes"
+  })
+  default <V> Flux<V> flux() {
+    return (Flux)Flux.fromIterable(this);
   }
 
   default <V> void forEachType(final Consumer<V> action) {

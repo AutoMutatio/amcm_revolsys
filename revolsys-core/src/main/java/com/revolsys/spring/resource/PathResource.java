@@ -136,7 +136,11 @@ public class PathResource extends AbstractResource implements WritableResource {
             } else {
               size = source.contentLength();
             }
-            Channels.copy(in, out, size);
+            if (size > 0) {
+              Channels.copy(in, out, size);
+            } else {
+              Channels.copy(in, out);
+            }
             return true;
           } catch (final IOException e) {
             throw Exceptions.wrap(e);
