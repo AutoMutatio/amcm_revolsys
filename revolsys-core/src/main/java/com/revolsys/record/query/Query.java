@@ -740,6 +740,22 @@ public class Query extends BaseObjectWithProperties
     return !this.selectExpressions.isEmpty();
   }
 
+  public Record insertOrUpdateRecord(final Consumer<Record> insertAction,
+    final Consumer<Record> updateAction) {
+
+    final Record record = getRecord();
+    if (record == null) {
+      final Record newRecord = newRecord();
+      insertAction.accept(newRecord);
+      getRecordDefinition().getRecordStore().insertRecord(newRecord);
+      return newRecord;
+    } else {
+      updateAction.accept(record);
+      getRecordDefinition().getRecordStore().updateRecord(record);
+      return record;
+    }
+  }
+
   public Record insertOrUpdateRecord(final InsertUpdateAction action) {
 
     final Record record = getRecord();
@@ -911,6 +927,10 @@ public class Query extends BaseObjectWithProperties
     final java.util.function.Function<QueryValue, QV> operator) {
     final ColumnReference column = this.table.getColumn(fieldName);
     return operator.apply(column);
+  }
+
+  public Record newRecord() {
+    return getRecordDefinition().newRecord();
   }
 
   public QueryValue newSelectClause(final Object select) {

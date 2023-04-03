@@ -342,6 +342,25 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
   }
 
   protected Record insertOrUpdateRecord(final TableRecordStoreConnection connection,
+    final Query query, final Consumer<Record> insertAction, final Consumer<Record> updateAction) {
+    query.setRecordFactory(ArrayChangeTrackRecord.FACTORY);
+
+    try (
+      Transaction transaction = connection.newTransaction(TransactionOptions.REQUIRED)) {
+      final ChangeTrackRecord changeTrackRecord = query.getRecord();
+      if (changeTrackRecord == null) {
+        final Record newRecord = newRecord();
+        insertAction.accept(newRecord);
+        return insertRecord(connection, newRecord);
+      } else {
+        updateAction.accept(changeTrackRecord);
+        updateRecordDo(connection, changeTrackRecord);
+        return changeTrackRecord.newRecord();
+      }
+    }
+  }
+
+  protected Record insertOrUpdateRecord(final TableRecordStoreConnection connection,
     final Query query, final Supplier<Record> newRecordSupplier,
     final Consumer<Record> updateAction) {
     query.setRecordFactory(ArrayChangeTrackRecord.FACTORY);
@@ -685,13 +704,14 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     final ChangeTrackRecord record) {
   }
 
-  private void updateRecordDo(final TableRecordStoreConnection connection,
+  public Record updateRecordDo(final TableRecordStoreConnection connection,
     final ChangeTrackRecord record) {
     if (record.isModified()) {
       updateRecordBefore(connection, record);
       this.recordStore.updateRecord(record);
       updateRecordAfter(connection, record);
     }
+    return record.newRecord();
   }
 
   public int updateRecords(final TableRecordStoreConnection connection, final Query query,

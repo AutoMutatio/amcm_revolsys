@@ -1,12 +1,11 @@
 package com.revolsys.collection.list;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 
-public class UnmodifiableArrayList<V> extends ArrayList<V> {
+public class UnmodifiableArrayList<V> extends ArrayListEx<V> {
   private static final long serialVersionUID = 1L;
 
   public UnmodifiableArrayList(final Iterable<? extends V> values) {
