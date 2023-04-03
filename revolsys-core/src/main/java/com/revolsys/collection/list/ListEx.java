@@ -93,6 +93,11 @@ public interface ListEx<V> extends List<V> {
     }
 
     @Override
+    public ListEx<E> subList(final int fromIndex, final int toIndex) {
+      return this;
+    }
+
+    @Override
     public Object[] toArray() {
       return new Object[0];
     }
@@ -139,4 +144,13 @@ public interface ListEx<V> extends List<V> {
     }
     return newList;
   }
+
+  default V removeLast() {
+    if (size() > 0) {
+      return remove(size() - 1);
+    } else {
+      return null;
+    }
+  }
+
 }

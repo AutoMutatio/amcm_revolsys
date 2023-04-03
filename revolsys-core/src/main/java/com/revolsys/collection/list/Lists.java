@@ -1,7 +1,6 @@
 package com.revolsys.collection.list;
 
 import java.lang.ref.WeakReference;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -440,9 +439,10 @@ public interface Lists {
     }
   }
 
-  static List<String> split(final String text, final String regex) {
+  static ListEx<String> split(final String text, final String regex) {
     if (Property.hasValue(text)) {
-      return Arrays.asList(text.split(regex));
+      final String[] parts = text.split(regex);
+      return newArray(parts);
     } else {
       return ListEx.empty();
     }
