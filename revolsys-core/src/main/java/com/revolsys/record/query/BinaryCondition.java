@@ -54,6 +54,10 @@ public class BinaryCondition extends AbstractBinaryQueryValue implements Conditi
     return this.operator;
   }
 
+  public BinaryCondition newCondition(final QueryValue left, final QueryValue right) {
+    return new BinaryCondition(left, this.operator, right);
+  }
+
   @Override
   public String toString() {
     final Object value = getLeft();

@@ -16,6 +16,11 @@ public class LessThanEqual extends BinaryCondition {
   }
 
   @Override
+  public LessThanEqual newCondition(final QueryValue left, final QueryValue right) {
+    return new LessThanEqual(left, right);
+  }
+
+  @Override
   public boolean test(final MapEx record) {
     final QueryValue left = getLeft();
     final Object value1 = left.getValue(record);
