@@ -276,6 +276,9 @@ public class UriBuilder {
   }
 
   public UriBuilder appendPathSegments(final String... segments) {
+    if (this.pathSegments == null) {
+      this.pathSegments = new ArrayList<>();
+    }
     for (final String segment : segments) {
       this.pathSegments.add(segment);
     }

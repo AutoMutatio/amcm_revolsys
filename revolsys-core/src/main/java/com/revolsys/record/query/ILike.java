@@ -17,6 +17,11 @@ public class ILike extends BinaryCondition {
   }
 
   @Override
+  public ILike newCondition(final QueryValue left, final QueryValue right) {
+    return new ILike(left, right);
+  }
+
+  @Override
   public boolean test(final MapEx record) {
     final QueryValue left = getLeft();
     String value1 = left.getStringValue(record);

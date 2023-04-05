@@ -47,6 +47,10 @@ public class Value implements QueryValue {
     return false;
   }
 
+  public static Value newValue(final ColumnReference field, final Object value) {
+    return new Value(field, value);
+  }
+
   public static Value newValue(final FieldDefinition field, final Object value) {
     return new Value(field, value);
   }

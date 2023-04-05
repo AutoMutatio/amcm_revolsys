@@ -16,6 +16,11 @@ public class GreaterThanEqual extends BinaryCondition {
   }
 
   @Override
+  public GreaterThanEqual newCondition(final QueryValue left, final QueryValue right) {
+    return new GreaterThanEqual(left, right);
+  }
+
+  @Override
   public boolean test(final MapEx record) {
     final QueryValue left = getLeft();
     final Object value1 = left.getValue(record);

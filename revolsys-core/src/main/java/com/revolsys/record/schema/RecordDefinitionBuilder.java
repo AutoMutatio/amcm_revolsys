@@ -10,6 +10,8 @@ import org.jeometry.common.io.PathName;
 import com.revolsys.collection.list.Lists;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.record.code.CodeTable;
+import com.revolsys.record.io.format.json.JsonList;
+import com.revolsys.record.io.format.json.JsonObject;
 
 public class RecordDefinitionBuilder {
 
@@ -62,6 +64,11 @@ public class RecordDefinitionBuilder {
   public RecordDefinitionBuilder addField(final FieldDefinition field) {
     this.recordDefinition.addField(field.clone());
     return this;
+  }
+
+  public void addField(final JsonObject fieldConfig) {
+    final FieldDefinition field = new FieldDefinition(fieldConfig);
+    this.addField(field);
   }
 
   public RecordDefinitionBuilder addField(final String fieldName, final DataType type) {
@@ -122,6 +129,14 @@ public class RecordDefinitionBuilder {
           required);
         this.recordDefinition.replaceField(field, newField);
       }
+    }
+    return this;
+  }
+
+  public RecordDefinitionBuilder fromJson(final JsonObject schema) {
+    final JsonList fields = schema.getJsonList("fields", JsonList.EMPTY);
+    for (final JsonObject fieldConfig : fields.jsonObjects()) {
+      addField(fieldConfig);
     }
     return this;
   }

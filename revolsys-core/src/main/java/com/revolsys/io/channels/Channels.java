@@ -24,13 +24,29 @@ public class Channels {
     }
   }
 
+  public static void copy(final ReadableByteChannel in, final FileChannel out) throws IOException {
+    final ByteBuffer buffer = ByteBuffer.allocateDirect(8192);
+    while (true) {
+      buffer.clear();
+      final int readCount = in.read(buffer);
+      if (readCount < 0) {
+        return;
+      }
+      buffer.flip();
+      int writeCount = 0;
+      while (writeCount < readCount) {
+        writeCount += out.write(buffer);
+      }
+    }
+  }
+
   public static void copy(final ReadableByteChannel in, final FileChannel out, final long size)
     throws IOException {
     if (in instanceof FileChannel) {
       copy((FileChannel)in, out, size);
     } else {
       long ofset = 0;
-      final int blockSize = 8196;
+      final int blockSize = 8192;
       while (ofset < size) {
         long remaining = size - ofset;
         long readCount;
@@ -45,8 +61,8 @@ public class Channels {
     }
   }
 
-  public static long copy(final ReadableByteChannel in, final WritableByteChannel out, long size)
-    throws IOException {
+  public static long copy(final ReadableByteChannel in, final WritableByteChannel out,
+    final long size) throws IOException {
     if (in instanceof FileChannel) {
       copy(in, out, size);
       return size;
@@ -58,7 +74,7 @@ public class Channels {
         if (remaining < 8192) {
           buffer.limit((int)remaining);
         }
-        int readCount = in.read(buffer);
+        final int readCount = in.read(buffer);
         if (readCount < 0) {
           break;
         }

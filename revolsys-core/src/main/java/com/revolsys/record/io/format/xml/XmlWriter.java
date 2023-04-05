@@ -487,6 +487,16 @@ public class XmlWriter extends Writer {
     }
   }
 
+  public void attribute(final String name) {
+    try {
+      checkWriteAttribute();
+      this.out.write(' ');
+      this.out.write(name);
+    } catch (final IOException e) {
+      throw Exceptions.wrap(e);
+    }
+  }
+
   public void attribute(final String name, final Object value) {
     if (value != null) {
       final String string = DataTypes.toString(value);

@@ -15,10 +15,13 @@ import org.jeometry.common.data.type.DataType;
 import org.jeometry.common.data.type.DataTypes;
 import org.jeometry.common.exception.Exceptions;
 
+import com.revolsys.collection.list.ListEx;
 import com.revolsys.io.Reader;
 import com.revolsys.util.Property;
 
-public interface JsonList extends List<Object>, JsonType {
+import reactor.core.publisher.Flux;
+
+public interface JsonList extends ListEx<Object>, JsonType {
 
   JsonList EMPTY = new JsonList() {
 
@@ -248,8 +251,15 @@ public interface JsonList extends List<Object>, JsonType {
     return true;
   }
 
+  @SuppressWarnings({
+    "unchecked", "rawtypes"
+  })
+  default <V> Flux<V> flux() {
+    return (Flux)Flux.fromIterable(this);
+  }
+
   default <V> void forEachType(final Consumer<V> action) {
-    List.super.forEach(value -> {
+    ListEx.super.forEach(value -> {
       action.accept((V)value);
     });
   }
