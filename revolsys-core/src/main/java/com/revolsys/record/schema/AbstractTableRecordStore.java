@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -189,7 +190,13 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
   }
 
   public void applyDefaultSortOrder(final Query query) {
-    query.addOrderBy(this.defaultSortOrder);
+    for (final Entry<QueryValue, Boolean> entry : this.defaultSortOrder.entrySet()) {
+      final QueryValue field = entry.getKey();
+      if (!query.hasOrderBy(field)) {
+        final Boolean ascending = entry.getValue();
+        query.addOrderBy(field, ascending);
+      }
+    }
   }
 
   public Query applySearchCondition(final Query query, final String search) {
