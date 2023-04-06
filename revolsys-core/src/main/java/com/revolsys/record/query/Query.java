@@ -727,6 +727,15 @@ public class Query extends BaseObjectWithProperties
     return this;
   }
 
+  public boolean hasOrderBy(final QueryValue column) {
+    for (final OrderBy orderBy : this.orderBy) {
+      if (orderBy.getField().equals(column)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   public boolean hasOrderBy(final String fieldName) {
     for (final OrderBy order : this.orderBy) {
       if (order.isField(fieldName)) {
