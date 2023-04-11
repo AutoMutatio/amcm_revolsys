@@ -50,20 +50,14 @@ public abstract class BaseGeometryFunction implements GeometryFunction, Comparab
   }
 
   protected static Double getDoubleOrNull(final Object[] args, final int index) {
-    if (args.length <= index) {
-      return null;
-    }
-    if (args[index] == null) {
+    if (args.length <= index || args[index] == null) {
       return null;
     }
     return (Double)args[index];
   }
 
   protected static Integer getIntegerOrNull(final Object[] args, final int index) {
-    if (args.length <= index) {
-      return null;
-    }
-    if (args[index] == null) {
+    if (args.length <= index || args[index] == null) {
       return null;
     }
     return (Integer)args[index];
@@ -128,10 +122,7 @@ public abstract class BaseGeometryFunction implements GeometryFunction, Comparab
       return false;
     }
     final GeometryFunction func = (GeometryFunction)obj;
-    if (!this.name.equals(func.getName())) {
-      return false;
-    }
-    if (!this.returnType.equals(func.getReturnType())) {
+    if (!this.name.equals(func.getName()) || !this.returnType.equals(func.getReturnType())) {
       return false;
     }
 

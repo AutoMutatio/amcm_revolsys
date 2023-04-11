@@ -21,7 +21,7 @@ public class LazyReferenceValue<V> implements ValueWrapper<V> {
 
   public static <T> LazyReferenceValue<T> soft(final Supplier<T> supplier) {
     final Function<T, Ref<T>> referenceConstructor = value -> {
-      final Reference<T> ref = new SoftReference<T>(value);
+      final Reference<T> ref = new SoftReference<>(value);
       return () -> ref.get();
     };
     return new LazyReferenceValue<>(referenceConstructor, supplier);
@@ -29,7 +29,7 @@ public class LazyReferenceValue<V> implements ValueWrapper<V> {
 
   public static <T> LazyReferenceValue<T> weak(final Supplier<T> supplier) {
     final Function<T, Ref<T>> referenceConstructor = value -> {
-      final Reference<T> ref = new WeakReference<T>(value);
+      final Reference<T> ref = new WeakReference<>(value);
       return () -> ref.get();
     };
     return new LazyReferenceValue<>(referenceConstructor, supplier);

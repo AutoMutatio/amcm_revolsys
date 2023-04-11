@@ -45,8 +45,8 @@ public class SnapRoundingTest extends TestCase {
   }
 
   boolean isSnapped(final List lines, final double tol) {
-    for (int i = 0; i < lines.size(); i++) {
-      final LineString line = (LineString)lines.get(i);
+    for (final Object line2 : lines) {
+      final LineString line = (LineString)line2;
       for (int j = 0; j < line.getVertexCount(); j++) {
         final Point v = line.getPoint(j);
         if (!isSnapped(v, lines)) {
@@ -59,8 +59,8 @@ public class SnapRoundingTest extends TestCase {
   }
 
   private boolean isSnapped(final Point v, final List lines) {
-    for (int i = 0; i < lines.size(); i++) {
-      final LineString line = (LineString)lines.get(i);
+    for (final Object line2 : lines) {
+      final LineString line = (LineString)line2;
       for (int j = 0; j < line.getVertexCount() - 1; j++) {
         final Point p0 = line.getPoint(j);
         final Point p1 = line.getPoint(j + 1);
@@ -73,10 +73,7 @@ public class SnapRoundingTest extends TestCase {
   }
 
   private boolean isSnapped(final Point v, final Point p0, final Point p1) {
-    if (v.equals(2, p0)) {
-      return true;
-    }
-    if (v.equals(2, p1)) {
+    if (v.equals(2, p0) || v.equals(2, p1)) {
       return true;
     }
     final LineSegment seg = new LineSegmentDouble(p0, p1);

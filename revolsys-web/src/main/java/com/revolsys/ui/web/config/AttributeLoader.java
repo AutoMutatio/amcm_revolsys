@@ -1,6 +1,6 @@
 package com.revolsys.ui.web.config;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import com.revolsys.ui.web.exception.ActionException;
 
