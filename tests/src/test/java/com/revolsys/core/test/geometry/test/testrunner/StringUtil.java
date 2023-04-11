@@ -304,10 +304,7 @@ public class StringUtil {
   }
 
   public static String removeFromEnd(final String s, final String strToRemove) {
-    if (s == null || strToRemove == null) {
-      return s;
-    }
-    if (s.length() < strToRemove.length()) {
+    if (s == null || strToRemove == null || s.length() < strToRemove.length()) {
       return s;
     }
     final int subLoc = s.length() - strToRemove.length();
@@ -490,8 +487,7 @@ public class StringUtil {
       throw new IllegalArgumentException();
     }
     final StringBuilder result = new StringBuilder();
-    for (final Iterator i = c.iterator(); i.hasNext();) {
-      final Object o = i.next();
+    for (final Object o : c) {
       result.append(", " + o.toString());
     }
     return result.substring(1);
@@ -503,8 +499,7 @@ public class StringUtil {
    */
   public static String toCommaDelimitedStringInQuotes(final Collection c) {
     final StringBuilder result = new StringBuilder();
-    for (final Iterator i = c.iterator(); i.hasNext();) {
-      final Object o = i.next();
+    for (final Object o : c) {
       result.append(",'" + o.toString() + "'");
     }
     return result.substring(1);

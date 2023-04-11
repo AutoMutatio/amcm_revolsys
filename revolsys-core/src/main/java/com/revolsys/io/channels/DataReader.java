@@ -11,7 +11,6 @@ import org.jeometry.common.exception.Exceptions;
 
 import com.revolsys.io.BaseCloseable;
 import com.revolsys.io.EndOfFileException;
-import com.revolsys.util.Debug;
 
 interface ByteFilter {
   boolean accept(byte b);
@@ -205,7 +204,6 @@ public interface DataReader extends BaseCloseable {
         unreadByte(b);
       }
     } catch (final EndOfFileException e) {
-      Debug.noOp();
     }
 
   }

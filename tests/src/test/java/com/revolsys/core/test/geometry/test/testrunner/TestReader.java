@@ -507,10 +507,7 @@ public class TestReader {
 
   private File wktFile(final Element geometryElement, final TestFile testRun)
     throws TestParseException {
-    if (geometryElement == null) {
-      return null;
-    }
-    if (geometryElement.getAttribute("file") == null) {
+    if (geometryElement == null || geometryElement.getAttribute("file") == null) {
       return null;
     }
     if (!geometryElement.getTextTrim().equals("")) {

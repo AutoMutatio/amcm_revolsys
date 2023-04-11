@@ -9,7 +9,7 @@ import com.revolsys.io.Reader;
 public interface Iterators {
   static <V> Reader<V> filter(final Iterable<V> iterable, final Predicate<? super V> filter) {
     if (filter == null) {
-      return (Reader<V>) iterable;
+      return (Reader<V>)iterable;
     } else {
       final Iterator<V> iterator = iterable.iterator();
       return new FilterIterator<>(filter, iterator);

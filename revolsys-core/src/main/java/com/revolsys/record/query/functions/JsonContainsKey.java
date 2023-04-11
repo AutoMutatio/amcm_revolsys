@@ -34,6 +34,11 @@ public class JsonContainsKey extends BinaryCondition {
   }
 
   @Override
+  public JsonContainsKey newCondition(final QueryValue left, final QueryValue right) {
+    return new JsonContainsKey(left, right);
+  }
+
+  @Override
   public boolean test(final MapEx record) {
     final QueryValue left = getLeft();
     final Object value1 = left.getValue(record);

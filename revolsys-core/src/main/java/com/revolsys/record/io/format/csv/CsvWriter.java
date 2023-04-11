@@ -1,6 +1,5 @@
 package com.revolsys.record.io.format.csv;
 
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.Collection;
@@ -16,10 +15,6 @@ public class CsvWriter implements BaseCloseable {
 
   private String newLine = "\n";
 
-  private int maxFieldLength = Integer.MAX_VALUE;
-
-  private boolean useQuotes;
-
   /**
    * Constructs CSVReader with supplied separator and quote char.
    *
@@ -27,7 +22,7 @@ public class CsvWriter implements BaseCloseable {
    * @throws IOException
    */
   protected CsvWriter(final Writer out) {
-    this.out = new BufferedWriter(out);
+    this.out = out;
   }
 
   /**
@@ -53,7 +48,6 @@ public class CsvWriter implements BaseCloseable {
   }
 
   public void setMaxFieldLength(final int maxFieldLength) {
-    this.maxFieldLength = maxFieldLength;
   }
 
   public void setNewLine(final String newLine) {
@@ -61,7 +55,6 @@ public class CsvWriter implements BaseCloseable {
   }
 
   public void setUseQuotes(final boolean useQuotes) {
-    this.useQuotes = useQuotes;
   }
 
   public void write(final Collection<? extends Object> values) {
@@ -70,28 +63,35 @@ public class CsvWriter implements BaseCloseable {
 
   public void write(final Object... values) {
     try {
+      final Writer out = this.out;
       for (int i = 0; i < values.length; i++) {
         final Object value = values[i];
         if (value != null) {
           final String string = value.toString();
+
           final int length = string.length();
           if (length > 0) {
-            this.out.write('"');
+            out.write('"');
+            int start = 0;
             for (int j = 0; j < length; j++) {
               final char c = string.charAt(j);
               if (c == '"') {
-                this.out.write('"');
+                out.write(string, start, j - start + 1);
+                start = j + 1;
+                out.write('"');
               }
-              this.out.write(c);
             }
-            this.out.write('"');
+            if (start < length) {
+              out.write(string, start, length - start);
+            }
+            out.write('"');
           }
         }
         if (i < values.length - 1) {
-          this.out.write(',');
+          out.write(',');
         }
       }
-      this.out.write(this.newLine);
+      out.write(this.newLine);
     } catch (final IOException e) {
       throw Exceptions.wrap(e);
     }

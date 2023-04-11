@@ -76,7 +76,7 @@ public interface Paths {
     return parent.resolve(newFileName);
   }
 
-  static Callable<? extends AsynchronousFileChannel> asyncWriteFileChannel(final Path file) {
+  static Callable<AsynchronousFileChannel> asyncWriteFileChannel(final Path file) {
     return () -> AsynchronousFileChannel.open(file, StandardOpenOption.CREATE,
       StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE);
   }

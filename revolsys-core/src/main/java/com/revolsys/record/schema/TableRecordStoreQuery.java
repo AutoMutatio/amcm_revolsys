@@ -54,6 +54,12 @@ public class TableRecordStoreQuery extends Query {
   }
 
   @Override
+  public Record insertOrUpdateRecord(final Consumer<Record> insertAction,
+    final Consumer<Record> updateAction) {
+    return this.recordStore.insertOrUpdateRecord(this.connection, this, insertAction, updateAction);
+  }
+
+  @Override
   public Record insertOrUpdateRecord(final InsertUpdateAction action) {
     return this.recordStore.insertOrUpdateRecord(this.connection, this, action);
   }
@@ -68,6 +74,11 @@ public class TableRecordStoreQuery extends Query {
   @Override
   public Record insertRecord(final Supplier<Record> newRecordSupplier) {
     return this.recordStore.insertRecord(this.connection, this, newRecordSupplier);
+  }
+
+  @Override
+  public Record newRecord() {
+    return this.recordStore.newRecord();
   }
 
   @Override

@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -25,7 +26,7 @@ public class KmzRecordWriter extends AbstractRecordWriter {
     super(recordDefinition);
     try {
       final BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(out);
-      this.zipOut = new ZipOutputStream(bufferedOutputStream);
+      this.zipOut = new ZipOutputStream(bufferedOutputStream, StandardCharsets.UTF_8);
       final ZipEntry entry = new ZipEntry("doc.kml");
       this.zipOut.putNextEntry(entry);
       final OutputStreamWriter writer = FileUtil.newUtf8Writer(this.zipOut);

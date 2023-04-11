@@ -74,7 +74,7 @@ public class FileBackedOutputStreamBuffer extends OutputStream implements BaseCl
   }
 
   public static <T> Mono<T> using(final int bufferSize,
-    final Function<? super FileBackedOutputStreamBuffer, Mono<T>> action) {
+    final Function<FileBackedOutputStreamBuffer, Mono<T>> action) {
     final Callable<FileBackedOutputStreamBuffer> supplier = () -> new FileBackedOutputStreamBuffer(
       bufferSize);
     return Reactive.monoCloseable(supplier, action);
@@ -170,7 +170,7 @@ public class FileBackedOutputStreamBuffer extends OutputStream implements BaseCl
     }
   }
 
-  public <T> Mono<T> usingWriter(final Function<? super java.io.Writer, Mono<T>> action) {
+  public <T> Mono<T> usingWriter(final Function<java.io.Writer, Mono<T>> action) {
     return Reactive.monoCloseable(this::newWriter, action);
   }
 

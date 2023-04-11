@@ -203,9 +203,9 @@ public class ReactiveByteBuf {
   }
 
   public static Mono<Path> write(final Flux<ByteBuf> source, final Path file) {
+    final Callable<AsynchronousFileChannel> supplier = Paths.asyncWriteFileChannel(file);
     return Reactive
-      .fluxCloseable(Paths.asyncWriteFileChannel(file),
-        AsynchronousFileChannelFromFluxByteBufHandler.create(source))
+      .fluxCloseable(supplier, AsynchronousFileChannelFromFluxByteBufHandler.create(source))
       .subscribeOn(ReactiveSchedulers.nonBlocking())
       .then(Mono.just(file));
   }

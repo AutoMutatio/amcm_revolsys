@@ -7,6 +7,7 @@ import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -258,7 +259,7 @@ public class ZipUtil {
 
   public static void zipDirectory(final File directory, final OutputStream outputStream)
     throws IOException {
-    final ZipOutputStream zipOut = new ZipOutputStream(outputStream);
+    final ZipOutputStream zipOut = new ZipOutputStream(outputStream, StandardCharsets.UTF_8);
     addDirectoryToZipFile(zipOut, directory, directory);
     zipOut.close();
   }

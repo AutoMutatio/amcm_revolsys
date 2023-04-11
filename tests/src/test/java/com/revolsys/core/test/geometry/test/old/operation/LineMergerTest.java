@@ -65,10 +65,7 @@ public class LineMergerTest extends TestCase {
     final boolean exact) {
     for (final Iterator i = geometries.iterator(); i.hasNext();) {
       final Geometry element = (Geometry)i.next();
-      if (exact && element.equals(2, g)) {
-        return true;
-      }
-      if (!exact && element.equalsTopo(g)) {
+      if (exact && element.equals(2, g) || !exact && element.equalsTopo(g)) {
         return true;
       }
     }

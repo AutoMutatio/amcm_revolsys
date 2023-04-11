@@ -2,6 +2,7 @@ package com.revolsys.record.io;
 
 import java.io.File;
 import java.util.Map;
+import java.util.function.Function;
 
 import com.revolsys.geometry.model.ClockDirection;
 import com.revolsys.geometry.model.Geometry;
@@ -137,6 +138,17 @@ public interface RecordWriter extends Writer<Record>, RecordDefinitionProxy {
   default int writeAll(final Iterable<? extends Record> records) {
     int i = 0;
     for (final Record record : records) {
+      write(record);
+      i++;
+    }
+    return i;
+  }
+
+  default <I, R extends Record> int writeAll(final Iterable<I> values,
+    final Function<I, R> mapper) {
+    int i = 0;
+    for (final I value : values) {
+      final R record = mapper.apply(value);
       write(record);
       i++;
     }

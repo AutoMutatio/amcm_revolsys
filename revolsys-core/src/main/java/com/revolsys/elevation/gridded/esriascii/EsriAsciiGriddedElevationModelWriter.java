@@ -64,7 +64,7 @@ public class EsriAsciiGriddedElevationModelWriter extends AbstractWriter<Gridded
         || EsriAsciiGriddedElevation.FILE_EXTENSION_ZIP.equals(fileNameExtension)) {
         try {
           final String fileName = this.resource.getBaseName();
-          final ZipOutputStream zipOut = new ZipOutputStream(bufferedOut);
+          final ZipOutputStream zipOut = new ZipOutputStream(bufferedOut, StandardCharsets.UTF_8);
           final String prjString = geometryFactory.toWktCs();
           if (prjString.length() > 0) {
             final ZipEntry prjEntry = new ZipEntry(FileUtil.getBaseName(fileName) + ".prj");

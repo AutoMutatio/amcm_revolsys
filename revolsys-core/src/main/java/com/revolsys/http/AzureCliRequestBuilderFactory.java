@@ -43,8 +43,8 @@ public class AzureCliRequestBuilderFactory extends BearerTokenRequestBuilderFact
     return null;
   }
 
-  public AzureCliRequestBuilderFactory(final String scope) {
-    super(token -> newToken(scope));
+  public AzureCliRequestBuilderFactory(final String resource) {
+    super(token -> newToken(resource));
   }
 
 }
