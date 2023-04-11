@@ -243,7 +243,7 @@ public class ApacheHttpRequestBuilder {
   public ApacheHttpRequestBuilder addParameter(final NameValuePair parameter) {
     if (parameter != null) {
       if (this.parameters == null) {
-        this.parameters = new LinkedList<NameValuePair>();
+        this.parameters = new LinkedList<>();
       }
       this.parameters.add(parameter);
     }
@@ -374,8 +374,7 @@ public class ApacheHttpRequestBuilder {
   }
 
   public List<NameValuePair> getParameters() {
-    return this.parameters != null ? new ArrayList<NameValuePair>(this.parameters)
-      : new ArrayList<NameValuePair>();
+    return this.parameters != null ? new ArrayList<>(this.parameters) : new ArrayList<>();
   }
 
   public String getString() {

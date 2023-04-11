@@ -17,8 +17,8 @@ package com.revolsys.ui.web.servlet;
 
 import java.beans.Introspector;
 
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
+import jakarta.servlet.ServletContextEvent;
+import jakarta.servlet.ServletContextListener;
 
 import org.apache.commons.logging.LogFactory;
 

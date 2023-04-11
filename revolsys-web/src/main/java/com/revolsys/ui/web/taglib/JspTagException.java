@@ -18,7 +18,7 @@ package com.revolsys.ui.web.taglib;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 
-import javax.servlet.jsp.JspException;
+import jakarta.servlet.jsp.JspException;
 
 /**
  * The JspTagException should be thrown if there was an error generated in a tag

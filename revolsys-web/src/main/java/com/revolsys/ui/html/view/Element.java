@@ -18,7 +18,7 @@ package com.revolsys.ui.html.view;
 import java.io.OutputStream;
 import java.io.Writer;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import com.revolsys.io.FileUtil;
 import com.revolsys.record.io.format.xml.XmlWriter;

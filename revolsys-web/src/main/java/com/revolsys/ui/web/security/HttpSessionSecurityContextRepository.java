@@ -3,10 +3,10 @@ package com.revolsys.ui.web.security;
 import java.io.IOException;
 import java.lang.reflect.Method;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpServletResponseWrapper;
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponseWrapper;
+import jakarta.servlet.http.HttpSession;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -44,17 +44,9 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
     }
 
     private HttpSession createNewSessionIfAllowed(final SecurityContext context) {
-      if (this.httpSessionExistedAtStartOfRequest) {
-
-        return null;
-      }
-
-      if (!HttpSessionSecurityContextRepository.this.allowSessionCreation) {
-
-        return null;
-      }
-
-      if (HttpSessionSecurityContextRepository.this.contextObject.equals(context)) {
+      if (this.httpSessionExistedAtStartOfRequest
+        || !HttpSessionSecurityContextRepository.this.allowSessionCreation
+        || HttpSessionSecurityContextRepository.this.contextObject.equals(context)) {
 
         return null;
       }
@@ -76,27 +68,11 @@ public class HttpSessionSecurityContextRepository implements SecurityContextRepo
     }
 
     @Override
-    public final String encodeRedirectUrl(final String url) {
-      if (this.disableUrlRewriting) {
-        return url;
-      }
-      return super.encodeRedirectUrl(url);
-    }
-
-    @Override
     public final String encodeRedirectURL(final String url) {
       if (this.disableUrlRewriting) {
         return url;
       }
       return super.encodeRedirectURL(url);
-    }
-
-    @Override
-    public final String encodeUrl(final String url) {
-      if (this.disableUrlRewriting) {
-        return url;
-      }
-      return super.encodeUrl(url);
     }
 
     @Override

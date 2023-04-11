@@ -5,6 +5,8 @@ import java.util.Collection;
 
 public class ArrayListEx<V> extends ArrayList<V> implements ListEx<V> {
 
+  private static final long serialVersionUID = 1L;
+
   public ArrayListEx() {
     super();
   }

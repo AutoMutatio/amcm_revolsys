@@ -71,16 +71,8 @@ public class PreparedGeometryOperation implements GeometryOperation {
   }
 
   private static boolean isPreparedOp(final String opName) {
-    if (opName.equals("intersects")) {
-      return true;
-    }
-    if (opName.equals("contains")) {
-      return true;
-    }
-    if (opName.equals("containsProperly")) {
-      return true;
-    }
-    if (opName.equals("covers")) {
+    if (opName.equals("intersects") || opName.equals("contains")
+      || opName.equals("containsProperly") || opName.equals("covers")) {
       return true;
     }
     return false;
