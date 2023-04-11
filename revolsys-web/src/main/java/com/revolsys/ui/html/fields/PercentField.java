@@ -18,7 +18,7 @@ package com.revolsys.ui.html.fields;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import com.revolsys.record.io.format.xml.XmlWriter;
 import com.revolsys.ui.html.form.Form;

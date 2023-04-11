@@ -58,9 +58,7 @@ public class Menu extends MenuItem {
   }
 
   public MenuItem findHighlighted(final String name) {
-    final Iterator i = getItems().iterator();
-    while (i.hasNext()) {
-      final MenuItem item = (MenuItem)i.next();
+    for (final MenuItem item : getItems()) {
       if (item instanceof Menu) {
         final Menu menu = (Menu)item;
         if (menu.contains(name)) {
@@ -75,9 +73,7 @@ public class Menu extends MenuItem {
     if (this.getName().equals(name)) {
       return this;
     }
-    final Iterator i = getItems().iterator();
-    while (i.hasNext()) {
-      final MenuItem item = (MenuItem)i.next();
+    for (final MenuItem item : getItems()) {
       if (item instanceof Menu) {
         final MenuItem menu = ((Menu)item).findSelected(name);
         if (menu != null) {

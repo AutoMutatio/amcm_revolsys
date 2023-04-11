@@ -29,19 +29,34 @@
         <version>${ch.qos.logback.version}</version>
       </dependency>
       <dependency>
-        <groupId>javax.servlet</groupId>
-        <artifactId>javax.servlet-api</artifactId>
-        <version>4.0.1</version>
+        <groupId>jakarta.xml.bind</groupId>
+        <artifactId>jakarta.xml.bind-api</artifactId>
+        <version>4.0.0</version>
       </dependency>
       <dependency>
-        <groupId>javax.servlet.jsp</groupId>
-        <artifactId>jsp-api</artifactId>
-        <version>2.2.1-b03</version>
+        <groupId>jakarta.servlet</groupId>
+        <artifactId>jakarta.servlet-api</artifactId>
+        <version>6.0.0</version>
       </dependency>
       <dependency>
-        <groupId>javax.websocket</groupId>
-        <artifactId>javax.websocket-api</artifactId>
-        <version>1.1</version>
+        <groupId>jakarta.websocket</groupId>
+        <artifactId>jakarta.websocket-api</artifactId>
+        <version>2.1.0</version>
+      </dependency>
+      <dependency>
+        <groupId>jakarta.servlet.jsp</groupId>
+        <artifactId>jakarta.servlet.jsp-api</artifactId>
+        <version>3.1.1</version>
+      </dependency>
+      <dependency>
+        <groupId>jakarta.websocket</groupId>
+        <artifactId>jakarta.websocket-client-api</artifactId>
+        <version>2.1.0</version>
+      </dependency>
+      <dependency>
+        <groupId>jakarta.annotation</groupId>
+        <artifactId>jakarta.annotation-api</artifactId>
+        <version>2.1.1</version>
       </dependency>
       <dependency>
         <groupId>org.apache.logging.log4j</groupId>
@@ -453,7 +468,7 @@
       <dependency>
         <groupId>io.projectreactor</groupId>
         <artifactId>reactor-core</artifactId>
-        <version>3.5.4</version>
+        <version>3.5.5</version>
       </dependency>
       <dependency>
         <groupId>org.springframework.security</groupId>
@@ -620,7 +635,7 @@
     </dependencies>
   </dependencyManagement>
   <properties>
-    <ch.qos.logback.version>1.2.12</ch.qos.logback.version>
+    <ch.qos.logback.version>1.4.6</ch.qos.logback.version>
     <com.fasterxml.jackson.version>2.14.2</com.fasterxml.jackson.version>
     <org.apache.logging.log4j>2.20.0</org.apache.logging.log4j>
     <org.apache.pdfbox.version>2.0.27</org.apache.pdfbox.version>
@@ -629,10 +644,10 @@
     <org.docx4j.version>11.4.9</org.docx4j.version>
     <org.gdal.version>2.4.0</org.gdal.version>
     <org.graalvm.version>22.3.1</org.graalvm.version>
-    <org.springframework.version>5.3.26</org.springframework.version>
-    <org.springframework.boot.version>2.7.10</org.springframework.boot.version>
+    <org.springframework.version>6.0.7</org.springframework.version>
+    <org.springframework.boot.version>3.0.5</org.springframework.boot.version>
     <org.springboot.version>${org.springframework.boot.version}</org.springboot.version>
-    <org.springframework.security.version>5.8.2</org.springframework.security.version>
-    <io.netty.version>4.1.90.Final</io.netty.version>
+    <org.springframework.security.version>6.0.2</org.springframework.security.version>
+    <io.netty.version>4.1.91.Final</io.netty.version>
   </properties>
 </project>

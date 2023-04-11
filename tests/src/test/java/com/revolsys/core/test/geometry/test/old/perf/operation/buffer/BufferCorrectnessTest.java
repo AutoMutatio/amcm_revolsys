@@ -63,32 +63,32 @@ public class BufferCorrectnessTest {
     final Geometry g = this.geometryFactory.geometry(wkt);
     final Geometry buf = g.buffer(dist, -4);
     // System.out.println(buf);
-  };
+  }
 
   void doBuffer(final String wkt, final double dist, final int quadSegs) throws Exception {
     final Geometry g = this.geometryFactory.geometry(wkt);
     final Geometry buf = g.buffer(dist, quadSegs);
     // System.out.println(buf);
-  };
+  }
 
   void run() throws Exception {
     doBuffer("LINESTRING (110 320, 280 290, 170 150)", 20.0, -1);
     // doBuffer("LINESTRING (10 0, 0 0, 10 1)");
-  };
+  }
 
   void run2() throws Exception {
     final String wkt = "POLYGON ((-2531.310546875 -17.19328498840332, -2518.694580078125 -27.471830368041992, -2564.515869140625 -44.53504943847656, -2531.310546875 -17.19328498840332))";
     final Geometry g = this.geometryFactory.geometry(wkt);
     final Geometry buf = g.buffer(1.0, 1);
     // System.out.println(buf);
-  };
+  }
 
   void run3() throws Exception {
     final String wkt = "MULTILINESTRING ((1335558.59524 631743.01449, 1335572.28215 631775.89056, 1335573.2578018496 631782.1915185435),  (1335573.2578018496 631782.1915185435, 1335576.62035 631803.90754), (1335558.59524 631743.01449, 1335573.2578018496 631782.1915185435), (1335573.2578018496 631782.1915185435, 1335580.70187 631802.08139))";
     final Geometry g = this.geometryFactory.geometry(wkt);
     final Geometry buf = g.buffer(15);
     // System.out.println(buf);
-  };
+  }
 
   void run4() throws Exception {
     // String wkt =
@@ -122,7 +122,7 @@ public class BufferCorrectnessTest {
     final Geometry buf = g.buffer(-5, params);
 
     // System.out.println(buf);
-  };
+  }
 
   void run6() throws Exception {
     // polygon with two vertices very close - mitred negative buffer lies
@@ -134,7 +134,7 @@ public class BufferCorrectnessTest {
     final Geometry buf = g.buffer(-5, params);
 
     // System.out.println(buf);
-  };
+  }
 
   void run7() throws Exception {
     // buffer fails
@@ -142,6 +142,6 @@ public class BufferCorrectnessTest {
     final Geometry g = this.geometryFactory.geometry(wkt);
     final Geometry buf = g.buffer(15);
     // System.out.println(buf);
-  };
+  }
 
 }
