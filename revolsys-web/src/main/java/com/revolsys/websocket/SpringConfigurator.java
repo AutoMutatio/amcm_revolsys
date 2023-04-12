@@ -3,8 +3,8 @@ package com.revolsys.websocket;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.websocket.server.ServerEndpoint;
-import javax.websocket.server.ServerEndpointConfig.Configurator;
+import jakarta.websocket.ClientEndpointConfig.Configurator;
+import jakarta.websocket.server.ServerEndpoint;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -70,7 +70,6 @@ public class SpringConfigurator extends Configurator {
   }
 
   @SuppressWarnings("unchecked")
-  @Override
   public <T> T getEndpointInstance(final Class<T> endpointClass) throws InstantiationException {
 
     final WebApplicationContext wac = ContextLoader.getCurrentWebApplicationContext();

@@ -16,6 +16,8 @@ import org.jeometry.common.exception.Exceptions;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.util.Property;
 
+import reactor.core.publisher.Mono;
+
 public interface JsonObject extends MapEx, JsonType {
   JsonObject EMPTY = new JsonObject() {
     @Override
@@ -268,6 +270,10 @@ public interface JsonObject extends MapEx, JsonType {
     return mapper.apply(this);
   }
 
+  default Mono<JsonObject> mono() {
+    return Mono.just(this);
+  }
+
   @Override
   default boolean removeEmptyProperties() {
     boolean removed = false;
@@ -287,6 +293,12 @@ public interface JsonObject extends MapEx, JsonType {
       }
     }
     return removed;
+  }
+
+  @Override
+  default JsonObject removeValues(final String... names) {
+    MapEx.super.removeValues(names);
+    return this;
   }
 
   default JsonObject renameProperty(final String oldName, final String newName) {

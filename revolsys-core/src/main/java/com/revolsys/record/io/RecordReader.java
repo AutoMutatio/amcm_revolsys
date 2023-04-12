@@ -80,6 +80,10 @@ public interface RecordReader extends Reader<Record>, RecordDefinitionProxy {
 
   }
 
+  static Builder builder(final RecordReaderFactory readerFactory) {
+    return new Builder(readerFactory);
+  }
+
   static Builder builderFileName(final FileNameProxy fileNameProxy) {
     final RecordReaderFactory readerFactory;
     if (fileNameProxy == null) {
@@ -95,10 +99,6 @@ public interface RecordReader extends Reader<Record>, RecordDefinitionProxy {
     final RecordReaderFactory readerFactory = IoFactory.factoryByFileName(RecordReaderFactory.class,
       fileName);
     return builder(readerFactory);
-  }
-
-  static Builder builder(final RecordReaderFactory readerFactory) {
-    return new Builder(readerFactory);
   }
 
   static RecordReader empty() {

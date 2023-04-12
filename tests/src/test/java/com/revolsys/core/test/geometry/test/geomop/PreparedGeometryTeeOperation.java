@@ -94,10 +94,7 @@ public class PreparedGeometryTeeOperation extends TeeGeometryOperation {
 
   @Override
   protected void runTeeOp(final String opName, final Geometry geometry, final Object[] args) {
-    if (args.length < 1) {
-      return;
-    }
-    if (!(args[0] instanceof Geometry)) {
+    if (args.length < 1 || !(args[0] instanceof Geometry)) {
       return;
     }
     final Geometry g2 = (Geometry)args[0];

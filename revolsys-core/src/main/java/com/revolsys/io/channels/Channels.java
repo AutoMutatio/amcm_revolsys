@@ -24,6 +24,22 @@ public class Channels {
     }
   }
 
+  public static void copy(final ReadableByteChannel in, final FileChannel out) throws IOException {
+    final ByteBuffer buffer = ByteBuffer.allocateDirect(8192);
+    while (true) {
+      buffer.clear();
+      final int readCount = in.read(buffer);
+      if (readCount < 0) {
+        return;
+      }
+      buffer.flip();
+      int writeCount = 0;
+      while (writeCount < readCount) {
+        writeCount += out.write(buffer);
+      }
+    }
+  }
+
   public static void copy(final ReadableByteChannel in, final FileChannel out, final long size)
     throws IOException {
     if (in instanceof FileChannel) {

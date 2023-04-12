@@ -6,7 +6,7 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import javax.servlet.ServletContext;
+import jakarta.servlet.ServletContext;
 
 import org.jeometry.common.exception.Exceptions;
 import org.springframework.core.io.ContextResource;

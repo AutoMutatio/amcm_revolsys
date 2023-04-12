@@ -1,7 +1,7 @@
 package com.revolsys.ui.web.controller;
 
-import javax.annotation.PreDestroy;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.annotation.PreDestroy;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.web.servlet.mvc.AbstractController;
 

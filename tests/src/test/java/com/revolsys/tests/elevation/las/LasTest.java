@@ -23,7 +23,6 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.elevation.cloud.PointCloud;
 import com.revolsys.elevation.cloud.las.LasPointCloud;
@@ -33,6 +32,7 @@ import com.revolsys.elevation.cloud.las.pointformat.LasPoint;
 import com.revolsys.elevation.cloud.las.pointformat.LasPointFormat;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.geometry.model.GeometryFactoryWithOffsets;
+import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.util.Debug;
 import com.revolsys.util.Property;
 import com.revolsys.util.ServiceInitializer;
@@ -97,7 +97,7 @@ public class LasTest {
             .setSynthetic(synthetic) //
             .setKeyPoint(keyPoint) //
             .setWithheld(withheld);
-          ;
+
         }
       }
     }
@@ -210,7 +210,7 @@ public class LasTest {
           .setReturnNumber(returnIndex) //
           .setEdgeOfFlightLine(edgeOfFlightLine) //
           .setScanDirectionFlag(scanDirectionFlag);
-        ;
+
         if (point.getReturnNumber() != returnIndex) {
           Debug.noOp();
         }
@@ -248,7 +248,7 @@ public class LasTest {
       final double gpsTime = time / 100000.0;
       addRandomPoint(cloud) //
         .setGpsTime(gpsTime);
-      ;
+
     }
   }
 

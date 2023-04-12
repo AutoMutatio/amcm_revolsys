@@ -52,10 +52,8 @@ public class LineSegmentTest extends TestCase {
   private static double ROOT2 = Math.sqrt(2);
 
   public static boolean equalsTolerance(final Point p0, final Point p1, final double tolerance) {
-    if (Math.abs(p0.getX() - p1.getX()) > tolerance) {
-      return false;
-    }
-    if (Math.abs(p0.getY() - p1.getY()) > tolerance) {
+    if (Math.abs(p0.getX() - p1.getX()) > tolerance
+      || Math.abs(p0.getY() - p1.getY()) > tolerance) {
       return false;
     }
     return true;

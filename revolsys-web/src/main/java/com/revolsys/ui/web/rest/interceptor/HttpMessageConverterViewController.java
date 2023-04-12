@@ -1,6 +1,6 @@
 package com.revolsys.ui.web.rest.interceptor;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.stereotype.Controller;
 

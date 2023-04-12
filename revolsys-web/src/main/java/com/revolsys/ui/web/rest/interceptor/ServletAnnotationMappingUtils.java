@@ -3,7 +3,7 @@ package com.revolsys.ui.web.rest.interceptor;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.http.MediaType;
 import org.springframework.util.ObjectUtils;

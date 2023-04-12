@@ -15,7 +15,7 @@
  */
 package com.revolsys.ui.html.view;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import com.revolsys.ui.html.fields.Field;
 import com.revolsys.util.Property;

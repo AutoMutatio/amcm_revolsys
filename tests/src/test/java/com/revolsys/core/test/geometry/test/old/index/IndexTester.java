@@ -123,8 +123,8 @@ public class IndexTester {
 
   void runSelfQuery(final List items) {
     double querySize = 0.0;
-    for (int i = 0; i < items.size(); i++) {
-      final BoundingBox env = (BoundingBox)items.get(i);
+    for (final Object item : items) {
+      final BoundingBox env = (BoundingBox)item;
       final List list = this.index.query(env);
       Assert.isTrue(!list.isEmpty());
       querySize += list.size();

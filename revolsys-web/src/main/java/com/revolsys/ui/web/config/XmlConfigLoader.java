@@ -17,9 +17,10 @@ package com.revolsys.ui.web.config;
 
 import java.net.URL;
 
-import javax.servlet.ServletContext;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
+
+import jakarta.servlet.ServletContext;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

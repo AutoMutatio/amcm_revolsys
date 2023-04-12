@@ -79,7 +79,11 @@ public class ApacheHttp {
     try {
       final HttpResponse response = getResponse(httpClient, request);
       final HttpEntity entity = response.getEntity();
-      return new ApacheEntityInputStream(httpClient, entity);
+      if (entity == null) {
+        return null;
+      } else {
+        return new ApacheEntityInputStream(httpClient, entity);
+      }
     } catch (final ApacheHttpException e) {
       FileUtil.closeSilent(httpClient);
       throw e;

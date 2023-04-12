@@ -2,7 +2,7 @@ package com.revolsys.ui.web.attribute;
 
 import java.util.Enumeration;
 
-import javax.servlet.ServletContext;
+import jakarta.servlet.ServletContext;
 
 import org.springframework.web.context.ServletContextAware;
 

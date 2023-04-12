@@ -17,8 +17,8 @@ package com.revolsys.ui.html.taglib;
 
 import java.io.Writer;
 
-import javax.servlet.jsp.JspException;
-import javax.servlet.jsp.tagext.TagSupport;
+import jakarta.servlet.jsp.JspException;
+import jakarta.servlet.jsp.tagext.TagSupport;
 
 import com.revolsys.ui.html.serializer.LabelValueListSerializer;
 import com.revolsys.ui.html.view.DetailView;

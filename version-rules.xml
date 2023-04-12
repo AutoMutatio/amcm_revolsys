@@ -17,27 +17,36 @@
     <ignoreVersion type="regex">.*-M.*</ignoreVersion>
    </ignoreVersions>
 	<rules>
-    <rule groupId="ch.qos.logback" comparisonMethod="maven">
+    <!-- Jeometry Specific -->
+    <rule groupId="org.jeometry" comparisonMethod="maven">
       <ignoreVersions>
-        <ignoreVersion type="regex">1.3..*</ignoreVersion>
-        <ignoreVersion type="regex">1.4..*</ignoreVersion>
+        <ignoreVersion type="regex">.*</ignoreVersion>
       </ignoreVersions>
     </rule>
-    <rule groupId="org.slf4j" comparisonMethod="maven">
+    <rule groupId="org.apache.maven.plugins" comparisonMethod="maven">
       <ignoreVersions>
-        <ignoreVersion type="regex">2..*</ignoreVersion>
+        <ignoreVersion type="regex">.*-M.*</ignoreVersion>
       </ignoreVersions>
     </rule>
-		<rule groupId="org.jeometry" comparisonMethod="maven">
-			<ignoreVersions>
-				<ignoreVersion type="regex">.*</ignoreVersion>
-			</ignoreVersions>
-		</rule>
-		<rule groupId="org.apache.maven.plugins" comparisonMethod="maven">
-			<ignoreVersions>
-				<ignoreVersion type="regex">.*-M.*</ignoreVersion>
-			</ignoreVersions>
-		</rule>
+    <rule groupId="javax.xml.bind" comparisonMethod="maven">
+      <ignoreVersions>
+        <ignoreVersion type="regex">.*-b\d+.\d+</ignoreVersion>
+      </ignoreVersions>
+    </rule>
+    <rule groupId="javax.measure" comparisonMethod="maven">
+      <ignoreVersions>
+        <ignoreVersion type="regex">.*-EDR</ignoreVersion>
+        <ignoreVersion type="regex">.*-PRD</ignoreVersion>
+      </ignoreVersions>
+    </rule>
+    <rule groupId="tech.uom.lib" comparisonMethod="maven">
+      <ignoreVersions>
+        <ignoreVersion type="regex">.*-EDR</ignoreVersion>
+        <ignoreVersion type="regex">.*-PRD</ignoreVersion>
+      </ignoreVersions>
+    </rule> 
+       
+    <!-- Revolsys Specific -->
 		<rule groupId="com.revolsys.open" comparisonMethod="maven">
 			<ignoreVersions>
 				<ignoreVersion type="regex">.*</ignoreVersion>
@@ -48,16 +57,6 @@
 				<ignoreVersion type="regex">.*.jre.*</ignoreVersion>
 			</ignoreVersions>
 		</rule>
-		<rule groupId="javax.xml.bind" comparisonMethod="maven">
-			<ignoreVersions>
-				<ignoreVersion type="regex">.*-b\d+.\d+</ignoreVersion>
-			</ignoreVersions>
-		</rule>
-    <rule groupId="javax.measure" comparisonMethod="maven">
-      <ignoreVersions>
-        <ignoreVersion type="regex">.*-EDR</ignoreVersion>
-      </ignoreVersions>
-    </rule>
     <rule groupId="commons-beanutils" comparisonMethod="maven">
       <ignoreVersions>
         <ignoreVersion type="regex">\d{8}(\.\d{6})?</ignoreVersion>

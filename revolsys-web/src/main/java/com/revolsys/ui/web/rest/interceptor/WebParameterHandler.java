@@ -2,8 +2,8 @@ package com.revolsys.ui.web.rest.interceptor;
 
 import java.util.function.BiFunction;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.jeometry.common.data.type.DataType;
 

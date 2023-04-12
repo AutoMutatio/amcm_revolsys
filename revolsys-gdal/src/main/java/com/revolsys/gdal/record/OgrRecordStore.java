@@ -11,7 +11,7 @@ import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.annotation.PreDestroy;
+import jakarta.annotation.PreDestroy;
 
 import org.gdal.ogr.DataSource;
 import org.gdal.ogr.Driver;
@@ -535,7 +535,7 @@ public class OgrRecordStore extends AbstractRecordStore {
     } else {
       layer = dataSource.CreateLayer(name);
     }
-    if (dataSource.TestCapability(ogrConstants.ODsCCreateLayer) == false) {
+    if (!dataSource.TestCapability(ogrConstants.ODsCCreateLayer)) {
       System.err.println("CreateLayer not supported by driver.");
     }
     return OgrRecordDefinition.newRecordDefinition(this, schema, layer);

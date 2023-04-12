@@ -24,7 +24,9 @@ public class HttpSeekableByteChannel implements SeekableByteChannel {
 
   @Override
   public void close() throws IOException {
-    this.channel.close();
+    if (this.channel != null) {
+      this.channel.close();
+    }
     this.channel = null;
   }
 

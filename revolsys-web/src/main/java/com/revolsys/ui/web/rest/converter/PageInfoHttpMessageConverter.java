@@ -15,7 +15,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.jeometry.common.data.type.DataTypes;
 import org.springframework.http.HttpOutputMessage;

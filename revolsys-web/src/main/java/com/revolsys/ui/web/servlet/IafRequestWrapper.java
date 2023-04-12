@@ -1,7 +1,7 @@
 package com.revolsys.ui.web.servlet;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequestWrapper;
 
 public class IafRequestWrapper extends HttpServletRequestWrapper {
 
