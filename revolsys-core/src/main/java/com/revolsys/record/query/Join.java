@@ -49,7 +49,9 @@ public class Join implements QueryValue, TableReferenceProxy {
       this.statement.appendDefaultSelect(query, recordStore, sql);
       if (this.alias != null) {
         sql.append(" ");
+        sql.append('"');
         sql.append(this.alias);
+        sql.append('"');
       }
     }
     if (!this.condition.isEmpty()) {
