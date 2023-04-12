@@ -1,4 +1,4 @@
-package com.revolsys.ui.web.security.oauth;
+package com.revolsys.web.security.oauth;
 
 import java.io.IOException;
 import java.util.UUID;

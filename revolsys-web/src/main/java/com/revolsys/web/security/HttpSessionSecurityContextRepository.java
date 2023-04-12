@@ -1,4 +1,4 @@
-package com.revolsys.ui.web.security;
+package com.revolsys.web.security;
 
 import java.io.IOException;
 import java.lang.reflect.Method;

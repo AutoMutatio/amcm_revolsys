@@ -1,4 +1,4 @@
-package com.revolsys.ui.web.security.oauth;
+package com.revolsys.web.security.oauth;
 
 import java.io.IOException;
 import java.security.Principal;
@@ -13,7 +13,7 @@ import org.jeometry.common.logging.Logs;
 
 import com.revolsys.net.oauth.OpenIdBearerToken;
 import com.revolsys.net.oauth.OpenIdConnectClient;
-import com.revolsys.ui.web.utils.HttpServletUtils;
+import com.revolsys.web.utils.HttpServletUtils;
 
 public class MicrosoftOAuthHandler {
 
