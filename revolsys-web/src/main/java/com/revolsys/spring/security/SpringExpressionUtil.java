@@ -9,7 +9,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import com.revolsys.ui.web.utils.HttpServletUtils;
+import com.revolsys.web.HttpServletUtils;
 
 public class SpringExpressionUtil {
 

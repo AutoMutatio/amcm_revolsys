@@ -179,7 +179,8 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     }
   }
 
-  protected void addSelect(final Query query, final String selectItem) {
+  protected void addSelect(final TableRecordStoreConnection connection, final Query query,
+    final String selectItem) {
     final QueryValue selectClause = newSelectClause(query, selectItem);
     query.select(selectClause);
   }
@@ -495,7 +496,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     if (Property.hasValue(select)) {
       for (String selectItem : select.split(",")) {
         selectItem = selectItem.trim();
-        addSelect(query, selectItem);
+        addSelect(connection, query, selectItem);
       }
     }
 
