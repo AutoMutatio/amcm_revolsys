@@ -16,6 +16,11 @@ public class NotEqual extends BinaryCondition {
   }
 
   @Override
+  public NotEqual newCondition(final QueryValue left, final QueryValue right) {
+    return new NotEqual(left, right);
+  }
+
+  @Override
   public boolean test(final MapEx record) {
     final QueryValue left = getLeft();
     final Object value1 = left.getValue(record);
@@ -25,5 +30,4 @@ public class NotEqual extends BinaryCondition {
 
     return !DataType.equal(value1, value2);
   }
-
 }

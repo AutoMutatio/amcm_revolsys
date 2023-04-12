@@ -16,6 +16,11 @@ public class Equal extends BinaryCondition {
   }
 
   @Override
+  public Equal newCondition(final QueryValue left, final QueryValue right) {
+    return new Equal(left, right);
+  }
+
+  @Override
   public boolean test(final MapEx record) {
     final QueryValue left = getLeft();
     final Object value1 = left.getValue(record);
@@ -25,5 +30,4 @@ public class Equal extends BinaryCondition {
 
     return DataType.equal(value1, value2);
   }
-
 }

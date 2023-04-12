@@ -18,8 +18,8 @@ package com.revolsys.ui.web.config;
 import java.io.IOException;
 import java.io.Writer;
 
-import javax.servlet.ServletException;
-import javax.servlet.jsp.PageContext;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.jsp.PageContext;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

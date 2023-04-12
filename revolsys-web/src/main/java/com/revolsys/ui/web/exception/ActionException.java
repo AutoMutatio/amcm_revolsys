@@ -15,7 +15,7 @@
  */
 package com.revolsys.ui.web.exception;
 
-import javax.servlet.ServletException;
+import jakarta.servlet.ServletException;
 
 /**
  * The ActionException is the super class of all exceptions thrown by process

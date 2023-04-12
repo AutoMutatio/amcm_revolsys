@@ -30,9 +30,9 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -314,8 +314,7 @@ public class WebAnnotationMethodHandlerAdapter extends WebContentGenerator
     final HttpServletResponse savedResponse = HttpServletUtils.getResponse();
     try {
       HttpServletUtils.setRequestAndResponse(request, response);
-      checkAndPrepare(request, response, true);
-
+      checkRequest(request);
       return invokeHandlerMethod(request, response, handler);
     } finally {
       if (savedRequest == null) {

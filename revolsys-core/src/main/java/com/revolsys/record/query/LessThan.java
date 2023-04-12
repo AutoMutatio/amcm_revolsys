@@ -16,6 +16,11 @@ public class LessThan extends BinaryCondition {
   }
 
   @Override
+  public LessThan newCondition(final QueryValue left, final QueryValue right) {
+    return new LessThan(left, right);
+  }
+
+  @Override
   public boolean test(final MapEx record) {
     final QueryValue left = getLeft();
     final Object value1 = left.getValue(record);

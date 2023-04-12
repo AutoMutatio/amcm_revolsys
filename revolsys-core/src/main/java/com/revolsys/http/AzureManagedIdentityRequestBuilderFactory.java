@@ -20,10 +20,11 @@ public class AzureManagedIdentityRequestBuilderFactory extends BearerTokenReques
   public static final Header IDENTITY_HEADER;
 
   private static final NameValuePair API_VERSION;
+
   private static boolean AVAILABLE;
 
   static {
-    String apiVersion = "2019-08-01";
+    final String apiVersion = "2019-08-01";
     String url = System.getenv("IDENTITY_ENDPOINT");
     String headerName = "X-IDENTITY-HEADER";
     String headerValue = System.getenv("IDENTITY_HEADER");
@@ -45,10 +46,10 @@ public class AzureManagedIdentityRequestBuilderFactory extends BearerTokenReques
 
   public static RequestBuilder createTokenRequestBuilder(final String resource) {
     return RequestBuilder//
-        .get(ENDPOINT_URL)
-        .addHeader(IDENTITY_HEADER)
-        .addParameter(API_VERSION)
-        .addParameter("resource", resource);
+      .get(ENDPOINT_URL)
+      .addHeader(IDENTITY_HEADER)
+      .addParameter(API_VERSION)
+      .addParameter("resource", resource);
   }
 
   public static boolean isAvailable() {

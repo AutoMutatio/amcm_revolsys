@@ -15,6 +15,9 @@ import java.util.regex.Pattern;
 import org.jeometry.common.data.type.DataType;
 import org.jeometry.common.data.type.DataTypes;
 
+import com.revolsys.collection.list.ListEx;
+import com.revolsys.collection.list.Lists;
+
 public interface Strings {
 
   String UPPERCASE_ASCII = "AEIOU" // grave
@@ -504,6 +507,11 @@ public interface Strings {
       }
     }
     return text;
+  }
+
+  static ListEx<String> split(final String string, final String regex) {
+    final String[] split = string.split(regex);
+    return Lists.newArray(split);
   }
 
   static boolean startsWith(final String text, final String prefix) {

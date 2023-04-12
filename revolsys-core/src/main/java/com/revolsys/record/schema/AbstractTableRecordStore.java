@@ -4,12 +4,13 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.jeometry.common.data.identifier.Identifier;
 import org.jeometry.common.data.type.DataType;
@@ -189,7 +190,13 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
   }
 
   public void applyDefaultSortOrder(final Query query) {
-    query.addOrderBy(this.defaultSortOrder);
+    for (final Entry<QueryValue, Boolean> entry : this.defaultSortOrder.entrySet()) {
+      final QueryValue field = entry.getKey();
+      if (!query.hasOrderBy(field)) {
+        final Boolean ascending = entry.getValue();
+        query.addOrderBy(field, ascending);
+      }
+    }
   }
 
   public Query applySearchCondition(final Query query, final String search) {
@@ -204,10 +211,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
   }
 
   public boolean canEditField(final String fieldName) {
-    if (!this.recordDefinition.hasField(fieldName)) {
-      return false;
-    }
-    if (this.recordDefinition.isIdField(fieldName)) {
+    if (!this.recordDefinition.hasField(fieldName) || this.recordDefinition.isIdField(fieldName)) {
       return false;
     }
     return true;
@@ -339,6 +343,25 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     final Object value) {
     final Query query = newQuery(connection).and(fieldName, value);
     return hasRecord(connection, query);
+  }
+
+  protected Record insertOrUpdateRecord(final TableRecordStoreConnection connection,
+    final Query query, final Consumer<Record> insertAction, final Consumer<Record> updateAction) {
+    query.setRecordFactory(ArrayChangeTrackRecord.FACTORY);
+
+    try (
+      Transaction transaction = connection.newTransaction(TransactionOptions.REQUIRED)) {
+      final ChangeTrackRecord changeTrackRecord = query.getRecord();
+      if (changeTrackRecord == null) {
+        final Record newRecord = newRecord();
+        insertAction.accept(newRecord);
+        return insertRecord(connection, newRecord);
+      } else {
+        updateAction.accept(changeTrackRecord);
+        updateRecordDo(connection, changeTrackRecord);
+        return changeTrackRecord.newRecord();
+      }
+    }
   }
 
   protected Record insertOrUpdateRecord(final TableRecordStoreConnection connection,
@@ -685,13 +708,14 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     final ChangeTrackRecord record) {
   }
 
-  private void updateRecordDo(final TableRecordStoreConnection connection,
+  public Record updateRecordDo(final TableRecordStoreConnection connection,
     final ChangeTrackRecord record) {
     if (record.isModified()) {
       updateRecordBefore(connection, record);
       this.recordStore.updateRecord(record);
       updateRecordAfter(connection, record);
     }
+    return record.newRecord();
   }
 
   public int updateRecords(final TableRecordStoreConnection connection, final Query query,

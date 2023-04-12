@@ -487,6 +487,16 @@ public class XmlWriter extends Writer {
     }
   }
 
+  public void attribute(final String name) {
+    try {
+      checkWriteAttribute();
+      this.out.write(' ');
+      this.out.write(name);
+    } catch (final IOException e) {
+      throw Exceptions.wrap(e);
+    }
+  }
+
   public void attribute(final String name, final Object value) {
     if (value != null) {
       final String string = DataTypes.toString(value);
@@ -1007,9 +1017,7 @@ public class XmlWriter extends Writer {
   private void removeCurrentTag() {
     if (!this.endingDocument) {
       final TagConfiguration tag = this.elementStack.removeFirst();
-      final Iterator<String> namespaceUris = tag.getFieldDefinedNamespaces().iterator();
-      while (namespaceUris.hasNext()) {
-        final String namespaceUri = namespaceUris.next();
+      for (final String namespaceUri : tag.getFieldDefinedNamespaces()) {
         this.namespacePrefixMap.remove(namespaceUri);
       }
     }

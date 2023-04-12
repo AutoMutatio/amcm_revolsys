@@ -727,6 +727,15 @@ public class Query extends BaseObjectWithProperties
     return this;
   }
 
+  public boolean hasOrderBy(final QueryValue column) {
+    for (final OrderBy orderBy : this.orderBy) {
+      if (orderBy.getField().equals(column)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   public boolean hasOrderBy(final String fieldName) {
     for (final OrderBy order : this.orderBy) {
       if (order.isField(fieldName)) {
@@ -738,6 +747,22 @@ public class Query extends BaseObjectWithProperties
 
   public boolean hasSelect() {
     return !this.selectExpressions.isEmpty();
+  }
+
+  public Record insertOrUpdateRecord(final Consumer<Record> insertAction,
+    final Consumer<Record> updateAction) {
+
+    final Record record = getRecord();
+    if (record == null) {
+      final Record newRecord = newRecord();
+      insertAction.accept(newRecord);
+      getRecordDefinition().getRecordStore().insertRecord(newRecord);
+      return newRecord;
+    } else {
+      updateAction.accept(record);
+      getRecordDefinition().getRecordStore().updateRecord(record);
+      return record;
+    }
   }
 
   public Record insertOrUpdateRecord(final InsertUpdateAction action) {
@@ -911,6 +936,10 @@ public class Query extends BaseObjectWithProperties
     final java.util.function.Function<QueryValue, QV> operator) {
     final ColumnReference column = this.table.getColumn(fieldName);
     return operator.apply(column);
+  }
+
+  public Record newRecord() {
+    return getRecordDefinition().newRecord();
   }
 
   public QueryValue newSelectClause(final Object select) {

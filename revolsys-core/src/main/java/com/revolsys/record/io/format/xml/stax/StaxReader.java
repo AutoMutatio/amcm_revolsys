@@ -96,12 +96,12 @@ public class StaxReader extends StreamReaderDelegate implements BaseCloseable {
 
   private void appendName(final StringBuilder builder, final String prefix, final String uri,
     final String localName) {
-    if (uri != null && !"".equals(uri)) {
-      builder.append("['");
-      builder.append(uri);
-      builder.append("']:");
-    }
-    if (prefix != null) {
+    // if (uri != null && !"".equals(uri)) {
+    // builder.append("['");
+    // builder.append(uri);
+    // builder.append("']:");
+    // }
+    if (prefix != null && !"".equals(prefix)) {
       builder.append(prefix + ":");
     }
     if (localName != null) {
@@ -114,9 +114,9 @@ public class StaxReader extends StreamReaderDelegate implements BaseCloseable {
     final String uri = getNamespaceURI(index);
     builder.append(' ');
     if (prefix == null) {
-      builder.append("xmlns='" + uri + "'");
+      builder.append("xmlns=\"" + uri + "\"");
     } else {
-      builder.append("xmlns:" + prefix + "='" + uri + "'");
+      builder.append("xmlns:" + prefix + "=\"" + uri + "\"");
     }
   }
 
@@ -132,6 +132,100 @@ public class StaxReader extends StreamReaderDelegate implements BaseCloseable {
       super.close();
     } catch (final XMLStreamException e) {
     }
+  }
+
+  public String getAsText() {
+    final StringBuilder builder = new StringBuilder();
+    if (getEventType() == XMLStreamConstants.START_ELEMENT) {
+      builder.append("<");
+      appendName(builder);
+      appendNamespaces(builder);
+      appendAttributes(builder);
+      builder.append(">");
+      final int depth = this.depth;
+      while (next() != XMLStreamConstants.END_DOCUMENT && getDepth() >= depth) {
+        switch (getEventType()) {
+          case START_ELEMENT:
+            builder.append("<");
+            appendName(builder);
+            appendNamespaces(builder);
+            appendAttributes(builder);
+            builder.append(">");
+          break;
+          case END_ELEMENT:
+            builder.append("</");
+            appendName(builder);
+            builder.append(">");
+          break;
+          case SPACE:
+          case CHARACTERS: {
+            final int start = getTextStart();
+            final int length = getTextLength();
+            final String s = new String(getTextCharacters(), start, length);
+            builder.append(s);
+          }
+          break;
+          case PROCESSING_INSTRUCTION:
+            builder.append("<?");
+            if (hasText()) {
+              builder.append(getText());
+            }
+            builder.append("?>");
+          break;
+          case CDATA: {
+            builder.append("<![CDATA[");
+            final int start = getTextStart();
+            final int length = getTextLength();
+            final String s = new String(getTextCharacters(), start, length);
+            builder.append(s);
+            builder.append("]]>");
+          }
+          break;
+          case COMMENT:
+            builder.append("<!--");
+            if (hasText()) {
+              builder.append(getText());
+            }
+            builder.append("-->");
+          break;
+          case ENTITY_REFERENCE:
+            builder.append(getLocalName() + "=");
+            if (hasText()) {
+              builder.append("[" + getText() + "]");
+            }
+          break;
+          case START_DOCUMENT:
+            builder.append("<?xml");
+            builder.append(" version='" + getVersion() + "'");
+            builder.append(" encoding='" + getCharacterEncodingScheme() + "'");
+            if (isStandalone()) {
+              builder.append(" standalone='yes'");
+            } else {
+              builder.append(" standalone='no'");
+            }
+            builder.append("?>");
+          break;
+
+          case ATTRIBUTE:
+            return "";
+          case DTD:
+            return "";
+          case END_DOCUMENT:
+            return "";
+          case ENTITY_DECLARATION:
+            return "";
+          case NAMESPACE:
+            return "";
+          case NOTATION_DECLARATION:
+            return "";
+          default:
+        }
+      }
+    }
+    builder.append("</");
+    appendName(builder);
+    builder.append(">");
+    return builder.toString();
   }
 
   public String getAttribute(final QName typePath) {
