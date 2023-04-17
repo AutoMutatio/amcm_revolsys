@@ -7,8 +7,10 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jeometry.common.io.PathName;
 import org.jeometry.common.number.Numbers;
 
+import com.revolsys.io.BaseCloseable;
 import com.revolsys.io.PathUtil;
 import com.revolsys.record.Record;
 import com.revolsys.record.property.ShortNameProperty;
@@ -17,10 +19,12 @@ import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.util.Property;
 import com.revolsys.util.Strings;
 
-public abstract class JdbcDdlWriter implements Cloneable {
+public abstract class JdbcDdlWriter implements Cloneable, BaseCloseable {
   private PrintWriter out;
 
   protected boolean primaryKeyOnColumn = false;
+
+  protected boolean primaryKeyInCreateTable = false;
 
   protected boolean quoteColumns = true;
 
@@ -46,6 +50,7 @@ public abstract class JdbcDdlWriter implements Cloneable {
     return clone;
   }
 
+  @Override
   public void close() {
     this.out.flush();
     this.out.close();
@@ -84,6 +89,14 @@ public abstract class JdbcDdlWriter implements Cloneable {
 
   public void setOut(final PrintWriter out) {
     this.out = out;
+  }
+
+  public void setPrimaryKeyInCreateTable(final boolean primaryKeyInCreateTable) {
+    this.primaryKeyInCreateTable = primaryKeyInCreateTable;
+  }
+
+  public void setPrimaryKeyOnColumn(final boolean primaryKeyOnColumn) {
+    this.primaryKeyOnColumn = primaryKeyOnColumn;
   }
 
   public void writeAddForeignKeyConstraint(final RecordDefinition recordDefinition,
@@ -125,26 +138,38 @@ public abstract class JdbcDdlWriter implements Cloneable {
   }
 
   public void writeAddPrimaryKeyConstraint(final RecordDefinition recordDefinition) {
-    final String idFieldName = recordDefinition.getIdFieldName();
-    if (idFieldName != null) {
+    final List<String> idFieldNames = recordDefinition.getIdFieldNames();
+    if (idFieldNames != null) {
       final String typePath = recordDefinition.getPath();
       final String constraintName = getTableAlias(recordDefinition) + "_PK";
-      writeAddPrimaryKeyConstraint(typePath, constraintName, idFieldName);
+      writeAddPrimaryKeyConstraint(typePath, constraintName, idFieldNames);
     }
   }
 
   public void writeAddPrimaryKeyConstraint(final String typePath, final String constraintName,
-    final String columnName) {
+    final List<String> idFieldNames) {
     this.out.print("ALTER TABLE ");
     writeTableName(typePath);
     this.out.print(" ADD CONSTRAINT ");
     this.out.print(constraintName);
     this.out.print(" PRIMARY KEY (");
-    this.out.print(columnName);
+    writeColumnNames(idFieldNames);
     this.out.println(");");
   }
 
   public abstract void writeColumnDataType(final FieldDefinition field);
+
+  protected void writeColumnNames(final List<String> names) {
+    boolean first = true;
+    for (final String idFieldName : names) {
+      if (first) {
+        first = false;
+      } else {
+        this.out.print(",");
+      }
+      this.out.print(idFieldName);
+    }
+  }
 
   public void writeCreateSchema(final String schemaName) {
   }
@@ -173,19 +198,28 @@ public abstract class JdbcDdlWriter implements Cloneable {
       if (i > 0) {
         out.println(",");
       }
-      final String name = field.getName();
       out.print("  ");
-      if (this.quoteColumns) {
-        out.print('"');
-      }
-      out.print(name);
-      if (this.quoteColumns) {
-        out.print('"');
-      }
+      final String name = writeFieldName(out, field);
       for (int j = name.length(); j < 32; j++) {
         out.print(' ');
       }
       writeColumnDataType(field);
+      if (field.isGenerated()) {
+        String generateStatement = field.getGenerateStatement();
+        if (generateStatement != null) {
+          generateStatement = generateStatement.replaceAll("\\:\\:\\w+$", "");
+          out.print(" GENERATED ALWAYS ");
+          out.print(generateStatement);
+          out.print(" STORED");
+        }
+      } else {
+        String defaultStatement = field.getDefaultStatement();
+        if (defaultStatement != null) {
+          defaultStatement = defaultStatement.replaceAll("\\:\\:\\w+$", "");
+          out.print(" DEFAULT ");
+          out.print(defaultStatement);
+        }
+      }
       if (field.isRequired()) {
         out.print(" NOT NULL");
       }
@@ -195,10 +229,15 @@ public abstract class JdbcDdlWriter implements Cloneable {
         }
       }
     }
+    if (this.primaryKeyInCreateTable) {
+      writePrimaryKeyConstraint(recordDefinition);
+    }
     out.println();
-    out.println(");");
+    out.print(")");
+    writeCreateTableAfter(recordDefinition);
+    out.println(";");
 
-    if (!this.primaryKeyOnColumn) {
+    if (!this.primaryKeyOnColumn && !this.primaryKeyInCreateTable) {
       writeAddPrimaryKeyConstraint(recordDefinition);
     }
 
@@ -210,6 +249,10 @@ public abstract class JdbcDdlWriter implements Cloneable {
         writeCreateSequence(recordDefinition);
       }
     }
+  }
+
+  protected void writeCreateTableAfter(final RecordDefinition recordDefinition) {
+
   }
 
   public void writeCreateView(final String typePath, final String queryTypeName,
@@ -225,6 +268,18 @@ public abstract class JdbcDdlWriter implements Cloneable {
     writeTableName(queryTypeName);
     this.out.println();
     this.out.println(");");
+  }
+
+  protected String writeFieldName(final PrintWriter out, final FieldDefinition field) {
+    final String name = field.getName();
+    if (this.quoteColumns) {
+      out.print('"');
+    }
+    out.print(name);
+    if (this.quoteColumns) {
+      out.print('"');
+    }
+    return name;
   }
 
   public abstract void writeGeometryRecordDefinition(final RecordDefinition recordDefinition);
@@ -295,6 +350,16 @@ public abstract class JdbcDdlWriter implements Cloneable {
 
   }
 
+  public void writePrimaryKeyConstraint(final RecordDefinition recordDefinition) {
+    final List<String> idFieldNames = recordDefinition.getIdFieldNames();
+    if (idFieldNames.isEmpty()) {
+      this.out.println(",");
+      this.out.print("  PRIMARY KEY (");
+      writeColumnNames(idFieldNames);
+      this.out.println(")");
+    }
+  }
+
   protected void writePrimaryKeyFieldContstaint(final PrintWriter out) {
     out.print(" PRIMARY KEY");
   }
@@ -302,6 +367,12 @@ public abstract class JdbcDdlWriter implements Cloneable {
   public void writeResetSequence(final RecordDefinition recordDefinition,
     final List<Record> values) {
     throw new UnsupportedOperationException();
+  }
+
+  public void writeTableName(final PathName pathName) {
+    final String schemaName = pathName.getParent().getName();
+    final String tableName = pathName.getName();
+    writeTableName(schemaName, tableName);
   }
 
   public void writeTableName(final String typePath) {
@@ -315,6 +386,12 @@ public abstract class JdbcDdlWriter implements Cloneable {
       this.out.print(schemaName);
       this.out.print('.');
     }
+    if (this.quoteColumns) {
+      this.out.print('"');
+    }
     this.out.print(tableName);
+    if (this.quoteColumns) {
+      this.out.print('"');
+    }
   }
 }

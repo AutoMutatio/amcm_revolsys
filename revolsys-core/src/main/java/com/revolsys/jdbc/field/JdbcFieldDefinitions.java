@@ -47,7 +47,7 @@ public class JdbcFieldDefinitions {
     UNKNOWN, Types.BIGINT, false, null, null);
 
   private static final JdbcStringFieldDefinition FIELD_STRING = new JdbcStringFieldDefinition(
-    UNKNOWN, UNKNOWN, Types.CHAR, -1, false, null, null);
+    UNKNOWN, UNKNOWN, DataTypes.STRING, Types.CHAR, -1, false, null, null);
 
   private static final JdbcFieldDefinition FIELD_OBJECT = new JdbcFieldDefinition(UNKNOWN, UNKNOWN,
     DataTypes.OBJECT, Types.OTHER, 0, 0, false, null, null);

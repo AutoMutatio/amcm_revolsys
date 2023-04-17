@@ -19,6 +19,8 @@ import org.jeometry.common.io.PathName;
 import org.jeometry.common.logging.Logs;
 
 import com.revolsys.collection.CollectionUtil;
+import com.revolsys.collection.list.ArrayListEx;
+import com.revolsys.collection.list.ListEx;
 import com.revolsys.collection.list.Lists;
 import com.revolsys.collection.map.Maps;
 import com.revolsys.collection.set.Sets;
@@ -51,6 +53,8 @@ public class RecordDefinitionImpl extends AbstractRecordStoreSchemaElement
     final Map<String, ? extends Object> properties) {
     return new RecordDefinitionImpl(properties);
   }
+
+  private final ListEx<PathName> parentPathNames = new ArrayListEx<>();
 
   private ClockDirection polygonRingDirection = ClockDirection.OGC_SFS_COUNTER_CLOCKWISE;
 
@@ -736,6 +740,10 @@ public class RecordDefinitionImpl extends AbstractRecordStoreSchemaElement
     return this.idFieldDefinitionsUnmod;
   }
 
+  public ListEx<PathName> getParentPathNames() {
+    return this.parentPathNames;
+  }
+
   @Override
   public ClockDirection getPolygonRingDirection() {
     return this.polygonRingDirection;
@@ -972,6 +980,12 @@ public class RecordDefinitionImpl extends AbstractRecordStoreSchemaElement
 
   public void setIdFieldNames(final String... names) {
     setIdFieldNames(Arrays.asList(names));
+  }
+
+  public RecordDefinitionImpl setParentPathNames(final List<PathName> parentPathNames) {
+    this.parentPathNames.clear();
+    this.parentPathNames.addAll(parentPathNames);
+    return this;
   }
 
   public void setPolygonRingDirection(final ClockDirection polygonRingDirection) {

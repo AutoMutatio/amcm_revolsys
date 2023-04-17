@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.jeometry.common.data.type.DataType;
+import org.jeometry.common.data.type.DataTypes;
 import org.jeometry.common.io.PathName;
 
 import com.revolsys.jdbc.io.AbstractJdbcRecordStore;
@@ -165,6 +166,10 @@ public class JdbcFieldAdder {
     return field;
   }
 
+  public DataType getDataType() {
+    return this.dataType;
+  }
+
   public void initialize(final JdbcRecordStoreSchema schema) {
   }
 
@@ -182,8 +187,8 @@ public class JdbcFieldAdder {
         case Types.CLOB:
         case Types.LONGVARCHAR:
         case Types.VARCHAR:
-          field = new JdbcStringFieldDefinition(dbName, name, sqlType, length, required,
-            description, null);
+          field = new JdbcStringFieldDefinition(dbName, name, DataTypes.STRING, sqlType, length,
+            required, description, null);
         break;
         case Types.BIGINT:
           field = new JdbcLongFieldDefinition(dbName, name, sqlType, required, description, null);

@@ -5,6 +5,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Map;
 
+import org.jeometry.common.data.type.DataType;
 import org.jeometry.common.data.type.DataTypes;
 
 import com.revolsys.record.query.ColumnIndexes;
@@ -14,17 +15,17 @@ import com.revolsys.util.Property;
 public class JdbcStringFieldDefinition extends JdbcFieldDefinition {
   private final boolean intern;
 
-  public JdbcStringFieldDefinition(final String dbName, final String name, final int sqlType,
-    final int length, final boolean required, final String description,
-    final Map<String, Object> properties) {
-    super(dbName, name, DataTypes.STRING, sqlType, length, 0, required, description, properties);
+  public JdbcStringFieldDefinition(final String dbName, final String name, DataType dataType,
+    final int sqlType, final int length, final boolean required,
+    final String description, final Map<String, Object> properties) {
+    super(dbName, name, dataType, sqlType, length, 0, required, description, properties);
     this.intern = Property.getBoolean(properties, "stringIntern");
   }
 
   @Override
   public JdbcStringFieldDefinition clone() {
     final JdbcStringFieldDefinition clone = new JdbcStringFieldDefinition(getDbName(), getName(),
-      getSqlType(), getLength(), isRequired(), getDescription(), getProperties());
+      DataTypes.STRING, getSqlType(), getLength(), isRequired(), getDescription(), getProperties());
     postClone(clone);
     return clone;
   }

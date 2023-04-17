@@ -59,6 +59,8 @@ public class FieldDefinition extends BaseObjectWithProperties implements CharSeq
 
   private Object defaultValue;
 
+  private String defaultStatement;
+
   private GeometryFactory geometryFactory = GeometryFactory.DEFAULT_3D;
 
   /** The description of the field. */
@@ -74,6 +76,8 @@ public class FieldDefinition extends BaseObjectWithProperties implements CharSeq
   private Object maxValue;
 
   private Object minValue;
+
+  private String generateStatement;
 
   /** The name of the field. */
   private String name;
@@ -125,7 +129,8 @@ public class FieldDefinition extends BaseObjectWithProperties implements CharSeq
     final String title = Maps.getString(properties, "title");
     setTitle(title);
     this.description = Maps.getString(properties, "description");
-    this.type = DataTypes.getDataType(Maps.getString(properties, "dataType"));
+    final String type = Maps.getString(properties, "dataType");
+    setType(type);
     this.required = Maps.getBool(properties, "required");
     setLength(Maps.getInteger(properties, "length", 0));
     this.scale = Maps.getInteger(properties, "scale", 0);
@@ -416,6 +421,10 @@ public class FieldDefinition extends BaseObjectWithProperties implements CharSeq
     return this.type;
   }
 
+  public String getDefaultStatement() {
+    return this.defaultStatement;
+  }
+
   @SuppressWarnings("unchecked")
   public <T> T getDefaultValue() {
     return (T)this.defaultValue;
@@ -428,6 +437,10 @@ public class FieldDefinition extends BaseObjectWithProperties implements CharSeq
   @Override
   public FieldDefinition getFieldDefinition() {
     return this;
+  }
+
+  public String getGenerateStatement() {
+    return this.generateStatement;
   }
 
   @Override
@@ -669,6 +682,19 @@ public class FieldDefinition extends BaseObjectWithProperties implements CharSeq
     return this;
   }
 
+  public void setDefaultStatement(final String defaultStatement) {
+    this.defaultStatement = defaultStatement;
+    if (defaultStatement == null) {
+      this.defaultValue = null;
+    } else if (!isGenerated()) {
+      try {
+        this.defaultValue = toFieldValueException(defaultStatement);
+      } catch (final Exception e) {
+        this.defaultValue = null;
+      }
+    }
+  }
+
   public FieldDefinition setDefaultValue(final Object defaultValue) {
     this.defaultValue = defaultValue;
     return this;
@@ -681,6 +707,14 @@ public class FieldDefinition extends BaseObjectWithProperties implements CharSeq
 
   public FieldDefinition setGenerated(final boolean generated) {
     this.generated = generated;
+    return this;
+  }
+
+  public FieldDefinition setGenerateStatement(final String generateStatement) {
+    if (generateStatement != null) {
+      this.generated = true;
+    }
+    this.generateStatement = generateStatement;
     return this;
   }
 
@@ -751,6 +785,11 @@ public class FieldDefinition extends BaseObjectWithProperties implements CharSeq
 
   public FieldDefinition setType(final DataType type) {
     this.type = type;
+    return this;
+  }
+
+  public FieldDefinition setType(final String type) {
+    this.type = DataTypes.getDataType(type);
     return this;
   }
 

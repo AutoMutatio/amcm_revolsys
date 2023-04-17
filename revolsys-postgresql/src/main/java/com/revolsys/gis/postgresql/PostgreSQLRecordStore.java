@@ -246,7 +246,7 @@ public class PostgreSQLRecordStore extends AbstractJdbcRecordStore {
     final JdbcStringFieldAdder stringFieldAdder = new JdbcStringFieldAdder();
     addFieldAdder("varchar", stringFieldAdder);
     addFieldAdder("text", stringFieldAdder);
-    addFieldAdder("citext", stringFieldAdder);
+    addFieldAdder("citext", new JdbcStringFieldAdder(DataTypes.STRING_CASE_INSESITIVE));
     addFieldAdder("name", stringFieldAdder);
     addFieldAdder("bpchar", stringFieldAdder);
 

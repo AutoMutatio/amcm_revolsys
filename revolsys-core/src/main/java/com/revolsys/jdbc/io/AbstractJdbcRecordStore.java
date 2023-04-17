@@ -926,6 +926,12 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
                 dataType, sqlType, length, scale, required, description);
               final boolean generated = columnsRs.getString("IS_GENERATEDCOLUMN").equals("YES");
               field.setGenerated(generated);
+              final String defaultStatement = columnsRs.getString("COLUMN_DEF");
+              if (generated) {
+                field.setGenerateStatement(defaultStatement);
+              } else {
+                field.setDefaultStatement(defaultStatement);
+              }
             }
           }
 

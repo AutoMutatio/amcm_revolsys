@@ -1,7 +1,9 @@
 package com.revolsys.record.schema;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.function.Consumer;
 
 import org.jeometry.common.data.type.DataType;
 import org.jeometry.common.data.type.DataTypes;
@@ -52,6 +54,12 @@ public class RecordDefinitionBuilder {
 
   public RecordDefinitionBuilder(final String pathName) {
     this(PathName.newPathName(pathName));
+  }
+
+  public RecordDefinitionBuilder addField(final Consumer<FieldDefinition> action) {
+    final FieldDefinition field = new FieldDefinition();
+    action.accept(field);
+    return this;
   }
 
   public RecordDefinitionBuilder addField(final DataType type) {
@@ -170,6 +178,19 @@ public class RecordDefinitionBuilder {
   public RecordDefinitionBuilder setIdFieldNames(final List<String> idFieldNames) {
     this.recordDefinition.setIdFieldNames(idFieldNames);
     return this;
+  }
+
+  public RecordDefinitionBuilder setIdFieldNames(final String... idFieldNames) {
+    return setIdFieldNames(Arrays.asList(idFieldNames));
+  }
+
+  public RecordDefinitionBuilder setParentPathNames(final List<PathName> parentPathNames) {
+    this.recordDefinition.setParentPathNames(parentPathNames);
+    return this;
+  }
+
+  public RecordDefinitionBuilder setParentPathNames(final Object... parentPathNames) {
+    return setParentPathNames(Lists.toArray(parentPathNames).map(PathName::newPathName));
   }
 
   public RecordDefinitionBuilder setPathName(final String path) {
