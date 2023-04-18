@@ -471,11 +471,6 @@
         <version>3.5.5</version>
       </dependency>
       <dependency>
-        <groupId>org.springframework.security</groupId>
-        <artifactId>spring-security-web</artifactId>
-        <version>${org.springframework.security.version}</version>
-      </dependency>
-      <dependency>
         <groupId>junit</groupId>
         <artifactId>junit</artifactId>
         <version>4.13.2</version>
@@ -644,10 +639,9 @@
     <org.docx4j.version>11.4.9</org.docx4j.version>
     <org.gdal.version>2.4.0</org.gdal.version>
     <org.graalvm.version>22.3.1</org.graalvm.version>
-    <org.springframework.version>6.0.7</org.springframework.version>
+    <org.springframework.version>6.0.8</org.springframework.version>
     <org.springframework.boot.version>3.0.5</org.springframework.boot.version>
     <org.springboot.version>${org.springframework.boot.version}</org.springboot.version>
-    <org.springframework.security.version>6.0.2</org.springframework.security.version>
     <io.netty.version>4.1.91.Final</io.netty.version>
   </properties>
 </project>
