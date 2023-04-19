@@ -1313,7 +1313,7 @@ public class Query extends BaseObjectWithProperties
   }
 
   public Query setWhereCondition(final Condition whereCondition) {
-    if (whereCondition == null) {
+    if (whereCondition == null || whereCondition instanceof NoCondition) {
       this.whereCondition = Condition.ALL;
     } else {
       this.whereCondition = whereCondition;

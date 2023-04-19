@@ -94,6 +94,11 @@ public abstract class AbstractMultiQueryValue implements QueryValue {
   }
 
   public boolean isEmpty() {
+    for (final QueryValue value : this.values) {
+      if (value instanceof final Condition condition && condition.isEmpty()) {
+        return true;
+      }
+    }
     return this.values.length == 0;
   }
 

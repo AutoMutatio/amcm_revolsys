@@ -428,10 +428,9 @@ public class Q {
     return new Not(condition);
   }
 
-  public static Condition notEqual(final FieldDefinition fieldDefinition, final Object value) {
-    final String name = fieldDefinition.getName();
-    final Value valueCondition = Value.newValue(fieldDefinition, value);
-    return notEqual(name, valueCondition);
+  public static NotEqual notEqual(final ColumnReference column, final Object value) {
+    final Value valueCondition = Value.newValue(column, value);
+    return new NotEqual(column, valueCondition);
   }
 
   public static Condition notEqual(final QueryValue left, final QueryValue right) {
