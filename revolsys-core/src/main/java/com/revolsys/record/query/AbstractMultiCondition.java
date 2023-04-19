@@ -20,7 +20,7 @@ public abstract class AbstractMultiCondition extends AbstractMultiQueryValue
 
   @Override
   public AbstractMultiCondition addCondition(final Condition condition) {
-    if (condition != null) {
+    if (condition != null && !(condition instanceof NoCondition)) {
       addValue(condition);
     }
     return this;
@@ -38,17 +38,19 @@ public abstract class AbstractMultiCondition extends AbstractMultiQueryValue
     boolean first = true;
 
     for (final QueryValue value : this.values) {
-      if (first) {
-        first = false;
-      } else {
-        buffer.append(" ");
-        buffer.append(this.operator);
-        buffer.append(" ");
-      }
-      if (value == null) {
-        buffer.append("NULL");
-      } else {
-        value.appendSql(query, recordStore, buffer);
+      if (!(value instanceof final Condition condition && condition.isEmpty())) {
+        if (first) {
+          first = false;
+        } else {
+          buffer.append(" ");
+          buffer.append(this.operator);
+          buffer.append(" ");
+        }
+        if (value == null) {
+          buffer.append("NULL");
+        } else {
+          value.appendSql(query, recordStore, buffer);
+        }
       }
     }
     buffer.append(")");
