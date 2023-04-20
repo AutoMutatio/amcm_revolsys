@@ -13,7 +13,7 @@ public class NoCondition implements Condition {
 
   @Override
   public int appendParameters(final int index, final PreparedStatement statement) {
-    return 0;
+    return index;
   }
 
   @Override
