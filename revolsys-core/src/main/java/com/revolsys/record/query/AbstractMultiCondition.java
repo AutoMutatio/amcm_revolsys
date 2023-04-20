@@ -38,7 +38,7 @@ public abstract class AbstractMultiCondition extends AbstractMultiQueryValue
     boolean first = true;
 
     for (final QueryValue value : this.values) {
-      if (!(value instanceof final Condition condition && condition.isEmpty())) {
+      if (!(value instanceof final Condition condition) || !condition.isEmpty()) {
         if (first) {
           first = false;
         } else {
