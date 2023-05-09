@@ -176,6 +176,12 @@ public interface JsonObject extends MapEx, JsonType {
     return this;
   }
 
+  @Override
+  default JsonObject addValue(final String key, final Object value, final DataType dataType) {
+    MapEx.super.addValue(key, value, dataType);
+    return this;
+  }
+
   default JsonObject addValueClone(final String key, Object value) {
     value = JsonType.toJsonClone(value);
     return addValue(key, value);
