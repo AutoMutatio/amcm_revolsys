@@ -1349,7 +1349,7 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
         if (id == null) {
           targetValue = value;
         } else {
-          targetValue = Value.getValue(id);
+          targetValue = Value.toValue(id);
         }
       } else {
         targetValue = codeTable.getIdentifier(Collections.singletonMap(codeTableValueName, value));

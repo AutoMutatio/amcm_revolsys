@@ -27,9 +27,11 @@ public class PostgreSQLCompositeTypeFieldDefinition extends JdbcFieldDefinition 
 
   public PostgreSQLCompositeTypeFieldDefinition(final String dbName, final String name,
     final CollectionDataType dataType, final String elementDbDataType, final int sqlType,
-    final int length, final int scale, final boolean required, final String description,
-    final JdbcFieldDefinition elementField, final Map<String, Object> properties) {
-    super(dbName, name, dataType, sqlType, length, scale, required, description, properties);
+    final String dbDataType, final int length, final int scale, final boolean required,
+    final String description, final JdbcFieldDefinition elementField,
+    final Map<String, Object> properties) {
+    super(dbName, name, dataType, sqlType, dbDataType, length, scale, required, description,
+      properties);
     this.elementDbDataType = elementDbDataType;
     this.elementDataType = dataType.getContentType();
     this.elementField = elementField;
@@ -39,8 +41,8 @@ public class PostgreSQLCompositeTypeFieldDefinition extends JdbcFieldDefinition 
   public PostgreSQLCompositeTypeFieldDefinition clone() {
     final PostgreSQLCompositeTypeFieldDefinition clone = new PostgreSQLCompositeTypeFieldDefinition(
       getDbName(), getName(), (CollectionDataType)getDataType(), this.elementDbDataType,
-      getSqlType(), getLength(), getScale(), isRequired(), getDescription(), this.elementField,
-      getProperties());
+      getSqlType(), getDbDataType(), getLength(), getScale(), isRequired(), getDescription(),
+      this.elementField, getProperties());
     postClone(clone);
     return clone;
   }

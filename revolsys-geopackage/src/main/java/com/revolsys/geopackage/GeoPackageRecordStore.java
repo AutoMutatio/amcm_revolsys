@@ -526,7 +526,7 @@ public class GeoPackageRecordStore extends AbstractJdbcRecordStore {
                 }
                 final Object defaultValue = columnsRs.getString("dflt_value");
                 final FieldDefinition field = addField(recordDefinition, dbColumnName, fieldName,
-                  dataType, sqlType, length, scale, required, null);
+                  sqlType, dataType, length, scale, required, null);
                 field.setDefaultValue(defaultValue);
               }
             }

@@ -14,12 +14,14 @@ public class OracleClobFieldAdder extends JdbcFieldAdder {
   @Override
   public JdbcFieldDefinition newField(final AbstractJdbcRecordStore recordStore,
     final JdbcRecordDefinition recordDefinition, final String dbName, final String name,
-    final String dbDataType, final int sqlType, final int length, final int scale,
+    final int sqlType, final String dbDataType, final int length, final int scale,
     final boolean required, final String description) {
     if (recordStore.isLobAsString() || recordStore.isClobAsString()) {
-      return new JdbcStringFieldDefinition(dbName, name, sqlType, 0, required, description, null);
+      return new JdbcStringFieldDefinition(dbName, name, sqlType, dbDataType, 0, required,
+        description, null);
     } else {
-      return new OracleJdbcClobFieldDefinition(dbName, name, sqlType, required, description);
+      return new OracleJdbcClobFieldDefinition(dbName, name, sqlType, dbDataType, required,
+        description);
     }
   }
 }

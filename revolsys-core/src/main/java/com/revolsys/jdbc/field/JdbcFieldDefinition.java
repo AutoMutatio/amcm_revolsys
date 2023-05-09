@@ -25,16 +25,19 @@ public class JdbcFieldDefinition extends FieldDefinition {
 
   private int sqlType;
 
+  private String dbDataType;
+
   JdbcFieldDefinition() {
     setName(JdbcFieldDefinitions.UNKNOWN);
   }
 
   public JdbcFieldDefinition(final String dbName, final String name, final DataType type,
-    final int sqlType, final int length, final int scale, final boolean required,
-    final String description, final Map<String, Object> properties) {
+    final int sqlType, final String dbDataType, final int length, final int scale,
+    final boolean required, final String description, final Map<String, Object> properties) {
     super(name, type, length, scale, required, description, properties);
     this.dbName = dbName;
     this.sqlType = sqlType;
+    this.dbDataType = dbDataType;
   }
 
   @Override
@@ -91,9 +94,14 @@ public class JdbcFieldDefinition extends FieldDefinition {
   @Override
   public JdbcFieldDefinition clone() {
     final JdbcFieldDefinition clone = new JdbcFieldDefinition(this.dbName, getName(), getDataType(),
-      getSqlType(), getLength(), getScale(), isRequired(), getDescription(), getProperties());
+      getSqlType(), getDbDataType(), getLength(), getScale(), isRequired(), getDescription(),
+      getProperties());
     postClone(clone);
     return clone;
+  }
+
+  public String getDbDataType() {
+    return this.dbDataType;
   }
 
   public String getDbName() {

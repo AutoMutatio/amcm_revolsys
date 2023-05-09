@@ -12,15 +12,16 @@ import com.revolsys.record.schema.RecordDefinition;
 
 public class JdbcBooleanFieldDefinition extends JdbcFieldDefinition {
   public JdbcBooleanFieldDefinition(final String dbName, final String name, final int sqlType,
-    final int length, final boolean required, final String description,
+    final String dbDataType, final int length, final boolean required, final String description,
     final Map<String, Object> properties) {
-    super(dbName, name, DataTypes.BOOLEAN, sqlType, length, 0, required, description, properties);
+    super(dbName, name, DataTypes.BOOLEAN, sqlType, dbDataType, length, 0, required, description,
+      properties);
   }
 
   @Override
   public JdbcBooleanFieldDefinition clone() {
     final JdbcBooleanFieldDefinition clone = new JdbcBooleanFieldDefinition(getDbName(), getName(),
-      getSqlType(), getLength(), isRequired(), getDescription(), getProperties());
+      getSqlType(), getDbDataType(), getLength(), isRequired(), getDescription(), getProperties());
     postClone(clone);
     return clone;
   }
