@@ -1,9 +1,11 @@
 package com.revolsys.gis.postgresql;
 
+import java.sql.Array;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -86,24 +88,24 @@ public class PostgreSQLRecordStore extends AbstractJdbcRecordStore {
 
   @Override
   protected JdbcFieldDefinition addField(final JdbcRecordDefinition recordDefinition,
-    final String dbColumnName, final String name, final String dbDataType, final int sqlType,
+    final String dbColumnName, final String name, final int sqlType, final String dbDataType,
     final int length, final int scale, final boolean required, final String description) {
     final JdbcFieldDefinition field;
     if (dbDataType.charAt(0) == '_') {
       final String elementDbDataType = dbDataType.substring(1);
       final JdbcFieldAdder fieldAdder = getFieldAdder(elementDbDataType);
       final JdbcFieldDefinition elementField = fieldAdder.newField(this, recordDefinition,
-        dbColumnName, name, elementDbDataType, sqlType, length, scale, required, description);
+        dbColumnName, name, sqlType, elementDbDataType, length, scale, required, description);
 
       final DataType elementDataType = elementField.getDataType();
       final CollectionDataType listDataType = new CollectionDataType(
         "List" + elementDataType.getName(), List.class, elementDataType);
       field = new PostgreSQLArrayFieldDefinition(dbColumnName, name, listDataType,
-        elementDbDataType, sqlType, length, scale, required, description, elementField,
+        elementDbDataType, sqlType, dbDataType, length, scale, required, description, elementField,
         getProperties());
       recordDefinition.addField(field);
     } else {
-      field = super.addField(recordDefinition, dbColumnName, name, dbDataType, sqlType, length,
+      field = super.addField(recordDefinition, dbColumnName, name, sqlType, dbDataType, length,
         scale, required, description);
     }
     if (!dbColumnName.equals(dbColumnName.toLowerCase())) {
@@ -405,5 +407,18 @@ public class PostgreSQLRecordStore extends AbstractJdbcRecordStore {
 
   public void setUseSchemaSequencePrefix(final boolean useSchemaSequencePrefix) {
     this.useSchemaSequencePrefix = useSchemaSequencePrefix;
+  }
+
+  @Override
+  public Array toArray(final Connection connection, final JdbcFieldDefinition field,
+    final Collection<?> value) throws SQLException {
+    final Collection<?> elements = value;
+    final int size = elements.size();
+    final Object[] values = new Object[size];
+    int i = 0;
+    for (final Object element : elements) {
+      values[i++] = field.getDataType().toObject(element);
+    }
+    return connection.unwrap(PgConnection.class).createArrayOf(field.getDbDataType(), values);
   }
 }

@@ -18,7 +18,7 @@ import com.revolsys.record.schema.RecordDefinition;
 public class PostgreSQLOidFieldDefinition extends JdbcFieldDefinition {
 
   public PostgreSQLOidFieldDefinition() {
-    super("ctid", "ctid", DataTypes.LONG, Types.OTHER, 0, 0, true, "Row Identifier",
+    super("ctid", "ctid", DataTypes.LONG, Types.OTHER, "oid", 0, 0, true, "Row Identifier",
       Collections.emptyMap());
   }
 

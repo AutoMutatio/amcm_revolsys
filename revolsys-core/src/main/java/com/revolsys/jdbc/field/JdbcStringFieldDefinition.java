@@ -15,16 +15,17 @@ public class JdbcStringFieldDefinition extends JdbcFieldDefinition {
   private final boolean intern;
 
   public JdbcStringFieldDefinition(final String dbName, final String name, final int sqlType,
-    final int length, final boolean required, final String description,
+    final String dbDataType, final int length, final boolean required, final String description,
     final Map<String, Object> properties) {
-    super(dbName, name, DataTypes.STRING, sqlType, length, 0, required, description, properties);
+    super(dbName, name, DataTypes.STRING, sqlType, dbDataType, length, 0, required, description,
+      properties);
     this.intern = Property.getBoolean(properties, "stringIntern");
   }
 
   @Override
   public JdbcStringFieldDefinition clone() {
     final JdbcStringFieldDefinition clone = new JdbcStringFieldDefinition(getDbName(), getName(),
-      getSqlType(), getLength(), isRequired(), getDescription(), getProperties());
+      getSqlType(), getDbDataType(), getLength(), isRequired(), getDescription(), getProperties());
     postClone(clone);
     return clone;
   }

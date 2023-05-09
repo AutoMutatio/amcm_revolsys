@@ -66,6 +66,12 @@ public interface MapEx extends MapDefault<String, Object>, Cloneable, DataTypedV
     return this;
   }
 
+  default MapEx addValue(final String key, Object value, final DataType dataType) {
+    value = dataType.toObject(value);
+    put(key, value);
+    return this;
+  }
+
   MapEx clone();
 
   default int compareValue(final CharSequence fieldName, final Object value) {

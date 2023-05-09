@@ -164,16 +164,16 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
     final int sqlType = resultSetMetaData.getColumnType(columnIndex);
     final int length = resultSetMetaData.getPrecision(columnIndex);
     final int scale = resultSetMetaData.getScale(columnIndex);
-    return addField(recordDefinition, columnName, fieldName, dataType, sqlType, length, scale,
+    return addField(recordDefinition, columnName, fieldName, sqlType, dataType, length, scale,
       false, null);
   }
 
   protected JdbcFieldDefinition addField(final JdbcRecordDefinition recordDefinition,
-    final String dbColumnName, final String name, final String dataType, final int sqlType,
+    final String dbColumnName, final String name, final int sqlType, final String dbDataType,
     final int length, final int scale, final boolean required, final String description) {
-    final JdbcFieldAdder fieldAdder = getFieldAdder(dataType);
+    final JdbcFieldAdder fieldAdder = getFieldAdder(dbDataType);
     return (JdbcFieldDefinition)fieldAdder.addField(this, recordDefinition, dbColumnName, name,
-      dataType, sqlType, length, scale, required, description);
+      sqlType, dbDataType, length, scale, required, description);
   }
 
   protected void addField(final ResultSetMetaData resultSetMetaData,
@@ -185,7 +185,7 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
     final int scale = resultSetMetaData.getScale(i);
     final boolean required = false;
     final String fieldName = toUpperIfNeeded(name);
-    addField(recordDefinition, name, fieldName, dataType, sqlType, length, scale, required,
+    addField(recordDefinition, name, fieldName, sqlType, dataType, length, scale, required,
       description);
   }
 
@@ -273,7 +273,7 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
         JdbcConnection connection = getJdbcConnection(isAutoCommit());
         final PreparedStatement statement = connection.prepareStatement(sql)) {
 
-        setPreparedStatementParameters(statement, query);
+        query.appendParameters(1, statement);
         return statement.executeUpdate();
       } catch (final SQLException e) {
         transaction.setRollbackOnly();
@@ -404,7 +404,8 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
         JdbcConnection connection = getJdbcConnection()) {
         try (
           final PreparedStatement statement = connection.prepareStatement(sql)) {
-          setPreparedStatementParameters(statement, query);
+          final Query query1 = query;
+          query1.appendParameters(1, statement);
           try (
             final ResultSet resultSet = statement.executeQuery()) {
             if (resultSet.next()) {
@@ -923,7 +924,7 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
               final boolean required = !columnsRs.getString("IS_NULLABLE").equals("YES");
               final String description = columnsRs.getString("REMARKS");
               final JdbcFieldDefinition field = addField(recordDefinition, dbColumnName, name,
-                dataType, sqlType, length, scale, required, description);
+                sqlType, dataType, length, scale, required, description);
               final boolean generated = columnsRs.getString("IS_GENERATEDCOLUMN").equals("YES");
               field.setGenerated(generated);
             }
