@@ -100,6 +100,12 @@ public class PostgreSQLArrayFieldDefinition extends JdbcFieldDefinition {
   }
 
   @Override
+  public int setPreparedStatementArray(final PreparedStatement statement, final int parameterIndex,
+    final List<?> values) throws SQLException {
+    return setPreparedStatementValue(statement, parameterIndex, values);
+  }
+
+  @Override
   public int setPreparedStatementValue(final PreparedStatement statement, final int parameterIndex,
     final Object value) throws SQLException {
     return setInsertPreparedStatementValue(statement, parameterIndex, value);

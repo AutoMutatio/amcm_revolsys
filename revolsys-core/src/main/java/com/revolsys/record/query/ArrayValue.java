@@ -46,17 +46,28 @@ public class ArrayValue implements QueryValue {
   @Override
   public void appendDefaultSql(final Query query, final RecordStore recordStore,
     final SqlAppendable sql) {
-    sql.append('?');
+    if (sql.isUsePlaceholders()) {
+      sql.append('?');
+    } else {
+      sql.append("ARRAY[");
+      boolean first = true;
+      for (final Object object : this.values) {
+        if (first) {
+          first = false;
+        } else {
+          sql.append(',');
+        }
+        final Value value = Value.newValue(this.jdbcField, object);
+        value.appendDefaultSelect(query, recordStore, sql);
+      }
+      sql.append(']');
+    }
   }
 
   @Override
   public int appendParameters(final int index, final PreparedStatement statement) {
     try {
-      try {
-        return this.jdbcField.setPreparedStatementValue(statement, index, this.values);
-      } catch (final IllegalArgumentException e) {
-        return this.jdbcField.setPreparedStatementValue(statement, index, null);
-      }
+      return this.jdbcField.setPreparedStatementArray(statement, index, this.values);
     } catch (final SQLException e) {
       throw new RuntimeException("Unable to set value: " + this.values, e);
     }
@@ -159,6 +170,6 @@ public class ArrayValue implements QueryValue {
 
   @Override
   public String toString() {
-    return '[' + this.values.map(Value::toString).join(",") + ']';
+    return "ARRAY[" + this.values.map(Value::toString).join(",") + ']';
   }
 }

@@ -199,6 +199,8 @@ public class Query extends BaseObjectWithProperties
 
   private Condition whereCondition = Condition.ALL;
 
+  private final List<WithQuery> withQueries = new ArrayList<>();
+
   public Query() {
     this("/Record");
   }
@@ -435,7 +437,7 @@ public class Query extends BaseObjectWithProperties
   @Override
   public void appendDefaultSql(final Query query, final RecordStore recordStore,
     final SqlAppendable sql) {
-    appendSql(sql, this.table, this.orderBy);
+    appendSql(sql);
   }
 
   public SqlAppendable appendOrderByFields(final SqlAppendable sql, final TableReferenceProxy table,
@@ -498,6 +500,10 @@ public class Query extends BaseObjectWithProperties
     return index;
   }
 
+  void appendSql(final SqlAppendable sql) {
+    appendSql(sql, this.table, this.orderBy);
+  }
+
   protected void appendSql(final SqlAppendable sql, final TableReferenceProxy table,
     final List<OrderBy> orderBy) {
     From from = getFrom();
@@ -508,6 +514,18 @@ public class Query extends BaseObjectWithProperties
     final LockMode lockMode = getLockMode();
     final boolean distinct = isDistinct();
     final List<QueryValue> groupBy = getGroupBy();
+    if (!this.withQueries.isEmpty()) {
+      sql.append("WITH ");
+      boolean first = true;
+      for (final WithQuery withQuery : this.withQueries) {
+        if (first) {
+          first = false;
+        } else {
+          sql.append("\n");
+          withQuery.appendSql(sql);
+        }
+      }
+    }
     sql.append("SELECT ");
     if (distinct) {
       sql.append("DISTINCT ");
@@ -919,6 +937,10 @@ public class Query extends BaseObjectWithProperties
 
   public boolean isSelectEmpty() {
     return this.selectExpressions.isEmpty();
+  }
+
+  public Query join(final BiConsumer<Query, Join> action) {
+    return join(JoinType.JOIN, action);
   }
 
   public Join join(final JoinType joinType) {

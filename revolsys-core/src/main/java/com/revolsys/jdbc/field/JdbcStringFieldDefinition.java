@@ -1,8 +1,10 @@
 package com.revolsys.jdbc.field;
 
+import java.sql.Array;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Map;
 
 import org.jeometry.common.data.type.DataTypes;
@@ -39,6 +41,25 @@ public class JdbcStringFieldDefinition extends JdbcFieldDefinition {
       value = value.intern();
     }
     return value;
+  }
+
+  @Override
+  public int setPreparedStatementArray(final PreparedStatement statement, final int parameterIndex,
+    final List<?> values) throws SQLException {
+    if (values == null) {
+      final int sqlType = getSqlType();
+      statement.setNull(parameterIndex, sqlType);
+    } else {
+      final String[] array = new String[values.size()];
+      int i = 0;
+      for (final Object value : values) {
+        array[i++] = DataTypes.STRING.toObject(value);
+      }
+      final Array sqlArray = getRecordStore().newArray(statement.getConnection(), getDbDataType(),
+        array);
+      statement.setArray(parameterIndex, sqlArray);
+    }
+    return parameterIndex + 1;
   }
 
   @Override

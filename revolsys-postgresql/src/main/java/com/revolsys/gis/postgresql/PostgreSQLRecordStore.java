@@ -17,6 +17,7 @@ import org.jeometry.common.data.identifier.Identifier;
 import org.jeometry.common.data.type.CollectionDataType;
 import org.jeometry.common.data.type.DataType;
 import org.jeometry.common.data.type.DataTypes;
+import org.jeometry.common.exception.Exceptions;
 import org.jeometry.common.io.PathName;
 import org.postgresql.jdbc.PgConnection;
 
@@ -366,6 +367,15 @@ public class PostgreSQLRecordStore extends AbstractJdbcRecordStore {
 
   public boolean isUseSchemaSequencePrefix() {
     return this.useSchemaSequencePrefix;
+  }
+
+  @Override
+  public Array newArray(final Connection connection, final String typeName, final Object array) {
+    try {
+      return connection.unwrap(PgConnection.class).createArrayOf(typeName, array);
+    } catch (final SQLException e) {
+      throw Exceptions.wrap(e);
+    }
   }
 
   @Override

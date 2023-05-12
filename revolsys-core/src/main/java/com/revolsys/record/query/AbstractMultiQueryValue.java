@@ -96,7 +96,7 @@ public abstract class AbstractMultiQueryValue implements QueryValue {
   public boolean isEmpty() {
     for (final QueryValue value : this.values) {
       if (value instanceof final Condition condition && !condition.isEmpty()) {
-       return false;
+        return false;
       } else {
         return false;
       }
@@ -112,6 +112,18 @@ public abstract class AbstractMultiQueryValue implements QueryValue {
       System.arraycopy(oldValues, index + 1, newValues, index, newValues.length - index);
     }
     this.values = newValues;
+  }
+
+  protected boolean removeValue(final QueryValue value) {
+    if (value != null) {
+      for (int i = 0; i < this.values.length; i++) {
+        if (this.values[i].equals(value)) {
+          removeValue(i);
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
   public void setQueryValue(final int i, final QueryValue value) {

@@ -31,6 +31,15 @@ public abstract class AbstractMultiCondition extends AbstractMultiQueryValue
     addCondition(value);
   }
 
+  public AbstractMultiCondition addConditions(final AbstractMultiCondition condition) {
+    if (condition != null) {
+      for (final Condition subCondition : condition.getConditions()) {
+        addValue(subCondition);
+      }
+    }
+    return this;
+  }
+
   @Override
   public void appendDefaultSql(final Query query, final RecordStore recordStore,
     final SqlAppendable buffer) {
@@ -100,6 +109,10 @@ public abstract class AbstractMultiCondition extends AbstractMultiQueryValue
 
   public String getOperator() {
     return this.operator;
+  }
+
+  public void removeCondition(final Condition condition) {
+    removeValue(condition);
   }
 
   @Override

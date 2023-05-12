@@ -2,6 +2,8 @@ package com.revolsys.record.schema;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.sql.Array;
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -609,6 +611,10 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
   }
 
   boolean isLoadFullSchema();
+
+  default Array newArray(final Connection connection, final String typeName, final Object array) {
+    throw new UnsupportedOperationException();
+  }
 
   default Query newGetRecordQuery(final PathName typePath, final Identifier id) {
     final RecordDefinition recordDefinition = getRecordDefinition(typePath);
