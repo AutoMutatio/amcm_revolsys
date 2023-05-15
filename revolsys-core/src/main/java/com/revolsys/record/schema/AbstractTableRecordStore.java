@@ -478,15 +478,19 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     int skip = 0;
     try {
       final String value = request.getParameter("$skip");
-      skip = Integer.parseInt(value);
+      if (value != null) {
+        skip = Integer.parseInt(value);
+      }
     } catch (final Exception e) {
     }
     int top = maxSize;
     try {
       final String value = request.getParameter("$top");
-      top = Math.min(Integer.parseInt(value), maxSize);
-      if (top <= 0) {
-        throw new IllegalArgumentException("$top must be > 1: " + top);
+      if (value != null) {
+        top = Math.min(Integer.parseInt(value), maxSize);
+        if (top <= 0) {
+          throw new IllegalArgumentException("$top must be > 1: " + top);
+        }
       }
     } catch (final Exception e) {
     }
