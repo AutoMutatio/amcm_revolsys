@@ -179,14 +179,14 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     }
   }
 
-  protected void addSelect(final TableRecordStoreFactory connection, final Query query,
+  protected void addSelect(final TableRecordStoreConnection connection, final Query query,
     final String selectItem) {
     final QueryValue selectClause = newSelectClause(query, selectItem);
     query.select(selectClause);
   }
 
   protected Condition alterCondition(final HttpServletRequest request,
-    final TableRecordStoreFactory connection, final Query query, final Condition condition) {
+    final TableRecordStoreConnection connection, final Query query, final Condition condition) {
     return condition;
   }
 
@@ -336,7 +336,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     return this.typeName;
   }
 
-  public boolean hasRecord(final TableRecordStoreFactory connection, final Query query) {
+  public boolean hasRecord(final TableRecordStoreConnection connection, final Query query) {
     return query.getRecordCount() > 0;
   }
 
@@ -437,7 +437,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     return record;
   }
 
-  protected void insertRecordAfter(final TableRecordStoreFactory connection,
+  protected void insertRecordAfter(final TableRecordStoreConnection connection,
     final Record record) {
   }
 
@@ -701,15 +701,15 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     }
   }
 
-  protected void updateRecordAfter(final TableRecordStoreFactory connection,
+  protected void updateRecordAfter(final TableRecordStoreConnection connection,
     final ChangeTrackRecord record) {
   }
 
-  protected void updateRecordBefore(final TableRecordStoreFactory connection,
+  protected void updateRecordBefore(final TableRecordStoreConnection connection,
     final ChangeTrackRecord record) {
   }
 
-  public Record updateRecordDo(final TableRecordStoreFactory connection,
+  public Record updateRecordDo(final TableRecordStoreConnection connection,
     final ChangeTrackRecord record) {
     if (record.isModified()) {
       updateRecordBefore(connection, record);

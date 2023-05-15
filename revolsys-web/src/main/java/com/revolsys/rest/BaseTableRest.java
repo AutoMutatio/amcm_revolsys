@@ -13,7 +13,6 @@ import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.record.query.Query;
 import com.revolsys.record.schema.AbstractTableRecordStore;
 import com.revolsys.record.schema.TableRecordStoreConnection;
-import com.revolsys.record.schema.TableRecordStoreFactory;
 
 public class BaseTableRest extends AbstractTableRecordRestController {
 
@@ -41,7 +40,7 @@ public class BaseTableRest extends AbstractTableRecordRestController {
 
   @GetMapping("/app/api/{tableName:[A-Za-z0-9_\\.]+}/$schema")
   public void getSchema(
-    @RequestAttribute("tableConnection") final TableRecordStoreFactory connection,
+    @RequestAttribute("tableConnection") final TableRecordStoreConnection connection,
     final HttpServletRequest request, final HttpServletResponse response,
     @PathVariable final String tableName) throws IOException {
     final AbstractTableRecordStore recordStore = getTableRecordStore(connection, tableName);
