@@ -41,7 +41,7 @@ public class AbstractTableRecordRestController extends AbstractWebController {
     return tableRecordStore;
   }
 
-  protected void handleGetRecord(final TableRecordStoreFactory connection,
+  protected void handleGetRecord(final TableRecordStoreConnection connection,
     final HttpServletRequest request, final HttpServletResponse response, final Query query)
     throws IOException {
     responseRecordJson(connection, request, response, query);
@@ -114,7 +114,7 @@ public class AbstractTableRecordRestController extends AbstractWebController {
     return connection.insertRecord(record);
   }
 
-  protected boolean isUpdateable(final TableRecordStoreFactory connection, final Identifier id) {
+  protected boolean isUpdateable(final TableRecordStoreConnection connection, final Identifier id) {
     return true;
   }
 
@@ -124,7 +124,7 @@ public class AbstractTableRecordRestController extends AbstractWebController {
     return recordStore.newQuery(connection, request, Integer.MAX_VALUE);
   }
 
-  protected void responseRecordJson(final TableRecordStoreFactory connection,
+  protected void responseRecordJson(final TableRecordStoreConnection connection,
     final HttpServletRequest request, final HttpServletResponse response, final Query query)
     throws IOException {
     final Record record = query.getRecord();
@@ -141,7 +141,7 @@ public class AbstractTableRecordRestController extends AbstractWebController {
     }
   }
 
-  protected void responseRecords(final TableRecordStoreFactory connection,
+  protected void responseRecords(final TableRecordStoreConnection connection,
     final HttpServletRequest request, final HttpServletResponse response, final Query query,
     final RecordReader reader, final Long count) throws IOException {
     if ("csv".equals(request.getParameter("format"))) {
@@ -163,7 +163,7 @@ public class AbstractTableRecordRestController extends AbstractWebController {
     }
   }
 
-  protected void responseRecordsJson(final TableRecordStoreFactory connection,
+  protected void responseRecordsJson(final TableRecordStoreConnection connection,
     final HttpServletRequest request, final HttpServletResponse response, final Query query,
     final RecordReader reader, final Long count, final JsonObject extraData) throws IOException {
     reader.open();
