@@ -20,6 +20,7 @@ import com.revolsys.record.io.format.json.JsonRecordWriter;
 import com.revolsys.record.query.Query;
 import com.revolsys.record.schema.AbstractTableRecordStore;
 import com.revolsys.record.schema.TableRecordStoreConnection;
+import com.revolsys.record.schema.TableRecordStoreFactory;
 import com.revolsys.transaction.Transaction;
 import com.revolsys.transaction.TransactionOptions;
 import com.revolsys.web.HttpServletUtils;
@@ -32,7 +33,7 @@ public class AbstractTableRecordRestController extends AbstractWebController {
   }
 
   protected <RS extends AbstractTableRecordStore> RS getTableRecordStore(
-    final TableRecordStoreConnection connection, final CharSequence tablePath) {
+    final TableRecordStoreFactory connection, final CharSequence tablePath) {
     final RS tableRecordStore = connection.getTableRecordStore(tablePath);
     if (tableRecordStore == null) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
@@ -40,7 +41,7 @@ public class AbstractTableRecordRestController extends AbstractWebController {
     return tableRecordStore;
   }
 
-  protected void handleGetRecord(final TableRecordStoreConnection connection,
+  protected void handleGetRecord(final TableRecordStoreFactory connection,
     final HttpServletRequest request, final HttpServletResponse response, final Query query)
     throws IOException {
     responseRecordJson(connection, request, response, query);
@@ -113,7 +114,7 @@ public class AbstractTableRecordRestController extends AbstractWebController {
     return connection.insertRecord(record);
   }
 
-  protected boolean isUpdateable(final TableRecordStoreConnection connection, final Identifier id) {
+  protected boolean isUpdateable(final TableRecordStoreFactory connection, final Identifier id) {
     return true;
   }
 
@@ -123,7 +124,7 @@ public class AbstractTableRecordRestController extends AbstractWebController {
     return recordStore.newQuery(connection, request, Integer.MAX_VALUE);
   }
 
-  protected void responseRecordJson(final TableRecordStoreConnection connection,
+  protected void responseRecordJson(final TableRecordStoreFactory connection,
     final HttpServletRequest request, final HttpServletResponse response, final Query query)
     throws IOException {
     final Record record = query.getRecord();
@@ -140,7 +141,7 @@ public class AbstractTableRecordRestController extends AbstractWebController {
     }
   }
 
-  protected void responseRecords(final TableRecordStoreConnection connection,
+  protected void responseRecords(final TableRecordStoreFactory connection,
     final HttpServletRequest request, final HttpServletResponse response, final Query query,
     final RecordReader reader, final Long count) throws IOException {
     if ("csv".equals(request.getParameter("format"))) {
@@ -162,7 +163,7 @@ public class AbstractTableRecordRestController extends AbstractWebController {
     }
   }
 
-  protected void responseRecordsJson(final TableRecordStoreConnection connection,
+  protected void responseRecordsJson(final TableRecordStoreFactory connection,
     final HttpServletRequest request, final HttpServletResponse response, final Query query,
     final RecordReader reader, final Long count, final JsonObject extraData) throws IOException {
     reader.open();

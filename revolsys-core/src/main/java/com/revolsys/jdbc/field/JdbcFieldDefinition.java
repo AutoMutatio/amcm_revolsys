@@ -5,6 +5,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.List;
 import java.util.Map;
 
 import org.jeometry.common.data.type.DataType;
@@ -167,6 +168,11 @@ public class JdbcFieldDefinition extends FieldDefinition {
     return setInsertPreparedStatementValue(statement, parameterIndex, value);
   }
 
+  public int setPreparedStatementArray(final PreparedStatement statement, final int parameterIndex,
+    final List<?> values) throws SQLException {
+    throw new UnsupportedOperationException();
+  }
+
   public int setPreparedStatementValue(final PreparedStatement statement, final int parameterIndex,
     final Object value) throws SQLException {
     if (value == null) {
@@ -184,4 +190,5 @@ public class JdbcFieldDefinition extends FieldDefinition {
   public void setSqlType(final int sqlType) {
     this.sqlType = sqlType;
   }
+
 }
