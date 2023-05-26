@@ -28,7 +28,7 @@ public class UuidNamespace {
 
   private final UUID namespace;
 
-  private int type;
+  private final int type;
 
   private String algorithm;
 
@@ -37,6 +37,7 @@ public class UuidNamespace {
   }
 
   UuidNamespace(final int type, final UUID namespace) {
+    this.type = type;
     if (type == 3) {
       this.algorithm = "MD5";
     } else if (type == 5) {

@@ -26,18 +26,6 @@ import com.revolsys.util.Property;
 import com.revolsys.util.Strings;
 
 public class Value implements QueryValue {
-  public static Object toValue(final Object value) {
-    if (value instanceof TypedIdentifier) {
-      final Identifier identifier = (Identifier)value;
-      return identifier;
-    } else if (value instanceof Identifier) {
-      final Identifier identifier = (Identifier)value;
-      return identifier.toSingleValue();
-    } else {
-      return value;
-    }
-  }
-
   public static boolean isString(final QueryValue queryValue) {
     if (queryValue instanceof Value) {
       final Value value = (Value)queryValue;
@@ -97,6 +85,18 @@ public class Value implements QueryValue {
     }
   }
 
+  public static Object toValue(final Object value) {
+    if (value instanceof TypedIdentifier) {
+      final Identifier identifier = (Identifier)value;
+      return identifier;
+    } else if (value instanceof Identifier) {
+      final Identifier identifier = (Identifier)value;
+      return identifier.toSingleValue();
+    } else {
+      return value;
+    }
+  }
+
   private ColumnReference column;
 
   private Object displayValue;
@@ -109,6 +109,9 @@ public class Value implements QueryValue {
 
   public Value(final ColumnReference column, Object value) {
     this.column = column;
+    if (column instanceof final JdbcFieldDefinition jdbcField) {
+      this.jdbcField = jdbcField;
+    }
     value = toValue(value);
     this.displayValue = column.toColumnType(value);
     this.queryValue = column.toFieldValue(this.displayValue);
@@ -116,6 +119,9 @@ public class Value implements QueryValue {
 
   protected Value(final FieldDefinition field, final Object value) {
     this.column = field;
+    if (this.column instanceof final JdbcFieldDefinition jdbcField) {
+      this.jdbcField = jdbcField;
+    }
     setQueryValue(value);
     this.displayValue = this.queryValue;
     setFieldDefinition(field);
@@ -123,6 +129,9 @@ public class Value implements QueryValue {
 
   public Value(final FieldDefinition field, final Object value, final boolean dontConvert) {
     this.column = field;
+    if (this.column instanceof final JdbcFieldDefinition jdbcField) {
+      this.jdbcField = jdbcField;
+    }
     this.dontConvert = dontConvert;
     if (dontConvert) {
       this.queryValue = toValue(value);
