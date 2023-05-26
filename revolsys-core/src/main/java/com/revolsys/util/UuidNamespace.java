@@ -28,15 +28,12 @@ public class UuidNamespace {
 
   private final UUID namespace;
 
-  private int type;
+  private final int type;
 
   private String algorithm;
 
-  UuidNamespace(final int type, final String namespace) {
-    this(type, UUID.fromString(namespace));
-  }
-
   UuidNamespace(final int type, final UUID namespace) {
+    this.type = type;
     if (type == 3) {
       this.algorithm = "MD5";
     } else if (type == 5) {
