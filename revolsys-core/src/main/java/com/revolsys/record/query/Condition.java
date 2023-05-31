@@ -64,4 +64,5 @@ public interface Condition extends QueryValue, Predicate<MapEx>, Emptyable {
   default String toFormattedString() {
     return toString();
   }
+
 }

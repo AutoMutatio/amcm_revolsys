@@ -53,10 +53,12 @@ import com.revolsys.record.io.RecordStoreQueryReader;
 import com.revolsys.record.io.RecordWriter;
 import com.revolsys.record.property.GlobalIdProperty;
 import com.revolsys.record.query.ColumnIndexes;
+import com.revolsys.record.query.DeleteStatement;
 import com.revolsys.record.query.Q;
 import com.revolsys.record.query.Query;
 import com.revolsys.record.query.QueryValue;
 import com.revolsys.record.query.TableReference;
+import com.revolsys.record.query.UpdateStatement;
 import com.revolsys.record.schema.AbstractRecordStore;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
@@ -246,6 +248,34 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
     final RecordState state = RecordState.DELETED;
     write(record, state);
     return true;
+  }
+
+  @Override
+  public int deleteRecords(final DeleteStatement delete) {
+
+    final String sql = delete.toSql();
+    try (
+      Transaction transaction = newTransaction(com.revolsys.transaction.Propagation.REQUIRED)) {
+      // It's important to have this in an inner try. Otherwise the exceptions
+      // won't get caught on closing the writer and the transaction won't get
+      // rolled back.
+      try (
+        JdbcConnection connection = getJdbcConnection(isAutoCommit());
+        final PreparedStatement statement = connection.prepareStatement(sql)) {
+
+        delete.appendParameters(1, statement);
+        return statement.executeUpdate();
+      } catch (final SQLException e) {
+        transaction.setRollbackOnly();
+        throw new RuntimeException("Unable to delete : " + sql, e);
+      } catch (final RuntimeException e) {
+        transaction.setRollbackOnly();
+        throw e;
+      } catch (final Error e) {
+        transaction.setRollbackOnly();
+        throw e;
+      }
+    }
   }
 
   @Override
@@ -1034,6 +1064,34 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
       fieldName = name;
     }
     return fieldName;
+  }
+
+  @Override
+  public int updateRecords(final UpdateStatement update) {
+
+    final String sql = update.toSql();
+    try (
+      Transaction transaction = newTransaction(com.revolsys.transaction.Propagation.REQUIRED)) {
+      // It's important to have this in an inner try. Otherwise the exceptions
+      // won't get caught on closing the writer and the transaction won't get
+      // rolled back.
+      try (
+        JdbcConnection connection = getJdbcConnection(isAutoCommit());
+        final PreparedStatement statement = connection.prepareStatement(sql)) {
+
+        update.appendParameters(1, statement);
+        return statement.executeUpdate();
+      } catch (final SQLException e) {
+        transaction.setRollbackOnly();
+        throw new RuntimeException("Unable to delete : " + sql, e);
+      } catch (final RuntimeException e) {
+        transaction.setRollbackOnly();
+        throw e;
+      } catch (final Error e) {
+        transaction.setRollbackOnly();
+        throw e;
+      }
+    }
   }
 
 }
