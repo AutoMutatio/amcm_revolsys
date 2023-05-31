@@ -46,6 +46,7 @@ import com.revolsys.record.io.RecordWriter;
 import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.record.query.Condition;
 import com.revolsys.record.query.DeleteStatement;
+import com.revolsys.record.query.InsertStatement;
 import com.revolsys.record.query.InsertUpdateAction;
 import com.revolsys.record.query.Q;
 import com.revolsys.record.query.Query;
@@ -600,6 +601,10 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
 
   default void insertRecord(final Record record) {
     throw new UnsupportedOperationException("Insert not supported");
+  }
+
+  default int insertRecords(final InsertStatement insertStatement) {
+    throw new UnsupportedOperationException("InsertStatement not implemented");
   }
 
   default void insertRecords(final Iterable<? extends Record> records) {
