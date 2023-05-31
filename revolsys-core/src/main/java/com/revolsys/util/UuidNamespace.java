@@ -32,10 +32,6 @@ public class UuidNamespace {
 
   private String algorithm;
 
-  UuidNamespace(final int type, final String namespace) {
-    this(type, UUID.fromString(namespace));
-  }
-
   UuidNamespace(final int type, final UUID namespace) {
     this.type = type;
     if (type == 3) {
