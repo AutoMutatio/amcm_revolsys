@@ -9,16 +9,16 @@ import com.revolsys.record.schema.RecordDefinition;
 
 public class JdbcBigDecimalFieldDefinition extends JdbcDecimalFieldDefinition {
   public JdbcBigDecimalFieldDefinition(final String dbName, final String name, final int sqlType,
-    final int length, final int scale, final boolean required, final String description,
-    final Map<String, Object> properties) {
-    super(dbName, name, sqlType, length, scale, required, description, properties);
+    final String dbDataType, final int length, final int scale, final boolean required,
+    final String description, final Map<String, Object> properties) {
+    super(dbName, name, sqlType, dbDataType, length, scale, required, description, properties);
   }
 
   @Override
   public JdbcBigDecimalFieldDefinition clone() {
     final JdbcBigDecimalFieldDefinition clone = new JdbcBigDecimalFieldDefinition(getDbName(),
-      getName(), getSqlType(), getLength(), getScale(), isRequired(), getDescription(),
-      getProperties());
+      getName(), getSqlType(), getDbDataType(), getLength(), getScale(), isRequired(),
+      getDescription(), getProperties());
     postClone(clone);
     return clone;
   }

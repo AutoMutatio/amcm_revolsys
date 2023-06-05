@@ -35,12 +35,14 @@ import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.record.query.Cast;
 import com.revolsys.record.query.ColumnReference;
 import com.revolsys.record.query.Condition;
+import com.revolsys.record.query.DeleteStatement;
 import com.revolsys.record.query.InsertUpdateAction;
 import com.revolsys.record.query.Or;
 import com.revolsys.record.query.Q;
 import com.revolsys.record.query.Query;
 import com.revolsys.record.query.QueryValue;
 import com.revolsys.record.query.TableReference;
+import com.revolsys.record.query.UpdateStatement;
 import com.revolsys.transaction.Transaction;
 import com.revolsys.transaction.TransactionOptions;
 import com.revolsys.transaction.TransactionRecordReader;
@@ -179,7 +181,8 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     }
   }
 
-  protected void addSelect(final Query query, final String selectItem) {
+  protected void addSelect(final TableRecordStoreConnection connection, final Query query,
+    final String selectItem) {
     final QueryValue selectClause = newSelectClause(query, selectItem);
     query.select(selectClause);
   }
@@ -217,13 +220,6 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     return true;
   }
 
-  public boolean deleteRecord(final TableRecordStoreConnection connection, final Object id) {
-    try (
-      Transaction transaction = connection.newTransaction(TransactionOptions.REQUIRED)) {
-      return newQuery(connection).andEqualId(id).deleteRecords() == 1;
-    }
-  }
-
   public boolean deleteRecord(final TableRecordStoreConnection connection, final Record record) {
     try (
       Transaction transaction = connection.newTransaction(TransactionOptions.REQUIRED)) {
@@ -231,11 +227,8 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     }
   }
 
-  protected int deleteRecords(final TableRecordStoreConnection connection, final Query query) {
-    try (
-      Transaction transaction = connection.newTransaction(TransactionOptions.REQUIRED)) {
-      return this.recordStore.deleteRecords(query);
-    }
+  public DeleteStatement deleteStatement() {
+    return new DeleteStatement().from(getTable());
   }
 
   protected void executeUpdate(final TableRecordStoreConnection connection, final String sql,
@@ -477,15 +470,19 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     int skip = 0;
     try {
       final String value = request.getParameter("$skip");
-      skip = Integer.parseInt(value);
+      if (value != null) {
+        skip = Integer.parseInt(value);
+      }
     } catch (final Exception e) {
     }
     int top = maxSize;
     try {
       final String value = request.getParameter("$top");
-      top = Math.min(Integer.parseInt(value), maxSize);
-      if (top <= 0) {
-        throw new IllegalArgumentException("$top must be > 1: " + top);
+      if (value != null) {
+        top = Math.min(Integer.parseInt(value), maxSize);
+        if (top <= 0) {
+          throw new IllegalArgumentException("$top must be > 1: " + top);
+        }
       }
     } catch (final Exception e) {
     }
@@ -495,7 +492,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     if (Property.hasValue(select)) {
       for (String selectItem : select.split(",")) {
         selectItem = selectItem.trim();
-        addSelect(query, selectItem);
+        addSelect(connection, query, selectItem);
       }
     }
 
@@ -739,6 +736,10 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
       }
     }
     return i;
+  }
+
+  public UpdateStatement updateStatement() {
+    return new UpdateStatement().from(getTable());
   }
 
   public void validateRecord(final MapEx record) {

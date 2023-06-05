@@ -26,18 +26,6 @@ import com.revolsys.util.Property;
 import com.revolsys.util.Strings;
 
 public class Value implements QueryValue {
-  public static Object getValue(final Object value) {
-    if (value instanceof TypedIdentifier) {
-      final Identifier identifier = (Identifier)value;
-      return identifier;
-    } else if (value instanceof Identifier) {
-      final Identifier identifier = (Identifier)value;
-      return identifier.toSingleValue();
-    } else {
-      return value;
-    }
-  }
-
   public static boolean isString(final QueryValue queryValue) {
     if (queryValue instanceof Value) {
       final Value value = (Value)queryValue;
@@ -64,6 +52,51 @@ public class Value implements QueryValue {
     return newValue(JdbcFieldDefinitions.newFieldDefinition(value), value);
   }
 
+  public static String toString(final Object displayValue) {
+    if (displayValue == null) {
+      return "null";
+    } else if (displayValue instanceof Number) {
+      final Object value = displayValue;
+      return DataTypes.toString(value);
+    } else if (displayValue instanceof Date) {
+      final Date date = (Date)displayValue;
+      final String stringValue = Dates.format("yyyy-MM-dd", date);
+      return "{d '" + stringValue + "'}";
+    } else if (displayValue instanceof Time) {
+      final Time time = (Time)displayValue;
+      final String stringValue = Dates.format("HH:mm:ss", time);
+      return "{t '" + stringValue + "'}";
+    } else if (displayValue instanceof Instant) {
+      final Instant time = (Instant)displayValue;
+      final String stringValue = Dates.format("yyyy-MM-ddTHH:mm:ss.S", time);
+      return "{i '" + stringValue + "'}";
+    } else if (displayValue instanceof Timestamp) {
+      final Timestamp time = (Timestamp)displayValue;
+      final String stringValue = Dates.format("yyyy-MM-dd HH:mm:ss.S", time);
+      return "{ts '" + stringValue + "'}";
+    } else if (displayValue instanceof java.util.Date) {
+      final java.util.Date time = (java.util.Date)displayValue;
+      final String stringValue = Dates.format("yyyy-MM-dd HH:mm:ss.S", time);
+      return "{ts '" + stringValue + "'}";
+    } else {
+      final Object value = displayValue;
+      final String string = DataTypes.toString(value);
+      return "'" + string.replaceAll("'", "''") + "'";
+    }
+  }
+
+  public static Object toValue(final Object value) {
+    if (value instanceof TypedIdentifier) {
+      final Identifier identifier = (Identifier)value;
+      return identifier;
+    } else if (value instanceof Identifier) {
+      final Identifier identifier = (Identifier)value;
+      return identifier.toSingleValue();
+    } else {
+      return value;
+    }
+  }
+
   private ColumnReference column;
 
   private Object displayValue;
@@ -76,13 +109,19 @@ public class Value implements QueryValue {
 
   public Value(final ColumnReference column, Object value) {
     this.column = column;
-    value = getValue(value);
+    if (column instanceof final JdbcFieldDefinition jdbcField) {
+      this.jdbcField = jdbcField;
+    }
+    value = toValue(value);
     this.displayValue = column.toColumnType(value);
     this.queryValue = column.toFieldValue(this.displayValue);
   }
 
   protected Value(final FieldDefinition field, final Object value) {
     this.column = field;
+    if (this.column instanceof final JdbcFieldDefinition jdbcField) {
+      this.jdbcField = jdbcField;
+    }
     setQueryValue(value);
     this.displayValue = this.queryValue;
     setFieldDefinition(field);
@@ -90,9 +129,12 @@ public class Value implements QueryValue {
 
   public Value(final FieldDefinition field, final Object value, final boolean dontConvert) {
     this.column = field;
+    if (this.column instanceof final JdbcFieldDefinition jdbcField) {
+      this.jdbcField = jdbcField;
+    }
     this.dontConvert = dontConvert;
     if (dontConvert) {
-      this.queryValue = getValue(value);
+      this.queryValue = toValue(value);
       this.displayValue = this.queryValue;
       if (field != null) {
         this.column = field;
@@ -327,12 +369,12 @@ public class Value implements QueryValue {
   }
 
   public Value setQueryValue(final Object value) {
-    this.queryValue = getValue(value);
+    this.queryValue = toValue(value);
     return this;
   }
 
   public void setValue(Object value) {
-    value = getValue(value);
+    value = toValue(value);
     if (this.column.getName() == JdbcFieldDefinitions.UNKNOWN) {
       this.column = JdbcFieldDefinitions.newFieldDefinition(value);
     }
@@ -346,35 +388,7 @@ public class Value implements QueryValue {
 
   @Override
   public String toString() {
-    if (this.displayValue == null) {
-      return "null";
-    } else if (this.displayValue instanceof Number) {
-      final Object value = this.displayValue;
-      return DataTypes.toString(value);
-    } else if (this.displayValue instanceof Date) {
-      final Date date = (Date)this.displayValue;
-      final String stringValue = Dates.format("yyyy-MM-dd", date);
-      return "{d '" + stringValue + "'}";
-    } else if (this.displayValue instanceof Time) {
-      final Time time = (Time)this.displayValue;
-      final String stringValue = Dates.format("HH:mm:ss", time);
-      return "{t '" + stringValue + "'}";
-    } else if (this.displayValue instanceof Instant) {
-      final Instant time = (Instant)this.displayValue;
-      final String stringValue = Dates.format("yyyy-MM-ddTHH:mm:ss.S", time);
-      return "{i '" + stringValue + "'}";
-    } else if (this.displayValue instanceof Timestamp) {
-      final Timestamp time = (Timestamp)this.displayValue;
-      final String stringValue = Dates.format("yyyy-MM-dd HH:mm:ss.S", time);
-      return "{ts '" + stringValue + "'}";
-    } else if (this.displayValue instanceof java.util.Date) {
-      final java.util.Date time = (java.util.Date)this.displayValue;
-      final String stringValue = Dates.format("yyyy-MM-dd HH:mm:ss.S", time);
-      return "{ts '" + stringValue + "'}";
-    } else {
-      final Object value = this.displayValue;
-      final String string = DataTypes.toString(value);
-      return "'" + string.replaceAll("'", "''") + "'";
-    }
+    final Object displayValue = this.displayValue;
+    return toString(displayValue);
   }
 }

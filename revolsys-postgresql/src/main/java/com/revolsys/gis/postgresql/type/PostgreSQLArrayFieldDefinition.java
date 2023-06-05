@@ -27,9 +27,11 @@ public class PostgreSQLArrayFieldDefinition extends JdbcFieldDefinition {
 
   public PostgreSQLArrayFieldDefinition(final String dbName, final String name,
     final CollectionDataType dataType, final String elementDbDataType, final int sqlType,
-    final int length, final int scale, final boolean required, final String description,
-    final JdbcFieldDefinition elementField, final Map<String, Object> properties) {
-    super(dbName, name, dataType, sqlType, length, scale, required, description, properties);
+    final String dbDataType, final int length, final int scale, final boolean required,
+    final String description, final JdbcFieldDefinition elementField,
+    final Map<String, Object> properties) {
+    super(dbName, name, dataType, sqlType, dbDataType, length, scale, required, description,
+      properties);
     this.elementDbDataType = elementDbDataType;
     this.elementDataType = dataType.getContentType();
     this.elementField = elementField;
@@ -39,7 +41,8 @@ public class PostgreSQLArrayFieldDefinition extends JdbcFieldDefinition {
   public PostgreSQLArrayFieldDefinition clone() {
     final PostgreSQLArrayFieldDefinition clone = new PostgreSQLArrayFieldDefinition(getDbName(),
       getName(), (CollectionDataType)getDataType(), this.elementDbDataType, getSqlType(),
-      getLength(), getScale(), isRequired(), getDescription(), this.elementField, getProperties());
+      getDbDataType(), getLength(), getScale(), isRequired(), getDescription(), this.elementField,
+      getProperties());
     postClone(clone);
     return clone;
   }
@@ -94,6 +97,12 @@ public class PostgreSQLArrayFieldDefinition extends JdbcFieldDefinition {
 
     statement.setArray(parameterIndex, array);
     return parameterIndex + 1;
+  }
+
+  @Override
+  public int setPreparedStatementArray(final PreparedStatement statement, final int parameterIndex,
+    final List<?> values) throws SQLException {
+    return setPreparedStatementValue(statement, parameterIndex, values);
   }
 
   @Override

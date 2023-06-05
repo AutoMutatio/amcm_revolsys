@@ -31,9 +31,11 @@ public interface JsonType extends DataTypedValue, Jsonable, BaseCloneable {
     } else if (value instanceof Cloneable) {
       try {
         final Class<? extends Object> valueClass = value.getClass();
-        final Method method = valueClass.getMethod("clone", JavaBeanUtil.ARRAY_CLASS_0);
-        if (method != null) {
-          return (V)method.invoke(value, JavaBeanUtil.ARRAY_OBJECT_0);
+        if (!valueClass.isArray()) {
+          final Method method = valueClass.getMethod("clone", JavaBeanUtil.ARRAY_CLASS_0);
+          if (method != null) {
+            return (V)method.invoke(value, JavaBeanUtil.ARRAY_OBJECT_0);
+          }
         }
       } catch (final Throwable e) {
         return Exceptions.throwUncheckedException(e);

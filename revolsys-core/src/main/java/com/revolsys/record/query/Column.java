@@ -182,6 +182,11 @@ public class Column implements QueryValue, ColumnReference {
     return field.getValueFromResultSet(recordDefinition, resultSet, indexes, internStrings);
   }
 
+  @Override
+  public int hashCode() {
+    return this.name.hashCode();
+  }
+
   @SuppressWarnings("unchecked")
   @Override
   public <V> V toColumnTypeException(final Object value) {

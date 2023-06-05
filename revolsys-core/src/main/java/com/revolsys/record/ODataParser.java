@@ -262,8 +262,34 @@ public class ODataParser {
   // Order by preference
   private static final Map<String, BiFunction<QueryValue, QueryValue, ? extends QueryValue>> BINARY_OPERATOR_FACTORIES = Maps
     .<String, BiFunction<QueryValue, QueryValue, ? extends QueryValue>> buildLinkedHash()//
-    .add("or", Or::new)
-    .add("and", And::new)
+    .add("or", (a, b) -> {
+      final Or multi = new Or();
+      if (a instanceof final Or multi1) {
+        multi.addConditions(multi1);
+      } else {
+        multi.addCondition((Condition)a);
+      }
+      if (b instanceof final Or multi2) {
+        multi.addConditions(multi2);
+      } else {
+        multi.addCondition((Condition)b);
+      }
+      return multi;
+    })
+    .add("and", (a, b) -> {
+      final And multi = new And();
+      if (a instanceof final And multi1) {
+        multi.addConditions(multi1);
+      } else {
+        multi.addCondition((Condition)a);
+      }
+      if (b instanceof final And multi2) {
+        multi.addConditions(multi2);
+      } else {
+        multi.addCondition((Condition)b);
+      }
+      return multi;
+    })
     .add("eq", Q.EQUAL)
     .add("ne", Q.NOT_EQUAL)
     .add("lt", LessThan::new)

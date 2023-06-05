@@ -33,7 +33,9 @@ public interface TableReference extends From, TableReferenceProxy {
     appendFrom(sql);
     if (tableAlias != null) {
       sql.append(" ");
+      sql.append('"');
       sql.append(tableAlias);
+      sql.append('"');
     }
   }
 

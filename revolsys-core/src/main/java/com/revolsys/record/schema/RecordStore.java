@@ -2,6 +2,8 @@ package com.revolsys.record.schema;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.sql.Array;
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -43,11 +45,14 @@ import com.revolsys.record.io.RecordStoreQueryReader;
 import com.revolsys.record.io.RecordWriter;
 import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.record.query.Condition;
+import com.revolsys.record.query.DeleteStatement;
+import com.revolsys.record.query.InsertStatement;
 import com.revolsys.record.query.InsertUpdateAction;
 import com.revolsys.record.query.Q;
 import com.revolsys.record.query.Query;
 import com.revolsys.record.query.QueryValue;
 import com.revolsys.record.query.SqlAppendable;
+import com.revolsys.record.query.UpdateStatement;
 import com.revolsys.transaction.Propagation;
 import com.revolsys.transaction.Transaction;
 import com.revolsys.transaction.TransactionOptions;
@@ -263,6 +268,10 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
 
   default boolean deleteRecord(final Record record) {
     throw new UnsupportedOperationException("Delete not supported");
+  }
+
+  default int deleteRecords(final DeleteStatement deleteStatement) {
+    throw new UnsupportedOperationException("Delete not supported: " + deleteStatement);
   }
 
   default int deleteRecords(final Iterable<? extends Record> records) {
@@ -594,6 +603,10 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
     throw new UnsupportedOperationException("Insert not supported");
   }
 
+  default int insertRecords(final InsertStatement insertStatement) {
+    throw new UnsupportedOperationException("InsertStatement not implemented");
+  }
+
   default void insertRecords(final Iterable<? extends Record> records) {
     for (final Record record : records) {
       insertRecord(record);
@@ -609,6 +622,10 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
   }
 
   boolean isLoadFullSchema();
+
+  default Array newArray(final Connection connection, final String typeName, final Object array) {
+    throw new UnsupportedOperationException();
+  }
 
   default Query newGetRecordQuery(final PathName typePath, final Identifier id) {
     final RecordDefinition recordDefinition = getRecordDefinition(typePath);
@@ -855,6 +872,10 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
       }
     }
     return i;
+  }
+
+  default int updateRecords(final UpdateStatement updateStatement) {
+    throw new UnsupportedOperationException("Update not supported: " + updateStatement);
   }
 
   default void write(final Record record, final RecordState state) {

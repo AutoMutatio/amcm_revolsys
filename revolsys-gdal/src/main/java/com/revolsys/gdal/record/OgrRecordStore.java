@@ -447,10 +447,10 @@ public class OgrRecordStore extends AbstractRecordStore {
   }
 
   protected String getSql(final Query query) {
+    final StringBuilderSqlAppendable sql = SqlAppendable.stringBuilder();
     final RecordDefinition recordDefinition = query.getRecordDefinition();
     final String typePath = recordDefinition.getPath();
     final List<OrderBy> orderBy = query.getOrderBy();
-    final StringBuilderSqlAppendable sql = SqlAppendable.stringBuilder();
     sql.append("SELECT ");
     query.appendSelect(sql);
     sql.append(" FROM ");
