@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import org.jeometry.common.compare.CompareUtil;
@@ -394,6 +395,15 @@ public interface MapEx extends MapDefault<String, Object>, Cloneable, DataTypedV
       return defaultValueFactory.get();
     } else {
       return value;
+    }
+  }
+
+  default <I, O> O getValue(final CharSequence name, final Function<I, O> converter) {
+    final I value = getValue(name);
+    if (value == null) {
+      return null;
+    } else {
+      return converter.apply(value);
     }
   }
 
