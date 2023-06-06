@@ -271,7 +271,7 @@ public class TextStyle extends BaseObjectWithPropertiesAndChange
       }
       matcher.appendTail(label);
 
-      return label.toString().trim();
+      return label.toString().strip();
     }
   }
 

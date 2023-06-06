@@ -1214,7 +1214,7 @@ public class Query extends BaseObjectWithProperties
   public Query selectCsv(final String select) {
     if (Property.hasValue(select)) {
       for (String selectItem : select.split(",")) {
-        selectItem = selectItem.trim();
+        selectItem = selectItem.strip();
         select(selectItem);
       }
     }

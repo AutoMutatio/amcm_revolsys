@@ -13,7 +13,7 @@ public class GdalException extends RuntimeException {
   private final int errorType = gdal.GetLastErrorType();
 
   public GdalException() {
-    super(gdal.GetLastErrorMsg().trim());
+    super(gdal.GetLastErrorMsg().strip());
     gdal.ErrorReset();
   }
 
