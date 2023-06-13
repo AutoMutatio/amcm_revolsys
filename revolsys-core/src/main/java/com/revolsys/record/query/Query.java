@@ -35,6 +35,7 @@ import com.revolsys.record.Records;
 import com.revolsys.record.io.RecordReader;
 import com.revolsys.record.io.RecordWriter;
 import com.revolsys.record.io.format.json.Json;
+import com.revolsys.record.query.functions.Exists;
 import com.revolsys.record.query.functions.F;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.LockMode;
@@ -554,6 +555,10 @@ public class Query extends BaseObjectWithProperties
     addOrderBy(sql, table, orderBy);
 
     lockMode.append(sql);
+  }
+
+  public Exists asExists() {
+    return new Exists(this);
   }
 
   public Query clearOrderBy() {
