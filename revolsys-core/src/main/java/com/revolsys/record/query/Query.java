@@ -1216,6 +1216,10 @@ public class Query extends BaseObjectWithProperties
     return selectAlias(column, alias);
   }
 
+  public Query selectAll() {
+    return select(getRecordDefinition().getFieldDefinitions());
+  }
+
   public Query selectCsv(final String select) {
     if (Property.hasValue(select)) {
       for (String selectItem : select.split(",")) {
