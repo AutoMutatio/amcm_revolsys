@@ -511,6 +511,15 @@ public interface MapEx extends MapDefault<String, Object>, Cloneable, DataTypedV
     return dataType.toObject(value);
   }
 
+  default <I, O> O removeValue(final CharSequence name, final Function<I, O> converter) {
+    final I value = removeValue(name);
+    if (value == null) {
+      return null;
+    } else {
+      return converter.apply(value);
+    }
+  }
+
   default <V> V removeValue(final CharSequence name, final Supplier<V> defaultValue) {
     final V value = removeValue(name);
     if (value == null) {

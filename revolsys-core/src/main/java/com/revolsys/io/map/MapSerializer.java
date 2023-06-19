@@ -154,7 +154,7 @@ public interface MapSerializer extends Jsonable {
       } else if (value instanceof String) {
         final String string = (String)value;
         if (Property.hasValue(string)) {
-          return string.trim();
+          return string.strip();
         } else {
           return null;
         }
@@ -165,7 +165,7 @@ public interface MapSerializer extends Jsonable {
       } else {
         final String string = DataTypes.toString(value);
         if (Property.hasValue(string)) {
-          return string.trim();
+          return string.strip();
         } else {
           return null;
         }

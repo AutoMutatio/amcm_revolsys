@@ -142,7 +142,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
   public void addQueryOrderBy(final Query query, final String orderBy) {
     if (Property.hasValue(orderBy)) {
       for (String orderClause : orderBy.split(",")) {
-        orderClause = orderClause.trim();
+        orderClause = orderClause.strip();
         String fieldName;
         boolean ascending = true;
         final int spaceIndex = orderClause.indexOf(' ');
@@ -161,7 +161,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
   }
 
   protected void addSearchConditions(final Query query, final Or or, String search) {
-    final String searchText = search.trim().toLowerCase();
+    final String searchText = search.strip().toLowerCase();
     search = '%' + searchText + '%';
     for (final String fieldName : this.searchFieldNames) {
       final ColumnReference column = getTable().getColumn(fieldName);
@@ -203,7 +203,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
   }
 
   public Query applySearchCondition(final Query query, final String search) {
-    if (search != null && search.trim().length() > 0) {
+    if (search != null && search.strip().length() > 0) {
       final Or or = new Or();
       addSearchConditions(query, or, search);
       if (!or.isEmpty()) {
@@ -491,7 +491,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
 
     if (Property.hasValue(select)) {
       for (String selectItem : select.split(",")) {
-        selectItem = selectItem.trim();
+        selectItem = selectItem.strip();
         addSelect(connection, query, selectItem);
       }
     }

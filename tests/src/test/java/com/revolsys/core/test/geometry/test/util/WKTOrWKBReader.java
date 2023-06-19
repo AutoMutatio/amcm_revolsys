@@ -77,7 +77,7 @@ public class WKTOrWKBReader {
   }
 
   public Geometry read(final String geomStr) throws ParseException {
-    final String trimStr = geomStr.trim();
+    final String trimStr = geomStr.strip();
     if (isHex(trimStr)) {
       return this.wkbReader.read(WKBReader.hexToBytes(trimStr));
     } else {

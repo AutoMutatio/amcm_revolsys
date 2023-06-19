@@ -63,13 +63,13 @@ public class ETagParser {
   }
 
   private static Collection<String> parse(final String value) {
-    if ("*".equals(value.trim())) {
+    if ("*".equals(value.strip())) {
       return Collections.singleton("*");
     } else {
       final Set<String> result = new HashSet<>();
       String separator = "";
       int start = 0;
-      final Matcher matcher = ETAG.matcher(value.trim());
+      final Matcher matcher = ETAG.matcher(value.strip());
       while (matcher.find() && matcher.start() == start) {
         start = matcher.end();
         if (matcher.group(1) != null) {

@@ -65,7 +65,7 @@ public final class AcceptType {
     final String[] values = acceptTypes.split(",");
     for (final String value : values) {
       try {
-        result.add(new AcceptType(value.trim()));
+        result.add(new AcceptType(value.strip()));
       } catch (final IllegalArgumentException e) {
         exceptionList.add(e);
       }

@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import org.jeometry.common.exception.Exceptions;
 
+import com.revolsys.jdbc.io.AbstractJdbcRecordStore;
 import com.revolsys.record.schema.RecordStore;
 
 public abstract class SqlAppendable implements Appendable {
@@ -25,6 +26,8 @@ public abstract class SqlAppendable implements Appendable {
   private RecordStore recordStore;
 
   private boolean usePlaceholders = true;
+
+  private boolean quoteNames = true;
 
   protected SqlAppendable(final Appendable appendable) {
     this.appendable = appendable;
@@ -69,6 +72,10 @@ public abstract class SqlAppendable implements Appendable {
     return this.recordStore;
   }
 
+  public boolean isQuoteNames() {
+    return this.quoteNames;
+  }
+
   public boolean isUsePlaceholders() {
     return this.usePlaceholders;
   }
@@ -79,6 +86,9 @@ public abstract class SqlAppendable implements Appendable {
 
   public SqlAppendable setRecordStore(final RecordStore recordStore) {
     this.recordStore = recordStore;
+    if (recordStore instanceof final AbstractJdbcRecordStore jrs) {
+      this.quoteNames = jrs.isQuoteNames();
+    }
     return this;
   }
 

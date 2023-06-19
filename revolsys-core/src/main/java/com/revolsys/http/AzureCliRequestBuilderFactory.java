@@ -22,11 +22,11 @@ public class AzureCliRequestBuilderFactory extends BearerTokenRequestBuilderFact
     try {
       final Process process = builder.start();
       if (process.waitFor() == 0) {
-        final String commandOutput = FileUtil.getString(logFile).trim();
+        final String commandOutput = FileUtil.getString(logFile).strip();
         final JsonObject result = JsonObject.parse(commandOutput);
         return new AzureCliBearerToken(result);
       } else {
-        final String commandOutput = FileUtil.getString(logFile).trim();
+        final String commandOutput = FileUtil.getString(logFile).strip();
         try {
           throw new RuntimeException(commandOutput);
         } catch (final Exception e) {
