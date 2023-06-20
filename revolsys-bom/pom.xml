@@ -642,6 +642,6 @@
     <org.springframework.version>6.0.8</org.springframework.version>
     <org.springframework.boot.version>3.0.5</org.springframework.boot.version>
     <org.springboot.version>${org.springframework.boot.version}</org.springboot.version>
-    <io.netty.version>4.1.91.Final</io.netty.version>
+    <io.netty.version>4.1.94.Final</io.netty.version>
   </properties>
 </project>
