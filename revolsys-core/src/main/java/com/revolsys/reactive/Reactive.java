@@ -72,6 +72,16 @@ public class Reactive {
     return Flux.combineLatest(results -> (V)results[index], sources).single();
   }
 
+  public static <V> Flux<V> concatFlux(final Flux<V> first, final Flux<V> second) {
+    if (first == null) {
+      return second;
+    } else if (second == null) {
+      return first;
+    } else {
+      return first.concatWith(second);
+    }
+  }
+
   public static <T> Flux<T> debugTime(final String message, final Flux<T> flux) {
     final AtomicReference<Long> startTime = new AtomicReference<>();
     return flux.doOnSubscribe(x -> startTime.set(System.nanoTime()))
