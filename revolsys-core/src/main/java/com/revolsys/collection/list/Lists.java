@@ -352,6 +352,10 @@ public interface Lists {
     }
   }
 
+  static <V> ListEx<V> newArray() {
+    return new ArrayListEx<>();
+  }
+
   static <V> ListEx<V> newArray(final BiConsumer<Consumer<V>, Predicate<V>> forEachFunction,
     final Predicate<V> filter) {
     final ListEx<V> values = new ArrayListEx<>();

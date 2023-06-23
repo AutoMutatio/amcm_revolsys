@@ -2,20 +2,27 @@ package com.revolsys.record.io.format.xml.stax;
 
 import java.io.InputStream;
 import java.io.Reader;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamConstants;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.jeometry.common.exception.Exceptions;
 
+import com.revolsys.collection.set.Sets;
 import com.revolsys.record.io.format.json.JsonList;
 import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.record.io.format.xml.XsiConstants;
 
 public class StaxToJson {
+
+  private static final Set<String> EXCLUDE_ATTRIBUTE_NAMESPACES = Sets.newHash("xsi", "xsd",
+    "xlink", "xi");
 
   private final Set<String> listParentElements = new TreeSet<>();
 
@@ -25,11 +32,19 @@ public class StaxToJson {
 
   private final Set<String> dontLogDuplicateElements = new TreeSet<>();
 
+  private boolean includeAttributes = true;
+
+  private final Map<String, String> attributes = new LinkedHashMap<>();
+
   public StaxToJson dontLogDuplicateElements(final String... names) {
     for (final String name : names) {
       this.dontLogDuplicateElements.add(name);
     }
     return this;
+  }
+
+  public boolean isIncludeAttributes() {
+    return this.includeAttributes;
   }
 
   public StaxToJson listElements(final String... names) {
@@ -85,24 +100,40 @@ public class StaxToJson {
       if (this.listParentElements.contains(name)) {
         return processList(in);
       } else {
-        int state = in.skipWhitespace();
-        switch (state) {
-          case XMLStreamConstants.CHARACTERS: {
-            final StringBuilder s = new StringBuilder();
-            do {
-              if (state == XMLStreamConstants.CHARACTERS) {
-                final String text = in.getText();
-                s.append(text);
+        try {
+          if (isIncludeAttributes()) {
+            for (int i = 0; i < in.getAttributeCount(); i++) {
+              final QName qName = in.getAttributeName(i);
+              if (!EXCLUDE_ATTRIBUTE_NAMESPACES.contains(qName.getPrefix())) {
+                final String attName = qName.getLocalPart();
+                final String value = in.getAttributeValue(i).strip();
+                if (!value.isBlank()) {
+                  this.attributes.put(attName, value);
+                }
               }
-              state = in.next();
-            } while (state == XMLStreamConstants.CHARACTERS || state == XMLStreamConstants.SPACE);
-            return s.toString();
+            }
           }
-          case XMLStreamConstants.END_ELEMENT:
-            return null;
+          int state = in.skipWhitespace();
+          switch (state) {
+            case XMLStreamConstants.CHARACTERS: {
+              final StringBuilder s = new StringBuilder();
+              do {
+                if (state == XMLStreamConstants.CHARACTERS) {
+                  final String text = in.getText();
+                  s.append(text);
+                }
+                state = in.next();
+              } while (state == XMLStreamConstants.CHARACTERS || state == XMLStreamConstants.SPACE);
+              return s.toString();
+            }
+            case XMLStreamConstants.END_ELEMENT:
+              return null;
 
-          default:
-            return processObject(in);
+            default:
+              return processObject(in);
+          }
+        } finally {
+          this.attributes.clear();
         }
       }
     }
@@ -123,6 +154,7 @@ public class StaxToJson {
 
   private JsonObject processObject(final StaxReader in) {
     final JsonObject object = JsonObject.hash();
+    object.addAll(this.attributes);
     final int depth = in.getDepth() - 1;
     do {
       final String name = in.getLocalName();
@@ -145,6 +177,11 @@ public class StaxToJson {
       }
     } while (in.skipToStartElement(depth));
     return object;
+
+  }
+
+  public void setIncludeAttributes(final boolean includeAttributes) {
+    this.includeAttributes = includeAttributes;
   }
 
   public StaxToJson textElements(final String... names) {

@@ -15,6 +15,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.jeometry.common.data.identifier.Identifier;
 import org.jeometry.common.data.type.DataType;
 import org.jeometry.common.data.type.DataTypes;
+import org.jeometry.common.exception.Exceptions;
 import org.jeometry.common.io.PathName;
 import org.jeometry.common.logging.Logs;
 
@@ -227,6 +228,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     }
   }
 
+  @Override
   public DeleteStatement deleteStatement() {
     return new DeleteStatement().from(getTable());
   }
@@ -341,18 +343,25 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
   protected Record insertOrUpdateRecord(final TableRecordStoreConnection connection,
     final Query query, final Consumer<Record> insertAction, final Consumer<Record> updateAction) {
     query.setRecordFactory(ArrayChangeTrackRecord.FACTORY);
-
     try (
       Transaction transaction = connection.newTransaction(TransactionOptions.REQUIRED)) {
       final ChangeTrackRecord changeTrackRecord = query.getRecord();
       if (changeTrackRecord == null) {
         final Record newRecord = newRecord();
-        insertAction.accept(newRecord);
-        return insertRecord(connection, newRecord);
+        try {
+          insertAction.accept(newRecord);
+          return insertRecord(connection, newRecord);
+        } catch (final Exception e) {
+          throw Exceptions.wrap("Unable to insert/update record\n" + newRecord, e);
+        }
       } else {
-        updateAction.accept(changeTrackRecord);
-        updateRecordDo(connection, changeTrackRecord);
-        return changeTrackRecord.newRecord();
+        try {
+          updateAction.accept(changeTrackRecord);
+          updateRecordDo(connection, changeTrackRecord);
+          return changeTrackRecord.newRecord();
+        } catch (final Exception e) {
+          throw Exceptions.wrap("Unable to insert/update record\n" + changeTrackRecord, e);
+        }
       }
     }
   }
@@ -445,6 +454,10 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     if (this.recordStore instanceof JdbcRecordStore) {
       this.recordStore.<JdbcRecordStore> getRecordStore().lockTable(this.tablePath);
     }
+  }
+
+  public InsertUpdateActionBuilder newInsertUpdate(final TableRecordStoreConnection connection) {
+    return new InsertUpdateActionBuilder(newQuery(connection));
   }
 
   public Condition newODataFilter(String filter) {

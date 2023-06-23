@@ -17,12 +17,16 @@ import java.util.function.UnaryOperator;
 
 import com.revolsys.util.StringBuilders;
 
-public interface ListEx<V> extends List<V> {
-
+public interface ListEx<V> extends List<V>, Cloneable {
   static class EmptyList<E> extends AbstractList<E> implements RandomAccess, ListEx<E> {
 
     @Override
     public void clear() {
+    }
+
+    @Override
+    public ListEx<E> clone() {
+      return Lists.newArray();
     }
 
     @Override
@@ -119,6 +123,13 @@ public interface ListEx<V> extends List<V> {
   static <T> ListEx<T> empty() {
     return EMPTY;
   }
+
+  default ListEx<V> addValue(final V value) {
+    add(value);
+    return this;
+  }
+
+  ListEx<V> clone();
 
   default ListEx<V> filter(final Predicate<? super V> filter) {
     final ListEx<V> newList = new ArrayListEx<>();

@@ -73,9 +73,9 @@ public class Reactive {
   }
 
   public static <V> Flux<V> concatFlux(final Flux<V> first, final Flux<V> second) {
-    if (first == null) {
+    if (isEmpty(first)) {
       return second;
-    } else if (second == null) {
+    } else if (isEmpty(second)) {
       return first;
     } else {
       return first.concatWith(second);
@@ -113,6 +113,10 @@ public class Reactive {
       sink.onDispose(subscriber);
       flux.subscribe(subscriber);
     });
+  }
+
+  public static <V> boolean isEmpty(final Flux<V> flux) {
+    return flux == null || flux == Flux.empty();
   }
 
   public static <V> MergeSinkHandler<V> merge(final Publisher<V> source1,
