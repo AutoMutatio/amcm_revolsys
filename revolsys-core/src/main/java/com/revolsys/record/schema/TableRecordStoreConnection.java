@@ -42,22 +42,6 @@ public interface TableRecordStoreConnection extends Transactionable, TableRecord
     return recordStore.getTransactionManager();
   }
 
-  default <TRS extends AbstractTableRecordStore> Record insertOrUpdateRecord(
-    final CharSequence tablePath, final Function<TRS, Query> querySupplier,
-    final Function<TRS, Record> newRecordSupplier, final Consumer<Record> updateAction) {
-    final TRS tableRecordStore = getTableRecordStore(tablePath);
-    final Query query = querySupplier.apply(tableRecordStore);
-    final Supplier<Record> insertSupplier = () -> newRecordSupplier.apply(tableRecordStore);
-    return query.insertOrUpdateRecord(insertSupplier, updateAction);
-  }
-
-  default <TRS extends AbstractTableRecordStore> Record insertRecord(final CharSequence tablePath,
-    final Function<TRS, Query> querySupplier, final Function<TRS, Record> newRecordSupplier) {
-    final Consumer<Record> updateAction = record -> {
-    };
-    return insertOrUpdateRecord(tablePath, querySupplier, newRecordSupplier, updateAction);
-  }
-
   default Record insertRecord(final Record record) {
     final AbstractTableRecordStore tableRecordStore = getTableRecordStore(record);
     return tableRecordStore.insertRecord(this, record);

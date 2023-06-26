@@ -579,8 +579,9 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
   }
 
   @Override
-  public void insertRecord(final Record record) {
+  public Record insertRecord(final Record record) {
     write(record, RecordState.NEW);
+    return record;
   }
 
   @Override

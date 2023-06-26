@@ -205,13 +205,14 @@ public class DirectoryRecordStore extends AbstractRecordStore {
   }
 
   @Override
-  public synchronized void insertRecord(final Record record) {
+  public synchronized Record insertRecord(final Record record) {
     final RecordDefinition recordDefinition = record.getRecordDefinition();
     final RecordWriter writer = getWriter(recordDefinition);
     synchronized (writer) {
       writer.write(record);
     }
     addStatistic("Insert", record);
+    return record;
   }
 
   protected RecordDefinition loadRecordDefinition(final RecordStoreSchema schema,

@@ -1,6 +1,7 @@
 package com.revolsys.record.schema;
 
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import com.revolsys.record.Record;
 import com.revolsys.record.io.format.json.JsonObject;
@@ -8,7 +9,7 @@ import com.revolsys.record.query.Query;
 
 import reactor.core.publisher.Mono;
 
-public class InsertUpdateActionBuilder {
+public abstract class InsertUpdateBuilder {
 
   private final Query query;
 
@@ -26,8 +27,11 @@ public class InsertUpdateActionBuilder {
   private Consumer<Record> updateAction = r -> {
   };
 
-  public InsertUpdateActionBuilder(final Query query) {
+  private Supplier<Record> newRecordSupplier;
+
+  public InsertUpdateBuilder(final Query query) {
     this.query = query;
+    this.newRecordSupplier = query::newRecord;
   }
 
   /**
@@ -38,7 +42,7 @@ public class InsertUpdateActionBuilder {
    * @param commonAction
    * @return
    */
-  public InsertUpdateActionBuilder common(final Consumer<Record> commonAction) {
+  public InsertUpdateBuilder common(final Consumer<Record> commonAction) {
     this.commonAction = commonAction;
     return this;
   }
@@ -53,12 +57,18 @@ public class InsertUpdateActionBuilder {
       this.query.and(key, value);
 
     }
-    return this.query.insertOrUpdateRecord(this::insertRecord, this::updateRecord);
+    return executeDo();
   }
+
+  protected abstract Record executeDo();
 
   public Mono<Record> executeMono() {
     // TODO this is a placeholder until full reactive is implemented
     return Mono.defer(() -> Mono.just(execute()));
+  }
+
+  public Query getQuery() {
+    return this.query;
   }
 
   /**
@@ -67,7 +77,7 @@ public class InsertUpdateActionBuilder {
    * @param insertAction
    * @return
    */
-  public InsertUpdateActionBuilder insert(final Consumer<Record> insertAction) {
+  public InsertUpdateBuilder insert(final Consumer<Record> insertAction) {
     this.insertAction = insertAction;
     return this;
   }
@@ -78,11 +88,20 @@ public class InsertUpdateActionBuilder {
    * @param record The record to insert.
    * @return The record;
    */
-  private Record insertRecord(final Record record) {
+  protected Record insertRecord(final Record record) {
     record.addValues(this.searchValues);
     this.insertAction.accept(record);
     this.commonAction.accept(record);
     return record;
+  }
+
+  protected Record newRecord() {
+    return this.newRecordSupplier.get();
+  }
+
+  public InsertUpdateBuilder newRecord(final Supplier<Record> newRecordSupplier) {
+    this.newRecordSupplier = newRecordSupplier;
+    return this;
   }
 
   /**
@@ -92,7 +111,7 @@ public class InsertUpdateActionBuilder {
    * @param queryAction
    * @return
    */
-  public InsertUpdateActionBuilder query(final Consumer<Query> queryAction) {
+  public InsertUpdateBuilder query(final Consumer<Query> queryAction) {
     this.queryAction = queryAction;
     return this;
   }
@@ -104,7 +123,7 @@ public class InsertUpdateActionBuilder {
    * @param configurer
    * @return
    */
-  public InsertUpdateActionBuilder search(final Consumer<JsonObject> configurer) {
+  public InsertUpdateBuilder search(final Consumer<JsonObject> configurer) {
     configurer.accept(this.searchValues);
     return this;
   }
@@ -115,7 +134,7 @@ public class InsertUpdateActionBuilder {
    * @param commonAction
    * @return
    */
-  public InsertUpdateActionBuilder update(final Consumer<Record> updateAction) {
+  public InsertUpdateBuilder update(final Consumer<Record> updateAction) {
     this.updateAction = updateAction;
     return this;
   }
@@ -126,7 +145,7 @@ public class InsertUpdateActionBuilder {
    * @param record The record to insert.
    * @return The record;
    */
-  private Record updateRecord(final Record record) {
+  public Record updateRecord(final Record record) {
     this.updateAction.accept(record);
     this.commonAction.accept(record);
     return record;

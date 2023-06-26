@@ -47,7 +47,6 @@ import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.record.query.Condition;
 import com.revolsys.record.query.DeleteStatement;
 import com.revolsys.record.query.InsertStatement;
-import com.revolsys.record.query.InsertUpdateAction;
 import com.revolsys.record.query.Q;
 import com.revolsys.record.query.Query;
 import com.revolsys.record.query.QueryValue;
@@ -526,56 +525,6 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
 
   void initializeRecordDefinition(RecordDefinition recordDefinition);
 
-  default Record insertOrUpdateRecord(final Query query, final Supplier<Record> newRecordSupplier,
-    final Consumer<Record> updateAction) {
-    query.setRecordFactory(ArrayChangeTrackRecord.FACTORY);
-
-    try (
-      Transaction transaction = newTransaction(TransactionOptions.REQUIRED)) {
-      final ChangeTrackRecord changeTrackRecord = query.getRecord();
-      if (changeTrackRecord == null) {
-        final Record newRecord = newRecordSupplier.get();
-        if (newRecord == null) {
-          return null;
-        } else {
-          insertRecord(newRecord);
-          return newRecord;
-        }
-      } else {
-        updateAction.accept(changeTrackRecord);
-        if (changeTrackRecord.isModified()) {
-          updateRecord(changeTrackRecord);
-        }
-        return changeTrackRecord.newRecord();
-      }
-    }
-  }
-
-  default Record insertOrUpdateRecord(final RecordStoreQuery query,
-    final InsertUpdateAction action) {
-    query.setRecordFactory(ArrayChangeTrackRecord.FACTORY);
-
-    try (
-      Transaction transaction = newTransaction(TransactionOptions.REQUIRED)) {
-      final ChangeTrackRecord changeTrackRecord = query.getRecord();
-      if (changeTrackRecord == null) {
-        final Record newRecord = action.insertRecord();
-        if (newRecord == null) {
-          return null;
-        } else {
-          insertRecord(newRecord);
-          return newRecord;
-        }
-      } else {
-        action.updateRecord(changeTrackRecord);
-        if (changeTrackRecord.isModified()) {
-          updateRecord(changeTrackRecord);
-        }
-        return changeTrackRecord.newRecord();
-      }
-    }
-  }
-
   default Record insertRecord(final PathName pathName, final Object... values) {
     final RecordDefinition recordDefinition = getRecordDefinition(pathName);
     final Record record = new ArrayRecord(recordDefinition, values);
@@ -599,7 +548,7 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
     }
   }
 
-  default void insertRecord(final Record record) {
+  default Record insertRecord(final Record record) {
     throw new UnsupportedOperationException("Insert not supported");
   }
 
