@@ -3,6 +3,7 @@ package com.revolsys.record.schema;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import com.revolsys.collection.map.MapEx;
 import com.revolsys.record.Record;
 import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.record.query.Query;
@@ -47,6 +48,11 @@ public abstract class InsertUpdateBuilder {
     return this;
   }
 
+  public InsertUpdateBuilder common(final MapEx values) {
+    this.commonAction = r -> r.addValues(values);
+    return this;
+  }
+
   public Record execute() {
     if (this.searchValues.isEmpty()) {
       throw new IllegalStateException("At least one search value must be specfied");
@@ -72,7 +78,7 @@ public abstract class InsertUpdateBuilder {
   }
 
   /**
-   * Callback to be applied for both updated records.
+   * Callback to be applied for inserted records.
    *
    * @param insertAction
    * @return
@@ -82,12 +88,17 @@ public abstract class InsertUpdateBuilder {
     return this;
   }
 
+  public InsertUpdateBuilder insert(final MapEx values) {
+    this.insertAction = r -> r.addValues(values);
+    return this;
+  }
+
   /**
-   * Insert the record in the database, applying the search values, insert action and common action.
-   *
-   * @param record The record to insert.
-   * @return The record;
-   */
+  * Insert the record in the database, applying the search values, insert action and common action.
+  *
+  * @param record The record to insert.
+  * @return The record;
+  */
   protected Record insertRecord(final Record record) {
     record.addValues(this.searchValues);
     this.insertAction.accept(record);
@@ -136,6 +147,11 @@ public abstract class InsertUpdateBuilder {
    */
   public InsertUpdateBuilder update(final Consumer<Record> updateAction) {
     this.updateAction = updateAction;
+    return this;
+  }
+
+  public InsertUpdateBuilder update(final MapEx values) {
+    this.updateAction = r -> r.addValues(values);
     return this;
   }
 

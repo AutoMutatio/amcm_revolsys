@@ -156,7 +156,7 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
   default Record addFieldValue(final String key, final Map<String, Object> source,
     final String sourceKey) {
     final Object value = source.get(sourceKey);
-    return add(key, value);
+    return addValue(key, value);
   }
 
   @SuppressWarnings("unchecked")

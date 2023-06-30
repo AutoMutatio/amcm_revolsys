@@ -124,6 +124,14 @@ public interface ListEx<V> extends List<V>, Cloneable {
     return EMPTY;
   }
 
+  @SuppressWarnings("unchecked")
+  default ListEx<V> addAll(final V... values) {
+    for (final V v : values) {
+      addValue(v);
+    }
+    return this;
+  }
+
   default ListEx<V> addValue(final V value) {
     add(value);
     return this;
@@ -162,6 +170,11 @@ public interface ListEx<V> extends List<V>, Cloneable {
     } else {
       return null;
     }
+  }
+
+  default ListEx<V> sortThis(final Comparator<? super V> converter) {
+    sort(converter);
+    return this;
   }
 
 }
