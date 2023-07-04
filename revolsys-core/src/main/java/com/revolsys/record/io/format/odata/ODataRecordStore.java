@@ -342,7 +342,7 @@ public class ODataRecordStore extends AbstractRecordStore {
     final ApacheHttpRequestBuilder request = this.requestFactory.delete(uri)
       .setParameter(ODataRecordStore.FORMAT_JSON);
     final JsonObject result = request.getJson();
-    return result.getBoolean("deleted", false);
+    return result.isTrue("deleted");
   }
 
   JsonObject getJson(final URI uri) {

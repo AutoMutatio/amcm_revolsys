@@ -30,7 +30,7 @@ public class ODataRecordDefinition extends RecordDefinitionImpl {
           final JsonObject entityField = entityType.getJsonObject(fieldName);
           final String type = entityField.getString("$Type");
           DataType dataType = OData.getDataTypeFromEdm(type);
-          if (entityField.getBoolean("$Collection", false)) {
+          if (entityField.isTrue("$Collection")) {
             dataType = new ListDataType(List.class, dataType);
           }
           final boolean required = !entityField.getBoolean("$Nullable", true);
