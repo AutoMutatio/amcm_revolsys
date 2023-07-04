@@ -497,6 +497,10 @@ public interface MapEx extends MapDefault<String, Object>, Cloneable, DataTypedV
     }
   }
 
+  default boolean isTrue(final CharSequence name) {
+    return getBoolean(name, false);
+  }
+
   @SuppressWarnings("unchecked")
   default <T extends Object> T removeValue(final CharSequence name) {
     if (name == null) {
