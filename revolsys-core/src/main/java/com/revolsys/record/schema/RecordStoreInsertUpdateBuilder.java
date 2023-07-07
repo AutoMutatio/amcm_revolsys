@@ -1,5 +1,7 @@
 package com.revolsys.record.schema;
 
+import java.util.function.Supplier;
+
 import com.revolsys.record.ArrayChangeTrackRecord;
 import com.revolsys.record.ChangeTrackRecord;
 import com.revolsys.record.Record;
@@ -18,11 +20,11 @@ public class RecordStoreInsertUpdateBuilder extends InsertUpdateBuilder {
   }
 
   @Override
-  public Record executeDo() {
+  public Record executeDo(final Supplier<Transaction> transactionSupplier) {
     final Query query = getQuery();
     query.setRecordFactory(ArrayChangeTrackRecord.FACTORY);
     try (
-      Transaction transaction = this.recordStore.newTransaction(TransactionOptions.REQUIRED)) {
+      Transaction transaction = transactionSupplier.get()) {
       final ChangeTrackRecord changeTrackRecord = query.getRecord();
       if (changeTrackRecord == null) {
         final Record newRecord = newRecord();
@@ -40,5 +42,10 @@ public class RecordStoreInsertUpdateBuilder extends InsertUpdateBuilder {
         return changeTrackRecord.newRecord();
       }
     }
+  }
+
+  @Override
+  protected Transaction newTransaction() {
+    return this.recordStore.newTransaction(TransactionOptions.REQUIRED);
   }
 }

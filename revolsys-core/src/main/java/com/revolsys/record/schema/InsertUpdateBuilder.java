@@ -7,6 +7,7 @@ import com.revolsys.collection.map.MapEx;
 import com.revolsys.record.Record;
 import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.record.query.Query;
+import com.revolsys.transaction.Transaction;
 
 import reactor.core.publisher.Mono;
 
@@ -53,7 +54,11 @@ public abstract class InsertUpdateBuilder {
     return this;
   }
 
-  public Record execute() {
+  public final Record execute() {
+    return execute(this::newTransaction);
+  }
+
+  public Record execute(final Supplier<Transaction> transactionSupplier) {
     if (this.searchValues.isEmpty()) {
       throw new IllegalStateException("At least one search value must be specfied");
     }
@@ -63,14 +68,18 @@ public abstract class InsertUpdateBuilder {
       this.query.and(key, value);
 
     }
-    return executeDo();
+    return executeDo(transactionSupplier);
   }
 
-  protected abstract Record executeDo();
+  public abstract Record executeDo(Supplier<Transaction> transactionSupplier);
 
-  public Mono<Record> executeMono() {
+  public final Mono<Record> executeMono() {
+    return executeMono(this::newTransaction);
+  }
+
+  public Mono<Record> executeMono(final Supplier<Transaction> transactionSupplier) {
     // TODO this is a placeholder until full reactive is implemented
-    return Mono.defer(() -> Mono.just(execute()));
+    return Mono.defer(() -> Mono.just(execute(transactionSupplier)));
   }
 
   public Query getQuery() {
@@ -114,6 +123,8 @@ public abstract class InsertUpdateBuilder {
     this.newRecordSupplier = newRecordSupplier;
     return this;
   }
+
+  protected abstract Transaction newTransaction();
 
   /**
    * Full customization of query to find the record to update. {@link #search(Consumer)} is preferred

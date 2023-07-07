@@ -1,5 +1,7 @@
 package com.revolsys.record.schema;
 
+import java.util.function.Supplier;
+
 import org.jeometry.common.exception.Exceptions;
 
 import com.revolsys.record.ArrayChangeTrackRecord;
@@ -23,11 +25,11 @@ public class TableRecordStoreInsertUpdateBuilder extends InsertUpdateBuilder {
   }
 
   @Override
-  public Record executeDo() {
+  public Record executeDo(final Supplier<Transaction> transactionSupplier) {
     final Query query = getQuery();
     query.setRecordFactory(ArrayChangeTrackRecord.FACTORY);
     try (
-      Transaction transaction = this.connection.newTransaction(TransactionOptions.REQUIRED)) {
+      Transaction transaction = transactionSupplier.get()) {
       final ChangeTrackRecord changeTrackRecord = query.getRecord();
       if (changeTrackRecord == null) {
         final Record newRecord = newRecord();
@@ -51,5 +53,10 @@ public class TableRecordStoreInsertUpdateBuilder extends InsertUpdateBuilder {
         }
       }
     }
+  }
+
+  @Override
+  protected Transaction newTransaction() {
+    return this.connection.newTransaction(TransactionOptions.REQUIRED);
   }
 }

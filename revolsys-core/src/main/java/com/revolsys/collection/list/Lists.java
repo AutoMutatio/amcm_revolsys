@@ -21,7 +21,7 @@ import com.revolsys.util.Cancellable;
 import com.revolsys.util.Property;
 
 public interface Lists {
-  Supplier<List<?>> FACTORY_ARRAY = ArrayListEx::new;
+  Supplier<ListEx<?>> FACTORY_ARRAY = ArrayListEx::new;
 
   static <V> void addAll(final List<V> list, final Iterable<? extends V> values) {
     if (values != null) {
@@ -222,7 +222,7 @@ public interface Lists {
   @SuppressWarnings({
     "unchecked", "rawtypes"
   })
-  static <V> Supplier<List<V>> factoryArray() {
+  static <V> Supplier<ListEx<V>> factoryArray() {
     return (Supplier)FACTORY_ARRAY;
   }
 

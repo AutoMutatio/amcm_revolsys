@@ -15,6 +15,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 
+import com.revolsys.util.Property;
 import com.revolsys.util.StringBuilders;
 
 public interface ListEx<V> extends List<V>, Cloneable {
@@ -128,6 +129,13 @@ public interface ListEx<V> extends List<V>, Cloneable {
   default ListEx<V> addAll(final V... values) {
     for (final V v : values) {
       addValue(v);
+    }
+    return this;
+  }
+
+  default ListEx<V> addNotEmpty(final V value) {
+    if (!Property.isEmpty(value)) {
+      add(value);
     }
     return this;
   }

@@ -36,6 +36,8 @@ public class StaxToJson {
 
   private final Map<String, String> attributes = new LinkedHashMap<>();
 
+  private boolean stripValues = false;
+
   public StaxToJson dontLogDuplicateElements(final String... names) {
     for (final String name : names) {
       this.dontLogDuplicateElements.add(name);
@@ -158,7 +160,7 @@ public class StaxToJson {
     final int depth = in.getDepth() - 1;
     do {
       final String name = in.getLocalName();
-      final Object value;
+      Object value;
       if (this.textElements.contains(name)) {
         value = in.getAsText();
       } else {
@@ -172,6 +174,9 @@ public class StaxToJson {
           if (object.hasValue(name) && !this.dontLogDuplicateElements.contains(name)) {
             System.out.println(name);
           }
+          if (this.stripValues && value instanceof final String s) {
+            value = s.strip();
+          }
           object.addNotEmpty(name, value);
         }
       }
@@ -182,6 +187,11 @@ public class StaxToJson {
 
   public void setIncludeAttributes(final boolean includeAttributes) {
     this.includeAttributes = includeAttributes;
+  }
+
+  public StaxToJson stripValues(final boolean stripValues) {
+    this.stripValues = stripValues;
+    return this;
   }
 
   public StaxToJson textElements(final String... names) {
