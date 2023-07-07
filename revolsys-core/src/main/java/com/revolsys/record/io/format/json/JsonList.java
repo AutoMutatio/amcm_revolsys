@@ -221,6 +221,9 @@ public interface JsonList extends ListEx<Object>, JsonType {
     return (JsonList)JsonType.super.asJson();
   }
 
+  @Override
+  JsonList clone();
+
   default boolean contains(final Object value,
     final Collection<? extends CharSequence> excludeFieldNames) {
     final int size = size();
@@ -356,5 +359,4 @@ public interface JsonList extends ListEx<Object>, JsonType {
   default String toJsonString(final boolean indent) {
     return Json.toString(this, indent);
   }
-
 }

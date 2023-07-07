@@ -36,7 +36,6 @@ import com.revolsys.record.query.Cast;
 import com.revolsys.record.query.ColumnReference;
 import com.revolsys.record.query.Condition;
 import com.revolsys.record.query.DeleteStatement;
-import com.revolsys.record.query.InsertUpdateAction;
 import com.revolsys.record.query.Or;
 import com.revolsys.record.query.Q;
 import com.revolsys.record.query.Query;
@@ -227,6 +226,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     }
   }
 
+  @Override
   public DeleteStatement deleteStatement() {
     return new DeleteStatement().from(getTable());
   }
@@ -338,70 +338,6 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     return hasRecord(connection, query);
   }
 
-  protected Record insertOrUpdateRecord(final TableRecordStoreConnection connection,
-    final Query query, final Consumer<Record> insertAction, final Consumer<Record> updateAction) {
-    query.setRecordFactory(ArrayChangeTrackRecord.FACTORY);
-
-    try (
-      Transaction transaction = connection.newTransaction(TransactionOptions.REQUIRED)) {
-      final ChangeTrackRecord changeTrackRecord = query.getRecord();
-      if (changeTrackRecord == null) {
-        final Record newRecord = newRecord();
-        insertAction.accept(newRecord);
-        return insertRecord(connection, newRecord);
-      } else {
-        updateAction.accept(changeTrackRecord);
-        updateRecordDo(connection, changeTrackRecord);
-        return changeTrackRecord.newRecord();
-      }
-    }
-  }
-
-  protected Record insertOrUpdateRecord(final TableRecordStoreConnection connection,
-    final Query query, final Supplier<Record> newRecordSupplier,
-    final Consumer<Record> updateAction) {
-    query.setRecordFactory(ArrayChangeTrackRecord.FACTORY);
-
-    try (
-      Transaction transaction = connection.newTransaction(TransactionOptions.REQUIRED)) {
-      final ChangeTrackRecord changeTrackRecord = query.getRecord();
-      if (changeTrackRecord == null) {
-        final Record newRecord = newRecordSupplier.get();
-        if (newRecord == null) {
-          return null;
-        } else {
-          return insertRecord(connection, newRecord);
-        }
-      } else {
-        updateAction.accept(changeTrackRecord);
-        updateRecordDo(connection, changeTrackRecord);
-        return changeTrackRecord.newRecord();
-      }
-    }
-  }
-
-  protected Record insertOrUpdateRecord(final TableRecordStoreConnection connection,
-    final TableRecordStoreQuery query, final InsertUpdateAction action) {
-    query.setRecordFactory(ArrayChangeTrackRecord.FACTORY);
-
-    try (
-      Transaction transaction = connection.newTransaction(TransactionOptions.REQUIRED)) {
-      final ChangeTrackRecord changeTrackRecord = query.getRecord();
-      if (changeTrackRecord == null) {
-        final Record newRecord = action.insertRecord();
-        if (newRecord == null) {
-          return null;
-        } else {
-          return insertRecord(connection, newRecord);
-        }
-      } else {
-        action.updateRecord(changeTrackRecord);
-        updateRecordDo(connection, changeTrackRecord);
-        return changeTrackRecord.newRecord();
-      }
-    }
-  }
-
   protected Record insertRecord(final TableRecordStoreConnection connection, final Query query,
     final Supplier<Record> newRecordSupplier) {
     query.setRecordFactory(ArrayChangeTrackRecord.FACTORY);
@@ -445,6 +381,10 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     if (this.recordStore instanceof JdbcRecordStore) {
       this.recordStore.<JdbcRecordStore> getRecordStore().lockTable(this.tablePath);
     }
+  }
+
+  public InsertUpdateBuilder newInsertUpdate(final TableRecordStoreConnection connection) {
+    return new TableRecordStoreInsertUpdateBuilder(this, connection);
   }
 
   public Condition newODataFilter(String filter) {

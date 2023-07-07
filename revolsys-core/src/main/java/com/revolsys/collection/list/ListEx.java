@@ -15,14 +15,19 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 
+import com.revolsys.util.Property;
 import com.revolsys.util.StringBuilders;
 
-public interface ListEx<V> extends List<V> {
-
+public interface ListEx<V> extends List<V>, Cloneable {
   static class EmptyList<E> extends AbstractList<E> implements RandomAccess, ListEx<E> {
 
     @Override
     public void clear() {
+    }
+
+    @Override
+    public ListEx<E> clone() {
+      return Lists.newArray();
     }
 
     @Override
@@ -120,6 +125,28 @@ public interface ListEx<V> extends List<V> {
     return EMPTY;
   }
 
+  @SuppressWarnings("unchecked")
+  default ListEx<V> addAll(final V... values) {
+    for (final V v : values) {
+      addValue(v);
+    }
+    return this;
+  }
+
+  default ListEx<V> addNotEmpty(final V value) {
+    if (!Property.isEmpty(value)) {
+      add(value);
+    }
+    return this;
+  }
+
+  default ListEx<V> addValue(final V value) {
+    add(value);
+    return this;
+  }
+
+  ListEx<V> clone();
+
   default ListEx<V> filter(final Predicate<? super V> filter) {
     final ListEx<V> newList = new ArrayListEx<>();
     for (final V value : this) {
@@ -151,6 +178,11 @@ public interface ListEx<V> extends List<V> {
     } else {
       return null;
     }
+  }
+
+  default ListEx<V> sortThis(final Comparator<? super V> converter) {
+    sort(converter);
+    return this;
   }
 
 }

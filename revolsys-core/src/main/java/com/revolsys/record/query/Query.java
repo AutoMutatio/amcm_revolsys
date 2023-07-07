@@ -727,6 +727,10 @@ public class Query extends BaseObjectWithProperties
     }
   }
 
+  public RecordStore getRecordStore() {
+    return getRecordDefinition().getRecordStore();
+  }
+
   public List<QueryValue> getSelect() {
     return this.selectExpressions;
   }
@@ -851,59 +855,6 @@ public class Query extends BaseObjectWithProperties
 
   public boolean hasSelect() {
     return !this.selectExpressions.isEmpty();
-  }
-
-  public Record insertOrUpdateRecord(final Consumer<Record> insertAction,
-    final Consumer<Record> updateAction) {
-
-    final Record record = getRecord();
-    if (record == null) {
-      final Record newRecord = newRecord();
-      insertAction.accept(newRecord);
-      getRecordDefinition().getRecordStore().insertRecord(newRecord);
-      return newRecord;
-    } else {
-      updateAction.accept(record);
-      getRecordDefinition().getRecordStore().updateRecord(record);
-      return record;
-    }
-  }
-
-  public Record insertOrUpdateRecord(final InsertUpdateAction action) {
-
-    final Record record = getRecord();
-    if (record == null) {
-      final Record newRecord = action.newRecord();
-      if (newRecord == null) {
-        return null;
-      } else {
-        getRecordDefinition().getRecordStore().insertRecord(newRecord);
-        return newRecord;
-      }
-    } else {
-      action.updateRecord(record);
-      getRecordDefinition().getRecordStore().updateRecord(record);
-      return record;
-    }
-  }
-
-  public Record insertOrUpdateRecord(final Supplier<Record> newRecordSupplier,
-    final Consumer<Record> updateAction) {
-
-    final Record record = getRecord();
-    if (record == null) {
-      final Record newRecord = newRecordSupplier.get();
-      if (newRecord == null) {
-        return null;
-      } else {
-        getRecordDefinition().getRecordStore().insertRecord(newRecord);
-        return newRecord;
-      }
-    } else {
-      updateAction.accept(record);
-      getRecordDefinition().getRecordStore().updateRecord(record);
-      return record;
-    }
   }
 
   public Record insertRecord(final Supplier<Record> newRecordSupplier) {

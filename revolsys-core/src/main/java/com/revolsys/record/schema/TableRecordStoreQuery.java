@@ -6,7 +6,6 @@ import java.util.function.Supplier;
 import com.revolsys.record.ChangeTrackRecord;
 import com.revolsys.record.Record;
 import com.revolsys.record.io.RecordReader;
-import com.revolsys.record.query.InsertUpdateAction;
 import com.revolsys.record.query.Query;
 import com.revolsys.transaction.Transaction;
 import com.revolsys.transaction.TransactionOption;
@@ -51,24 +50,6 @@ public class TableRecordStoreQuery extends Query {
   @Override
   public RecordReader getRecordReader(final Transaction transaction) {
     return this.recordStore.getRecordReader(this.connection, this, transaction);
-  }
-
-  @Override
-  public Record insertOrUpdateRecord(final Consumer<Record> insertAction,
-    final Consumer<Record> updateAction) {
-    return this.recordStore.insertOrUpdateRecord(this.connection, this, insertAction, updateAction);
-  }
-
-  @Override
-  public Record insertOrUpdateRecord(final InsertUpdateAction action) {
-    return this.recordStore.insertOrUpdateRecord(this.connection, this, action);
-  }
-
-  @Override
-  public Record insertOrUpdateRecord(final Supplier<Record> newRecordSupplier,
-    final Consumer<Record> updateAction) {
-    return this.recordStore.insertOrUpdateRecord(this.connection, this, newRecordSupplier,
-      updateAction);
   }
 
   @Override

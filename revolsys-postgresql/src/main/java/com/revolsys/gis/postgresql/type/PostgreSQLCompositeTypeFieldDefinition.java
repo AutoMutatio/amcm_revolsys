@@ -4,15 +4,15 @@ import java.sql.Array;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 
 import org.jeometry.common.data.type.CollectionDataType;
 import org.jeometry.common.data.type.DataType;
 import org.postgresql.jdbc.PgConnection;
 
+import com.revolsys.collection.list.ListEx;
+import com.revolsys.collection.list.Lists;
 import com.revolsys.jdbc.field.JdbcFieldDefinition;
 import com.revolsys.record.query.ColumnIndexes;
 import com.revolsys.record.schema.RecordDefinition;
@@ -54,7 +54,7 @@ public class PostgreSQLCompositeTypeFieldDefinition extends JdbcFieldDefinition 
     final Object value = resultSet.getObject(indexes.incrementAndGet());
     if (value instanceof Array) {
       final Array array = (Array)value;
-      final List<Object> values = new ArrayList<>();
+      final ListEx<Object> values = Lists.newArray();
       final ResultSet arrayResultSet = array.getResultSet();
       final ColumnIndexes columnIndex = new ColumnIndexes();
       while (arrayResultSet.next()) {

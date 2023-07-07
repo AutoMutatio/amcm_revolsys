@@ -3,7 +3,6 @@ package com.revolsys.record.io.format.json;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -282,23 +281,7 @@ public interface JsonObject extends MapEx, JsonType {
 
   @Override
   default boolean removeEmptyProperties() {
-    boolean removed = false;
-    final Collection<Object> entries = values();
-    for (final Iterator<Object> iterator = entries.iterator(); iterator.hasNext();) {
-      final Object value = iterator.next();
-      if (value instanceof JsonType) {
-        final JsonType jsonValue = (JsonType)value;
-        jsonValue.removeEmptyProperties();
-        if (jsonValue.isEmpty()) {
-          iterator.remove();
-          removed = true;
-        }
-      } else if (!Property.hasValue(value)) {
-        iterator.remove();
-        removed = true;
-      }
-    }
-    return removed;
+    return MapEx.super.removeEmptyProperties();
   }
 
   @Override
@@ -308,7 +291,7 @@ public interface JsonObject extends MapEx, JsonType {
   }
 
   default JsonObject renameProperty(final String oldName, final String newName) {
-    if (hasValue(oldName)) {
+    if (hasValue(oldName) && !oldName.equals(newName)) {
       final Object value = removeValue(oldName);
       addValue(newName, value);
     }
@@ -317,7 +300,7 @@ public interface JsonObject extends MapEx, JsonType {
 
   default JsonObject renameProperty(final String oldName, final String newName,
     final DataType dataType) {
-    if (hasValue(oldName)) {
+    if (hasValue(oldName) && !oldName.equals(newName)) {
       final Object value = removeValue(oldName, dataType);
       addValue(newName, value);
     }
