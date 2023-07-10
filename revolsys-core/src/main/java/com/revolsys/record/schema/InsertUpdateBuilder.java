@@ -20,8 +20,7 @@ public abstract class InsertUpdateBuilder {
   private Consumer<Record> commonAction = r -> {
   };
 
-  private Consumer<Query> queryAction = q -> {
-  };
+  private Consumer<Query> queryAction;
 
   private Consumer<Record> insertAction = r -> {
   };
@@ -59,10 +58,13 @@ public abstract class InsertUpdateBuilder {
   }
 
   public Record execute(final Supplier<Transaction> transactionSupplier) {
-    if (this.searchValues.isEmpty()) {
-      throw new IllegalStateException("At least one search value must be specfied");
+    if (this.searchValues.isEmpty() && this.queryAction == null) {
+      throw new IllegalStateException(
+        "At least one search value or query modifier must be specfied");
     }
-    this.queryAction.accept(this.query);
+    if (this.queryAction != null) {
+      this.queryAction.accept(this.query);
+    }
     for (final String key : this.searchValues.keySet()) {
       final Object value = this.searchValues.getValue(key);
       this.query.and(key, value);
