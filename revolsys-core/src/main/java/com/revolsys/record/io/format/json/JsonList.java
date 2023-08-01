@@ -12,7 +12,6 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.data.type.DataTypes;
 import org.jeometry.common.exception.Exceptions;
 
 import com.revolsys.collection.list.ListEx;
@@ -257,60 +256,20 @@ public interface JsonList extends ListEx<Object>, JsonType {
   @SuppressWarnings({
     "unchecked", "rawtypes"
   })
-  default <V> Flux<V> flux() {
+  default <T> Flux<T> flux() {
     return (Flux)Flux.fromIterable(this);
   }
 
-  default <V> void forEachType(final Consumer<V> action) {
+  default <T> void forEachType(final Consumer<T> action) {
     ListEx.super.forEach(value -> {
-      action.accept((V)value);
+      action.accept((T)value);
     });
-  }
-
-  default Double getDouble(final int index) {
-    return getValue(index, DataTypes.DOUBLE);
-  }
-
-  default Integer getInteger(final int index) {
-    return getValue(index, DataTypes.INT);
-  }
-
-  default int getInteger(final int index, final int defaultValue) {
-    final Integer value = getInteger(index);
-    if (value == null) {
-      return defaultValue;
-    } else {
-      return value;
-    }
-  }
-
-  default String getString(final int index) {
-    return getValue(index, DataTypes.STRING);
-  }
-
-  default String getString(final int index, final String defaultValue) {
-    final String value = getString(index);
-    if (value == null) {
-      return defaultValue;
-    } else {
-      return value;
-    }
-  }
-
-  @SuppressWarnings("unchecked")
-  default <V> V getValue(final int index) {
-    return (V)get(index);
-  }
-
-  default <T extends Object> T getValue(final int index, final DataType dataType) {
-    final Object value = get(index);
-    return dataType.toObject(value);
   }
 
   @SuppressWarnings({
     "unchecked", "rawtypes"
   })
-  default <V> Iterable<V> iterable() {
+  default <T> Iterable<T> iterable() {
     return (Iterable)this;
   }
 
@@ -321,10 +280,10 @@ public interface JsonList extends ListEx<Object>, JsonType {
     return (Reader)Reader.wrap(iterator());
   }
 
-  default <V> List<V> mapTo(final Function<JsonObject, V> mapper) {
-    final List<V> objects = new ArrayList<>();
+  default <T> List<T> mapTo(final Function<JsonObject, T> mapper) {
+    final List<T> objects = new ArrayList<>();
     forEachType((final JsonObject record) -> {
-      final V object = mapper.apply(record);
+      final T object = mapper.apply(record);
       objects.add(object);
     });
     return objects;

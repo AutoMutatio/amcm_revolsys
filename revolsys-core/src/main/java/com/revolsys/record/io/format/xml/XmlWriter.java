@@ -363,6 +363,68 @@ public class XmlWriter extends Writer {
     this.useNamespaces = useNamespaces;
   }
 
+  @Override
+  public XmlWriter append(final char ch) {
+    closeStartTag();
+    appendChar(ch);
+    return this;
+  }
+
+  /**
+   * Write content for an element to the output, escaping the characters that
+   * are used within markup. This method will escape characters ' <', '>' and
+   * '&'. Note the XML 1.0 standard does allow '>' to be used unless it is part
+   * of "]]>" for simplicity it is allways escaped in this implementation.
+   *
+   * @param characters The character buffer to write
+   * @param offest The offset in the character data to write
+   * @param length The number of characters to write.
+   * @return
+   * @throws IOException If an I/O exception occurs.
+   */
+  @Override
+  public XmlWriter append(final CharSequence characters, final int offest, final int length) {
+    closeStartTag();
+    final int lastIndex = offest + length;
+    for (int i = offest; i < lastIndex; i++) {
+      final char ch = characters.charAt(i);
+      appendChar(ch);
+    }
+    return this;
+  }
+
+  private void appendChar(final char ch) {
+    try {
+      switch (ch) {
+        case '&':
+          this.out.append("&amp;");
+        break;
+        case '<':
+          this.out.append("&lt;");
+        break;
+        case '>':
+          this.out.append("&gt;");
+        break;
+        case 9:
+        case 10:
+        case 13:
+          this.out.append(ch);
+        break;
+        default:
+          if (ch < 32) {
+            // Reject all other control characters
+            throw new IllegalStateException(
+              "character " + Integer.toString(ch) + " is not allowed in output");
+          } else {
+            this.out.append(ch);
+          }
+        break;
+      }
+    } catch (final IOException e) {
+      throw Exceptions.wrap(e);
+    }
+  }
+
   /**
    * Add an attribute to the current open tag.
    *
