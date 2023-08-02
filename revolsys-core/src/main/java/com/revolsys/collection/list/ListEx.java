@@ -269,4 +269,13 @@ public interface ListEx<V> extends List<V>, Cloneable {
     sort(converter);
     return this;
   }
+
+  default int[] toIntArray() {
+    final int[] array = new int[size()];
+    for (int i = 0; i < size(); i++) {
+      final int width = getInteger(i);
+      array[i] = width;
+    }
+    return array;
+  }
 }

@@ -31,6 +31,7 @@ import javax.xml.namespace.QName;
 
 import org.jeometry.common.data.type.DataTypes;
 import org.jeometry.common.exception.Exceptions;
+import org.jeometry.common.logging.Logs;
 import org.jeometry.common.number.Doubles;
 import org.jeometry.common.number.Floats;
 import org.jeometry.common.number.Numbers;
@@ -413,8 +414,7 @@ public class XmlWriter extends Writer {
         default:
           if (ch < 32) {
             // Reject all other control characters
-            throw new IllegalStateException(
-              "character " + Integer.toString(ch) + " is not allowed in output");
+            Logs.error(this, "character " + Integer.toString(ch) + " is not allowed in output");
           } else {
             this.out.append(ch);
           }
