@@ -16,15 +16,20 @@ public abstract class AbstractBinaryQueryValue implements QueryValue {
 
   private QueryValue right;
 
-  public AbstractBinaryQueryValue(final QueryValue left, final QueryValue right) {
-    this.left = left;
-    this.right = right;
-    if (left instanceof ColumnReference && right instanceof Value) {
-      final ColumnReference column = (ColumnReference)left;
-      final Value value = (Value)right;
-      final FieldDefinition fieldDefinition = column.getFieldDefinition();
-      value.setFieldDefinition(fieldDefinition);
+  public AbstractBinaryQueryValue(final List<QueryValue> parameters) {
+    final int parameterCount = parameters.size();
+    if (parameterCount == 2) {
+      final QueryValue left = parameters.get(0);
+      final QueryValue right = parameters.get(0);
+      init(left, right);
+    } else {
+      throw new IllegalArgumentException(
+        getClass() + "  requires 2 arguments not " + parameterCount + ": " + parameters);
     }
+  }
+
+  public AbstractBinaryQueryValue(final QueryValue left, final QueryValue right) {
+    init(left, right);
   }
 
   protected void appendLeft(final SqlAppendable sql, final Query query,
@@ -123,6 +128,17 @@ public abstract class AbstractBinaryQueryValue implements QueryValue {
   @SuppressWarnings("unchecked")
   public <V extends QueryValue> V getRight() {
     return (V)this.right;
+  }
+
+  private void init(final QueryValue left, final QueryValue right) {
+    this.left = left;
+    this.right = right;
+    if (left instanceof ColumnReference && right instanceof Value) {
+      final ColumnReference column = (ColumnReference)left;
+      final Value value = (Value)right;
+      final FieldDefinition fieldDefinition = column.getFieldDefinition();
+      value.setFieldDefinition(fieldDefinition);
+    }
   }
 
   public void setLeft(final QueryValue left) {

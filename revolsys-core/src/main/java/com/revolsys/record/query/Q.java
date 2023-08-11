@@ -389,7 +389,12 @@ public class Q {
   }
 
   public static Like like(final QueryValue left, final Object value) {
-    final Value valueCondition = Value.newValue(value);
+    final QueryValue valueCondition;
+    if (value instanceof QueryValue) {
+      valueCondition = (QueryValue)value;
+    } else {
+      valueCondition = Value.newValue(value);
+    }
     return new Like(left, valueCondition);
   }
 
@@ -501,6 +506,10 @@ public class Q {
     } else {
       return null;
     }
+  }
+
+  public static SqlCondition sql(final String sql, final Iterable<Object> parameters) {
+    return new SqlCondition(sql, parameters);
   }
 
   public static SqlCondition sql(final String sql, final Object... parameters) {
