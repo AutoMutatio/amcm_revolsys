@@ -35,6 +35,11 @@ public class SqlCondition implements Condition {
     this(sql, Arrays.asList(parameterAttribute), Arrays.asList(parameterValue));
   }
 
+  public SqlCondition(final String sql, final Iterable<Object> parameters) {
+    this.sql = sql;
+    addParameters(parameters);
+  }
+
   public SqlCondition(final String sql, final List<FieldDefinition> parameterAttributes,
     final List<Object> parameterValues) {
     this.sql = sql;
@@ -57,7 +62,7 @@ public class SqlCondition implements Condition {
     this.parameterAttributes.set(this.parameterAttributes.size() - 1, attribute);
   }
 
-  public void addParameters(final List<Object> parameters) {
+  public void addParameters(final Iterable<Object> parameters) {
     for (final Object parameter : parameters) {
       addParameter(parameter);
     }

@@ -17,6 +17,6 @@ public class Exists extends UnaryFunction implements Condition {
 
   @Override
   public Exists clone(final TableReference oldTable, final TableReference newTable) {
-    return (Exists)super.clone(oldTable, newTable);
+    return clone();
   }
 }
