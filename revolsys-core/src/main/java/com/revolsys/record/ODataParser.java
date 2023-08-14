@@ -236,7 +236,6 @@ public class ODataParser {
       return new Distance(left, right);
     })
     .add(Methods.CONTAINS, args -> {
-
       QueryValue left = args.get(0);
       QueryValue right = args.get(1);
       if (left instanceof Upper && right instanceof Upper) {
@@ -251,7 +250,49 @@ public class ODataParser {
       } else {
         if (right instanceof Value) {
           final Value value = (Value)right;
-          return Q.like(left, value.getValue().toString());
+          return Q.like(left, "%" + value.getValue() + "%");
+        } else {
+          return Q.like(left, right);
+        }
+      }
+    })
+    .add(Methods.STARTSWITH, args -> {
+      QueryValue left = args.get(0);
+      QueryValue right = args.get(1);
+      if (left instanceof Upper && right instanceof Upper) {
+        left = left.getQueryValues().get(0);
+        right = right.getQueryValues().get(0);
+        if (right instanceof Value) {
+          final Value value = (Value)right;
+          return Q.iLike(left, value.getValue() + "%");
+        } else {
+          return Q.iLike(left, right);
+        }
+      } else {
+        if (right instanceof Value) {
+          final Value value = (Value)right;
+          return Q.like(left, value.getValue() + "%");
+        } else {
+          return Q.like(left, right);
+        }
+      }
+    })
+    .add(Methods.ENDSWITH, args -> {
+      QueryValue left = args.get(0);
+      QueryValue right = args.get(1);
+      if (left instanceof Upper && right instanceof Upper) {
+        left = left.getQueryValues().get(0);
+        right = right.getQueryValues().get(0);
+        if (right instanceof Value) {
+          final Value value = (Value)right;
+          return Q.iLike(left, "%" + value.getValue());
+        } else {
+          return Q.iLike(left, right);
+        }
+      } else {
+        if (right instanceof Value) {
+          final Value value = (Value)right;
+          return Q.like(left, "%" + value.getValue());
         } else {
           return Q.like(left, right);
         }
