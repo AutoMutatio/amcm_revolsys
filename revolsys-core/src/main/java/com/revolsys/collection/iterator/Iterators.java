@@ -25,7 +25,7 @@ public interface Iterators {
     }
   }
 
-  static <I, O> Iterator<O> map(final Iterator<I> iterator, final Function<I, O> converter) {
+  static <I, O> MapIterator<I, O> map(final Iterator<I> iterator, final Function<I, O> converter) {
     if (converter == null) {
       throw new IllegalArgumentException("Converter cannot be null");
     } else {
