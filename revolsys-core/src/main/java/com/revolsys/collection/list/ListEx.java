@@ -24,6 +24,7 @@ import org.jeometry.common.data.type.DataTypes;
 import com.revolsys.util.Property;
 import com.revolsys.util.StringBuilders;
 
+import reactor.core.publisher.Flux;
 import tech.units.indriya.quantity.Quantities;
 
 public interface ListEx<V> extends List<V>, Cloneable {
@@ -163,6 +164,13 @@ public interface ListEx<V> extends List<V>, Cloneable {
       }
     }
     return newList;
+  }
+
+  @SuppressWarnings({
+    "unchecked", "rawtypes"
+  })
+  default <V2 extends V> Flux<V2> flux() {
+    return (Flux)Flux.fromIterable(this);
   }
 
   default Double getDouble(final int index) {

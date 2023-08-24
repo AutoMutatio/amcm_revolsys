@@ -254,6 +254,13 @@ public class UriBuilder {
     return this;
   }
 
+  public UriBuilder addParameter(final String param, final Object value) {
+    if (value != null) {
+      return addParameter(param, value.toString());
+    }
+    return this;
+  }
+
   /**
    * Adds URI query parameters. The parameter name / values are expected to be unescaped
    * and may contain non ASCII characters.

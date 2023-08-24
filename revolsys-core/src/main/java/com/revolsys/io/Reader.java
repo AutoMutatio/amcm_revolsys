@@ -15,7 +15,6 @@
  */
 package com.revolsys.io;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -27,6 +26,8 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import com.revolsys.collection.iterator.FilterIterator;
+import com.revolsys.collection.list.ListEx;
+import com.revolsys.collection.list.Lists;
 import com.revolsys.properties.ObjectWithProperties;
 import com.revolsys.util.Cancellable;
 import com.revolsys.util.ExitLoopException;
@@ -194,16 +195,13 @@ public interface Reader<T> extends Iterable<T>, ObjectWithProperties, BaseClosea
    *
    * @return The list of items.
    */
-  default List<T> toList() {
-    final List<T> items = new ArrayList<>();
+  default ListEx<T> toList() {
     try (
       Reader<?> reader = this) {
       if (iterator() != null) {
-        for (final T item : this) {
-          items.add(item);
-        }
+        return Lists.toArray(this);
       }
     }
-    return items;
+    return ListEx.empty();
   }
 }

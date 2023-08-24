@@ -33,30 +33,28 @@ public class ApacheHttp {
     StandardCharsets.UTF_8);
 
   public static void execute(final HttpUriRequest request, final Consumer<HttpResponse> action) {
-    try (
-      final CloseableHttpClient httpClient = newClient()) {
-      final HttpResponse response = getResponse(httpClient, request);
+    execute(request, response -> {
       action.accept(response);
-    } catch (final ApacheHttpException e) {
-      throw e;
-    } catch (final WrappedException e) {
-      throw e;
-    } catch (final Exception e) {
-      throw Exceptions.wrap(request.getURI().toString(), e);
-    }
+      return null;
+    });
   }
 
   public static <V> V execute(final HttpUriRequest request,
     final Function<HttpResponse, V> action) {
     try (
       final CloseableHttpClient httpClient = newClient()) {
-      final HttpResponse response = getResponse(httpClient, request);
-      try {
-        return action.apply(response);
-      } catch (final Exception e) {
-        throw Exceptions.wrap(request.getURI().toString() + "\n" + e.getMessage(), e);
-      }
+      return httpClient.execute(request, response -> {
+        final StatusLine statusLine = response.getStatusLine();
+        final int statusCode = statusLine.getStatusCode();
+        if (statusCode >= 200 && statusCode <= 299) {
+          return action.apply(response);
+        } else {
+          throw ApacheHttpException.create(request, response);
+        }
+      });
     } catch (final ApacheHttpException e) {
+      throw e;
+    } catch (final WrappedException e) {
       throw e;
     } catch (final Exception e) {
       throw Exceptions.wrap(request.getURI().toString(), e);

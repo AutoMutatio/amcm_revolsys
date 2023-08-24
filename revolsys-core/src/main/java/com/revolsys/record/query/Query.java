@@ -20,6 +20,7 @@ import java.util.function.Supplier;
 import org.jeometry.common.io.PathName;
 import org.springframework.transaction.PlatformTransactionManager;
 
+import com.revolsys.collection.list.ListEx;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.jdbc.JdbcUtils;
@@ -720,7 +721,7 @@ public class Query extends BaseObjectWithProperties
     return getRecordDefinition().getRecordStore().getRecords(this);
   }
 
-  public List<Record> getRecords() {
+  public ListEx<Record> getRecords() {
     try (
       RecordReader records = getRecordReader()) {
       return records.toList();

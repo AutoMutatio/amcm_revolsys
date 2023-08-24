@@ -3,6 +3,8 @@ package com.revolsys.util;
 import java.sql.Timestamp;
 
 import org.jeometry.common.date.Dates;
+import org.jeometry.common.logging.Logs;
+import org.slf4j.LoggerFactory;
 
 import com.revolsys.geometry.graph.Edge;
 import com.revolsys.geometry.model.Geometry;
@@ -11,7 +13,14 @@ import com.revolsys.geometry.model.Point;
 import com.revolsys.record.Record;
 import com.revolsys.record.RecordState;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.Logger;
+
 public class Debug {
+  static {
+    ((Logger)LoggerFactory.getLogger(Debug.class)).setLevel(Level.INFO);
+  }
+
   public static boolean equals(final Geometry geometry, final double x, final double y) {
     final Point firstPoint = geometry.getPoint();
     if (firstPoint.equalsVertex(x, y)) {
@@ -96,6 +105,10 @@ public class Debug {
   }
 
   public static void noOp() {
+  }
+
+  public static void log(final Object object) {
+    Logs.info(Debug.class, object.toString());
   }
 
   public static void println(final Object object) {

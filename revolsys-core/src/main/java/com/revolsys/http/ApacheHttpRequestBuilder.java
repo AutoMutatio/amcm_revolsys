@@ -45,6 +45,8 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.message.HeaderGroup;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.Args;
+import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClient.RequestHeadersSpec;
 
 import com.revolsys.net.http.ApacheHttp;
 import com.revolsys.record.io.format.json.JsonList;
@@ -262,6 +264,15 @@ public class ApacheHttpRequestBuilder {
     return addParameter(parameter);
   }
 
+  public ApacheHttpRequestBuilder addParameterNotNull(final String name, final Object value) {
+    if (value != null) {
+      final String string = value.toString();
+      final BasicNameValuePair parameter = new BasicNameValuePair(name, string);
+      return addParameter(parameter);
+    }
+    return this;
+  }
+
   public ApacheHttpRequestBuilder addParameters(final Iterable<NameValuePair> parameters) {
     for (final NameValuePair parameter : parameters) {
       addParameter(parameter);
@@ -311,6 +322,40 @@ public class ApacheHttpRequestBuilder {
     }
     result.setConfig(this.config);
     return result;
+  }
+
+  public RequestHeadersSpec<?> buildWebClientRequest() {
+    final var client = WebClient.create();
+    final HttpUriRequest apacheRequest = build();
+    final var request = switch (apacheRequest.getMethod()) {
+      case "GET": {
+        yield client.get();
+      }
+      case "POST": {
+        yield client.post();
+      }
+      case "DELETE": {
+        yield client.delete();
+      }
+      case "PUT": {
+        yield client.put();
+      }
+      case "PATCH": {
+        yield client.patch();
+      }
+      default:
+        throw new IllegalArgumentException("Unexpected value: " + this.method);
+    };
+    return request//
+      .uri(apacheRequest.getURI())
+      .headers(headers -> {
+        for (final Header header : apacheRequest.getAllHeaders()) {
+          final String name = header.getName();
+          final String value = header.getValue();
+          headers.add(name, value);
+        }
+      });
+
   }
 
   public void execute() {
