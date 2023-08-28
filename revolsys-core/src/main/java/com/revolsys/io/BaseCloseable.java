@@ -22,7 +22,7 @@ public interface BaseCloseable extends Closeable {
     }
   };
 
-  static <C extends BaseCloseable> Consumer<? super C> closer() {
+  static <C extends AutoCloseable> Consumer<? super C> closer() {
     return CLOSER;
   }
 

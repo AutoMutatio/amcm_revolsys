@@ -21,9 +21,11 @@ import com.revolsys.io.BaseCloseable;
 import com.revolsys.io.file.Paths;
 import com.revolsys.util.Pair;
 
+import reactor.core.CoreSubscriber;
 import reactor.core.Disposable;
 import reactor.core.publisher.BaseSubscriber;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.FluxOperator;
 import reactor.core.publisher.FluxSink;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.ParallelFlux;
@@ -125,6 +127,16 @@ public class Reactive {
       sink.onDispose(subscriber);
       flux.subscribe(subscriber);
     });
+  }
+
+  public static <I, O> Flux<O> fluxOperator(final Flux<I> source,
+    final Function<I, Publisher<O>> converter) {
+    return new FluxOperator<I, O>(source) {
+      @Override
+      public void subscribe(final CoreSubscriber<? super O> subscriber) {
+        this.source.concatMap(converter).subscribe(subscriber);
+      }
+    };
   }
 
   public static <V> boolean isEmpty(final Publisher<V> publisher) {

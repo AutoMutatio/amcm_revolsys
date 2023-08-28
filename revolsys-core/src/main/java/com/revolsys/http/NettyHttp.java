@@ -1,5 +1,6 @@
 package com.revolsys.http;
 
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -17,6 +18,7 @@ import com.revolsys.record.io.format.json.JsonType;
 import com.revolsys.record.io.format.json.ToJsonProcessor;
 import com.revolsys.util.Debug;
 
+import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.cookie.Cookie;
@@ -55,8 +57,62 @@ public class NettyHttp {
     return HttpClient.create().secure(s -> s.sslContext(defaultSslSpec));
   }
 
+  public static Flux<ByteBuf> getByteBuf(final HttpClient client, final String uri) {
+    final var receiver = client//
+      .get()
+      .uri(uri);
+    return receiveByteBuf(receiver, b -> b);
+  }
+
+  public static <O> Flux<O> getBytes(final HttpClient client, final String uri,
+    final ByteBufFluxProcessor processor) {
+    Debug.log(uri);
+    final ResponseReceiver<?> receiver = client//
+      .get()
+      .uri(uri);
+    return NettyHttp.receiveByteBuf(receiver, bytes -> processor.process(bytes));
+  }
+
   public static Http2SslContextSpec getDefaultSslSpec() {
     return defaultSslSpec;
+  }
+
+  public static Mono<InputStream> getInputStream(final HttpClient client, final String uri) {
+    final var receiver = client//
+      .get()
+      .uri(uri);
+    return receiveByteBuf(receiver, ByteBufs::inputStream$).singleOrEmpty();
+  }
+
+  private static <J extends JsonType> Mono<J> getJson(final HttpClient client, final String uri) {
+    Debug.log(uri);
+    final ResponseReceiver<?> receiver = client//
+      .headers(headers -> {
+        headers.add("Accept", "application/json");
+      })
+      .get()
+      .uri(uri);
+    return NettyHttp.<J> receiveJson(receiver).singleOrEmpty();
+  }
+
+  public static Mono<JsonObject> getJsonList(final HttpClient client, final String uri) {
+    return getJson(client, uri);
+  }
+
+  public static Mono<JsonList> getJsonList(final HttpClient client, final String uri,
+    final ByteBufFluxProcessor processor) {
+    final Flux<JsonList> json$ = getBytes(client, uri, processor);
+    return json$.singleOrEmpty();
+  }
+
+  public static Mono<JsonObject> getJsonObject(final HttpClient client, final String uri) {
+    return getJson(client, uri);
+  }
+
+  public static Mono<JsonObject> getJsonObject(final HttpClient client, final String uri,
+    final ByteBufFluxProcessor processor) {
+    final Flux<JsonObject> json$ = getBytes(client, uri, processor);
+    return json$.singleOrEmpty();
   }
 
   public static Mono<JsonList> jsonList(final ByteBufFlux bytes) {
@@ -71,11 +127,7 @@ public class NettyHttp {
     return new DefaultCookie(name, value);
   }
 
-  public static void setDefaultSslSpec(final Http2SslContextSpec defaultSslSpec) {
-    NettyHttp.defaultSslSpec = defaultSslSpec;
-  }
-
-  public static Mono<JsonObject> postAcceptJson(HttpClient client, String uri,
+  public static Mono<JsonObject> postAcceptJson(final HttpClient client, final String uri,
     final FormUrlEncodedString body) {
     return NettyHttp
       .<JsonObject, JsonObject> postAcceptJson(client, uri,
@@ -83,29 +135,18 @@ public class NettyHttp {
       .single();
   }
 
-  public static <O, J extends JsonType> Flux<O> postAcceptJson(HttpClient client, String uri,
-    final FormUrlEncodedString body, Function<Mono<J>, ? extends Publisher<O>> action) {
+  public static <O, J extends JsonType> Flux<O> postAcceptJson(final HttpClient client,
+    final String uri, final FormUrlEncodedString body,
+    final Function<Mono<J>, ? extends Publisher<O>> action) {
     return postAcceptJson(client, uri, "application/x-www-form-urlencoded; charset=UTF-8", body,
       action);
   }
 
-  public static <O> Flux<O> postAcceptJsonObject(HttpClient client, String uri,
-    final FormUrlEncodedString body, Function<Mono<JsonObject>, ? extends Publisher<O>> action) {
-    return postAcceptJson(client, uri, "application/x-www-form-urlencoded; charset=UTF-8", body,
-      action);
-  }
-
-  public static <O> Flux<O> postAcceptJsonList(HttpClient client, String uri,
-    final FormUrlEncodedString body, Function<Mono<JsonList>, ? extends Publisher<O>> action) {
-    return postAcceptJson(client, uri, "application/x-www-form-urlencoded; charset=UTF-8", body,
-      action);
-  }
-
-  public static <O, J extends JsonType> Flux<O> postAcceptJson(HttpClient client, String uri,
-    String contentType, final FormUrlEncodedString body,
-    Function<Mono<J>, ? extends Publisher<O>> action) {
+  public static <O, J extends JsonType> Flux<O> postAcceptJson(final HttpClient client,
+    final String uri, final String contentType, final FormUrlEncodedString body,
+    final Function<Mono<J>, ? extends Publisher<O>> action) {
     Debug.log(uri);
-    ResponseReceiver<?> receiver = client//
+    final ResponseReceiver<?> receiver = client//
       .headers(headers -> {
         headers.add("Content-Type", contentType).add("Accept", "application/json");
       })
@@ -115,44 +156,46 @@ public class NettyHttp {
     return NettyHttp.receiveJson(receiver, action);
   }
 
-  public static Mono<JsonObject> getJsonObject(HttpClient client, String uri) {
-    return getJson(client, uri);
+  public static <O> Flux<O> postAcceptJsonList(final HttpClient client, final String uri,
+    final FormUrlEncodedString body,
+    final Function<Mono<JsonList>, ? extends Publisher<O>> action) {
+    return postAcceptJson(client, uri, "application/x-www-form-urlencoded; charset=UTF-8", body,
+      action);
   }
 
-  public static Mono<JsonObject> getJsonList(HttpClient client, String uri) {
-    return getJson(client, uri);
+  public static <O> Flux<O> postAcceptJsonObject(final HttpClient client, final String uri,
+    final FormUrlEncodedString body,
+    final Function<Mono<JsonObject>, ? extends Publisher<O>> action) {
+    return postAcceptJson(client, uri, "application/x-www-form-urlencoded; charset=UTF-8", body,
+      action);
   }
 
-  private static <J extends JsonType> Mono<J> getJson(HttpClient client, String uri) {
-    Debug.log(uri);
-    ResponseReceiver<?> receiver = client//
-      .headers(headers -> {
-        headers.add("Accept", "application/json");
-      })
-      .get()
-      .uri(uri);
-    return NettyHttp.<J> receiveJson(receiver).single();
+  public static <O> Flux<O> receiveByteBuf(final ResponseReceiver<?> receiver,
+    final Function<ByteBufFlux, ? extends Publisher<O>> handler) {
+    return receiver.response((response, body) -> {
+      final HttpResponseStatus status = response.status();
+      if (status.equals(HttpResponseStatus.OK)) {
+        return handler.apply(body);
+      } else {
+        return statusError$(status);
+      }
+    });
   }
 
-  public static Mono<JsonObject> getJsonObject(HttpClient client, String uri,
-    ByteBufFluxProcessor processor) {
-    Flux<JsonObject> json$ = getBytes(client, uri, processor);
-    return json$.single();
+  public static <J extends JsonType> Flux<J> receiveJson(final ResponseReceiver<?> receiver) {
+    return receiveByteBuf(receiver, NettyHttp::singleValue);
   }
 
-  public static Mono<JsonList> getJsonList(HttpClient client, String uri,
-    ByteBufFluxProcessor processor) {
-    Flux<JsonList> json$ = getBytes(client, uri, processor);
-    return json$.single();
+  public static <O, J extends JsonType> Flux<O> receiveJson(final ResponseReceiver<?> receiver,
+    final Function<Mono<J>, ? extends Publisher<O>> handler) {
+    return receiveByteBuf(receiver, bytes -> {
+      final Mono<J> jsonObject$ = singleValue(bytes);
+      return handler.apply(jsonObject$);
+    });
   }
 
-  public static <O> Flux<O> getBytes(HttpClient client, String uri,
-    ByteBufFluxProcessor processor) {
-    Debug.log(uri);
-    ResponseReceiver<?> receiver = client//
-      .get()
-      .uri(uri);
-    return NettyHttp.receiveByteBuf(receiver, (bytes) -> processor.process(bytes));
+  public static void setDefaultSslSpec(final Http2SslContextSpec defaultSslSpec) {
+    NettyHttp.defaultSslSpec = defaultSslSpec;
   }
 
   private static <V> Mono<V> singleValue(final ByteBufFlux bytes) {
@@ -168,27 +211,7 @@ public class NettyHttp {
     }).publishOn(Schedulers.boundedElastic()).single();
   }
 
-  public static <O, J extends JsonType> Flux<O> receiveJson(ResponseReceiver<?> receiver,
-    Function<Mono<J>, ? extends Publisher<O>> handler) {
-    return receiveByteBuf(receiver, bytes -> {
-      Mono<J> jsonObject$ = singleValue(bytes);
-      return handler.apply(jsonObject$);
-    });
-  }
-
-  public static <J extends JsonType> Flux<J> receiveJson(ResponseReceiver<?> receiver) {
-    return receiveByteBuf(receiver, bytes -> singleValue(bytes));
-  }
-
-  public static <O> Flux<O> receiveByteBuf(ResponseReceiver<?> receiver,
-    Function<ByteBufFlux, ? extends Publisher<O>> handler) {
-    return receiver.response((response, body) -> {
-      HttpResponseStatus status = response.status();
-      if (status.equals(HttpResponseStatus.OK)) {
-        return handler.apply(body);
-      } else {
-        return Mono.error(new HttpException(status.code(), status.reasonPhrase()));
-      }
-    });
+  public static <V> Mono<V> statusError$(final HttpResponseStatus status) {
+    return Mono.error(new HttpException(status.code(), status.reasonPhrase()));
   }
 }
