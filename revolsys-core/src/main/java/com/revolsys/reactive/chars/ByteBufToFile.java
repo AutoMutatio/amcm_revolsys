@@ -9,6 +9,7 @@ import java.nio.file.Path;
 import org.reactivestreams.Subscription;
 
 import com.revolsys.reactive.Reactive;
+import com.revolsys.reactive.RequestCounter;
 
 import io.netty.buffer.ByteBuf;
 import reactor.core.CoreSubscriber;
@@ -19,8 +20,10 @@ import reactor.core.publisher.MonoSink;
 public class ByteBufToFile implements CoreSubscriber<ByteBuf>, CompletionHandler<Integer, Long> {
   public static Mono<Long> create(final Flux<ByteBuf> source, final Path path,
     final OpenOption... options) {
-    return Reactive.monoCloseable(() -> AsynchronousFileChannel.open(path, options),
-      channel -> Mono.create(sink -> new ByteBufToFile(source, channel, sink)));
+    return Reactive
+      .fluxCloseable(() -> AsynchronousFileChannel.open(path, options),
+        channel -> Mono.<Long> create(sink -> new ByteBufToFile(source, channel, sink)))
+      .singleOrEmpty();
   }
 
   private long offset = 0;
@@ -37,18 +40,26 @@ public class ByteBufToFile implements CoreSubscriber<ByteBuf>, CompletionHandler
 
   private final ByteBuffer outBuffer = ByteBuffer.allocateDirect(8192);
 
+  private long writeOutstanding = 0;
+
+  private final Flux<ByteBuf> source;
+
+  private final RequestCounter requestCount = new RequestCounter();
+
   public ByteBufToFile(final Flux<ByteBuf> source, final AsynchronousFileChannel channel,
     final MonoSink<Long> sink) {
+    this.source = source;
     this.channel = channel;
     this.sink = sink;
-    source.subscribe(this);
-    this.sink.onCancel(this::cancel)
-      .onDispose(this::dispose)
-      .onRequest(c -> this.subscription.request(1));
+    this.source.limitRate(1).subscribe(this);
+    this.sink.onCancel(this::cancel).onDispose(this::dispose).onRequest(this::onRequest);
   }
 
   private void cancel() {
-    this.subscription.cancel();
+    final Subscription subscription = this.subscription;
+    if (subscription != null) {
+      subscription.cancel();
+    }
   }
 
   @Override
@@ -56,18 +67,28 @@ public class ByteBufToFile implements CoreSubscriber<ByteBuf>, CompletionHandler
     if (count < 0) {
       this.sink.error(new IllegalStateException("Unepected negative write: " + count));
     }
+    this.writeOutstanding -= count;
     this.offset += count;
     doWrite();
   }
 
   private void dispose() {
-    if (this.subscription != null) {
-      this.subscription.cancel();
+    final Subscription subscription = this.subscription;
+    if (subscription != null) {
+      subscription.cancel();
+    }
+  }
+
+  private void doRequest() {
+    if (this.requestCount.release(1) > 0) {
+      this.subscription.request(1);
     }
   }
 
   private void doWrite() {
-    if (this.outBuffer.hasRemaining()) {
+    if (this.writeOutstanding != 0) {
+    } else if (this.outBuffer.hasRemaining()) {
+      this.writeOutstanding += this.outBuffer.remaining();
       this.channel.write(this.outBuffer, this.offset, this.offset, this);
     } else if (this.inBuffer != null && this.inBuffer.isReadable()) {
       fillOutBuffer();
@@ -85,7 +106,7 @@ public class ByteBufToFile implements CoreSubscriber<ByteBuf>, CompletionHandler
       }
       return;
     } else {
-      this.subscription.request(1);
+      doRequest();
     }
   }
 
@@ -123,6 +144,17 @@ public class ByteBufToFile implements CoreSubscriber<ByteBuf>, CompletionHandler
     bytes.retain();
     fillOutBuffer();
     doWrite();
+  }
+
+  private void onRequest(final long request) {
+    if (!this.complete) {
+      if (this.subscription == null) {
+        // this.source.subscribeOn(Schedulers.parallel()).subscribe(this);
+      }
+      this.requestCount.request(request);
+
+      doRequest();
+    }
   }
 
   @Override

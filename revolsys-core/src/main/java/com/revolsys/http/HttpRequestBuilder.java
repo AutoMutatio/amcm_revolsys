@@ -449,6 +449,16 @@ public class HttpRequestBuilder {
     return this.method;
   }
 
+  public ResponseReceiver<?> getNetty() {
+    final HttpClient httpClient = buildNetty();
+    URI uri = this.uri;
+    if (uri == null) {
+      uri = URI.create("/");
+    }
+    uri = new UriBuilder(uri).setCharset(this.charset).addParameters(this.parameters).build();
+    return httpClient.get().uri(uri);
+  }
+
   public List<NameValuePair> getParameters() {
     return this.parameters != null ? new ArrayList<>(this.parameters) : new ArrayList<>();
   }

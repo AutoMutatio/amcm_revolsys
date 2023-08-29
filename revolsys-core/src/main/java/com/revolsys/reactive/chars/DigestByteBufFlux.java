@@ -1,10 +1,8 @@
 package com.revolsys.reactive.chars;
 
-import java.security.DigestException;
 import java.security.MessageDigest;
 import java.util.function.Supplier;
 
-import org.jeometry.common.exception.Exceptions;
 import org.jeometry.coordinatesystem.util.MessageDigestProxy;
 
 import io.netty.buffer.ByteBuf;
@@ -12,7 +10,8 @@ import reactor.core.CoreSubscriber;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.FluxOperator;
 
-public class DigestByteBufFlux extends FluxOperator<ByteBuf, ByteBuf> implements MessageDigestProxy {
+public class DigestByteBufFlux extends FluxOperator<ByteBuf, ByteBuf>
+  implements MessageDigestProxy {
 
   private static final int BUF_SIZE = 8912;
 
@@ -39,14 +38,10 @@ public class DigestByteBufFlux extends FluxOperator<ByteBuf, ByteBuf> implements
   public void subscribe(final CoreSubscriber<? super ByteBuf> subscriber) {
     this.source.doOnNext(bytes -> {
       final int size = bytes.readableBytes();
-      try {
-        for (int start = 0; start < size; start += BUF_SIZE) {
-          final int len = Math.min(BUF_SIZE, size - start);
-          bytes.getBytes(start, this.buf, 0, len);
-          this.digest.digest(this.buf, 0, len);
-        }
-      } catch (final DigestException e) {
-        throw Exceptions.wrap(e);
+      for (int start = 0; start < size; start += BUF_SIZE) {
+        final int len = Math.min(BUF_SIZE, size - start);
+        bytes.getBytes(start, this.buf, 0, len);
+        this.digest.update(this.buf, 0, len);
       }
     }).subscribe(subscriber);
   }

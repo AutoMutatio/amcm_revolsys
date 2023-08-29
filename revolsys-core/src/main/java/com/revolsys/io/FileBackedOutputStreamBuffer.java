@@ -21,6 +21,7 @@ import org.jeometry.common.exception.Exceptions;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import reactor.core.publisher.Flux;
+import reactor.netty.ByteBufFlux;
 
 public class FileBackedOutputStreamBuffer extends OutputStream {
 
@@ -163,7 +164,8 @@ public class FileBackedOutputStreamBuffer extends OutputStream {
     if (this.file == null) {
       return memoryBuffer;
     } else {
-      return Flux.concat(memoryBuffer);
+      final ByteBufFlux fileBuffer = ByteBufFlux.fromPath(this.file);
+      return Flux.concat(memoryBuffer, fileBuffer);
     }
   }
 
