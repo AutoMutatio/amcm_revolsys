@@ -2,10 +2,15 @@ package com.revolsys.reactive.chars;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
+import java.nio.channels.AsynchronousByteChannel;
+import java.nio.channels.AsynchronousFileChannel;
+import java.nio.channels.Channel;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
+import java.nio.channels.WritableByteChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.StandardCharsets;
@@ -17,10 +22,11 @@ import java.util.function.Consumer;
 
 import org.reactivestreams.Publisher;
 
-import com.revolsys.io.BaseCloseable;
+import com.revolsys.reactive.Reactive;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
+import io.netty.util.IllegalReferenceCountException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.FluxSink;
 import reactor.core.publisher.Mono;
@@ -60,7 +66,7 @@ public class ByteBufs {
 
   public static ByteBufFlux fromChannel(final Callable<ReadableByteChannel> source) {
     final ByteBuffer buffer = ByteBuffer.allocateDirect(8192);
-    final Flux<ByteBuf> bytes = Flux.generate(source, (channel, sink) -> {
+    final Flux<ByteBuf> bytes = Reactive.fluxCloseable(source, channel -> Flux.generate(sink -> {
       try {
         buffer.clear();
         if (channel.read(buffer) < 0) {
@@ -74,8 +80,7 @@ public class ByteBufs {
       } catch (final IOException e) {
         sink.error(e);
       }
-      return channel;
-    }, BaseCloseable.closer());
+    }));
     return ByteBufFlux.fromInbound(bytes, ByteBufAllocator.DEFAULT);
   }
 
@@ -106,17 +111,66 @@ public class ByteBufs {
     return new ByteBufFluxSplitWindow(source, size);
   }
 
+  public static Flux<ByteBuffer> toByteBufFlux(final Flux<ByteBuf> source) {
+    return source.handle((bb, sink) -> {
+      try {
+        sink.next(bb.nioBuffer());
+      } catch (final IllegalReferenceCountException e) {
+        sink.complete();
+      }
+    });
+  }
+
   public static ByteBufFlux toByteBufFlux(final String value) {
     return ByteBufFlux.fromString(Mono.just(value));
   }
 
+  public static Mono<Long> write(final Flux<ByteBuf> source,
+    final AsynchronousByteChannel channel) {
+    return Mono
+      .<Long> create(sink -> new ByteBufToAsyncChannel(toByteBufFlux(source), channel, sink));
+  }
+
+  public static Mono<Long> write(final Flux<ByteBuf> source,
+    final AsynchronousFileChannel channel) {
+    return Mono.<Long> create(sink -> new ByteBufToFile(toByteBufFlux(source), channel, sink));
+  }
+
+  public static Mono<Long> write(final Flux<ByteBuf> source, final Callable<OutputStream> out) {
+    return Reactive.monoCloseable(() -> Channels.newChannel(out.call()),
+      channel -> write(source, channel));
+  }
+
+  public static Mono<Long> write(final Flux<ByteBuf> source, final Channel channel) {
+    if (channel instanceof AsynchronousFileChannel) {
+      return write(source, (AsynchronousFileChannel)channel);
+    } else if (channel instanceof AsynchronousByteChannel) {
+      return write(source, (AsynchronousByteChannel)channel);
+    } else if (channel instanceof WritableByteChannel) {
+      return write(source, (WritableByteChannel)channel);
+    } else {
+      throw new IllegalArgumentException("Channel not supported: " + channel.getClass());
+    }
+  }
+
+  public static Mono<Long> write(final Flux<ByteBuf> source, final OutputStream out) {
+    return Reactive.monoCloseable(() -> Channels.newChannel(out),
+      channel -> write(source, channel));
+  }
+
   public static Mono<Long> write(final Flux<ByteBuf> source, final Path path,
     final OpenOption... options) {
-    return ByteBufToFile.create(source, path, options);
+    return Reactive.monoCloseable(() -> AsynchronousFileChannel.open(path, options),
+      channel -> write(source, channel));
+  }
+
+  public static Mono<Long> write(final Flux<ByteBuf> source, final WritableByteChannel channel) {
+    return Mono.<Long> create(
+      sink -> new ByteBufToWritableByteChannel(toByteBufFlux(source), channel, sink));
   }
 
   public static Mono<Long> write(final String source, final Path path,
     final OpenOption... options) {
-    return ByteBufToFile.create(fromString(source), path, options);
+    return write(fromString(source), path, options);
   }
 }
