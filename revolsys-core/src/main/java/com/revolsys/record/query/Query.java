@@ -52,7 +52,7 @@ import com.revolsys.util.Property;
 import com.revolsys.util.count.LabelCounters;
 
 public class Query extends BaseObjectWithProperties
-  implements Cloneable, CancellableProxy, Transactionable, QueryValue {
+  implements Cloneable, CancellableProxy, Transactionable, QueryValue, TableReferenceProxy {
 
   private static void addFilter(final Query query, final RecordDefinition recordDefinition,
     final Map<String, ?> filter, final AbstractMultiCondition multipleCondition) {
@@ -806,6 +806,11 @@ public class Query extends BaseObjectWithProperties
     } else {
       return this.table.getTablePath();
     }
+  }
+
+  @Override
+  public TableReference getTableReference() {
+    return getRecordDefinition();
   }
 
   @Override
