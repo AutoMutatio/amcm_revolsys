@@ -16,7 +16,9 @@ public interface BaseCloseable extends Closeable {
 
   static Consumer<AutoCloseable> CLOSER = resource -> {
     try {
-      resource.close();
+      if (resource != null) {
+        resource.close();
+      }
     } catch (final Exception e) {
       throw Exceptions.wrap(e);
     }
