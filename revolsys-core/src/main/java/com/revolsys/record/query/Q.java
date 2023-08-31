@@ -59,13 +59,13 @@ public class Q {
     return new And(conditions);
   }
 
-  public static Any any(final TableReferenceProxy table, final String columnName) {
-    ColumnReference column = table.getColumn("columnName");
-    return any(column);
+  public static Any any(final ColumnReference column) {
+    return new Any(column);
   }
 
-  public static Any any(ColumnReference column) {
-    return new Any(column);
+  public static Any any(final TableReferenceProxy table, final String columnName) {
+    final ColumnReference column = table.getColumn(columnName);
+    return any(column);
   }
 
   public static QueryValue arithmatic(final FieldDefinition field, final String operator,
