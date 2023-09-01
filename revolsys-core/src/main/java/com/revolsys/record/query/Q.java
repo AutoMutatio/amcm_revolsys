@@ -59,6 +59,15 @@ public class Q {
     return new And(conditions);
   }
 
+  public static Any any(final ColumnReference column) {
+    return new Any(column);
+  }
+
+  public static Any any(final TableReferenceProxy table, final String columnName) {
+    final ColumnReference column = table.getColumn(columnName);
+    return any(column);
+  }
+
   public static QueryValue arithmatic(final FieldDefinition field, final String operator,
     final Object value) {
     final Value queryValue = Value.newValue(field, value);
@@ -389,7 +398,12 @@ public class Q {
   }
 
   public static Like like(final QueryValue left, final Object value) {
-    final Value valueCondition = Value.newValue(value);
+    final QueryValue valueCondition;
+    if (value instanceof QueryValue) {
+      valueCondition = (QueryValue)value;
+    } else {
+      valueCondition = Value.newValue(value);
+    }
     return new Like(left, valueCondition);
   }
 
@@ -428,10 +442,9 @@ public class Q {
     return new Not(condition);
   }
 
-  public static Condition notEqual(final FieldDefinition fieldDefinition, final Object value) {
-    final String name = fieldDefinition.getName();
-    final Value valueCondition = Value.newValue(fieldDefinition, value);
-    return notEqual(name, valueCondition);
+  public static NotEqual notEqual(final ColumnReference column, final Object value) {
+    final Value valueCondition = Value.newValue(column, value);
+    return new NotEqual(column, valueCondition);
   }
 
   public static Condition notEqual(final QueryValue left, final QueryValue right) {
@@ -502,6 +515,10 @@ public class Q {
     } else {
       return null;
     }
+  }
+
+  public static SqlCondition sql(final String sql, final Iterable<Object> parameters) {
+    return new SqlCondition(sql, parameters);
   }
 
   public static SqlCondition sql(final String sql, final Object... parameters) {

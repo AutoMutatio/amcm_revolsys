@@ -13,9 +13,10 @@ public class OracleBlobFieldAdder extends JdbcFieldAdder {
   @Override
   public JdbcFieldDefinition newField(final AbstractJdbcRecordStore recordStore,
     final JdbcRecordDefinition recordDefinition, final String dbName, final String name,
-    final String dbDataType, final int sqlType, final int length, final int scale,
+    final int sqlType, final String dbDataType, final int length, final int scale,
     final boolean required, final String description) {
-    return new OracleJdbcBlobFieldDefinition(dbName, name, sqlType, required, description);
+    return new OracleJdbcBlobFieldDefinition(dbName, name, sqlType, dbDataType, required,
+      description);
   }
 
 }

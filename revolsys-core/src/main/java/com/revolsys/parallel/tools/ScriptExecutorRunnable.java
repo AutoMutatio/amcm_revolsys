@@ -83,7 +83,7 @@ public class ScriptExecutorRunnable extends AbstractRunnable {
     try {
       String logPath = null;
       final String logFileName = (String)this.attributes.get("logFile");
-      if (logFileName != null && logFileName.trim().length() > 0) {
+      if (logFileName != null && logFileName.strip().length() > 0) {
         final File logFile = new File(logFileName);
         final File parentFile = logFile.getParentFile();
         if (parentFile != null) {

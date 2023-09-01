@@ -468,7 +468,7 @@ public class PostgreSQLGeometryWrapper extends PGobject {
   }
 
   public void newGeometry(GeometryFactory geometryFactory) {
-    final String value = getValue().trim();
+    final String value = getValue().strip();
     int srid = -1;
     String wkt;
     if (value.startsWith("SRID=")) {
@@ -477,7 +477,7 @@ public class PostgreSQLGeometryWrapper extends PGobject {
         throw new IllegalArgumentException("Error parsing Geometry - SRID not delimited with ';' ");
       } else {
         srid = Integer.parseInt(value.substring(5, index));
-        wkt = value.substring(index + 1).trim();
+        wkt = value.substring(index + 1).strip();
       }
     } else {
       wkt = value;

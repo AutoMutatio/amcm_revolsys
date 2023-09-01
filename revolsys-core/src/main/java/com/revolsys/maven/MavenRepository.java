@@ -241,7 +241,7 @@ public class MavenRepository implements URLStreamHandlerFactory {
         String digestContents = null;
         try {
           digestContents = digestResource.contentsAsString();
-          return digestContents.trim().substring(0, 40);
+          return digestContents.strip().substring(0, 40);
         } catch (final Throwable e) {
           if (digestContents == null) {
             Logs.error(this, "Error downloading: " + digestResource, e);

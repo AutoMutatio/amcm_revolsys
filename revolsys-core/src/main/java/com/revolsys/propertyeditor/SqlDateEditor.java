@@ -24,7 +24,7 @@ public class SqlDateEditor extends PropertyEditorSupport {
 
   @Override
   public void setAsText(final String text) throws IllegalArgumentException {
-    if (text == null || text.trim().length() == 0) {
+    if (text == null || text.strip().length() == 0) {
       setValue(null);
     } else {
       final java.util.Date date = Dates.getDate(this.pattern, text);

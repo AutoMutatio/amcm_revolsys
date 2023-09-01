@@ -72,6 +72,28 @@ public class Reactive {
     return Flux.combineLatest(results -> (V)results[index], sources).single();
   }
 
+  public static <V> Flux<V> concatFlux(final Flux<V> first, final Flux<V> second) {
+    if (isEmpty(first)) {
+      return second;
+    } else if (isEmpty(second)) {
+      return first;
+    } else {
+      return first.concatWith(second);
+    }
+  }
+
+  public static <V> Flux<V> concatFlux(final Publisher<V> first, final Publisher<V> second) {
+    if (isEmpty(first)) {
+      return Flux.from(second);
+    } else if (isEmpty(second)) {
+      return Flux.from(first);
+    } else if (first instanceof final Flux<V> flux) {
+      return flux.concatWith(second);
+    } else {
+      return Flux.concat(first, second);
+    }
+  }
+
   public static <T> Flux<T> debugTime(final String message, final Flux<T> flux) {
     final AtomicReference<Long> startTime = new AtomicReference<>();
     return flux.doOnSubscribe(x -> startTime.set(System.nanoTime()))
@@ -103,6 +125,10 @@ public class Reactive {
       sink.onDispose(subscriber);
       flux.subscribe(subscriber);
     });
+  }
+
+  public static <V> boolean isEmpty(final Publisher<V> publisher) {
+    return publisher == null || publisher == Flux.empty() || publisher == Mono.empty();
   }
 
   public static <V> MergeSinkHandler<V> merge(final Publisher<V> source1,

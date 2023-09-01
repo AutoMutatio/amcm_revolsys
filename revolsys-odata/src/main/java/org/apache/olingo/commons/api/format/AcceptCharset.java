@@ -60,7 +60,7 @@ public class AcceptCharset {
     }
     for (final String value : values) {
       try {
-        result.add(new AcceptCharset(value.trim()));
+        result.add(new AcceptCharset(value.strip()));
       } catch (final UnsupportedCharsetException e) {
         exceptionList.add(e);
       } catch (final IllegalArgumentException e) {

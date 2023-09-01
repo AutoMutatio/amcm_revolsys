@@ -713,7 +713,7 @@ public class ImageInfo {
           return false;
         }
         String comment = new String(chars, "iso-8859-1");
-        comment = comment.trim();
+        comment = comment.strip();
         addComment(comment);
       } else if (marker >= 0xffc0 && marker <= 0xffcf && marker != 0xffc4 && marker != 0xffc8) {
         if (read(data, 0, 6) != 6) {
@@ -799,7 +799,7 @@ public class ImageInfo {
     while (true) {
       s = readLine();
       if (s != null) {
-        s = s.trim();
+        s = s.strip();
       }
       if (s == null || s.length() < 1) {
         continue;

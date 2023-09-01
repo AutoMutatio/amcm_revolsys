@@ -1,6 +1,7 @@
 package com.revolsys.record.query;
 
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -21,6 +22,8 @@ import org.springframework.transaction.PlatformTransactionManager;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.jdbc.JdbcUtils;
+import com.revolsys.jdbc.field.JdbcFieldDefinition;
+import com.revolsys.jdbc.field.JdbcFieldDefinitions;
 import com.revolsys.predicate.Predicates;
 import com.revolsys.properties.BaseObjectWithProperties;
 import com.revolsys.record.ArrayChangeTrackRecord;
@@ -31,6 +34,7 @@ import com.revolsys.record.Records;
 import com.revolsys.record.io.RecordReader;
 import com.revolsys.record.io.RecordWriter;
 import com.revolsys.record.io.format.json.Json;
+import com.revolsys.record.query.functions.Exists;
 import com.revolsys.record.query.functions.F;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.LockMode;
@@ -46,7 +50,7 @@ import com.revolsys.util.Property;
 import com.revolsys.util.count.LabelCounters;
 
 public class Query extends BaseObjectWithProperties
-  implements Cloneable, CancellableProxy, Transactionable {
+  implements Cloneable, CancellableProxy, Transactionable, QueryValue, TableReferenceProxy {
 
   private static void addFilter(final Query query, final RecordDefinition recordDefinition,
     final Map<String, ?> filter, final AbstractMultiCondition multipleCondition) {
@@ -194,6 +198,8 @@ public class Query extends BaseObjectWithProperties
   private LabelCounters labelCountMap;
 
   private Condition whereCondition = Condition.ALL;
+
+  private final List<WithQuery> withQueries = new ArrayList<>();
 
   public Query() {
     this("/Record");
@@ -402,6 +408,11 @@ public class Query extends BaseObjectWithProperties
     return and(condition);
   }
 
+  public Query and(final TableReferenceProxy table, final String columnName, final Object value) {
+    final ColumnReference column = table.getColumn(columnName);
+    return and(column, value);
+  }
+
   public Query andEqualId(final Object id) {
     final RecordDefinition recordDefinition = getRecordDefinition();
     final String idFieldName = recordDefinition.getIdFieldName();
@@ -423,6 +434,12 @@ public class Query extends BaseObjectWithProperties
     return this;
   }
 
+  @Override
+  public void appendDefaultSql(final Query query, final RecordStore recordStore,
+    final SqlAppendable sql) {
+    appendSql(sql);
+  }
+
   public SqlAppendable appendOrderByFields(final SqlAppendable sql, final TableReferenceProxy table,
     final List<OrderBy> orderBy) {
     boolean first = true;
@@ -435,6 +452,27 @@ public class Query extends BaseObjectWithProperties
       order.appendSql(this, table, sql);
     }
     return sql;
+  }
+
+  @Override
+  public int appendParameters(int index, final PreparedStatement statement) {
+    for (final Object parameter : getParameters()) {
+      final JdbcFieldDefinition field = JdbcFieldDefinitions.newFieldDefinition(parameter);
+      try {
+        index = field.setPreparedStatementValue(statement, index, parameter);
+      } catch (final SQLException e) {
+        throw new RuntimeException("Error setting value:" + parameter, e);
+      }
+    }
+    index = appendSelectParameters(index, statement);
+    for (final Join join : getJoins()) {
+      index = join.appendParameters(index, statement);
+    }
+    final Condition where = getWhereCondition();
+    if (!where.isEmpty()) {
+      index = where.appendParameters(index, statement);
+    }
+    return index;
   }
 
   public void appendSelect(final SqlAppendable sql) {
@@ -460,6 +498,66 @@ public class Query extends BaseObjectWithProperties
       index = select.appendParameters(index, statement);
     }
     return index;
+  }
+
+  void appendSql(final SqlAppendable sql) {
+    appendSql(sql, this.table, this.orderBy);
+  }
+
+  protected void appendSql(final SqlAppendable sql, final TableReferenceProxy table,
+    final List<OrderBy> orderBy) {
+    From from = getFrom();
+    if (from == null) {
+      from = table.getTableReference();
+    }
+    final List<Join> joins = getJoins();
+    final LockMode lockMode = getLockMode();
+    final boolean distinct = isDistinct();
+    final List<QueryValue> groupBy = getGroupBy();
+    if (!this.withQueries.isEmpty()) {
+      sql.append("WITH ");
+      boolean first = true;
+      for (final WithQuery withQuery : this.withQueries) {
+        if (first) {
+          first = false;
+        } else {
+          sql.append("\n");
+          withQuery.appendSql(sql);
+        }
+      }
+    }
+    sql.append("SELECT ");
+    if (distinct) {
+      sql.append("DISTINCT ");
+    }
+    appendSelect(sql);
+    sql.append(" FROM ");
+    from.appendFromWithAlias(sql);
+    for (final Join join : joins) {
+      JdbcUtils.appendQueryValue(sql, this, join);
+    }
+    JdbcUtils.appendWhere(sql, this, sql.isUsePlaceholders());
+
+    if (groupBy != null) {
+      boolean hasGroupBy = false;
+      for (final QueryValue groupByItem : groupBy) {
+        if (hasGroupBy) {
+          sql.append(", ");
+        } else {
+          sql.append(" GROUP BY ");
+          hasGroupBy = true;
+        }
+        table.getTableReference().appendQueryValue(this, sql, groupByItem);
+      }
+    }
+
+    addOrderBy(sql, table, orderBy);
+
+    lockMode.append(sql);
+  }
+
+  public Exists asExists() {
+    return new Exists(this);
   }
 
   public Query clearOrderBy() {
@@ -490,6 +588,7 @@ public class Query extends BaseObjectWithProperties
     return clone;
   }
 
+  @Override
   public Query clone(final TableReference oldTable, final TableReference newTable) {
     final Query clone = (Query)super.clone();
     clone.table = this.table;
@@ -627,6 +726,10 @@ public class Query extends BaseObjectWithProperties
     }
   }
 
+  public RecordStore getRecordStore() {
+    return getRecordDefinition().getRecordStore();
+  }
+
   public List<QueryValue> getSelect() {
     return this.selectExpressions;
   }
@@ -704,8 +807,18 @@ public class Query extends BaseObjectWithProperties
   }
 
   @Override
+  public TableReference getTableReference() {
+    return getRecordDefinition();
+  }
+
+  @Override
   public PlatformTransactionManager getTransactionManager() {
     return getRecordDefinition().getRecordStore().getTransactionManager();
+  }
+
+  @Override
+  public <V> V getValue(final MapEx record) {
+    return null;
   }
 
   public String getWhere() {
@@ -769,10 +882,6 @@ public class Query extends BaseObjectWithProperties
     }
   }
 
-  public Record insertOrUpdateRecord(final InsertUpdateAction action) {
-    return insertOrUpdateRecord(action::insertRecord, action::updateRecord);
-  }
-
   public Record insertRecord(final Consumer<Record> insertAction) {
     return insertOrUpdateRecord(insertAction, null);
   }
@@ -809,6 +918,10 @@ public class Query extends BaseObjectWithProperties
 
   public boolean isSelectEmpty() {
     return this.selectExpressions.isEmpty();
+  }
+
+  public Query join(final BiConsumer<Query, Join> action) {
+    return join(JoinType.JOIN, action);
   }
 
   public Join join(final JoinType joinType) {
@@ -940,45 +1053,9 @@ public class Query extends BaseObjectWithProperties
 
   public String newSelectSql(final List<OrderBy> orderBy, final TableReferenceProxy table,
     final boolean usePlaceholders) {
-
-    From from = getFrom();
-    if (from == null) {
-      from = table.getTableReference();
-    }
-    final List<Join> joins = getJoins();
-    final LockMode lockMode = getLockMode();
-    final boolean distinct = isDistinct();
-    final List<QueryValue> groupBy = getGroupBy();
     final StringBuilderSqlAppendable sql = newSqlAppendable();
     sql.setUsePlaceholders(usePlaceholders);
-    sql.append("SELECT ");
-    if (distinct) {
-      sql.append("DISTINCT ");
-    }
-    appendSelect(sql);
-    sql.append(" FROM ");
-    from.appendFromWithAlias(sql);
-    for (final Join join : joins) {
-      JdbcUtils.appendQueryValue(sql, this, join);
-    }
-    JdbcUtils.appendWhere(sql, this, usePlaceholders);
-
-    if (groupBy != null) {
-      boolean hasGroupBy = false;
-      for (final QueryValue groupByItem : groupBy) {
-        if (hasGroupBy) {
-          sql.append(", ");
-        } else {
-          sql.append(" GROUP BY ");
-          hasGroupBy = true;
-        }
-        table.getTableReference().appendQueryValue(this, sql, groupByItem);
-      }
-    }
-
-    addOrderBy(sql, table, orderBy);
-
-    lockMode.append(sql);
+    appendSql(sql, table, orderBy);
     return sql.toSqlString();
   }
 
@@ -1115,10 +1192,14 @@ public class Query extends BaseObjectWithProperties
     return selectAlias(column, alias);
   }
 
+  public Query selectAll() {
+    return select(getRecordDefinition().getFieldDefinitions());
+  }
+
   public Query selectCsv(final String select) {
     if (Property.hasValue(select)) {
       for (String selectItem : select.split(",")) {
-        selectItem = selectItem.trim();
+        selectItem = selectItem.strip();
         select(selectItem);
       }
     }
@@ -1284,7 +1365,7 @@ public class Query extends BaseObjectWithProperties
   }
 
   public Query setWhereCondition(final Condition whereCondition) {
-    if (whereCondition == null) {
+    if (whereCondition == null || whereCondition instanceof NoCondition) {
       this.whereCondition = Condition.ALL;
     } else {
       this.whereCondition = whereCondition;

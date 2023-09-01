@@ -28,8 +28,12 @@ public class CollectionValue extends AbstractMultiQueryValue {
     this(null, values);
   }
 
-  public CollectionValue(final ColumnReference field, final Collection<? extends Object> values) {
+  public CollectionValue(final ColumnReference field) {
     setFieldDefinition((FieldDefinition)field);
+  }
+
+  public CollectionValue(final ColumnReference field, final Collection<? extends Object> values) {
+    this(field);
     for (final Object value : values) {
       QueryValue queryValue;
       if (value instanceof QueryValue) {
@@ -39,6 +43,11 @@ public class CollectionValue extends AbstractMultiQueryValue {
       }
       addValue(queryValue);
     }
+  }
+
+  @Override
+  public boolean addValue(final QueryValue value) {
+    return super.addValue(value);
   }
 
   @Override
@@ -107,7 +116,7 @@ public class CollectionValue extends AbstractMultiQueryValue {
         if (codeTable != null) {
           value = codeTable.getIdentifier(value);
         }
-        value = Value.getValue(value);
+        value = Value.toValue(value);
         if (DataType.equal(valueTest, value)) {
           return true;
         }
@@ -156,7 +165,7 @@ public class CollectionValue extends AbstractMultiQueryValue {
         if (codeTable != null) {
           value = codeTable.getIdentifier(value);
         }
-        value = Value.getValue(value);
+        value = Value.toValue(value);
         values.add(value);
       }
     }

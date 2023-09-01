@@ -38,4 +38,9 @@ public class ArrayListEx<V> extends ArrayList<V> implements ListEx<V> {
   // }
   // return list;
   // }
+
+  @Override
+  public ListEx<V> clone() {
+    return Lists.toArray(this);
+  }
 }

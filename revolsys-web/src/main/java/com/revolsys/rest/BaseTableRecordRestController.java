@@ -14,6 +14,7 @@ import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.record.query.Query;
 import com.revolsys.record.schema.AbstractTableRecordStore;
 import com.revolsys.record.schema.TableRecordStoreConnection;
+import com.revolsys.record.schema.TableRecordStoreFactory;
 import com.revolsys.transaction.Transaction;
 
 public class BaseTableRecordRestController extends AbstractTableRecordRestController {
@@ -28,7 +29,7 @@ public class BaseTableRecordRestController extends AbstractTableRecordRestContro
   }
 
   protected <RS extends AbstractTableRecordStore> RS getTableRecordStore(
-    final TableRecordStoreConnection connection) {
+    final TableRecordStoreFactory connection) {
     return super.getTableRecordStore(connection, this.tablePath);
   }
 

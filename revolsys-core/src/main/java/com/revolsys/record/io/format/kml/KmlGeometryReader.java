@@ -91,7 +91,7 @@ public class KmlGeometryReader extends AbstractIterator<Geometry>
     final String coordinatesListString = this.reader.getElementText();
     if (Property.hasValue(coordinatesListString)) {
       int axisCount = 2;
-      final String[] coordinatesListArray = coordinatesListString.trim().split("\\s+");
+      final String[] coordinatesListArray = coordinatesListString.strip().split("\\s+");
       final List<Point> points = new ArrayList<>();
       for (final String coordinatesString : coordinatesListArray) {
         final String[] coordinatesArray = coordinatesString.split(",");

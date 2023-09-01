@@ -37,11 +37,13 @@ import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.record.query.Cast;
 import com.revolsys.record.query.ColumnReference;
 import com.revolsys.record.query.Condition;
+import com.revolsys.record.query.DeleteStatement;
 import com.revolsys.record.query.Or;
 import com.revolsys.record.query.Q;
 import com.revolsys.record.query.Query;
 import com.revolsys.record.query.QueryValue;
 import com.revolsys.record.query.TableReference;
+import com.revolsys.record.query.UpdateStatement;
 import com.revolsys.transaction.Transaction;
 import com.revolsys.transaction.TransactionOptions;
 import com.revolsys.transaction.TransactionRecordReader;
@@ -147,7 +149,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
   public void addQueryOrderBy(final Query query, final String orderBy) {
     if (Property.hasValue(orderBy)) {
       for (String orderClause : orderBy.split(",")) {
-        orderClause = orderClause.trim();
+        orderClause = orderClause.strip();
         String fieldName;
         boolean ascending = true;
         final int spaceIndex = orderClause.indexOf(' ');
@@ -166,7 +168,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
   }
 
   protected void addSearchConditions(final Query query, final Or or, String search) {
-    final String searchText = search.trim().toLowerCase();
+    final String searchText = search.strip().toLowerCase();
     search = '%' + searchText + '%';
     for (final String fieldName : this.searchFieldNames) {
       final ColumnReference column = getTable().getColumn(fieldName);
@@ -208,7 +210,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
   }
 
   public Query applySearchCondition(final Query query, final String search) {
-    if (search != null && search.trim().length() > 0) {
+    if (search != null && search.strip().length() > 0) {
       final Or or = new Or();
       addSearchConditions(query, or, search);
       if (!or.isEmpty()) {
@@ -236,13 +238,6 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     return true;
   }
 
-  public boolean deleteRecord(final TableRecordStoreConnection connection, final Object id) {
-    try (
-      Transaction transaction = connection.newTransaction(TransactionOptions.REQUIRED)) {
-      return newQuery(connection).andEqualId(id).deleteRecords() == 1;
-    }
-  }
-
   public boolean deleteRecord(final TableRecordStoreConnection connection, final Record record) {
     try (
       Transaction transaction = connection.newTransaction(TransactionOptions.REQUIRED)) {
@@ -250,11 +245,9 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     }
   }
 
-  protected int deleteRecords(final TableRecordStoreConnection connection, final Query query) {
-    try (
-      Transaction transaction = connection.newTransaction(TransactionOptions.REQUIRED)) {
-      return this.recordStore.deleteRecords(query);
-    }
+  @Override
+  public DeleteStatement deleteStatement() {
+    return new DeleteStatement().from(getTable());
   }
 
   public void enforceAccessTypeSecurityPolicy(final TableRecordStoreConnection connection,
@@ -516,15 +509,19 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     int skip = 0;
     try {
       final String value = request.getParameter("$skip");
-      skip = Integer.parseInt(value);
+      if (value != null) {
+        skip = Integer.parseInt(value);
+      }
     } catch (final Exception e) {
     }
     int top = maxSize;
     try {
       final String value = request.getParameter("$top");
-      top = Math.min(Integer.parseInt(value), maxSize);
-      if (top <= 0) {
-        throw new IllegalArgumentException("$top must be > 1: " + top);
+      if (value != null) {
+        top = Math.min(Integer.parseInt(value), maxSize);
+        if (top <= 0) {
+          throw new IllegalArgumentException("$top must be > 1: " + top);
+        }
       }
     } catch (final Exception e) {
     }
@@ -533,7 +530,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
 
     if (Property.hasValue(select)) {
       for (String selectItem : select.split(",")) {
-        selectItem = selectItem.trim();
+        selectItem = selectItem.strip();
         addSelect(connection, query, selectItem);
       }
     }
@@ -762,6 +759,10 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
       }
     }
     return i;
+  }
+
+  public UpdateStatement updateStatement() {
+    return new UpdateStatement().from(getTable());
   }
 
   public void validateRecord(final MapEx record) {

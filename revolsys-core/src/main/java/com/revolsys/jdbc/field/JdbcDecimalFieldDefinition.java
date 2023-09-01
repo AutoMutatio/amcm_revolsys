@@ -10,16 +10,17 @@ import org.jeometry.common.data.type.DataTypes;
 
 public class JdbcDecimalFieldDefinition extends JdbcFieldDefinition {
   public JdbcDecimalFieldDefinition(final String dbName, final String name, final int sqlType,
-    final int length, final int scale, final boolean required, final String description,
-    final Map<String, Object> properties) {
-    super(dbName, name, DataTypes.DECIMAL, sqlType, length, scale, required, description,
-      properties);
+    final String dbDataType, final int length, final int scale, final boolean required,
+    final String description, final Map<String, Object> properties) {
+    super(dbName, name, DataTypes.DECIMAL, sqlType, dbDataType, length, scale, required,
+      description, properties);
   }
 
   @Override
   public JdbcDecimalFieldDefinition clone() {
     final JdbcDecimalFieldDefinition clone = new JdbcDecimalFieldDefinition(getDbName(), getName(),
-      getSqlType(), getLength(), getScale(), isRequired(), getDescription(), getProperties());
+      getSqlType(), getDbDataType(), getLength(), getScale(), isRequired(), getDescription(),
+      getProperties());
     postClone(clone);
     return clone;
   }

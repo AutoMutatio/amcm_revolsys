@@ -8,6 +8,7 @@ import org.jeometry.common.io.PathName;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.record.schema.RecordDefinitionProxy;
 import com.revolsys.record.schema.RecordStore;
+import com.revolsys.record.schema.TableRecordStoreFactory;
 
 public class Join implements QueryValue, TableReferenceProxy {
 
@@ -193,6 +194,11 @@ public class Join implements QueryValue, TableReferenceProxy {
 
   public Join statement(final QueryValue statement) {
     this.statement = statement;
+    return this;
+  }
+
+  public Join table(final TableRecordStoreFactory tableFactory, final CharSequence pathName) {
+    this.table = tableFactory.getTableRecordStore(pathName).getTableReference();
     return this;
   }
 

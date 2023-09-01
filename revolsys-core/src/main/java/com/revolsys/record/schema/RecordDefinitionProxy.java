@@ -19,6 +19,7 @@ import com.revolsys.util.IconNameProxy;
 
 public interface RecordDefinitionProxy
   extends PathNameProxy, IconNameProxy, GeometryFactoryProxy, TableReferenceProxy {
+
   default int getFieldCount() {
     final RecordDefinition recordDefinition = getRecordDefinition();
     if (recordDefinition == null) {

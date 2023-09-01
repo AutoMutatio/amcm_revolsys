@@ -6,7 +6,8 @@ import java.util.UUID;
 public class Uuid {
 
   public static UuidNamespace md5(final String namespace) {
-    return new UuidNamespace(3, namespace);
+    final UUID uuid = UUID.fromString(namespace);
+    return md5(uuid);
   }
 
   public static UuidNamespace md5(final UUID namespace) {
@@ -14,7 +15,8 @@ public class Uuid {
   }
 
   public static UuidNamespace sha1(final String namespace) {
-    return new UuidNamespace(5, namespace);
+    final UUID uuid = UUID.fromString(namespace);
+    return sha1(uuid);
   }
 
   public static UuidNamespace sha1(final UUID namespace) {

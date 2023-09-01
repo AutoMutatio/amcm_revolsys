@@ -22,7 +22,7 @@ import com.revolsys.util.Cancellable;
 import com.revolsys.util.Property;
 
 public interface Lists {
-  Supplier<List<?>> FACTORY_ARRAY = ArrayListEx::new;
+  Supplier<ListEx<?>> FACTORY_ARRAY = ArrayListEx::new;
 
   DataTypeValueFactory<List<?>> ARRAY_FACTORY = DataTypes.LIST.newFactory(ArrayListEx::new);
 
@@ -232,7 +232,7 @@ public interface Lists {
   @SuppressWarnings({
     "unchecked", "rawtypes"
   })
-  static <V> Supplier<List<V>> factoryArray() {
+  static <V> Supplier<ListEx<V>> factoryArray() {
     return (Supplier)FACTORY_ARRAY;
   }
 
@@ -360,6 +360,10 @@ public interface Lists {
       }
       return newList;
     }
+  }
+
+  static <V> ListEx<V> newArray() {
+    return new ArrayListEx<>();
   }
 
   static <V> ListEx<V> newArray(final BiConsumer<Consumer<V>, Predicate<V>> forEachFunction,

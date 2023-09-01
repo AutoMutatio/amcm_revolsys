@@ -13,7 +13,7 @@ import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.record.query.Query;
 import com.revolsys.transaction.Transactionable;
 
-public interface TableRecordStoreConnection extends Transactionable {
+public interface TableRecordStoreConnection extends Transactionable, TableRecordStoreFactory {
 
   Set<String> getGroupNames();
 
@@ -27,8 +27,7 @@ public interface TableRecordStoreConnection extends Transactionable {
 
   RecordStore getRecordStore();
 
-  <TRS extends AbstractTableRecordStore> TRS getTableRecordStore(CharSequence pathName);
-
+  @Override
   default <TRS extends AbstractTableRecordStore> TRS getTableRecordStore(
     final PathNameProxy pathNameProxy) {
     if (pathNameProxy != null) {

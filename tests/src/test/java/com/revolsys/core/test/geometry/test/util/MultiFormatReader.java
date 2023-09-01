@@ -113,7 +113,7 @@ public class MultiFormatReader {
   }
 
   public Geometry read(final String geomStr) throws ParseException, IOException {
-    final String trimStr = geomStr.trim();
+    final String trimStr = geomStr.strip();
     if (isWKB(trimStr)) {
       return IOUtil.readGeometriesFromWKBHexString(trimStr, this.geomFactory);
     }
