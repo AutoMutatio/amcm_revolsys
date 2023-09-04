@@ -11,6 +11,20 @@ public interface RecordStoreSecurityPolicyForField {
 
   RecordStoreSecurityPolicyForField DENY = fieldName -> false;
 
+  public static RecordStoreSecurityPolicyForField allow(final RecordDefinition recordDefinition) {
+    return new RecordStoreSecurityPolicyForField() {
+      @Override
+      public RecordDefinition getRecordDefinition() {
+        return recordDefinition;
+      }
+
+      @Override
+      public boolean isFieldAllowed(final String fieldName) {
+        return true;
+      }
+    };
+  }
+
   public static RecordStoreSecurityPolicyForField create(final RecordDefinition recordDefinition,
     final Set<RecordStoreSecurityPolicies> policies, final RecordAccessType accessType) {
     if (policies == null) {
@@ -26,20 +40,6 @@ public interface RecordStoreSecurityPolicyForField {
         p -> p.getSecurityPolicy(accessType));
       return new RecordStoreSecurityPolicyForFieldMultiple(recordDefinition, fieldPolicies);
     }
-  }
-
-  public static RecordStoreSecurityPolicyForField allow(final RecordDefinition recordDefinition) {
-    return new RecordStoreSecurityPolicyForField() {
-      @Override
-      public RecordDefinition getRecordDefinition() {
-        return recordDefinition;
-      }
-
-      @Override
-      public boolean isFieldAllowed(final String fieldName) {
-        return true;
-      }
-    };
   }
 
   default void enforceAccessAllowed() {

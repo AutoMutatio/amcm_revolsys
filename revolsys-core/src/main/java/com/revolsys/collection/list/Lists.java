@@ -32,7 +32,7 @@ public interface Lists {
         list.add(value);
       }
     }
-  };
+  }
 
   static <V> void addAll(final List<V> list, final Stream<? extends V> values) {
     if (values != null) {

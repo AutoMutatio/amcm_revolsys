@@ -27,7 +27,7 @@ public class RecordListTableModel extends RecordRowTableModel implements Reorder
   private static final long serialVersionUID = 1L;
 
   public static TablePanel newPanel(final AbstractRecordLayer layer) {
-    return newPanel(layer.getRecordDefinition(), new ArrayList<Record>(), layer.getFieldNamesSet());
+    return newPanel(layer.getRecordDefinition(), new ArrayList<>(), layer.getFieldNamesSet());
   }
 
   public static TablePanel newPanel(final AbstractRecordLayer layer,
