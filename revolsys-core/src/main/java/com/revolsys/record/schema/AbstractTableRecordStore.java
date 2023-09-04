@@ -426,6 +426,21 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     }
   }
 
+  public Record insertRecord(final TableRecordStoreConnection connection, final Record record) {
+    try (
+      Transaction transaction = connection.newTransaction(TransactionOptions.REQUIRED)) {
+      insertRecordBefore(connection, record);
+      validateRecord(record);
+      this.recordStore.insertRecord(record);
+      insertRecordAfter(connection, record);
+    }
+    return record;
+  }
+
+  protected void insertRecordBefore(final TableRecordStoreConnection connection,
+    final Record record) {
+  }
+
   protected Record insertRecord(final TableRecordStoreConnection connection,
     final ChangeTrackRecord record) {
     try (
@@ -482,6 +497,10 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     }
   }
 
+  public InsertUpdateBuilder newInsertUpdate(final TableRecordStoreConnection connection) {
+    return new TableRecordStoreInsertUpdateBuilder(this, connection);
+  }
+
   protected Condition newODataFilter(final RecordDefinition recordDefinition, String filter) {
     if (Property.hasValue(filter)) {
       filter = filter.replace("%2B", "+");
@@ -489,11 +508,6 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     } else {
       return null;
     }
-  }
-
-  public Condition newODataFilter(final String filter) {
-    final RecordDefinition recordDefinition = getRecordDefinition();
-    return newODataFilter(recordDefinition, filter);
   }
 
   public Query newQuery(final TableRecordStoreConnection connection) {
@@ -553,6 +567,25 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
 
   protected void newQueryFilterConditionSearch(final Query query, final String search) {
     applySearchCondition(query, search);
+  }
+
+  public Record newRecord() {
+    return getRecordDefinition().newRecord();
+  }
+
+  public Record newRecord(final MapEx values) {
+    if (values == null) {
+      return null;
+    } else {
+      final Record record = newRecord();
+      for (final String fieldName : values.keySet()) {
+        final Object value = values.getValue(fieldName);
+        if (Property.hasValue(value)) {
+          record.setValue(fieldName, value);
+        }
+      }
+      return record;
+    }
   }
 
   public Record newRecord(final TableRecordStoreConnection connection) {
@@ -711,6 +744,22 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     final Query query = newQuery(connection);
     query.and(getRecordDefinition().getIdFieldName(), id);
     return query.updateRecord(updateAction);
+  }
+
+  protected Record updateRecord(final TableRecordStoreConnection connection, final Query query,
+    final Consumer<Record> updateAction) {
+    try (
+      Transaction transaction = connection.newTransaction(TransactionOptions.REQUIRED)) {
+      query.setRecordFactory(ArrayChangeTrackRecord.FACTORY);
+      final ChangeTrackRecord record = query.getRecord();
+      if (record == null) {
+        return null;
+      } else {
+        updateAction.accept(record);
+        updateRecordDo(connection, record);
+        return record.newRecord();
+      }
+    }
   }
 
   protected void updateRecordAfter(final TableRecordStoreConnection connection,
