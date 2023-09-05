@@ -8,7 +8,7 @@ import org.jeometry.common.io.PathName;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.util.Property;
 
-public class WhereConditionBuilder {
+public class WhereConditionBuilder implements TableReferenceProxy {
 
   private TableReference table;
 
@@ -137,16 +137,17 @@ public class WhereConditionBuilder {
     return null;
   }
 
-  public TableReference getTable() {
-    return this.table;
-  }
-
   public PathName getTablePath() {
     if (this.table == null) {
       return null;
     } else {
       return this.table.getTablePath();
     }
+  }
+
+  @Override
+  public TableReference getTableReference() {
+    return this.table;
   }
 
   public String getWhere() {
@@ -157,6 +158,7 @@ public class WhereConditionBuilder {
     return this.condition;
   }
 
+  @Override
   public Condition newCondition(final CharSequence fieldName,
     final BiFunction<QueryValue, QueryValue, Condition> operator, final Object value) {
     final ColumnReference left = this.table.getColumn(fieldName);
@@ -175,6 +177,7 @@ public class WhereConditionBuilder {
     return condition;
   }
 
+  @Override
   public Condition newCondition(final CharSequence fieldName,
     final java.util.function.Function<QueryValue, Condition> operator) {
     final ColumnReference column = this.table.getColumn(fieldName);
@@ -182,6 +185,7 @@ public class WhereConditionBuilder {
     return condition;
   }
 
+  @Override
   public Condition newCondition(final QueryValue left,
     final BiFunction<QueryValue, QueryValue, Condition> operator, final Object value) {
     Condition condition;
