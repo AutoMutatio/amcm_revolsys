@@ -57,7 +57,14 @@ public class In extends AbstractBinaryQueryValue implements Condition {
     } else {
       super.appendLeft(buffer, query, recordStore);
       buffer.append(" IN ");
+      final boolean collection = getRight() instanceof CollectionValue;
+      if (!collection) {
+        buffer.append('(');
+      }
       super.appendRight(buffer, query, recordStore);
+      if (!collection) {
+        buffer.append(')');
+      }
     }
   }
 
@@ -87,16 +94,24 @@ public class In extends AbstractBinaryQueryValue implements Condition {
 
   @Override
   public boolean isEmpty() {
-    return getValues().isEmpty();
+    final QueryValue right = getRight();
+    if (right instanceof final CollectionValue collection) {
+      return collection.isEmpty();
+    } else {
+      return false;
+    }
   }
 
   @Override
   public boolean test(final MapEx record) {
-    final QueryValue left = getLeft();
-    final Object value = left.getValue(record);
-
     final CollectionValue right = getValues();
-    return right.containsValue(value);
+    if (right instanceof final CollectionValue collection) {
+      final QueryValue left = getLeft();
+      final Object value = left.getValue(record);
+      return collection.containsValue(value);
+    } else {
+      return false;
+    }
   }
 
   @Override
