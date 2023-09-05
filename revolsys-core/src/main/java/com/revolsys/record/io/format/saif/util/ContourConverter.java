@@ -51,7 +51,7 @@ public class ContourConverter extends ArcConverter {
         geometry = (Geometry)osnConverter.read(iterator);
       } else if (fieldName.equals("value")) {
         final double value = iterator.nextDoubleValue();
-        values.put("value", new Double(value));
+        values.put("value", value);
       } else {
         readAttribute(iterator, fieldName, values);
       }

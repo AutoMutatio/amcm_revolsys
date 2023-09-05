@@ -104,7 +104,7 @@ public class In extends AbstractBinaryQueryValue implements Condition {
 
   @Override
   public boolean test(final MapEx record) {
-    final CollectionValue right = getValues();
+    final QueryValue right = getValues();
     if (right instanceof final CollectionValue collection) {
       final QueryValue left = getLeft();
       final Object value = left.getValue(record);
