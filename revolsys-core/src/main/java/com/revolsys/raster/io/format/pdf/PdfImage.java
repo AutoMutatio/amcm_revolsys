@@ -6,6 +6,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
+import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.cos.COSDictionary;
 import org.apache.pdfbox.cos.COSName;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -46,7 +47,7 @@ public class PdfImage extends AbstractGeoreferencedImage {
     try {
       final File file = Resource.getOrDownloadFile(imageResource);
       // TODO password support
-      final PDDocument document = PDDocument.load(file);
+      final PDDocument document = Loader.loadPDF(file);
 
       final PDPageTree pages = document.getDocumentCatalog().getPages();
       final int pageCount = pages.getCount();
