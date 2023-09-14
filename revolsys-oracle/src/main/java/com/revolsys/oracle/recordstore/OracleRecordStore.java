@@ -1,5 +1,6 @@
 package com.revolsys.oracle.recordstore;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -441,7 +442,7 @@ public class OracleRecordStore extends AbstractJdbcRecordStore {
   }
 
   @Override
-  public PreparedStatement insertStatementPrepareRowId(final JdbcConnection connection,
+  public PreparedStatement insertStatementPrepareRowId(final Connection connection,
     final RecordDefinition recordDefinition, final String sql) throws SQLException {
     final List<Integer> idFieldIndexes = recordDefinition.getIdFieldIndexes();
     final int[] indexes = new int[idFieldIndexes.size()];

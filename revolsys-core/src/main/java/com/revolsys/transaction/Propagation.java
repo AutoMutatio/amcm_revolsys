@@ -25,7 +25,7 @@ public enum Propagation implements TransactionOption {
   }
 
   @Override
-  public void initialize(final Transaction transaction) {
+  public void initialize(final com.revolsys.transaction.TransactionDefinition transaction) {
     transaction.setPropagation(this);
   }
 

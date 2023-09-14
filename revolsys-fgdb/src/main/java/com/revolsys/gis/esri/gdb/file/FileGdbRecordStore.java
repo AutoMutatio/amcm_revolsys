@@ -33,6 +33,7 @@ import com.revolsys.gis.esri.gdb.file.capi.FileGdbDomainCodeTable;
 import com.revolsys.gis.esri.gdb.file.capi.type.GeometryFieldDefinition;
 import com.revolsys.io.BaseCloseable;
 import com.revolsys.io.FileUtil;
+import com.revolsys.io.PathUtil;
 import com.revolsys.io.Writer;
 import com.revolsys.jdbc.JdbcUtils;
 import com.revolsys.parallel.SingleThreadExecutor;
@@ -392,7 +393,7 @@ public class FileGdbRecordStore extends AbstractRecordStore {
         } else {
           final StringBuilderSqlAppendable sql = SqlAppendable.stringBuilder();
           sql.append("SELECT OBJECTID FROM ");
-          sql.append(JdbcUtils.getTableName(typePath.toString()));
+          sql.append(PathUtil.getName(typePath.toString()));
           if (whereClause.length() > 0) {
             sql.append(" WHERE ");
             sql.append(whereClause);
@@ -417,7 +418,7 @@ public class FileGdbRecordStore extends AbstractRecordStore {
         } else {
           final StringBuilderSqlAppendable sql = SqlAppendable.stringBuilder();
           sql.append("SELECT " + geometryField.getName() + " FROM ");
-          sql.append(JdbcUtils.getTableName(typePath.toString()));
+          sql.append(PathUtil.getName(typePath.toString()));
           if (whereClause.length() > 0) {
             sql.append(" WHERE ");
             sql.append(whereClause);
@@ -714,7 +715,7 @@ public class FileGdbRecordStore extends AbstractRecordStore {
       sql.append("SELECT ");
       query.appendSelect(sql);
       sql.append(" FROM ");
-      sql.append(JdbcUtils.getTableName(catalogPath));
+      sql.append(PathUtil.getName(catalogPath));
       if (whereClause.length() > 0) {
         sql.append(" WHERE ");
         sql.append(whereClause.toString());

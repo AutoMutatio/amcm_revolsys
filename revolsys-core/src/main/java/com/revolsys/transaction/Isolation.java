@@ -21,7 +21,7 @@ public enum Isolation implements TransactionOption {
   }
 
   @Override
-  public void initialize(final Transaction transaction) {
+  public void initialize(final com.revolsys.transaction.TransactionDefinition transaction) {
     transaction.setIsolation(this);
   }
 

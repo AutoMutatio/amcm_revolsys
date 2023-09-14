@@ -1,11 +1,8 @@
 package com.revolsys.jdbc;
 
 import java.lang.management.ManagementFactory;
-import java.math.BigDecimal;
-import java.sql.Array;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
-import java.sql.Date;
 import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -14,10 +11,8 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Struct;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
-import java.util.List;
 
 import javax.management.ObjectName;
 import javax.sql.DataSource;
@@ -36,41 +31,10 @@ import com.revolsys.jdbc.exception.JdbcExceptionTranslator;
 import com.revolsys.jdbc.field.JdbcFieldDefinition;
 import com.revolsys.jdbc.field.JdbcFieldDefinitions;
 import com.revolsys.record.io.format.json.JsonObject;
-import com.revolsys.record.query.Condition;
-import com.revolsys.record.query.Query;
-import com.revolsys.record.query.QueryValue;
-import com.revolsys.record.query.SqlAppendable;
-import com.revolsys.record.query.StringBuilderSqlAppendable;
-import com.revolsys.record.schema.RecordDefinition;
-import com.revolsys.record.schema.RecordStore;
 import com.revolsys.util.Property;
 import com.revolsys.util.Strings;
 
 public final class JdbcUtils {
-
-  public static void appendQueryValue(final SqlAppendable sql, final Query query,
-    final QueryValue queryValue) {
-    final RecordDefinition recordDefinition = query.getRecordDefinition();
-    if (recordDefinition == null) {
-      queryValue.appendSql(query, null, sql);
-    } else {
-      final RecordStore recordStore = recordDefinition.getRecordStore();
-      queryValue.appendSql(query, recordStore, sql);
-    }
-  }
-
-  public static void appendWhere(final SqlAppendable sql, final Query query,
-    final boolean usePlaceholders) {
-    final Condition where = query.getWhereCondition();
-    if (!where.isEmpty()) {
-      sql.append(" WHERE ");
-      appendQueryValue(sql, query, where);
-    }
-  }
-
-  public static String cleanObjectName(final String objectName) {
-    return objectName.replaceAll("[^a-zA-Z\\._]", "");
-  }
 
   public static void close(final ResultSet resultSet) {
     if (resultSet != null) {
@@ -101,64 +65,19 @@ public final class JdbcUtils {
     close(statement);
   }
 
-  public static void commit(final Connection connection) {
-    try {
-      connection.commit();
-    } catch (final SQLException e) {
-    }
-  }
-
-  public static void delete(final Connection connection, final String tableName,
-    final String idColumn, final Object id) {
-
-    final String sql = "DELETE FROM " + cleanObjectName(tableName) + " WHERE "
-      + cleanObjectName(idColumn) + " = ?";
+  public static int executeUpdate(final Connection connection, final String sql,
+    final Object... parameters) {
     try {
       final PreparedStatement statement = connection.prepareStatement(sql);
       try {
-        setValue(statement, 1, id);
-        statement.executeQuery();
-      } catch (final SQLException e) {
-        Logs.error(JdbcUtils.class, "Unable to delete:" + sql, e);
-        throw new RuntimeException("Unable to delete:" + sql, e);
+        JdbcUtils.setParameters(statement, parameters);
+        return statement.executeUpdate();
       } finally {
-        close(statement);
-        connection.commit();
+        JdbcUtils.close(statement);
       }
     } catch (final SQLException e) {
-      Logs.error(JdbcUtils.class, "Invalid table name or id column: " + sql, e);
-      throw new IllegalArgumentException("Invalid table name or id column: " + sql);
+      throw Exceptions.wrap("Update:\n" + sql, e);
     }
-
-  }
-
-  public static int executeUpdate(final Connection connection, final String sql,
-    final Object... parameters) throws SQLException {
-    final PreparedStatement statement = connection.prepareStatement(sql);
-    try {
-      setParameters(statement, parameters);
-      return statement.executeUpdate();
-    } finally {
-      close(statement);
-    }
-  }
-
-  public static int executeUpdate(final DataSource dataSource, final String sql,
-    final Object... parameters) {
-    final Connection connection = getConnection(dataSource);
-    try {
-      return executeUpdate(connection, sql, parameters);
-    } catch (final SQLException e) {
-      throw getException(dataSource, "Update", sql, e);
-    } finally {
-      release(connection, dataSource);
-    }
-  }
-
-  public static BigDecimal[] getBigDecimalArray(final ResultSet resultSet, final int index)
-    throws SQLException {
-    final Array array = resultSet.getArray(index);
-    return (BigDecimal[])array.getArray();
   }
 
   public static Connection getConnection(final DataSource dataSource) {
@@ -173,18 +92,6 @@ public final class JdbcUtils {
     } catch (final SQLException e) {
       throw getException(dataSource, "Get Connection", null, e);
     }
-  }
-
-  public static String getDeleteSql(final Query query) {
-    final PathName tablePath = query.getTablePath();
-    final String dbTableName = getQualifiedTableName(tablePath);
-
-    final StringBuilderSqlAppendable sql = SqlAppendable.stringBuilder();
-    sql.append("DELETE FROM ");
-    sql.append(dbTableName);
-    sql.append(" T ");
-    appendWhere(sql, query, true);
-    return sql.toSqlString();
   }
 
   public static RuntimeException getException(final DataSource dataSource, final String task,
@@ -255,10 +162,6 @@ public final class JdbcUtils {
     }
   }
 
-  public static String getTableName(final String typePath) {
-    return PathUtil.getName(typePath);
-  }
-
   public static void lockTable(final Connection connection, final String tableName)
     throws SQLException {
     final String sql = "LOCK TABLE " + tableName + " IN SHARE MODE";
@@ -287,149 +190,6 @@ public final class JdbcUtils {
     }
   }
 
-  public static Date selectDate(final Connection connection, final String sql,
-    final Object... parameters) throws SQLException {
-    final PreparedStatement statement = connection.prepareStatement(sql);
-    try {
-      setParameters(statement, parameters);
-      final ResultSet resultSet = statement.executeQuery();
-      try {
-        if (resultSet.next()) {
-          return resultSet.getDate(1);
-        } else {
-          throw new IllegalArgumentException("Value not found");
-        }
-      } finally {
-        close(resultSet);
-      }
-    } finally {
-      close(statement);
-    }
-  }
-
-  public static Date selectDate(final DataSource dataSource, final Connection connection,
-    final String sql, final Object... parameters) throws SQLException {
-    if (dataSource == null) {
-      return selectDate(connection, sql, parameters);
-    } else {
-      return selectDate(dataSource, sql, parameters);
-    }
-  }
-
-  public static Date selectDate(final DataSource dataSource, final String sql,
-    final Object... parameters) throws SQLException {
-    final Connection connection = getConnection(dataSource);
-    try {
-      return selectDate(connection, sql, parameters);
-    } finally {
-      release(connection, dataSource);
-    }
-  }
-
-  public static int selectInt(final Connection connection, final String sql,
-    final Object... parameters) {
-    return selectInt(null, connection, sql, parameters);
-  }
-
-  public static int selectInt(final DataSource dataSource, Connection connection, final String sql,
-    final Object... parameters) {
-    if (dataSource != null) {
-      connection = getConnection(dataSource);
-    }
-    try {
-      final PreparedStatement statement = connection.prepareStatement(sql);
-      try {
-        setParameters(statement, parameters);
-        final ResultSet resultSet = statement.executeQuery();
-        try {
-          if (resultSet.next()) {
-            return resultSet.getInt(1);
-          } else {
-            throw new IllegalArgumentException("Value not found");
-          }
-        } finally {
-          close(resultSet);
-        }
-
-      } finally {
-        close(statement);
-      }
-    } catch (final SQLException e) {
-      throw getException(dataSource, "selectInt", sql, e);
-    } finally {
-      if (dataSource != null) {
-        release(connection, dataSource);
-      }
-    }
-  }
-
-  public static int selectInt(final DataSource dataSource, final String sql,
-    final Object... parameters) {
-    return selectInt(dataSource, null, sql, parameters);
-
-  }
-
-  public static <T> List<T> selectList(final Connection connection, final String sql,
-    final int columnIndex, final Object... parameters) throws SQLException {
-    final List<T> results = new ArrayList<>();
-    final PreparedStatement statement = connection.prepareStatement(sql);
-    try {
-      setParameters(statement, parameters);
-      final ResultSet resultSet = statement.executeQuery();
-      try {
-        while (resultSet.next()) {
-          @SuppressWarnings("unchecked")
-          final T value = (T)resultSet.getObject(columnIndex);
-          results.add(value);
-        }
-        return results;
-      } finally {
-        close(resultSet);
-      }
-    } finally {
-      close(statement);
-    }
-  }
-
-  public static long selectLong(final Connection connection, final String sql,
-    final Object... parameters) throws SQLException {
-    final PreparedStatement statement = connection.prepareStatement(sql);
-    try {
-      setParameters(statement, parameters);
-      final ResultSet resultSet = statement.executeQuery();
-      try {
-        if (resultSet.next()) {
-          return resultSet.getLong(1);
-        } else {
-          throw new IllegalArgumentException("Value not found");
-        }
-      } finally {
-        close(resultSet);
-      }
-    } finally {
-      close(statement);
-    }
-  }
-
-  public static long selectLong(final DataSource dataSource, final Connection connection,
-    final String sql, final Object... parameters) throws SQLException {
-    if (dataSource == null) {
-      return selectLong(connection, sql, parameters);
-    } else {
-      return selectLong(dataSource, sql, parameters);
-    }
-  }
-
-  public static long selectLong(final DataSource dataSource, final String sql,
-    final Object... parameters) throws SQLException {
-    final Connection connection = getConnection(dataSource);
-    try {
-      return selectLong(connection, sql, parameters);
-    } finally {
-      release(connection, dataSource);
-    }
-  }
-
   public static MapEx selectMap(final Connection connection, final String sql,
     final Object... parameters) throws SQLException {
     final PreparedStatement statement = connection.prepareStatement(sql);
@@ -448,51 +208,6 @@ public final class JdbcUtils {
       }
     } finally {
       close(statement);
-    }
-  }
-
-  public static MapEx selectMap(final DataSource dataSource, final String sql,
-    final Object... parameters) throws SQLException {
-    final Connection connection = getConnection(dataSource);
-    try {
-      return selectMap(connection, sql, parameters);
-    } finally {
-      release(connection, dataSource);
-    }
-  }
-
-  public static String selectString(final Connection connection, final String sql,
-    final Object... parameters) throws SQLException {
-    try (
-      final PreparedStatement statement = connection.prepareStatement(sql)) {
-      setParameters(statement, parameters);
-      try (
-        final ResultSet resultSet = statement.executeQuery()) {
-        if (resultSet.next()) {
-          return resultSet.getString(1);
-        } else {
-          throw new IllegalArgumentException("Value not found");
-        }
-      }
-    }
-  }
-
-  public static String selectString(final DataSource dataSource, final Connection connection,
-    final String sql, final Object... parameters) throws SQLException {
-    if (dataSource == null) {
-      return selectString(connection, sql, parameters);
-    } else {
-      return selectString(dataSource, sql, parameters);
-    }
-  }
-
-  public static String selectString(final DataSource dataSource, final String sql,
-    final Object... parameters) throws SQLException {
-    final Connection connection = getConnection(dataSource);
-    try {
-      return selectString(connection, sql, parameters);
-    } finally {
-      release(connection, dataSource);
     }
   }
 

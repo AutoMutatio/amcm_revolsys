@@ -9,6 +9,8 @@ import com.revolsys.record.query.Query;
 import com.revolsys.transaction.Transaction;
 import com.revolsys.transaction.TransactionOptions;
 
+import reactor.core.publisher.Mono;
+
 public class RecordStoreInsertUpdateBuilder extends InsertUpdateBuilder {
 
   private final RecordStore recordStore;
@@ -45,7 +47,22 @@ public class RecordStoreInsertUpdateBuilder extends InsertUpdateBuilder {
   }
 
   @Override
+  protected <R extends Record> Mono<R> insertRecordMonoDo(final R record) {
+    return this.recordStore.insertRecordMono(record);
+  }
+
+  @Override
   protected Transaction newTransaction() {
     return this.recordStore.newTransaction(TransactionOptions.REQUIRED);
+  }
+
+  @Override
+  protected <R extends Record> Mono<R> transaction(final Supplier<Mono<R>> action) {
+    return this.recordStore.transactionMono(t -> action.get());
+  }
+
+  @Override
+  protected Mono<ChangeTrackRecord> updateRecordMonoDo(final ChangeTrackRecord record) {
+    return this.recordStore.updateRecordMono(record);
   }
 }

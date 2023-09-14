@@ -11,14 +11,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import org.jeometry.common.data.identifier.Identifier;
 import org.jeometry.common.data.type.DataTypes;
+import org.jeometry.common.exception.Exceptions;
 import org.jeometry.common.io.PathName;
 import org.jeometry.common.io.PathNameProxy;
+import org.reactivestreams.Publisher;
 import org.springframework.beans.DirectFieldAccessor;
 import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.ReactiveTransaction;
 
 import com.revolsys.collection.ListResultPager;
 import com.revolsys.collection.ResultPager;
@@ -60,6 +64,9 @@ import com.revolsys.util.Property;
 import com.revolsys.util.count.CategoryLabelCountMap;
 import com.revolsys.util.count.LabelCountMap;
 import com.revolsys.util.count.LabelCounters;
+
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFactory, Transactionable,
   BaseCloseable, ObjectWithProperties {
@@ -552,6 +559,17 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
     throw new UnsupportedOperationException("Insert not supported");
   }
 
+  @SuppressWarnings("unchecked")
+  default <R extends Record> Mono<R> insertRecordMono(final R record) {
+    return Mono.defer(() -> {
+      try {
+        return Mono.just((R)insertRecord(record));
+      } catch (final Exception e) {
+        return Mono.error(Exceptions.wrap("Unable to insert record:\n" + record, e));
+      }
+    });
+  }
+
   default int insertRecords(final InsertStatement insertStatement) {
     throw new UnsupportedOperationException("InsertStatement not implemented");
   }
@@ -779,6 +797,15 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
     }
   }
 
+  default <V> Flux<V> transactionFlux(
+    final Function<ReactiveTransaction, ? extends Publisher<V>> action) {
+    return Flux.from(action.apply(null));
+  }
+
+  default <V> Mono<V> transactionMono(final Function<ReactiveTransaction, Mono<V>> action) {
+    return action.apply(null);
+  }
+
   default Record updateRecord(final Query query, final Consumer<Record> updateAction) {
     try (
       Transaction transaction = newTransaction(TransactionOptions.REQUIRED)) {
@@ -798,6 +825,13 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
 
   default void updateRecord(final Record record) {
     write(record, null);
+  }
+
+  default <R extends Record> Mono<R> updateRecordMono(final R record) {
+    return Mono.defer(() -> {
+      write(record, null);
+      return Mono.just(record);
+    });
   }
 
   default void updateRecords(final Iterable<? extends Record> records) {

@@ -6,13 +6,12 @@ import java.util.function.Function;
 import org.jeometry.common.exception.Exceptions;
 import org.springframework.lang.Nullable;
 import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.support.DefaultTransactionStatus;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import com.revolsys.io.BaseCloseable;
 
-public class Transaction implements BaseCloseable, TransactionDefinition {
+public class Transaction extends TransactionDefinition implements BaseCloseable {
 
   private static ThreadLocal<Transaction> currentTransaction = new ThreadLocal<>();
 
@@ -52,30 +51,23 @@ public class Transaction implements BaseCloseable, TransactionDefinition {
 
   private DefaultTransactionStatus transactionStatus;
 
-  private Propagation propagation = Propagation.REQUIRES_NEW;
-
-  private Isolation isolation = Isolation.DEFAULT;
-
-  private int timeout = TIMEOUT_DEFAULT;
-
-  private boolean readOnly;
-
-  private boolean rollbackOnly = false;
-
   @Nullable
   private String name;
 
   public Transaction(final PlatformTransactionManager transactionManager,
+    final TransactionDefinition definition) {
+    this(transactionManager, definition.getOptions());
+  }
+
+  public Transaction(final PlatformTransactionManager transactionManager,
     final TransactionOption... options) {
-    for (final TransactionOption option : options) {
-      option.initialize(this);
-    }
+    super(options);
     this.transactionManager = transactionManager;
     if (transactionManager == null) {
       this.transactionStatus = null;
     } else {
       this.transactionStatus = (DefaultTransactionStatus)transactionManager.getTransaction(this);
-      if (this.rollbackOnly) {
+      if (isRollbackOnly()) {
         this.transactionStatus.setRollbackOnly();
       }
     }
@@ -125,21 +117,6 @@ public class Transaction implements BaseCloseable, TransactionDefinition {
     }
   }
 
-  @Override
-  public int getIsolationLevel() {
-    return this.isolation.value();
-  }
-
-  @Override
-  public int getPropagationBehavior() {
-    return this.propagation.value();
-  }
-
-  @Override
-  public int getTimeout() {
-    return this.timeout;
-  }
-
   public PlatformTransactionManager getTransactionManager() {
     return this.transactionManager;
   }
@@ -156,18 +133,10 @@ public class Transaction implements BaseCloseable, TransactionDefinition {
     }
   }
 
-  public boolean isPropagation(final Propagation propagation) {
-    return propagation == this.propagation;
-  }
-
   @Override
-  public boolean isReadOnly() {
-    return this.readOnly;
-  }
-
   public boolean isRollbackOnly() {
     if (this.transactionStatus == null) {
-      return isReadOnly();
+      return super.isRollbackOnly() || isReadOnly();
     } else {
       return this.transactionStatus.isRollbackOnly();
     }
@@ -179,32 +148,13 @@ public class Transaction implements BaseCloseable, TransactionDefinition {
     }
   }
 
-  public void setIsolation(final Isolation isolation) {
-    this.isolation = isolation;
-  }
-
-  void setPropagation(final Propagation propagation) {
-    this.propagation = propagation;
-  }
-
-  void setReadOnly(final boolean readOnly) {
-    this.readOnly = readOnly;
-  }
-
+  @Override
   public Transaction setRollbackOnly() {
-    this.rollbackOnly = true;
+    super.setRollbackOnly();
     if (this.transactionStatus != null) {
       this.transactionStatus.setRollbackOnly();
     }
     return this;
   }
 
-  public RuntimeException setRollbackOnly(final Throwable e) {
-    setRollbackOnly();
-    return Exceptions.throwUncheckedException(e);
-  }
-
-  void setTimeout(final int timeout) {
-    this.timeout = timeout;
-  }
 }
