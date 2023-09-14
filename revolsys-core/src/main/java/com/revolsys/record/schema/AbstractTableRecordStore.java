@@ -399,6 +399,10 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     }
   }
 
+  public InsertUpdateBuilder newInsert(final TableRecordStoreConnection connection) {
+    return new TableRecordStoreInsertUpdateBuilder(this, connection).setUpdate(false);
+  }
+
   public InsertUpdateBuilder newInsertUpdate(final TableRecordStoreConnection connection) {
     return new TableRecordStoreInsertUpdateBuilder(this, connection);
   }

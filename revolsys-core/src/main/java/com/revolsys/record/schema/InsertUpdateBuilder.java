@@ -36,6 +36,8 @@ public abstract class InsertUpdateBuilder {
 
   private boolean insert = true;
 
+  private boolean update = true;
+
   public InsertUpdateBuilder(final Query query) {
     this.query = query;
     this.newRecordSupplier = query::newRecord;
@@ -142,6 +144,10 @@ public abstract class InsertUpdateBuilder {
     return this.insert;
   }
 
+  public boolean isUpdate() {
+    return this.update;
+  }
+
   protected Record newRecord() {
     return this.newRecordSupplier.get();
   }
@@ -197,6 +203,11 @@ public abstract class InsertUpdateBuilder {
     return this;
   }
 
+  public InsertUpdateBuilder setUpdate(final boolean update) {
+    this.update = update;
+    return this;
+  }
+
   protected abstract <R extends Record> Mono<R> transaction(Supplier<Mono<R>> object);
 
   /**
@@ -229,16 +240,20 @@ public abstract class InsertUpdateBuilder {
 
   @SuppressWarnings("unchecked")
   private <R extends Record> Mono<R> updateRecordMono(final ChangeTrackRecord record) {
-    return Mono.defer(() -> {
-      updateRecord(record);
-      Mono<ChangeTrackRecord> result;
-      if (record.isModified()) {
-        result = updateRecordMonoDo(record);
-      } else {
-        result = Mono.just(record);
-      }
-      return result.map(r -> (R)record.newRecord());
-    }).onErrorMap(e -> Exceptions.wrap("Unable to update record:\n" + record, e));
+    if (isUpdate()) {
+      return Mono.defer(() -> {
+        updateRecord(record);
+        Mono<ChangeTrackRecord> result;
+        if (record.isModified()) {
+          result = updateRecordMonoDo(record);
+        } else {
+          result = Mono.just(record);
+        }
+        return result.map(r -> (R)record.newRecord());
+      }).onErrorMap(e -> Exceptions.wrap("Unable to update record:\n" + record, e));
+    } else {
+      return Mono.empty();
+    }
   }
 
   protected abstract Mono<ChangeTrackRecord> updateRecordMonoDo(ChangeTrackRecord record);

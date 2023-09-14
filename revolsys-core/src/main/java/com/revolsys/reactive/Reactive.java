@@ -161,6 +161,17 @@ public class Reactive {
     return Mono.just(value).doOnDiscard(clazz, discarder);
   }
 
+  /**
+   * Create a function that accepts a value as an argument, applies the function on that argument, then returns the original value.
+   * @param <V>
+   * @param <V2>
+   * @param action
+   * @return
+   */
+  public static <V, V2> Function<V, Mono<V>> monoThen(final Function<V, Mono<V2>> action) {
+    return value -> thenReturn(action.apply(value), value);
+  }
+
   public static <T> Consumer<T> once(final Runnable action) {
     return new Consumer<>() {
       boolean first = true;
@@ -178,6 +189,24 @@ public class Reactive {
   public static <V> Flux<Pair<V, V>> pair(final Publisher<V> source1, final Publisher<V> source2,
     final Comparator<V> comparator) {
     return Flux.create(sink -> new PairSinkHandler<>(sink, source1, source2, comparator));
+  }
+
+  public static <V, V2> Mono<V> thenReturn(final Publisher<V2> source, final V returnValue) {
+    if (source instanceof final Flux<?> flux) {
+      return thenReturn(returnValue, flux);
+    } else if (source instanceof final Mono<?> mono) {
+      return thenReturn(returnValue, mono);
+    } else {
+      return thenReturn(Flux.from(source), returnValue);
+    }
+  }
+
+  private static <V> Mono<V> thenReturn(final V returnValue, final Flux<?> flux) {
+    return flux.then().thenReturn(returnValue);
+  }
+
+  private static <V> Mono<V> thenReturn(final V returnValue, final Mono<?> mono) {
+    return mono.thenReturn(returnValue);
   }
 
   public static void waitOn(final Flux<?> publisher) {
