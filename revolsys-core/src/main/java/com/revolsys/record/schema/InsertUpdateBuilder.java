@@ -15,7 +15,10 @@ import com.revolsys.transaction.Transaction;
 
 import reactor.core.publisher.Mono;
 
-public abstract class InsertUpdateBuilder {
+public abstract class InsertUpdateBuilder<R extends Record> {
+
+  public record Result<R2 extends Record>(boolean inserted, R2 record) {
+  }
 
   private final Query query;
 
@@ -38,9 +41,13 @@ public abstract class InsertUpdateBuilder {
 
   private boolean update = true;
 
+  private Mono<R> newRecordMono;
+
+  @SuppressWarnings("unchecked")
   public InsertUpdateBuilder(final Query query) {
     this.query = query;
     this.newRecordSupplier = query::newRecord;
+    this.newRecordMono = Mono.fromSupplier(() -> (R)query.newRecord());
   }
 
   /**
@@ -51,12 +58,12 @@ public abstract class InsertUpdateBuilder {
    * @param commonAction
    * @return
    */
-  public InsertUpdateBuilder common(final Consumer<Record> commonAction) {
+  public InsertUpdateBuilder<R> common(final Consumer<Record> commonAction) {
     this.commonAction = commonAction;
     return this;
   }
 
-  public InsertUpdateBuilder common(final MapEx values) {
+  public InsertUpdateBuilder<R> common(final MapEx values) {
     this.commonAction = r -> r.addValues(values);
     return this;
   }
@@ -72,19 +79,18 @@ public abstract class InsertUpdateBuilder {
 
   public abstract Record executeDo(Supplier<Transaction> transactionSupplier);
 
-  public final <R extends Record> Mono<R> executeMono() {
+  public final Mono<R> executeMono() {
     preExecute();
-    return executeMonoDo();
+    return executeStatus().map(Result::record);
   }
 
-  protected <R extends Record> Mono<R> executeMonoDo() {
-    return transaction(() -> {
-      final Query query = getQuery();
-      query.setRecordFactory(ArrayChangeTrackRecord.FACTORY);
-      return query.<ChangeTrackRecord> getRecordMono()//
-        .<R> flatMap(this::updateRecordMono)
-        .switchIfEmpty(insertRecordMono());
-    });
+  public final Mono<Result<R>> executeStatus() {
+    preExecute();
+    return transaction(() -> getQuery()//
+      .setRecordFactory(ArrayChangeTrackRecord.FACTORY)
+      .<ChangeTrackRecord> getRecordMono()//
+      .flatMap(this::updateRecordMono)
+      .switchIfEmpty(insertRecordMono()));
   }
 
   public Query getQuery() {
@@ -97,12 +103,12 @@ public abstract class InsertUpdateBuilder {
    * @param insertAction
    * @return
    */
-  public InsertUpdateBuilder insert(final Consumer<Record> insertAction) {
+  public InsertUpdateBuilder<R> insert(final Consumer<Record> insertAction) {
     this.insertAction = insertAction;
     return this;
   }
 
-  public InsertUpdateBuilder insert(final MapEx values) {
+  public InsertUpdateBuilder<R> insert(final MapEx values) {
     this.insertAction = r -> r.addValues(values);
     return this;
   }
@@ -120,25 +126,19 @@ public abstract class InsertUpdateBuilder {
     return record;
   }
 
-  @SuppressWarnings("unchecked")
-  protected final <R extends Record> Mono<R> insertRecordMono() {
+  protected final Mono<Result<R>> insertRecordMono() {
     if (isInsert()) {
-      return Mono.defer(() -> {
-        final R newRecord = (R)newRecord();
-        if (newRecord == null) {
-          return Mono.empty();
-        } else {
-          insertRecord(newRecord);
-          return insertRecordMonoDo(newRecord)
-            .onErrorMap(e -> Exceptions.wrap("Unable to insert record:\n" + newRecord, e));
-        }
-      });
+      return Mono.defer(() -> this.newRecordMono.flatMap(newRecord -> {
+        insertRecord(newRecord);
+        return insertRecordMonoDo(newRecord)
+          .onErrorMap(e -> Exceptions.wrap("Unable to insert record:\n" + newRecord, e));
+      })).map(r -> new Result<>(true, r));
     } else {
       return Mono.empty();
     }
   }
 
-  protected abstract <R extends Record> Mono<R> insertRecordMonoDo(R record);
+  protected abstract Mono<R> insertRecordMonoDo(R record);
 
   public boolean isInsert() {
     return this.insert;
@@ -152,7 +152,12 @@ public abstract class InsertUpdateBuilder {
     return this.newRecordSupplier.get();
   }
 
-  public InsertUpdateBuilder newRecord(final Supplier<Record> newRecordSupplier) {
+  public InsertUpdateBuilder<R> newRecord(final Mono<R> newRecordMono) {
+    this.newRecordMono = newRecordMono;
+    return this;
+  }
+
+  public InsertUpdateBuilder<R> newRecord(final Supplier<Record> newRecordSupplier) {
     this.newRecordSupplier = newRecordSupplier;
     return this;
   }
@@ -181,7 +186,7 @@ public abstract class InsertUpdateBuilder {
    * @param queryAction
    * @return
    */
-  public InsertUpdateBuilder query(final Consumer<Query> queryAction) {
+  public InsertUpdateBuilder<R> query(final Consumer<Query> queryAction) {
     this.queryAction = queryAction;
     return this;
   }
@@ -193,22 +198,22 @@ public abstract class InsertUpdateBuilder {
    * @param configurer
    * @return
    */
-  public InsertUpdateBuilder search(final Consumer<JsonObject> configurer) {
+  public InsertUpdateBuilder<R> search(final Consumer<JsonObject> configurer) {
     configurer.accept(this.searchValues);
     return this;
   }
 
-  public InsertUpdateBuilder setInsert(final boolean insert) {
+  public InsertUpdateBuilder<R> setInsert(final boolean insert) {
     this.insert = insert;
     return this;
   }
 
-  public InsertUpdateBuilder setUpdate(final boolean update) {
+  public InsertUpdateBuilder<R> setUpdate(final boolean update) {
     this.update = update;
     return this;
   }
 
-  protected abstract <R extends Record> Mono<R> transaction(Supplier<Mono<R>> object);
+  protected abstract <T> Mono<T> transaction(Supplier<Mono<T>> object);
 
   /**
    * Callback to be applied for both updated records.
@@ -216,12 +221,12 @@ public abstract class InsertUpdateBuilder {
    * @param commonAction
    * @return
    */
-  public InsertUpdateBuilder update(final Consumer<Record> updateAction) {
+  public InsertUpdateBuilder<R> update(final Consumer<Record> updateAction) {
     this.updateAction = updateAction;
     return this;
   }
 
-  public InsertUpdateBuilder update(final MapEx values) {
+  public InsertUpdateBuilder<R> update(final MapEx values) {
     this.updateAction = r -> r.addValues(values);
     return this;
   }
@@ -239,7 +244,7 @@ public abstract class InsertUpdateBuilder {
   }
 
   @SuppressWarnings("unchecked")
-  private <R extends Record> Mono<R> updateRecordMono(final ChangeTrackRecord record) {
+  private Mono<Result<R>> updateRecordMono(final ChangeTrackRecord record) {
     if (isUpdate()) {
       return Mono.defer(() -> {
         updateRecord(record);
@@ -250,7 +255,9 @@ public abstract class InsertUpdateBuilder {
           result = Mono.just(record);
         }
         return result.map(r -> (R)record.newRecord());
-      }).onErrorMap(e -> Exceptions.wrap("Unable to update record:\n" + record, e));
+      })
+        .onErrorMap(e -> Exceptions.wrap("Unable to update record:\n" + record, e))
+        .map(r -> new Result<>(true, r));
     } else {
       return Mono.empty();
     }

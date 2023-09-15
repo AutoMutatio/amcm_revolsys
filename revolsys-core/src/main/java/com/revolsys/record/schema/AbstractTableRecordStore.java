@@ -399,12 +399,14 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     }
   }
 
-  public InsertUpdateBuilder newInsert(final TableRecordStoreConnection connection) {
-    return new TableRecordStoreInsertUpdateBuilder(this, connection).setUpdate(false);
+  public <R extends Record> InsertUpdateBuilder<R> newInsert(
+    final TableRecordStoreConnection connection) {
+    return this.<R> newInsertUpdate(connection).setUpdate(false);
   }
 
-  public InsertUpdateBuilder newInsertUpdate(final TableRecordStoreConnection connection) {
-    return new TableRecordStoreInsertUpdateBuilder(this, connection);
+  public <R extends Record> InsertUpdateBuilder<R> newInsertUpdate(
+    final TableRecordStoreConnection connection) {
+    return new TableRecordStoreInsertUpdateBuilder<>(this, connection);
   }
 
   public Condition newODataFilter(String filter) {
@@ -497,8 +499,9 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     return this.recordStore.newTransaction();
   }
 
-  public InsertUpdateBuilder newUpdate(final TableRecordStoreConnection connection) {
-    return new TableRecordStoreInsertUpdateBuilder(this, connection).setInsert(false);
+  public <R extends Record> InsertUpdateBuilder<R> newUpdate(
+    final TableRecordStoreConnection connection) {
+    return this.<R> newInsertUpdate(connection).setInsert(false);
   }
 
   public UUID newUUID() {

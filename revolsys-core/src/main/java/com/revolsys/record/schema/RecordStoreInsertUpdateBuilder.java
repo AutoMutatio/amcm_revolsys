@@ -11,7 +11,7 @@ import com.revolsys.transaction.TransactionOptions;
 
 import reactor.core.publisher.Mono;
 
-public class RecordStoreInsertUpdateBuilder extends InsertUpdateBuilder {
+public class RecordStoreInsertUpdateBuilder<R extends Record> extends InsertUpdateBuilder<R> {
 
   private final RecordStore recordStore;
 
@@ -29,25 +29,33 @@ public class RecordStoreInsertUpdateBuilder extends InsertUpdateBuilder {
       Transaction transaction = transactionSupplier.get()) {
       final ChangeTrackRecord changeTrackRecord = query.getRecord();
       if (changeTrackRecord == null) {
-        final Record newRecord = newRecord();
-        if (newRecord == null) {
-          return null;
+        if (isInsert()) {
+          final Record newRecord = newRecord();
+          if (newRecord == null) {
+            return null;
+          } else {
+            insertRecord(newRecord);
+            return this.recordStore.insertRecord(newRecord);
+          }
         } else {
-          insertRecord(newRecord);
-          return this.recordStore.insertRecord(newRecord);
+          return null;
         }
       } else {
-        updateRecord(changeTrackRecord);
-        if (changeTrackRecord.isModified()) {
-          this.recordStore.updateRecord(changeTrackRecord);
+        if (isUpdate()) {
+          updateRecord(changeTrackRecord);
+          if (changeTrackRecord.isModified()) {
+            this.recordStore.updateRecord(changeTrackRecord);
+          }
+          return changeTrackRecord.newRecord();
+        } else {
+          return null;
         }
-        return changeTrackRecord.newRecord();
       }
     }
   }
 
   @Override
-  protected <R extends Record> Mono<R> insertRecordMonoDo(final R record) {
+  protected Mono<R> insertRecordMonoDo(final R record) {
     return this.recordStore.insertRecordMono(record);
   }
 
@@ -57,7 +65,7 @@ public class RecordStoreInsertUpdateBuilder extends InsertUpdateBuilder {
   }
 
   @Override
-  protected <R extends Record> Mono<R> transaction(final Supplier<Mono<R>> action) {
+  protected <V> Mono<V> transaction(final Supplier<Mono<V>> action) {
     return this.recordStore.transactionMono(t -> action.get());
   }
 

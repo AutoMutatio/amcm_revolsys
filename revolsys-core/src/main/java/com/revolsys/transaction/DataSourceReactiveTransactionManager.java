@@ -460,8 +460,7 @@ public class DataSourceReactiveTransactionManager extends AbstractReactiveTransa
     return Mono.just(synchronizationManager.unbindResource(this.dataSource));
   }
 
-  private Connection fetchConnection(final DataSource dataSource)
-    throws SQLException {
+  private Connection fetchConnection(final DataSource dataSource) throws SQLException {
     final Connection connection = dataSource.getConnection();
     if (connection == null) {
       throw new IllegalStateException(
@@ -561,4 +560,5 @@ public class DataSourceReactiveTransactionManager extends AbstractReactiveTransa
             connection -> releaseConnection(synchronizationManager, connection)))));
 
   }
+
 }
