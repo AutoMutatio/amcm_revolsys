@@ -84,6 +84,9 @@ public abstract class InsertUpdateBuilder<R extends Record> {
     return executeStatus().map(Result::record);
   }
 
+  /// *************
+  // TODO class cast exception
+  // ************
   public final Mono<Result<R>> executeStatus() {
     preExecute();
     return transaction(() -> getQuery()//
@@ -248,16 +251,14 @@ public abstract class InsertUpdateBuilder<R extends Record> {
     if (isUpdate()) {
       return Mono.defer(() -> {
         updateRecord(record);
-        Mono<ChangeTrackRecord> result;
         if (record.isModified()) {
-          result = updateRecordMonoDo(record);
+          return updateRecordMonoDo(record);
         } else {
-          result = Mono.just(record);
+          return Mono.just(record);
         }
-        return result.map(r -> (R)record.newRecord());
       })
         .onErrorMap(e -> Exceptions.wrap("Unable to update record:\n" + record, e))
-        .map(r -> new Result<>(true, r));
+        .map(r -> new Result<>(true, (R)r.newRecord()));
     } else {
       return Mono.empty();
     }

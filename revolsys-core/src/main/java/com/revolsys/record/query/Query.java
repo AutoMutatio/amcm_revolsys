@@ -730,8 +730,8 @@ public class Query extends BaseObjectWithProperties
     return getRecordDefinition().getRecordStore().getRecordCount(this);
   }
 
-  public Mono<Long> getRecordCount$() {
-    return Mono.fromSupplier(this::getRecordCount);
+  public Mono<Integer> getRecordCount$() {
+    return getRecordDefinition().getRecordStore().getRecordCount$(this);
   }
 
   public RecordDefinition getRecordDefinition() {

@@ -50,6 +50,7 @@ import com.revolsys.jdbc.field.JdbcFieldDefinition;
 import com.revolsys.jdbc.field.JdbcFieldFactory;
 import com.revolsys.jdbc.field.JdbcFieldFactoryAdder;
 import com.revolsys.record.ArrayRecord;
+import com.revolsys.record.ChangeTrackRecord;
 import com.revolsys.record.Record;
 import com.revolsys.record.RecordFactory;
 import com.revolsys.record.RecordState;
@@ -579,6 +580,46 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
           return 0;
         }
       }
+    }
+  }
+
+  @Override
+  public Mono<Integer> getRecordCount$(final Query query) {
+    if (query == null) {
+      return Mono.just(0);
+    } else {
+      final TableReference table = query.getTable();
+      final Query countQuery = query.clone(table, table);
+      countQuery.setSql(null);
+      countQuery.clearOrderBy();
+      final String sql;
+      if (countQuery.isDistinct() || !countQuery.getGroupBy().isEmpty()) {
+        sql = "select count(mainquery.*) from (" + countQuery.getSelectSql() + ") mainquery";
+      } else {
+        countQuery.setSelect(Q.sql("count(*)"));
+        sql = countQuery.getSelectSql();
+      }
+      return withConnectionMono((transaction, connection) -> {
+        try (
+          final PreparedStatement statement = connection.prepareStatement(sql)) {
+          final Query query1 = countQuery;
+          query1.appendParameters(1, statement);
+          try (
+            final ResultSet resultSet = statement.executeQuery()) {
+            if (resultSet.next()) {
+              final int rowCount = resultSet.getInt(1);
+              return Mono.just(rowCount);
+            } else {
+              return Mono.just(0);
+            }
+          }
+        } catch (final SQLException e) {
+          return Mono.error(getException("getRecordCount", sql, e));
+        } catch (final IllegalArgumentException e) {
+          Logs.error(this, "Cannot get row count: " + countQuery, e);
+          return Mono.just(0);
+        }
+      });
     }
   }
 
@@ -1322,7 +1363,7 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
   }
 
   @Override
-  public <R extends Record> Mono<R> updateRecordMono(final R record) {
+  public Mono<ChangeTrackRecord> updateRecordMono(final ChangeTrackRecord record) {
     return withConnectionMono((transaction, connection) -> {
       try {
         final JdbcRecordDefinition recordDefinition = getRecordDefinition(record);

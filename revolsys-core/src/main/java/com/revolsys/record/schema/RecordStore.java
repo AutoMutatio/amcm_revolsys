@@ -382,6 +382,10 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
 
   int getRecordCount(Query query);
 
+  default Mono<Integer> getRecordCount$(final Query query) {
+    return Mono.fromSupplier(() -> getRecordCount(query));
+  }
+
   default <RD extends RecordDefinition> RD getRecordDefinition(final PathName path) {
     if (path == null) {
       return null;
@@ -827,7 +831,7 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
     write(record, null);
   }
 
-  default <R extends Record> Mono<R> updateRecordMono(final R record) {
+  default Mono<ChangeTrackRecord> updateRecordMono(final ChangeTrackRecord record) {
     return Mono.defer(() -> {
       write(record, null);
       return Mono.just(record);

@@ -691,8 +691,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     }
   }
 
-  @SuppressWarnings("unchecked")
-  final <R extends Record> Mono<R> updateRecordMonoDo(final TableRecordStoreConnection connection,
+  final Mono<ChangeTrackRecord> updateRecordMonoDo(final TableRecordStoreConnection connection,
     final ChangeTrackRecord record) {
     Mono<ChangeTrackRecord> result;
     if (record.isModified()) {
@@ -702,8 +701,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     } else {
       result = Mono.just(record);
     }
-    return result.onErrorMap(e -> Exceptions.wrap("Unable to update record:\n" + record, e))
-      .map(r -> (R)r.newRecord());
+    return result.onErrorMap(e -> Exceptions.wrap("Unable to update record:\n" + record, e));
   }
 
   public int updateRecords(final TableRecordStoreConnection connection, final Query query,

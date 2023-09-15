@@ -418,9 +418,7 @@ public class DataSourceReactiveTransactionManager extends AbstractReactiveTransa
     final TransactionSynchronizationManager synchronizationManager) {
     final ReactiveConnectionHolder conHolder = (ReactiveConnectionHolder)synchronizationManager
       .getResource(this.dataSource);
-    final DataSourceTransactionState tx = new DataSourceTransactionState(conHolder);
-
-    return tx;
+    return new DataSourceTransactionState(conHolder);
   }
 
   @Override
