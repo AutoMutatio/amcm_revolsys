@@ -633,7 +633,7 @@ public class Query extends BaseObjectWithProperties
   }
 
   public Flux<Record> flux() {
-    return getRecordReader().flux();
+    return getRecordDefinition().getRecordStore().getRecordsFlux(this);
   }
 
   public void forEachRecord(final Consumer<? super Record> action) {

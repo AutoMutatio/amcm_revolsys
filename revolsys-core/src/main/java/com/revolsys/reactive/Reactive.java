@@ -12,8 +12,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import org.jeometry.common.exception.Exceptions;
+import org.jeometry.common.logging.Logs;
 import org.reactivestreams.Publisher;
 
 import com.revolsys.collection.list.Lists;
@@ -112,6 +114,22 @@ public class Reactive {
       System.out.println("End\t" + message + "\t"
         + TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startTime.get()) + " ms.");
     });
+  }
+
+  public static <V> Function<Throwable, Flux<V>> errorResumeEmptyFlux(final Object category,
+    final Supplier<String> message) {
+    return e -> {
+      Logs.error(category, message.get(), e);
+      return Flux.empty();
+    };
+  }
+
+  public static <V> Function<Throwable, Mono<V>> errorResumeEmptyMono(final Object category,
+    final Supplier<String> message) {
+    return e -> {
+      Logs.error(category, message.get(), e);
+      return Mono.empty();
+    };
   }
 
   public static <R extends AutoCloseable, V> Flux<V> fluxCloseable(final Callable<R> supplier,

@@ -21,7 +21,6 @@ import org.jeometry.common.exception.Exceptions;
 import org.jeometry.common.io.PathName;
 import org.postgresql.jdbc.PgConnection;
 
-import com.revolsys.collection.ResultPager;
 import com.revolsys.gis.postgresql.type.PostgreSQLArrayFieldDefinition;
 import com.revolsys.gis.postgresql.type.PostgreSQLBoundingBoxWrapper;
 import com.revolsys.gis.postgresql.type.PostgreSQLGeometryFieldAdder;
@@ -40,7 +39,6 @@ import com.revolsys.jdbc.io.JdbcRecordStoreSchema;
 import com.revolsys.record.ArrayRecord;
 import com.revolsys.record.Record;
 import com.revolsys.record.RecordFactory;
-import com.revolsys.record.io.RecordIterator;
 import com.revolsys.record.property.ShortNameProperty;
 import com.revolsys.record.query.Query;
 import com.revolsys.record.query.QueryValue;
@@ -180,6 +178,20 @@ public class PostgreSQLRecordStore extends AbstractJdbcRecordStore {
   @Override
   public String getRecordStoreType() {
     return "PostgreSQL";
+  }
+
+  @Override
+  protected String getSelectSql(final Query query) {
+    String sql = super.getSelectSql(query);
+    final int offset = query.getOffset();
+    if (offset > 0) {
+      sql += " OFFSET " + offset;
+    }
+    final int limit = query.getLimit();
+    if (limit != Integer.MAX_VALUE) {
+      sql += " LIMIT " + limit;
+    }
+    return sql;
   }
 
   @Override
@@ -359,11 +371,6 @@ public class PostgreSQLRecordStore extends AbstractJdbcRecordStore {
   }
 
   @Override
-  public RecordIterator newIterator(final Query query, final Map<String, Object> properties) {
-    return new PostgreSQLJdbcQueryIterator(this, query, properties);
-  }
-
-  @Override
   protected JdbcRecordDefinition newRecordDefinition(final JdbcRecordStoreSchema schema,
     final PathName pathName, String dbTableName) {
     if (dbTableName.charAt(0) != '"' && !dbTableName.equals(dbTableName.toLowerCase())) {
@@ -388,11 +395,6 @@ public class PostgreSQLRecordStore extends AbstractJdbcRecordStore {
     final boolean quoteName = !dbSchemaName.equals(dbSchemaName.toLowerCase());
     return new PostgreSQLRecordStoreSchema((PostgreSQLRecordStoreSchema)rootSchema, childSchemaPath,
       dbSchemaName, quoteName);
-  }
-
-  @Override
-  public ResultPager<Record> page(final Query query) {
-    return new PostgreSQLJdbcQueryResultPager(this, getProperties(), query);
   }
 
   public void setUseSchemaSequencePrefix(final boolean useSchemaSequencePrefix) {

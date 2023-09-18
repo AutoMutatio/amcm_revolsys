@@ -35,7 +35,6 @@ import com.revolsys.io.BaseCloseable;
 import com.revolsys.io.FileUtil;
 import com.revolsys.io.PathUtil;
 import com.revolsys.io.Writer;
-import com.revolsys.jdbc.JdbcUtils;
 import com.revolsys.parallel.SingleThreadExecutor;
 import com.revolsys.record.Record;
 import com.revolsys.record.code.CodeTable;
@@ -689,7 +688,6 @@ public class FileGdbRecordStore extends AbstractRecordStore {
     return null;
   }
 
-  @Override
   public FileGdbQueryIterator newIterator(final Query query, final Map<String, Object> properties) {
     PathName pathName = query.getTablePath();
     final RecordDefinition recordDefinition = query.getRecordDefinition();
@@ -787,7 +785,7 @@ public class FileGdbRecordStore extends AbstractRecordStore {
           AtomicLong idGenerator = this.idGenerators.get(typePath);
           if (idGenerator == null) {
             long maxId = 0;
-            for (final Record record : getRecords(typePath)) {
+            for (final Record record : newQuery(typePath).getRecordReader()) {
               final Identifier id = record.getIdentifier();
               final Object firstId = id.getValue(0);
               if (firstId instanceof Number) {

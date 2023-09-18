@@ -15,9 +15,8 @@ public class RecordStoreInsertUpdateBuilder<R extends Record> extends InsertUpda
 
   private final RecordStore recordStore;
 
-  public RecordStoreInsertUpdateBuilder(final RecordStore recordStore,
-    final TableRecordStoreConnection connection) {
-    super(recordStore.newQuery());
+  public RecordStoreInsertUpdateBuilder(final RecordStore recordStore, final Query query) {
+    super(query);
     this.recordStore = recordStore;
   }
 

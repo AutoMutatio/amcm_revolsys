@@ -98,4 +98,21 @@ public class TransactionDefinition
   void setTimeout(final int timeout) {
     this.timeout = timeout;
   }
+
+  @Override
+  public String toString() {
+    final StringBuilder s = new StringBuilder().append(this.propagation)
+      .append(' ')
+      .append(this.isolation);
+    if (isRollbackOnly()) {
+      s.append(" readOnly");
+    }
+    if (isRollbackOnly()) {
+      s.append(" rollbackOnly");
+    }
+    if (this.timeout != TIMEOUT_DEFAULT) {
+      s.append(" timeout=").append(this.timeout);
+    }
+    return s.toString();
+  }
 }

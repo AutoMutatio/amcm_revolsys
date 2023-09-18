@@ -41,7 +41,6 @@ import org.springframework.transaction.ReactiveTransaction;
 import org.springframework.transaction.ReactiveTransactionManager;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
-import com.revolsys.collection.ResultPager;
 import com.revolsys.collection.map.Maps;
 import com.revolsys.io.PathUtil;
 import com.revolsys.jdbc.JdbcConnection;
@@ -55,10 +54,8 @@ import com.revolsys.record.Record;
 import com.revolsys.record.RecordFactory;
 import com.revolsys.record.RecordState;
 import com.revolsys.record.code.AbstractMultiValueCodeTable;
-import com.revolsys.record.io.RecordIterator;
 import com.revolsys.record.io.RecordReader;
 import com.revolsys.record.io.RecordStoreExtension;
-import com.revolsys.record.io.RecordStoreQueryReader;
 import com.revolsys.record.io.RecordWriter;
 import com.revolsys.record.property.GlobalIdProperty;
 import com.revolsys.record.query.ColumnIndexes;
@@ -84,6 +81,7 @@ import com.revolsys.transaction.TransactionOptions;
 import com.revolsys.util.Booleans;
 import com.revolsys.util.Property;
 
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
@@ -536,6 +534,30 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
     return null;
   }
 
+  public Record getNextRecord(final RecordDefinition recordDefinition,
+    final List<QueryValue> expressions, final RecordFactory<Record> recordFactory,
+    final ResultSet resultSet) {
+    final Record record = recordFactory.newRecord(recordDefinition);
+    if (record != null) {
+      record.setState(RecordState.INITIALIZING);
+      final ColumnIndexes indexes = new ColumnIndexes();
+      int fieldIndex = 0;
+      for (final QueryValue expression : expressions) {
+        try {
+          final Object value = expression.getValueFromResultSet(recordDefinition, resultSet,
+            indexes, false);
+          record.setValue(fieldIndex, value);
+          fieldIndex++;
+        } catch (final SQLException e) {
+          throw new RuntimeException(
+            "Unable to get value " + indexes.columnIndex + " from result set", e);
+        }
+      }
+      record.setState(RecordState.PERSISTED);
+    }
+    return record;
+  }
+
   @Override
   public ReactiveTransactionManager getReactiveTransactionManager() {
     return this.reactiveTransactionManager;
@@ -699,12 +721,26 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
   }
 
   @Override
+  public Mono<Record> getRecordMono(final Query query) {
+    return getRecordsFlux(query).single();
+  }
+
+  @Override
   public RecordReader getRecords(final Query query) {
-    return newIterator(query, null);
+    return new JdbcQueryIterator(this, query);
+  }
+
+  @Override
+  public Flux<Record> getRecordsFlux(final Query query) {
+    return getRecords(query).flux();
   }
 
   public String getSchemaTablePermissionsSql() {
     return this.schemaTablePermissionsSql;
+  }
+
+  protected String getSelectSql(final Query query) {
+    return query.getSelectSql();
   }
 
   protected String getSequenceName(final JdbcRecordDefinition recordDefinition) {
@@ -990,11 +1026,6 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
     }
   }
 
-  @Override
-  public RecordIterator newIterator(final Query query, final Map<String, Object> properties) {
-    return new JdbcQueryIterator(this, query, properties);
-  }
-
   protected Identifier newPrimaryIdentifier(final JdbcRecordDefinition recordDefinition) {
     final GlobalIdProperty globalIdProperty = GlobalIdProperty.getProperty(recordDefinition);
     if (globalIdProperty == null) {
@@ -1020,12 +1051,6 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
   protected JdbcRecordDefinition newRecordDefinition(final JdbcRecordStoreSchema schema,
     final PathName pathName, final String dbTableName) {
     return new JdbcRecordDefinition(schema, pathName, dbTableName);
-  }
-
-  protected RecordStoreQueryReader newRecordReader(final Query query) {
-    final RecordStoreQueryReader reader = newRecordReader();
-    reader.addQuery(query);
-    return reader;
   }
 
   @Override
@@ -1107,11 +1132,6 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
   protected JdbcRecordStoreSchema newSchema(final JdbcRecordStoreSchema rootSchema,
     final String dbSchemaName, final PathName childSchemaPath) {
     return new JdbcRecordStoreSchema(rootSchema, childSchemaPath, dbSchemaName);
-  }
-
-  @Override
-  public ResultPager<Record> page(final Query query) {
-    return new JdbcQueryResultPager(this, getProperties(), query);
   }
 
   protected void postProcess(final JdbcRecordStoreSchema schema) {

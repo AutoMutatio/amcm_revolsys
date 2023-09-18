@@ -259,76 +259,81 @@ public class DataSourceReactiveTransactionManager extends AbstractReactiveTransa
   @Override
   protected Mono<Void> doBegin(final TransactionSynchronizationManager synchronizationManager,
     final Object transaction, final TransactionDefinition definition) {
-    return Mono.deferContextual(context -> {
-      final DataSourceTransactionState tx = getTransactionState(transaction);
-      Connection connection = null;
+    return Mono.deferContextual(
+      context -> doBegin(synchronizationManager, transaction, definition, context));
+  }
 
-      try {
-        ReactiveConnectionHolder connectionHolder = tx.getConnectionHolder();
-        if (connectionHolder == null || connectionHolder.isSynchronizedWithTransaction()) {
-          connection = fetchConnection(this.dataSource);
-          connectionHolder = new ReactiveConnectionHolder(connection);
-          tx.setConnectionHolder(connectionHolder);
-        }
+  private Mono<? extends Void> doBegin(
+    final TransactionSynchronizationManager synchronizationManager, final Object transaction,
+    final TransactionDefinition definition, final ContextView context) {
+    final DataSourceTransactionState tx = getTransactionState(transaction);
+    Connection connection = null;
 
-        connectionHolder.setSynchronizedWithTransaction(true);
-        connection = tx.getConnectionHolder().getConnection();
-
-        if (definition != null && definition.isReadOnly()) {
-          try {
-            connection.setReadOnly(true);
-          } catch (SQLException | RuntimeException ex) {
-            Throwable exToCheck = ex;
-            while (exToCheck != null) {
-              if (exToCheck.getClass().getSimpleName().contains("Timeout")) {
-                // Assume it's a connection timeout that would otherwise get
-                // lost: e.g. from JDBC 4.0
-                return Mono.error(ex);
-              }
-              exToCheck = exToCheck.getCause();
-            }
-          }
-        }
-
-        // Apply specific isolation level, if any.
-        Integer previousIsolationLevel = null;
-        if (definition != null
-          && definition.getIsolationLevel() != TransactionDefinition.ISOLATION_DEFAULT) {
-          final int currentIsolation = connection.getTransactionIsolation();
-          if (currentIsolation != definition.getIsolationLevel()) {
-            previousIsolationLevel = currentIsolation;
-            connection.setTransactionIsolation(definition.getIsolationLevel());
-          }
-        }
-
-        tx.setPreviousIsolationLevel(previousIsolationLevel);
-        tx.setReadOnly(definition.isReadOnly());
-
-        if (connection.getAutoCommit()) {
-          tx.setMustRestoreAutoCommit(true);
-          connection.setAutoCommit(false);
-        }
-        connectionTransactionInit(context, connection);
-        prepareTransactionalConnection(connection, definition);
-        connectionHolder.setTransactionActive(true);
-
-        final int timeout = determineTimeout(definition);
-        if (timeout != TransactionDefinition.TIMEOUT_DEFAULT) {
-          connectionHolder.setTimeoutInSeconds(timeout);
-        }
-        if (tx.isNewConnectionHolder()) {
-          synchronizationManager.bindResource(this.dataSource, connectionHolder);
-        }
-        return Mono.empty();
-      } catch (final Throwable ex) {
-        if (tx.isNewConnectionHolder()) {
-          releaseConnection(synchronizationManager, connection);
-          tx.clearConnection();
-        }
-        return Mono.error(new CannotCreateTransactionException(
-          "Could not open JDBC Connection for transaction", ex));
+    try {
+      ReactiveConnectionHolder connectionHolder = tx.getConnectionHolder();
+      if (connectionHolder == null || connectionHolder.isSynchronizedWithTransaction()) {
+        connection = fetchConnection(this.dataSource);
+        connectionHolder = new ReactiveConnectionHolder(connection);
+        tx.setConnectionHolder(connectionHolder);
       }
-    });
+
+      connectionHolder.setSynchronizedWithTransaction(true);
+      connection = tx.getConnectionHolder().getConnection();
+
+      if (definition != null && definition.isReadOnly()) {
+        try {
+          connection.setReadOnly(true);
+        } catch (SQLException | RuntimeException ex) {
+          Throwable exToCheck = ex;
+          while (exToCheck != null) {
+            if (exToCheck.getClass().getSimpleName().contains("Timeout")) {
+              // Assume it's a connection timeout that would otherwise get
+              // lost: e.g. from JDBC 4.0
+              return Mono.error(ex);
+            }
+            exToCheck = exToCheck.getCause();
+          }
+        }
+      }
+
+      // Apply specific isolation level, if any.
+      Integer previousIsolationLevel = null;
+      if (definition != null
+        && definition.getIsolationLevel() != TransactionDefinition.ISOLATION_DEFAULT) {
+        final int currentIsolation = connection.getTransactionIsolation();
+        if (currentIsolation != definition.getIsolationLevel()) {
+          previousIsolationLevel = currentIsolation;
+          connection.setTransactionIsolation(definition.getIsolationLevel());
+        }
+      }
+
+      tx.setPreviousIsolationLevel(previousIsolationLevel);
+      tx.setReadOnly(definition.isReadOnly());
+
+      if (connection.getAutoCommit()) {
+        tx.setMustRestoreAutoCommit(true);
+        connection.setAutoCommit(false);
+      }
+      connectionTransactionInit(context, connection);
+      prepareTransactionalConnection(connection, definition);
+      connectionHolder.setTransactionActive(true);
+
+      final int timeout = determineTimeout(definition);
+      if (timeout != TransactionDefinition.TIMEOUT_DEFAULT) {
+        connectionHolder.setTimeoutInSeconds(timeout);
+      }
+      if (tx.isNewConnectionHolder()) {
+        synchronizationManager.bindResource(this.dataSource, connectionHolder);
+      }
+      return Mono.empty();
+    } catch (final Throwable ex) {
+      if (tx.isNewConnectionHolder()) {
+        releaseConnection(synchronizationManager, connection);
+        tx.clearConnection();
+      }
+      return Mono.error(
+        new CannotCreateTransactionException("Could not open JDBC Connection for transaction", ex));
+    }
   }
 
   @Override
