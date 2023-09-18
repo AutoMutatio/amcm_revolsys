@@ -74,6 +74,7 @@ public class JdbcRecordWriter extends AbstractRecordWriter {
     final JdbcConnection connection) {
     super(recordDefinition);
     this.recordStore = recordStore;
+    this.connection = connection;
     this.statistics = recordStore.getStatistics();
 
     this.batchSize = batchSize;

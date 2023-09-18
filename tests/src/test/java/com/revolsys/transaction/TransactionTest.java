@@ -7,10 +7,9 @@ import java.util.UUID;
 import org.jeometry.common.io.PathName;
 import org.junit.jupiter.api.Test;
 
+import com.revolsys.record.Record;
 import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.record.schema.RecordStore;
-
-import reactor.core.publisher.Flux;
 
 public class TransactionTest {
   private static final String FIELD_LABEL = "label";
@@ -33,63 +32,67 @@ public class TransactionTest {
 
   @Test
   void noTransactionSuccess() {
-    Flux.concat(//
+    this.recordStore//
+      .newInsertUpdate(this.testTable)
+      .search(r -> r.addValue(FIELD_ID, this.id))
+      .common(r -> r.addValue(FIELD_LABEL, this.originalLabel))
+      .execute();
+
+    {
+      final Record r = this.recordStore//
+        .newQuery(this.testTable)
+        .and(FIELD_ID, this.id)
+        .getRecord();
+      assertEquals(this.originalLabel, r.getString(FIELD_LABEL));
+    }
+
+    this.recordStore//
+      .newUpdate(this.testTable)
+      .search(r -> r.addValue(FIELD_ID, this.id))
+      .common(r -> r.addValue(FIELD_LABEL, this.updatedLabel))
+      .execute();
+
+    {
+      final Record r1 = this.recordStore//
+        .newQuery(this.testTable)
+        .and(FIELD_ID, this.id)
+        .getRecord();
+      assertEquals(this.updatedLabel, r1.getString(FIELD_LABEL));
+    }
+
+  }
+
+  @Test
+  void transactionSuccess() {
+    try (
+      Transaction transaction = this.recordStore.newTransaction()) {
       this.recordStore//
         .newInsertUpdate(this.testTable)
         .search(r -> r.addValue(FIELD_ID, this.id))
         .common(r -> r.addValue(FIELD_LABEL, this.originalLabel))
-        .executeMono(),
+        .execute();
 
-      this.recordStore//
-        .newQuery(this.testTable)
-        .and(FIELD_ID, this.id)
-        .getRecordMono()
-        .doOnNext(r -> assertEquals(this.originalLabel, r.getString(FIELD_LABEL))),
+      {
+        final Record r = this.recordStore//
+          .newQuery(this.testTable)
+          .and(FIELD_ID, this.id)
+          .getRecord();
+        assertEquals(this.originalLabel, r.getString(FIELD_LABEL));
+      }
 
       this.recordStore//
         .newUpdate(this.testTable)
         .search(r -> r.addValue(FIELD_ID, this.id))
         .common(r -> r.addValue(FIELD_LABEL, this.updatedLabel))
-        .executeMono(),
+        .execute();
 
-      this.recordStore//
-        .newQuery(this.testTable)
-        .and(FIELD_ID, this.id)
-        .getRecordMono()
-        .doOnNext(r -> assertEquals(this.updatedLabel, r.getString(FIELD_LABEL)))
-    //
-    ).then().block();
-  }
-
-  @Test
-  void transactionSuccess() {
-    this.recordStore.transaction()
-      .transactional(Flux.concat(//
-        this.recordStore//
-          .newInsertUpdate(this.testTable)
-          .search(r -> r.addValue(FIELD_ID, this.id))
-          .common(r -> r.addValue(FIELD_LABEL, this.originalLabel))
-          .executeMono(),
-
-        this.recordStore//
+      {
+        final Record r1 = this.recordStore//
           .newQuery(this.testTable)
           .and(FIELD_ID, this.id)
-          .getRecordMono()
-          .doOnNext(r -> assertEquals(this.originalLabel, r.getString(FIELD_LABEL))),
-
-        this.recordStore//
-          .newUpdate(this.testTable)
-          .search(r -> r.addValue(FIELD_ID, this.id))
-          .common(r -> r.addValue(FIELD_LABEL, this.updatedLabel))
-          .executeMono(),
-
-        this.recordStore//
-          .newQuery(this.testTable)
-          .and(FIELD_ID, this.id)
-          .getRecordMono()
-          .doOnNext(r -> assertEquals(this.updatedLabel, r.getString(FIELD_LABEL)))
-      //
-      ).then())
-      .block();
+          .getRecord();
+        assertEquals(this.updatedLabel, r1.getString(FIELD_LABEL));
+      }
+    }
   }
 }
