@@ -30,8 +30,9 @@ public interface ConditionBuilder {
     return addCondition(condition);
   }
 
-  default ConditionBuilder addCondition(final TableReference table, final CharSequence fieldName,
-    final BiFunction<QueryValue, QueryValue, Condition> operator, final Object value) {
+  default ConditionBuilder addCondition(final TableReferenceProxy table,
+    final CharSequence fieldName, final BiFunction<QueryValue, QueryValue, Condition> operator,
+    final Object value) {
     final ColumnReference field = table.getColumn(fieldName);
     Condition condition;
     if (value == null) {
@@ -48,8 +49,8 @@ public interface ConditionBuilder {
     return addCondition(condition);
   }
 
-  default ConditionBuilder addCondition(final TableReference table, final CharSequence fieldName,
-    final Function<QueryValue, Condition> operator) {
+  default ConditionBuilder addCondition(final TableReferenceProxy table,
+    final CharSequence fieldName, final Function<QueryValue, Condition> operator) {
     final ColumnReference field = table.getColumn(fieldName);
     return addCondition(field, operator);
   }
