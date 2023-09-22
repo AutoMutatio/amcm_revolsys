@@ -124,7 +124,7 @@ public class Value implements QueryValue {
     }
     setQueryValue(value);
     this.displayValue = this.queryValue;
-    setFieldDefinition(field);
+    setColumn(field);
   }
 
   public Value(final FieldDefinition field, final Object value, final boolean dontConvert) {
@@ -147,7 +147,7 @@ public class Value implements QueryValue {
     } else {
       setQueryValue(value);
       this.displayValue = this.queryValue;
-      setFieldDefinition(field);
+      setColumn(field);
     }
   }
 
@@ -191,8 +191,8 @@ public class Value implements QueryValue {
     final RecordDefinition newRecordDefinition) {
     final String fieldName = this.column.getName();
     if (Property.hasValue(fieldName)) {
-      final FieldDefinition field = newRecordDefinition.getField(fieldName);
-      setFieldDefinition(field);
+      final FieldDefinition column = newRecordDefinition.getField(fieldName);
+      setColumn(column);
     }
   }
 
@@ -283,83 +283,45 @@ public class Value implements QueryValue {
     return (V)this.queryValue;
   }
 
-  private void setColumn(final ColumnReference column) {
-    this.column = column;
+  @Override
+  public void setColumn(final ColumnReference column) {
     if (column != null) {
-      if (column instanceof JdbcFieldDefinition) {
-        this.jdbcField = (JdbcFieldDefinition)column;
-      } else {
-        this.jdbcField = JdbcFieldDefinitions.newFieldDefinition(this.queryValue);
-      }
-
-      CodeTable codeTable = null;
-      final TableReferenceProxy table = column.getTable();
-      if (table != null) {
-        final TableReference tableRef = table.getTableReference();
-        if (tableRef instanceof RecordDefinition) {
-          final RecordDefinition recordDefinition = (RecordDefinition)tableRef;
-          final String fieldName = column.getName();
-          codeTable = recordDefinition.getCodeTableByFieldName(fieldName);
-          if (codeTable instanceof RecordDefinitionProxy) {
-            final RecordDefinitionProxy proxy = (RecordDefinitionProxy)codeTable;
-            if (proxy.getRecordDefinition() == recordDefinition) {
-              codeTable = null;
-            }
-          }
-          if (codeTable != null) {
-            final Identifier id = codeTable.getIdentifier(this.queryValue);
-            if (id == null) {
-              this.displayValue = this.queryValue;
-            } else {
-              setQueryValue(id);
-              final List<Object> values = codeTable.getValues(id);
-              if (values.size() == 1) {
-                this.displayValue = values.get(0);
-              } else {
-                this.displayValue = Strings.toString(":", values);
+      this.column = column;
+      if (column != null) {
+        final FieldDefinition field = column.getFieldDefinition();
+        if (field instanceof JdbcFieldDefinition) {
+          this.jdbcField = (JdbcFieldDefinition)field;
+        } else {
+          this.jdbcField = JdbcFieldDefinitions.newFieldDefinition(this.queryValue);
+        }
+        if (!this.dontConvert) {
+          this.queryValue = column.toFieldValue(this.queryValue);
+        }
+        CodeTable codeTable = null;
+        final TableReferenceProxy table = column.getTable();
+        if (table != null) {
+          final TableReference tableRef = table.getTableReference();
+          if (tableRef instanceof final RecordDefinition recordDefinition) {
+            final String fieldName = column.getName();
+            codeTable = recordDefinition.getCodeTableByFieldName(fieldName);
+            if (codeTable instanceof RecordDefinitionProxy) {
+              final RecordDefinitionProxy proxy = (RecordDefinitionProxy)codeTable;
+              if (proxy.getRecordDefinition() == recordDefinition) {
+                codeTable = null;
               }
             }
-          }
-        }
-      }
-    }
-  }
-
-  @Override
-  public void setFieldDefinition(final FieldDefinition field) {
-    if (field != null) {
-      this.column = field;
-      if (field instanceof JdbcFieldDefinition) {
-        this.jdbcField = (JdbcFieldDefinition)field;
-      } else {
-        this.jdbcField = JdbcFieldDefinitions.newFieldDefinition(this.queryValue);
-      }
-      if (!this.dontConvert) {
-        this.queryValue = field.toFieldValue(this.queryValue);
-      }
-      CodeTable codeTable = null;
-      if (field != null) {
-        final RecordDefinition recordDefinition = field.getRecordDefinition();
-        if (recordDefinition != null) {
-          final String fieldName = field.getName();
-          codeTable = recordDefinition.getCodeTableByFieldName(fieldName);
-          if (codeTable instanceof RecordDefinitionProxy) {
-            final RecordDefinitionProxy proxy = (RecordDefinitionProxy)codeTable;
-            if (proxy.getRecordDefinition() == recordDefinition) {
-              codeTable = null;
-            }
-          }
-          if (codeTable != null) {
-            final Identifier id = codeTable.getIdentifier(this.queryValue);
-            if (id == null) {
-              this.displayValue = this.queryValue;
-            } else {
-              setQueryValue(id);
-              final List<Object> values = codeTable.getValues(id);
-              if (values.size() == 1) {
-                this.displayValue = values.get(0);
+            if (codeTable != null) {
+              final Identifier id = codeTable.getIdentifier(this.queryValue);
+              if (id == null) {
+                this.displayValue = this.queryValue;
               } else {
-                this.displayValue = Strings.toString(":", values);
+                setQueryValue(id);
+                final List<Object> values = codeTable.getValues(id);
+                if (values.size() == 1) {
+                  this.displayValue = values.get(0);
+                } else {
+                  this.displayValue = Strings.toString(":", values);
+                }
               }
             }
           }

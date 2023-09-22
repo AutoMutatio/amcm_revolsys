@@ -29,7 +29,7 @@ public class CollectionValue extends AbstractMultiQueryValue {
   }
 
   public CollectionValue(final ColumnReference field) {
-    setFieldDefinition((FieldDefinition)field);
+    setColumn(field);
   }
 
   public CollectionValue(final ColumnReference field, final Collection<? extends Object> values) {
@@ -173,21 +173,24 @@ public class CollectionValue extends AbstractMultiQueryValue {
   }
 
   @Override
-  public void setFieldDefinition(final FieldDefinition field) {
-    this.field = field;
-    if (field == null) {
-      this.jdbcField = null;
+  public void setColumn(final ColumnReference column) {
+    this.jdbcField = null;
+    if (column == null) {
+      this.field = null;
     } else {
-      this.codeTable = this.field.getCodeTable();
-      if (field instanceof JdbcFieldDefinition) {
-        this.jdbcField = (JdbcFieldDefinition)field;
-      } else {
-        this.jdbcField = null;
-      }
-      for (final QueryValue queryValue : this.values) {
-        if (queryValue instanceof Value) {
-          final Value value = (Value)queryValue;
-          value.setFieldDefinition(this.jdbcField);
+      this.field = column.getFieldDefinition();
+      if (this.field != null) {
+        this.codeTable = this.field.getCodeTable();
+        if (column instanceof JdbcFieldDefinition) {
+          this.jdbcField = (JdbcFieldDefinition)column;
+        } else {
+          this.jdbcField = null;
+        }
+        for (final QueryValue queryValue : this.values) {
+          if (queryValue instanceof Value) {
+            final Value value = (Value)queryValue;
+            value.setColumn(column);
+          }
         }
       }
     }
