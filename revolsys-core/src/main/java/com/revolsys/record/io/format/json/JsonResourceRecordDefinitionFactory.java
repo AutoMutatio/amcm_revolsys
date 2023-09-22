@@ -36,8 +36,9 @@ public class JsonResourceRecordDefinitionFactory extends BaseObjectWithPropertie
     this(new ClassPathResource(locationPattern), fileNames);
   }
 
+  @SuppressWarnings("unchecked")
   @Override
-  public RecordDefinition getRecordDefinition(final String typePath) {
-    return this.recordDefinitionMap.get(typePath);
+  public <RD extends RecordDefinition> RD getRecordDefinition(final CharSequence typePath) {
+    return (RD)this.recordDefinitionMap.get(typePath.toString());
   }
 }

@@ -20,12 +20,9 @@ public interface TableRecordStoreConnection extends Transactionable, TableRecord
     return f.apply((C)this);
   }
 
-  default RecordDefinition getRecordDefinition(final CharSequence tableName) {
-    final AbstractTableRecordStore recordStore = getTableRecordStore(tableName);
-    if (recordStore == null) {
-      return null;
-    }
-    return recordStore.getRecordDefinition();
+  @Override
+  default <RD extends RecordDefinition> RD getRecordDefinition(final CharSequence tableName) {
+    return getRecordStore().getRecordDefinition(tableName);
   }
 
   RecordStore getRecordStore();

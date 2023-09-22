@@ -519,8 +519,8 @@ public class ODataParser {
               .get(op);
             final QueryValue lhs = readExpression(table, tokens.subList(0, i));
             final QueryValue rhs = readExpression(table, tokens.subList(i + 3, ts));
-            if (lhs instanceof FieldDefinition) {
-              rhs.setFieldDefinition((FieldDefinition)lhs);
+            if (lhs instanceof final ColumnReference column) {
+              rhs.setColumn(column);
             }
             return fn.apply(lhs, rhs);
           }

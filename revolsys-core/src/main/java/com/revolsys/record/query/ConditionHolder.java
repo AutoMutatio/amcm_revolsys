@@ -10,7 +10,6 @@ import java.util.function.Function;
 import org.jeometry.common.data.type.DataType;
 
 import com.revolsys.collection.map.MapEx;
-import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordStore;
 
@@ -154,15 +153,15 @@ public class ConditionHolder implements Condition {
     return this.condition == null || this.condition.isEmpty();
   }
 
-  public void setCondition(final Condition condition) {
-    this.condition = condition;
+  @Override
+  public void setColumn(final ColumnReference column) {
+    if (this.condition != null) {
+      this.condition.setColumn(column);
+    }
   }
 
-  @Override
-  public void setFieldDefinition(final FieldDefinition fieldDefinition) {
-    if (this.condition != null) {
-      this.condition.setFieldDefinition(fieldDefinition);
-    }
+  public void setCondition(final Condition condition) {
+    this.condition = condition;
   }
 
   @Override
