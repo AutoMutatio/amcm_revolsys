@@ -14,6 +14,7 @@ import com.revolsys.record.Record;
 import com.revolsys.record.RecordFactory;
 import com.revolsys.record.query.Condition;
 import com.revolsys.record.query.Query;
+import com.revolsys.record.query.TableReference;
 import com.revolsys.record.query.TableReferenceProxy;
 import com.revolsys.util.IconNameProxy;
 
@@ -240,7 +241,7 @@ public interface RecordDefinitionProxy
   }
 
   @Override
-  default RecordDefinition getTableReference() {
+  default TableReference getTableReference() {
     return getRecordDefinition();
   }
 
