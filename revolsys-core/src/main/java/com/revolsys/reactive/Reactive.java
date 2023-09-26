@@ -209,6 +209,34 @@ public class Reactive {
     return Flux.create(sink -> new PairSinkHandler<>(sink, source1, source2, comparator));
   }
 
+  public static <V> Flux<V> processBuilder(final Consumer<ProcessBuilder> init,
+    final Function<Process, Mono<V>> action) {
+    return Flux.defer(() -> {
+      try {
+        final ProcessBuilder processBuilder = new ProcessBuilder();
+        init.accept(processBuilder);
+        final Process process = processBuilder.start();
+        return Mono.fromFuture(process::onExit).flatMapMany(action);
+      } catch (final IOException e) {
+        return Flux.error(e);
+      }
+    });
+  }
+
+  public static <V> Mono<V> processBuilderMono(final Consumer<ProcessBuilder> init,
+    final Function<Process, Mono<V>> action) {
+    return Mono.defer(() -> {
+      try {
+        final ProcessBuilder processBuilder = new ProcessBuilder();
+        init.accept(processBuilder);
+        final Process process = processBuilder.start();
+        return Mono.fromFuture(process::onExit).flatMap(action);
+      } catch (final IOException e) {
+        return Mono.error(e);
+      }
+    });
+  }
+
   public static <V, V2> Mono<V> thenReturn(final Publisher<V2> source, final V returnValue) {
     if (source instanceof final Flux<?> flux) {
       return thenReturn(returnValue, flux);
@@ -364,5 +392,4 @@ public class Reactive {
 
     return Mono.using(resource, publisher, closer);
   }
-
 }

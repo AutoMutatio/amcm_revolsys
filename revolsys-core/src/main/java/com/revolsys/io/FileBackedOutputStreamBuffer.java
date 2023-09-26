@@ -23,7 +23,7 @@ import io.netty.buffer.Unpooled;
 import reactor.core.publisher.Flux;
 import reactor.netty.ByteBufFlux;
 
-public class FileBackedOutputStreamBuffer extends OutputStream {
+public class FileBackedOutputStreamBuffer extends OutputStream implements Appendable {
 
   private final class ReadChannel extends AbstractInterruptibleChannel
     implements ReadableByteChannel {
@@ -90,6 +90,30 @@ public class FileBackedOutputStreamBuffer extends OutputStream {
   }
 
   @Override
+  public Appendable append(final char c) {
+    return append(Character.toString(c));
+  }
+
+  @Override
+  public Appendable append(final CharSequence s) {
+    return append(s.toString());
+  }
+
+  @Override
+  public Appendable append(final CharSequence s, final int start, final int end) {
+    return append(s.subSequence(start, end).toString());
+  }
+
+  public Appendable append(final String s) {
+    try {
+      write(s);
+    } catch (final IOException e) {
+      throw Exceptions.wrap(e);
+    }
+    return this;
+  }
+
+  @Override
   public synchronized void close() throws IOException {
     if (!this.closed) {
       this.closed = true;
@@ -121,10 +145,15 @@ public class FileBackedOutputStreamBuffer extends OutputStream {
   }
 
   @Override
-  public synchronized void flush() throws IOException {
+  public synchronized void flush() {
     if (!this.closed) {
       if (this.out != null) {
-        this.out.flush();
+        try {
+          this.out.flush();
+        } catch (final IOException e) {
+          // TODO Auto-generated catch block
+          e.printStackTrace();
+        }
       }
     }
   }
@@ -208,6 +237,10 @@ public class FileBackedOutputStreamBuffer extends OutputStream {
       }
       this.size += 1;
     }
+  }
+
+  public synchronized void write(final String s) throws IOException {
+    write(s.getBytes(StandardCharsets.UTF_8));
   }
 
 }

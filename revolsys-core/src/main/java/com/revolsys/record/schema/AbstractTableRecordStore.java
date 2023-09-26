@@ -280,6 +280,10 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     return getRecord(connection, "id", id);
   }
 
+  public Mono<Record> getRecordById$(final TableRecordStoreConnection connection, final Object id) {
+    return Mono.fromSupplier(() -> newQuery(connection).and("id", id).getRecord());
+  }
+
   protected long getRecordCount(final TableRecordStoreConnection connection, final Query query) {
     try (
       Transaction transaction = connection.newTransaction(TransactionOptions.REQUIRED)) {
