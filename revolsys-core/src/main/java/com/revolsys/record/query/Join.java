@@ -6,9 +6,11 @@ import org.jeometry.common.exception.Exceptions;
 import org.jeometry.common.io.PathName;
 
 import com.revolsys.collection.map.MapEx;
+import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinitionProxy;
 import com.revolsys.record.schema.RecordStore;
 import com.revolsys.record.schema.TableRecordStoreFactory;
+import com.revolsys.record.schema.TableReferenceFactory;
 
 public class Join implements QueryValue, TableReferenceProxy {
 
@@ -122,6 +124,11 @@ public class Join implements QueryValue, TableReferenceProxy {
     return this.condition;
   }
 
+  @Override
+  public FieldDefinition getField(final CharSequence name) {
+    return this.table.getField(name);
+  }
+
   public TableReference getTable() {
     return this.table;
   }
@@ -164,6 +171,12 @@ public class Join implements QueryValue, TableReferenceProxy {
     return on(fromFieldName, toTable, toFieldName);
   }
 
+  public Join on(final String fromFieldName, final TableReferenceFactory factory,
+    final CharSequence tableName, final String toFieldName) {
+    final TableReference recordDefinition = factory.getTableReference(tableName);
+    return on(fromFieldName, recordDefinition, toFieldName);
+  }
+
   public Join on(final String fieldName, final TableReferenceProxy toTable) {
     return on(fieldName, toTable, fieldName);
   }
@@ -198,7 +211,7 @@ public class Join implements QueryValue, TableReferenceProxy {
   }
 
   public Join table(final TableRecordStoreFactory tableFactory, final CharSequence pathName) {
-    this.table = tableFactory.getTableRecordStore(pathName).getTableReference();
+    this.table = tableFactory.getRecordDefinition(pathName);
     return this;
   }
 

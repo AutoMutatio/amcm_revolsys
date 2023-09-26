@@ -15,6 +15,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.revolsys.record.Record;
 import com.revolsys.record.io.RecordReader;
+import com.revolsys.record.io.format.json.JsonList;
 import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.record.io.format.json.JsonRecordWriter;
 import com.revolsys.record.query.Query;
@@ -134,6 +135,9 @@ public class AbstractTableRecordRestController extends AbstractWebController {
   public void responseRecords(final TableRecordStoreConnection connection,
     final HttpServletRequest request, final HttpServletResponse response, final Query query,
     final Long count) throws IOException {
+    if (query == null) {
+      responseJson(response, JsonObject.hash("value", JsonList.array()));
+    }
     try (
       Transaction transaction = connection.newTransaction(TransactionOptions.REQUIRES_NEW_READONLY);
       final RecordReader records = query.getRecordReader(transaction)) {

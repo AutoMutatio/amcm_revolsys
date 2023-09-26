@@ -380,6 +380,12 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
     return Mono.fromSupplier(() -> getRecordCount(query));
   }
 
+  @Override
+  default <RD extends RecordDefinition> RD getRecordDefinition(final CharSequence path) {
+    final PathName pathName = PathName.newPathName(path);
+    return getRecordDefinition(pathName);
+  }
+
   default <RD extends RecordDefinition> RD getRecordDefinition(final PathName path) {
     if (path == null) {
       return null;
@@ -416,12 +422,6 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
       return getRecordDefinition(rd);
     }
     return null;
-  }
-
-  @Override
-  default <RD extends RecordDefinition> RD getRecordDefinition(final String path) {
-    final PathName pathName = PathName.newPathName(path);
-    return getRecordDefinition(pathName);
   }
 
   default List<RecordDefinition> getRecordDefinitions(final PathName path) {
