@@ -15,7 +15,7 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.jeometry.common.exception.Exceptions;
 
-public class AzureSharedKeyLiteRequestBuilder extends ApacheHttpRequestBuilder {
+public class AzureSharedKeyLiteRequestBuilder extends HttpRequestBuilder {
 
   private static final char NEWLINE = '\n';
 
@@ -28,7 +28,7 @@ public class AzureSharedKeyLiteRequestBuilder extends ApacheHttpRequestBuilder {
   private static final List<String> STANDARD_HEADERS = Arrays.asList("Content-MD5", "Content-Type",
     "Date");
 
-  public AzureSharedKeyLiteRequestBuilder(final ApacheHttpRequestBuilderFactory factory) {
+  public AzureSharedKeyLiteRequestBuilder(final HttpRequestBuilderFactory factory) {
     super(factory);
   }
 

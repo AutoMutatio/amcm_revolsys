@@ -10,7 +10,7 @@ import javax.crypto.spec.SecretKeySpec;
 
 import com.revolsys.record.io.format.json.JsonObject;
 
-public class AzureQueueSharedKeyRequestBuilderFactory extends ApacheHttpRequestBuilderFactory {
+public class AzureQueueSharedKeyRequestBuilderFactory extends HttpRequestBuilderFactory {
 
   public static AzureQueueSharedKeyRequestBuilderFactory forConnectionString(
     final JsonObject connectionParameters) {

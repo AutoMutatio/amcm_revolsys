@@ -2,7 +2,7 @@ package com.revolsys.http;
 
 import org.apache.http.client.methods.HttpUriRequest;
 
-public class AzureTableSasRequestBuilder extends ApacheHttpRequestBuilder {
+public class AzureTableSasRequestBuilder extends HttpRequestBuilder {
 
   public AzureTableSasRequestBuilder(final AzureTableSasRequestBuilderFactory factory) {
     super(factory);

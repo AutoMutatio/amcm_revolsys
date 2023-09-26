@@ -73,7 +73,7 @@ public interface ApacheRequestBuilderProxy {
     return getRequestBuilder().getParameters();
   }
 
-  ApacheHttpRequestBuilder getRequestBuilder();
+  HttpRequestBuilder getRequestBuilder();
 
   default URI getUri() {
     return getRequestBuilder().getUri();

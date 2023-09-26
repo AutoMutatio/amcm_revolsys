@@ -47,6 +47,8 @@ import com.revolsys.transaction.TransactionOptions;
 import com.revolsys.transaction.TransactionRecordReader;
 import com.revolsys.util.Property;
 
+import reactor.core.publisher.Mono;
+
 public class AbstractTableRecordStore implements RecordDefinitionProxy {
 
   public static JsonObject schemaToJson(final RecordDefinition recordDefinition) {
@@ -275,6 +277,10 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
 
   public Record getRecordById(final TableRecordStoreConnection connection, final UUID id) {
     return getRecord(connection, "id", id);
+  }
+
+  public Mono<Record> getRecordById$(final TableRecordStoreConnection connection, final Object id) {
+    return Mono.fromSupplier(() -> newQuery(connection).and("id", id).getRecord());
   }
 
   protected long getRecordCount(final TableRecordStoreConnection connection, final Query query) {

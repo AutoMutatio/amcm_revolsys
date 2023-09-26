@@ -9,7 +9,7 @@ import org.apache.http.message.BasicHeader;
 
 import com.revolsys.net.http.SimpleNameValuePair;
 
-public class ConfigurableRequestBuilderFactory extends ApacheHttpRequestBuilderFactory {
+public class ConfigurableRequestBuilderFactory extends HttpRequestBuilderFactory {
 
   private final List<Header> headers = new ArrayList<>();
 
@@ -45,7 +45,7 @@ public class ConfigurableRequestBuilderFactory extends ApacheHttpRequestBuilderF
   }
 
   @Override
-  public ApacheHttpRequestBuilder newRequestBuilder() {
+  public HttpRequestBuilder newRequestBuilder() {
     return new ConfigurableRequestBuilder(this);
   }
 
