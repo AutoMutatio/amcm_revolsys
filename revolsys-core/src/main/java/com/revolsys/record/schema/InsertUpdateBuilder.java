@@ -250,15 +250,17 @@ public abstract class InsertUpdateBuilder<R extends Record> {
   private Mono<Result<R>> updateRecordMono(final ChangeTrackRecord record) {
     if (isUpdate()) {
       return Mono.defer(() -> {
-        updateRecord(record);
-        if (record.isModified()) {
-          return updateRecordMonoDo(record);
-        } else {
-          return Mono.just(record);
+        try {
+          updateRecord(record);
+          if (record.isModified()) {
+            return updateRecordMonoDo(record);
+          } else {
+            return Mono.just(record);
+          }
+        } catch (final Exception e) {
+          return Mono.error(Exceptions.wrap("Unable to update record:\n" + record, e));
         }
-      })
-        .onErrorMap(e -> Exceptions.wrap("Unable to update record:\n" + record, e))
-        .map(r -> new Result<>(true, (R)r.newRecord()));
+      }).map(r -> new Result<>(true, (R)r.newRecord()));
     } else {
       return Mono.empty();
     }

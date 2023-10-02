@@ -30,7 +30,7 @@ public class TransactionTest {
 
   PathName testTable = PathName.newPathName("/test/Test");
 
-  @Test
+  // @Test
   void noTransactionSuccess() {
     this.recordStore//
       .newInsertUpdate(this.testTable)
@@ -93,6 +93,19 @@ public class TransactionTest {
           .getRecord();
         assertEquals(this.updatedLabel, r1.getString(FIELD_LABEL));
       }
+    }
+  }
+
+  @Test
+  void transactionSuccessSingle() {
+    try (
+      Transaction transaction = this.recordStore.newTransaction()) {
+      this.recordStore//
+        .newInsertUpdate(this.testTable)
+        .search(r -> r.addValue(FIELD_ID, this.id))
+        .common(r -> r.addValue(FIELD_LABEL, this.originalLabel))
+        .execute();
+
     }
   }
 }

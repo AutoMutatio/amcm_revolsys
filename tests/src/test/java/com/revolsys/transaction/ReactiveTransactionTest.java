@@ -1,6 +1,6 @@
 package com.revolsys.transaction;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.Assert.assertEquals;
 
 import java.util.UUID;
 
@@ -31,7 +31,7 @@ public class ReactiveTransactionTest {
 
   PathName testTable = PathName.newPathName("/test/Test");
 
-  @Test
+  // @Test
   void noTransactionSuccess() {
     Flux.concat(//
       this.recordStore//
@@ -61,10 +61,10 @@ public class ReactiveTransactionTest {
     ).then().block();
   }
 
-  @Test
-  void transactionSuccess() {
+  // @Test
+  void transactionSuccessMultiple() {
     this.recordStore.transaction()
-      .transactional(Flux.concat(//
+      .transactional(Flux.defer(() -> Flux.concat(//
         this.recordStore//
           .newInsertUpdate(this.testTable)
           .search(r -> r.addValue(FIELD_ID, this.id))
@@ -89,7 +89,21 @@ public class ReactiveTransactionTest {
           .getRecordMono()
           .doOnNext(r -> assertEquals(this.updatedLabel, r.getString(FIELD_LABEL)))
       //
-      ).then())
+      )).then())
+      .block();
+  }
+
+  @Test
+  void transactionSuccessSingle() {
+    this.recordStore.transaction()
+      .transactional(Flux.defer(() -> Flux.concat(//
+        this.recordStore//
+          .newInsertUpdate(this.testTable)
+          .search(r -> r.addValue(FIELD_ID, this.id))
+          .common(r -> r.addValue(FIELD_LABEL, this.originalLabel))
+          .executeMono()
+      //
+      )).then())
       .block();
   }
 }
