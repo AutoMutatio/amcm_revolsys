@@ -71,7 +71,7 @@
             <configuration>
               <rules>
                 <requireMavenVersion>
-                  <version>3.8.1</version>
+                  <version>3.9.4</version>
                 </requireMavenVersion>
                 <requireJavaVersion>
                   <version>${java.version}</version>
@@ -290,6 +290,11 @@
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-project-info-reports-plugin</artifactId>
+          <version>3.4.5</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-resources-plugin</artifactId>
           <version>3.3.1</version>
         </plugin>
@@ -322,7 +327,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-project-info-reports-plugin</artifactId>
-        <version>3.4.2</version>
         <configuration>
           <dependencyDetailsEnabled>false</dependencyDetailsEnabled>
           <dependencyLocationsEnabled>false</dependencyLocationsEnabled>
@@ -397,7 +401,7 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <java.version>17</java.version>
+    <java.version>21</java.version>
     <org.jeometry.version>MAIN-SNAPSHOT</org.jeometry.version>
     <gpg.skip>true</gpg.skip>
     <github.global.server>github</github.global.server>

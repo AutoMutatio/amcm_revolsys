@@ -11,7 +11,7 @@ import com.revolsys.record.query.Query;
 import com.revolsys.transaction.Transaction;
 import com.revolsys.transaction.TransactionOptions;
 
-public class TableRecordStoreInsertUpdateBuilder extends InsertUpdateBuilder {
+public class TableRecordStoreInsertUpdateBuilder<R extends Record> extends InsertUpdateBuilder<R> {
 
   private final AbstractTableRecordStore recordStore;
 
@@ -32,24 +32,32 @@ public class TableRecordStoreInsertUpdateBuilder extends InsertUpdateBuilder {
       Transaction transaction = transactionSupplier.get()) {
       final ChangeTrackRecord changeTrackRecord = query.getRecord();
       if (changeTrackRecord == null) {
-        final Record newRecord = newRecord();
-        if (newRecord == null) {
-          return null;
-        } else {
-          insertRecord(newRecord);
-          try {
-            return this.recordStore.insertRecord(this.connection, newRecord);
-          } catch (final Exception e) {
-            throw Exceptions.wrap("Unable to insert record:\n" + newRecord, e);
+        if (isInsert()) {
+          final Record newRecord = newRecord();
+          if (newRecord == null) {
+            return null;
+          } else {
+            insertRecord(newRecord);
+            try {
+              return this.recordStore.insertRecord(this.connection, newRecord);
+            } catch (final Exception e) {
+              throw Exceptions.wrap("Unable to insert record:\n" + newRecord, e);
+            }
           }
+        } else {
+          return null;
         }
       } else {
-        try {
-          updateRecord(changeTrackRecord);
-          this.recordStore.updateRecordDo(this.connection, changeTrackRecord);
-          return changeTrackRecord.newRecord();
-        } catch (final Exception e) {
-          throw Exceptions.wrap("Unable to update record:\n" + changeTrackRecord, e);
+        if (isUpdate()) {
+          try {
+            updateRecord(changeTrackRecord);
+            this.recordStore.updateRecordDo(this.connection, changeTrackRecord);
+            return changeTrackRecord.newRecord();
+          } catch (final Exception e) {
+            throw Exceptions.wrap("Unable to update record:\n" + changeTrackRecord, e);
+          }
+        } else {
+          return null;
         }
       }
     }

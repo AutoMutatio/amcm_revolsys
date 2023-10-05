@@ -15,6 +15,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.jeometry.common.data.identifier.Identifier;
 import org.jeometry.common.data.type.DataType;
 import org.jeometry.common.data.type.DataTypes;
+import org.jeometry.common.exception.Exceptions;
 import org.jeometry.common.io.PathName;
 import org.jeometry.common.logging.Logs;
 
@@ -383,8 +384,14 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     }
   }
 
-  public InsertUpdateBuilder newInsertUpdate(final TableRecordStoreConnection connection) {
-    return new TableRecordStoreInsertUpdateBuilder(this, connection);
+  public <R extends Record> InsertUpdateBuilder<R> newInsert(
+    final TableRecordStoreConnection connection) {
+    return this.<R> newInsertUpdate(connection).setUpdate(false);
+  }
+
+  public <R extends Record> InsertUpdateBuilder<R> newInsertUpdate(
+    final TableRecordStoreConnection connection) {
+    return new TableRecordStoreInsertUpdateBuilder<>(this, connection);
   }
 
   public Condition newODataFilter(String filter) {
@@ -475,6 +482,11 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
 
   public Transaction newTransaction() {
     return this.recordStore.newTransaction();
+  }
+
+  public <R extends Record> InsertUpdateBuilder<R> newUpdate(
+    final TableRecordStoreConnection connection) {
+    return this.<R> newInsertUpdate(connection).setInsert(false);
   }
 
   public UUID newUUID() {
@@ -645,19 +657,23 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     final ChangeTrackRecord record) {
   }
 
-  public Record updateRecordDo(final TableRecordStoreConnection connection,
+  public final Record updateRecordDo(final TableRecordStoreConnection connection,
     final ChangeTrackRecord record) {
-    if (record.isModified()) {
-      updateRecordBefore(connection, record);
-      this.recordStore.updateRecord(record);
-      updateRecordAfter(connection, record);
+    try {
+      if (record.isModified()) {
+        updateRecordBefore(connection, record);
+        this.recordStore.updateRecord(record);
+        updateRecordAfter(connection, record);
+      }
+      return record.newRecord();
+    } catch (final Exception e) {
+      throw Exceptions.wrap("Unable to update record:\n" + record, e);
     }
-    return record.newRecord();
   }
 
   public int updateRecords(final TableRecordStoreConnection connection, final Query query,
     final Consumer<? super ChangeTrackRecord> updateAction) {
-    int i = 0;
+    int i = 0;  
     final RecordDefinition recordDefinition = getRecordDefinition();
     final RecordStore recordStore = this.recordStore;
     query.setRecordFactory(ArrayChangeTrackRecord.FACTORY);

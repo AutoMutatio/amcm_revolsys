@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import org.jeometry.common.data.identifier.Identifier;
@@ -600,6 +601,15 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
     }
   }
 
+  default <R extends Record> InsertUpdateBuilder<R> newInsert(final PathName pathName) {
+    return this.<R> newInsertUpdate(pathName).setUpdate(false);
+  }
+
+  default <R extends Record> InsertUpdateBuilder<R> newInsertUpdate(final PathName pathName) {
+    final Query query = newQuery(pathName);
+    return new RecordStoreInsertUpdateBuilder<>(this, query);
+  }
+
   RecordIterator newIterator(final Query query, Map<String, Object> properties);
 
   default Identifier newPrimaryIdentifier(final PathName typePath) {
@@ -749,6 +759,10 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
 
   default RecordWriter newRecordWriter(final RecordDefinitionProxy recordDefinition) {
     return newRecordWriter();
+  }
+
+  default <R extends Record> InsertUpdateBuilder<R> newUpdate(final PathName pathName) {
+    return this.<R> newInsertUpdate(pathName).setInsert(false);
   }
 
   default ResultPager<Record> page(final Query query) {
