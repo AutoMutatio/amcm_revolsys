@@ -55,8 +55,8 @@ class TransactionDefinition<V extends TransactionDefinition<V>> {
   }
 
   @SuppressWarnings("unchecked")
-  public V setReadOnly(final boolean readOnly) {
-    this.readOnly = readOnly;
+  public V readOnly() {
+    this.readOnly = true;
     return (V)this;
   }
 

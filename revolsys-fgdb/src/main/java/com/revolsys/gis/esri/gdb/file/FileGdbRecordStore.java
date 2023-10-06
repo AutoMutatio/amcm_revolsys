@@ -33,8 +33,8 @@ import com.revolsys.gis.esri.gdb.file.capi.FileGdbDomainCodeTable;
 import com.revolsys.gis.esri.gdb.file.capi.type.GeometryFieldDefinition;
 import com.revolsys.io.BaseCloseable;
 import com.revolsys.io.FileUtil;
+import com.revolsys.io.PathUtil;
 import com.revolsys.io.Writer;
-import com.revolsys.jdbc.JdbcUtils;
 import com.revolsys.parallel.SingleThreadExecutor;
 import com.revolsys.record.Record;
 import com.revolsys.record.code.CodeTable;
@@ -392,7 +392,7 @@ public class FileGdbRecordStore extends AbstractRecordStore {
         } else {
           final StringBuilderSqlAppendable sql = SqlAppendable.stringBuilder();
           sql.append("SELECT OBJECTID FROM ");
-          sql.append(JdbcUtils.getTableName(typePath.toString()));
+          sql.append(PathUtil.getName(typePath.toString()));
           if (whereClause.length() > 0) {
             sql.append(" WHERE ");
             sql.append(whereClause);
@@ -417,7 +417,7 @@ public class FileGdbRecordStore extends AbstractRecordStore {
         } else {
           final StringBuilderSqlAppendable sql = SqlAppendable.stringBuilder();
           sql.append("SELECT " + geometryField.getName() + " FROM ");
-          sql.append(JdbcUtils.getTableName(typePath.toString()));
+          sql.append(PathUtil.getName(typePath.toString()));
           if (whereClause.length() > 0) {
             sql.append(" WHERE ");
             sql.append(whereClause);
@@ -688,7 +688,6 @@ public class FileGdbRecordStore extends AbstractRecordStore {
     return null;
   }
 
-  @Override
   public FileGdbQueryIterator newIterator(final Query query, final Map<String, Object> properties) {
     PathName pathName = query.getTablePath();
     final RecordDefinition recordDefinition = query.getRecordDefinition();
@@ -714,7 +713,7 @@ public class FileGdbRecordStore extends AbstractRecordStore {
       sql.append("SELECT ");
       query.appendSelect(sql);
       sql.append(" FROM ");
-      sql.append(JdbcUtils.getTableName(catalogPath));
+      sql.append(PathUtil.getName(catalogPath));
       if (whereClause.length() > 0) {
         sql.append(" WHERE ");
         sql.append(whereClause.toString());
@@ -785,18 +784,18 @@ public class FileGdbRecordStore extends AbstractRecordStore {
         } else if (!idFieldName.equals("OBJECTID")) {
           AtomicLong idGenerator = this.idGenerators.get(typePath);
           if (idGenerator == null) {
-            long maxId = 0;
-            for (final Record record : getRecords(typePath)) {
+            final AtomicLong maxId = new AtomicLong();
+            newQuery(typePath).forEachRecord(record -> {
               final Identifier id = record.getIdentifier();
               final Object firstId = id.getValue(0);
               if (firstId instanceof Number) {
                 final Number number = (Number)firstId;
-                if (number.longValue() > maxId) {
-                  maxId = number.longValue();
+                if (number.longValue() > maxId.get()) {
+                  maxId.set(number.longValue());
                 }
               }
-            }
-            idGenerator = new AtomicLong(maxId);
+            });
+            idGenerator = maxId;
             this.idGenerators.put(typePath, idGenerator);
           }
           return Identifier.newIdentifier(idGenerator.incrementAndGet());

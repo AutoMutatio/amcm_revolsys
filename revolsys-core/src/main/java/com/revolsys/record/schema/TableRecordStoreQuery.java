@@ -24,13 +24,12 @@ public class TableRecordStoreQuery extends Query {
 
   @Override
   public int deleteRecords() {
-    return this.connection
-      .transactionCall(() -> this.recordStore.getRecordStore().deleteRecords(this));
+    return transactionCall(() -> this.recordStore.getRecordStore().deleteRecords(this));
   }
 
   @Override
   public <R extends Record> R getRecord() {
-    return this.recordStore.getRecord(this.connection, this);
+    return transactionCall(() -> this.recordStore.getRecord(this.connection, this));
   }
 
   @Override
@@ -45,7 +44,8 @@ public class TableRecordStoreQuery extends Query {
 
   @Override
   public Record insertRecord(final Supplier<Record> newRecordSupplier) {
-    return this.recordStore.insertRecord(this.connection, this, newRecordSupplier);
+    return transactionCall(
+      () -> this.recordStore.insertRecord(this.connection, this, newRecordSupplier));
   }
 
   @Override
@@ -60,11 +60,13 @@ public class TableRecordStoreQuery extends Query {
 
   @Override
   public Record updateRecord(final Consumer<Record> updateAction) {
-    return this.recordStore.updateRecord(this.connection, this, updateAction);
+    return transactionCall(
+      () -> this.recordStore.updateRecord(this.connection, this, updateAction));
   }
 
   @Override
   public int updateRecords(final Consumer<? super ChangeTrackRecord> updateAction) {
-    return this.recordStore.updateRecords(this.connection, this, updateAction);
+    return transactionCall(
+      () -> this.recordStore.updateRecords(this.connection, this, updateAction));
   }
 }

@@ -179,7 +179,7 @@ public class ActiveTransactionContext implements TransactionContext {
   private void withResources(final Consumer<? super TransactionableResource> action) {
     this.resources.values().forEach(r -> {
       try {
-
+        action.accept(r);
       } catch (final Throwable e) {
         addException(e);
       }

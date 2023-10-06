@@ -32,16 +32,11 @@ public class JdbcConnection implements Connection {
 
   private final boolean close;
 
-  JdbcConnection(final JdbcDataSource dataSource) throws SQLException {
-    this.dataSource = dataSource;
-    this.connection = dataSource.getConnectionInternal();
-    this.close = true;
-  }
-
-  JdbcConnection(final JdbcDataSource dataSource, final Connection connection) {
+  JdbcConnection(final JdbcDataSource dataSource, final Connection connection,
+    final boolean close) {
     this.dataSource = dataSource;
     this.connection = connection;
-    this.close = false;
+    this.close = close;
   }
 
   @Override

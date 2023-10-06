@@ -8,6 +8,8 @@ import com.revolsys.record.Record;
 import com.revolsys.record.io.RecordReader;
 import com.revolsys.record.query.Query;
 import com.revolsys.record.query.StringBuilderSqlAppendable;
+import com.revolsys.record.query.TableReferenceProxy;
+import com.revolsys.transaction.TransactionBuilder;
 
 public class RecordStoreQuery extends Query {
 
@@ -17,20 +19,25 @@ public class RecordStoreQuery extends Query {
     this.recordStore = recordStore;
   }
 
+  public RecordStoreQuery(final RecordStore recordStore, final TableReferenceProxy table) {
+    super(table);
+    this.recordStore = recordStore;
+  }
+
   @Override
   public int deleteRecords() {
-    return this.recordStore.transactionCall(() -> this.recordStore.deleteRecords(this));
+    return transactionCall(() -> this.recordStore.deleteRecords(this));
   }
 
   @SuppressWarnings("unchecked")
   @Override
   public <R extends Record> R getRecord() {
-    return (R)this.recordStore.getRecord(this);
+    return transactionCall(() -> (R)this.recordStore.getRecord(this));
   }
 
   @Override
   public long getRecordCount() {
-    return this.recordStore.getRecordCount(this);
+    return transactionCall(() -> this.recordStore.getRecordCount(this));
   }
 
   @Override
@@ -40,7 +47,7 @@ public class RecordStoreQuery extends Query {
 
   @Override
   public Record insertRecord(final Supplier<Record> newRecordSupplier) {
-    return this.recordStore.insertRecord(this, newRecordSupplier);
+    return transactionCall(() -> this.recordStore.insertRecord(this, newRecordSupplier));
   }
 
   @Override
@@ -51,12 +58,17 @@ public class RecordStoreQuery extends Query {
   }
 
   @Override
+  public TransactionBuilder transaction() {
+    return this.recordStore.transaction();
+  }
+
+  @Override
   public Record updateRecord(final Consumer<Record> updateAction) {
-    return this.recordStore.updateRecord(this, updateAction);
+    return transactionCall(() -> this.recordStore.updateRecord(this, updateAction));
   }
 
   @Override
   public int updateRecords(final Consumer<? super ChangeTrackRecord> updateAction) {
-    return this.recordStore.updateRecords(this, updateAction);
+    return transactionCall(() -> this.recordStore.updateRecords(this, updateAction));
   }
 }

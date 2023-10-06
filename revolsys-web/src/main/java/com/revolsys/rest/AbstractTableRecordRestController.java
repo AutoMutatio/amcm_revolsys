@@ -120,7 +120,7 @@ public class AbstractTableRecordRestController extends AbstractWebController {
     if (query == null) {
       responseJson(response, JsonObject.hash("value", JsonList.array()));
     }
-    connection.transaction().requiresNew().setReadOnly(true).run(() -> {
+    connection.transaction().requiresNew().readOnly().run(() -> {
       try (
         final RecordReader records = query.getRecordReader()) {
         responseRecords(connection, request, response, query, records, count);
@@ -143,7 +143,7 @@ public class AbstractTableRecordRestController extends AbstractWebController {
   public void responseRecordsJson(final TableRecordStoreConnection connection,
     final HttpServletRequest request, final HttpServletResponse response, final Query query,
     final Long count, final JsonObject extraData) throws IOException {
-    connection.transaction().requiresNew().setReadOnly(true).run(() -> {
+    connection.transaction().requiresNew().readOnly().run(() -> {
       try (
         final RecordReader records = query.getRecordReader()) {
         responseRecordsJson(connection, request, response, query, records, count, extraData);

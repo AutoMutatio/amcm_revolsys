@@ -399,7 +399,7 @@ public class ODataRecordStore extends AbstractRecordStore {
 
   @Override
   public RecordReader getRecords(final Query query) {
-    return newIterator(query, null);
+    return new ODataQueryIterator(this, this.requestFactory, query, null);
   }
 
   @Override
@@ -424,11 +424,6 @@ public class ODataRecordStore extends AbstractRecordStore {
     final JsonObject result = request.getJson();
     record.setValues(result);
     return record;
-  }
-
-  @Override
-  public ODataQueryIterator newIterator(final Query query, final Map<String, Object> properties) {
-    return new ODataQueryIterator(this, this.requestFactory, query, properties);
   }
 
   @Override

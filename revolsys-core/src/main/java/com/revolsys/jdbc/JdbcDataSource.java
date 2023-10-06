@@ -44,16 +44,30 @@ public class JdbcDataSource implements DataSource {
       .addConnectionInitializer(connection);
   }
 
+  @Override
+  public JdbcConnection getConnection() throws SQLException {
+    return getConnection(null);
+  }
+
   /**
    * Return a new JDBC connection. The client caller must close the connection.
    */
-  @Override
-  public JdbcConnection getConnection() throws SQLException {
+  public JdbcConnection getConnection(final ConnectionConsumer initializer) throws SQLException {
     final TransactionContext context = Transaction.getContext();
     if (context instanceof final ActiveTransactionContext activeContext) {
-      return activeContext.getResource(this.key, this.resourceConstructor).newJdbcConnection();
+      return activeContext.getResource(this.key, this.resourceConstructor)
+        .addConnectionInitializer(initializer)
+        .newJdbcConnection();
     } else {
-      return new JdbcConnection(this);
+      final Connection connection = getConnectionInternal();
+      if (connection == null) {
+        return null;
+      } else {
+        if (initializer != null) {
+          initializer.accept(connection);
+        }
+        return new JdbcConnection(this, connection, true);
+      }
     }
   }
 

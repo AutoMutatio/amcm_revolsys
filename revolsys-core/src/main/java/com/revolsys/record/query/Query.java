@@ -19,6 +19,8 @@ import java.util.function.Supplier;
 
 import org.jeometry.common.io.PathName;
 
+import com.revolsys.collection.list.ListEx;
+import com.revolsys.collection.list.Lists;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.jdbc.JdbcUtils;
@@ -608,11 +610,17 @@ public class Query extends BaseObjectWithProperties
     return getRecordDefinition().getRecordStore().deleteRecords(this);
   }
 
-  public void forEachRecord(final Consumer<? super Record> action) {
-    try (
-      RecordReader reader = getRecordReader()) {
-      reader.forEach(action);
-    }
+  /**
+   * Process each result record. Ensures that there is an open transaction
+   * @param action
+   */
+  public final void forEachRecord(final Consumer<? super Record> action) {
+    transactionRun(() -> {
+      try (
+        RecordReader reader = getRecordReader()) {
+        reader.forEach(action);
+      }
+    });
   }
 
   @SuppressWarnings("unchecked")
@@ -713,11 +721,10 @@ public class Query extends BaseObjectWithProperties
     return getRecordDefinition().getRecordStore().getRecords(this);
   }
 
-  public List<Record> getRecords() {
-    try (
-      RecordReader records = getRecordReader()) {
-      return records.toList();
-    }
+  public ListEx<Record> getRecords() {
+    final ListEx<Record> records = Lists.newArray();
+    forEachRecord(records::add);
+    return records;
   }
 
   public RecordStore getRecordStore() {

@@ -11,6 +11,7 @@ import com.revolsys.parallel.ThreadUtil;
 import com.revolsys.transaction.Isolation;
 import com.revolsys.transaction.TransactionContext;
 import com.revolsys.transaction.TransactionableResource;
+import com.revolsys.util.Debug;
 
 public class JdbcConnectionTransactionResource implements TransactionableResource {
   private final ReentrantLock lock = new ReentrantLock();
@@ -29,22 +30,26 @@ public class JdbcConnectionTransactionResource implements TransactionableResourc
     this.dataSource = dataSource;
   }
 
-  public void addConnectionInitializer(final ConnectionConsumer initializer) {
-    try (
-      var l = ThreadUtil.lock(this.lock)) {
-      if (this.connection == null) {
-        if (this.connectionInitializers == null) {
-          this.connectionInitializers = new ArrayList<>();
-        }
-        this.connectionInitializers.add(initializer);
-      } else {
-        try {
-          initializer.accept(this.connection);
-        } catch (final SQLException e) {
-          throw this.dataSource.getException("initialize", null, e);
+  public JdbcConnectionTransactionResource addConnectionInitializer(
+    final ConnectionConsumer initializer) {
+    if (initializer != null) {
+      try (
+        var l = ThreadUtil.lock(this.lock)) {
+        if (this.connection == null) {
+          if (this.connectionInitializers == null) {
+            this.connectionInitializers = new ArrayList<>();
+          }
+          this.connectionInitializers.add(initializer);
+        } else {
+          try {
+            initializer.accept(this.connection);
+          } catch (final SQLException e) {
+            throw this.dataSource.getException("initialize", null, e);
+          }
         }
       }
     }
+    return this;
   }
 
   @Override
@@ -61,6 +66,13 @@ public class JdbcConnectionTransactionResource implements TransactionableResourc
     try (
       var l = ThreadUtil.lock(this.lock)) {
       if (this.connection != null) {
+        if (this.context.isReadOnly()) {
+          try {
+            this.connection.setReadOnly(false);
+          } catch (final SQLException e) {
+            Debug.noOp();
+          }
+        }
         try {
           this.connection.close();
         } catch (final SQLException e) {
@@ -78,7 +90,7 @@ public class JdbcConnectionTransactionResource implements TransactionableResourc
         try {
           this.connection.commit();
         } catch (final SQLException e) {
-          throw this.dataSource.getException("rollback", null, e);
+          throw this.dataSource.getException("commit", null, e);
         }
       }
     }
@@ -132,7 +144,7 @@ public class JdbcConnectionTransactionResource implements TransactionableResourc
     if (connection == null) {
       return null;
     } else {
-      return new JdbcConnection(this.dataSource, connection);
+      return new JdbcConnection(this.dataSource, connection, false);
     }
   }
 
