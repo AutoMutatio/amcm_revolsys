@@ -7,10 +7,6 @@ import com.revolsys.record.ChangeTrackRecord;
 import com.revolsys.record.Record;
 import com.revolsys.record.io.RecordReader;
 import com.revolsys.record.query.Query;
-import com.revolsys.transaction.Transaction;
-import com.revolsys.transaction.TransactionOption;
-import com.revolsys.transaction.TransactionOptions;
-import com.revolsys.transaction.TransactionRecordReader;
 
 public class RecordLayerQuery extends Query {
 
@@ -38,33 +34,12 @@ public class RecordLayerQuery extends Query {
 
   @Override
   public RecordReader getRecordReader() {
-    final Transaction transaction = newTransaction(TransactionOptions.REQUIRED);
-    final RecordReader reader = this.layer.getRecordReader(this);
-    return new TransactionRecordReader(reader, transaction);
-  }
-
-  @Override
-  public RecordReader getRecordReader(Transaction transaction) {
-    if (transaction == null) {
-      transaction = newTransaction(TransactionOptions.REQUIRED);
-    }
-    final RecordReader reader = this.layer.getRecordReader(this);
-    return new TransactionRecordReader(reader, transaction);
+    return this.layer.getRecordReader(this);
   }
 
   @Override
   public Record insertRecord(final Supplier<Record> newRecordSupplier) {
     throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public Transaction newTransaction() {
-    return this.layer.newTransaction();
-  }
-
-  @Override
-  public Transaction newTransaction(final TransactionOption... options) {
-    return this.layer.newTransaction(options);
   }
 
   @Override

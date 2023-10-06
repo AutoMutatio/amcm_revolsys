@@ -198,7 +198,7 @@ public class GeoPackageRecordStore extends AbstractJdbcRecordStore {
         final int coordinateSystemId = coordinateSystem.getCoordinateSystemId();
         final String sridSql = "SELECT srs_id from gpkg_spatial_ref_sys where srs_id = ?";
         try (
-          JdbcConnection connection = super.getJdbcConnection(true)) {
+          JdbcConnection connection = super.getJdbcConnection()) {
           try (
             final PreparedStatement statement = connection.prepareStatement(sridSql)) {
             statement.setInt(1, coordinateSystemId);
@@ -225,9 +225,9 @@ public class GeoPackageRecordStore extends AbstractJdbcRecordStore {
                 }
               }
             }
-          } catch (final SQLException e) {
-            throw connection.getException("selectInt", sridSql, e);
           }
+        } catch (final SQLException e) {
+          throw getException("selectInt", sridSql, e);
         }
       }
       final String gpkgGeometryColumns = ddlWriter.insertGpkgGeometryColumns(field);
@@ -269,29 +269,29 @@ public class GeoPackageRecordStore extends AbstractJdbcRecordStore {
 
   private void executeSql(final String task, final String sql) {
     try (
-      JdbcConnection connection = getJdbcConnection(true)) {
+      JdbcConnection connection = getJdbcConnection()) {
       if (sql.strip().length() > 0) {
         try (
           Statement statement = connection.createStatement()) {
           statement.execute(sql);
-        } catch (final SQLException e) {
-          throw connection.getException(task, sql, e);
         }
       }
+    } catch (final SQLException e) {
+      throw getException(task, sql, e);
     }
   }
 
   private void executeSqlNoFunctions(final String task, final String sql) {
     try (
-      JdbcConnection connection = super.getJdbcConnection(true)) {
+      JdbcConnection connection = super.getJdbcConnection()) {
       if (sql.strip().length() > 0) {
         try (
           Statement statement = connection.createStatement()) {
           statement.execute(sql);
-        } catch (final SQLException e) {
-          throw connection.getException(task, sql, e);
         }
       }
+    } catch (final SQLException e) {
+      throw getException(task, sql, e);
     }
   }
 
@@ -334,13 +334,6 @@ public class GeoPackageRecordStore extends AbstractJdbcRecordStore {
   @Override
   public JdbcConnection getJdbcConnection() {
     final JdbcConnection connection = super.getJdbcConnection();
-    addFunctions(connection);
-    return connection;
-  }
-
-  @Override
-  public JdbcConnection getJdbcConnection(final boolean autoCommit) {
-    final JdbcConnection connection = super.getJdbcConnection(autoCommit);
     addFunctions(connection);
     return connection;
   }
@@ -544,7 +537,7 @@ public class GeoPackageRecordStore extends AbstractJdbcRecordStore {
 
   public MapEx selectMapNoFunctions(final String sql, final Object... parameters) {
     try (
-      JdbcConnection connection = super.getJdbcConnection(true)) {
+      JdbcConnection connection = super.getJdbcConnection()) {
       try (
         final PreparedStatement statement = connection.prepareStatement(sql)) {
         JdbcUtils.setParameters(statement, parameters);
@@ -558,9 +551,9 @@ public class GeoPackageRecordStore extends AbstractJdbcRecordStore {
               "Value not found for " + sql + " " + Arrays.asList(parameters));
           }
         }
-      } catch (final SQLException e) {
-        throw connection.getException(null, sql, e);
       }
+    } catch (final SQLException e) {
+      throw getException(null, sql, e);
     }
   }
 

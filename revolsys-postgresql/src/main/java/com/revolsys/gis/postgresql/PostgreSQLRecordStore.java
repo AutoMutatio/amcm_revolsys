@@ -21,7 +21,6 @@ import org.jeometry.common.exception.Exceptions;
 import org.jeometry.common.io.PathName;
 import org.postgresql.jdbc.PgConnection;
 
-import com.revolsys.collection.ResultPager;
 import com.revolsys.gis.postgresql.type.PostgreSQLArrayFieldDefinition;
 import com.revolsys.gis.postgresql.type.PostgreSQLBoundingBoxWrapper;
 import com.revolsys.gis.postgresql.type.PostgreSQLGeometryFieldAdder;
@@ -31,7 +30,7 @@ import com.revolsys.gis.postgresql.type.PostgreSQLJsonbFieldDefinition;
 import com.revolsys.gis.postgresql.type.PostgreSQLOidFieldDefinition;
 import com.revolsys.gis.postgresql.type.PostgreSQLTidWrapper;
 import com.revolsys.jdbc.JdbcConnection;
-import com.revolsys.jdbc.JdbcUtils;
+import com.revolsys.jdbc.JdbcDataSource;
 import com.revolsys.jdbc.field.JdbcFieldAdder;
 import com.revolsys.jdbc.field.JdbcFieldDefinition;
 import com.revolsys.jdbc.field.JdbcStringFieldAdder;
@@ -175,13 +174,8 @@ public class PostgreSQLRecordStore extends AbstractJdbcRecordStore {
 
   @Override
   public JdbcConnection getJdbcConnection() {
-    return getJdbcConnection(false);
-  }
-
-  @Override
-  public JdbcConnection getJdbcConnection(final boolean autoCommit) {
-    final DataSource dataSource = getDataSource();
-    Connection connection = JdbcUtils.getConnection(dataSource);
+    final JdbcDataSource dataSource = getDataSource();
+    JdbcConnection connection = super.getJdbcConnection();
     if (connection == null) {
       return null;
     } else {
@@ -190,7 +184,7 @@ public class PostgreSQLRecordStore extends AbstractJdbcRecordStore {
         try {
           pgConnection = connection.unwrap(PgConnection.class);
         } catch (final NullPointerException e) {
-          connection = JdbcUtils.getConnection(dataSource);
+          connection = dataSource.getConnection();
           pgConnection = connection.unwrap(PgConnection.class);
         }
         pgConnection.addDataType("geometry", PostgreSQLGeometryWrapper.class);
@@ -201,7 +195,7 @@ public class PostgreSQLRecordStore extends AbstractJdbcRecordStore {
         // TODO Auto-generated catch block
         e.printStackTrace();
       }
-      return new JdbcConnection(connection, dataSource, autoCommit);
+      return connection;
     }
   }
 
@@ -408,11 +402,6 @@ public class PostgreSQLRecordStore extends AbstractJdbcRecordStore {
     final boolean quoteName = !dbSchemaName.equals(dbSchemaName.toLowerCase());
     return new PostgreSQLRecordStoreSchema((PostgreSQLRecordStoreSchema)rootSchema, childSchemaPath,
       dbSchemaName, quoteName);
-  }
-
-  @Override
-  public ResultPager<Record> page(final Query query) {
-    return new PostgreSQLJdbcQueryResultPager(this, getProperties(), query);
   }
 
   public void setUseSchemaSequencePrefix(final boolean useSchemaSequencePrefix) {

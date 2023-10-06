@@ -1,15 +1,12 @@
 package com.revolsys.record.schema;
 
-import java.util.function.Supplier;
-
 import org.jeometry.common.exception.Exceptions;
 
 import com.revolsys.record.ArrayChangeTrackRecord;
 import com.revolsys.record.ChangeTrackRecord;
 import com.revolsys.record.Record;
 import com.revolsys.record.query.Query;
-import com.revolsys.transaction.Transaction;
-import com.revolsys.transaction.TransactionOptions;
+import com.revolsys.transaction.Transactionable;
 
 public class TableRecordStoreInsertUpdateBuilder<R extends Record> extends InsertUpdateBuilder<R> {
 
@@ -25,46 +22,43 @@ public class TableRecordStoreInsertUpdateBuilder<R extends Record> extends Inser
   }
 
   @Override
-  public Record executeDo(final Supplier<Transaction> transactionSupplier) {
+  public Record executeDo() {
     final Query query = getQuery();
     query.setRecordFactory(ArrayChangeTrackRecord.FACTORY);
-    try (
-      Transaction transaction = transactionSupplier.get()) {
-      final ChangeTrackRecord changeTrackRecord = query.getRecord();
-      if (changeTrackRecord == null) {
-        if (isInsert()) {
-          final Record newRecord = newRecord();
-          if (newRecord == null) {
-            return null;
-          } else {
-            insertRecord(newRecord);
-            try {
-              return this.recordStore.insertRecord(this.connection, newRecord);
-            } catch (final Exception e) {
-              throw Exceptions.wrap("Unable to insert record:\n" + newRecord, e);
-            }
-          }
-        } else {
+    final ChangeTrackRecord changeTrackRecord = query.getRecord();
+    if (changeTrackRecord == null) {
+      if (isInsert()) {
+        final Record newRecord = newRecord();
+        if (newRecord == null) {
           return null;
+        } else {
+          insertRecord(newRecord);
+          try {
+            return this.recordStore.insertRecord(this.connection, newRecord);
+          } catch (final Exception e) {
+            throw Exceptions.wrap("Unable to insert record:\n" + newRecord, e);
+          }
         }
       } else {
-        if (isUpdate()) {
-          try {
-            updateRecord(changeTrackRecord);
-            this.recordStore.updateRecordDo(this.connection, changeTrackRecord);
-            return changeTrackRecord.newRecord();
-          } catch (final Exception e) {
-            throw Exceptions.wrap("Unable to update record:\n" + changeTrackRecord, e);
-          }
-        } else {
-          return null;
+        return null;
+      }
+    } else {
+      if (isUpdate()) {
+        try {
+          updateRecord(changeTrackRecord);
+          this.recordStore.updateRecordDo(this.connection, changeTrackRecord);
+          return changeTrackRecord.newRecord();
+        } catch (final Exception e) {
+          throw Exceptions.wrap("Unable to update record:\n" + changeTrackRecord, e);
         }
+      } else {
+        return null;
       }
     }
   }
 
   @Override
-  protected Transaction newTransaction() {
-    return this.connection.newTransaction(TransactionOptions.REQUIRED);
+  public Transactionable getTransactionable() {
+    return this.connection;
   }
 }

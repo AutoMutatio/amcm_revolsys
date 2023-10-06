@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 import org.jeometry.common.data.identifier.Identifier;
@@ -19,7 +18,6 @@ import org.jeometry.common.data.type.DataTypes;
 import org.jeometry.common.io.PathName;
 import org.jeometry.common.io.PathNameProxy;
 import org.springframework.beans.DirectFieldAccessor;
-import org.springframework.transaction.PlatformTransactionManager;
 
 import com.revolsys.collection.ListResultPager;
 import com.revolsys.collection.ResultPager;
@@ -53,9 +51,6 @@ import com.revolsys.record.query.Query;
 import com.revolsys.record.query.QueryValue;
 import com.revolsys.record.query.SqlAppendable;
 import com.revolsys.record.query.UpdateStatement;
-import com.revolsys.transaction.Propagation;
-import com.revolsys.transaction.Transaction;
-import com.revolsys.transaction.TransactionOptions;
 import com.revolsys.transaction.Transactionable;
 import com.revolsys.util.Property;
 import com.revolsys.util.count.CategoryLabelCountMap;
@@ -509,11 +504,6 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
     }
   }
 
-  @Override
-  default PlatformTransactionManager getTransactionManager() {
-    return null;
-  }
-
   String getUrl();
 
   String getUsername();
@@ -794,8 +784,7 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
   }
 
   default Record updateRecord(final Query query, final Consumer<Record> updateAction) {
-    try (
-      Transaction transaction = newTransaction(TransactionOptions.REQUIRED)) {
+    return transactionCall(() -> {
       query.setRecordFactory(ArrayChangeTrackRecord.FACTORY);
       final ChangeTrackRecord record = query.getRecord();
       if (record == null) {
@@ -807,7 +796,7 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
         }
         return record.newRecord();
       }
-    }
+    });
   }
 
   default void updateRecord(final Record record) {
@@ -842,22 +831,15 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
   }
 
   default void write(final Record record, final RecordState state) {
-    try (
-      Transaction transaction = newTransaction(com.revolsys.transaction.Propagation.REQUIRED)) {
+    transactionRun(() -> {
       // It's important to have this in an inner try. Otherwise the exceptions
       // won't get caught on closing the writer and the transaction won't get
       // rolled back.
       try (
         RecordWriter writer = newRecordWriter(true)) {
         write(writer, record, state);
-      } catch (final RuntimeException e) {
-        transaction.setRollbackOnly();
-        throw e;
-      } catch (final Error e) {
-        transaction.setRollbackOnly();
-        throw e;
       }
-    }
+    });
   }
 
   default Record write(final RecordWriter writer, Record record, final RecordState state) {
@@ -873,9 +855,9 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
   }
 
   default int writeAll(final Iterable<? extends Record> records, final RecordState state) {
-    int count = 0;
-    try (
-      Transaction transaction = newTransaction(Propagation.REQUIRED)) {
+    return transactionCall(() -> {
+      int count = 0;
+
       // It's important to have this in an inner try. Otherwise the exceptions
       // won't get caught on closing the writer and the transaction won't get
       // rolled back.
@@ -885,14 +867,8 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
           write(writer, record, state);
           count++;
         }
-      } catch (final RuntimeException e) {
-        transaction.setRollbackOnly();
-        throw e;
-      } catch (final Error e) {
-        transaction.setRollbackOnly();
-        throw e;
       }
-    }
-    return count;
+      return count;
+    });
   }
 }

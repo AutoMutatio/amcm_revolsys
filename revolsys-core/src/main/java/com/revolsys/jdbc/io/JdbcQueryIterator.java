@@ -59,8 +59,6 @@ public class JdbcQueryIterator extends AbstractIterator<Record>
     return record;
   }
 
-  private boolean autoCommit;
-
   private boolean internStrings;
 
   private JdbcConnection connection;
@@ -99,7 +97,6 @@ public class JdbcQueryIterator extends AbstractIterator<Record>
     this.query = query;
     this.labelCountMap = query.getStatistics();
     if (properties != null) {
-      this.autoCommit = Booleans.getBoolean(properties.get("autoCommit"));
       this.internStrings = Booleans.getBoolean(properties.get("internStrings"));
       if (this.labelCountMap == null) {
         this.labelCountMap = (LabelCounters)properties.get(LabelCounters.class.getName());
@@ -253,22 +250,14 @@ public class JdbcQueryIterator extends AbstractIterator<Record>
     if (this.query == null) {
       close();
     } else {
-      this.connection = this.recordStore.getJdbcConnection(this.autoCommit);
+      this.connection = this.recordStore.getJdbcConnection();
 
       this.resultSet = getResultSet();
     }
   }
 
-  public boolean isAutoCommit() {
-    return this.autoCommit;
-  }
-
   public boolean isInternStrings() {
     return this.internStrings;
-  }
-
-  public void setAutoCommit(final boolean autoCommit) {
-    this.autoCommit = autoCommit;
   }
 
   public void setInternStrings(final boolean internStrings) {

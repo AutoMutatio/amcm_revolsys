@@ -18,7 +18,6 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 import org.jeometry.common.io.PathName;
-import org.springframework.transaction.PlatformTransactionManager;
 
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.geometry.model.BoundingBox;
@@ -42,8 +41,6 @@ import com.revolsys.record.schema.LockMode;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordDefinitionProxy;
 import com.revolsys.record.schema.RecordStore;
-import com.revolsys.transaction.Transaction;
-import com.revolsys.transaction.TransactionOptions;
 import com.revolsys.transaction.Transactionable;
 import com.revolsys.util.Cancellable;
 import com.revolsys.util.CancellableProxy;
@@ -716,10 +713,6 @@ public class Query extends BaseObjectWithProperties
     return getRecordDefinition().getRecordStore().getRecords(this);
   }
 
-  public RecordReader getRecordReader(final Transaction transaction) {
-    return getRecordDefinition().getRecordStore().getRecords(this);
-  }
-
   public List<Record> getRecords() {
     try (
       RecordReader records = getRecordReader()) {
@@ -810,11 +803,6 @@ public class Query extends BaseObjectWithProperties
   @Override
   public TableReference getTableReference() {
     return getRecordDefinition();
-  }
-
-  @Override
-  public PlatformTransactionManager getTransactionManager() {
-    return getRecordDefinition().getRecordStore().getTransactionManager();
   }
 
   @Override
@@ -920,6 +908,7 @@ public class Query extends BaseObjectWithProperties
     return join(JoinType.JOIN).table(table);
   }
 
+  @Override
   public Condition newCondition(final CharSequence fieldName,
     final BiFunction<QueryValue, QueryValue, Condition> operator, final Object value) {
     final ColumnReference left = this.table.getColumn(fieldName);
@@ -938,6 +927,7 @@ public class Query extends BaseObjectWithProperties
     return condition;
   }
 
+  @Override
   public Condition newCondition(final CharSequence fieldName,
     final java.util.function.Function<QueryValue, Condition> operator) {
     final ColumnReference column = this.table.getColumn(fieldName);
@@ -945,6 +935,7 @@ public class Query extends BaseObjectWithProperties
     return condition;
   }
 
+  @Override
   public Condition newCondition(final QueryValue left,
     final BiFunction<QueryValue, QueryValue, Condition> operator, final Object value) {
     Condition condition;
@@ -1405,23 +1396,24 @@ public class Query extends BaseObjectWithProperties
   }
 
   public int updateRecords(final Consumer<? super ChangeTrackRecord> updateAction) {
-    int i = 0;
     final RecordDefinition recordDefinition = getRecordDefinition();
     final RecordStore recordStore = recordDefinition.getRecordStore();
-    setRecordFactory(ArrayChangeTrackRecord.FACTORY);
-    try (
-      Transaction transaction = recordStore.newTransaction(TransactionOptions.REQUIRED);
-      RecordReader reader = getRecordReader();
-      RecordWriter writer = recordStore.newRecordWriter(recordDefinition)) {
-      for (final Record record : reader) {
-        final ChangeTrackRecord changeTrackRecord = (ChangeTrackRecord)record;
-        updateAction.accept(changeTrackRecord);
-        if (changeTrackRecord.isModified()) {
-          writer.write(changeTrackRecord);
-          i++;
+    return recordStore.transactionCall(() -> {
+      int i = 0;
+      setRecordFactory(ArrayChangeTrackRecord.FACTORY);
+      try (
+        RecordReader reader = getRecordReader();
+        RecordWriter writer = recordStore.newRecordWriter(recordDefinition)) {
+        for (final Record record : reader) {
+          final ChangeTrackRecord changeTrackRecord = (ChangeTrackRecord)record;
+          updateAction.accept(changeTrackRecord);
+          if (changeTrackRecord.isModified()) {
+            writer.write(changeTrackRecord);
+            i++;
+          }
         }
       }
-    }
-    return i;
+      return i;
+    });
   }
 }

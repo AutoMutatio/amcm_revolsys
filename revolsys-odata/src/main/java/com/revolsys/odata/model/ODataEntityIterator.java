@@ -20,13 +20,10 @@ import com.revolsys.record.io.RecordReader;
 import com.revolsys.record.query.Query;
 import com.revolsys.record.schema.RecordStore;
 import com.revolsys.record.schema.TableRecordStoreConnection;
-import com.revolsys.transaction.Transaction;
 import com.revolsys.util.UriBuilder;
 
 public class ODataEntityIterator extends AbstractEntityCollection
   implements BaseCloseable, Iterator<Entity> {
-
-  private Transaction transaction;
 
   private RecordReader reader;
 
@@ -79,11 +76,7 @@ public class ODataEntityIterator extends AbstractEntityCollection
   @Override
   public void close() {
     if (this.reader != null) {
-      try {
-        this.reader.close();
-      } finally {
-        this.transaction.close();
-      }
+      this.reader.close();
     }
   }
 
@@ -91,12 +84,11 @@ public class ODataEntityIterator extends AbstractEntityCollection
   public Integer getCount() {
     if (!this.countLoaded) {
       this.countLoaded = true;
-      try (
-        Transaction transaction = this.connection.newTransaction()) {
+      this.connection.transactionRun(() -> {
         final RecordStore recordStore = this.entityType.getRecordStore();
         final Integer count = recordStore.getRecordCount(this.countQuery);
         this.count = count;
-      }
+      });
     }
     return this.count;
   }
@@ -113,9 +105,8 @@ public class ODataEntityIterator extends AbstractEntityCollection
 
   private Iterator<Record> getIterator() {
     if (this.reader == null) {
-      this.transaction = this.connection.newTransaction();
-      final RecordStore recordStore = this.entityType.getRecordStore();
-      this.reader = recordStore.getRecords(this.query);
+      this.reader = this.connection
+        .transactionCall(() -> this.entityType.getRecordStore().getRecords(this.query));
       this.iterator = this.reader.iterator();
     }
     return this.iterator;

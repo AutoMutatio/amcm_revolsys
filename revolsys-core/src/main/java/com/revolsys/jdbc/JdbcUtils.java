@@ -20,13 +20,11 @@ import java.util.Enumeration;
 import java.util.List;
 
 import javax.management.ObjectName;
-import javax.sql.DataSource;
 
 import org.jeometry.common.exception.Exceptions;
 import org.jeometry.common.io.PathName;
 import org.jeometry.common.logging.Logs;
 import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.jdbc.support.SQLExceptionTranslator;
 import org.springframework.jdbc.support.SQLStateSQLExceptionTranslator;
 
@@ -143,15 +141,13 @@ public final class JdbcUtils {
     }
   }
 
-  public static int executeUpdate(final DataSource dataSource, final String sql,
+  public static int executeUpdate(final JdbcDataSource dataSource, final String sql,
     final Object... parameters) {
-    final Connection connection = getConnection(dataSource);
-    try {
+    try (
+      final Connection connection = dataSource.getConnection()) {
       return executeUpdate(connection, sql, parameters);
     } catch (final SQLException e) {
       throw getException(dataSource, "Update", sql, e);
-    } finally {
-      release(connection, dataSource);
     }
   }
 
@@ -159,20 +155,6 @@ public final class JdbcUtils {
     throws SQLException {
     final Array array = resultSet.getArray(index);
     return (BigDecimal[])array.getArray();
-  }
-
-  public static Connection getConnection(final DataSource dataSource) {
-    try {
-      Connection connection = DataSourceUtils.doGetConnection(dataSource);
-      if (connection.isClosed()) {
-        DataSourceUtils.doReleaseConnection(connection, dataSource);
-        connection = DataSourceUtils.doGetConnection(dataSource);
-      }
-
-      return connection;
-    } catch (final SQLException e) {
-      throw getException(dataSource, "Get Connection", null, e);
-    }
   }
 
   public static String getDeleteSql(final Query query) {
@@ -187,7 +169,7 @@ public final class JdbcUtils {
     return sql.toSqlString();
   }
 
-  public static RuntimeException getException(final DataSource dataSource, final String task,
+  public static RuntimeException getException(final JdbcDataSource dataSource, final String task,
     final String sql, final SQLException e) {
     SQLExceptionTranslator translator;
     if (dataSource == null) {
@@ -202,12 +184,12 @@ public final class JdbcUtils {
     return exception;
   }
 
-  public static String getProductName(final DataSource dataSource) {
+  public static String getProductName(final JdbcDataSource dataSource) {
     if (dataSource == null) {
       return null;
     } else {
-      final Connection connection = getConnection(dataSource);
-      try {
+      try (
+        final Connection connection = dataSource.getConnection()) {
         if (connection == null) {
           if (dataSource.getClass().getName().toLowerCase().contains("oracle")) {
             return "Oracle";
@@ -222,8 +204,6 @@ public final class JdbcUtils {
         }
       } catch (final SQLException e) {
         throw new IllegalArgumentException("Unable to get database product name", e);
-      } finally {
-        release(connection, dataSource);
       }
     }
   }
@@ -281,12 +261,6 @@ public final class JdbcUtils {
     return values;
   }
 
-  public static void release(final Connection connection, final DataSource dataSource) {
-    if (dataSource != null && connection != null) {
-      DataSourceUtils.releaseConnection(connection, dataSource);
-    }
-  }
-
   public static Date selectDate(final Connection connection, final String sql,
     final Object... parameters) throws SQLException {
     final PreparedStatement statement = connection.prepareStatement(sql);
@@ -307,7 +281,7 @@ public final class JdbcUtils {
     }
   }
 
-  public static Date selectDate(final DataSource dataSource, final Connection connection,
+  public static Date selectDate(final JdbcDataSource dataSource, final Connection connection,
     final String sql, final Object... parameters) throws SQLException {
     if (dataSource == null) {
       return selectDate(connection, sql, parameters);
@@ -316,57 +290,12 @@ public final class JdbcUtils {
     }
   }
 
-  public static Date selectDate(final DataSource dataSource, final String sql,
+  public static Date selectDate(final JdbcDataSource dataSource, final String sql,
     final Object... parameters) throws SQLException {
-    final Connection connection = getConnection(dataSource);
-    try {
+    try (
+      final Connection connection = dataSource.getConnection()) {
       return selectDate(connection, sql, parameters);
-    } finally {
-      release(connection, dataSource);
     }
-  }
-
-  public static int selectInt(final Connection connection, final String sql,
-    final Object... parameters) {
-    return selectInt(null, connection, sql, parameters);
-  }
-
-  public static int selectInt(final DataSource dataSource, Connection connection, final String sql,
-    final Object... parameters) {
-    if (dataSource != null) {
-      connection = getConnection(dataSource);
-    }
-    try {
-      final PreparedStatement statement = connection.prepareStatement(sql);
-      try {
-        setParameters(statement, parameters);
-        final ResultSet resultSet = statement.executeQuery();
-        try {
-          if (resultSet.next()) {
-            return resultSet.getInt(1);
-          } else {
-            throw new IllegalArgumentException("Value not found");
-          }
-        } finally {
-          close(resultSet);
-        }
-
-      } finally {
-        close(statement);
-      }
-    } catch (final SQLException e) {
-      throw getException(dataSource, "selectInt", sql, e);
-    } finally {
-      if (dataSource != null) {
-        release(connection, dataSource);
-      }
-    }
-  }
-
-  public static int selectInt(final DataSource dataSource, final String sql,
-    final Object... parameters) {
-    return selectInt(dataSource, null, sql, parameters);
-
   }
 
   public static <T> List<T> selectList(final Connection connection, final String sql,
@@ -411,7 +340,7 @@ public final class JdbcUtils {
     }
   }
 
-  public static long selectLong(final DataSource dataSource, final Connection connection,
+  public static long selectLong(final JdbcDataSource dataSource, final Connection connection,
     final String sql, final Object... parameters) throws SQLException {
     if (dataSource == null) {
       return selectLong(connection, sql, parameters);
@@ -420,13 +349,11 @@ public final class JdbcUtils {
     }
   }
 
-  public static long selectLong(final DataSource dataSource, final String sql,
+  public static long selectLong(final JdbcDataSource dataSource, final String sql,
     final Object... parameters) throws SQLException {
-    final Connection connection = getConnection(dataSource);
-    try {
+    try (
+      final Connection connection = dataSource.getConnection()) {
       return selectLong(connection, sql, parameters);
-    } finally {
-      release(connection, dataSource);
     }
   }
 
@@ -451,13 +378,11 @@ public final class JdbcUtils {
     }
   }
 
-  public static MapEx selectMap(final DataSource dataSource, final String sql,
+  public static MapEx selectMap(final JdbcDataSource dataSource, final String sql,
     final Object... parameters) throws SQLException {
-    final Connection connection = getConnection(dataSource);
-    try {
+    try (
+      final Connection connection = dataSource.getConnection()) {
       return selectMap(connection, sql, parameters);
-    } finally {
-      release(connection, dataSource);
     }
   }
 
@@ -477,7 +402,7 @@ public final class JdbcUtils {
     }
   }
 
-  public static String selectString(final DataSource dataSource, final Connection connection,
+  public static String selectString(final JdbcDataSource dataSource, final Connection connection,
     final String sql, final Object... parameters) throws SQLException {
     if (dataSource == null) {
       return selectString(connection, sql, parameters);
@@ -486,13 +411,11 @@ public final class JdbcUtils {
     }
   }
 
-  public static String selectString(final DataSource dataSource, final String sql,
+  public static String selectString(final JdbcDataSource dataSource, final String sql,
     final Object... parameters) throws SQLException {
-    final Connection connection = getConnection(dataSource);
-    try {
+    try (
+      final Connection connection = dataSource.getConnection()) {
       return selectString(connection, sql, parameters);
-    } finally {
-      release(connection, dataSource);
     }
   }
 

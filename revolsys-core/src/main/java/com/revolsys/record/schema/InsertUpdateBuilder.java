@@ -7,9 +7,7 @@ import com.revolsys.collection.map.MapEx;
 import com.revolsys.record.Record;
 import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.record.query.Query;
-import com.revolsys.transaction.Transaction;
-
-import reactor.core.publisher.Mono;
+import com.revolsys.transaction.Transactionable;
 
 public abstract class InsertUpdateBuilder<R extends Record> {
 
@@ -61,26 +59,19 @@ public abstract class InsertUpdateBuilder<R extends Record> {
   }
 
   public final Record execute() {
-    return execute(this::newTransaction);
+    return getTransactionable().transactionCall(() -> {
+      preExecute();
+      return executeDo();
+    });
   }
 
-  public Record execute(final Supplier<Transaction> transactionSupplier) {
-    preExecute();
-    return executeDo(transactionSupplier);
-  }
-
-  public abstract Record executeDo(Supplier<Transaction> transactionSupplier);
-
-  public final Mono<Record> executeMono() {
-    return executeMono(this::newTransaction);
-  }
-
-  public Mono<Record> executeMono(final Supplier<Transaction> transactionSupplier) {
-    // TODO this is a placeholder until full reactive is implemented
-    return Mono.defer(() -> Mono.just(execute(transactionSupplier)));
-  }
+  public abstract Record executeDo();
 
   public Query getQuery() {
+    return this.query;
+  }
+
+  public Transactionable getTransactionable() {
     return this.query;
   }
 
@@ -129,8 +120,6 @@ public abstract class InsertUpdateBuilder<R extends Record> {
     this.newRecordSupplier = newRecordSupplier;
     return this;
   }
-
-  protected abstract Transaction newTransaction();
 
   protected void preExecute() {
     if (this.searchValues.isEmpty() && this.queryAction == null) {

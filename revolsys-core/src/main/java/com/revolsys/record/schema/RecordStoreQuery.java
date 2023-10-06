@@ -8,10 +8,6 @@ import com.revolsys.record.Record;
 import com.revolsys.record.io.RecordReader;
 import com.revolsys.record.query.Query;
 import com.revolsys.record.query.StringBuilderSqlAppendable;
-import com.revolsys.transaction.Transaction;
-import com.revolsys.transaction.TransactionOption;
-import com.revolsys.transaction.TransactionOptions;
-import com.revolsys.transaction.TransactionRecordReader;
 
 public class RecordStoreQuery extends Query {
 
@@ -23,10 +19,7 @@ public class RecordStoreQuery extends Query {
 
   @Override
   public int deleteRecords() {
-    try (
-      Transaction transaction = this.recordStore.newTransaction(TransactionOptions.REQUIRED)) {
-      return this.recordStore.deleteRecords(this);
-    }
+    return this.recordStore.transactionCall(() -> this.recordStore.deleteRecords(this));
   }
 
   @SuppressWarnings("unchecked")
@@ -42,18 +35,7 @@ public class RecordStoreQuery extends Query {
 
   @Override
   public RecordReader getRecordReader() {
-    final Transaction transaction = this.recordStore.newTransaction(TransactionOptions.REQUIRED);
-    final RecordReader reader = this.recordStore.getRecords(this);
-    return new TransactionRecordReader(reader, transaction);
-  }
-
-  @Override
-  public RecordReader getRecordReader(Transaction transaction) {
-    if (transaction == null) {
-      transaction = this.recordStore.newTransaction(TransactionOptions.REQUIRED);
-    }
-    final RecordReader reader = this.recordStore.getRecords(this);
-    return new TransactionRecordReader(reader, transaction);
+    return this.recordStore.getRecords(this);
   }
 
   @Override
@@ -66,16 +48,6 @@ public class RecordStoreQuery extends Query {
     final StringBuilderSqlAppendable sql = super.newSqlAppendable();
     sql.setRecordStore(this.recordStore);
     return sql;
-  }
-
-  @Override
-  public Transaction newTransaction() {
-    return this.recordStore.newTransaction();
-  }
-
-  @Override
-  public Transaction newTransaction(final TransactionOption... options) {
-    return this.recordStore.newTransaction(options);
   }
 
   @Override

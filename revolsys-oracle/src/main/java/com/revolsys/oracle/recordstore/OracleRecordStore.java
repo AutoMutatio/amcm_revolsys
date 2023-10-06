@@ -19,7 +19,6 @@ import org.jeometry.coordinatesystem.io.WktCsParser;
 import org.jeometry.coordinatesystem.model.CoordinateSystem;
 import org.jeometry.coordinatesystem.model.systems.EpsgCoordinateSystems;
 
-import com.revolsys.collection.ResultPager;
 import com.revolsys.collection.map.IntHashMap;
 import com.revolsys.geometry.model.BoundingBoxProxy;
 import com.revolsys.geometry.model.GeometryFactory;
@@ -53,8 +52,6 @@ import com.revolsys.record.query.functions.GeometryEqual2d;
 import com.revolsys.record.query.functions.WithinDistance;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
-import com.revolsys.transaction.Transaction;
-import com.revolsys.transaction.TransactionOptions;
 import com.revolsys.util.Property;
 
 public class OracleRecordStore extends AbstractJdbcRecordStore {
@@ -326,29 +323,30 @@ public class OracleRecordStore extends AbstractJdbcRecordStore {
       query.clearOrderBy();
       final String sql = "select count(mainquery.rowid) from (" + query.getSelectSql()
         + ") mainquery";
-      try (
-        Transaction transaction = newTransaction(TransactionOptions.REQUIRED);
-        JdbcConnection connection = getJdbcConnection()) {
+      final Query query1 = query;
+      return transactionCall(() -> {
         try (
-          final PreparedStatement statement = connection.prepareStatement(sql)) {
-          final Query query1 = query;
-          query1.appendParameters(1, statement);
+          JdbcConnection connection = getJdbcConnection()) {
           try (
-            final ResultSet resultSet = statement.executeQuery()) {
-            if (resultSet.next()) {
-              final int rowCount = resultSet.getInt(1);
-              return rowCount;
-            } else {
-              return 0;
+            final PreparedStatement statement = connection.prepareStatement(sql)) {
+            query1.appendParameters(1, statement);
+            try (
+              final ResultSet resultSet = statement.executeQuery()) {
+              if (resultSet.next()) {
+                final int rowCount = resultSet.getInt(1);
+                return rowCount;
+              } else {
+                return 0;
+              }
             }
+          } catch (final SQLException e) {
+            throw connection.getException("getRecordCount", sql, e);
+          } catch (final IllegalArgumentException e) {
+            Logs.error(this, "Cannot get row count: " + query1, e);
+            return 0;
           }
-        } catch (final SQLException e) {
-          throw connection.getException("getRecordCount", sql, e);
-        } catch (final IllegalArgumentException e) {
-          Logs.error(this, "Cannot get row count: " + query, e);
-          return 0;
         }
-      }
+      });
     }
   }
 
@@ -480,11 +478,6 @@ public class OracleRecordStore extends AbstractJdbcRecordStore {
   @Override
   protected JdbcFieldDefinition newRowIdFieldDefinition() {
     return new OracleJdbcRowIdFieldDefinition();
-  }
-
-  @Override
-  public ResultPager<Record> page(final Query query) {
-    return new OracleJdbcQueryResultPager(this, getProperties(), query);
   }
 
   public void setUseSchemaSequencePrefix(final boolean useSchemaSequencePrefix) {

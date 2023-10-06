@@ -163,7 +163,7 @@ public class JdbcRecordWriter extends AbstractRecordWriter {
         if (this.connection != null) {
           final DataSource dataSource = this.connection.getDataSource();
           try {
-            if (dataSource != null && !Transaction.isHasCurrentTransaction()) {
+            if (dataSource != null && !Transaction.isActive()) {
               this.connection.commit();
             }
           } catch (final SQLException e) {

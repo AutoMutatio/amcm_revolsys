@@ -81,7 +81,6 @@ import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordDefinitionBuilder;
 import com.revolsys.record.schema.RecordStore;
 import com.revolsys.record.schema.TableRecordStoreConnection;
-import com.revolsys.transaction.Transaction;
 
 public class ODataEntityType extends CsdlEntityType {
 
@@ -439,26 +438,31 @@ public class ODataEntityType extends CsdlEntityType {
     }
 
     final RecordStore recordStore = getRecordStore();
-    try (
-      Transaction transaction = this.connection.newTransaction();
-      RecordReader reader = recordStore.getRecords(query)) {
+    final Entity entity = this.connection.transactionCall(() -> {
+      try (
+        RecordReader reader = recordStore.getRecords(query)) {
 
-      for (final Record record : reader) {
-        return newEntity(record);
+        for (final Record record : reader) {
+          return newEntity(record);
+        }
       }
+      return null;
+    });
+    if (entity != null) {
+      return entity;
+    } else {
+      throw new ODataApplicationException("Entity for requested key doesn't exist",
+        HttpStatusCode.NOT_FOUND.getStatusCode(), Locale.ENGLISH);
     }
-    throw new ODataApplicationException("Entity for requested key doesn't exist",
-      HttpStatusCode.NOT_FOUND.getStatusCode(), Locale.ENGLISH);
   }
 
   public EntityCollection readEntityCollection(final UriInfo uriInfo,
     final EdmEntitySet edmEntitySet) throws ODataApplicationException {
-    final Query query = newQuery(uriInfo);
+    return this.connection.transactionCall(() -> {
+      final Query query = newQuery(uriInfo);
 
-    final EntityCollection entityCollection = new EntityCollection();
-    final RecordStore recordStore = getRecordStore();
-    try (
-      Transaction transaction = this.connection.newTransaction()) {
+      final EntityCollection entityCollection = new EntityCollection();
+      final RecordStore recordStore = getRecordStore();
       final CountOption countOption = uriInfo.getCountOption();
       if (countOption != null) {
         if (countOption.getValue()) {
@@ -475,8 +479,8 @@ public class ODataEntityType extends CsdlEntityType {
           entityList.add(entity);
         }
       }
-    }
-    return entityCollection;
+      return entityCollection;
+    });
   }
 
   public ODataEntityIterator readEntityIterator(final ODataRequest request, final UriInfo uriInfo,

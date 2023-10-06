@@ -43,12 +43,11 @@ import com.revolsys.record.query.Query;
 import com.revolsys.record.query.QueryValue;
 import com.revolsys.record.query.TableReference;
 import com.revolsys.record.query.UpdateStatement;
-import com.revolsys.transaction.Transaction;
-import com.revolsys.transaction.TransactionOptions;
-import com.revolsys.transaction.TransactionRecordReader;
+import com.revolsys.transaction.TransactionBuilder;
+import com.revolsys.transaction.Transactionable;
 import com.revolsys.util.Property;
 
-public class AbstractTableRecordStore implements RecordDefinitionProxy {
+public class AbstractTableRecordStore implements RecordDefinitionProxy, Transactionable {
 
   public static JsonObject schemaToJson(final RecordDefinition recordDefinition) {
     final JsonList jsonFields = JsonList.array();
@@ -221,10 +220,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
   }
 
   public boolean deleteRecord(final TableRecordStoreConnection connection, final Record record) {
-    try (
-      Transaction transaction = connection.newTransaction(TransactionOptions.REQUIRED)) {
-      return this.recordStore.deleteRecord(record);
-    }
+    return connection.transactionCall(() -> this.recordStore.deleteRecord(record));
   }
 
   @Override
@@ -235,10 +231,8 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
   protected void executeUpdate(final TableRecordStoreConnection connection, final String sql,
     final Object... parameters) {
     if (this.recordStore instanceof JdbcRecordStore) {
-      try (
-        Transaction transaction = connection.newTransaction()) {
-        this.recordStore.<JdbcRecordStore> getRecordStore().executeUpdate(sql, parameters);
-      }
+      connection.transactionNewRun(
+        () -> this.recordStore.<JdbcRecordStore> getRecordStore().executeUpdate(sql, parameters));
     }
     throw new UnsupportedOperationException("Must be a JDBC connection");
 
@@ -259,10 +253,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
   @SuppressWarnings("unchecked")
   protected <R extends Record> R getRecord(final TableRecordStoreConnection connection,
     final Query query) {
-    try (
-      Transaction transaction = connection.newTransaction(TransactionOptions.REQUIRED)) {
-      return (R)this.recordStore.getRecord(query);
-    }
+    return connection.transactionCall(() -> (R)this.recordStore.getRecord(query));
   }
 
   public Record getRecord(final TableRecordStoreConnection connection, final String fieldName,
@@ -279,10 +270,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
   }
 
   protected long getRecordCount(final TableRecordStoreConnection connection, final Query query) {
-    try (
-      Transaction transaction = connection.newTransaction(TransactionOptions.REQUIRED)) {
-      return this.recordStore.getRecordCount(query);
-    }
+    return connection.transactionCall(() -> this.recordStore.getRecordCount(query));
   }
 
   @Override
@@ -292,18 +280,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
 
   protected RecordReader getRecordReader(final TableRecordStoreConnection connection,
     final Query query) {
-    final Transaction transaction = connection.newTransaction(TransactionOptions.REQUIRED);
-    final RecordReader reader = this.recordStore.getRecords(query);
-    return new TransactionRecordReader(reader, transaction);
-  }
-
-  protected RecordReader getRecordReader(final TableRecordStoreConnection connection,
-    final Query query, final Transaction transaction) {
-    if (transaction == null) {
-      return getRecordReader(connection, query);
-    } else {
-      return this.recordStore.getRecords(query);
-    }
+    return this.recordStore.getRecords(query);
   }
 
   @Override
@@ -356,14 +333,13 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
   }
 
   public Record insertRecord(final TableRecordStoreConnection connection, final Record record) {
-    try (
-      Transaction transaction = connection.newTransaction(TransactionOptions.REQUIRED)) {
+    return transactionCall(() -> {
       insertRecordBefore(connection, record);
       validateRecord(record);
       this.recordStore.insertRecord(record);
       insertRecordAfter(connection, record);
-    }
-    return record;
+      return record;
+    });
   }
 
   protected void insertRecordAfter(final TableRecordStoreConnection connection,
@@ -478,10 +454,6 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
 
   public QueryValue newSelectClause(final Query query, final String selectItem) {
     return query.newSelectClause(selectItem);
-  }
-
-  public Transaction newTransaction() {
-    return this.recordStore.newTransaction();
   }
 
   public <R extends Record> InsertUpdateBuilder<R> newUpdate(
@@ -614,6 +586,11 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     return this;
   }
 
+  @Override
+  public TransactionBuilder transaction() {
+    return this.recordStore.transaction();
+  }
+
   public Record updateRecord(final TableRecordStoreConnection connection, final Identifier id,
     final Consumer<Record> updateAction) {
     final Query query = newQuery(connection)
@@ -635,8 +612,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
 
   protected Record updateRecord(final TableRecordStoreConnection connection, final Query query,
     final Consumer<Record> updateAction) {
-    try (
-      Transaction transaction = connection.newTransaction(TransactionOptions.REQUIRED)) {
+    return connection.transactionCall(() -> {
       query.setRecordFactory(ArrayChangeTrackRecord.FACTORY);
       final ChangeTrackRecord record = query.getRecord();
       if (record == null) {
@@ -646,7 +622,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
         updateRecordDo(connection, record);
         return record.newRecord();
       }
-    }
+    });
   }
 
   protected void updateRecordAfter(final TableRecordStoreConnection connection,
@@ -673,7 +649,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
 
   public int updateRecords(final TableRecordStoreConnection connection, final Query query,
     final Consumer<? super ChangeTrackRecord> updateAction) {
-    int i = 0;  
+    int i = 0;
     final RecordDefinition recordDefinition = getRecordDefinition();
     final RecordStore recordStore = this.recordStore;
     query.setRecordFactory(ArrayChangeTrackRecord.FACTORY);

@@ -29,14 +29,12 @@ import org.jeometry.common.data.type.DataTypes;
 import org.jeometry.common.exception.Exceptions;
 import org.jeometry.common.io.PathName;
 import org.jeometry.common.logging.Logs;
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
-import com.revolsys.collection.ResultPager;
 import com.revolsys.collection.map.Maps;
 import com.revolsys.io.PathUtil;
 import com.revolsys.jdbc.JdbcConnection;
+import com.revolsys.jdbc.JdbcDataSource;
 import com.revolsys.jdbc.field.JdbcFieldAdder;
 import com.revolsys.jdbc.field.JdbcFieldDefinition;
 import com.revolsys.jdbc.field.JdbcFieldFactory;
@@ -67,8 +65,6 @@ import com.revolsys.record.schema.RecordDefinitionProxy;
 import com.revolsys.record.schema.RecordStore;
 import com.revolsys.record.schema.RecordStoreSchema;
 import com.revolsys.record.schema.RecordStoreSchemaElement;
-import com.revolsys.transaction.Transaction;
-import com.revolsys.transaction.TransactionOptions;
 import com.revolsys.util.Booleans;
 import com.revolsys.util.Property;
 
@@ -88,7 +84,7 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
 
   private JdbcDatabaseFactory databaseFactory;
 
-  private DataSource dataSource;
+  private JdbcDataSource dataSource;
 
   private final Object exceptionWriterKey = new Object();
 
@@ -113,8 +109,6 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
   private String sqlPrefix;
 
   private String sqlSuffix;
-
-  private DataSourceTransactionManager transactionManager;
 
   private boolean usesSchema = true;
 
@@ -233,7 +227,6 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
     } finally {
       this.allSchemaNames.clear();
       this.fieldDefinitionAdders.clear();
-      this.transactionManager = null;
       this.databaseFactory = null;
       this.dataSource = null;
       this.excludeTablePatterns.clear();
@@ -252,30 +245,22 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
 
   @Override
   public int deleteRecords(final DeleteStatement delete) {
-
     final String sql = delete.toSql();
-    try (
-      Transaction transaction = newTransaction(com.revolsys.transaction.Propagation.REQUIRED)) {
-      // It's important to have this in an inner try. Otherwise the exceptions
-      // won't get caught on closing the writer and the transaction won't get
-      // rolled back.
+    return transactionCall(() -> {
       try (
-        JdbcConnection connection = getJdbcConnection(isAutoCommit());
-        final PreparedStatement statement = connection.prepareStatement(sql)) {
-
-        delete.appendParameters(1, statement);
-        return statement.executeUpdate();
-      } catch (final SQLException e) {
-        transaction.setRollbackOnly();
-        throw new RuntimeException("Unable to delete : " + sql, e);
-      } catch (final RuntimeException e) {
-        transaction.setRollbackOnly();
-        throw e;
-      } catch (final Error e) {
-        transaction.setRollbackOnly();
-        throw e;
+        JdbcConnection connection = getJdbcConnection()) {
+        // It's important to have this in an inner try. Otherwise the exceptions
+        // won't get caught on closing the writer and the transaction won't get
+        // rolled back.
+        try (
+          final PreparedStatement statement = connection.prepareStatement(sql)) {
+          delete.appendParameters(1, statement);
+          return statement.executeUpdate();
+        } catch (final SQLException e) {
+          throw connection.getException("delete", sql, e);
+        }
       }
-    }
+    });
   }
 
   @Override
@@ -294,28 +279,22 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
       }
     }
     final String sql = query.newDeleteSql();
-    try (
-      Transaction transaction = newTransaction(com.revolsys.transaction.Propagation.REQUIRED)) {
-      // It's important to have this in an inner try. Otherwise the exceptions
-      // won't get caught on closing the writer and the transaction won't get
-      // rolled back.
+    return transactionCall(() -> {
       try (
-        JdbcConnection connection = getJdbcConnection(isAutoCommit());
-        final PreparedStatement statement = connection.prepareStatement(sql)) {
+        JdbcConnection connection = getJdbcConnection()) {
+        // It's important to have this in an inner try. Otherwise the exceptions
+        // won't get caught on closing the writer and the transaction won't get
+        // rolled back.
+        try (
+          final PreparedStatement statement = connection.prepareStatement(sql)) {
 
-        query.appendParameters(1, statement);
-        return statement.executeUpdate();
-      } catch (final SQLException e) {
-        transaction.setRollbackOnly();
-        throw new RuntimeException("Unable to delete : " + sql, e);
-      } catch (final RuntimeException e) {
-        transaction.setRollbackOnly();
-        throw e;
-      } catch (final Error e) {
-        transaction.setRollbackOnly();
-        throw e;
+          query.appendParameters(1, statement);
+          return statement.executeUpdate();
+        } catch (final SQLException e) {
+          throw connection.getException("delete", sql, e);
+        }
       }
-    }
+    });
   }
 
   public void executeUpdate(final PreparedStatement statement) throws SQLException {
@@ -356,7 +335,8 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
     return schemaNames;
   }
 
-  protected DataSource getDataSource() {
+  @Override
+  public JdbcDataSource getDataSource() {
     return this.dataSource;
   }
 
@@ -401,12 +381,11 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
 
   @Override
   public JdbcConnection getJdbcConnection() {
-    return new JdbcConnection(this.dataSource);
-  }
-
-  @Override
-  public JdbcConnection getJdbcConnection(final boolean autoCommit) {
-    return new JdbcConnection(this.dataSource, autoCommit);
+    try {
+      return this.dataSource.getConnection();
+    } catch (final SQLException e) {
+      throw getException("connection", null, e);
+    }
   }
 
   protected Identifier getNextPrimaryKey(final String typePath) {
@@ -429,29 +408,30 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
         query.setSelect(Q.sql("count(*)"));
         sql = query.getSelectSql();
       }
-      try (
-        Transaction transaction = newTransaction(TransactionOptions.REQUIRED);
-        JdbcConnection connection = getJdbcConnection()) {
+      final Query query1 = query;
+      return transactionCall(() -> {
         try (
-          final PreparedStatement statement = connection.prepareStatement(sql)) {
-          final Query query1 = query;
-          query1.appendParameters(1, statement);
+          JdbcConnection connection = getJdbcConnection()) {
           try (
-            final ResultSet resultSet = statement.executeQuery()) {
-            if (resultSet.next()) {
-              final int rowCount = resultSet.getInt(1);
-              return rowCount;
-            } else {
-              return 0;
+            final PreparedStatement statement = connection.prepareStatement(sql)) {
+            query1.appendParameters(1, statement);
+            try (
+              final ResultSet resultSet = statement.executeQuery()) {
+              if (resultSet.next()) {
+                final int rowCount = resultSet.getInt(1);
+                return rowCount;
+              } else {
+                return 0;
+              }
             }
+          } catch (final SQLException e) {
+            throw connection.getException("getRecordCount", sql, e);
+          } catch (final IllegalArgumentException e) {
+            Logs.error(this, "Cannot get row count: " + query1, e);
+            return 0;
           }
-        } catch (final SQLException e) {
-          throw connection.getException("getRecordCount", sql, e);
-        } catch (final IllegalArgumentException e) {
-          Logs.error(this, "Cannot get row count: " + query, e);
-          return 0;
         }
-      }
+      });
     }
   }
 
@@ -552,30 +532,18 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
   }
 
   @Override
-  public PlatformTransactionManager getTransactionManager() {
-    return this.transactionManager;
-  }
-
-  @Override
   public void initialize(final RecordStore recordStore,
     final Map<String, Object> connectionProperties) {
   }
 
   @Override
-  public void initializeDo() {
-    super.initializeDo();
-    if (this.dataSource != null) {
-      this.transactionManager = new DataSourceTransactionManager(this.dataSource);
-    }
-  }
-
-  @Override
   protected void initializePost() {
-    try (
-      Transaction transaction = newTransaction(TransactionOptions.REQUIRES_NEW_READONLY);
-      JdbcConnection connection = getJdbcConnection()) {
-      // Get a connection to test that the database works
-    }
+    transactionRun(() -> {
+      try (
+        JdbcConnection connection = getJdbcConnection()) {
+        // Get a connection to test that the database works
+      }
+    });
   }
 
   @Override
@@ -856,11 +824,6 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
     return new JdbcRecordStoreSchema(rootSchema, childSchemaPath, dbSchemaName);
   }
 
-  @Override
-  public ResultPager<Record> page(final Query query) {
-    return new JdbcQueryResultPager(this, getProperties(), query);
-  }
-
   protected void postProcess(final JdbcRecordStoreSchema schema) {
   }
 
@@ -886,8 +849,7 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
     final JdbcRecordStoreSchema jdbcSchema = (JdbcRecordStoreSchema)schema;
     final JdbcRecordStoreSchema rootSchema = getRootSchema();
     final PathName schemaPath = jdbcSchema.getPathName();
-    try (
-      Transaction transaction = newTransaction(TransactionOptions.REQUIRED).setRollbackOnly()) {
+    return transactionCall(() -> {
       if (jdbcSchema == rootSchema) {
         if (this.usesSchema) {
           final Map<PathName, RecordStoreSchemaElement> schemas = new TreeMap<>();
@@ -911,7 +873,7 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
       } else {
         return refreshSchemaElementsDo(jdbcSchema, schemaPath);
       }
-    }
+    });
   }
 
   protected Map<PathName, ? extends RecordStoreSchemaElement> refreshSchemaElementsDo(
@@ -997,7 +959,11 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
   }
 
   public void setDataSource(final DataSource dataSource) {
-    this.dataSource = dataSource;
+    if (dataSource instanceof final JdbcDataSource jdbcDataSource) {
+      this.dataSource = jdbcDataSource;
+    } else {
+      this.dataSource = new JdbcDataSource(dataSource);
+    }
   }
 
   public void setExcludeTablePaths(final Collection<String> excludeTablePaths) {
@@ -1071,28 +1037,22 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
   public int updateRecords(final UpdateStatement update) {
 
     final String sql = update.toSql();
-    try (
-      Transaction transaction = newTransaction(com.revolsys.transaction.Propagation.REQUIRED)) {
+    return transactionCall(() -> {
       // It's important to have this in an inner try. Otherwise the exceptions
       // won't get caught on closing the writer and the transaction won't get
       // rolled back.
       try (
-        JdbcConnection connection = getJdbcConnection(isAutoCommit());
-        final PreparedStatement statement = connection.prepareStatement(sql)) {
+        JdbcConnection connection = getJdbcConnection()) {
+        try (
+          final PreparedStatement statement = connection.prepareStatement(sql)) {
 
-        update.appendParameters(1, statement);
-        return statement.executeUpdate();
-      } catch (final SQLException e) {
-        transaction.setRollbackOnly();
-        throw new RuntimeException("Unable to delete : " + sql, e);
-      } catch (final RuntimeException e) {
-        transaction.setRollbackOnly();
-        throw e;
-      } catch (final Error e) {
-        transaction.setRollbackOnly();
-        throw e;
+          update.appendParameters(1, statement);
+          return statement.executeUpdate();
+        } catch (final SQLException e) {
+          throw connection.getException("update", sql, e);
+        }
       }
-    }
+    });
   }
 
 }

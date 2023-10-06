@@ -12,6 +12,13 @@
   <dependencyManagement>
     <dependencies>
       <dependency>
+        <groupId>io.projectreactor</groupId>
+        <artifactId>reactor-bom</artifactId>
+        <version>2022.0.10</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
         <groupId>commons-fileupload</groupId>
         <artifactId>commons-fileupload</artifactId>
         <version>1.5</version>
@@ -281,7 +288,7 @@
       <dependency>
         <groupId>org.graalvm.js</groupId>
         <artifactId>js</artifactId>
-        <version>${org.graalvm.version}</version>
+        <version>23.0.1</version>
       </dependency>
       <dependency>
         <groupId>org.graalvm.js</groupId>
@@ -466,11 +473,6 @@
         <version>${org.springframework.boot.version}</version>
       </dependency>
       <dependency>
-        <groupId>io.projectreactor</groupId>
-        <artifactId>reactor-core</artifactId>
-        <version>3.5.10</version>
-      </dependency>
-      <dependency>
         <groupId>junit</groupId>
         <artifactId>junit</artifactId>
         <version>4.13.2</version>
@@ -543,6 +545,16 @@
         <groupId>io.netty</groupId>
         <artifactId>netty-resolver-dns</artifactId>
         <version>${io.netty.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.junit.jupiter</groupId>
+        <artifactId>junit-jupiter-api</artifactId>
+        <version>5.10.0</version>
+      </dependency>
+      <dependency>
+        <groupId>org.junit.jupiter</groupId>
+        <artifactId>junit-jupiter</artifactId>
+        <version>5.10.0</version>
       </dependency>
       <dependency>
         <groupId>com.revolsys.open</groupId>

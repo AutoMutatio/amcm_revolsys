@@ -6,7 +6,6 @@ import java.util.function.Function;
 import org.jeometry.common.data.identifier.Identifier;
 import org.jeometry.common.io.PathName;
 import org.jeometry.common.io.PathNameProxy;
-import org.springframework.transaction.PlatformTransactionManager;
 
 import com.revolsys.record.Record;
 import com.revolsys.record.io.format.json.JsonObject;
@@ -35,12 +34,6 @@ public interface TableRecordStoreConnection extends Transactionable, TableRecord
       return getTableRecordStore(pathName);
     }
     return null;
-  }
-
-  @Override
-  default PlatformTransactionManager getTransactionManager() {
-    final RecordStore recordStore = getRecordStore();
-    return recordStore.getTransactionManager();
   }
 
   default Record insertRecord(final Record record) {
