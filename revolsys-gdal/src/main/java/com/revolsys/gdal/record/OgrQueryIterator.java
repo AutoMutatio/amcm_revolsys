@@ -11,8 +11,8 @@ import java.util.TimeZone;
 import org.gdal.ogr.DataSource;
 import org.gdal.ogr.Feature;
 import org.gdal.ogr.Layer;
+import org.jeometry.common.collection.iterator.AbstractIterator;
 
-import com.revolsys.collection.iterator.AbstractIterator;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.geometry.model.LineString;

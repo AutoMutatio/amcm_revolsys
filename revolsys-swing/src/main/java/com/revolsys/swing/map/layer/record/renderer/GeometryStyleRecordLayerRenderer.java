@@ -16,11 +16,11 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 
 import org.jeometry.common.data.type.DataType;
+import org.jeometry.common.json.JsonObject;
+import org.jeometry.common.util.BaseCloseable;
 
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryDataTypes;
-import com.revolsys.io.BaseCloseable;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.swing.Icons;
 import com.revolsys.swing.map.layer.LayerRenderer;

@@ -44,7 +44,7 @@ public class TextField extends JTextField implements Field, FocusListener {
     this.fieldSupport = new FieldSupport(this, fieldName, text, true);
     setFont(SwingUtil.FONT);
     setDocument(new PropertyChangeDocument(this));
-    if (!Property.hasValue(fieldName)) {
+    if (!org.jeometry.common.util.Property.hasValue(fieldName)) {
       fieldName = "fieldValue";
     }
     setText(text);
@@ -163,7 +163,7 @@ public class TextField extends JTextField implements Field, FocusListener {
     this.fieldSupport.discardAllEdits();
     if (!DataType.equal(text, newText)) {
       if (newText == null) {
-        if (Property.hasValue(text)) {
+        if (org.jeometry.common.util.Property.hasValue(text)) {
           setText("");
         }
       } else {

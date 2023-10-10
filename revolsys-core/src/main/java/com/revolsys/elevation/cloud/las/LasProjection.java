@@ -5,6 +5,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.apache.commons.io.output.ByteArrayOutputStream;
+import org.jeometry.common.collection.map.Maps;
 import org.jeometry.common.logging.Logs;
 import org.jeometry.coordinatesystem.model.CoordinateOperationMethod;
 import org.jeometry.coordinatesystem.model.CoordinateSystem;
@@ -16,7 +17,6 @@ import org.jeometry.coordinatesystem.model.systems.EpsgCoordinateSystems;
 import org.jeometry.coordinatesystem.model.systems.EsriCoordinateSystems;
 import org.jeometry.coordinatesystem.model.unit.LinearUnit;
 
-import com.revolsys.collection.map.Maps;
 import com.revolsys.elevation.cloud.las.pointformat.LasPointFormat;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.io.endian.EndianOutput;

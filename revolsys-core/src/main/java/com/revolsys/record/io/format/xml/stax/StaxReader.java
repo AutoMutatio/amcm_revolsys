@@ -19,9 +19,9 @@ import javax.xml.stream.util.StreamReaderDelegate;
 
 import org.apache.commons.io.input.XmlStreamReader;
 import org.jeometry.common.exception.Exceptions;
+import org.jeometry.common.json.JsonObject;
+import org.jeometry.common.util.BaseCloseable;
 
-import com.revolsys.io.BaseCloseable;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.record.io.format.xml.XmlNameProxy;
 import com.revolsys.spring.resource.Resource;
 import com.revolsys.util.Property;
@@ -279,7 +279,7 @@ public class StaxReader extends StreamReaderDelegate implements BaseCloseable {
 
   public double getElementTextDouble(final double defaultValue) {
     final String text = getElementText();
-    if (Property.hasValue(text)) {
+    if (org.jeometry.common.util.Property.hasValue(text)) {
       try {
         return Double.parseDouble(text);
       } catch (final Throwable e) {
@@ -291,7 +291,7 @@ public class StaxReader extends StreamReaderDelegate implements BaseCloseable {
 
   public int getElementTextInt(final int defaultValue) {
     final String text = getElementText();
-    if (Property.hasValue(text)) {
+    if (org.jeometry.common.util.Property.hasValue(text)) {
       try {
         return Integer.parseInt(text);
       } catch (final Throwable e) {

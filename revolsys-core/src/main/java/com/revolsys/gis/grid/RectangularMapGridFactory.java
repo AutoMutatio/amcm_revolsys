@@ -45,7 +45,7 @@ public class RectangularMapGridFactory {
   public static RectangularMapGrid getGrid(final String name) {
     try {
       final String className = gridClassNamesByName.get(name);
-      if (Property.hasValue(className)) {
+      if (org.jeometry.common.util.Property.hasValue(className)) {
         return (RectangularMapGrid)Class.forName(className).newInstance();
       }
     } catch (final Throwable e) {

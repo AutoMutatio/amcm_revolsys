@@ -49,7 +49,7 @@ public class FieldSupport {
   public FieldSupport(final Field field, final JComponent component, final String name,
     final Object value, final boolean showErrorIcon) {
     this.field = field;
-    if (Property.isEmpty(name)) {
+    if (org.jeometry.common.util.Property.isEmpty(name)) {
       this.name = "fieldValue";
     } else {
       this.name = name;
@@ -101,7 +101,7 @@ public class FieldSupport {
   }
 
   public boolean hasError() {
-    return Property.hasValue(this.errorMessage);
+    return org.jeometry.common.util.Property.hasValue(this.errorMessage);
   }
 
   public boolean isEditable() {

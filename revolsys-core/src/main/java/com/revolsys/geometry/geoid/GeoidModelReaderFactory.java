@@ -1,6 +1,7 @@
 package com.revolsys.geometry.geoid;
 
-import com.revolsys.collection.map.MapEx;
+import org.jeometry.common.collection.map.MapEx;
+
 import com.revolsys.io.ReadIoFactory;
 import com.revolsys.spring.resource.Resource;
 

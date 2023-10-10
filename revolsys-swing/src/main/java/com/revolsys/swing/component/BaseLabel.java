@@ -30,7 +30,7 @@ public class BaseLabel extends JXLabel {
 
   @Override
   public void setText(String text) {
-    if (Property.hasValue(text)) {
+    if (org.jeometry.common.util.Property.hasValue(text)) {
       if (!text.startsWith("<html")) {
         if (text.startsWith("<")) {
           text = "<html>" + text + "</html>";

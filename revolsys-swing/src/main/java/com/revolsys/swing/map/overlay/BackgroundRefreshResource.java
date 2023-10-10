@@ -7,11 +7,12 @@ import java.util.function.Supplier;
 
 import javax.swing.SwingWorker;
 
+import org.jeometry.common.util.Cancellable;
+
 import com.revolsys.beans.PropertyChangeSupport;
 import com.revolsys.beans.PropertyChangeSupportProxy;
 import com.revolsys.swing.parallel.Invoke;
 import com.revolsys.swing.parallel.SupplierConsumerMaxThreadsSwingWorker;
-import com.revolsys.util.Cancellable;
 
 public class BackgroundRefreshResource<T> implements PropertyChangeSupportProxy {
   private final String description;

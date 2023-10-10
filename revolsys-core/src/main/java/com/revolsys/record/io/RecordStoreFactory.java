@@ -6,7 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import com.revolsys.collection.map.MapEx;
+import org.jeometry.common.collection.map.MapEx;
+
 import com.revolsys.io.IoFactory;
 import com.revolsys.io.file.Paths;
 import com.revolsys.record.schema.RecordStore;

@@ -4,7 +4,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.revolsys.collection.map.MapEx;
+import org.jeometry.common.collection.map.MapEx;
 
 public class Dependency extends GroupArtifactVersion {
   private final MavenPom parentPom;

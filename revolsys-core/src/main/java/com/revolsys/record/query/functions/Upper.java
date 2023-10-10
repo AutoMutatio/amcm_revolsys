@@ -2,7 +2,8 @@ package com.revolsys.record.query.functions;
 
 import java.util.List;
 
-import com.revolsys.collection.map.MapEx;
+import org.jeometry.common.collection.map.MapEx;
+
 import com.revolsys.record.query.QueryValue;
 import com.revolsys.util.Property;
 
@@ -29,7 +30,7 @@ public class Upper extends UnaryFunction {
 
     final QueryValue parameter = getParameter();
     final String stringValue = parameter.getStringValue(record);
-    if (Property.hasValue(stringValue)) {
+    if (org.jeometry.common.util.Property.hasValue(stringValue)) {
       return (V)stringValue.toUpperCase();
     } else {
       return (V)stringValue;

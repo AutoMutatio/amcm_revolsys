@@ -3,9 +3,10 @@ package com.revolsys.csformat.geoid.usngsbin;
 import java.nio.ByteOrder;
 import java.nio.channels.ClosedByInterruptException;
 
+import org.jeometry.common.collection.map.MapEx;
 import org.jeometry.common.exception.Exceptions;
+import org.jeometry.common.util.BaseObjectWithProperties;
 
-import com.revolsys.collection.map.MapEx;
 import com.revolsys.elevation.gridded.FloatArrayGriddedElevationModel;
 import com.revolsys.elevation.gridded.GriddedElevationModel;
 import com.revolsys.elevation.gridded.GriddedElevationModelReader;
@@ -13,7 +14,6 @@ import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.io.IoFactory;
 import com.revolsys.io.channels.DataReader;
-import com.revolsys.properties.BaseObjectWithProperties;
 import com.revolsys.spring.resource.Resource;
 
 public class UsNgsBinGeoidModelReader extends BaseObjectWithProperties

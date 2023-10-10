@@ -97,7 +97,7 @@ public class StringListField extends ValueField {
   }
 
   public boolean addValue(final String value) {
-    if (Property.hasValue(value)) {
+    if (org.jeometry.common.util.Property.hasValue(value)) {
       if (!this.values.contains(value)) {
 
         if (this.comparator == null || this.values.isEmpty()) {
@@ -160,10 +160,10 @@ public class StringListField extends ValueField {
           this.values.clear();
         } else {
           final String string = value.toString();
-          if (Property.hasValue(string)) {
+          if (org.jeometry.common.util.Property.hasValue(string)) {
             final List<String> newValues = new ArrayList<>();
             for (final String item : string.replaceAll("\\s+", "").split(",+")) {
-              if (Property.hasValue(item)) {
+              if (org.jeometry.common.util.Property.hasValue(item)) {
                 newValues.add(item);
               }
             }
@@ -195,7 +195,7 @@ public class StringListField extends ValueField {
   public void updateFields() {
     this.valueEntry.setEnabled(true);
     final String text = this.valueEntry.getText();
-    if (Property.hasValue(text) && !this.values.contains(text)) {
+    if (org.jeometry.common.util.Property.hasValue(text) && !this.values.contains(text)) {
       this.addButton.setEnabled(true);
     } else {
       this.addButton.setEnabled(false);

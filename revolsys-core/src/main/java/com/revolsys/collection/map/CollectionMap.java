@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.function.Supplier;
 
+import org.jeometry.common.collection.map.DelegatingMap;
+
 public class CollectionMap<K, V, C extends Collection<V>> extends DelegatingMap<K, C> {
 
   public static <K2, V2> CollectionMap<K2, V2, List<V2>> array(final Map<K2, List<V2>> map) {

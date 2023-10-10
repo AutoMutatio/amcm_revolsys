@@ -32,6 +32,7 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
+import org.jeometry.common.io.IoUtil;
 import org.jeometry.common.logging.Logs;
 import org.springframework.beans.MethodInvocationException;
 import org.springframework.beans.PropertyAccessException;
@@ -233,7 +234,7 @@ public class ProcessorPipelineTool {
     System.out.println("Processing directory '" + sourceDirectory.getAbsolutePath() + "'");
     final File[] files = sourceDirectory.listFiles();
     for (final File file : files) {
-      final String fileName = FileUtil.getFileName(file);
+      final String fileName = IoUtil.getFileName(file);
       if (file.isDirectory()) {
         processDirectory(file, new File(targetDirectory, fileName),
           new File(logDirectory, fileName), sourceFileExtension);

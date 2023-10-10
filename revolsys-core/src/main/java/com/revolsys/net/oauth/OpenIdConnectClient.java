@@ -5,14 +5,15 @@ import java.util.Collection;
 import java.util.function.Function;
 
 import org.apache.http.client.methods.RequestBuilder;
+import org.jeometry.common.json.JsonObject;
+import org.jeometry.common.json.JsonParser;
+import org.jeometry.common.util.BaseObjectWithProperties;
 
 import com.revolsys.io.map.ObjectFactoryConfig;
 import com.revolsys.net.http.ApacheHttp;
 import com.revolsys.net.http.ApacheHttpException;
 import com.revolsys.net.http.exception.AuthenticationException;
-import com.revolsys.properties.BaseObjectWithProperties;
-import com.revolsys.record.io.format.json.JsonObject;
-import com.revolsys.record.io.format.json.JsonParser;
+import com.revolsys.record.io.format.json.JsonIo;
 import com.revolsys.spring.resource.Resource;
 import com.revolsys.util.Strings;
 
@@ -67,7 +68,7 @@ public class OpenIdConnectClient extends BaseObjectWithProperties {
 
   public static OpenIdConnectClient newClient(final String url) {
     final Resource resource = Resource.getResource(url);
-    final JsonObject config = JsonParser.read((Object)resource);
+    final JsonObject config = JsonIo.read((Object)resource);
     if (config == null || config.isEmpty()) {
       throw new IllegalArgumentException("Not a valid .well-known/openid-configuration");
     } else {

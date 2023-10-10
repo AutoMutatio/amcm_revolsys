@@ -43,7 +43,7 @@ public class Slider extends JSlider implements Field, FocusListener, ChangeListe
   public Slider(final String fieldName, final int orientation, final int min, final int max,
     final int value) {
     super(orientation, min, max, value);
-    if (Property.hasValue(fieldName)) {
+    if (org.jeometry.common.util.Property.hasValue(fieldName)) {
       setToolTipText(CaseConverter.toCapitalizedWords(fieldName));
     }
     this.fieldSupport = new FieldSupport(this, fieldName, value, true);

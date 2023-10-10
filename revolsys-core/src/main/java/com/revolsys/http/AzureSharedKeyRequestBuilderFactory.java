@@ -8,8 +8,9 @@ import java.util.Base64;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
+import org.jeometry.common.json.JsonObject;
+
 import com.revolsys.io.map.ObjectFactoryConfig;
-import com.revolsys.record.io.format.json.JsonObject;
 
 public class AzureSharedKeyRequestBuilderFactory extends HttpRequestBuilderFactory {
 

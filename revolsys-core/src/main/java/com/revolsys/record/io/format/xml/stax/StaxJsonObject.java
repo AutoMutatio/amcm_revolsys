@@ -4,9 +4,10 @@ import java.util.Collection;
 import java.util.Set;
 import java.util.UUID;
 
-import com.revolsys.record.io.format.json.JsonList;
-import com.revolsys.record.io.format.json.JsonObject;
-import com.revolsys.record.io.format.json.Jsonable;
+import org.jeometry.common.json.JsonList;
+import org.jeometry.common.json.JsonObject;
+import org.jeometry.common.json.Jsonable;
+
 import com.revolsys.record.io.format.xml.XmlComplexType;
 import com.revolsys.record.io.format.xml.XmlElement;
 import com.revolsys.record.io.format.xml.XmlSchema;

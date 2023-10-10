@@ -2,7 +2,8 @@ package com.revolsys.record.io;
 
 import java.util.Iterator;
 
-import com.revolsys.collection.map.MapEx;
+import org.jeometry.common.collection.map.MapEx;
+
 import com.revolsys.io.map.MapReader;
 
 public class RecordMapReader implements MapReader {

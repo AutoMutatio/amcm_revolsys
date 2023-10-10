@@ -5,12 +5,11 @@ import java.io.IOException;
 
 import org.jeometry.common.number.Doubles;
 import org.jeometry.common.number.Integers;
+import org.jeometry.common.util.BaseCloseable;
 
 import com.revolsys.elevation.tin.CompactTriangulatedIrregularNetwork;
 import com.revolsys.elevation.tin.TriangulatedIrregularNetwork;
 import com.revolsys.geometry.model.GeometryFactory;
-import com.revolsys.io.BaseCloseable;
-import com.revolsys.io.FileUtil;
 import com.revolsys.spring.resource.Resource;
 
 public class AsciiTinReader implements BaseCloseable {
@@ -29,7 +28,7 @@ public class AsciiTinReader implements BaseCloseable {
 
   @Override
   public void close() {
-    FileUtil.closeSilent(this.in);
+    BaseCloseable.closeSilent(this.in);
   }
 
   public TriangulatedIrregularNetwork read() {

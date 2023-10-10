@@ -21,6 +21,7 @@ import org.jeometry.common.exception.Exceptions;
 import org.jeometry.common.function.Consumer3;
 import org.jeometry.common.logging.Logs;
 import org.jeometry.common.number.Doubles;
+import org.jeometry.common.util.Emptyable;
 import org.jeometry.coordinatesystem.model.CoordinateSystem;
 
 import com.revolsys.geometry.model.editor.BoundingBoxEditor;
@@ -31,7 +32,6 @@ import com.revolsys.geometry.model.impl.RectangleXY;
 import com.revolsys.geometry.util.OutCode;
 import com.revolsys.geometry.util.Points;
 import com.revolsys.record.io.format.wkt.WktParser;
-import com.revolsys.util.Emptyable;
 import com.revolsys.util.Property;
 import com.revolsys.util.QuantityType;
 
@@ -99,7 +99,7 @@ public interface BoundingBox
   }
 
   static BoundingBox bboxNew(final String wkt) {
-    if (Property.hasValue(wkt)) {
+    if (org.jeometry.common.util.Property.hasValue(wkt)) {
       try {
         int coordinateSystemId = 0;
         final PushbackReader reader = new PushbackReader(new StringReader(wkt), 20);

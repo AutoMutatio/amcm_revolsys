@@ -40,7 +40,7 @@ public class GeoPackageDateField extends JdbcFieldDefinition {
   @Override
   public int setPreparedStatementValue(final PreparedStatement statement, final int parameterIndex,
     final Object value) throws SQLException {
-    if (Property.isEmpty(value)) {
+    if (org.jeometry.common.util.Property.isEmpty(value)) {
       final int sqlType = getSqlType();
       statement.setNull(parameterIndex, sqlType);
     } else {

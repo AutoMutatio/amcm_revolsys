@@ -3,7 +3,8 @@ package com.revolsys.record.io.format.directory;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-import com.revolsys.collection.iterator.AbstractIterator;
+import org.jeometry.common.collection.iterator.AbstractIterator;
+
 import com.revolsys.record.Record;
 import com.revolsys.record.io.RecordIterator;
 import com.revolsys.record.io.RecordReader;

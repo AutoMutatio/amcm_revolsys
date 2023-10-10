@@ -1,8 +1,9 @@
 package com.revolsys.io;
 
-import com.revolsys.collection.map.MapEx;
-import com.revolsys.properties.ObjectWithProperties;
-import com.revolsys.record.io.format.json.JsonObject;
+import org.jeometry.common.collection.map.MapEx;
+import org.jeometry.common.json.JsonObject;
+import org.jeometry.common.util.BaseCloseable;
+import org.jeometry.common.util.ObjectWithProperties;
 
 public interface Writer<T> extends ObjectWithProperties, BaseCloseable {
   @Override

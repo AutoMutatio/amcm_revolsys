@@ -5,8 +5,9 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.Iterator;
 
-import com.revolsys.collection.map.MapEx;
-import com.revolsys.io.AbstractReader;
+import org.jeometry.common.collection.iterator.AbstractReader;
+import org.jeometry.common.collection.map.MapEx;
+
 import com.revolsys.record.Record;
 import com.revolsys.record.RecordFactory;
 import com.revolsys.record.io.RecordReader;

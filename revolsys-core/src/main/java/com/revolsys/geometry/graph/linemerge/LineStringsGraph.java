@@ -1,6 +1,7 @@
 package com.revolsys.geometry.graph.linemerge;
 
-import com.revolsys.collection.list.Lists;
+import org.jeometry.common.collection.list.Lists;
+
 import com.revolsys.geometry.graph.Edge;
 import com.revolsys.geometry.graph.Graph;
 import com.revolsys.geometry.graph.Node;

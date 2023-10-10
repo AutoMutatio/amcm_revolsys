@@ -1,9 +1,9 @@
 package com.revolsys.gis.grid;
 
 import org.jeometry.common.data.type.DataTypes;
+import org.jeometry.common.util.BaseObjectWithProperties;
 
 import com.revolsys.geometry.model.GeometryDataTypes;
-import com.revolsys.properties.BaseObjectWithProperties;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordDefinitionBuilder;
 

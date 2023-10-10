@@ -5,6 +5,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Supplier;
 
+import org.jeometry.common.collection.map.Maps;
+
 public class ThreadLocalMap<K, V> implements Map<K, V> {
   private final ThreadLocal<Map<K, V>> map = new ThreadLocal<>();
 

@@ -238,7 +238,7 @@ public class OracleSdoGeometryJdbcFieldDefinition extends JdbcFieldDefinition {
   @Override
   public int setInsertPreparedStatementValue(final PreparedStatement statement,
     final int parameterIndex, final Object value) throws SQLException {
-    if (Property.isEmpty(value)) {
+    if (org.jeometry.common.util.Property.isEmpty(value)) {
       setNull(statement, parameterIndex);
     } else {
       final Connection connection = statement.getConnection();
@@ -256,7 +256,7 @@ public class OracleSdoGeometryJdbcFieldDefinition extends JdbcFieldDefinition {
   @Override
   public int setPreparedStatementValue(final PreparedStatement statement, final int parameterIndex,
     final Object value) throws SQLException {
-    if (Property.isEmpty(value)) {
+    if (org.jeometry.common.util.Property.isEmpty(value)) {
       setNull(statement, parameterIndex);
     } else {
       final Connection connection = statement.getConnection();

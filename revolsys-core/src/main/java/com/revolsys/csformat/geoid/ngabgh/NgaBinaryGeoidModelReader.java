@@ -2,10 +2,11 @@ package com.revolsys.csformat.geoid.ngabgh;
 
 import java.nio.channels.ClosedByInterruptException;
 
+import org.jeometry.common.collection.map.MapEx;
 import org.jeometry.common.exception.Exceptions;
+import org.jeometry.common.util.BaseObjectWithProperties;
 import org.jeometry.coordinatesystem.model.systems.EpsgId;
 
-import com.revolsys.collection.map.MapEx;
 import com.revolsys.elevation.gridded.GriddedElevationModel;
 import com.revolsys.elevation.gridded.GriddedElevationModelReader;
 import com.revolsys.elevation.gridded.IntArrayScaleGriddedElevationModel;
@@ -13,7 +14,6 @@ import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.io.IoFactory;
 import com.revolsys.io.channels.DataReader;
-import com.revolsys.properties.BaseObjectWithProperties;
 import com.revolsys.spring.resource.Resource;
 
 /*

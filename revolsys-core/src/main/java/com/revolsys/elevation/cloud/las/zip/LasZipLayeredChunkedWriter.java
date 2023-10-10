@@ -3,7 +3,8 @@ package com.revolsys.elevation.cloud.las.zip;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.revolsys.collection.map.MapEx;
+import org.jeometry.common.collection.map.MapEx;
+
 import com.revolsys.elevation.cloud.las.LasPointCloud;
 import com.revolsys.elevation.cloud.las.LasPointCloudHeader;
 import com.revolsys.elevation.cloud.las.LasPointCloudWriter;

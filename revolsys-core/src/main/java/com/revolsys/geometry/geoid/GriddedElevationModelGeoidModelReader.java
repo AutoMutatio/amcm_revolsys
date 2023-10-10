@@ -1,10 +1,11 @@
 package com.revolsys.geometry.geoid;
 
-import com.revolsys.collection.map.MapEx;
+import org.jeometry.common.collection.map.MapEx;
+import org.jeometry.common.util.BaseObjectWithProperties;
+
 import com.revolsys.elevation.gridded.GriddedElevationModel;
 import com.revolsys.elevation.gridded.GriddedElevationModelReader;
 import com.revolsys.geometry.model.BoundingBox;
-import com.revolsys.properties.BaseObjectWithProperties;
 import com.revolsys.spring.resource.Resource;
 
 public class GriddedElevationModelGeoidModelReader extends BaseObjectWithProperties

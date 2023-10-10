@@ -5,12 +5,12 @@ import java.io.IOException;
 import java.io.Writer;
 
 import org.jeometry.common.exception.Exceptions;
+import org.jeometry.common.util.BaseCloseable;
 
 import com.revolsys.geometry.model.ClockDirection;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.io.AbstractRecordWriter;
-import com.revolsys.io.FileUtil;
 import com.revolsys.record.Record;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinitionProxy;
@@ -34,7 +34,7 @@ public class WktRecordWriter extends AbstractRecordWriter {
 
   @Override
   public void close() {
-    FileUtil.closeSilent(this.out);
+    BaseCloseable.closeSilent(this.out);
   }
 
   @Override

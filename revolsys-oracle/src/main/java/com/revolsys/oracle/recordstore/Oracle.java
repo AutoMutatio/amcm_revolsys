@@ -19,12 +19,12 @@ import java.util.regex.Pattern;
 
 import javax.sql.DataSource;
 
+import org.jeometry.common.collection.map.MapEx;
+import org.jeometry.common.collection.map.Maps;
 import org.jeometry.common.data.type.DataType;
 import org.jeometry.common.data.type.DataTypes;
 import org.jeometry.common.logging.Logs;
 
-import com.revolsys.collection.map.MapEx;
-import com.revolsys.collection.map.Maps;
 import com.revolsys.jdbc.io.AbstractJdbcDatabaseFactory;
 import com.revolsys.jdbc.io.JdbcRecordStore;
 import com.revolsys.record.schema.FieldDefinition;
@@ -203,11 +203,11 @@ public class Oracle extends AbstractJdbcDatabaseFactory {
       if (hostMatcher.matches()) {
         parameters.put("recordStoreType", getName());
         final String user = hostMatcher.group(1);
-        if (Property.hasValue(user)) {
+        if (org.jeometry.common.util.Property.hasValue(user)) {
           parameters.put("user", user.toLowerCase());
         }
         final String password = hostMatcher.group(2);
-        if (Property.hasValue(password)) {
+        if (org.jeometry.common.util.Property.hasValue(password)) {
           parameters.put("password", password);
         }
         final String host = hostMatcher.group(3);
@@ -223,11 +223,11 @@ public class Oracle extends AbstractJdbcDatabaseFactory {
       if (tnsmatcher.matches()) {
         parameters.put("recordStoreType", getProductName());
         final String user = tnsmatcher.group(1);
-        if (Property.hasValue(user)) {
+        if (org.jeometry.common.util.Property.hasValue(user)) {
           parameters.put("user", user.toLowerCase());
         }
         final String password = tnsmatcher.group(2);
-        if (Property.hasValue(password)) {
+        if (org.jeometry.common.util.Property.hasValue(password)) {
           parameters.put("password", password);
         }
         parameters.put("host", null);
@@ -255,14 +255,14 @@ public class Oracle extends AbstractJdbcDatabaseFactory {
   public String toUrl(final Map<String, Object> urlParameters) {
     final StringBuilder url = new StringBuilder("jdbc:oracle:thin:@");
     final String namedConnection = Maps.getString(urlParameters, "namedConnection");
-    if (Property.hasValue(namedConnection)) {
+    if (org.jeometry.common.util.Property.hasValue(namedConnection)) {
       url.append(namedConnection.toLowerCase());
     } else {
       final String host = Maps.getString(urlParameters, "host");
       final Integer port = Maps.getInteger(urlParameters, "port");
       final String database = Maps.getString(urlParameters, "database");
 
-      final boolean hasHost = Property.hasValue(host);
+      final boolean hasHost = org.jeometry.common.util.Property.hasValue(host);
       final boolean hasPort = port != null;
       if (hasHost || hasPort) {
         url.append("//");
@@ -275,7 +275,7 @@ public class Oracle extends AbstractJdbcDatabaseFactory {
         }
         url.append('/');
       }
-      if (Property.hasValue(database)) {
+      if (org.jeometry.common.util.Property.hasValue(database)) {
         url.append(database);
       }
     }

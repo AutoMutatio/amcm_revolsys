@@ -93,11 +93,11 @@ public class SelectMapScale extends JComboBox<Long>
         final Object currentValue = getSelectedItem();
         if (currentValue instanceof Number) {
           currentScale = ((Number)currentValue).doubleValue();
-        } else if (Property.hasValue(currentValue)) {
+        } else if (org.jeometry.common.util.Property.hasValue(currentValue)) {
           final String scaleString = currentValue.toString()
             .replaceAll("1:", "")
             .replaceAll("[^0-9\\.]+", "");
-          if (Property.hasValue(scaleString)) {
+          if (org.jeometry.common.util.Property.hasValue(scaleString)) {
             try {
               currentScale = Double.valueOf(scaleString);
             } catch (final Throwable t) {

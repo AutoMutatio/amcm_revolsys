@@ -1,8 +1,8 @@
 package com.revolsys.record.schema;
 
 import org.jeometry.common.io.PathName;
+import org.jeometry.common.util.BaseObjectWithProperties;
 
-import com.revolsys.properties.BaseObjectWithProperties;
 import com.revolsys.util.Property;
 
 public abstract class AbstractRecordStoreSchemaElement extends BaseObjectWithProperties
@@ -30,7 +30,7 @@ public abstract class AbstractRecordStoreSchemaElement extends BaseObjectWithPro
   }
 
   public AbstractRecordStoreSchemaElement(final RecordStoreSchema schema, final String path) {
-    if (!Property.hasValue(path)) {
+    if (!org.jeometry.common.util.Property.hasValue(path)) {
       throw new IllegalArgumentException("Path is required");
     }
     setPathName(path);

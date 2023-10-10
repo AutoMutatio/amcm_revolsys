@@ -8,8 +8,8 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 import org.jeometry.common.exception.Exceptions;
+import org.jeometry.common.util.BaseCloseable;
 
-import com.revolsys.io.BaseCloseable;
 import com.revolsys.io.EndOfFileException;
 
 interface ByteFilter {

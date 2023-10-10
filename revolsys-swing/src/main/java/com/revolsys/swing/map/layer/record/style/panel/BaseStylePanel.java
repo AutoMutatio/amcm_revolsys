@@ -24,6 +24,7 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
 import org.jdesktop.swingx.VerticalLayout;
+import org.jeometry.common.util.PropertyDescriptorCache;
 import org.jeometry.coordinatesystem.model.unit.CustomUnits;
 
 import com.revolsys.geometry.model.LineCap;
@@ -54,7 +55,6 @@ import com.revolsys.swing.map.layer.record.style.MarkerStyle;
 import com.revolsys.swing.map.layer.record.style.TextStyle;
 import com.revolsys.util.CaseConverter;
 import com.revolsys.util.Property;
-import com.revolsys.util.PropertyDescriptorCache;
 
 public class BaseStylePanel extends Form implements PropertyChangeListener {
   public static final List<Action> HORIZONTAL_ALIGNMENT_ACTIONS = getTextAlignActions("left",

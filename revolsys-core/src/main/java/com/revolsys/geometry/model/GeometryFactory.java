@@ -52,11 +52,15 @@ import java.util.zip.ZipFile;
 import javax.measure.Unit;
 import javax.measure.quantity.Length;
 
+import org.jeometry.common.collection.map.Maps;
 import org.jeometry.common.data.type.DataType;
 import org.jeometry.common.exception.WrappedException;
 import org.jeometry.common.function.BiConsumerDouble;
 import org.jeometry.common.function.BiFunctionDouble;
 import org.jeometry.common.function.Consumer3Double;
+import org.jeometry.common.io.MapSerializer;
+import org.jeometry.common.json.JsonObject;
+import org.jeometry.common.json.JsonObjectHash;
 import org.jeometry.common.logging.Logs;
 import org.jeometry.common.number.Doubles;
 import org.jeometry.coordinatesystem.io.EsriCsWktWriter;
@@ -76,7 +80,6 @@ import org.jeometry.coordinatesystem.operation.CoordinatesOperationPoint;
 
 import com.revolsys.collection.CollectionUtil;
 import com.revolsys.collection.map.IntHashMap;
-import com.revolsys.collection.map.Maps;
 import com.revolsys.geometry.graph.linemerge.LineMerger;
 import com.revolsys.geometry.model.editor.BoundingBoxEditor;
 import com.revolsys.geometry.model.editor.LineStringEditor;
@@ -106,9 +109,6 @@ import com.revolsys.geometry.util.RectangleUtil;
 import com.revolsys.io.StringWriter;
 import com.revolsys.io.channels.ChannelWriter;
 import com.revolsys.io.channels.DataReader;
-import com.revolsys.io.map.MapSerializer;
-import com.revolsys.record.io.format.json.JsonObject;
-import com.revolsys.record.io.format.json.JsonObjectHash;
 import com.revolsys.record.io.format.wkt.WktParser;
 import com.revolsys.spring.resource.Resource;
 import com.revolsys.util.Property;
@@ -1295,7 +1295,7 @@ public abstract class GeometryFactory implements GeometryFactoryProxy, MapSerial
 
   @SuppressWarnings("unchecked")
   public <T extends Geometry> T geometry(final String wkt) {
-    if (Property.hasValue(wkt)) {
+    if (org.jeometry.common.util.Property.hasValue(wkt)) {
       return (T)this.parser.parseGeometry(wkt);
     } else {
       return null;
@@ -1830,7 +1830,7 @@ public abstract class GeometryFactory implements GeometryFactoryProxy, MapSerial
   }
 
   public Lineal lineal(final Iterable<?> lines) {
-    if (Property.isEmpty(lines)) {
+    if (org.jeometry.common.util.Property.isEmpty(lines)) {
       return lineString();
     } else {
       final List<LineString> lineStrings = new ArrayList<>();

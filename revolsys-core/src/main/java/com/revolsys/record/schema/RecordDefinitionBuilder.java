@@ -3,15 +3,14 @@ package com.revolsys.record.schema;
 import java.util.Collection;
 import java.util.List;
 
+import org.jeometry.common.collection.list.Lists;
 import org.jeometry.common.data.type.DataType;
 import org.jeometry.common.data.type.DataTypes;
 import org.jeometry.common.io.PathName;
+import org.jeometry.common.json.JsonObject;
 
-import com.revolsys.collection.list.Lists;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.record.code.CodeTable;
-import com.revolsys.record.io.format.json.JsonList;
-import com.revolsys.record.io.format.json.JsonObject;
 
 public class RecordDefinitionBuilder {
 
@@ -133,8 +132,7 @@ public class RecordDefinitionBuilder {
   }
 
   public RecordDefinitionBuilder fromJson(final JsonObject schema) {
-    final JsonList fields = schema.getJsonList("fields", JsonList.EMPTY);
-    for (final JsonObject fieldConfig : fields.jsonObjects()) {
+    for (final JsonObject fieldConfig : schema.<JsonObject> getList("fields")) {
       addField(fieldConfig);
     }
     return this;

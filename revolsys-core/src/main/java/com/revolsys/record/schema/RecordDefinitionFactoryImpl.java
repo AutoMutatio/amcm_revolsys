@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import com.revolsys.properties.BaseObjectWithProperties;
+import org.jeometry.common.util.BaseObjectWithProperties;
 
 public class RecordDefinitionFactoryImpl extends BaseObjectWithProperties
   implements RecordDefinitionFactory {

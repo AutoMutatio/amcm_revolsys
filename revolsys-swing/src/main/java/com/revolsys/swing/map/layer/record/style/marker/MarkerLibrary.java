@@ -7,11 +7,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jeometry.common.json.JsonObject;
 import org.jeometry.common.logging.Logs;
 
 import com.revolsys.io.map.MapObjectFactory;
 import com.revolsys.io.map.MapObjectFactoryRegistry;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.util.Property;
 
 public class MarkerLibrary extends MarkerGroup {
@@ -120,7 +120,7 @@ public class MarkerLibrary extends MarkerGroup {
   }
 
   public static Marker newMarker(final String markerType) {
-    if (Property.hasValue(markerType)) {
+    if (org.jeometry.common.util.Property.hasValue(markerType)) {
       final Marker symbol = findMarker(markerType);
       return symbol;
     }

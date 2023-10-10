@@ -36,7 +36,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import com.revolsys.collection.list.Lists;
+import org.jeometry.common.collection.list.Lists;
+
 import com.revolsys.geometry.index.strtree.StrTree;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.Geometry;
@@ -294,9 +295,9 @@ public class CascadedPolygonUnion {
    * @return
    */
   private Polygonal unionActual(final Polygonal polygonal1, final Polygonal polygonal2) {
-    if (Property.isEmpty(polygonal1)) {
+    if (org.jeometry.common.util.Property.isEmpty(polygonal1)) {
       return polygonal2;
-    } else if (Property.isEmpty(polygonal2)) {
+    } else if (org.jeometry.common.util.Property.isEmpty(polygonal2)) {
       return polygonal1;
     } else {
       try {

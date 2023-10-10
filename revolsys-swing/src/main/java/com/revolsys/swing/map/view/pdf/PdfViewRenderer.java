@@ -31,6 +31,7 @@ import org.apache.pdfbox.pdmodel.graphics.optionalcontent.PDOptionalContentGroup
 import org.apache.pdfbox.pdmodel.graphics.state.PDExtendedGraphicsState;
 import org.apache.pdfbox.util.Matrix;
 import org.jeometry.common.exception.Exceptions;
+import org.jeometry.common.util.BaseCloseable;
 import org.w3c.dom.Document;
 
 import com.revolsys.geometry.model.BoundingBox;
@@ -40,7 +41,6 @@ import com.revolsys.geometry.model.LineString;
 import com.revolsys.geometry.model.LinearRing;
 import com.revolsys.geometry.model.Polygon;
 import com.revolsys.geometry.model.impl.PointDoubleXYOrientation;
-import com.revolsys.io.BaseCloseable;
 import com.revolsys.raster.GeoreferencedImage;
 import com.revolsys.record.Record;
 import com.revolsys.swing.map.layer.Layer;
@@ -624,7 +624,7 @@ public class PdfViewRenderer extends ViewRenderer {
   public void drawText(final Record record, final Geometry geometry, final TextStyle style) {
     try {
       final String label = style.getLabel(record);
-      if (Property.hasValue(label) && geometry != null) {
+      if (org.jeometry.common.util.Property.hasValue(label) && geometry != null) {
         final String textPlacementType = style.getTextPlacementType();
         final PointDoubleXYOrientation point = AbstractRecordLayerRenderer
           .getPointWithOrientation(this, geometry, textPlacementType);

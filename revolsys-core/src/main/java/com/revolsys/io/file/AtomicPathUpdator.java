@@ -7,9 +7,8 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 
 import org.jeometry.common.exception.Exceptions;
-
-import com.revolsys.io.BaseCloseable;
-import com.revolsys.util.Cancellable;
+import org.jeometry.common.util.BaseCloseable;
+import org.jeometry.common.util.Cancellable;
 
 public class AtomicPathUpdator implements BaseCloseable {
   private static final CopyOption[] MOVE_OPTIONS = {

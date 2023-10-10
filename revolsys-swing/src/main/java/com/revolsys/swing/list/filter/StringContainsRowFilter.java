@@ -31,8 +31,8 @@ public class StringContainsRowFilter extends RowFilter<ListModel, Integer> {
     final Integer identifier = entry.getIdentifier();
     final Object value = entry.getValue(identifier);
     final String string = DataTypes.toString(value);
-    if (Property.hasValue(this.filterText)) {
-      if (Property.hasValue(string)) {
+    if (org.jeometry.common.util.Property.hasValue(this.filterText)) {
+      if (org.jeometry.common.util.Property.hasValue(string)) {
         return string.toUpperCase().contains(this.filterText) == this.match;
       } else {
         return false;

@@ -4,9 +4,9 @@ import java.time.Instant;
 import java.util.List;
 
 import org.jeometry.common.io.PathName;
+import org.jeometry.common.util.BaseObjectWithProperties;
 
 import com.revolsys.beans.Classes;
-import com.revolsys.properties.BaseObjectWithProperties;
 import com.revolsys.spring.resource.UrlResource;
 import com.revolsys.util.Property;
 import com.revolsys.webservice.WebServiceResource;

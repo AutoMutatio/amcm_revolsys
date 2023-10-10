@@ -3,7 +3,8 @@ package com.revolsys.record.io.format.moep;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.revolsys.properties.BaseObjectWithProperties;
+import org.jeometry.common.util.BaseObjectWithProperties;
+
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordDefinitionFactory;
 

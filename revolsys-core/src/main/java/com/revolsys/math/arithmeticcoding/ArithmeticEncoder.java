@@ -21,7 +21,8 @@
 */
 package com.revolsys.math.arithmeticcoding;
 
-import com.revolsys.io.BaseCloseable;
+import org.jeometry.common.util.BaseCloseable;
+
 import com.revolsys.io.channels.ChannelWriter;
 
 public class ArithmeticEncoder implements ArithmeticCodingCodec, BaseCloseable {

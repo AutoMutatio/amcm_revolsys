@@ -4,8 +4,9 @@ import java.io.File;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.jeometry.common.json.Json;
+
 import com.revolsys.io.FileUtil;
-import com.revolsys.record.io.format.json.Json;
 
 public class Preferences {
   public static <V> V getValue(final String applicationId, final PreferenceKey key) {

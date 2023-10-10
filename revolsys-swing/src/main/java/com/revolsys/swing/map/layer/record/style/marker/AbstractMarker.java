@@ -37,7 +37,7 @@ public abstract class AbstractMarker extends AbstractMarkerGroupElement implemen
   @Override
   public String getName() {
     final String name = super.getName();
-    if (Property.hasValue(name)) {
+    if (org.jeometry.common.util.Property.hasValue(name)) {
       return name;
     } else {
       return "unknown";
@@ -47,7 +47,7 @@ public abstract class AbstractMarker extends AbstractMarkerGroupElement implemen
   @Override
   public String toString() {
     final String name = getName();
-    if (Property.hasValue(name)) {
+    if (org.jeometry.common.util.Property.hasValue(name)) {
       return name;
     } else {
       return super.toString();

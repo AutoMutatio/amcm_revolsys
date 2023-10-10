@@ -42,7 +42,7 @@ public class DoubleFieldDefinition extends AbstractFileGdbFieldDefinition {
       }
     } else {
       final String string = value.toString();
-      if (Property.hasValue(string)) {
+      if (org.jeometry.common.util.Property.hasValue(string)) {
         final double doubleValue = Double.parseDouble(string);
         synchronized (row) {
           row.setDouble(this.fieldNumber, doubleValue);

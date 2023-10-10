@@ -3,6 +3,8 @@ package com.revolsys.properties;
 import java.util.Map;
 
 import org.jeometry.common.data.type.DataType;
+import org.jeometry.common.util.BaseObjectWithProperties;
+import org.jeometry.common.util.ObjectWithProperties;
 
 import com.revolsys.beans.KeyedPropertyChangeEvent;
 import com.revolsys.beans.PropertyChangeSupport;
@@ -25,7 +27,7 @@ public class BaseObjectWithPropertiesAndChange extends BaseObjectWithProperties
 
   @Override
   public <C> C getProperty(final String name) {
-    C value = Property.getSimple(this, name);
+    C value = org.jeometry.common.util.Property.getSimple(this, name);
     if (value == null) {
       final Map<String, Object> properties = getProperties();
       value = ObjectWithProperties.getProperty(this, properties, name);

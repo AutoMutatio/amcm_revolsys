@@ -361,7 +361,7 @@ public class EsriXmlRecordDefinitionUtil implements EsriGeodatabaseXmlConstants 
           .getProperty(recordDefinition);
         String lengthFieldName = lengthFieldNameProperty.getFieldName();
         if (createLengthField) {
-          if (!Property.hasValue(lengthFieldName)) {
+          if (!org.jeometry.common.util.Property.hasValue(lengthFieldName)) {
             lengthFieldName = geometryFieldName + "_Length";
             lengthFieldNameProperty.setFieldName(lengthFieldName);
           }
@@ -375,7 +375,7 @@ public class EsriXmlRecordDefinitionUtil implements EsriGeodatabaseXmlConstants 
           final AreaFieldName areaFieldNameProperty = AreaFieldName.getProperty(recordDefinition);
           String areaFieldName = areaFieldNameProperty.getFieldName();
           if (createAreaField) {
-            if (!Property.hasValue(areaFieldName)) {
+            if (!org.jeometry.common.util.Property.hasValue(areaFieldName)) {
               areaFieldName = geometryFieldName + "_Area";
               areaFieldNameProperty.setFieldName(areaFieldName);
             }
@@ -393,7 +393,7 @@ public class EsriXmlRecordDefinitionUtil implements EsriGeodatabaseXmlConstants 
 
     String oidFieldName = recordDefinition
       .getProperty(EsriGeodatabaseXmlConstants.ESRI_OBJECT_ID_FIELD_NAME);
-    if (!Property.hasValue(oidFieldName)) {
+    if (!org.jeometry.common.util.Property.hasValue(oidFieldName)) {
       oidFieldName = "OBJECTID";
     }
     final String catalogPath;

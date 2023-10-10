@@ -58,7 +58,7 @@ public class Graphics2DTextStyleRenderer extends TextStyleViewRenderer {
     final Graphics2DViewRenderer view = this.view;
     double dx = this.dx;
     double dy = this.dy;
-    if (Property.hasValue(label) && geometry != null) {
+    if (org.jeometry.common.util.Property.hasValue(label) && geometry != null) {
       final TextStyle style = this.style;
       final String textPlacementType = style.getTextPlacementType();
       final PointDoubleXYOrientation point = view.getPointWithOrientation(geometry,

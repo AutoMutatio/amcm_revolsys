@@ -12,7 +12,10 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import org.jeometry.common.collection.map.MapEx;
 import org.jeometry.common.exception.Exceptions;
+import org.jeometry.common.io.IoUtil;
+import org.jeometry.common.util.BaseObjectWithProperties;
 import org.jeometry.coordinatesystem.model.CoordinateOperationMethod;
 import org.jeometry.coordinatesystem.model.CoordinateSystem;
 import org.jeometry.coordinatesystem.model.GeographicCoordinateSystem;
@@ -28,13 +31,11 @@ import org.jeometry.coordinatesystem.model.systems.EpsgId;
 import org.jeometry.coordinatesystem.model.unit.LinearUnit;
 import org.jeometry.coordinatesystem.model.unit.Metre;
 
-import com.revolsys.collection.map.MapEx;
 import com.revolsys.elevation.gridded.GriddedElevationModel;
 import com.revolsys.elevation.gridded.GriddedElevationModelReader;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.io.FileUtil;
-import com.revolsys.properties.BaseObjectWithProperties;
 import com.revolsys.spring.resource.InputStreamResource;
 import com.revolsys.spring.resource.NoSuchResourceException;
 import com.revolsys.spring.resource.Resource;
@@ -124,7 +125,7 @@ public class UsgsGriddedElevationReader extends BaseObjectWithProperties
           final String name = zipEntry.getName();
           if (name.equals(projName)) {
             if (this.geometryFactory != GeometryFactory.DEFAULT_3D) {
-              final String wkt = FileUtil
+              final String wkt = IoUtil
                 .getString(new InputStreamReader(in, StandardCharsets.UTF_8), false);
               final GeometryFactory geometryFactory = GeometryFactory.floating3d(wkt);
               if (geometryFactory.isHasHorizontalCoordinateSystem()) {

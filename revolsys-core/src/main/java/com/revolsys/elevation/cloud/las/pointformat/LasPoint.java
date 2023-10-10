@@ -1,12 +1,13 @@
 package com.revolsys.elevation.cloud.las.pointformat;
 
+import org.jeometry.common.io.MapSerializer;
+import org.jeometry.common.json.JsonObject;
+import org.jeometry.common.json.JsonObjectHash;
+
 import com.revolsys.elevation.cloud.las.LasPointCloud;
 import com.revolsys.geometry.model.Point;
 import com.revolsys.io.channels.ChannelWriter;
 import com.revolsys.io.channels.DataReader;
-import com.revolsys.io.map.MapSerializer;
-import com.revolsys.record.io.format.json.JsonObject;
-import com.revolsys.record.io.format.json.JsonObjectHash;
 
 public interface LasPoint extends Point, MapSerializer {
 

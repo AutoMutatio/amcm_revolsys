@@ -83,7 +83,7 @@ public class ShapefileDirectoryWriter extends AbstractRecordWriter {
     if (this.useNamespaceAsSubDirectory) {
       final String typePath = recordDefinition.getPath();
       final String schemaName = PathUtil.getPath(typePath);
-      if (Property.hasValue(schemaName)) {
+      if (org.jeometry.common.util.Property.hasValue(schemaName)) {
         final File childDirectory = new File(this.directory, schemaName);
         if (!childDirectory.mkdirs()) {
           if (!childDirectory.isDirectory()) {

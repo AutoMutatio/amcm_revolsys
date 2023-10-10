@@ -8,11 +8,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.jeometry.common.io.MapSerializer;
+import org.jeometry.common.json.JsonObject;
 import org.jeometry.common.logging.Logs;
+import org.jeometry.common.util.BaseObjectWithProperties;
 
-import com.revolsys.io.map.MapSerializer;
-import com.revolsys.properties.BaseObjectWithProperties;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.spring.resource.Resource;
 
 // http://soliton.vm.bytemark.co.uk/pub/cpt-city/

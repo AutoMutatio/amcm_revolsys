@@ -7,7 +7,8 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-import com.revolsys.collection.list.Lists;
+import org.jeometry.common.collection.list.Lists;
+
 import com.revolsys.geometry.index.SpatialIndex;
 import com.revolsys.geometry.index.rtree.RTree;
 import com.revolsys.geometry.model.BoundingBox;

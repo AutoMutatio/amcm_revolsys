@@ -181,7 +181,7 @@ public class FieldNamesSetPanel extends ValueField
   private void actionAdd() {
     final String name = Dialogs.showInputDialog("Enter the name of the new field set.",
       "Add Field Set", JOptionPane.PLAIN_MESSAGE);
-    if (Property.hasValue(name)) {
+    if (org.jeometry.common.util.Property.hasValue(name)) {
       boolean found = false;
       for (int i = 0; i < this.fieldNamesSetNamesModel.size(); i++) {
         final String name2 = this.fieldNamesSetNamesModel.get(i);
@@ -332,7 +332,7 @@ public class FieldNamesSetPanel extends ValueField
       final String newName = (String)Dialogs.showInputDialog(
         "Enter the new name for the field set.", "Rename Field Set", JOptionPane.PLAIN_MESSAGE,
         null, null, oldName);
-      if (Property.hasValue(newName)) {
+      if (org.jeometry.common.util.Property.hasValue(newName)) {
         int index = -1;
         for (int i = 0; i < this.fieldNamesSetNamesModel.size(); i++) {
           final String name = this.fieldNamesSetNamesModel.get(i);
@@ -380,7 +380,7 @@ public class FieldNamesSetPanel extends ValueField
     final Map<String, List<String>> fieldNamesSets = new LinkedHashMap<>();
     for (final String name : this.fieldNamesSetNamesModel) {
       final List<String> fieldNames = this.fieldNamesSets.get(name);
-      if (Property.hasValue(fieldNames)) {
+      if (org.jeometry.common.util.Property.hasValue(fieldNames)) {
         fieldNamesSets.put(name, fieldNames);
       }
     }
@@ -388,7 +388,7 @@ public class FieldNamesSetPanel extends ValueField
   }
 
   public void setFieldNamesSetName(String fieldNamesSetName) {
-    if (Property.isEmpty(fieldNamesSetName)
+    if (org.jeometry.common.util.Property.isEmpty(fieldNamesSetName)
       || !this.fieldNamesSetNamesModel.contains(fieldNamesSetName)) {
       fieldNamesSetName = "All";
     }

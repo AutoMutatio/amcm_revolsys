@@ -4,10 +4,11 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.NoSuchElementException;
 
+import org.jeometry.common.util.BaseCloseable;
+
 import com.revolsys.geometry.model.ClockDirection;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryFactory;
-import com.revolsys.io.FileUtil;
 import com.revolsys.record.Record;
 import com.revolsys.record.RecordFactory;
 import com.revolsys.record.Records;
@@ -33,7 +34,7 @@ public class WktRecordReader extends AbstractRecordReader {
   @Override
   protected void closeDo() {
     super.closeDo();
-    FileUtil.closeSilent(this.in);
+    BaseCloseable.closeSilent(this.in);
     this.in = null;
     this.wktParser = null;
   }

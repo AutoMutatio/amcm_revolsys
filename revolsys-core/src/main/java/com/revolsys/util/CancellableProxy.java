@@ -3,6 +3,8 @@ package com.revolsys.util;
 import java.util.Iterator;
 import java.util.function.Predicate;
 
+import org.jeometry.common.util.Cancellable;
+
 public interface CancellableProxy extends Cancellable {
   @Override
   default void cancel() {

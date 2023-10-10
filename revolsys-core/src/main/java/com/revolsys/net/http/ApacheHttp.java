@@ -21,11 +21,11 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.ssl.SSLContextBuilder;
 import org.jeometry.common.exception.Exceptions;
 import org.jeometry.common.exception.WrappedException;
-
-import com.revolsys.io.FileUtil;
-import com.revolsys.record.io.format.json.JsonList;
-import com.revolsys.record.io.format.json.JsonObject;
-import com.revolsys.record.io.format.json.JsonParser;
+import org.jeometry.common.io.IoUtil;
+import org.jeometry.common.json.JsonList;
+import org.jeometry.common.json.JsonObject;
+import org.jeometry.common.json.JsonParser;
+import org.jeometry.common.util.BaseCloseable;
 
 public class ApacheHttp {
 
@@ -86,10 +86,10 @@ public class ApacheHttp {
         return new ApacheEntityInputStream(httpClient, entity);
       }
     } catch (final ApacheHttpException e) {
-      FileUtil.closeSilent(httpClient);
+      BaseCloseable.closeSilent(httpClient);
       throw e;
     } catch (final Exception e) {
-      FileUtil.closeSilent(httpClient);
+      BaseCloseable.closeSilent(httpClient);
       throw Exceptions.wrap(request.getURI().toString(), e);
     }
   }
@@ -152,7 +152,7 @@ public class ApacheHttp {
     final HttpEntity entity = response.getEntity();
     try (
       InputStream in = entity.getContent()) {
-      return FileUtil.getString(in);
+      return IoUtil.getString(in);
     } catch (final Exception e) {
       throw Exceptions.wrap(e);
     }

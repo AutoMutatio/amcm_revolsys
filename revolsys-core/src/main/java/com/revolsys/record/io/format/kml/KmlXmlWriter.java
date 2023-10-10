@@ -92,7 +92,7 @@ public class KmlXmlWriter extends XmlWriter implements Kml22Constants {
       if (!(value instanceof Geometry)) {
         if (value != null) {
           final String stringValue = value.toString();
-          if (Property.hasValue(stringValue)) {
+          if (org.jeometry.common.util.Property.hasValue(stringValue)) {
             if (!hasValues) {
               hasValues = true;
               startTag(EXTENDED_DATA);

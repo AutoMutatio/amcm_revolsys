@@ -2,8 +2,9 @@ package com.revolsys.http;
 
 import java.util.function.Supplier;
 
+import org.jeometry.common.json.JsonObject;
+
 import com.revolsys.io.map.ObjectFactoryConfig;
-import com.revolsys.record.io.format.json.JsonObject;
 
 public class AzureTableSasRequestBuilderFactory extends HttpRequestBuilderFactory {
   public static AzureTableSasRequestBuilderFactory fromConfig(

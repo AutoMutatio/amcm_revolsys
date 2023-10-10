@@ -4,11 +4,12 @@ import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jeometry.common.util.BaseObjectWithProperties;
+
 import com.revolsys.elevation.tin.BaseCompactTriangulatedIrregularNetwork;
 import com.revolsys.elevation.tin.TriangulatedIrregularNetwork;
 import com.revolsys.elevation.tin.TriangulatedIrregularNetworkWriter;
 import com.revolsys.geometry.model.Point;
-import com.revolsys.properties.BaseObjectWithProperties;
 import com.revolsys.spring.resource.Resource;
 
 public class AsciiTinWriter extends BaseObjectWithProperties

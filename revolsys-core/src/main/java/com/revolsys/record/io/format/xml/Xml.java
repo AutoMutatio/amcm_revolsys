@@ -5,7 +5,8 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.Charset;
 
-import com.revolsys.collection.map.MapEx;
+import org.jeometry.common.collection.map.MapEx;
+
 import com.revolsys.io.AbstractIoFactory;
 import com.revolsys.io.map.IteratorMapReader;
 import com.revolsys.io.map.MapReader;

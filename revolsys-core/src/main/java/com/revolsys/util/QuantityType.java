@@ -33,7 +33,7 @@ public interface QuantityType {
   }
 
   static Quantity<?> newQuantity(final String string) {
-    if (Property.hasValue(string)) {
+    if (org.jeometry.common.util.Property.hasValue(string)) {
       final Quantity<?> measure = Quantities.getQuantity(string);
       final Number value = measure.getValue();
       final Unit<?> unit = measure.getUnit();

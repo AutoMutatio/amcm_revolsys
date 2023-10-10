@@ -6,9 +6,9 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.jeometry.common.collection.map.LruMap;
+import org.jeometry.common.json.JsonObject;
 
-import com.revolsys.record.io.format.json.JsonObject;
-import com.revolsys.record.io.format.json.JsonParser;
+import com.revolsys.record.io.format.json.JsonIo;
 import com.revolsys.util.Pair;
 
 public class JsonWebTokenCache {
@@ -19,7 +19,7 @@ public class JsonWebTokenCache {
     final Instant now = Instant.now();
     Pair<Instant, JsonObject> resource = CACHE.get(uri);
     if (resource == null) {
-      final JsonObject json = JsonParser.read(uri);
+      final JsonObject json = JsonIo.read(uri);
       final Instant expiry = now.plusSeconds(15 * 60);
       resource = new Pair<>(expiry, json);
     }

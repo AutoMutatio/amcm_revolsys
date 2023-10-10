@@ -8,8 +8,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 import org.jeometry.common.exception.Exceptions;
-
-import com.revolsys.io.BaseCloseable;
+import org.jeometry.common.util.BaseCloseable;
 
 public class ActiveTransactionContext implements TransactionContext {
 
@@ -34,11 +33,23 @@ public class ActiveTransactionContext implements TransactionContext {
   ActiveTransactionContext() {
   }
 
-  ActiveTransactionContext(final TransactionDefinition<?> definition) {
-    this.name = definition.getName();
-    this.isolation = definition.getIsolation();
-    this.readOnly = definition.isReadOnly();
-    this.timeout = definition.getTimeout();
+  ActiveTransactionContext(final Iterable<Consumer<ActiveTransactionContext>> initializers) {
+    this(null, initializers);
+  }
+
+  ActiveTransactionContext(final TransactionDefinition<?> definition,
+    final Iterable<Consumer<ActiveTransactionContext>> initializers) {
+    if (initializers != null) {
+      for (final Consumer<ActiveTransactionContext> initializer : initializers) {
+        initializer.accept(this);
+      }
+    }
+    if (definition != null) {
+      this.name = definition.getName();
+      this.isolation = definition.getIsolation();
+      this.readOnly = definition.isReadOnly();
+      this.timeout = definition.getTimeout();
+    }
   }
 
   public void addAfterCommit(final Runnable action) {
@@ -54,7 +65,6 @@ public class ActiveTransactionContext implements TransactionContext {
   @Override
   public void close() {
     try {
-      withResources(TransactionableResource::beforeCompletion);
       if (isRollbackOnly()) {
         final boolean unexpectedRollback = false;
 
@@ -66,22 +76,16 @@ public class ActiveTransactionContext implements TransactionContext {
         }
       } else {
         try {
-          withResources(TransactionableResource::beforeCommit);
-          withResources(TransactionableResource::commit);
-
-          // } catch (final UnexpectedRollbackException ex) {
-          // this.status = TransactionStatus.ROLLBACK;
-          // throw ex;
-          // } catch (final TransactionException ex) {
-          // this.status = TransactionStatus.UNKNWOWN;
-          // throw ex;
-        } catch (RuntimeException | Error ex) {
+          for (final var r : this.resources.values()) {
+            r.commit();
+          }
+        } catch (RuntimeException | Error e) {
+          addException(e);
           rollbackDo();
-          throw ex;
+          throw e;
         }
 
         try {
-          withResources(TransactionableResource::afterCommit);
 
           this.afterCommits.forEach(action -> {
             try {
@@ -94,16 +98,22 @@ public class ActiveTransactionContext implements TransactionContext {
           this.status = TransactionStatus.COMMITTED;
         }
       }
-
     } finally {
-      withResources(TransactionableResource::afterCompletion);
-      withResources(TransactionableResource::close);
+      for (final var r : this.resources.values()) {
+        try {
+          r.close();
+        } catch (final Throwable e) {
+          addException(e);
+        }
+      }
     }
 
   }
 
   public void flush() {
-    withResources(TransactionableResource::flush);
+    for (final var r : this.resources.values()) {
+      r.flush();
+    }
   }
 
   @Override
@@ -172,18 +182,22 @@ public class ActiveTransactionContext implements TransactionContext {
   }
 
   BaseCloseable suspend() {
-    withResources(TransactionableResource::suspend);
-    return () -> withResources(TransactionableResource::resume);
-  }
-
-  private void withResources(final Consumer<? super TransactionableResource> action) {
-    this.resources.values().forEach(r -> {
+    for (final var r : this.resources.values()) {
       try {
-        action.accept(r);
+        r.suspend();
       } catch (final Throwable e) {
         addException(e);
       }
-    });
+    }
+    return () -> {
+      for (final var r : this.resources.values()) {
+        try {
+          r.resume();
+        } catch (final Throwable e) {
+          addException(e);
+        }
+      }
+    };
   }
 
 }

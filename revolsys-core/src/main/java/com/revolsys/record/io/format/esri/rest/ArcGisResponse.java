@@ -6,17 +6,17 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.jeometry.common.collection.map.MapEx;
 import org.jeometry.common.exception.Exceptions;
 import org.jeometry.common.exception.WrappedException;
+import org.jeometry.common.json.Json;
 import org.jeometry.common.logging.Logs;
+import org.jeometry.common.util.BaseCloseable;
+import org.jeometry.common.util.ObjectWithProperties;
 
-import com.revolsys.collection.map.MapEx;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactory;
-import com.revolsys.io.BaseCloseable;
 import com.revolsys.net.urlcache.FileResponseCache;
-import com.revolsys.properties.ObjectWithProperties;
-import com.revolsys.record.io.format.json.Json;
 import com.revolsys.spring.resource.Resource;
 import com.revolsys.spring.resource.UrlResource;
 import com.revolsys.util.Property;
@@ -54,7 +54,7 @@ public abstract class ArcGisResponse<V> extends AbstractWebService<V> implements
         srid = spatialReference.getInteger("wkid");
         if (srid == null) {
           final String wkt = spatialReference.getString("wkt");
-          if (Property.hasValue(wkt)) {
+          if (org.jeometry.common.util.Property.hasValue(wkt)) {
             return GeometryFactory.floating3d(wkt);
           } else {
             return GeometryFactory.DEFAULT_3D;
@@ -148,7 +148,7 @@ public abstract class ArcGisResponse<V> extends AbstractWebService<V> implements
   @Override
   public synchronized MapEx getProperties() {
     final MapEx properties = super.getProperties();
-    if (Property.isEmpty(properties)) {
+    if (org.jeometry.common.util.Property.isEmpty(properties)) {
       properties.put("initializing", true);
 
       properties.put("initializing", false);

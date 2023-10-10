@@ -7,16 +7,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
+import org.jeometry.common.collection.map.MapEx;
+import org.jeometry.common.collection.map.Maps;
 import org.jeometry.common.io.PathName;
+import org.jeometry.common.json.Json;
+import org.jeometry.common.json.JsonObject;
 import org.jeometry.common.logging.Logs;
 
-import com.revolsys.collection.map.MapEx;
-import com.revolsys.collection.map.Maps;
-import com.revolsys.record.io.format.json.Json;
-import com.revolsys.record.io.format.json.JsonObject;
+import com.revolsys.record.io.format.json.JsonIo;
 import com.revolsys.spring.resource.Resource;
 import com.revolsys.spring.resource.UrlResource;
-import com.revolsys.util.Property;
 import com.revolsys.webservice.AbstractWebService;
 import com.revolsys.webservice.WebServiceResource;
 
@@ -39,7 +39,7 @@ public class MapGuideWebService extends AbstractWebService<MapGuideResource> {
   public static MapGuideWebService newMapGuideWebService(
     final Map<String, ? extends Object> properties) {
     final String serviceUrl = (String)properties.get("serviceUrl");
-    if (Property.hasValue(serviceUrl)) {
+    if (org.jeometry.common.util.Property.hasValue(serviceUrl)) {
       final MapGuideWebService service = new MapGuideWebService(serviceUrl);
       // service.setProperties(properties);
       return service;
@@ -91,7 +91,7 @@ public class MapGuideWebService extends AbstractWebService<MapGuideResource> {
 
   public MapEx getJsonResponse(final String operation,
     final Map<String, ? extends Object> parameters) {
-    final Resource resource = getResource(operation, Json.MIME_TYPE, parameters);
+    final Resource resource = getResource(operation, JsonIo.MIME_TYPE, parameters);
     return Json.toMap(resource);
   }
 

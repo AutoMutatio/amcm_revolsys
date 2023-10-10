@@ -56,7 +56,7 @@ public abstract class RecordRowTableModel extends AbstractRecordTableModel
   public RecordRowTableModel(final RecordDefinition recordDefinition,
     final Collection<String> fieldNames, final int fieldsOffset) {
     super(recordDefinition);
-    if (Property.hasValue(fieldNames)) {
+    if (org.jeometry.common.util.Property.hasValue(fieldNames)) {
       setFieldNamesAndTitles(fieldNames, Collections.<String> emptyList());
     }
     this.fieldsOffset = fieldsOffset;
@@ -521,7 +521,7 @@ public abstract class RecordRowTableModel extends AbstractRecordTableModel
   // TODO initial sort order for session layers doesn't always work
   public SortOrder setSortOrder(final String fieldName) {
     int index = 0;
-    if (Property.hasValue(fieldName)) {
+    if (org.jeometry.common.util.Property.hasValue(fieldName)) {
       index = this.fieldNames.indexOf(fieldName);
       if (index == -1) {
         index = 0;

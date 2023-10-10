@@ -11,9 +11,10 @@ import java.util.List;
 
 import jakarta.annotation.PreDestroy;
 
+import org.jeometry.common.collection.list.Lists;
+
 import com.revolsys.beans.PropertyChangeSupport;
 import com.revolsys.collection.PropertyChangeArrayList;
-import com.revolsys.collection.list.Lists;
 import com.revolsys.swing.table.AbstractTableModel;
 import com.revolsys.util.CaseConverter;
 import com.revolsys.util.Property;
@@ -265,7 +266,7 @@ public class ObjectListTableModel<T> extends AbstractTableModel
     if (object != null) {
       final String name = getColumnName(columnIndex);
       final Object oldValue = Property.get(object, name);
-      Property.setSimple(object, name, value);
+      org.jeometry.common.util.Property.setSimple(object, name, value);
       firePropertyChange(object, name, oldValue, value);
     }
   }

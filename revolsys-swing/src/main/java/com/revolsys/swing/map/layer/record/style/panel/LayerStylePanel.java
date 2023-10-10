@@ -12,7 +12,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.tree.TreePath;
 
-import com.revolsys.collection.list.Lists;
+import org.jeometry.common.collection.list.Lists;
+
 import com.revolsys.swing.SwingUtil;
 import com.revolsys.swing.component.Form;
 import com.revolsys.swing.component.ValueField;

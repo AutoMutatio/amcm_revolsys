@@ -23,6 +23,7 @@ import javax.sql.DataSource;
 
 import jakarta.annotation.PreDestroy;
 
+import org.jeometry.common.collection.map.Maps;
 import org.jeometry.common.data.identifier.Identifier;
 import org.jeometry.common.data.type.DataType;
 import org.jeometry.common.data.type.DataTypes;
@@ -31,7 +32,6 @@ import org.jeometry.common.io.PathName;
 import org.jeometry.common.logging.Logs;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
-import com.revolsys.collection.map.Maps;
 import com.revolsys.io.PathUtil;
 import com.revolsys.jdbc.JdbcConnection;
 import com.revolsys.jdbc.JdbcDataSource;
@@ -67,7 +67,6 @@ import com.revolsys.record.schema.RecordStoreSchema;
 import com.revolsys.record.schema.RecordStoreSchemaElement;
 import com.revolsys.transaction.Transaction;
 import com.revolsys.util.Booleans;
-import com.revolsys.util.Property;
 
 public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
   implements JdbcRecordStore, RecordStoreExtension {
@@ -233,21 +232,24 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
 
   @Override
   @PreDestroy
-  public synchronized void close() {
-    try {
-      super.close();
-      if (this.databaseFactory != null && this.dataSource != null) {
-        JdbcDatabaseFactory.closeDataSource(this.dataSource);
+  public void close() {
+    try (
+      var l = this.lock.lockX()) {
+      try {
+        super.close();
+        if (this.databaseFactory != null && this.dataSource != null) {
+          JdbcDatabaseFactory.closeDataSource(this.dataSource);
+        }
+      } finally {
+        this.allSchemaNames.clear();
+        this.fieldDefinitionAdders.clear();
+        this.databaseFactory = null;
+        this.dataSource = null;
+        this.excludeTablePatterns.clear();
+        this.sequenceTypeSqlMap.clear();
+        this.sqlPrefix = null;
+        this.sqlSuffix = null;
       }
-    } finally {
-      this.allSchemaNames.clear();
-      this.fieldDefinitionAdders.clear();
-      this.databaseFactory = null;
-      this.dataSource = null;
-      this.excludeTablePatterns.clear();
-      this.sequenceTypeSqlMap.clear();
-      this.sqlPrefix = null;
-      this.sqlSuffix = null;
     }
   }
 
@@ -548,7 +550,7 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
   @Override
   public JdbcRecordDefinition getRecordDefinition(PathName typePath,
     final ResultSetMetaData resultSetMetaData, final String dbTableName) {
-    if (Property.isEmpty(typePath)) {
+    if (org.jeometry.common.util.Property.isEmpty(typePath)) {
       typePath = PathName.newPathName("/Record");
     }
 
@@ -582,7 +584,7 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
   public JdbcRecordDefinition getRecordDefinition(final Query query,
     final ResultSetMetaData resultSetMetaData) {
     PathName tablePath = query.getTablePath();
-    if (Property.isEmpty(tablePath)) {
+    if (org.jeometry.common.util.Property.isEmpty(tablePath)) {
       tablePath = PathName.newPathName("/Record");
     }
 
@@ -805,35 +807,39 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
     return this.useUpperCaseNames;
   }
 
-  protected synchronized Map<String, List<String>> loadIdFieldNames(final Connection connection,
+  protected Map<String, List<String>> loadIdFieldNames(final Connection connection,
     final String dbSchemaName) {
-    final String schemaName = "/" + toUpperIfNeeded(dbSchemaName);
-    final Map<String, List<String>> idFieldNames = new HashMap<>();
-    if (Property.hasValue(this.primaryKeySql)) {
-      try {
-        try (
-          final PreparedStatement statement = connection.prepareStatement(this.primaryKeySql);) {
-          if (this.primaryKeySql.indexOf('?') != -1) {
-            statement.setString(1, dbSchemaName);
-          }
+    try (
+      var l = this.lock.lockX()) {
+      final String schemaName = "/" + toUpperIfNeeded(dbSchemaName);
+      final Map<String, List<String>> idFieldNames = new HashMap<>();
+      if (org.jeometry.common.util.Property.hasValue(this.primaryKeySql)) {
+        try {
           try (
-            final ResultSet rs = statement.executeQuery()) {
-            while (rs.next()) {
-              final String tableName = toUpperIfNeeded(rs.getString("TABLE_NAME"));
-              final String idFieldName = rs.getString("COLUMN_NAME");
-              if (Property.hasValue(dbSchemaName)) {
-                Maps.addToList(idFieldNames, schemaName + "/" + tableName, idFieldName);
-              } else {
-                Maps.addToList(idFieldNames, "/" + tableName, idFieldName);
+            final PreparedStatement statement = connection.prepareStatement(this.primaryKeySql);) {
+            if (this.primaryKeySql.indexOf('?') != -1) {
+              statement.setString(1, dbSchemaName);
+            }
+            try (
+              final ResultSet rs = statement.executeQuery()) {
+              while (rs.next()) {
+                final String tableName = toUpperIfNeeded(rs.getString("TABLE_NAME"));
+                final String idFieldName = rs.getString("COLUMN_NAME");
+                if (org.jeometry.common.util.Property.hasValue(dbSchemaName)) {
+                  Maps.addToList(idFieldNames, schemaName + "/" + tableName, idFieldName);
+                } else {
+                  Maps.addToList(idFieldNames, "/" + tableName, idFieldName);
+                }
               }
             }
           }
+        } catch (final Throwable e) {
+          throw new IllegalArgumentException("Unable to primary keys for schema " + dbSchemaName,
+            e);
         }
-      } catch (final Throwable e) {
-        throw new IllegalArgumentException("Unable to primary keys for schema " + dbSchemaName, e);
       }
+      return idFieldNames;
     }
-    return idFieldNames;
   }
 
   protected Map<PathName, JdbcRecordDefinition> loadRecordDefinitionsPermissions(
@@ -1085,7 +1091,7 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
         for (final JdbcRecordDefinition recordDefinition : recordDefinitionMap.values()) {
           final PathName typePath = recordDefinition.getPathName();
           final List<String> idFieldNames = idFieldNameMap.get(typePath.toString());
-          if (Property.isEmpty(idFieldNames)) {
+          if (org.jeometry.common.util.Property.isEmpty(idFieldNames)) {
             addRowIdFieldDefinition(recordDefinition);
 
           }
@@ -1119,7 +1125,7 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
           for (final RecordDefinitionImpl recordDefinition : recordDefinitionMap.values()) {
             final String typePath = recordDefinition.getPath();
             final List<String> idFieldNames = idFieldNameMap.get(typePath);
-            if (!Property.isEmpty(idFieldNames)) {
+            if (!org.jeometry.common.util.Property.isEmpty(idFieldNames)) {
               recordDefinition.setIdFieldNames(idFieldNames);
             }
           }

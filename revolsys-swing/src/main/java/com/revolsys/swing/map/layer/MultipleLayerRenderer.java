@@ -39,7 +39,7 @@ public interface MultipleLayerRenderer<L extends Layer, C extends LayerRenderer<
 
   @SuppressWarnings("unchecked")
   default <V extends LayerRenderer<?>> V getRenderer(final String name) {
-    if (Property.hasValue(name)) {
+    if (org.jeometry.common.util.Property.hasValue(name)) {
       for (final LayerRenderer<?> renderer : getRenderers()) {
         final String rendererName = renderer.getName();
         if (DataType.equal(name, rendererName)) {

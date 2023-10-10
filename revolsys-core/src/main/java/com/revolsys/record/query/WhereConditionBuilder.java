@@ -47,7 +47,7 @@ public class WhereConditionBuilder implements TableReferenceProxy {
     if (conditions != null) {
       Condition whereCondition = getWhereCondition();
       for (final Condition condition : conditions) {
-        if (Property.hasValue(condition)) {
+        if (org.jeometry.common.util.Property.hasValue(condition)) {
           whereCondition = whereCondition.and(condition);
         }
       }
@@ -60,7 +60,7 @@ public class WhereConditionBuilder implements TableReferenceProxy {
     if (conditions != null) {
       Condition whereCondition = getWhereCondition();
       for (final Condition condition : conditions) {
-        if (Property.hasValue(condition)) {
+        if (org.jeometry.common.util.Property.hasValue(condition)) {
           whereCondition = whereCondition.and(condition);
         }
       }

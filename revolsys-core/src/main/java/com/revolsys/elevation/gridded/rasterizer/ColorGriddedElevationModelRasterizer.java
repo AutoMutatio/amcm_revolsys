@@ -4,9 +4,9 @@ import java.awt.Color;
 import java.util.Map;
 
 import org.jeometry.common.awt.WebColors;
+import org.jeometry.common.json.JsonObject;
 
 import com.revolsys.elevation.gridded.GriddedElevationModel;
-import com.revolsys.record.io.format.json.JsonObject;
 
 public class ColorGriddedElevationModelRasterizer extends AbstractGriddedElevationModelRasterizer {
 

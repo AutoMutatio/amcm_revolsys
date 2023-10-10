@@ -4,12 +4,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.jeometry.common.collection.iterator.AbstractIterator;
+import org.jeometry.common.collection.map.Maps;
 import org.jeometry.common.data.type.DataType;
 import org.jeometry.common.data.type.DataTypes;
 import org.jeometry.common.io.PathName;
 
-import com.revolsys.collection.iterator.AbstractIterator;
-import com.revolsys.collection.map.Maps;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryDataTypes;
 import com.revolsys.geometry.model.GeometryFactory;
@@ -115,8 +115,8 @@ public abstract class AbstractRecordReader extends AbstractIterator<Record>
   protected RecordDefinition newRecordDefinition(final String baseName,
     final List<String> fieldNames) throws IOException {
     String geometryColumnName = this.geometryColumnName;
-    this.hasPointFields = Property.hasValue(this.pointXFieldName)
-      && Property.hasValue(this.pointYFieldName);
+    this.hasPointFields = org.jeometry.common.util.Property.hasValue(this.pointXFieldName)
+      && org.jeometry.common.util.Property.hasValue(this.pointYFieldName);
     if (this.hasPointFields) {
 
       this.geometryType = GeometryDataTypes.POINT;
@@ -195,10 +195,10 @@ public abstract class AbstractRecordReader extends AbstractIterator<Record>
     }
     final RecordStoreSchema schema = getProperty("schema");
     String typePath = getProperty("typePath");
-    if (!Property.hasValue(typePath)) {
+    if (!org.jeometry.common.util.Property.hasValue(typePath)) {
       typePath = "/" + baseName;
       String schemaPath = getProperty("schemaPath");
-      if (Property.hasValue(schemaPath)) {
+      if (org.jeometry.common.util.Property.hasValue(schemaPath)) {
         if (!schemaPath.startsWith("/")) {
           schemaPath = "/" + schemaPath;
         }

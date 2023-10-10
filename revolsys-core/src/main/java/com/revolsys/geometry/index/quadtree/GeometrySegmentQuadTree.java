@@ -14,7 +14,7 @@ public class GeometrySegmentQuadTree extends IdObjectQuadTree<Segment> {
   private static final long serialVersionUID = 1L;
 
   public static GeometrySegmentQuadTree get(final Geometry geometry) {
-    if (Property.hasValue(geometry)) {
+    if (org.jeometry.common.util.Property.hasValue(geometry)) {
       return new GeometrySegmentQuadTree(geometry);
     } else {
       return null;

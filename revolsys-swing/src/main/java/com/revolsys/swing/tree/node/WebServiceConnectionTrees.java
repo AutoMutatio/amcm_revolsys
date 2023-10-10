@@ -1,12 +1,12 @@
 package com.revolsys.swing.tree.node;
 
+import org.jeometry.common.collection.map.MapEx;
 import org.jeometry.common.io.PathName;
+import org.jeometry.common.json.JsonObject;
 
-import com.revolsys.collection.map.MapEx;
 import com.revolsys.connection.ConnectionRegistry;
 import com.revolsys.gis.wms.WmsClient;
 import com.revolsys.record.io.format.esri.rest.ArcGisRestCatalog;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.record.io.format.mapguide.MapGuideWebService;
 import com.revolsys.swing.Borders;
 import com.revolsys.swing.SwingUtil;
@@ -166,7 +166,7 @@ public class WebServiceConnectionTrees extends ConnectionManagerTrees {
       final WebService<?> webService = webServiceResource.getWebService();
       if (webService != null) {
         final String webServiceName = webService.getName();
-        if (Property.hasValue(webServiceName)) {
+        if (org.jeometry.common.util.Property.hasValue(webServiceName)) {
           layerGroup = layerGroup.addLayerGroup(webServiceName);
         }
       }

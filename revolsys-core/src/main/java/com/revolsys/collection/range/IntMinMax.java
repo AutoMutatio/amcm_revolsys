@@ -2,8 +2,8 @@ package com.revolsys.collection.range;
 
 import org.jeometry.common.number.Integers;
 import org.jeometry.common.number.Numbers;
+import org.jeometry.common.util.Emptyable;
 
-import com.revolsys.util.Emptyable;
 import com.revolsys.util.Parity;
 import com.revolsys.util.Property;
 
@@ -130,7 +130,7 @@ public class IntMinMax extends IntRange implements Cloneable, Emptyable {
   }
 
   public boolean contains(final IntMinMax minMax) {
-    if (isEmpty() || !Property.hasValue(minMax)) {
+    if (isEmpty() || !org.jeometry.common.util.Property.hasValue(minMax)) {
       return false;
     } else {
       final int min = minMax.getMin();
@@ -215,7 +215,7 @@ public class IntMinMax extends IntRange implements Cloneable, Emptyable {
   }
 
   public boolean overlaps(final IntMinMax minMax) {
-    if (isEmpty() || !Property.hasValue(minMax)) {
+    if (isEmpty() || !org.jeometry.common.util.Property.hasValue(minMax)) {
       return false;
     } else {
       final int min = minMax.getMin();

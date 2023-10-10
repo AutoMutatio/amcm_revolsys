@@ -4,10 +4,9 @@ import java.awt.Color;
 import java.util.Map;
 
 import org.jeometry.common.awt.WebColors;
-
-import com.revolsys.io.map.MapSerializer;
-import com.revolsys.properties.BaseObjectWithProperties;
-import com.revolsys.record.io.format.json.JsonObject;
+import org.jeometry.common.io.MapSerializer;
+import org.jeometry.common.json.JsonObject;
+import org.jeometry.common.util.BaseObjectWithProperties;
 
 public class GradientStop extends BaseObjectWithProperties
   implements Cloneable, MapSerializer, Comparable<GradientStop> {

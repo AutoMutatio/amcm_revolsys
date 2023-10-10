@@ -3,8 +3,9 @@ package com.revolsys.record;
 import java.util.AbstractMap;
 import java.util.Set;
 
+import org.jeometry.common.util.BaseCloneable;
+
 import com.revolsys.record.schema.RecordDefinition;
-import com.revolsys.util.BaseCloneable;
 
 public class DelegatingRecord extends AbstractMap<String, Object> implements Record {
   private final Record record;

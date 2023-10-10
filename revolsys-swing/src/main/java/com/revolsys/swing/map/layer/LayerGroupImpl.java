@@ -17,9 +17,11 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileFilter;
 
+import org.jeometry.common.collection.list.Lists;
 import org.jeometry.common.data.type.DataType;
+import org.jeometry.common.json.JsonObject;
+import org.jeometry.common.util.Cancellable;
 
-import com.revolsys.collection.list.Lists;
 import com.revolsys.elevation.gridded.GriddedElevationModelReaderFactory;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryDataTypes;
@@ -30,7 +32,6 @@ import com.revolsys.io.IoFactory;
 import com.revolsys.io.filter.FileNameExtensionFilter;
 import com.revolsys.raster.GeoreferencedImageReadFactory;
 import com.revolsys.record.io.RecordReaderFactory;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.spring.resource.PathResource;
 import com.revolsys.swing.Dialogs;
 import com.revolsys.swing.Icons;
@@ -41,7 +42,6 @@ import com.revolsys.swing.menu.MenuFactory;
 import com.revolsys.swing.parallel.Invoke;
 import com.revolsys.swing.tree.node.file.PathTreeNode;
 import com.revolsys.swing.tree.node.layer.LayerGroupTreeNode;
-import com.revolsys.util.Cancellable;
 import com.revolsys.util.OS;
 import com.revolsys.util.PreferencesUtil;
 import com.revolsys.util.Property;
@@ -125,7 +125,7 @@ public class LayerGroupImpl extends AbstractLayer implements LayerGroup {
   private LayerGroup actionAddLayerGroup() {
     final String name = Dialogs.showInputDialog("Enter the name of the new Layer Group.",
       "Add Layer Group", JOptionPane.PLAIN_MESSAGE);
-    if (Property.hasValue(name)) {
+    if (org.jeometry.common.util.Property.hasValue(name)) {
       final LayerGroup newGroup = new LayerGroupImpl(name);
       addLayer(newGroup);
       return newGroup;
@@ -245,7 +245,7 @@ public class LayerGroupImpl extends AbstractLayer implements LayerGroup {
   private void actionOpenUrlLayer() {
     final String urlString = Dialogs.showInputDialog("URL");
 
-    if (Property.hasValue(urlString)) {
+    if (org.jeometry.common.util.Property.hasValue(urlString)) {
       final URL url = UrlUtil.getUrl(urlString);
       final Object menuSource = MenuFactory.getMenuSource();
       final LayerGroup layerGroup;

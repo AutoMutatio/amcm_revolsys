@@ -7,7 +7,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 
-import com.revolsys.io.BaseCloseable;
+import org.jeometry.common.util.BaseCloseable;
+
 import com.revolsys.io.channels.ChannelWriter;
 import com.revolsys.raster.io.format.tiff.code.TiffBaselineTag;
 import com.revolsys.raster.io.format.tiff.code.TiffCompression;

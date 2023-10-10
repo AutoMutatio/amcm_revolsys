@@ -295,7 +295,7 @@ public class PathTreeNode extends LazyLoadTreeNode implements UrlProxy {
       if (panel.isSaved()) {
         final FolderConnectionRegistry registry = registryField.getSelectedItem();
         String connectionName = nameField.getText();
-        if (!Property.hasValue(connectionName)) {
+        if (!org.jeometry.common.util.Property.hasValue(connectionName)) {
           connectionName = fileName;
         }
 

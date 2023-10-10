@@ -3,7 +3,8 @@ package com.revolsys.swing.map.form;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 
-import com.revolsys.io.BaseCloseable;
+import org.jeometry.common.util.BaseCloseable;
+
 import com.revolsys.swing.undo.UndoManager;
 
 public class RecordLayerFormUndoManager extends UndoManager {

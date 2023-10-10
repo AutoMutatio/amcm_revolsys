@@ -35,11 +35,11 @@ import javax.swing.event.PopupMenuListener;
 import javax.swing.undo.UndoableEdit;
 
 import org.jeometry.common.awt.WebColors;
+import org.jeometry.common.collection.map.Maps;
 import org.jeometry.common.data.type.DataType;
 import org.jeometry.common.number.Doubles;
 
 import com.revolsys.collection.CollectionUtil;
-import com.revolsys.collection.map.Maps;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryFactory;
@@ -152,7 +152,7 @@ public abstract class AbstractOverlay extends JComponent
         final Set<CloseLocation> locations = entry.getValue();
         final CloseLocation firstLocation = CollectionUtil.get(locations, 0);
         final String idFieldName = firstLocation.getIdFieldName();
-        final boolean hasId = Property.hasValue(idFieldName);
+        final boolean hasId = org.jeometry.common.util.Property.hasValue(idFieldName);
         text.append("<b><i>");
         text.append(typePath);
         if (hasId) {

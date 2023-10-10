@@ -1,8 +1,8 @@
 package com.revolsys.collection.range;
 
 import org.jeometry.common.number.Doubles;
+import org.jeometry.common.util.Emptyable;
 
-import com.revolsys.util.Emptyable;
 import com.revolsys.util.Property;
 
 public class DoubleMinMax extends DoubleRange implements Cloneable, Emptyable {
@@ -139,7 +139,7 @@ public class DoubleMinMax extends DoubleRange implements Cloneable, Emptyable {
   }
 
   public boolean contains(final DoubleMinMax minMax) {
-    if (isEmpty() || !Property.hasValue(minMax)) {
+    if (isEmpty() || !org.jeometry.common.util.Property.hasValue(minMax)) {
       return false;
     } else {
       final double min = minMax.getMin();
@@ -192,7 +192,7 @@ public class DoubleMinMax extends DoubleRange implements Cloneable, Emptyable {
   }
 
   public boolean overlaps(final DoubleMinMax minMax) {
-    if (isEmpty() || !Property.hasValue(minMax)) {
+    if (isEmpty() || !org.jeometry.common.util.Property.hasValue(minMax)) {
       return false;
     } else {
       final double min = minMax.getMin();

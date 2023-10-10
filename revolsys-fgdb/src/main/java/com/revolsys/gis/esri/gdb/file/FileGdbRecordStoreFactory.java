@@ -11,8 +11,9 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 
-import com.revolsys.collection.map.MapEx;
-import com.revolsys.collection.map.Maps;
+import org.jeometry.common.collection.map.MapEx;
+import org.jeometry.common.collection.map.Maps;
+
 import com.revolsys.io.FileUtil;
 import com.revolsys.io.IoFactoryRegistry;
 import com.revolsys.io.file.Paths;
@@ -183,7 +184,7 @@ public class FileGdbRecordStoreFactory implements FileRecordStoreFactory {
   @Override
   public String toUrl(final Map<String, Object> urlParameters) {
     final String file = Maps.getString(urlParameters, "file");
-    if (Property.hasValue(file)) {
+    if (org.jeometry.common.util.Property.hasValue(file)) {
       try {
         return FileUtil.toUrlString(file);
       } catch (final Throwable e) {

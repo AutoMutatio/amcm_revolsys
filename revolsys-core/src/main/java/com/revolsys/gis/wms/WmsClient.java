@@ -52,7 +52,7 @@ public class WmsClient extends AbstractWebService<WmsLayerDefinition>
 
   public static WmsClient newOgcWmsClient(final Map<String, ? extends Object> properties) {
     final String serviceUrl = (String)properties.get("serviceUrl");
-    if (Property.hasValue(serviceUrl)) {
+    if (org.jeometry.common.util.Property.hasValue(serviceUrl)) {
       final WmsClient client = new WmsClient(serviceUrl);
       client.setProperties(properties);
       return client;

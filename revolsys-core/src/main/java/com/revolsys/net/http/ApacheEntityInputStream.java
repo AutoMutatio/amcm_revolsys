@@ -4,9 +4,9 @@ import java.io.IOException;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.jeometry.common.util.BaseCloseable;
 
 import com.revolsys.io.DelegatingInputStream;
-import com.revolsys.io.FileUtil;
 
 public class ApacheEntityInputStream extends DelegatingInputStream {
 
@@ -23,7 +23,7 @@ public class ApacheEntityInputStream extends DelegatingInputStream {
     try {
       super.close();
     } finally {
-      FileUtil.closeSilent(this.client);
+      BaseCloseable.closeSilent(this.client);
     }
   }
 }

@@ -33,11 +33,11 @@ import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
+import org.jeometry.common.collection.list.Lists;
 import org.jeometry.common.exception.Exceptions;
 import org.jeometry.common.logging.Logs;
 
 import com.revolsys.collection.SimpleValueHolder;
-import com.revolsys.collection.list.Lists;
 import com.revolsys.collection.set.Sets;
 import com.revolsys.connection.file.FileConnectionManager;
 import com.revolsys.connection.file.FolderConnection;
@@ -329,7 +329,7 @@ public interface Paths {
   }
 
   static Path getPath(final String name) {
-    if (Property.hasValue(name)) {
+    if (org.jeometry.common.util.Property.hasValue(name)) {
       final Path path = java.nio.file.Paths.get(name);
       return getPath(path);
     } else {

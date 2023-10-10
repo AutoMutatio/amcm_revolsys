@@ -13,6 +13,7 @@ import org.jeometry.common.data.type.DataTypes;
 import org.jeometry.common.exception.Exceptions;
 import org.jeometry.common.number.Doubles;
 import org.jeometry.common.number.Integers;
+import org.jeometry.common.util.BaseCloseable;
 
 import com.revolsys.elevation.gridded.GriddedElevationModel;
 import com.revolsys.elevation.gridded.GriddedElevationModelWriter;
@@ -38,7 +39,7 @@ public class EsriAsciiGriddedElevationModelWriter extends AbstractWriter<Gridded
     super.close();
     flush();
     if (this.writer != null) {
-      FileUtil.closeSilent(this.writer);
+      BaseCloseable.closeSilent(this.writer);
       this.writer = null;
     }
     this.resource = null;

@@ -5,9 +5,10 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
-import com.revolsys.collection.map.DelegatingMap;
-import com.revolsys.record.io.format.json.JsonObject;
-import com.revolsys.record.io.format.json.JsonObjectHash;
+import org.jeometry.common.collection.map.DelegatingMap;
+import org.jeometry.common.io.MapSerializer;
+import org.jeometry.common.json.JsonObject;
+import org.jeometry.common.json.JsonObjectHash;
 
 public class MapBackedSerializer extends DelegatingMap<String, Object> implements MapSerializer {
   public static MapBackedSerializer hash() {

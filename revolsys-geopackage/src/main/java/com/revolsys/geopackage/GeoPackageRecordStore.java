@@ -19,6 +19,7 @@ import java.util.TreeMap;
 
 import jakarta.annotation.PostConstruct;
 
+import org.jeometry.common.collection.map.MapEx;
 import org.jeometry.common.data.identifier.Identifier;
 import org.jeometry.common.data.type.DataType;
 import org.jeometry.common.data.type.DataTypes;
@@ -28,7 +29,6 @@ import org.jeometry.coordinatesystem.model.CoordinateSystem;
 import org.sqlite.BusyHandler;
 import org.sqlite.SQLiteConnection;
 
-import com.revolsys.collection.map.MapEx;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.geopackage.field.GeoPackageGeometryFieldAdder;

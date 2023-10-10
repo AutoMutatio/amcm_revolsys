@@ -422,7 +422,7 @@ public class BaseJTable extends JXTable {
       }
     }
     final String value = ClipboardUtil.getContents(DataFlavor.stringFlavor);
-    if (Property.hasValue(value)) {
+    if (org.jeometry.common.util.Property.hasValue(value)) {
       final TableModel tableModel = getTableModel();
       final int eventRow = TablePanel.getEventRow();
       final int eventColumn = TablePanel.getEventColumn();

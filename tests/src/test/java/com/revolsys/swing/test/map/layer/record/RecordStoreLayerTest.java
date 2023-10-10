@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.List;
 import java.util.Map;
 
+import org.jeometry.common.collection.map.Maps;
 import org.jeometry.common.data.type.DataTypes;
 import org.jeometry.common.io.PathName;
 import org.junit.After;
@@ -13,7 +14,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.revolsys.collection.map.Maps;
 import com.revolsys.geometry.model.GeometryDataTypes;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.geometry.model.Point;

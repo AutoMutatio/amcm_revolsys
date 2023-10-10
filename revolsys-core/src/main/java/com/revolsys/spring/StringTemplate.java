@@ -65,7 +65,7 @@ public class StringTemplate implements Serializable {
 
   public StringTemplate(final String template) {
     this.template = template;
-    if (Property.hasValue(template)) {
+    if (org.jeometry.common.util.Property.hasValue(template)) {
       try {
         final Parser parser = new Parser(template);
         this.variableNames = parser.getVariableNames();

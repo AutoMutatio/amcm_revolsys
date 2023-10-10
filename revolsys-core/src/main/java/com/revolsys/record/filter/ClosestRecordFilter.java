@@ -68,7 +68,7 @@ public class ClosestRecordFilter implements Predicate<Record> {
   public boolean test(final Record record) {
     if (this.filter.test(record)) {
       final Geometry geometry = record.getGeometry();
-      if (Property.hasValue(geometry)) {
+      if (org.jeometry.common.util.Property.hasValue(geometry)) {
         if (!(geometry instanceof Point)) {
           final BoundingBox boundingBox = geometry.getBoundingBox();
           if (!boundingBox.bboxWithinDistance(this.geometry, this.maxDistance)) {

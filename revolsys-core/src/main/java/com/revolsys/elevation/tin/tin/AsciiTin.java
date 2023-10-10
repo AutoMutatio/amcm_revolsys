@@ -1,9 +1,9 @@
 package com.revolsys.elevation.tin.tin;
 
+import org.jeometry.common.collection.map.MapEx;
+import org.jeometry.common.collection.map.Maps;
 import org.jeometry.common.exception.Exceptions;
 
-import com.revolsys.collection.map.MapEx;
-import com.revolsys.collection.map.Maps;
 import com.revolsys.elevation.tin.TriangulatedIrregularNetwork;
 import com.revolsys.elevation.tin.TriangulatedIrregularNetworkReaderFactory;
 import com.revolsys.elevation.tin.TriangulatedIrregularNetworkWriter;

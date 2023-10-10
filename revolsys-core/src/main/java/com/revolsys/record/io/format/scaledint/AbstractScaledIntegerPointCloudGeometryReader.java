@@ -5,8 +5,9 @@ import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.util.NoSuchElementException;
 
-import com.revolsys.collection.iterator.AbstractIterator;
-import com.revolsys.collection.map.MapEx;
+import org.jeometry.common.collection.iterator.AbstractIterator;
+import org.jeometry.common.collection.map.MapEx;
+
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryDataTypes;
 import com.revolsys.geometry.model.GeometryFactory;

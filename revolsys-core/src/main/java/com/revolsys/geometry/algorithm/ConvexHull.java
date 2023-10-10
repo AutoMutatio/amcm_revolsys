@@ -41,7 +41,8 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.TreeSet;
 
-import com.revolsys.collection.list.Lists;
+import org.jeometry.common.collection.list.Lists;
+
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.geometry.model.Location;

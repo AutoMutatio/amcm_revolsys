@@ -18,9 +18,9 @@ import java.time.Instant;
 import java.util.Base64;
 import java.util.Base64.Decoder;
 
-import com.revolsys.record.io.format.json.JsonList;
-import com.revolsys.record.io.format.json.JsonObject;
-import com.revolsys.record.io.format.json.JsonParser;
+import org.jeometry.common.json.JsonList;
+import org.jeometry.common.json.JsonObject;
+import org.jeometry.common.json.JsonParser;
 
 public class JsonWebToken {
 
@@ -183,7 +183,7 @@ public class JsonWebToken {
       final String tokenToSign = this.token.substring(0, this.token.lastIndexOf('.'));
 
       final String keyId = this.header.getString("kid");
-      for (final JsonObject key : jsonWebKeySet.getJsonList("keys", JsonList.EMPTY).jsonObjects()) {
+      for (final JsonObject key : jsonWebKeySet.<JsonObject> getList("keys")) {
         if (key.equalValue("kid", keyId)) {
           final String n = key.getString("n");
           final String e = key.getString("e");

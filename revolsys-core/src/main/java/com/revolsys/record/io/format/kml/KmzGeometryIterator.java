@@ -6,8 +6,10 @@ import java.util.NoSuchElementException;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import com.revolsys.collection.iterator.AbstractIterator;
-import com.revolsys.collection.map.MapEx;
+import org.jeometry.common.collection.iterator.AbstractIterator;
+import org.jeometry.common.collection.map.MapEx;
+import org.jeometry.common.util.BaseCloseable;
+
 import com.revolsys.geometry.io.GeometryReader;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryFactory;
@@ -32,7 +34,7 @@ public class KmzGeometryIterator extends AbstractIterator<Geometry> implements G
 
   @Override
   protected void closeDo() {
-    FileUtil.closeSilent(this.kmlIterator, this.zipIn);
+    BaseCloseable.closeSilent(this.kmlIterator, this.zipIn);
     this.kmlIterator = null;
     this.zipIn = null;
   }

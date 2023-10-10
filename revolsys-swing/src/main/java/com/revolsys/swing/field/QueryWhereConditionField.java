@@ -226,7 +226,7 @@ public class QueryWhereConditionField extends ValueField
     if (filter != null) {
       this.whereTextField.setText(filter.toFormattedString());
     }
-    if (Property.hasValue(query)) {
+    if (org.jeometry.common.util.Property.hasValue(query)) {
       this.whereTextField.setText(query);
     }
     final String searchField = layer.getProperty("searchField");
@@ -297,7 +297,7 @@ public class QueryWhereConditionField extends ValueField
     final FieldDefinition fieldDefinition = this.fieldNamesList.getSelectedItem();
     if (fieldDefinition != null) {
       Object fieldValue = ((Field)this.searchField).getFieldValue();
-      if (Property.hasValue(fieldValue)) {
+      if (org.jeometry.common.util.Property.hasValue(fieldValue)) {
         int position = this.whereTextField.getCaretPosition();
         DataType fieldType = fieldDefinition.getDataType();
         if (fieldValue != null) {
@@ -435,7 +435,7 @@ public class QueryWhereConditionField extends ValueField
   }
 
   public void insertText(final String operator) {
-    if (Property.hasValue(operator)) {
+    if (org.jeometry.common.util.Property.hasValue(operator)) {
       int position = this.whereTextField.getCaretPosition();
       String previousText;
       try {
@@ -443,14 +443,14 @@ public class QueryWhereConditionField extends ValueField
       } catch (final BadLocationException e) {
         previousText = "";
       }
-      if (!Property.hasValue(previousText)
+      if (!org.jeometry.common.util.Property.hasValue(previousText)
         || !previousText.matches(".*" + operator.replaceAll("\\(", "\\\\(")
           .replaceAll("\\)", "\\\\)")
           .replaceAll("\\*", "\\\\*")
           .replaceAll("\\+", "\\\\+") + "\\s*$")) {
         final Document document = this.whereTextField.getDocument();
         try {
-          if (Property.hasValue(previousText)
+          if (org.jeometry.common.util.Property.hasValue(previousText)
             && !previousText.substring(previousText.length() - 1).matches("\\s$")) {
             document.insertString(position++, " ", null);
           }
@@ -494,7 +494,7 @@ public class QueryWhereConditionField extends ValueField
     if (event.getSource() == this.fieldNamesList) {
       if (SwingUtilities.isLeftMouseButton(event) && event.getClickCount() == 2) {
         final FieldDefinition fieldDefinition = this.fieldNamesList.getSelectedItem();
-        if (Property.hasValue(fieldDefinition)) {
+        if (org.jeometry.common.util.Property.hasValue(fieldDefinition)) {
           final String fieldName = fieldDefinition.getName();
           int position = this.whereTextField.getCaretPosition();
           String previousText;
@@ -503,11 +503,11 @@ public class QueryWhereConditionField extends ValueField
           } catch (final BadLocationException e) {
             previousText = "";
           }
-          if (!Property.hasValue(previousText)
+          if (!org.jeometry.common.util.Property.hasValue(previousText)
             || !previousText.matches(".*\"?" + fieldName + "\"?\\s*$")) {
             final Document document = this.whereTextField.getDocument();
             try {
-              if (Property.hasValue(previousText)
+              if (org.jeometry.common.util.Property.hasValue(previousText)
                 && !previousText.substring(previousText.length() - 1).matches("\\s$")) {
                 document.insertString(position++, " ", null);
               }
@@ -580,7 +580,7 @@ public class QueryWhereConditionField extends ValueField
   public boolean setFieldValue(final Object value) {
     if (value instanceof Condition) {
       return super.setFieldValue(value);
-    } else if (Property.hasValue(value)) {
+    } else if (org.jeometry.common.util.Property.hasValue(value)) {
       return false;
     } else {
       return super.setFieldValue(value);
@@ -660,7 +660,7 @@ public class QueryWhereConditionField extends ValueField
     this.statusLabel.setText("");
     try {
       final String whereClause = this.whereTextField.getText();
-      if (Property.hasValue(whereClause)) {
+      if (org.jeometry.common.util.Property.hasValue(whereClause)) {
         boolean valid = true;
         Condition condition;
         try {

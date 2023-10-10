@@ -26,7 +26,7 @@ public class CreateRecordUndo extends AbstractUndoableEdit {
 
   @Override
   protected void redoDo() {
-    if (Property.hasValue(this.newValues) && this.layerRecord == null) {
+    if (org.jeometry.common.util.Property.hasValue(this.newValues) && this.layerRecord == null) {
       this.layerRecord = this.layer.newLayerRecord(this.newValues);
       this.layerRecord.saveChanges();
       if (this.selected) {

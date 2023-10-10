@@ -2,7 +2,7 @@ package com.revolsys.elevation.cloud.las;
 
 import java.util.Map;
 
-import com.revolsys.collection.map.Maps;
+import org.jeometry.common.collection.map.Maps;
 
 public interface LasClassification {
 

@@ -9,9 +9,9 @@ import javax.swing.ListModel;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 
+import org.jeometry.common.collection.list.Lists;
 import org.jeometry.common.data.type.DataType;
 
-import com.revolsys.collection.list.Lists;
 import com.revolsys.swing.parallel.Invoke;
 import com.revolsys.util.Property;
 import com.revolsys.util.Reorderable;
@@ -52,7 +52,7 @@ public class ArrayListModel<T> extends ArrayList<T>
 
   @Override
   public boolean addAll(final int index, final Collection<? extends T> values) {
-    if (Property.hasValue(values)) {
+    if (org.jeometry.common.util.Property.hasValue(values)) {
       Invoke.andWait(() -> {
         super.addAll(index, values);
         fireIntervalAdded(index, index + values.size());
@@ -220,7 +220,7 @@ public class ArrayListModel<T> extends ArrayList<T>
 
   public void setAll(final Iterable<? extends T> elements) {
     Invoke.andWait(() -> {
-      if (Property.isEmpty(elements)) {
+      if (org.jeometry.common.util.Property.isEmpty(elements)) {
         clear();
       } else if (!DataType.equal(elements, this)) {
         final int oldSize = size();

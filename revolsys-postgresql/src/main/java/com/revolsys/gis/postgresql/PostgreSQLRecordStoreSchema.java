@@ -34,9 +34,12 @@ public class PostgreSQLRecordStoreSchema extends JdbcRecordStoreSchema {
   }
 
   @Override
-  public synchronized void refresh() {
-    // this.compositeTypes.refresh();
-    super.refresh();
+  public void refresh() {
+    try (
+      var l = this.lock.lockX()) {
+      // this.compositeTypes.refresh();
+      super.refresh();
+    }
   }
 
   private Map<PathName, RecordDefinitionImpl> refreshCompositeTypes() {
@@ -80,8 +83,11 @@ public class PostgreSQLRecordStoreSchema extends JdbcRecordStoreSchema {
   }
 
   @Override
-  public synchronized void refreshIfNeeded() {
-    // this.compositeTypes.refreshIfNeeded();
-    super.refreshIfNeeded();
+  public void refreshIfNeeded() {
+    try (
+      var l = this.lock.lockX()) {
+      // this.compositeTypes.refreshIfNeeded();
+      super.refreshIfNeeded();
+    }
   }
 }

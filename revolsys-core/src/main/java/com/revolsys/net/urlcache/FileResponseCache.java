@@ -12,7 +12,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.zip.CRC32;
 
-import com.revolsys.io.BaseCloseable;
+import org.jeometry.common.io.IoUtil;
+import org.jeometry.common.util.BaseCloseable;
+
 import com.revolsys.io.FileUtil;
 import com.revolsys.value.ThreadBooleanValue;
 
@@ -98,7 +100,7 @@ public class FileResponseCache extends ResponseCache {
           if (extension.length() > 0) {
             fileName = FileUtil.getFileNamePrefix(file);
           } else {
-            fileName = FileUtil.getFileName(file);
+            fileName = IoUtil.getFileName(file);
           }
           file = file.getParentFile();
         }

@@ -14,7 +14,7 @@ public class StringSingletonRange extends AbstractRange<String> {
   }
 
   public StringSingletonRange(final String value) {
-    if (!Property.hasValue(value)) {
+    if (!org.jeometry.common.util.Property.hasValue(value)) {
       throw new IllegalArgumentException("Value must not be empty for " + getClass());
     }
     this.value = value;

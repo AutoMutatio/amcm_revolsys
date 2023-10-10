@@ -1,6 +1,7 @@
 package com.revolsys.swing.map.layer;
 
-import com.revolsys.record.io.format.json.JsonObject;
+import org.jeometry.common.json.JsonObject;
+
 import com.revolsys.swing.map.view.ViewRenderer;
 
 public class LayerGroupRenderer extends AbstractLayerRenderer<LayerGroup> {

@@ -4,12 +4,12 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Collection;
 
+import org.jeometry.common.collection.list.ArrayListEx;
+import org.jeometry.common.collection.list.ListEx;
+import org.jeometry.common.collection.map.MapEx;
 import org.jeometry.common.data.type.DataType;
 import org.jeometry.common.data.type.DataTypes;
 
-import com.revolsys.collection.list.ArrayListEx;
-import com.revolsys.collection.list.ListEx;
-import com.revolsys.collection.map.MapEx;
 import com.revolsys.jdbc.field.JdbcFieldDefinition;
 import com.revolsys.jdbc.field.JdbcFieldDefinitions;
 import com.revolsys.record.schema.FieldDefinition;
@@ -77,7 +77,7 @@ public class ArrayValue implements QueryValue {
   public void changeRecordDefinition(final RecordDefinition oldRecordDefinition,
     final RecordDefinition newRecordDefinition) {
     final String fieldName = this.column.getName();
-    if (Property.hasValue(fieldName)) {
+    if (org.jeometry.common.util.Property.hasValue(fieldName)) {
       final FieldDefinition column = newRecordDefinition.getField(fieldName);
       setColumn(column);
     }

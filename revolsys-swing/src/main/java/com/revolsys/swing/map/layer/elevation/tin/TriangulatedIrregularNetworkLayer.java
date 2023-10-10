@@ -3,6 +3,7 @@ package com.revolsys.swing.map.layer.elevation.tin;
 import java.beans.PropertyChangeEvent;
 import java.util.Map;
 
+import org.jeometry.common.json.JsonObject;
 import org.jeometry.common.logging.Logs;
 
 import com.revolsys.elevation.tin.TriangulatedIrregularNetwork;
@@ -12,7 +13,6 @@ import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.io.FileUtil;
 import com.revolsys.io.IoFactory;
 import com.revolsys.raster.BufferedGeoreferencedImage;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.spring.resource.Resource;
 import com.revolsys.swing.Icons;
 import com.revolsys.swing.SwingUtil;
@@ -97,7 +97,7 @@ public class TriangulatedIrregularNetworkLayer extends AbstractLayer
   @Override
   protected boolean initializeDo() {
     final String url = getProperty("url");
-    if (Property.hasValue(url)) {
+    if (org.jeometry.common.util.Property.hasValue(url)) {
       this.url = url;
       this.resource = Resource.getResource(url);
       revertDo();
@@ -131,7 +131,7 @@ public class TriangulatedIrregularNetworkLayer extends AbstractLayer
       SwingUtil.addLabelledReadOnlyTextField(panel, "URL", this.url);
     }
     final String fileNameExtension = FileUtil.getFileNameExtension(this.url);
-    if (Property.hasValue(fileNameExtension)) {
+    if (org.jeometry.common.util.Property.hasValue(fileNameExtension)) {
       SwingUtil.addLabelledReadOnlyTextField(panel, "File Extension", fileNameExtension);
       final TriangulatedIrregularNetworkReaderFactory factory = IoFactory
         .factoryByFileExtension(TriangulatedIrregularNetworkReaderFactory.class, fileNameExtension);

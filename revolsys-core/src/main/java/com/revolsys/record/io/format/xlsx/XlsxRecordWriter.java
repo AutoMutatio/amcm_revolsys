@@ -19,6 +19,7 @@ import org.docx4j.openpackaging.parts.SpreadsheetML.WorksheetPart;
 import org.jeometry.common.exception.Exceptions;
 import org.jeometry.common.logging.Logs;
 import org.jeometry.common.number.Doubles;
+import org.jeometry.common.util.BaseCloseable;
 import org.xlsx4j.jaxb.Context;
 import org.xlsx4j.sml.CTAutoFilter;
 import org.xlsx4j.sml.CTRst;
@@ -38,7 +39,6 @@ import org.xlsx4j.sml.Worksheet;
 
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.io.AbstractRecordWriter;
-import com.revolsys.io.FileUtil;
 import com.revolsys.record.Record;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
@@ -248,7 +248,7 @@ public class XlsxRecordWriter extends AbstractRecordWriter {
       } catch (final Docx4JException e) {
         throw Exceptions.wrap(e);
       } finally {
-        FileUtil.closeSilent(this.out);
+        BaseCloseable.closeSilent(this.out);
         this.out = null;
         this.sheet = null;
         this.sheetData = null;

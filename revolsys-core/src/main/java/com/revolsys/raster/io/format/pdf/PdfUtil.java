@@ -162,7 +162,7 @@ public class PdfUtil {
             final int srid = gcs.getInt("EPSG");
             if (srid == -1) {
               final String wkt = gcs.getString("WKT");
-              if (Property.hasValue(wkt)) {
+              if (org.jeometry.common.util.Property.hasValue(wkt)) {
                 geometryFactory = GeometryFactory.floating3d(wkt);
               }
             } else {

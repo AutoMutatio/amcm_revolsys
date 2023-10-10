@@ -49,8 +49,8 @@ import org.jeometry.common.collection.map.LruMap;
 import org.jeometry.common.data.identifier.Identifier;
 import org.jeometry.common.data.type.DataType;
 import org.jeometry.common.io.PathName;
+import org.jeometry.common.util.BaseCloseable;
 
-import com.revolsys.io.BaseCloseable;
 import com.revolsys.record.Record;
 import com.revolsys.record.code.CodeTable;
 import com.revolsys.record.query.BinaryCondition;
@@ -456,7 +456,7 @@ public abstract class AbstractRecordQueryField extends ValueField
   protected void search() {
     if (this.eventsEnabled.isTrue()) {
       final String queryText = this.searchField.getText();
-      if (Property.hasValue(queryText)) {
+      if (org.jeometry.common.util.Property.hasValue(queryText)) {
         if (queryText.length() >= this.minSearchCharacters) {
           this.searchField.setFieldValid();
           this.busyLabel.setBusy(true);

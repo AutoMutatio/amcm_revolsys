@@ -85,9 +85,9 @@ public class OsmElement extends AbstractRecord implements OsmConstants {
   }
 
   public synchronized void addTag(final String key, final String value) {
-    if (Property.hasValue(key)) {
+    if (org.jeometry.common.util.Property.hasValue(key)) {
       if (key.length() <= 255) {
-        if (Property.hasValue(value)) {
+        if (org.jeometry.common.util.Property.hasValue(value)) {
           if (value.length() <= 255) {
             if (this.tags.isEmpty()) {
               this.tags = new HashMap<>();

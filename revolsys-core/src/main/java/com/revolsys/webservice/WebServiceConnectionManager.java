@@ -54,7 +54,7 @@ public class WebServiceConnectionManager
       throw new IllegalArgumentException("Missing connection in Web Service config");
     } else {
       final String name = (String)connectionProperties.get("name");
-      if (Property.hasValue(name)) {
+      if (org.jeometry.common.util.Property.hasValue(name)) {
         return (W)getWebService(name);
       } else {
         throw new IllegalArgumentException("Missing name in Web Service connection config");

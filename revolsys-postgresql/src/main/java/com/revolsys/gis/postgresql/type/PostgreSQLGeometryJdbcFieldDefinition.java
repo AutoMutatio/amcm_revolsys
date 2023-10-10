@@ -57,7 +57,7 @@ public class PostgreSQLGeometryJdbcFieldDefinition extends JdbcFieldDefinition {
       BoundingBox boundingBox = (BoundingBox)value;
       boundingBox = boundingBox.bboxToCs(geometryFactory);
       return new PostgreSQLBoundingBoxWrapper(boundingBox);
-    } else if (Property.hasValue(value)) {
+    } else if (org.jeometry.common.util.Property.hasValue(value)) {
       return value;
     } else {
       return null;

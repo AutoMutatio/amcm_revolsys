@@ -17,8 +17,12 @@ import java.util.TreeMap;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-import com.revolsys.collection.map.MapEx;
-import com.revolsys.collection.map.Maps;
+import org.jeometry.common.collection.map.MapEx;
+import org.jeometry.common.collection.map.Maps;
+import org.jeometry.common.json.JsonObject;
+import org.jeometry.common.util.ObjectPropertyProxy;
+import org.jeometry.common.util.ObjectWithProperties;
+
 import com.revolsys.geometry.graph.attribute.NodeProperties;
 import com.revolsys.geometry.model.ClockDirection;
 import com.revolsys.geometry.model.End;
@@ -26,9 +30,6 @@ import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.geometry.model.LineString;
 import com.revolsys.geometry.model.Point;
 import com.revolsys.geometry.model.impl.PointDoubleXY;
-import com.revolsys.properties.ObjectPropertyProxy;
-import com.revolsys.properties.ObjectWithProperties;
-import com.revolsys.record.io.format.json.JsonObject;
 
 public class Node<T> extends PointDoubleXY implements ObjectWithProperties, Externalizable {
   private static final int[] EMPTY_IDS = new int[0];

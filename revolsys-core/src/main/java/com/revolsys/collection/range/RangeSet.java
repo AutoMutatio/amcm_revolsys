@@ -7,12 +7,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 
+import org.jeometry.common.collection.iterator.MultiIterator;
+import org.jeometry.common.collection.list.Lists;
 import org.jeometry.common.data.type.DataType;
+import org.jeometry.common.util.Emptyable;
 
-import com.revolsys.collection.iterator.MultiIterator;
-import com.revolsys.collection.list.Lists;
 import com.revolsys.geometry.model.End;
-import com.revolsys.util.Emptyable;
 import com.revolsys.util.Property;
 import com.revolsys.util.Strings;
 
@@ -44,7 +44,7 @@ public class RangeSet extends AbstractSet<Object>
 
   public static RangeSet newRangeSet(final String rangeSpec) {
     final RangeSet set = new RangeSet();
-    if (Property.hasValue(rangeSpec)) {
+    if (org.jeometry.common.util.Property.hasValue(rangeSpec)) {
       int partStart = 0;
       int partEnd = 0;
       boolean inRange = false;

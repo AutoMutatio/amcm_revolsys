@@ -4,8 +4,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
+import org.jeometry.common.collection.iterator.Reader;
+
 import com.revolsys.io.AbstractDirectoryReader;
-import com.revolsys.io.Reader;
 import com.revolsys.record.Record;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordDefinitionFactory;

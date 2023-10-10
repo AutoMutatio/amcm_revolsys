@@ -11,10 +11,10 @@ import jakarta.annotation.PreDestroy;
 
 import org.jeometry.common.data.identifier.Identifier;
 import org.jeometry.common.data.type.DataTypes;
+import org.jeometry.common.json.JsonObject;
 
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.record.code.CodeTable;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.swing.parallel.Invoke;
@@ -56,7 +56,7 @@ public abstract class AbstractRecordTableModel extends AbstractTableModel {
     string.append('[');
     boolean first = true;
     for (final Object value : list) {
-      if (Property.hasValue(value)) {
+      if (org.jeometry.common.util.Property.hasValue(value)) {
         if (first) {
           first = false;
         } else {
@@ -73,7 +73,7 @@ public abstract class AbstractRecordTableModel extends AbstractTableModel {
     boolean first = true;
     for (final String name : jsonObject.keySet()) {
       final Object value = jsonObject.get(name);
-      if (Property.hasValue(value)) {
+      if (org.jeometry.common.util.Property.hasValue(value)) {
         if (first) {
           first = false;
         } else {
@@ -92,7 +92,7 @@ public abstract class AbstractRecordTableModel extends AbstractTableModel {
     boolean first = true;
     for (final String name : jsonObject.keySet()) {
       final Object value = jsonObject.get(name);
-      if (Property.hasValue(value)) {
+      if (org.jeometry.common.util.Property.hasValue(value)) {
         if (first) {
           first = false;
         } else {
@@ -249,7 +249,7 @@ public abstract class AbstractRecordTableModel extends AbstractTableModel {
   }
 
   public Object toObjectValue(final String fieldName, final Object displayValue) {
-    if (!Property.hasValue(displayValue)) {
+    if (!org.jeometry.common.util.Property.hasValue(displayValue)) {
       return null;
     }
     final RecordDefinition recordDefinition = getRecordDefinition();

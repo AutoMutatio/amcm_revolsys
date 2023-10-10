@@ -111,7 +111,7 @@ public class Nts1000000RectangularMapGrid extends AbstractRectangularMapGrid {
   }
 
   public int getNtsBlock(final String mapTileName) {
-    if (Property.hasValue(mapTileName)) {
+    if (org.jeometry.common.util.Property.hasValue(mapTileName)) {
       final Matcher matcher = NAME_PATTERN.matcher(mapTileName);
       if (matcher.matches()) {
         final String name = matcher.group(1);

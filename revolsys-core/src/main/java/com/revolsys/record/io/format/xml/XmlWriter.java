@@ -569,7 +569,7 @@ public class XmlWriter extends Writer {
 
   public void attribute(final String name, final String value) {
     try {
-      if (Property.hasValue(value)) {
+      if (org.jeometry.common.util.Property.hasValue(value)) {
         checkWriteAttribute();
         this.out.write(' ');
         this.out.write(name);

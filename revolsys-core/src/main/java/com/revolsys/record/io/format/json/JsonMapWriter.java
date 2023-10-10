@@ -5,9 +5,10 @@ import java.io.Writer;
 import java.util.Map;
 
 import org.jeometry.common.exception.Exceptions;
+import org.jeometry.common.json.JsonWriterUtil;
+import org.jeometry.common.util.BaseCloseable;
 
 import com.revolsys.io.AbstractMapWriter;
-import com.revolsys.io.FileUtil;
 import com.revolsys.io.IoConstants;
 
 public class JsonMapWriter extends AbstractMapWriter {
@@ -55,7 +56,7 @@ public class JsonMapWriter extends AbstractMapWriter {
         }
       } catch (final IOException e) {
       } finally {
-        FileUtil.closeSilent(this.out);
+        BaseCloseable.closeSilent(this.out);
         this.out = null;
       }
     }

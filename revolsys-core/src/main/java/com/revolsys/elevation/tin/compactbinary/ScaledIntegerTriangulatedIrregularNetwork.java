@@ -2,7 +2,8 @@ package com.revolsys.elevation.tin.compactbinary;
 
 import java.nio.charset.StandardCharsets;
 
-import com.revolsys.collection.map.MapEx;
+import org.jeometry.common.collection.map.MapEx;
+
 import com.revolsys.elevation.tin.TriangleConsumer;
 import com.revolsys.elevation.tin.TriangulatedIrregularNetwork;
 import com.revolsys.elevation.tin.TriangulatedIrregularNetworkReaderFactory;

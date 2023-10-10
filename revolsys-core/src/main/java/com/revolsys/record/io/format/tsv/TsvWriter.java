@@ -6,9 +6,7 @@ import java.util.Collection;
 
 import org.jeometry.common.data.type.DataTypes;
 import org.jeometry.common.exception.Exceptions;
-
-import com.revolsys.io.BaseCloseable;
-import com.revolsys.io.FileUtil;
+import org.jeometry.common.util.BaseCloseable;
 
 public class TsvWriter implements BaseCloseable {
   /** The writer */
@@ -25,7 +23,7 @@ public class TsvWriter implements BaseCloseable {
   @Override
   public void close() {
     flush();
-    FileUtil.closeSilent(this.out);
+    BaseCloseable.closeSilent(this.out);
   }
 
   public void flush() {

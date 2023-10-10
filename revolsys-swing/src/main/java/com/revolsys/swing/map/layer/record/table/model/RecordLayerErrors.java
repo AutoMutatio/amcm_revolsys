@@ -63,7 +63,7 @@ public class RecordLayerErrors {
     } else {
       message = exception.getMessage();
     }
-    if (!Property.hasValue(message)) {
+    if (!org.jeometry.common.util.Property.hasValue(message)) {
       message = exception.getClass().getSimpleName();
     }
     this.messages.add(message);

@@ -7,9 +7,10 @@ import java.util.Map.Entry;
 
 import javax.xml.namespace.QName;
 
+import org.jeometry.common.util.BaseCloseable;
+
 import com.revolsys.collection.NameProxy;
 import com.revolsys.io.AbstractMapWriter;
-import com.revolsys.io.FileUtil;
 import com.revolsys.io.IoConstants;
 
 public class XmlMapWriter extends AbstractMapWriter {
@@ -39,7 +40,7 @@ public class XmlMapWriter extends AbstractMapWriter {
           this.out.endDocument();
         }
       } finally {
-        FileUtil.closeSilent(this.out);
+        BaseCloseable.closeSilent(this.out);
         this.out = null;
       }
     }

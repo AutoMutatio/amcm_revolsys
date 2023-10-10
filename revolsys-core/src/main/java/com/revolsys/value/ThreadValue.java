@@ -1,6 +1,6 @@
 package com.revolsys.value;
 
-import com.revolsys.io.BaseCloseable;
+import org.jeometry.common.util.BaseCloseable;
 
 public final class ThreadValue<V> {
   private final ThreadLocal<V> threadValue = new ThreadLocal<>();

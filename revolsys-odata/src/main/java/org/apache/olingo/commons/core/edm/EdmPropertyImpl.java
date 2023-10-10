@@ -38,13 +38,13 @@ import org.apache.olingo.commons.api.edm.provider.annotation.CsdlConstantExpress
 import org.jeometry.common.data.type.CollectionDataType;
 import org.jeometry.common.data.type.DataType;
 import org.jeometry.common.data.type.DataTypes;
+import org.jeometry.common.json.Json;
 import org.jeometry.coordinatesystem.model.HorizontalCoordinateSystemProxy;
 
 import com.revolsys.collection.map.IntHashMap;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryDataTypes;
 import com.revolsys.geometry.model.GeometryFactory;
-import com.revolsys.record.io.format.json.Json;
 import com.revolsys.record.schema.FieldDefinition;
 
 public class EdmPropertyImpl extends AbstractEdmNamed implements EdmProperty {

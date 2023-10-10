@@ -12,11 +12,12 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.jeometry.common.io.PathName;
+import org.jeometry.common.util.BaseCloseable;
+import org.jeometry.common.util.ObjectWithProperties;
 
 import com.revolsys.io.FileUtil;
 import com.revolsys.io.PathUtil;
 import com.revolsys.io.filter.ExtensionFilenameFilter;
-import com.revolsys.properties.ObjectWithProperties;
 import com.revolsys.record.Record;
 import com.revolsys.record.io.RecordReader;
 import com.revolsys.record.io.RecordWriter;
@@ -78,7 +79,7 @@ public class DirectoryRecordStore extends AbstractRecordStore {
     synchronized (this.writers) {
       writer = this.writers.remove(typeName);
     }
-    FileUtil.closeSilent(writer);
+    BaseCloseable.closeSilent(writer);
   }
 
   @Override

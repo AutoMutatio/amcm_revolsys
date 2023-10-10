@@ -89,7 +89,7 @@ public class RecordStoreQueryListModel implements ListModel {
   }
 
   protected List<Record> getRecords(final String searchParam) {
-    if (Property.hasValue(searchParam) && searchParam.length() >= 2) {
+    if (org.jeometry.common.util.Property.hasValue(searchParam) && searchParam.length() >= 2) {
       final Map<String, Record> allObjects = new TreeMap<>();
       for (Query query : this.queries) {
         if (allObjects.size() < this.maxResults) {
@@ -156,7 +156,7 @@ public class RecordStoreQueryListModel implements ListModel {
   }
 
   public void setSearchText(final String searchText) {
-    if (Property.hasValue(searchText)) {
+    if (org.jeometry.common.util.Property.hasValue(searchText)) {
       if (!this.searchText.equals(searchText)) {
         this.searchText = searchText;
         this.records = getRecords(this.searchText);

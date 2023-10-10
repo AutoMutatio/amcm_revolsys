@@ -5,10 +5,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Map;
 
+import org.jeometry.common.json.Json;
 import org.postgresql.util.PGobject;
 
 import com.revolsys.jdbc.field.JdbcFieldDefinition;
-import com.revolsys.record.io.format.json.Json;
 import com.revolsys.record.query.ColumnIndexes;
 import com.revolsys.record.schema.RecordDefinition;
 

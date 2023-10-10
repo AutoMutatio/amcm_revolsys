@@ -2,7 +2,8 @@ package com.revolsys.record.query;
 
 import java.util.Arrays;
 
-import com.revolsys.collection.map.MapEx;
+import org.jeometry.common.collection.map.MapEx;
+
 import com.revolsys.util.Property;
 
 public class And extends AbstractMultiCondition {
@@ -21,7 +22,7 @@ public class And extends AbstractMultiCondition {
 
   @Override
   public And and(final Condition condition) {
-    if (condition != null && !Property.isEmpty(condition)) {
+    if (condition != null && !org.jeometry.common.util.Property.isEmpty(condition)) {
       addCondition(condition);
     }
     return this;

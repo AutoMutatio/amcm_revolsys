@@ -6,7 +6,8 @@ import java.util.LinkedList;
 import java.util.NoSuchElementException;
 import java.util.Queue;
 
-import com.revolsys.io.BaseCloseable;
+import org.jeometry.common.util.BaseCloseable;
+
 import com.revolsys.io.channels.DataReader;
 import com.revolsys.spring.resource.Resource;
 

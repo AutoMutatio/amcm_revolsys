@@ -39,7 +39,7 @@ public class PdfTextStyleRenderer extends TextStyleViewRenderer {
   @Override
   public void drawText(final String label, final Geometry geometry) {
     try {
-      if (Property.hasValue(label) && geometry != null) {
+      if (org.jeometry.common.util.Property.hasValue(label) && geometry != null) {
         final String textPlacementType = this.style.getTextPlacementType();
         final PointDoubleXYOrientation point = this.view.getPointWithOrientation(geometry,
           textPlacementType);

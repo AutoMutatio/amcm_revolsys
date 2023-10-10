@@ -38,7 +38,8 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
-import com.revolsys.collection.list.Lists;
+import org.jeometry.common.collection.list.Lists;
+
 import com.revolsys.elevation.tin.IntArrayScaleTriangulatedIrregularNetwork;
 import com.revolsys.elevation.tin.TinBuilder;
 import com.revolsys.elevation.tin.TriangleConsumer;

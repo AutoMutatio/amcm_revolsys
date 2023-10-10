@@ -2,6 +2,8 @@ package com.revolsys.elevation.tin;
 
 import java.util.function.Consumer;
 
+import org.jeometry.common.util.BaseObjectWithProperties;
+
 import com.revolsys.geometry.index.SpatialIndex;
 import com.revolsys.geometry.index.rstartree.RStarTree;
 import com.revolsys.geometry.model.BoundingBox;
@@ -10,7 +12,6 @@ import com.revolsys.geometry.model.Point;
 import com.revolsys.geometry.model.Triangle;
 import com.revolsys.geometry.model.impl.AbstractTriangle;
 import com.revolsys.geometry.model.impl.BaseBoundingBox;
-import com.revolsys.properties.BaseObjectWithProperties;
 import com.revolsys.spring.resource.Resource;
 
 public class IntArrayScaleTriangulatedIrregularNetwork extends BaseObjectWithProperties

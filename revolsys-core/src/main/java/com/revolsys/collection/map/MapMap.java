@@ -6,6 +6,8 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.function.Supplier;
 
+import org.jeometry.common.collection.map.DelegatingMap;
+
 public class MapMap<K1, K2, V, M extends Map<K2, V>> extends DelegatingMap<K1, M> {
 
   public static <NK1, NK2, NV> MapMap<NK1, NK2, NV, Map<NK2, NV>> hash() {

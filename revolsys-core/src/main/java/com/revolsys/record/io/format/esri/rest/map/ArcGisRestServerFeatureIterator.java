@@ -9,13 +9,16 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.function.BiFunction;
 
+import org.jeometry.common.collection.iterator.AbstractIterator;
+import org.jeometry.common.collection.map.MapEx;
+import org.jeometry.common.collection.map.Maps;
 import org.jeometry.common.data.type.DataType;
 import org.jeometry.common.exception.Exceptions;
+import org.jeometry.common.json.JsonParser;
+import org.jeometry.common.json.JsonParser.EventType;
 import org.jeometry.common.logging.Logs;
+import org.jeometry.common.util.BaseCloseable;
 
-import com.revolsys.collection.iterator.AbstractIterator;
-import com.revolsys.collection.map.MapEx;
-import com.revolsys.collection.map.Maps;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryDataTypes;
 import com.revolsys.geometry.model.GeometryFactory;
@@ -23,18 +26,13 @@ import com.revolsys.geometry.model.LineString;
 import com.revolsys.geometry.model.LinearRing;
 import com.revolsys.geometry.model.Point;
 import com.revolsys.geometry.model.Polygon;
-import com.revolsys.io.BaseCloseable;
-import com.revolsys.io.FileUtil;
 import com.revolsys.net.urlcache.FileResponseCache;
 import com.revolsys.record.Record;
 import com.revolsys.record.RecordFactory;
 import com.revolsys.record.RecordState;
 import com.revolsys.record.io.RecordReader;
-import com.revolsys.record.io.format.json.JsonParser;
-import com.revolsys.record.io.format.json.JsonParser.EventType;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.spring.resource.Resource;
-import com.revolsys.util.Property;
 
 public class ArcGisRestServerFeatureIterator extends AbstractIterator<Record>
   implements RecordReader {
@@ -192,7 +190,7 @@ public class ArcGisRestServerFeatureIterator extends AbstractIterator<Record>
 
   @Override
   protected void closeDo() {
-    FileUtil.closeSilent(this.parser);
+    BaseCloseable.closeSilent(this.parser);
     this.parser = null;
     this.geometryConverter = null;
     this.geometryFactory = null;
@@ -262,7 +260,7 @@ public class ArcGisRestServerFeatureIterator extends AbstractIterator<Record>
             record.setValues(fieldValues);
             if (this.geometryConverter != null) {
               final MapEx geometryProperties = recordMap.getValue("geometry");
-              if (Property.hasValue(geometryProperties)) {
+              if (org.jeometry.common.util.Property.hasValue(geometryProperties)) {
                 final Geometry geometry = this.geometryConverter.apply(this.geometryFactory,
                   geometryProperties);
                 record.setGeometryValue(geometry);
@@ -340,7 +338,7 @@ public class ArcGisRestServerFeatureIterator extends AbstractIterator<Record>
       this.resource = this.layer.getResource("query", this.queryParameters);
       try (
         BaseCloseable noCache = FileResponseCache.disable()) {
-        this.parser = new JsonParser(this.resource);
+        this.parser = new JsonParser(this.resource.newReader());
       }
       if (!this.parser.skipToAttribute("features")) {
         throw new NoSuchElementException();

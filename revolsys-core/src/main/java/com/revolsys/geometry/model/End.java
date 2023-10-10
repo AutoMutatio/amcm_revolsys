@@ -2,7 +2,8 @@ package com.revolsys.geometry.model;
 
 import java.util.List;
 
-import com.revolsys.collection.list.Lists;
+import org.jeometry.common.collection.list.Lists;
+
 import com.revolsys.util.CaseConverter;
 
 public enum End {

@@ -361,7 +361,7 @@ public class TablePanel extends JPanel implements MouseListener, Closeable {
       return true;
     } else if (isCurrentCellEditable()) {
       final String value = ClipboardUtil.getContents(DataFlavor.stringFlavor);
-      return Property.hasValue(value);
+      return org.jeometry.common.util.Property.hasValue(value);
     }
     return false;
   }
@@ -385,7 +385,7 @@ public class TablePanel extends JPanel implements MouseListener, Closeable {
     } else if (eventRow > -1 && eventColumn > -1 && eventTable == this.table) {
       final TableModel tableModel = getTableModel();
       final Object value = tableModel.getValueAt(eventRow, eventColumn);
-      return Property.hasValue(value);
+      return org.jeometry.common.util.Property.hasValue(value);
     }
     return false;
   }
@@ -436,7 +436,7 @@ public class TablePanel extends JPanel implements MouseListener, Closeable {
       }
     }
     final String value = ClipboardUtil.getContents(DataFlavor.stringFlavor);
-    if (Property.hasValue(value)) {
+    if (org.jeometry.common.util.Property.hasValue(value)) {
       final TableModel tableModel = getTableModel();
       final int eventRow = getEventRow();
       final int eventColumn = getEventColumn();

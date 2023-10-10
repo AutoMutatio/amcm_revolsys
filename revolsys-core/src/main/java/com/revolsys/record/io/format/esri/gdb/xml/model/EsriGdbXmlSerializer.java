@@ -327,7 +327,7 @@ public class EsriGdbXmlSerializer implements EsriGeodatabaseXmlConstants {
             propertyName = CaseConverter.toLowerFirstChar(propertyName);
           }
           final String propertyName1 = propertyName;
-          final Object value = Property.getSimple(object, propertyName1);
+          final Object value = org.jeometry.common.util.Property.getSimple(object, propertyName1);
           if (this.writeNull || value != null) {
             final Method method = getClassPropertyMethod(objectClass, propertyTagName);
             if (method == null) {

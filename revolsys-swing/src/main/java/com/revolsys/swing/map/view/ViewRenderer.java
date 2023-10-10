@@ -16,6 +16,8 @@ import javax.measure.quantity.Length;
 
 import org.jeometry.common.awt.WebColors;
 import org.jeometry.common.logging.Logs;
+import org.jeometry.common.util.BaseCloseable;
+import org.jeometry.common.util.Cancellable;
 import org.jeometry.coordinatesystem.model.Ellipsoid;
 import org.jeometry.coordinatesystem.model.unit.CustomUnits;
 
@@ -32,7 +34,6 @@ import com.revolsys.geometry.model.impl.PointDoubleXYOrientation;
 import com.revolsys.geometry.model.segment.LineSegment;
 import com.revolsys.geometry.model.segment.Segment;
 import com.revolsys.geometry.model.vertex.Vertex;
-import com.revolsys.io.BaseCloseable;
 import com.revolsys.raster.GeoreferencedImage;
 import com.revolsys.record.Record;
 import com.revolsys.swing.map.Viewport2D;
@@ -50,7 +51,6 @@ import com.revolsys.swing.map.layer.record.style.marker.Marker;
 import com.revolsys.swing.map.layer.record.style.marker.MarkerRenderer;
 import com.revolsys.swing.map.layer.record.style.marker.SvgMarker;
 import com.revolsys.swing.map.layer.record.style.marker.TextMarker;
-import com.revolsys.util.Cancellable;
 import com.revolsys.util.Property;
 import com.revolsys.util.QuantityType;
 
@@ -252,7 +252,7 @@ public abstract class ViewRenderer implements BoundingBoxProxy, Cancellable {
 
   public void drawMarker(final MarkerStyle style, Point point, final double orientation) {
     point = getGeometry(point);
-    if (Property.hasValue(point)) {
+    if (org.jeometry.common.util.Property.hasValue(point)) {
       try (
         MarkerRenderer renderer = style.newMarkerRenderer(this)) {
         renderer.renderMarkerPoint(point, orientation);
@@ -442,7 +442,7 @@ public abstract class ViewRenderer implements BoundingBoxProxy, Cancellable {
             }
           }
         }
-        if (Property.hasValue(point)) {
+        if (org.jeometry.common.util.Property.hasValue(point)) {
           if (this.boundingBox.bboxCovers(point)) {
             point = point.convertPoint2d(geometryFactory);
             return new PointDoubleXYOrientation(point, orientation);

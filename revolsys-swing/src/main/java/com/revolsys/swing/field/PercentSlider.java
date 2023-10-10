@@ -51,7 +51,7 @@ public class PercentSlider extends JSlider implements Field, FocusListener, Chan
     labelTable.put(1000, new JLabel("100"));
     setLabelTable(labelTable);
 
-    if (Property.hasValue(fieldName)) {
+    if (org.jeometry.common.util.Property.hasValue(fieldName)) {
       setToolTipText(CaseConverter.toCapitalizedWords(fieldName));
     }
     this.fieldSupport = new FieldSupport(this, fieldName, value, true);

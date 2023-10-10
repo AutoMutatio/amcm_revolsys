@@ -11,15 +11,16 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-import com.revolsys.collection.map.MapEx;
+import org.jeometry.common.collection.map.MapEx;
+import org.jeometry.common.json.JsonObject;
+import org.jeometry.common.util.BaseCloneable;
+
 import com.revolsys.connection.AbstractConnectionRegistryManager;
 import com.revolsys.io.FileUtil;
 import com.revolsys.io.file.Paths;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.record.schema.RecordStore;
 import com.revolsys.spring.resource.PathResource;
 import com.revolsys.spring.resource.Resource;
-import com.revolsys.util.BaseCloneable;
 import com.revolsys.util.OS;
 import com.revolsys.util.Property;
 
@@ -77,7 +78,7 @@ public class RecordStoreConnectionManager
       if (recordStore == null) {
         final MapEx connectionProperties = configClone.getValue("connection");
         final String name = (String)connectionProperties.get("name");
-        if (Property.hasValue(name)) {
+        if (org.jeometry.common.util.Property.hasValue(name)) {
           recordStore = getRecordStore(name);
           if (recordStore == null) {
             // TODO give option to add
@@ -143,7 +144,7 @@ public class RecordStoreConnectionManager
           final Map<String, ? extends Object> connectionProperties = (Map<String, ? extends Object>)configClone
             .get("connection");
           final String name = (String)connectionProperties.get("name");
-          if (!Property.hasValue(name)) {
+          if (!org.jeometry.common.util.Property.hasValue(name)) {
             // TODO release for connections from connection registries
             recordStore.close();
           }

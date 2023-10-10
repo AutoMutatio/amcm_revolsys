@@ -4,17 +4,17 @@ import java.io.File;
 import java.io.IOException;
 import java.util.NoSuchElementException;
 
+import org.jeometry.common.collection.iterator.AbstractIterator;
 import org.jeometry.common.data.type.DataType;
 import org.jeometry.common.io.PathName;
 import org.jeometry.common.logging.Logs;
+import org.jeometry.common.util.BaseCloseable;
 
-import com.revolsys.collection.iterator.AbstractIterator;
 import com.revolsys.geometry.model.ClockDirection;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryDataTypes;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.io.EndOfFileException;
-import com.revolsys.io.FileUtil;
 import com.revolsys.io.IoConstants;
 import com.revolsys.io.endian.EndianInput;
 import com.revolsys.io.endian.EndianInputStream;
@@ -74,7 +74,7 @@ public class ShapefileRecordReader extends AbstractIterator<Record> implements R
   }
 
   public void forceClose() {
-    FileUtil.closeSilent(this.in, this.indexIn);
+    BaseCloseable.closeSilent(this.in, this.indexIn);
     if (this.xbaseRecordReader != null) {
       this.xbaseRecordReader.forceClose();
     }
@@ -333,7 +333,7 @@ public class ShapefileRecordReader extends AbstractIterator<Record> implements R
   }
 
   public void setTypeName(final PathName typeName) {
-    if (Property.hasValue(typeName)) {
+    if (org.jeometry.common.util.Property.hasValue(typeName)) {
       this.typeName = typeName;
     }
   }

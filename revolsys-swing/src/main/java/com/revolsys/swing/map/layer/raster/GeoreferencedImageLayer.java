@@ -11,11 +11,12 @@ import java.util.function.Predicate;
 
 import javax.swing.JOptionPane;
 
+import org.jeometry.common.collection.map.MapEx;
+import org.jeometry.common.collection.map.Maps;
+import org.jeometry.common.json.JsonObject;
 import org.jeometry.common.logging.Logs;
 import org.jeometry.common.number.Doubles;
 
-import com.revolsys.collection.map.MapEx;
-import com.revolsys.collection.map.Maps;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.geometry.model.LineString;
@@ -30,7 +31,6 @@ import com.revolsys.raster.GeoreferencedImageReadFactory;
 import com.revolsys.raster.GeoreferencedImageWriterFactory;
 import com.revolsys.raster.MappedLocation;
 import com.revolsys.raster.TiledGeoreferencedImage;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.spring.resource.Resource;
 import com.revolsys.swing.Borders;
 import com.revolsys.swing.Dialogs;
@@ -249,7 +249,7 @@ public class GeoreferencedImageLayer extends AbstractLayer {
   @Override
   protected boolean initializeDo() {
     final String url = getProperty("url");
-    if (Property.hasValue(url)) {
+    if (org.jeometry.common.util.Property.hasValue(url)) {
       this.url = url;
       this.resource = Resource.getResource(url);
       cancelChanges();
@@ -300,7 +300,7 @@ public class GeoreferencedImageLayer extends AbstractLayer {
       SwingUtil.addLabelledReadOnlyTextField(panel, "URL", this.url);
     }
     final String fileNameExtension = FileUtil.getFileNameExtension(this.url);
-    if (Property.hasValue(fileNameExtension)) {
+    if (org.jeometry.common.util.Property.hasValue(fileNameExtension)) {
       SwingUtil.addLabelledReadOnlyTextField(panel, "File Extension", fileNameExtension);
       final GeoreferencedImageReadFactory factory = IoFactory
         .factoryByFileExtension(GeoreferencedImageReadFactory.class, fileNameExtension);

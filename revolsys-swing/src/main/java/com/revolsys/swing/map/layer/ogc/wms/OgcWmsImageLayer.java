@@ -7,6 +7,7 @@ import java.util.Map;
 import org.jeometry.common.data.type.DataType;
 import org.jeometry.common.exception.Exceptions;
 import org.jeometry.common.exception.WrappedException;
+import org.jeometry.common.json.JsonObject;
 import org.jeometry.common.logging.Logs;
 
 import com.revolsys.geometry.model.BoundingBox;
@@ -14,7 +15,6 @@ import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.gis.wms.WmsClient;
 import com.revolsys.gis.wms.capabilities.WmsLayerDefinition;
 import com.revolsys.raster.GeoreferencedImage;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.swing.map.layer.AbstractLayer;
 import com.revolsys.swing.map.layer.BaseMapLayer;
 import com.revolsys.swing.map.layer.raster.ViewFunctionImageLayerRenderer;
@@ -97,7 +97,7 @@ public class OgcWmsImageLayer extends AbstractLayer implements BaseMapLayer {
     if (initialized) {
       try {
         final WmsClient wmsClient;
-        if (Property.hasValue(this.connectionName)) {
+        if (org.jeometry.common.util.Property.hasValue(this.connectionName)) {
           final WebService<?> webService = WebServiceConnectionManager
             .getWebService(this.connectionName);
           if (webService == null) {
@@ -111,7 +111,7 @@ public class OgcWmsImageLayer extends AbstractLayer implements BaseMapLayer {
               getPath() + ": Web service " + this.connectionName + ": is not a OGS WMS service");
             return false;
           }
-        } else if (Property.hasValue(this.serviceUrl)) {
+        } else if (org.jeometry.common.util.Property.hasValue(this.serviceUrl)) {
           wmsClient = new WmsClient(this.serviceUrl);
         } else {
           Logs.error(this, getPath()
@@ -192,14 +192,14 @@ public class OgcWmsImageLayer extends AbstractLayer implements BaseMapLayer {
       setExists(true);
       final WmsClient wmsClient = wmsLayerDefinition.getWmsClient();
       final String connectionName = wmsClient.getName();
-      if (Property.hasValue(connectionName)) {
+      if (org.jeometry.common.util.Property.hasValue(connectionName)) {
         this.connectionName = connectionName;
         this.serviceUrl = null;
       } else {
         this.serviceUrl = wmsClient.getServiceUrl().toString();
       }
       final String layerTitle = wmsLayerDefinition.getTitle();
-      if (!Property.hasValue(getName())) {
+      if (!org.jeometry.common.util.Property.hasValue(getName())) {
         setName(layerTitle);
       }
       this.layerName = wmsLayerDefinition.getName();
@@ -219,7 +219,7 @@ public class OgcWmsImageLayer extends AbstractLayer implements BaseMapLayer {
     map.keySet()
       .removeAll(Arrays.asList("readOnly", "querySupported", "selectSupported", "minimumScale",
         "maximumScale"));
-    if (Property.hasValue(this.connectionName)) {
+    if (org.jeometry.common.util.Property.hasValue(this.connectionName)) {
       addToMap(map, "connectionName", this.connectionName);
     } else {
       addToMap(map, "serviceUrl", this.serviceUrl);

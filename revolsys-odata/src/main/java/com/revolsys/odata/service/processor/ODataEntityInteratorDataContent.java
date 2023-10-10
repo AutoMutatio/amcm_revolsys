@@ -4,8 +4,8 @@ import java.io.OutputStream;
 
 import org.apache.olingo.server.api.ODataContent;
 import org.apache.olingo.server.api.serializer.SerializerStreamResult;
+import org.jeometry.common.util.BaseCloseable;
 
-import com.revolsys.io.BaseCloseable;
 import com.revolsys.odata.model.ODataEntityIterator;
 
 public class ODataEntityInteratorDataContent implements ODataContent {

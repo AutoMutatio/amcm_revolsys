@@ -174,7 +174,7 @@ public class LoggingTableModel extends AbstractTableModel {
       html.append("</b>");
     }
     final String stackTrace = LoggingEventPanel.getStackTrace((ThrowableProxy)event.get(5));
-    if (Property.hasValue(stackTrace)) {
+    if (org.jeometry.common.util.Property.hasValue(stackTrace)) {
       if (plain.length() > 0) {
         plain.append("\n");
       }

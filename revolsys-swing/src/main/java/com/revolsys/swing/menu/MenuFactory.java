@@ -21,9 +21,9 @@ import javax.swing.JPopupMenu;
 import javax.swing.JPopupMenu.Separator;
 
 import org.jeometry.common.logging.Logs;
+import org.jeometry.common.util.BaseObjectWithProperties;
 
 import com.revolsys.beans.ClassRegistry;
-import com.revolsys.properties.BaseObjectWithProperties;
 import com.revolsys.swing.Icons;
 import com.revolsys.swing.action.AbstractAction;
 import com.revolsys.swing.action.RunnableAction;
@@ -623,7 +623,7 @@ public class MenuFactory extends BaseObjectWithProperties implements ComponentFa
     for (final String groupName : this.groupNames) {
       boolean groupHasItem = false;
       final List<ComponentFactory<?>> factories = this.groups.get(groupName);
-      if (!Property.isEmpty(factories)) {
+      if (!org.jeometry.common.util.Property.isEmpty(factories)) {
         for (final ComponentFactory<?> factory : factories) {
           final Component component = factory.newComponent();
           if (component != null) {
@@ -683,7 +683,7 @@ public class MenuFactory extends BaseObjectWithProperties implements ComponentFa
 
   @Override
   public String toString() {
-    if (Property.hasValue(this.name)) {
+    if (org.jeometry.common.util.Property.hasValue(this.name)) {
       return this.name;
     } else {
       return super.toString();

@@ -119,7 +119,7 @@ public class PathTest {
   private void assertPath(final String source, final String expected) {
     final String path = PathUtil.getPath(source);
     Assert.assertEquals(expected, path);
-    if (Property.hasValue(source)) {
+    if (org.jeometry.common.util.Property.hasValue(source)) {
       final PathName parent = PathName.newPathName(source).getParent();
       if (parent != null) {
         Assert.assertEquals(expected, parent.toString());

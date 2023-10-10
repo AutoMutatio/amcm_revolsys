@@ -3,10 +3,10 @@ package com.revolsys.record.io;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.jeometry.common.collection.map.MapEx;
+import org.jeometry.common.json.JsonObject;
 import org.springframework.beans.factory.config.AbstractFactoryBean;
 
-import com.revolsys.collection.map.MapEx;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.record.schema.RecordStore;
 
 public class RecordStoreFactoryBean extends AbstractFactoryBean<RecordStore> {

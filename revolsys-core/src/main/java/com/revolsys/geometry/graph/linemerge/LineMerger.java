@@ -4,7 +4,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import com.revolsys.collection.list.Lists;
+import org.jeometry.common.collection.list.Lists;
+
 import com.revolsys.geometry.graph.Edge;
 import com.revolsys.geometry.graph.Node;
 import com.revolsys.geometry.model.Geometry;
@@ -25,7 +26,7 @@ public class LineMerger {
   }
 
   public static List<LineString> merge(final Iterable<? extends Geometry> geometries) {
-    if (Property.hasValue(geometries)) {
+    if (org.jeometry.common.util.Property.hasValue(geometries)) {
       final LineMerger lineMerger = new LineMerger(geometries);
       return lineMerger.getLineStrings();
     } else {
@@ -34,7 +35,7 @@ public class LineMerger {
   }
 
   public static Lineal mergeLineal(final Geometry geometry) {
-    if (Property.hasValue(geometry)) {
+    if (org.jeometry.common.util.Property.hasValue(geometry)) {
       final LineMerger lineMerger = new LineMerger(geometry);
       return lineMerger.getLineal();
     } else {
@@ -43,7 +44,7 @@ public class LineMerger {
   }
 
   public static Lineal mergeLineal(final Iterable<? extends Geometry> geometries) {
-    if (Property.hasValue(geometries)) {
+    if (org.jeometry.common.util.Property.hasValue(geometries)) {
       final LineMerger lineMerger = new LineMerger(geometries);
       return lineMerger.getLineal();
     } else {

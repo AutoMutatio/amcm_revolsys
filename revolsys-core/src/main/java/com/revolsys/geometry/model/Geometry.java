@@ -54,6 +54,7 @@ import org.jeometry.common.function.Consumer3Double;
 import org.jeometry.common.function.Consumer4Double;
 import org.jeometry.common.function.Function4Double;
 import org.jeometry.common.number.Doubles;
+import org.jeometry.common.util.Emptyable;
 import org.jeometry.coordinatesystem.operation.CoordinatesOperation;
 import org.jeometry.coordinatesystem.operation.CoordinatesOperationPoint;
 
@@ -80,7 +81,6 @@ import com.revolsys.geometry.operation.union.UnaryUnionOp;
 import com.revolsys.geometry.operation.valid.GeometryValidationError;
 import com.revolsys.geometry.operation.valid.IsValidOp;
 import com.revolsys.record.io.format.wkt.EWktWriter;
-import com.revolsys.util.Emptyable;
 import com.revolsys.util.Pair;
 import com.revolsys.util.Property;
 
@@ -981,7 +981,7 @@ public interface Geometry extends BoundingBoxProxy, Cloneable, Comparable<Object
   default double distanceGeometry(Geometry geometry, final double terminateDistance) {
     if (isEmpty()) {
       return Double.POSITIVE_INFINITY;
-    } else if (Property.isEmpty(geometry)) {
+    } else if (org.jeometry.common.util.Property.isEmpty(geometry)) {
       return Double.POSITIVE_INFINITY;
     } else if (geometry instanceof Point) {
       final Point point = (Point)geometry;
@@ -1047,7 +1047,7 @@ public interface Geometry extends BoundingBoxProxy, Cloneable, Comparable<Object
   default double distancePoint(Point point, final double terminateDistance) {
     if (isEmpty()) {
       return Double.POSITIVE_INFINITY;
-    } else if (Property.isEmpty(point)) {
+    } else if (org.jeometry.common.util.Property.isEmpty(point)) {
       return Double.POSITIVE_INFINITY;
     } else {
       final GeometryFactory geometryFactory = getGeometryFactory();

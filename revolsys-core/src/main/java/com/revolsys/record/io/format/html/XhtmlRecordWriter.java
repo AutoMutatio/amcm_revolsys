@@ -4,8 +4,9 @@ import java.io.Writer;
 import java.net.URI;
 import java.util.List;
 
+import org.jeometry.common.util.BaseCloseable;
+
 import com.revolsys.io.AbstractRecordWriter;
-import com.revolsys.io.FileUtil;
 import com.revolsys.io.IoConstants;
 import com.revolsys.record.Record;
 import com.revolsys.record.io.format.xml.XmlWriter;
@@ -48,7 +49,7 @@ public class XhtmlRecordWriter extends AbstractRecordWriter {
         this.out.flush();
       } finally {
         if (this.wrap) {
-          FileUtil.closeSilent(this.out);
+          BaseCloseable.closeSilent(this.out);
         }
         this.out = null;
       }
@@ -151,7 +152,7 @@ public class XhtmlRecordWriter extends AbstractRecordWriter {
       this.out.attribute(HtmlAttr.CONTENT, "text/html; charset=utf-8");
       this.out.endTag(HtmlElem.META);
 
-      if (Property.hasValue(this.title)) {
+      if (org.jeometry.common.util.Property.hasValue(this.title)) {
         this.out.element(HtmlElem.TITLE, this.title);
       }
 

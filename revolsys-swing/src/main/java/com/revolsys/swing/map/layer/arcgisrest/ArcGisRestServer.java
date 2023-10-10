@@ -43,7 +43,7 @@ public interface ArcGisRestServer {
 
     dialog.setSaveAction(() -> {
       final String url = urlField.getText();
-      if (Property.hasValue(url)) {
+      if (org.jeometry.common.util.Property.hasValue(url)) {
         final ArcGisRestServerTileCacheLayer layer = new ArcGisRestServerTileCacheLayer();
         layer.setUrl(url);
         layer.setVisible(true);

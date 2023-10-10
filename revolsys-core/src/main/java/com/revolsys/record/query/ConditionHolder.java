@@ -7,9 +7,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 
+import org.jeometry.common.collection.map.MapEx;
 import org.jeometry.common.data.type.DataType;
 
-import com.revolsys.collection.map.MapEx;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordStore;
 

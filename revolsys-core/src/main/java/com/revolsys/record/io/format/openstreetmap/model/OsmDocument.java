@@ -238,7 +238,7 @@ public class OsmDocument implements OsmConstants {
       for (final String fieldName : Arrays.asList("version", "generator", "copyright",
         "attribution", "license")) {
         final String value = in.getAttributeValue(null, fieldName);
-        Property.setSimple(this, fieldName, value);
+        org.jeometry.common.util.Property.setSimple(this, fieldName, value);
       }
       while (in.skipToChildStartElements(OSM_XML_ELEMENTS)) {
         final QName name = in.getName();

@@ -92,9 +92,9 @@ import org.apache.olingo.server.core.serializer.utils.ContentTypeHelper;
 import org.apache.olingo.server.core.serializer.utils.ExpandSelectHelper;
 import org.apache.olingo.server.core.uri.UriHelperImpl;
 import org.apache.olingo.server.core.uri.queryoption.ExpandOptionImpl;
+import org.jeometry.common.json.JsonWriter;
 
 import com.revolsys.odata.model.ODataEntityIterator;
-import com.revolsys.record.io.format.json.JsonWriter;
 
 public class ODataJsonSerializer extends AbstractODataSerializer {
 

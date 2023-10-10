@@ -3,7 +3,8 @@ package com.revolsys.record.io.format.esri.rest.map;
 import java.util.Collections;
 import java.util.List;
 
-import com.revolsys.collection.map.MapEx;
+import org.jeometry.common.collection.map.MapEx;
+
 import com.revolsys.record.io.format.esri.rest.ArcGisResponse;
 import com.revolsys.record.io.format.esri.rest.CatalogElement;
 

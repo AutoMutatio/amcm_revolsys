@@ -11,7 +11,7 @@ public interface OsnConverter {
 
   default void writeAttribute(final OsnSerializer serializer, final Object object,
     final String name) throws IOException {
-    final Object value = Property.getSimple(object, name);
+    final Object value = org.jeometry.common.util.Property.getSimple(object, name);
     if (value != null) {
       serializer.endLine();
       serializer.attribute(name, value, false);
@@ -20,7 +20,7 @@ public interface OsnConverter {
 
   default void writeAttributeEnum(final OsnSerializer serializer, final Object object,
     final String name) throws IOException {
-    final String value = Property.getSimple(object, name);
+    final String value = org.jeometry.common.util.Property.getSimple(object, name);
     if (value != null) {
       serializer.endLine();
       serializer.attributeEnum(name, value, false);

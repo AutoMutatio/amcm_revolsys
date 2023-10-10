@@ -115,7 +115,7 @@ public class BoundingBoxNode {
   }
 
   public boolean intersectsBoundingBox(final BoundingBox boundingBox) {
-    if (Property.isEmpty(boundingBox)) {
+    if (org.jeometry.common.util.Property.isEmpty(boundingBox)) {
       return false;
     } else {
       final double minX = boundingBox.getMinX();

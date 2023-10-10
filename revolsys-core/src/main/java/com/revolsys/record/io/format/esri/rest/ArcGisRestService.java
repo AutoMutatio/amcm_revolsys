@@ -3,9 +3,9 @@ package com.revolsys.record.io.format.esri.rest;
 import java.util.Collections;
 import java.util.List;
 
+import org.jeometry.common.collection.map.MapEx;
 import org.springframework.util.StringUtils;
 
-import com.revolsys.collection.map.MapEx;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.geometry.model.GeometryFactoryProxy;

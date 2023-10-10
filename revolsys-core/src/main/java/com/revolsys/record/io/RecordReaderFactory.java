@@ -5,19 +5,20 @@ import java.nio.file.Paths;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import com.revolsys.collection.map.MapEx;
-import com.revolsys.collection.map.Maps;
+import org.jeometry.common.collection.iterator.Reader;
+import org.jeometry.common.collection.map.MapEx;
+import org.jeometry.common.collection.map.Maps;
+import org.jeometry.common.json.JsonObject;
+
 import com.revolsys.geometry.io.GeometryReader;
 import com.revolsys.geometry.io.GeometryReaderFactory;
 import com.revolsys.io.FileUtil;
 import com.revolsys.io.PathUtil;
-import com.revolsys.io.Reader;
 import com.revolsys.io.map.MapReader;
 import com.revolsys.io.map.MapReaderFactory;
 import com.revolsys.record.ArrayRecord;
 import com.revolsys.record.Record;
 import com.revolsys.record.RecordFactory;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.spring.resource.Resource;
 import com.revolsys.util.Property;
 import com.revolsys.util.SupplierWithProperties;
@@ -30,11 +31,11 @@ public interface RecordReaderFactory extends GeometryReaderFactory, MapReaderFac
     final String fileUrl = (String)properties.get("fileUrl");
     String defaultFileExtension;
     Object source;
-    if (Property.hasValue(fileName)) {
+    if (org.jeometry.common.util.Property.hasValue(fileName)) {
       source = Paths.get(fileName);
       defaultFileExtension = FileUtil.getFileNameExtension(fileName);
 
-    } else if (Property.hasValue(fileUrl)) {
+    } else if (org.jeometry.common.util.Property.hasValue(fileUrl)) {
       final Resource resource = Resource.getResource(fileUrl);
       source = resource;
       defaultFileExtension = resource.getFileNameExtension();
@@ -47,10 +48,10 @@ public interface RecordReaderFactory extends GeometryReaderFactory, MapReaderFac
       if ("zip".equalsIgnoreCase(fileExtension)) {
         final String baseFileExtension = (String)properties.get("baseFileExtension");
         String baseName = (String)properties.get("baseName");
-        if (!Property.hasValue(baseName)) {
+        if (!org.jeometry.common.util.Property.hasValue(baseName)) {
           baseName = (String)properties.get("baseFileName");
         }
-        if (Property.hasValue(baseName)) {
+        if (org.jeometry.common.util.Property.hasValue(baseName)) {
           reader = RecordReader.newZipRecordReader(source, baseName, baseFileExtension);
         } else {
           reader = RecordReader.newZipRecordReader(source, baseFileExtension);

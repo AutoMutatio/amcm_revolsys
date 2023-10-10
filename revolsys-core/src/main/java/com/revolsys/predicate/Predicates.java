@@ -45,9 +45,9 @@ public interface Predicates {
   }
 
   static <V> int count(final Collection<V> values, final Predicate<? super V> filter) {
-    if (Property.isEmpty(values)) {
+    if (org.jeometry.common.util.Property.isEmpty(values)) {
       return 0;
-    } else if (Property.isEmpty(filter)) {
+    } else if (org.jeometry.common.util.Property.isEmpty(filter)) {
       return values.size();
     } else {
       int count = 0;

@@ -3,10 +3,11 @@ package com.revolsys.maki.init;
 import java.io.File;
 import java.util.List;
 
-import com.revolsys.collection.map.MapEx;
+import org.jeometry.common.collection.map.MapEx;
+import org.jeometry.common.json.Json;
+import org.jeometry.common.json.JsonObject;
+
 import com.revolsys.io.map.MapObjectFactory;
-import com.revolsys.record.io.format.json.Json;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.swing.map.layer.record.style.marker.MarkerLibrary;
 import com.revolsys.swing.map.layer.record.style.marker.SvgMarker;
 

@@ -6,7 +6,10 @@ import java.io.Reader;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
-import com.revolsys.collection.iterator.AbstractIterator;
+import org.jeometry.common.collection.iterator.AbstractIterator;
+import org.jeometry.common.json.JsonMapIterator;
+import org.jeometry.common.util.BaseCloseable;
+
 import com.revolsys.io.FileUtil;
 import com.revolsys.record.ArrayRecord;
 import com.revolsys.record.Record;
@@ -39,7 +42,7 @@ public class JsonRecordIterator extends AbstractIterator<Record> implements Reco
 
   @Override
   protected void closeDo() {
-    FileUtil.closeSilent(this.iterator);
+    BaseCloseable.closeSilent(this.iterator);
     this.iterator = null;
     this.recordDefinition = null;
   }

@@ -33,11 +33,12 @@ import java.util.TreeMap;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import org.jeometry.common.collection.iterator.AbstractReader;
 import org.jeometry.common.logging.Logs;
+import org.jeometry.common.util.BaseCloseable;
 import org.jeometry.coordinatesystem.model.systems.EpsgId;
 
 import com.revolsys.geometry.model.GeometryFactory;
-import com.revolsys.io.AbstractReader;
 import com.revolsys.io.FileUtil;
 import com.revolsys.io.PathUtil;
 import com.revolsys.record.ArrayRecord;
@@ -512,7 +513,7 @@ public class SaifReader extends AbstractReader<Record>
     try {
       this.declaredRecordDefinitionFactory = parser.loadSchema("clasdefs.csn", in);
     } finally {
-      FileUtil.closeSilent(in);
+      BaseCloseable.closeSilent(in);
     }
     if (this.recordDefinitionFactory == null) {
       setRecordDefinitionFactory(this.declaredRecordDefinitionFactory);

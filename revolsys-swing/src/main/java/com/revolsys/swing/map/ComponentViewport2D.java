@@ -10,9 +10,10 @@ import javax.measure.Unit;
 import javax.measure.quantity.Length;
 import javax.swing.JComponent;
 
+import org.jeometry.common.util.BaseCloseable;
+
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactory;
-import com.revolsys.io.BaseCloseable;
 import com.revolsys.swing.map.layer.Layer;
 import com.revolsys.swing.map.layer.LayerGroup;
 import com.revolsys.swing.map.layer.Project;
@@ -98,7 +99,7 @@ public class ComponentViewport2D extends Viewport2D implements PropertyChangeLis
     if (geometryFactory.isHasHorizontalCoordinateSystem()) {
       final BoundingBox areaBoundingBox = geometryFactory.getAreaBoundingBox();
       final BoundingBox boundingBox = getBoundingBox();
-      if (Property.hasValue(boundingBox)) {
+      if (org.jeometry.common.util.Property.hasValue(boundingBox)) {
         final BoundingBox newBoundingBox = boundingBox.bboxToCs(geometryFactory);
         BoundingBox intersection = newBoundingBox.bboxIntersection(areaBoundingBox);
         if (intersection.isEmpty()) {

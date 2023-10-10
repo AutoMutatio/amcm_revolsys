@@ -20,8 +20,11 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
 import org.jeometry.common.exception.Exceptions;
+import org.jeometry.common.json.Json;
+import org.jeometry.common.json.JsonObject;
 import org.jeometry.common.logging.Logs;
 import org.jeometry.common.number.Integers;
+import org.jeometry.common.util.BaseCloseable;
 
 import com.revolsys.connection.file.FolderConnectionRegistry;
 import com.revolsys.geometry.model.BoundingBox;
@@ -29,13 +32,10 @@ import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.geometry.model.editor.BoundingBoxEditor;
 import com.revolsys.geometry.util.RectangleUtil;
-import com.revolsys.io.BaseCloseable;
 import com.revolsys.io.FileUtil;
 import com.revolsys.io.file.Paths;
 import com.revolsys.io.filter.FileNameExtensionFilter;
 import com.revolsys.record.io.RecordStoreConnectionRegistry;
-import com.revolsys.record.io.format.json.Json;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.spring.resource.PathResource;
 import com.revolsys.spring.resource.Resource;
 import com.revolsys.swing.Dialogs;
@@ -638,7 +638,7 @@ public class Project extends LayerGroupImpl {
   }
 
   public void setViewBoundingBoxAndGeometryFactory(final BoundingBox viewBoundingBox) {
-    if (!Property.isEmpty(viewBoundingBox)) {
+    if (!org.jeometry.common.util.Property.isEmpty(viewBoundingBox)) {
       final BoundingBox oldBoundingBox = this.viewBoundingBox;
       final boolean bboxUpdated = setViewBoundingBoxDo(viewBoundingBox);
 
@@ -652,7 +652,7 @@ public class Project extends LayerGroupImpl {
   }
 
   protected boolean setViewBoundingBoxDo(BoundingBox viewBoundingBox) {
-    if (Property.isEmpty(viewBoundingBox)) {
+    if (org.jeometry.common.util.Property.isEmpty(viewBoundingBox)) {
       return false;
     } else {
       // TODO really should be min scale

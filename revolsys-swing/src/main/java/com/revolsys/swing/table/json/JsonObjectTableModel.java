@@ -16,11 +16,11 @@ import org.jeometry.common.compare.NumericComparator;
 import org.jeometry.common.data.identifier.Code;
 import org.jeometry.common.data.identifier.Identifier;
 import org.jeometry.common.data.type.DataTypes;
+import org.jeometry.common.json.JsonObject;
 
 import com.revolsys.beans.PropertyChangeSupportProxy;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.record.code.CodeTable;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.swing.SwingUtil;
 import com.revolsys.swing.parallel.Invoke;

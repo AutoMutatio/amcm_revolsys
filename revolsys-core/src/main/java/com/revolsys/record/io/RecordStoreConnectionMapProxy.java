@@ -1,6 +1,6 @@
 package com.revolsys.record.io;
 
-import com.revolsys.record.io.format.json.JsonObject;
+import org.jeometry.common.json.JsonObject;
 
 public interface RecordStoreConnectionMapProxy {
   JsonObject getRecordStoreConnectionMap();

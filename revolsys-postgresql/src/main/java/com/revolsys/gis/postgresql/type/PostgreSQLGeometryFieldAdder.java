@@ -44,7 +44,7 @@ public class PostgreSQLGeometryFieldAdder extends JdbcFieldAdder {
     final JdbcRecordStoreSchema schema = recordDefinition.getSchema();
     final PathName typePath = recordDefinition.getPathName();
     String dbSchemaName = schema.getDbName();
-    if (!Property.hasValue(dbSchemaName)) {
+    if (!org.jeometry.common.util.Property.hasValue(dbSchemaName)) {
       dbSchemaName = "public";
     }
     final String tableName = recordDefinition.getDbTableName().replace("\"", "");

@@ -2,7 +2,7 @@ package com.revolsys.record.query;
 
 import java.util.Arrays;
 
-import com.revolsys.collection.map.MapEx;
+import org.jeometry.common.collection.map.MapEx;
 
 public class Or extends AbstractMultiCondition {
 

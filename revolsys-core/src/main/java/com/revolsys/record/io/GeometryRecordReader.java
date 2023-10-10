@@ -3,11 +3,12 @@ package com.revolsys.record.io;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
+import org.jeometry.common.util.BaseCloseable;
+
 import com.revolsys.geometry.io.GeometryReader;
 import com.revolsys.geometry.model.ClockDirection;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryFactory;
-import com.revolsys.io.BaseCloseable;
 import com.revolsys.record.GeometryRecord;
 import com.revolsys.record.Record;
 import com.revolsys.record.RecordFactory;

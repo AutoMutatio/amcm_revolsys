@@ -36,7 +36,7 @@ public class PostgreSQLDdlWriter extends JdbcDdlWriter {
     if (shortNameProperty != null) {
       shortName = shortNameProperty.getShortName();
     }
-    if (Property.hasValue(shortName) && shortNameProperty.isUseForSequence()) {
+    if (org.jeometry.common.util.Property.hasValue(shortName) && shortNameProperty.isUseForSequence()) {
       final String sequenceName = schema + "." + shortName.toLowerCase() + "_seq";
       return sequenceName;
     } else {

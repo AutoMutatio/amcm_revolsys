@@ -47,17 +47,17 @@ import javax.swing.undo.UndoableEdit;
 
 import org.jdesktop.swingx.VerticalLayout;
 import org.jeometry.common.awt.WebColors;
+import org.jeometry.common.collection.map.Maps;
 import org.jeometry.common.data.identifier.Identifier;
 import org.jeometry.common.data.type.DataType;
 import org.jeometry.common.data.type.DataTypes;
 import org.jeometry.common.logging.Logs;
+import org.jeometry.common.util.BaseCloseable;
 
 import com.revolsys.beans.PropertyChangeSupport;
 import com.revolsys.beans.PropertyChangeSupportProxy;
-import com.revolsys.collection.map.Maps;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryDataTypes;
-import com.revolsys.io.BaseCloseable;
 import com.revolsys.record.Record;
 import com.revolsys.record.RecordState;
 import com.revolsys.record.code.CodeTable;
@@ -760,7 +760,7 @@ public class LayerRecordForm extends JPanel implements PropertyChangeListener, C
         string = Strings.toString(values);
       }
     }
-    if (!Property.hasValue(string)) {
+    if (!org.jeometry.common.util.Property.hasValue(string)) {
       string = "-";
     }
     return string;
@@ -975,7 +975,7 @@ public class LayerRecordForm extends JPanel implements PropertyChangeListener, C
       return false;
     } else {
       final Object value = field.getFieldValue();
-      return Property.hasValue(value);
+      return org.jeometry.common.util.Property.hasValue(value);
     }
   }
 
@@ -1162,7 +1162,7 @@ public class LayerRecordForm extends JPanel implements PropertyChangeListener, C
               boolean equal = false;
               if (fieldValue instanceof String) {
                 final String string = (String)fieldValue;
-                if (!Property.hasValue(string) && recordValue == null) {
+                if (!org.jeometry.common.util.Property.hasValue(string) && recordValue == null) {
                   equal = true;
                 }
               }
@@ -1285,7 +1285,7 @@ public class LayerRecordForm extends JPanel implements PropertyChangeListener, C
 
   public void setFieldInvalidToolTip(final String fieldName, final JComponent field) {
     final String message = this.fieldInValidMessage.get(fieldName);
-    if (Property.hasValue(message)) {
+    if (org.jeometry.common.util.Property.hasValue(message)) {
       field.setToolTipText(message);
     }
   }
@@ -1396,7 +1396,7 @@ public class LayerRecordForm extends JPanel implements PropertyChangeListener, C
     this.recordDefinition = recordDefinition;
     setRecordStore(recordDefinition.getRecordStore());
     final String idFieldName = recordDefinition.getIdFieldName();
-    if (Property.hasValue(idFieldName)) {
+    if (org.jeometry.common.util.Property.hasValue(idFieldName)) {
       this.readOnlyFieldNames.add(idFieldName);
     }
     for (final FieldDefinition field : recordDefinition.getFields()) {
@@ -1519,15 +1519,15 @@ public class LayerRecordForm extends JPanel implements PropertyChangeListener, C
       final String fieldName = field.getFieldName();
       final List<String> errors = this.fieldErrors.get(fieldName);
       final List<String> warnings = this.fieldWarnings.get(fieldName);
-      if (Property.hasValue(errors)) {
+      if (org.jeometry.common.util.Property.hasValue(errors)) {
         String message = Strings.toString("<br />", errors);
-        if (Property.hasValue(warnings)) {
+        if (org.jeometry.common.util.Property.hasValue(warnings)) {
           message += "<br />" + warnings;
         }
         field.setFieldInvalid("<html>" + message + "</html>");
       } else {
         field.setFieldValid();
-        if (Property.hasValue(warnings)) {
+        if (org.jeometry.common.util.Property.hasValue(warnings)) {
           field.setFieldToolTip("<html>" + Strings.toString("<br />", warnings) + "</html>");
           field.setFieldBackgroundColor(WebColors.Yellow);
         }
@@ -1597,7 +1597,7 @@ public class LayerRecordForm extends JPanel implements PropertyChangeListener, C
         }
         if (run) {
           final Object value = getFieldValue(fieldName);
-          if (!Property.hasValue(value)) {
+          if (!org.jeometry.common.util.Property.hasValue(value)) {
             valid = addFieldError(fieldName, "Required");
           }
         }

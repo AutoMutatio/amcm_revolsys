@@ -238,7 +238,7 @@ public interface PathUtil {
         if (part != null) {
           part = part.replaceAll("^/*", "");
           part = part.replaceAll("/*", "");
-          if (Property.hasValue(part)) {
+          if (org.jeometry.common.util.Property.hasValue(part)) {
             path.append('/');
             path.append(part);
           }

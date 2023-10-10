@@ -46,7 +46,7 @@ public class AreaFieldName extends AbstractRecordDefinitionProperty {
   }
 
   public void setArea(final Record record) {
-    if (Property.hasValue(this.fieldName)) {
+    if (org.jeometry.common.util.Property.hasValue(this.fieldName)) {
       final LineString line = record.getGeometry();
       final double area = line.getArea();
       record.setValue(this.fieldName, area);

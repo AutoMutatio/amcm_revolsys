@@ -5,8 +5,8 @@ import java.util.Map;
 
 import javax.swing.Icon;
 
-import com.revolsys.collection.map.MapEx;
-import com.revolsys.properties.ObjectWithProperties;
+import org.jeometry.common.collection.map.MapEx;
+import org.jeometry.common.util.ObjectWithProperties;
 
 public interface ProjectFramePanel extends ObjectWithProperties {
   void activatePanelComponent(Component component, Map<String, Object> config);

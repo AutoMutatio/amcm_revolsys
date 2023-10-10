@@ -64,7 +64,7 @@ public class PointDoubleXY extends AbstractPoint implements Serializable {
   public double distancePoint(Point point) {
     if (isEmpty()) {
       return java.lang.Double.POSITIVE_INFINITY;
-    } else if (Property.isEmpty(point)) {
+    } else if (org.jeometry.common.util.Property.isEmpty(point)) {
       return java.lang.Double.POSITIVE_INFINITY;
     } else {
       final GeometryFactory geometryFactory = getGeometryFactory();

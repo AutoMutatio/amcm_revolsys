@@ -85,7 +85,7 @@ public interface Vertex extends Point, Iterator<Vertex>, Iterable<Vertex>, Geome
       double angle;
       if (isTo()) {
         final Point point2 = getLinePrevious().convertPoint2d(geometryFactory);
-        if (Property.hasValue(point2)) {
+        if (org.jeometry.common.util.Property.hasValue(point2)) {
           final double x1 = point2.getX();
           final double y1 = point2.getY();
           angle = Angle.angleDegrees(x1, y1, x, y);
@@ -94,7 +94,7 @@ public interface Vertex extends Point, Iterator<Vertex>, Iterable<Vertex>, Geome
         }
       } else {
         final Point point2 = getLineNext().convertPoint2d(geometryFactory);
-        if (Property.hasValue(point2)) {
+        if (org.jeometry.common.util.Property.hasValue(point2)) {
           final double x1 = point2.getX();
           final double y1 = point2.getY();
           angle = Angle.angleDegrees(x, y, x1, y1);

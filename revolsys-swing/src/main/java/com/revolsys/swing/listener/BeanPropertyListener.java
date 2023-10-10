@@ -25,7 +25,7 @@ public class BeanPropertyListener implements PropertyChangeListener {
     if (object != null) {
       final String propertyName = event.getPropertyName();
       final Object value = event.getNewValue();
-      Property.setSimple(object, propertyName, value);
+      org.jeometry.common.util.Property.setSimple(object, propertyName, value);
     }
   }
 }

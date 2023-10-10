@@ -60,8 +60,7 @@ import org.apache.olingo.server.core.serializer.utils.CircleStreamBuffer;
 import org.apache.olingo.server.core.serializer.utils.ContentTypeHelper;
 import org.apache.olingo.server.core.serializer.utils.ExpandSelectHelper;
 import org.apache.olingo.server.core.uri.UriHelperImpl;
-
-import com.revolsys.record.io.format.json.JsonWriter;
+import org.jeometry.common.json.JsonWriter;
 
 public class JsonDeltaSerializer implements EdmDeltaSerializer {
 

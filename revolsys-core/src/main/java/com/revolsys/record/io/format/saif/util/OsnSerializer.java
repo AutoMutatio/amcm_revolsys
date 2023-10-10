@@ -36,12 +36,12 @@ import java.util.Set;
 
 import org.jeometry.common.data.type.DataType;
 import org.jeometry.common.data.type.EnumerationDataType;
+import org.jeometry.common.io.IoUtil;
 import org.jeometry.common.logging.Logs;
 
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.LineString;
 import com.revolsys.geometry.model.Point;
-import com.revolsys.io.FileUtil;
 import com.revolsys.record.Record;
 import com.revolsys.record.io.format.saif.SaifConstants;
 import com.revolsys.record.schema.RecordDefinition;
@@ -204,7 +204,7 @@ public class OsnSerializer {
   }
 
   private void openFile() throws IOException {
-    Logs.debug(this, "Creating object subset '" + FileUtil.getFileName(this.file) + "'");
+    Logs.debug(this, "Creating object subset '" + IoUtil.getFileName(this.file) + "'");
     this.out = new BufferedOutputStream(new FileOutputStream(this.file), 4096);
   }
 
@@ -253,7 +253,7 @@ public class OsnSerializer {
   }
 
   private void serialize(final Geometry geometry) throws IOException {
-    final String type = Property.getSimple(geometry, "osnGeometryType");
+    final String type = org.jeometry.common.util.Property.getSimple(geometry, "osnGeometryType");
     OsnConverter converter = this.converters.getConverter(type);
     if (converter == null) {
       if (geometry instanceof Point) {

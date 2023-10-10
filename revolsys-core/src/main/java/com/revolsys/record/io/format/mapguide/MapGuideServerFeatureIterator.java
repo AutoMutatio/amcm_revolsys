@@ -5,11 +5,11 @@ import java.util.NoSuchElementException;
 
 import javax.xml.namespace.QName;
 
+import org.jeometry.common.collection.iterator.AbstractIterator;
 import org.jeometry.common.logging.Logs;
+import org.jeometry.common.util.BaseCloseable;
 
-import com.revolsys.collection.iterator.AbstractIterator;
 import com.revolsys.geometry.model.GeometryFactory;
-import com.revolsys.io.FileUtil;
 import com.revolsys.record.ArrayRecord;
 import com.revolsys.record.Record;
 import com.revolsys.record.RecordFactory;
@@ -81,7 +81,7 @@ public class MapGuideServerFeatureIterator extends AbstractIterator<Record>
 
   @Override
   protected void closeDo() {
-    FileUtil.closeSilent(this.reader);
+    BaseCloseable.closeSilent(this.reader);
     this.reader = null;
     this.geometryFactory = null;
     this.queryParameters = null;

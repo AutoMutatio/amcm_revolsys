@@ -50,7 +50,7 @@ public class LengthFieldName extends AbstractRecordDefinitionProperty {
   }
 
   public void setLength(final Record record) {
-    if (Property.hasValue(this.fieldName)) {
+    if (org.jeometry.common.util.Property.hasValue(this.fieldName)) {
       final LineString line = record.getGeometry();
       final double length = line.getLength();
       record.setValue(this.fieldName, length);

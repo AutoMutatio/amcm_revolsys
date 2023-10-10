@@ -15,10 +15,10 @@ import org.apache.hc.core5.http.HttpEntity;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.http.io.support.ClassicRequestBuilder;
 import org.jeometry.common.exception.Exceptions;
-
-import com.revolsys.io.FileUtil;
-import com.revolsys.record.io.format.json.JsonObject;
-import com.revolsys.record.io.format.json.JsonParser;
+import org.jeometry.common.io.IoUtil;
+import org.jeometry.common.json.JsonObject;
+import org.jeometry.common.json.JsonParser;
+import org.jeometry.common.util.BaseCloseable;
 
 public class ApacheHttp {
 
@@ -74,10 +74,10 @@ public class ApacheHttp {
       final HttpEntity entity = response.getEntity();
       return new ApacheEntityInputStream(httpClient, entity);
     } catch (final ApacheHttpException e) {
-      FileUtil.closeSilent(httpClient);
+      BaseCloseable.closeSilent(httpClient);
       throw e;
     } catch (final Exception e) {
-      FileUtil.closeSilent(httpClient);
+      BaseCloseable.closeSilent(httpClient);
       throw Exceptions.wrap(getUri(request), e);
     }
   }
@@ -129,7 +129,7 @@ public class ApacheHttp {
     final HttpEntity entity = response.getEntity();
     try (
       InputStream in = entity.getContent()) {
-      return FileUtil.getString(in);
+      return IoUtil.getString(in);
     } catch (final Exception e) {
       throw Exceptions.wrap(e);
     }

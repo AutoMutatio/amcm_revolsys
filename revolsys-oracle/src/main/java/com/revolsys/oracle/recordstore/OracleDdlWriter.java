@@ -36,7 +36,7 @@ public class OracleDdlWriter extends JdbcDdlWriter {
     if (shortNameProperty != null) {
       shortName = shortNameProperty.getShortName();
     }
-    if (Property.hasValue(shortName) && shortNameProperty.isUseForSequence()) {
+    if (org.jeometry.common.util.Property.hasValue(shortName) && shortNameProperty.isUseForSequence()) {
       final String schema = JdbcUtils.getSchemaName(typePath);
       final String sequenceName = schema + "." + shortName.toUpperCase() + "_SEQ";
       return sequenceName;

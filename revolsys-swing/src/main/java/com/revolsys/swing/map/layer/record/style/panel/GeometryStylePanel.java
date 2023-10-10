@@ -82,7 +82,7 @@ public class GeometryStylePanel extends BaseStylePanel implements PropertyChange
       final Field field = (Field)source;
       final String fieldName = field.getFieldName();
       Object fieldValue = field.getFieldValue();
-      if ("lineDashOffset".equals(fieldName) && !Property.hasValue(fieldValue)) {
+      if ("lineDashOffset".equals(fieldName) && !org.jeometry.common.util.Property.hasValue(fieldValue)) {
         fieldValue = 0;
       }
       this.geometryStyle.setProperty(fieldName, fieldValue);

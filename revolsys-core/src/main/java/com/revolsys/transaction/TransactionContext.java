@@ -1,8 +1,7 @@
 package com.revolsys.transaction;
 
 import org.jeometry.common.exception.Exceptions;
-
-import com.revolsys.io.BaseCloseable;
+import org.jeometry.common.util.BaseCloseable;
 
 public interface TransactionContext extends BaseCloseable {
 

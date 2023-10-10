@@ -284,7 +284,7 @@ public class GeometryCoordinatesTableModel extends AbstractTableModel {
 
   @Override
   public void setValueAt(final Object value, final int rowIndex, final int columnIndex) {
-    if (Property.hasValue(value)) {
+    if (org.jeometry.common.util.Property.hasValue(value)) {
       if (rowIndex < getRowCount()) {
         if (columnIndex >= this.numIndexItems) {
           final int axisIndex = columnIndex - this.numIndexItems;

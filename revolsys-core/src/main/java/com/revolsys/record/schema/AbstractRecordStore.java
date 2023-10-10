@@ -12,14 +12,15 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.Consumer;
 
+import org.jeometry.common.collection.map.MapEx;
+import org.jeometry.common.collection.map.Maps;
 import org.jeometry.common.function.Consumer3;
 import org.jeometry.common.io.PathName;
 import org.jeometry.common.logging.Logs;
+import org.jeometry.common.util.BaseObjectWithProperties;
 
-import com.revolsys.collection.map.MapEx;
-import com.revolsys.collection.map.Maps;
 import com.revolsys.geometry.model.GeometryFactory;
-import com.revolsys.properties.BaseObjectWithProperties;
+import com.revolsys.parallel.ReentrantLockEx;
 import com.revolsys.record.ArrayRecord;
 import com.revolsys.record.Record;
 import com.revolsys.record.RecordFactory;
@@ -30,7 +31,6 @@ import com.revolsys.record.property.RecordDefinitionProperty;
 import com.revolsys.record.query.Query;
 import com.revolsys.record.query.QueryValue;
 import com.revolsys.record.query.SqlAppendable;
-import com.revolsys.util.Property;
 import com.revolsys.util.UrlUtil;
 import com.revolsys.util.count.CategoryLabelCountMap;
 
@@ -72,6 +72,8 @@ public abstract class AbstractRecordStore extends BaseObjectWithProperties imple
   private final Map<String, Map<String, Object>> typeRecordDefinitionProperties = new HashMap<>();
 
   private boolean initialized = false;
+
+  protected ReentrantLockEx lock = new ReentrantLockEx();
 
   protected AbstractRecordStore() {
     this(ArrayRecord.FACTORY);
@@ -298,7 +300,8 @@ public abstract class AbstractRecordStore extends BaseObjectWithProperties imple
 
   @Override
   public final void initialize() {
-    synchronized (this) {
+    try (
+      var l = this.lock.lockX()) {
       if (!this.initialized) {
         this.initialized = true;
         initializeDo();
@@ -467,7 +470,7 @@ public abstract class AbstractRecordStore extends BaseObjectWithProperties imple
 
   @Override
   public String toString() {
-    if (Property.hasValue(this.label)) {
+    if (org.jeometry.common.util.Property.hasValue(this.label)) {
       return this.label;
     } else {
       return super.toString();

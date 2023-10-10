@@ -1,11 +1,11 @@
 package com.revolsys.grid;
 
 import org.jeometry.common.awt.WebColors;
+import org.jeometry.common.util.BaseObjectWithProperties;
 
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.geometry.util.RectangleUtil;
-import com.revolsys.properties.BaseObjectWithProperties;
 import com.revolsys.spring.resource.Resource;
 
 public abstract class AbstractGrid extends BaseObjectWithProperties implements Grid {

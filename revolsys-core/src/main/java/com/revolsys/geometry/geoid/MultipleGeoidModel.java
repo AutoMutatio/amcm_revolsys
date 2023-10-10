@@ -2,7 +2,8 @@ package com.revolsys.geometry.geoid;
 
 import java.util.List;
 
-import com.revolsys.collection.list.Lists;
+import org.jeometry.common.collection.list.Lists;
+
 import com.revolsys.geometry.model.BoundingBox;
 
 public class MultipleGeoidModel extends AbstractGeoidModel {

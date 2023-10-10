@@ -1,6 +1,6 @@
 package com.revolsys.record.query;
 
-import com.revolsys.collection.map.MapEx;
+import org.jeometry.common.collection.map.MapEx;
 
 public class Not extends LeftUnaryCondition {
 

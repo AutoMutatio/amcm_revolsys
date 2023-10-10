@@ -2,14 +2,15 @@ package com.revolsys.record.io.format.odata;
 
 import java.util.List;
 
+import org.jeometry.common.collection.list.ListEx;
+import org.jeometry.common.collection.map.MapEx;
 import org.jeometry.common.data.type.DataType;
 import org.jeometry.common.data.type.ListDataType;
 import org.jeometry.common.io.PathName;
+import org.jeometry.common.json.JsonObject;
 
-import com.revolsys.collection.map.MapEx;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.record.Record;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinitionImpl;
 
@@ -31,7 +32,7 @@ public class ODataRecordDefinition extends RecordDefinitionImpl {
           final String type = entityField.getString("$Type");
           DataType dataType = OData.getDataTypeFromEdm(type);
           if (entityField.isTrue("$Collection")) {
-            dataType = new ListDataType(List.class, dataType);
+            dataType = new ListDataType(ListEx.class, dataType);
           }
           final boolean required = !entityField.getBoolean("$Nullable", true);
           final FieldDefinition fieldDefinition = new FieldDefinition(fieldName, dataType,

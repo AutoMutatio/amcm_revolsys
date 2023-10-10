@@ -94,8 +94,14 @@
           <debug>true</debug>
           <debuglevel>lines,source,vars</debuglevel>
           <parameters>true</parameters>
-          <compilerArgument>-parameters</compilerArgument>
-          <testCompilerArgument>-parameters</testCompilerArgument>
+          <compilerArgs>
+            <arg>-parameters</arg>
+            <arg>--enable-preview</arg>
+          </compilerArgs>
+         <testCompilerArguments>
+            <arg>-parameters</arg>
+            <arg>--enable-preview</arg>
+          </testCompilerArguments>
         </configuration>
       </plugin>
       <plugin>

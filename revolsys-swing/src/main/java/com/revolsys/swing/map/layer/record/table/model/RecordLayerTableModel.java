@@ -19,16 +19,17 @@ import javax.swing.ListSelectionModel;
 import javax.swing.RowFilter;
 import javax.swing.SortOrder;
 
+import org.jeometry.common.collection.list.Lists;
 import org.jeometry.common.data.type.DataType;
+import org.jeometry.common.json.JsonType;
+import org.jeometry.common.util.BaseCloseable;
+import org.jeometry.common.util.Cancellable;
 
 import com.revolsys.beans.PropertyChangeSupportProxy;
 import com.revolsys.collection.CollectionUtil;
-import com.revolsys.collection.list.Lists;
 import com.revolsys.geometry.model.BoundingBox;
-import com.revolsys.io.BaseCloseable;
 import com.revolsys.record.Record;
 import com.revolsys.record.Records;
-import com.revolsys.record.io.format.json.JsonType;
 import com.revolsys.record.query.Condition;
 import com.revolsys.record.query.Query;
 import com.revolsys.record.query.TableReference;
@@ -52,7 +53,6 @@ import com.revolsys.swing.table.SortableTableModel;
 import com.revolsys.swing.table.editor.BaseTableCellEditor;
 import com.revolsys.swing.table.record.filter.RecordRowPredicateRowFilter;
 import com.revolsys.swing.table.record.model.RecordRowTableModel;
-import com.revolsys.util.Cancellable;
 import com.revolsys.util.Property;
 
 public class RecordLayerTableModel extends RecordRowTableModel
@@ -292,7 +292,7 @@ public class RecordLayerTableModel extends RecordRowTableModel
 
           final Object value = getValueAt(rowIndex, columnIndex);
 
-          final boolean canCopy = Property.hasValue(value);
+          final boolean canCopy = org.jeometry.common.util.Property.hasValue(value);
           if (cellEditable) {
             final JMenuItem cutMenu = RunnableAction.newMenuItem("Cut Field Value", "cut",
               table::cutFieldValue);
@@ -526,7 +526,7 @@ public class RecordLayerTableModel extends RecordRowTableModel
         final Object oldValue = this.filter;
         this.filter = filter;
         updateFilterQuery();
-        if (Property.isEmpty(filter)) {
+        if (org.jeometry.common.util.Property.isEmpty(filter)) {
           this.rowFilterCondition = null;
         } else {
           this.rowFilterCondition = new RecordRowPredicateRowFilter(filter);
@@ -615,7 +615,7 @@ public class RecordLayerTableModel extends RecordRowTableModel
   }
 
   private void setOrderByInternal(final Map<? extends CharSequence, Boolean> orderBy) {
-    if (Property.hasValue(orderBy)) {
+    if (org.jeometry.common.util.Property.hasValue(orderBy)) {
       this.orderBy = orderBy;
       this.orderByComparatorIdentifier = Records.newComparatorOrderBy(orderBy);
     } else {
@@ -635,7 +635,7 @@ public class RecordLayerTableModel extends RecordRowTableModel
       final SortOrder sortOrder = super.setSortOrder(columnIndex);
       if (sortOrder != SortOrder.UNSORTED) {
         final FieldDefinition fieldName = getColumnFieldDefinition(columnIndex);
-        if (Property.hasValue(fieldName)) {
+        if (org.jeometry.common.util.Property.hasValue(fieldName)) {
           Map<FieldDefinition, Boolean> orderBy = null;
           if (sortOrder == SortOrder.ASCENDING) {
             orderBy = Collections.singletonMap(fieldName, true);

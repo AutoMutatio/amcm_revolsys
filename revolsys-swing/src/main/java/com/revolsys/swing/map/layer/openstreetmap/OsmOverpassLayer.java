@@ -51,7 +51,7 @@ public class OsmOverpassLayer extends AbstractRecordLayer {
   public List<LayerRecord> getRecords(BoundingBox boundingBox) {
     if (hasGeometryField()) {
       boundingBox = convertBoundingBox(boundingBox);
-      if (Property.hasValue(boundingBox)) {
+      if (org.jeometry.common.util.Property.hasValue(boundingBox)) {
         final Map<Identifier, LayerRecord> recordMap = new HashMap<>();
         final List<BoundingBox> boundingBoxes = getTileBoundingBoxes(boundingBox);
         for (final BoundingBox tileBoundingBox : boundingBoxes) {

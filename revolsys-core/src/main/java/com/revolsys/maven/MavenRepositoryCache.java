@@ -52,7 +52,7 @@ public class MavenRepositoryCache extends MavenRepository {
       specificVersion, algorithm);
     final Resource repositoryResource = repository.getRoot().newChildResource(path);
     try {
-      if (Property.hasValue(sha1Digest)) {
+      if (org.jeometry.common.util.Property.hasValue(sha1Digest)) {
         final InputStream in = repositoryResource.getInputStream();
         final DigestInputStream digestIn = new DigestInputStream(in,
           MessageDigest.getInstance("SHA-1"));

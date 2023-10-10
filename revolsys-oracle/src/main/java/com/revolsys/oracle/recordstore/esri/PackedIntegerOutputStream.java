@@ -8,7 +8,7 @@ public class PackedIntegerOutputStream extends ByteArrayOutputStream {
   }
 
   @Override
-  public synchronized byte[] toByteArray() {
+  public byte[] toByteArray() {
     final int count = this.count;
     this.count = 0;
     writeLong5(count - 8);

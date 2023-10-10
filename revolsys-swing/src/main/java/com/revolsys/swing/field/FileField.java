@@ -104,7 +104,7 @@ public class FileField extends ValueField implements Field {
 
   public File getFile() {
     final String path = getFilePath();
-    if (Property.hasValue(path)) {
+    if (org.jeometry.common.util.Property.hasValue(path)) {
       return FileUtil.getFile(path);
     } else {
       return null;
@@ -117,7 +117,7 @@ public class FileField extends ValueField implements Field {
 
   public Path getPath() {
     final String path = getFilePath();
-    if (Property.hasValue(path)) {
+    if (org.jeometry.common.util.Property.hasValue(path)) {
       return Paths.get(path);
     } else {
       return null;

@@ -6,9 +6,9 @@ import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.Set;
 
+import org.jeometry.common.collection.map.Maps;
 import org.jeometry.common.logging.Logs;
 
-import com.revolsys.collection.map.Maps;
 import com.revolsys.util.ServiceInitializer;
 
 public class IoFactoryRegistry {

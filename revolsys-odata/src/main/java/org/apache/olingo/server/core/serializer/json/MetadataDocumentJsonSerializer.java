@@ -81,8 +81,7 @@ import org.apache.olingo.commons.api.edmx.EdmxReferenceIncludeAnnotation;
 import org.apache.olingo.server.api.ServiceMetadata;
 import org.apache.olingo.server.api.serializer.Kind;
 import org.apache.olingo.server.api.serializer.SerializerException;
-
-import com.revolsys.record.io.format.json.JsonWriter;
+import org.jeometry.common.json.JsonWriter;
 
 public class MetadataDocumentJsonSerializer {
 

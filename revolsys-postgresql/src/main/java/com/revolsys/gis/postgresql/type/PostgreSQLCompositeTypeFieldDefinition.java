@@ -7,12 +7,12 @@ import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Map;
 
+import org.jeometry.common.collection.list.ListEx;
+import org.jeometry.common.collection.list.Lists;
 import org.jeometry.common.data.type.CollectionDataType;
 import org.jeometry.common.data.type.DataType;
 import org.postgresql.jdbc.PgConnection;
 
-import com.revolsys.collection.list.ListEx;
-import com.revolsys.collection.list.Lists;
 import com.revolsys.jdbc.field.JdbcFieldDefinition;
 import com.revolsys.record.query.ColumnIndexes;
 import com.revolsys.record.schema.RecordDefinition;

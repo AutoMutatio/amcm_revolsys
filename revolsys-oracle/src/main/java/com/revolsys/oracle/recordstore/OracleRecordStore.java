@@ -51,7 +51,6 @@ import com.revolsys.record.query.functions.GeometryEqual2d;
 import com.revolsys.record.query.functions.WithinDistance;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
-import com.revolsys.util.Property;
 
 public class OracleRecordStore extends AbstractJdbcRecordStore {
   public static final List<String> ORACLE_INTERNAL_SCHEMAS = Arrays.asList("ANONYMOUS",
@@ -264,26 +263,29 @@ public class OracleRecordStore extends AbstractJdbcRecordStore {
     }
   }
 
-  public synchronized CoordinateSystem getCoordinateSystem(final int oracleSrid) {
-    CoordinateSystem coordinateSystem = this.oracleCoordinateSystems.get(oracleSrid);
-    if (coordinateSystem == null) {
-      try {
-        final Map<String, Object> result = selectMap(
-          "SELECT * FROM MDSYS.SDO_CS_SRS WHERE SRID = ?", oracleSrid);
-        if (result == null) {
-          coordinateSystem = EpsgCoordinateSystems.getCoordinateSystem(oracleSrid);
-        } else {
-          final String wkt = (String)result.get("WKTEXT");
-          coordinateSystem = WktCsParser.read(wkt);
-          coordinateSystem = EpsgCoordinateSystems.getCoordinateSystem(coordinateSystem);
+  public CoordinateSystem getCoordinateSystem(final int oracleSrid) {
+    try (
+      var l = this.lock.lockX()) {
+      CoordinateSystem coordinateSystem = this.oracleCoordinateSystems.get(oracleSrid);
+      if (coordinateSystem == null) {
+        try {
+          final Map<String, Object> result = selectMap(
+            "SELECT * FROM MDSYS.SDO_CS_SRS WHERE SRID = ?", oracleSrid);
+          if (result == null) {
+            coordinateSystem = EpsgCoordinateSystems.getCoordinateSystem(oracleSrid);
+          } else {
+            final String wkt = (String)result.get("WKTEXT");
+            coordinateSystem = WktCsParser.read(wkt);
+            coordinateSystem = EpsgCoordinateSystems.getCoordinateSystem(coordinateSystem);
+          }
+        } catch (final Throwable e) {
+          Logs.error(this, "Unable to load coordinate system: " + oracleSrid, e);
+          return null;
         }
-      } catch (final Throwable e) {
-        Logs.error(this, "Unable to load coordinate system: " + oracleSrid, e);
-        return null;
+        this.oracleCoordinateSystems.put(oracleSrid, coordinateSystem);
       }
-      this.oracleCoordinateSystems.put(oracleSrid, coordinateSystem);
+      return coordinateSystem;
     }
-    return coordinateSystem;
   }
 
   @Override
@@ -380,7 +382,7 @@ public class OracleRecordStore extends AbstractJdbcRecordStore {
       final String dbSchemaName = recordDefinition.getQuotedDbSchemaName();
       final String shortName = ShortNameProperty.getShortName(recordDefinition);
       final String sequenceName;
-      if (Property.hasValue(shortName)) {
+      if (org.jeometry.common.util.Property.hasValue(shortName)) {
         if (this.useSchemaSequencePrefix) {
           sequenceName = dbSchemaName + "." + shortName.toLowerCase() + "_SEQ";
         } else {

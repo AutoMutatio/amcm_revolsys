@@ -8,9 +8,9 @@ import javax.swing.JButton;
 import javax.swing.event.TableModelEvent;
 
 import org.jdesktop.swingx.VerticalLayout;
+import org.jeometry.common.json.Json;
+import org.jeometry.common.json.JsonObject;
 
-import com.revolsys.record.io.format.json.Json;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.swing.component.ValueField;
 import com.revolsys.swing.field.ArrayListComboBoxModel;

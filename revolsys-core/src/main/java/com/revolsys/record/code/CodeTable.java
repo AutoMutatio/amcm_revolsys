@@ -12,13 +12,13 @@ import javax.swing.JComponent;
 import org.jeometry.common.compare.CompareUtil;
 import org.jeometry.common.data.identifier.Identifier;
 import org.jeometry.common.data.refresh.Refreshable;
+import org.jeometry.common.json.JsonObject;
+import org.jeometry.common.util.BaseCloseable;
+import org.jeometry.common.util.Emptyable;
 
-import com.revolsys.io.BaseCloseable;
 import com.revolsys.record.Record;
 import com.revolsys.record.io.RecordReader;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.record.schema.FieldDefinition;
-import com.revolsys.util.Emptyable;
 import com.revolsys.util.Property;
 
 public interface CodeTable
@@ -142,7 +142,7 @@ public interface CodeTable
   @SuppressWarnings("unchecked")
   default <V> V getValue(final Identifier id) {
     final List<Object> values = getValues(id);
-    if (Property.hasValue(values)) {
+    if (org.jeometry.common.util.Property.hasValue(values)) {
       return (V)values.get(0);
     } else {
       return null;

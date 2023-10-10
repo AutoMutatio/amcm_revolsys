@@ -22,12 +22,12 @@ import jakarta.annotation.PreDestroy;
 import org.jeometry.common.data.type.DataType;
 import org.jeometry.common.data.type.DataTypes;
 import org.jeometry.common.function.BiConsumerInt;
+import org.jeometry.common.json.JsonType;
 import org.jeometry.common.logging.Logs;
 
 import com.revolsys.beans.PropertyChangeSupport;
 import com.revolsys.beans.PropertyChangeSupportProxy;
 import com.revolsys.geometry.model.Geometry;
-import com.revolsys.record.io.format.json.JsonType;
 import com.revolsys.record.io.format.tsv.Tsv;
 import com.revolsys.record.io.format.tsv.TsvWriter;
 import com.revolsys.swing.SwingUtil;

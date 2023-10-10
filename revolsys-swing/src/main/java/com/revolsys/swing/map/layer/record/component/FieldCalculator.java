@@ -266,7 +266,7 @@ public class FieldCalculator extends AbstractUpdateField implements DocumentList
         this.errorsField.setText(null);
       } catch (final Throwable e) {
         String errorMessage = e.getMessage();
-        if (!Property.hasValue(errorMessage)) {
+        if (!org.jeometry.common.util.Property.hasValue(errorMessage)) {
           errorMessage = "null pointer";
         }
         this.errorsField.setText(errorMessage);

@@ -585,7 +585,7 @@ public class UrlResource extends AbstractResource {
   private void setAuthorization(final URL url, final HttpURLConnection connection) {
     final String username = this.username;
     final String password = this.password;
-    if (Property.hasValue(username)) {
+    if (org.jeometry.common.util.Property.hasValue(username)) {
       final String basicAuth = getBasicAuthorization(username, password);
       connection.setRequestProperty("Authorization", basicAuth);
     } else {

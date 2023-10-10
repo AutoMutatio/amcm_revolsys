@@ -94,7 +94,7 @@ public class ArcSdeStGeometryRecordStoreExtension implements RecordStoreExtensio
               JdbcFieldAdder.GEOMETRY_TYPE, ArcSdeConstants.getGeometryDataType(geometryType));
 
             String geometryColumnType = resultSet.getString(6);
-            if (!Property.hasValue(geometryColumnType)) {
+            if (!org.jeometry.common.util.Property.hasValue(geometryColumnType)) {
               geometryColumnType = ArcSdeConstants.SDEBINARY;
             }
             JdbcFieldAdder.setColumnProperty(schema, typePath, columnName,

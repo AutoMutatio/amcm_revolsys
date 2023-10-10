@@ -2,13 +2,13 @@ package com.revolsys.webservice;
 
 import java.nio.file.Path;
 
+import org.jeometry.common.collection.map.MapEx;
+import org.jeometry.common.json.Json;
 import org.jeometry.common.logging.Logs;
 
-import com.revolsys.collection.map.MapEx;
 import com.revolsys.connection.AbstractConnectionRegistry;
 import com.revolsys.connection.ConnectionRegistry;
 import com.revolsys.connection.ConnectionRegistryManager;
-import com.revolsys.record.io.format.json.Json;
 import com.revolsys.spring.resource.Resource;
 
 public class WebServiceConnectionRegistry extends AbstractConnectionRegistry<WebServiceConnection> {

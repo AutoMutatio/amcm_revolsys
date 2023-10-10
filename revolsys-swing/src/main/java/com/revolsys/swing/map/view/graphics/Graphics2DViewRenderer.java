@@ -31,6 +31,7 @@ import javax.measure.Unit;
 import javax.measure.quantity.Length;
 
 import org.jeometry.common.function.BiFunctionDouble;
+import org.jeometry.common.util.BaseCloseable;
 import org.w3c.dom.Document;
 
 import com.revolsys.awt.ResetAffineTransform;
@@ -42,7 +43,6 @@ import com.revolsys.geometry.model.Point;
 import com.revolsys.geometry.model.Polygon;
 import com.revolsys.geometry.model.TopologyException;
 import com.revolsys.geometry.model.impl.PointDoubleXYOrientation;
-import com.revolsys.io.BaseCloseable;
 import com.revolsys.raster.GeoreferencedImage;
 import com.revolsys.record.Record;
 import com.revolsys.swing.Fonts;
@@ -580,7 +580,7 @@ public class Graphics2DViewRenderer extends ViewRenderer {
     if (geometry != null) {
       final String label = style.getLabel(record);
       for (final Geometry part : geometry.geometries()) {
-        if (Property.hasValue(label) && part != null || this == null) {
+        if (org.jeometry.common.util.Property.hasValue(label) && part != null || this == null) {
           final String textPlacementType = style.getTextPlacementType();
           final PointDoubleXYOrientation point = AbstractRecordLayerRenderer
             .getPointWithOrientation(this, part, textPlacementType);

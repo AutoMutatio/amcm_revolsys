@@ -1,5 +1,7 @@
 package com.revolsys.util;
 
+import org.jeometry.common.util.Cancellable;
+
 public class BooleanCancellable implements Cancellable {
 
   private boolean cancelled = false;

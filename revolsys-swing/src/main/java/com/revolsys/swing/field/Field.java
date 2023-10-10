@@ -65,7 +65,7 @@ public interface Field extends Cloneable {
     updateFieldValue();
     final FieldSupport fieldSupport = getFieldSupport();
     final Object fieldValue = getFieldValue();
-    return Property.hasValue(fieldValue) && fieldSupport.isFieldValid();
+    return org.jeometry.common.util.Property.hasValue(fieldValue) && fieldSupport.isFieldValid();
   }
 
   default void setFieldBackgroundColor(Color color) {

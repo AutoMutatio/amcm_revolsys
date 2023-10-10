@@ -42,7 +42,7 @@ public class IntegerFieldDefinition extends AbstractFileGdbFieldDefinition {
       }
     } else {
       final String string = value.toString().strip();
-      if (Property.hasValue(string)) {
+      if (org.jeometry.common.util.Property.hasValue(string)) {
         final int intValue = Integer.parseInt(string);
         synchronized (row) {
           row.setInteger(this.fieldNumber, intValue);

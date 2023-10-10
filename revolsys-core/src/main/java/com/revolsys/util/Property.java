@@ -12,7 +12,6 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -28,6 +27,8 @@ import org.jeometry.common.data.type.DataTypes;
 import org.jeometry.common.exception.Exceptions;
 import org.jeometry.common.logging.Logs;
 import org.jeometry.common.number.Integers;
+import org.jeometry.common.util.ObjectWithProperties;
+import org.jeometry.common.util.PropertyDescriptorCache;
 import org.springframework.core.annotation.AnnotationUtils;
 
 import com.revolsys.beans.NonWeakListener;
@@ -35,10 +36,9 @@ import com.revolsys.beans.PropertyChangeSupport;
 import com.revolsys.beans.PropertyChangeSupportProxy;
 import com.revolsys.beans.ProxyPropertyChangeListener;
 import com.revolsys.beans.WeakPropertyChangeListener;
-import com.revolsys.properties.ObjectWithProperties;
 import com.revolsys.record.Record;
 
-public interface Property {
+public interface Property extends org.jeometry.common.util.Property {
   class NewValueListener<V> implements PropertyChangeListener, NonWeakListener {
     private final Consumer<V> consumer;
 
@@ -333,7 +333,7 @@ public interface Property {
   }
 
   static PropertyDescriptor descriptor(final Class<?> beanClass, final String name) {
-    if (beanClass != null && Property.hasValue(name)) {
+    if (beanClass != null && org.jeometry.common.util.Property.hasValue(name)) {
       try {
         final BeanInfo beanInfo = Introspector.getBeanInfo(beanClass);
         final PropertyDescriptor[] props = beanInfo.getPropertyDescriptors();
@@ -400,8 +400,8 @@ public interface Property {
       } else {
         final String firstName = Property.getFirstName(key);
         final String subName = Property.getSubName(key);
-        final Object value = Property.getSimple(object, firstName);
-        if (value == null || !Property.hasValue(subName)) {
+        final Object value = org.jeometry.common.util.Property.getSimple(object, firstName);
+        if (value == null || !org.jeometry.common.util.Property.hasValue(subName)) {
           return (T)value;
         } else {
           return (T)get(value, subName);
@@ -503,7 +503,7 @@ public interface Property {
   }
 
   static String getFirstName(final String name) {
-    if (hasValue(name)) {
+    if (org.jeometry.common.util.Property.hasValue(name)) {
       final int index = name.indexOf(".");
       if (index == -1) {
         return name;
@@ -552,7 +552,7 @@ public interface Property {
         final Annotation annotation = (Annotation)object;
         return (T)AnnotationUtils.getValue(annotation, key);
       } else {
-        return getSimple(object, key);
+        return org.jeometry.common.util.Property.getSimple(object, key);
       }
     }
   }
@@ -570,35 +570,13 @@ public interface Property {
       }
     } else if (listener instanceof Consumer) {
       final Consumer<Object> consumer = (Consumer<Object>)listener;
-      return (e) -> {
+      return e -> {
         final Object object = e.getNewValue();
         consumer.accept(object);
       };
     } else {
       return null;
     }
-  }
-
-  @SuppressWarnings("unchecked")
-  static <T> T getSimple(final Object object, final String propertyName) {
-    final PropertyDescriptor propertyDescriptor = PropertyDescriptorCache
-      .getPropertyDescriptor(object, propertyName);
-    if (propertyDescriptor != null) {
-      final Method readMethod = propertyDescriptor.getReadMethod();
-      if (readMethod == null) {
-        return null;
-      } else {
-        try {
-          return (T)readMethod.invoke(object);
-        } catch (IllegalAccessException | IllegalArgumentException e) {
-          Exceptions.throwUncheckedException(e);
-        } catch (final InvocationTargetException e) {
-          final Throwable targetException = e.getTargetException();
-          Exceptions.throwUncheckedException(targetException);
-        }
-      }
-    }
-    return null;
   }
 
   static String getString(final ObjectWithProperties object, final String key) {
@@ -625,7 +603,7 @@ public interface Property {
   }
 
   static String getSubName(final String name) {
-    if (hasValue(name)) {
+    if (org.jeometry.common.util.Property.hasValue(name)) {
       final int index = name.indexOf(".");
       if (index == -1) {
         return "";
@@ -646,79 +624,12 @@ public interface Property {
     return null;
   }
 
-  static boolean hasValue(final CharSequence string) {
-    if (string != null) {
-      final int length = string.length();
-      for (int i = 0; i < length; i++) {
-        final char character = string.charAt(i);
-        if (!Character.isWhitespace(character)) {
-          return true;
-        }
-      }
-    }
-    return false;
-  }
-
-  static boolean hasValue(final Collection<?> collection) {
-    if (collection == null || collection.isEmpty()) {
-      return false;
-    } else {
-      return true;
-    }
-  }
-
-  static boolean hasValue(final Emptyable value) {
-    if (value == null) {
-      return false;
-    } else {
-      return !value.isEmpty();
-    }
-  }
-
-  static boolean hasValue(final Object value) {
-    if (value == null) {
-      return false;
-    } else if (value instanceof String) {
-      final String string = (String)value;
-      return hasValue(string);
-    } else if (value instanceof CharSequence) {
-      final CharSequence string = (CharSequence)value;
-      return hasValue(string);
-    } else if (value instanceof Collection<?>) {
-      final Collection<?> collection = (Collection<?>)value;
-      return !collection.isEmpty();
-    } else if (value instanceof Map<?, ?>) {
-      final Map<?, ?> map = (Map<?, ?>)value;
-      return !map.isEmpty();
-    } else if (value instanceof Emptyable) {
-      final Emptyable emptyable = (Emptyable)value;
-      return !emptyable.isEmpty();
-    } else {
-      return true;
-    }
-  }
-
-  static boolean hasValue(final Object[] array) {
-    if (array == null || array.length > 1) {
-      return false;
-    } else {
-      return true;
-    }
-  }
-
-  static boolean hasValue(final String string) {
-    if (string != null) {
-      return !string.isBlank();
-    }
-    return false;
-  }
-
   static boolean hasValuesAll(final Object... values) {
     if (values == null || values.length == 0) {
       return false;
     } else {
       for (final Object value : values) {
-        if (!hasValue(value)) {
+        if (!org.jeometry.common.util.Property.hasValue(value)) {
           return false;
         }
       }
@@ -731,7 +642,7 @@ public interface Property {
       return false;
     } else {
       for (final Object value : values) {
-        if (hasValue(value)) {
+        if (org.jeometry.common.util.Property.hasValue(value)) {
           return true;
         }
       }
@@ -758,8 +669,8 @@ public interface Property {
   }
 
   static boolean isChanged(final Object oldValue, final Object newValue) {
-    final boolean oldHasValue = Property.hasValue(oldValue);
-    final boolean newHasValue = Property.hasValue(newValue);
+    final boolean oldHasValue = org.jeometry.common.util.Property.hasValue(oldValue);
+    final boolean newHasValue = org.jeometry.common.util.Property.hasValue(newValue);
     if (oldHasValue) {
       if (newHasValue) {
         if (DataType.equal(oldValue, newValue)) {
@@ -779,55 +690,8 @@ public interface Property {
     }
   }
 
-  static boolean isEmpty(final Emptyable value) {
-    if (value == null) {
-      return true;
-    } else {
-      return value.isEmpty();
-    }
-  }
-
-  static boolean isEmpty(final Object value) {
-    if (value == null) {
-      return true;
-    } else if (value instanceof String) {
-      final String string = (String)value;
-      return !hasValue(string);
-    } else if (value instanceof CharSequence) {
-      final CharSequence string = (CharSequence)value;
-      return !hasValue(string);
-    } else if (value instanceof Collection<?>) {
-      final Collection<?> collection = (Collection<?>)value;
-      return collection.isEmpty();
-    } else if (value instanceof Map<?, ?>) {
-      final Map<?, ?> map = (Map<?, ?>)value;
-      return map.isEmpty();
-    } else if (value instanceof Emptyable) {
-      final Emptyable emptyable = (Emptyable)value;
-      return emptyable.isEmpty();
-    } else {
-      return false;
-    }
-  }
-
-  static boolean isEmpty(final Object[] value) {
-    if (value == null || value.length == 0) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  static boolean isEmpty(final String string) {
-    if (string == null) {
-      return true;
-    } else {
-      return string.isBlank();
-    }
-  }
-
   static <V> PropertyChangeListener newListener(final BiConsumer<String, V> consumer) {
-    return (event) -> {
+    return event -> {
       final String propertyName = event.getPropertyName();
       @SuppressWarnings("unchecked")
       final V value = (V)event.getNewValue();
@@ -836,7 +700,7 @@ public interface Property {
   }
 
   static <V> PropertyChangeListener newListener(final BiFunction<String, V, ?> function) {
-    return (event) -> {
+    return event -> {
       final String propertyName = event.getPropertyName();
       @SuppressWarnings("unchecked")
       final V value = (V)event.getNewValue();
@@ -1048,51 +912,9 @@ public interface Property {
         final Map<String, Object> map = (Map<String, Object>)object;
         map.put(propertyName, value);
       } else {
-        setSimple(object, propertyName, value);
+        org.jeometry.common.util.Property.setSimple(object, propertyName, value);
       }
     }
-  }
-
-  /**
-   *
-   *
-   * @param object
-   * @param propertyName
-   * @param value
-   * @return True if the property existed.
-   */
-  public static boolean setSimple(final Object object, final String propertyName,
-    final Object value) {
-    final PropertyDescriptor propertyDescriptor = PropertyDescriptorCache
-      .getPropertyDescriptor(object, propertyName);
-    if (propertyDescriptor != null) {
-      final Class<?> propertyType = propertyDescriptor.getPropertyType();
-      final Method writeMethod = propertyDescriptor.getWriteMethod();
-      if (writeMethod != null) {
-        Object convertedValue = DataTypes.toObject(propertyType, value);
-        if (convertedValue == null && propertyType.isPrimitive()) {
-          if (Number.class.isAssignableFrom(propertyType)) {
-            convertedValue = DataTypes.toObject(propertyType, 0);
-          } else if (Boolean.TYPE.equals(propertyType)) {
-            convertedValue = false;
-          } else if (Character.TYPE.equals(propertyType)) {
-            convertedValue = ' ';
-          }
-        }
-        try {
-          writeMethod.invoke(object, convertedValue);
-        } catch (final IllegalArgumentException e) {
-          throw Exceptions.wrap("Invalid value: " + propertyName + "=" + convertedValue, e);
-        } catch (final IllegalAccessException e) {
-          Exceptions.throwUncheckedException(e);
-        } catch (final InvocationTargetException e) {
-          final Throwable targetException = e.getTargetException();
-          Exceptions.throwUncheckedException(targetException);
-        }
-        return true;
-      }
-    }
-    return false;
   }
 
   static String toString(final Object object, final String methodName,

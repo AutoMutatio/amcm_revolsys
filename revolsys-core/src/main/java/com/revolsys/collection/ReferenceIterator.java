@@ -5,7 +5,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-import com.revolsys.collection.iterator.AbstractIterator;
+import org.jeometry.common.collection.iterator.AbstractIterator;
 
 public class ReferenceIterator<V> extends AbstractIterator<V> {
   private Iterator<Reference<V>> iterator;

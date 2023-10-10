@@ -5,8 +5,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import com.revolsys.collection.map.MapEx;
-import com.revolsys.record.io.format.json.JsonObject;
+import org.jeometry.common.collection.map.MapEx;
+import org.jeometry.common.json.JsonObject;
 
 class ImgField {
   private static final int BIT = 0;

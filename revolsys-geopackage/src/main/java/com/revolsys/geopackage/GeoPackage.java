@@ -15,6 +15,9 @@ import java.util.regex.Pattern;
 
 import javax.sql.DataSource;
 
+import org.jeometry.common.collection.map.MapEx;
+import org.jeometry.common.collection.map.Maps;
+import org.jeometry.common.json.JsonObject;
 import org.jeometry.common.logging.Logs;
 import org.sqlite.SQLiteConfig;
 import org.sqlite.SQLiteConfig.LockingMode;
@@ -22,8 +25,6 @@ import org.sqlite.SQLiteDataSource;
 import org.sqlite.SQLiteJDBCLoader;
 import org.sqlite.SQLiteOpenMode;
 
-import com.revolsys.collection.map.MapEx;
-import com.revolsys.collection.map.Maps;
 import com.revolsys.io.FileUtil;
 import com.revolsys.io.file.Paths;
 import com.revolsys.jdbc.io.AbstractJdbcDatabaseFactory;
@@ -36,7 +37,6 @@ import com.revolsys.record.io.RecordReaderFactory;
 import com.revolsys.record.io.RecordWriter;
 import com.revolsys.record.io.RecordWriterFactory;
 import com.revolsys.record.io.format.OutputStreamRecordWriter;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinitionProxy;
 import com.revolsys.record.schema.RecordStore;
@@ -225,7 +225,7 @@ public class GeoPackage extends AbstractJdbcDatabaseFactory
   public DataSource newDataSource(final Map<String, ? extends Object> config) {
     final MapEx newConfig = JsonObject.hash(config);
     String url = (String)newConfig.remove("url");
-    if (!Property.hasValue(url)) {
+    if (!org.jeometry.common.util.Property.hasValue(url)) {
       throw new IllegalArgumentException("jdbc url required");
     }
 
@@ -255,7 +255,7 @@ public class GeoPackage extends AbstractJdbcDatabaseFactory
         final String name = property.getKey();
         final Object value = property.getValue();
         try {
-          Property.setSimple(sqliteConfig, name, value);
+          org.jeometry.common.util.Property.setSimple(sqliteConfig, name, value);
         } catch (final Throwable t) {
           Logs.debug(this,
             "Unable to set data source property " + name + " = " + value + " for " + url, t);

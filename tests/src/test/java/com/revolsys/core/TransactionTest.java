@@ -5,10 +5,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.util.UUID;
 
 import org.jeometry.common.io.PathName;
+import org.jeometry.common.json.JsonObject;
 import org.junit.Test;
 
 import com.revolsys.record.Record;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.record.schema.RecordStore;
 import com.revolsys.transaction.Transaction;
 

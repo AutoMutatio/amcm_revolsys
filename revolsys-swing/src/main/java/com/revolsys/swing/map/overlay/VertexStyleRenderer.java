@@ -46,7 +46,7 @@ public class VertexStyleRenderer {
 
   public void paintSelected(final ViewRenderer view, final Graphics2D graphics,
     final GeometryFactory viewportGeometryFactory, final Vertex vertex) {
-    if (Property.hasValue(vertex)) {
+    if (org.jeometry.common.util.Property.hasValue(vertex)) {
       MarkerStyle style;
       final boolean to = vertex.isTo();
       if (vertex.isFrom()) {

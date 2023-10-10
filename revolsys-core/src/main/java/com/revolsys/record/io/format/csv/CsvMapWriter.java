@@ -15,9 +15,9 @@ import java.util.Map;
 
 import org.jeometry.common.data.type.DataTypes;
 import org.jeometry.common.exception.Exceptions;
+import org.jeometry.common.util.BaseCloseable;
 
 import com.revolsys.io.AbstractMapWriter;
-import com.revolsys.io.FileUtil;
 
 public class CsvMapWriter extends AbstractMapWriter {
   private List<String> fieldNames;
@@ -51,7 +51,7 @@ public class CsvMapWriter extends AbstractMapWriter {
   @Override
   public void close() {
     flush();
-    FileUtil.closeSilent(this.out);
+    BaseCloseable.closeSilent(this.out);
     this.out = null;
   }
 

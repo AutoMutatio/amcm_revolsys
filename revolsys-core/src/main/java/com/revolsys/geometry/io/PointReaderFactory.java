@@ -1,9 +1,10 @@
 package com.revolsys.geometry.io;
 
-import com.revolsys.collection.map.MapEx;
+import org.jeometry.common.collection.map.MapEx;
+import org.jeometry.common.json.JsonObject;
+
 import com.revolsys.io.FileIoFactory;
 import com.revolsys.io.ReadIoFactory;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.spring.resource.Resource;
 
 public interface PointReaderFactory extends FileIoFactory, ReadIoFactory {

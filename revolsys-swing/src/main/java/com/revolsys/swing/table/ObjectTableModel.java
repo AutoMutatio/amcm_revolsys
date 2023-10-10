@@ -49,7 +49,7 @@ public class ObjectTableModel<T> extends AbstractTableModel {
   public Object getValueAt(final int rowIndex, final int columnIndex) {
     final Object row = this.rows.get(rowIndex);
     final String propertyName = this.propertyNames[columnIndex];
-    return Property.getSimple(row, propertyName);
+    return org.jeometry.common.util.Property.getSimple(row, propertyName);
   }
 
   public void insertRow(final int rowIndex, final T row) {
@@ -77,7 +77,7 @@ public class ObjectTableModel<T> extends AbstractTableModel {
   public void setValueAt(final Object value, final int rowIndex, final int columnIndex) {
     final Object row = this.rows.get(rowIndex);
     final String propertyName = this.propertyNames[columnIndex];
-    Property.setSimple(row, propertyName, value);
+    org.jeometry.common.util.Property.setSimple(row, propertyName, value);
   }
 
 }

@@ -5,9 +5,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.jeometry.common.collection.list.Lists;
+import org.jeometry.common.json.JsonObject;
 import org.jeometry.common.logging.Logs;
 
-import com.revolsys.collection.list.Lists;
 import com.revolsys.elevation.gridded.GriddedElevationModel;
 import com.revolsys.elevation.gridded.GriddedElevationModelReaderFactory;
 import com.revolsys.elevation.gridded.scaledint.ScaledIntegerGriddedDigitalElevation;
@@ -17,7 +18,6 @@ import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.io.IoFactory;
 import com.revolsys.io.map.MapObjectFactory;
 import com.revolsys.raster.BufferedGeoreferencedImage;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.spring.resource.Resource;
 import com.revolsys.swing.SwingUtil;
 import com.revolsys.swing.component.BasePanel;
@@ -242,7 +242,7 @@ public class TiledGriddedElevationModelLayer
       SwingUtil.addLabelledReadOnlyTextField(panel, "Base URL", this.url);
     }
     SwingUtil.addLabelledReadOnlyTextField(panel, "File Prefix", this.filePrefix);
-    if (Property.hasValue(this.fileExtension)) {
+    if (org.jeometry.common.util.Property.hasValue(this.fileExtension)) {
       SwingUtil.addLabelledReadOnlyTextField(panel, "File Extension", this.fileExtension);
       final GriddedElevationModelReaderFactory factory = IoFactory
         .factoryByFileExtension(GriddedElevationModelReaderFactory.class, this.fileExtension);

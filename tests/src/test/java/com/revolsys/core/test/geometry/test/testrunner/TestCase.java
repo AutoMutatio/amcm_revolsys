@@ -37,12 +37,12 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 
+import org.jeometry.common.io.MapSerializer;
+import org.jeometry.common.json.JsonObject;
 import org.springframework.util.StringUtils;
 
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryFactory;
-import com.revolsys.io.map.MapSerializer;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.util.Property;
 
 import junit.framework.Test;
@@ -78,7 +78,7 @@ public class TestCase extends junit.framework.TestSuite implements MapSerializer
     final File bWktFile, final TestFile testFile, final int caseIndex, final int lineNumber) {
     this.testFile = testFile;
     this.caseIndex = caseIndex;
-    if (Property.hasValue(description)) {
+    if (org.jeometry.common.util.Property.hasValue(description)) {
       this.testDescription = description.replaceAll("\\s+", " ")
         .replaceAll("[^A-Za-z0-9\\-_ ]", " ");
       setName(getId() + "." + this.testDescription);
@@ -168,7 +168,7 @@ public class TestCase extends junit.framework.TestSuite implements MapSerializer
     final JsonObject map = JsonObject.hash();
     map.put("type", "test");
 
-    if (Property.hasValue(this.testDescription)) {
+    if (org.jeometry.common.util.Property.hasValue(this.testDescription)) {
       map.put("description", this.testDescription);
     }
     addToMap(map, "geometryFactory", this.geometryFactory);

@@ -10,13 +10,14 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import org.jeometry.common.collection.iterator.AbstractIterator;
+import org.jeometry.common.collection.map.MapEx;
+import org.jeometry.common.collection.map.Maps;
 import org.jeometry.common.exception.Exceptions;
+import org.jeometry.common.io.IoUtil;
 import org.jeometry.common.number.Doubles;
 import org.jeometry.common.number.Numbers;
 
-import com.revolsys.collection.iterator.AbstractIterator;
-import com.revolsys.collection.map.MapEx;
-import com.revolsys.collection.map.Maps;
 import com.revolsys.elevation.gridded.DoubleArrayGriddedElevationModel;
 import com.revolsys.elevation.gridded.GriddedElevationModel;
 import com.revolsys.elevation.gridded.GriddedElevationModelReader;
@@ -98,7 +99,7 @@ public class EsriAsciiGriddedElevationModelReader extends AbstractIterator<Point
           final String name = zipEntry.getName();
           if (name.equals(projName)) {
             if (this.geometryFactory != GeometryFactory.DEFAULT_3D) {
-              final String wkt = FileUtil
+              final String wkt = IoUtil
                 .getString(new InputStreamReader(in, StandardCharsets.UTF_8), false);
               final GeometryFactory geometryFactory = GeometryFactory.floating3d(wkt);
               if (geometryFactory.isHasHorizontalCoordinateSystem()) {

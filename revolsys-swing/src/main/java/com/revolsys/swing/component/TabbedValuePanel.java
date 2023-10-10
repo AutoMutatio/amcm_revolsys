@@ -61,7 +61,7 @@ public class TabbedValuePanel extends ValueField {
   }
 
   public void setSelectdTab(final String tabName) {
-    if (Property.hasValue(tabName)) {
+    if (org.jeometry.common.util.Property.hasValue(tabName)) {
       for (int i = 0; i < this.tabs.getTabCount(); i++) {
         final String name = this.tabs.getTitleAt(i);
         if (tabName.equals(name)) {

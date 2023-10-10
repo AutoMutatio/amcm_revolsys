@@ -1,8 +1,8 @@
 package com.revolsys.record.query;
 
+import org.jeometry.common.collection.map.MapEx;
 import org.jeometry.common.data.type.DataType;
 
-import com.revolsys.collection.map.MapEx;
 import com.revolsys.util.Property;
 
 public class Like extends BinaryCondition {
@@ -54,8 +54,8 @@ public class Like extends BinaryCondition {
     final QueryValue right = getRight();
     String value2 = right.getStringValue(record);
 
-    if (Property.hasValue(value1)) {
-      if (Property.hasValue(value2)) {
+    if (org.jeometry.common.util.Property.hasValue(value1)) {
+      if (org.jeometry.common.util.Property.hasValue(value2)) {
         if (value2.contains("%")) {
           value2 = toPattern(value2);
           if (value1.matches(value2)) {
@@ -70,7 +70,7 @@ public class Like extends BinaryCondition {
         return false;
       }
     } else {
-      return !Property.hasValue(value2);
+      return !org.jeometry.common.util.Property.hasValue(value2);
     }
   }
 

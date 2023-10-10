@@ -17,7 +17,7 @@ public class WebMercatorTileCacheClient {
   private final String serverUrl;
 
   public WebMercatorTileCacheClient(final String serverUrl) {
-    if (Property.hasValue(serverUrl)) {
+    if (org.jeometry.common.util.Property.hasValue(serverUrl)) {
       this.serverUrl = serverUrl;
     } else {
       throw new IllegalArgumentException("Open Street Map tile server URL must be specified");

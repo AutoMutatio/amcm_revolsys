@@ -12,7 +12,7 @@ public class GeometryVertexQuadTree extends IdObjectQuadTree<Vertex> {
   private static final long serialVersionUID = 1L;
 
   public static GeometryVertexQuadTree get(final Geometry geometry) {
-    if (Property.hasValue(geometry)) {
+    if (org.jeometry.common.util.Property.hasValue(geometry)) {
       try {
         return new GeometryVertexQuadTree(geometry);
       } catch (final Error e) {

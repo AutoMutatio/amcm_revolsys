@@ -1,9 +1,9 @@
 package com.revolsys.swing.map.overlay;
 
+import org.jeometry.common.collection.list.Lists;
 import org.jeometry.common.data.identifier.Identifier;
 import org.jeometry.common.data.type.DataType;
 
-import com.revolsys.collection.list.Lists;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.geometry.model.Point;
@@ -222,7 +222,7 @@ public class CloseLocation implements Comparable<CloseLocation> {
   public String toString() {
     final StringBuilder string = new StringBuilder();
     final String layerPath = getLayerPath();
-    if (Property.hasValue(layerPath)) {
+    if (org.jeometry.common.util.Property.hasValue(layerPath)) {
       string.append(layerPath);
     }
     if (getRecordDefinition() != null) {

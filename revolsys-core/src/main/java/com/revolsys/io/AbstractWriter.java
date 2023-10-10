@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import com.revolsys.properties.BaseObjectWithProperties;
+import org.jeometry.common.util.BaseObjectWithProperties;
 
 public abstract class AbstractWriter<T> extends BaseObjectWithProperties implements Writer<T> {
 

@@ -31,6 +31,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 
+import org.jeometry.common.io.IoUtil;
 import org.jeometry.common.logging.Logs;
 
 import com.revolsys.io.AbstractRecordWriter;
@@ -302,7 +303,7 @@ public class SaifWriter extends AbstractRecordWriter {
       if (this.schemaResource != null) {
         final InputStream in = getClass().getResourceAsStream(this.schemaResource);
         if (in != null) {
-          FileUtil.copy(in, new File(this.tempDirectory, "clasdefs.csn"));
+          IoUtil.copy(in, new File(this.tempDirectory, "clasdefs.csn"));
         }
       }
       if (this.schemaFileNames != null) {
@@ -315,7 +316,7 @@ public class SaifWriter extends AbstractRecordWriter {
               final SaifSchemaReader reader = new SaifSchemaReader();
               setRecordDefinitionFactory(reader.loadSchemas(this.schemaFileNames));
               try {
-                FileUtil.copy(in, out);
+                IoUtil.copy(in, out);
               } finally {
                 in.close();
               }
@@ -355,7 +356,7 @@ public class SaifWriter extends AbstractRecordWriter {
       if (!parentDir.exists()) {
         parentDir.mkdirs();
       }
-      String fileName = FileUtil.getFileName(file);
+      String fileName = IoUtil.getFileName(file);
       String filePrefix = fileName;
       final int extensionIndex = fileName.lastIndexOf('.');
       if (extensionIndex != -1) {
@@ -489,7 +490,7 @@ public class SaifWriter extends AbstractRecordWriter {
       final String objectSubset = (String)export.get("objectSubset");
       String compositeTypeName = PathUtil.getName(compositeType);
       final String compositeNamespace = PathUtil.getPath(compositeType).replaceAll("/", "");
-      if (Property.hasValue(compositeNamespace)) {
+      if (org.jeometry.common.util.Property.hasValue(compositeNamespace)) {
         compositeTypeName += "::" + compositeNamespace;
       }
       writeExport(exportsSerializer, referenceId, compositeTypeName, objectSubset);

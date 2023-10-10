@@ -344,17 +344,17 @@ public class OrderedEqualCompareProcessor extends AbstractInProcess<Record> {
         return true;
       } else if (value2 instanceof String) {
         final String string2 = (String)value2;
-        return !Property.hasValue(string2);
+        return !org.jeometry.common.util.Property.hasValue(string2);
       }
     } else if (value2 == null) {
       if (value1 instanceof String) {
         final String string1 = (String)value1;
-        return !Property.hasValue(string1);
+        return !org.jeometry.common.util.Property.hasValue(string1);
       } else {
         return false;
       }
     } else if (value1 instanceof String && value2 instanceof String) {
-      if (!Property.hasValue((String)value1) && !Property.hasValue((String)value2)) {
+      if (!org.jeometry.common.util.Property.hasValue((String)value1) && !org.jeometry.common.util.Property.hasValue((String)value2)) {
         return true;
       }
     }

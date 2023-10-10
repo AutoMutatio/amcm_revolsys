@@ -1,7 +1,7 @@
 package com.revolsys.value;
 
-import com.revolsys.io.BaseCloseable;
-import com.revolsys.util.Emptyable;
+import org.jeometry.common.util.BaseCloseable;
+import org.jeometry.common.util.Emptyable;
 
 public interface ValueHolder<T> extends Emptyable {
   default BaseCloseable closeable(final T value) {

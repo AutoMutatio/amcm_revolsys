@@ -71,7 +71,7 @@ public final class HttpServletUtils {
   public static boolean getBooleanParameter(final HttpServletRequest request,
     final String paramName) {
     final String value = request.getParameter(paramName);
-    if (Property.hasValue(value)) {
+    if (org.jeometry.common.util.Property.hasValue(value)) {
       return Boolean.parseBoolean(value);
     }
     return false;
@@ -79,7 +79,7 @@ public final class HttpServletUtils {
 
   public static Boolean getBoolParameter(final HttpServletRequest request, final String paramName) {
     final String value = request.getParameter(paramName);
-    if (Property.hasValue(value)) {
+    if (org.jeometry.common.util.Property.hasValue(value)) {
       return Boolean.parseBoolean(value);
     }
     return null;
@@ -103,7 +103,7 @@ public final class HttpServletUtils {
 
   public static int getIntegerParameter(final HttpServletRequest request, final String paramName) {
     final String value = request.getParameter(paramName);
-    if (Property.hasValue(value)) {
+    if (org.jeometry.common.util.Property.hasValue(value)) {
       try {
         return Integer.parseInt(value);
       } catch (final NumberFormatException e) {
@@ -115,7 +115,7 @@ public final class HttpServletUtils {
   public static int getIntParameter(final HttpServletRequest request, final String paramName,
     final int defaultValue) {
     final String value = request.getParameter(paramName);
-    if (Property.hasValue(value)) {
+    if (org.jeometry.common.util.Property.hasValue(value)) {
       return Integer.parseInt(value);
     }
     return defaultValue;
@@ -261,11 +261,11 @@ public final class HttpServletUtils {
 
   public static boolean isApiCall(final HttpServletRequest request) {
     final String requestedWith = request.getHeader("x-requested-with");
-    if (Property.hasValue(requestedWith)) {
+    if (org.jeometry.common.util.Property.hasValue(requestedWith)) {
       return true;
     } else {
       final String referrer = request.getHeader("referrer");
-      if (Property.hasValue(referrer)) {
+      if (org.jeometry.common.util.Property.hasValue(referrer)) {
         return false;
       } else {
         final String accept = request.getHeader("accept");

@@ -5,9 +5,10 @@ import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map.Entry;
-import java.util.NoSuchElementException;
 
-import com.revolsys.collection.iterator.AbstractIterator;
+import org.jeometry.common.collection.iterator.AbstractIterator;
+
+import java.util.NoSuchElementException;
 
 public class ReferenceEntryIterator<K, V> extends AbstractIterator<Entry<K, V>> {
   private Iterator<Entry<K, Reference<V>>> iterator;

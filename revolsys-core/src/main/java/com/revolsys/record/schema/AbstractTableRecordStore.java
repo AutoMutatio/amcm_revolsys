@@ -12,14 +12,16 @@ import java.util.function.Supplier;
 
 import jakarta.servlet.http.HttpServletRequest;
 
+import org.jeometry.common.collection.map.MapEx;
 import org.jeometry.common.data.identifier.Identifier;
 import org.jeometry.common.data.type.DataType;
 import org.jeometry.common.data.type.DataTypes;
 import org.jeometry.common.exception.Exceptions;
 import org.jeometry.common.io.PathName;
+import org.jeometry.common.json.JsonList;
+import org.jeometry.common.json.JsonObject;
 import org.jeometry.common.logging.Logs;
 
-import com.revolsys.collection.map.MapEx;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.jdbc.JdbcConnection;
 import com.revolsys.jdbc.field.JdbcFieldDefinition;
@@ -31,8 +33,6 @@ import com.revolsys.record.Record;
 import com.revolsys.record.code.CodeTable;
 import com.revolsys.record.io.RecordReader;
 import com.revolsys.record.io.RecordWriter;
-import com.revolsys.record.io.format.json.JsonList;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.record.query.Cast;
 import com.revolsys.record.query.ColumnReference;
 import com.revolsys.record.query.Condition;
@@ -43,11 +43,8 @@ import com.revolsys.record.query.Query;
 import com.revolsys.record.query.QueryValue;
 import com.revolsys.record.query.TableReference;
 import com.revolsys.record.query.UpdateStatement;
-import com.revolsys.transaction.TransactionBuilder;
-import com.revolsys.transaction.Transactionable;
-import com.revolsys.util.Property;
 
-public class AbstractTableRecordStore implements RecordDefinitionProxy, Transactionable {
+public class AbstractTableRecordStore implements RecordDefinitionProxy {
 
   public static JsonObject schemaToJson(final RecordDefinition recordDefinition) {
     final JsonList jsonFields = JsonList.array();
@@ -139,7 +136,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy, Transact
   }
 
   public void addQueryOrderBy(final Query query, final String orderBy) {
-    if (Property.hasValue(orderBy)) {
+    if (org.jeometry.common.util.Property.hasValue(orderBy)) {
       for (String orderClause : orderBy.split(",")) {
         orderClause = orderClause.strip();
         String fieldName;
@@ -307,7 +304,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy, Transact
   }
 
   public boolean hasRecord(final TableRecordStoreConnection connection, final Query query) {
-    return query.getRecordCount() > 0;
+    return connection.transactionCall(() -> query.getRecordCount() > 0);
   }
 
   public boolean hasRecord(final TableRecordStoreConnection connection, final String fieldName,
@@ -333,7 +330,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy, Transact
   }
 
   public Record insertRecord(final TableRecordStoreConnection connection, final Record record) {
-    return transactionCall(() -> {
+    return connection.transactionCall(() -> {
       insertRecordBefore(connection, record);
       validateRecord(record);
       this.recordStore.insertRecord(record);
@@ -354,9 +351,10 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy, Transact
     return this.recordDefinition.isIdField(fieldName);
   }
 
-  public void lockTable() {
+  public void lockTable(final TableRecordStoreConnection connection) {
     if (this.recordStore instanceof JdbcRecordStore) {
-      this.recordStore.<JdbcRecordStore> getRecordStore().lockTable(this.tablePath);
+      connection.transactionRun(
+        () -> this.recordStore.<JdbcRecordStore> getRecordStore().lockTable(this.tablePath));
     }
   }
 
@@ -371,7 +369,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy, Transact
   }
 
   public Condition newODataFilter(String filter) {
-    if (Property.hasValue(filter)) {
+    if (org.jeometry.common.util.Property.hasValue(filter)) {
       filter = filter.replace("%2B", "+");
       final TableReference table = getTable();
       return (Condition)ODataParser.parseFilter(table, filter);
@@ -412,7 +410,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy, Transact
 
     final Query query = newQuery(connection).setOffset(skip).setLimit(top);
 
-    if (Property.hasValue(select)) {
+    if (org.jeometry.common.util.Property.hasValue(select)) {
       for (String selectItem : select.split(",")) {
         selectItem = selectItem.strip();
         addSelect(connection, query, selectItem);
@@ -444,7 +442,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy, Transact
       final Record record = newRecord();
       for (final String fieldName : values.keySet()) {
         final Object value = values.getValue(fieldName);
-        if (Property.hasValue(value)) {
+        if (org.jeometry.common.util.Property.hasValue(value)) {
           record.setValue(fieldName, value);
         }
       }
@@ -586,11 +584,6 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy, Transact
     return this;
   }
 
-  @Override
-  public TransactionBuilder transaction() {
-    return this.recordStore.transaction();
-  }
-
   public Record updateRecord(final TableRecordStoreConnection connection, final Identifier id,
     final Consumer<Record> updateAction) {
     final Query query = newQuery(connection)
@@ -635,39 +628,43 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy, Transact
 
   public final Record updateRecordDo(final TableRecordStoreConnection connection,
     final ChangeTrackRecord record) {
-    try {
-      if (record.isModified()) {
-        updateRecordBefore(connection, record);
-        this.recordStore.updateRecord(record);
-        updateRecordAfter(connection, record);
+    return connection.transactionCall(() -> {
+      try {
+        if (record.isModified()) {
+          updateRecordBefore(connection, record);
+          this.recordStore.updateRecord(record);
+          updateRecordAfter(connection, record);
+        }
+        return record.newRecord();
+      } catch (final Exception e) {
+        throw Exceptions.wrap("Unable to update record:\n" + record, e);
       }
-      return record.newRecord();
-    } catch (final Exception e) {
-      throw Exceptions.wrap("Unable to update record:\n" + record, e);
-    }
+    });
   }
 
   public int updateRecords(final TableRecordStoreConnection connection, final Query query,
     final Consumer<? super ChangeTrackRecord> updateAction) {
-    int i = 0;
-    final RecordDefinition recordDefinition = getRecordDefinition();
-    final RecordStore recordStore = this.recordStore;
-    query.setRecordFactory(ArrayChangeTrackRecord.FACTORY);
-    try (
-      RecordReader reader = getRecordReader(connection, query);
-      RecordWriter writer = recordStore.newRecordWriter(recordDefinition)) {
-      for (final Record queryRecord : reader) {
-        final ChangeTrackRecord record = (ChangeTrackRecord)queryRecord;
-        updateAction.accept(record);
-        if (record.isModified()) {
-          updateRecordBefore(connection, record);
-          writer.write(record);
-          updateRecordAfter(connection, record);
-          i++;
+    return connection.transactionCall(() -> {
+      int i = 0;
+      final RecordDefinition recordDefinition = getRecordDefinition();
+      final RecordStore recordStore = this.recordStore;
+      query.setRecordFactory(ArrayChangeTrackRecord.FACTORY);
+      try (
+        RecordReader reader = getRecordReader(connection, query);
+        RecordWriter writer = recordStore.newRecordWriter(recordDefinition)) {
+        for (final Record queryRecord : reader) {
+          final ChangeTrackRecord record = (ChangeTrackRecord)queryRecord;
+          updateAction.accept(record);
+          if (record.isModified()) {
+            updateRecordBefore(connection, record);
+            writer.write(record);
+            updateRecordAfter(connection, record);
+            i++;
+          }
         }
       }
-    }
-    return i;
+      return i;
+    });
   }
 
   public UpdateStatement updateStatement() {

@@ -311,7 +311,7 @@ public abstract class JdbcDdlWriter implements Cloneable {
   }
 
   public void writeTableName(final String schemaName, final String tableName) {
-    if (Property.hasValue(schemaName)) {
+    if (org.jeometry.common.util.Property.hasValue(schemaName)) {
       this.out.print(schemaName);
       this.out.print('.');
     }

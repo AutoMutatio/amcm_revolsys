@@ -5,13 +5,13 @@ import java.util.List;
 import java.util.Map;
 
 import org.jeometry.common.data.type.DataType;
+import org.jeometry.common.json.JsonObject;
 import org.jeometry.common.logging.Logs;
 import org.jeometry.coordinatesystem.model.systems.EpsgId;
 
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.parallel.ExecutorServiceFactory;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.swing.map.layer.raster.AbstractTiledGeoreferencedImageLayer;
 import com.revolsys.swing.map.layer.tile.AbstractTiledLayerRenderer;
 import com.revolsys.swing.map.view.ViewRenderer;

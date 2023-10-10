@@ -2,15 +2,12 @@ package com.revolsys.transaction;
 
 import java.lang.ScopedValue.Carrier;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 
 import org.jeometry.common.exception.Exceptions;
-
-import com.revolsys.io.BaseCloseable;
+import org.jeometry.common.util.BaseCloseable;
 
 public class Transaction {
   public interface Builder {
@@ -23,29 +20,29 @@ public class Transaction {
   static class MandatoryBuilder implements Builder {
     @Override
     public <V> V call(final Callable<V> action) {
-      try {
-        if (hasContext()) {
+      if (hasContext()) {
+        try {
           return action.call();
-        } else {
-          throw new IllegalStateException(
-            "Propagation Mandatory must run inside an existing transaction");
+        } catch (final Exception e) {
+          return Exceptions.throwUncheckedException(e);
         }
-      } catch (final Exception e) {
-        return Exceptions.throwUncheckedException(e);
+      } else {
+        throw new IllegalStateException(
+          "Propagation Mandatory must run inside an existing transaction");
       }
     }
 
     @Override
     public void run(final RunAction action) {
-      try {
-        if (hasContext()) {
+      if (hasContext()) {
+        try {
           action.run();
-        } else {
-          throw new IllegalStateException(
-            "Propagation Mandatory must run inside an existing transaction");
+        } catch (final Exception e) {
+          Exceptions.throwUncheckedException(e);
         }
-      } catch (final Exception e) {
-        Exceptions.throwUncheckedException(e);
+      } else {
+        throw new IllegalStateException(
+          "Propagation Mandatory must run inside an existing transaction");
       }
     }
   }
@@ -53,29 +50,29 @@ public class Transaction {
   static class NeverBuilder implements Builder {
     @Override
     public <V> V call(final Callable<V> action) {
-      try {
-        if (hasContext()) {
-          throw new IllegalStateException(
-            "Propagation Mandatory must run inside an existing transaction");
-        } else {
+      if (hasContext()) {
+        throw new IllegalStateException(
+          "Propagation Mandatory must run inside an existing transaction");
+      } else {
+        try {
           return action.call();
+        } catch (final Exception e) {
+          return Exceptions.throwUncheckedException(e);
         }
-      } catch (final Exception e) {
-        return Exceptions.throwUncheckedException(e);
       }
     }
 
     @Override
     public void run(final RunAction action) {
-      try {
-        if (hasContext()) {
-          throw new IllegalStateException(
-            "Propagation Mandatory must run inside an existing transaction");
-        } else {
+      if (hasContext()) {
+        throw new IllegalStateException(
+          "Propagation Mandatory must run inside an existing transaction");
+      } else {
+        try {
           action.run();
+        } catch (final Exception e) {
+          Exceptions.throwUncheckedException(e);
         }
-      } catch (final Exception e) {
-        Exceptions.throwUncheckedException(e);
       }
     }
   }
@@ -85,7 +82,11 @@ public class Transaction {
     public <V> V call(final Callable<V> action) {
       try (
         var s = suspend()) {
-        return whereCall(EMPTY, Collections.emptyList(), action);
+        try {
+          return ScopedValue.where(CONTEXT, EMPTY).call(action);
+        } catch (final Throwable t) {
+          return EMPTY.setRollbackOnly(t);
+        }
       }
     }
 
@@ -93,7 +94,8 @@ public class Transaction {
     public void run(final RunAction action) {
       try (
         var s = suspend()) {
-        whereRun(EMPTY, Collections.emptyList(), action);
+        final Runnable runnable = runnable(EMPTY, action);
+        ScopedValue.where(CONTEXT, EMPTY).run(runnable);
       }
     }
   }
@@ -115,7 +117,14 @@ public class Transaction {
           return Exceptions.throwUncheckedException(e);
         }
       } else {
-        return whereCall(new ActiveTransactionContext(), this.initializers, action);
+        try (
+          var context = new ActiveTransactionContext(this.initializers)) {
+          try {
+            return ScopedValue.where(CONTEXT, context).call(action);
+          } catch (final Throwable t) {
+            return context.setRollbackOnly(t);
+          }
+        }
       }
     }
 
@@ -128,7 +137,11 @@ public class Transaction {
           Exceptions.throwUncheckedException(e);
         }
       } else {
-        whereRun(new ActiveTransactionContext(), this.initializers, action);
+        try (
+          var context = new ActiveTransactionContext(this.initializers)) {
+          final Runnable runnable = runnable(context, action);
+          ScopedValue.where(CONTEXT, context).run(runnable);
+        }
       }
     }
 
@@ -146,19 +159,25 @@ public class Transaction {
     @Override
     public <V> V call(final Callable<V> action) {
       try (
-        var s = suspend()) {
-        return whereCall(new ActiveTransactionContext(this), this.initializers, action);
+        var s = suspend();
+        ActiveTransactionContext context = new ActiveTransactionContext(this, this.initializers)) {
+        try {
+          return ScopedValue.where(CONTEXT, context).call(action);
+        } catch (final Throwable t) {
+          return context.setRollbackOnly(t);
+        }
       }
     }
 
     @Override
     public void run(final RunAction action) {
       try (
-        var s = suspend()) {
-        whereRun(new ActiveTransactionContext(this), this.initializers, action);
+        var s = suspend();
+        ActiveTransactionContext context = new ActiveTransactionContext(this, this.initializers)) {
+        final Runnable runnable = runnable(context, action);
+        ScopedValue.where(CONTEXT, context).run(runnable);
       }
     }
-
   }
 
   public interface RunAction {
@@ -224,13 +243,23 @@ public class Transaction {
     return null;
   }
 
+  protected static <C extends TransactionContext> Runnable runnable(final C context,
+    final RunAction action) {
+    return () -> {
+      try {
+        action.run();
+      } catch (final Throwable t) {
+        context.setRollbackOnly(t);
+      }
+    };
+  }
+
   private static BaseCloseable suspend() {
     final TransactionContext context = getContext();
     if (context instanceof final ActiveTransactionContext mapContext) {
       return mapContext.suspend();
     } else {
-      return () -> {
-      };
+      return BaseCloseable.EMPTY;
     }
   }
 
@@ -240,36 +269,6 @@ public class Transaction {
 
   static Carrier where(final TransactionContext context) {
     return ScopedValue.where(CONTEXT, context);
-  }
-
-  private static <V, C extends TransactionContext> V whereCall(final C context,
-    final Collection<Consumer<C>> initializers, final Callable<V> action) {
-    try (
-      var c = context) {
-      initializers.forEach(i -> i.accept(context));
-      try {
-        return ScopedValue.where(CONTEXT, context).call(action);
-      } catch (final Throwable t) {
-        return context.setRollbackOnly(t);
-      }
-    }
-  }
-
-  private static <C extends TransactionContext> void whereRun(final C context,
-    final Collection<Consumer<C>> initializers, final RunAction action) {
-    try (
-      var c = context) {
-      initializers.forEach(i -> i.accept(context));
-      ScopedValue.where(CONTEXT, context).run(() -> {
-        try {
-          action.run();
-        } catch (final Throwable t) {
-          context.setRollbackOnly(t);
-        }
-      });
-    } catch (final Exception e) {
-      Exceptions.throwUncheckedException(e);
-    }
   }
 
 }

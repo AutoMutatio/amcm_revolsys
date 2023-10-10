@@ -8,12 +8,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import org.jeometry.common.collection.iterator.AbstractIterator;
 import org.jeometry.common.exception.Exceptions;
 import org.jeometry.common.io.PathName;
+import org.jeometry.common.util.BaseCloseable;
 import org.springframework.dao.DataAccessException;
 
-import com.revolsys.collection.iterator.AbstractIterator;
-import com.revolsys.io.FileUtil;
 import com.revolsys.jdbc.JdbcConnection;
 import com.revolsys.jdbc.JdbcUtils;
 import com.revolsys.record.Record;
@@ -59,7 +59,7 @@ public class JdbcQueryIterator extends AbstractIterator<Record>
   @Override
   public synchronized void closeDo() {
     JdbcUtils.close(this.statement, this.resultSet);
-    FileUtil.closeSilent(this.connection);
+    BaseCloseable.closeSilent(this.connection);
     this.selectExpressions = null;
     this.connection = null;
     this.recordFactory = null;

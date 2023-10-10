@@ -11,7 +11,8 @@ import java.util.Queue;
 
 import javax.xml.stream.XMLStreamException;
 
-import com.revolsys.properties.BaseObjectWithProperties;
+import org.jeometry.common.util.BaseObjectWithProperties;
+
 import com.revolsys.record.Record;
 import com.revolsys.record.RecordFactory;
 import com.revolsys.record.io.RecordReader;

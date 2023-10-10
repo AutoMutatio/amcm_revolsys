@@ -388,7 +388,7 @@ public class JSqlParser extends AbstractSqlParser {
 
   @Override
   public Condition whereToCondition(final String whereClause) {
-    if (Property.hasValue(whereClause)) {
+    if (org.jeometry.common.util.Property.hasValue(whereClause)) {
       final String sql = this.sqlPrefix + " (" + "\n" + whereClause + "\n)";
       try {
         final Statement statement = CCJSqlParserUtil.parse(sql);

@@ -3,6 +3,8 @@ package com.revolsys.swing.map.layer.record.style.marker;
 import javax.measure.Quantity;
 import javax.measure.quantity.Length;
 
+import org.jeometry.common.util.BaseCloseable;
+
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.LineString;
 import com.revolsys.geometry.model.Point;
@@ -10,7 +12,6 @@ import com.revolsys.geometry.model.Polygon;
 import com.revolsys.geometry.model.impl.PointDoubleXYOrientation;
 import com.revolsys.geometry.model.segment.Segment;
 import com.revolsys.geometry.model.vertex.Vertex;
-import com.revolsys.io.BaseCloseable;
 import com.revolsys.swing.map.layer.record.style.MarkerStyle;
 import com.revolsys.swing.map.view.ViewRenderer;
 import com.revolsys.util.Property;
@@ -99,7 +100,7 @@ public abstract class AbstractMarkerRenderer implements MarkerRenderer {
   @Override
   public void renderMarkerSegments(Geometry geometry) {
     geometry = this.view.getGeometry(geometry);
-    if (Property.hasValue(geometry)) {
+    if (org.jeometry.common.util.Property.hasValue(geometry)) {
       final String orientationType = this.style.getMarkerOrientationType();
       if ("none".equals(orientationType)) {
         for (final Segment segment : geometry.segments()) {
@@ -121,7 +122,7 @@ public abstract class AbstractMarkerRenderer implements MarkerRenderer {
   @Override
   public void renderMarkerVertices(Geometry geometry) {
     geometry = this.view.getGeometry(geometry);
-    if (Property.hasValue(geometry)) {
+    if (org.jeometry.common.util.Property.hasValue(geometry)) {
       final String orientationType = this.style.getMarkerOrientationType();
       if ("none".equals(orientationType)) {
         renderMarkers(geometry.vertices());

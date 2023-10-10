@@ -16,11 +16,11 @@ import java.util.function.Supplier;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 
+import org.jeometry.common.collection.list.Lists;
+import org.jeometry.common.collection.map.Maps;
 import org.jeometry.common.exception.Exceptions;
 
 import com.revolsys.beans.PropertyChangeSupport;
-import com.revolsys.collection.list.Lists;
-import com.revolsys.collection.map.Maps;
 import com.revolsys.parallel.ThreadInterruptedException;
 import com.revolsys.util.Property;
 
@@ -43,7 +43,7 @@ public class Invoke {
               final int maxThreads = maxThreadsWorker.getMaxThreads();
               int threads = Maps.decrementCount(WORKER_COUNTS, workerKey);
               final List<SwingWorker<?, ?>> waitingWorkers = WAITING_WORKERS.get(workerKey);
-              while (Property.hasValue(waitingWorkers) && threads < maxThreads) {
+              while (org.jeometry.common.util.Property.hasValue(waitingWorkers) && threads < maxThreads) {
                 final SwingWorker<?, ?> nextWorker = waitingWorkers.remove(0);
                 Maps.addCount(WORKER_COUNTS, workerKey);
                 nextWorker.execute();

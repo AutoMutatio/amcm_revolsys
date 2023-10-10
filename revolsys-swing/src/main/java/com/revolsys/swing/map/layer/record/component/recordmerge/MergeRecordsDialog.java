@@ -316,14 +316,14 @@ public class MergeRecordsDialog extends BaseDialog {
         newTable(mergeableRecord);
       }
     }
-    if (!nonMergeableRecords.isEmpty() || Property.hasValue(errorMessage)) {
+    if (!nonMergeableRecords.isEmpty() || org.jeometry.common.util.Property.hasValue(errorMessage)) {
       final TablePanel tablePanel = RecordListTableModel.newPanel(this.layer, nonMergeableRecords);
       final RecordListTableModel tableModel = tablePanel.getTableModel();
       tableModel.setEditable(false);
       tablePanel.setPreferredSize(new Dimension(100, 50 + nonMergeableRecords.size() * 22));
 
       final JPanel panel = new JPanel(new BorderLayout());
-      if (!Property.hasValue(errorMessage)) {
+      if (!org.jeometry.common.util.Property.hasValue(errorMessage)) {
         errorMessage = "The following records could not be merged and will not be modified.";
       }
       final JLabel unMergeLabel = new JLabel(

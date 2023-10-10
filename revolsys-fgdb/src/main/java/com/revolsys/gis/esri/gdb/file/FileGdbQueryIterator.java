@@ -2,9 +2,9 @@ package com.revolsys.gis.esri.gdb.file;
 
 import java.util.NoSuchElementException;
 
+import org.jeometry.common.collection.iterator.AbstractIterator;
 import org.jeometry.common.logging.Logs;
 
-import com.revolsys.collection.iterator.AbstractIterator;
 import com.revolsys.esri.filegdb.jni.Row;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactory;

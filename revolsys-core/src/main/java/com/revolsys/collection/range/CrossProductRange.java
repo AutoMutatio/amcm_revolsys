@@ -23,7 +23,7 @@ public class CrossProductRange extends AbstractRange<String> {
   }
 
   public CrossProductRange(final Collection<? extends AbstractRange<?>> ranges) {
-    if (Property.hasValue(ranges)) {
+    if (org.jeometry.common.util.Property.hasValue(ranges)) {
       this.ranges = new ArrayList<>(ranges);
     } else {
       throw new IllegalArgumentException("List of ranges must not be empty");

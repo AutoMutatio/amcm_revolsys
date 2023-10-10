@@ -291,7 +291,7 @@ public abstract class GeometryTransformer {
     components.add(newShell);
     for (final LinearRing hole : polygon.holes()) {
       final Geometry newHole = transformLinearRing(hole, polygon);
-      if (Property.hasValue(newHole)) {
+      if (org.jeometry.common.util.Property.hasValue(newHole)) {
         if (!(newHole instanceof LinearRing)) {
           isAllValidLinearRings = false;
         }

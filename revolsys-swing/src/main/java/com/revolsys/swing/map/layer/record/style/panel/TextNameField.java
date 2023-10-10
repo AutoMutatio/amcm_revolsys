@@ -57,7 +57,7 @@ public class TextNameField extends ValueField {
 
   public void addFieldName() {
     final String selectedFieldName = this.fieldNamesField.getSelectedItem();
-    if (Property.hasValue(selectedFieldName)) {
+    if (org.jeometry.common.util.Property.hasValue(selectedFieldName)) {
       final int position = this.textNameField.getCaretPosition();
       final Document document = this.textNameField.getDocument();
       try {

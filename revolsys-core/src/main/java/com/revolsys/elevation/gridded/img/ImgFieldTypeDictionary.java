@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import com.revolsys.collection.map.Maps;
+import org.jeometry.common.collection.map.Maps;
 
 class ImgFieldTypeDictionary {
 

@@ -8,8 +8,9 @@ import java.util.NoSuchElementException;
 
 import javax.xml.stream.XMLStreamException;
 
-import com.revolsys.collection.iterator.AbstractIterator;
-import com.revolsys.collection.map.MapEx;
+import org.jeometry.common.collection.iterator.AbstractIterator;
+import org.jeometry.common.collection.map.MapEx;
+
 import com.revolsys.geometry.io.GeometryReader;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryFactory;
@@ -89,7 +90,7 @@ public class KmlGeometryReader extends AbstractIterator<Geometry>
   private LineString parseCoordinates() throws XMLStreamException {
     this.reader.requireLocalName(COORDINATES);
     final String coordinatesListString = this.reader.getElementText();
-    if (Property.hasValue(coordinatesListString)) {
+    if (org.jeometry.common.util.Property.hasValue(coordinatesListString)) {
       int axisCount = 2;
       final String[] coordinatesListArray = coordinatesListString.strip().split("\\s+");
       final List<Point> points = new ArrayList<>();

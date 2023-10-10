@@ -176,7 +176,7 @@ public class Ranges {
   }
 
   public static Object toValue(final String value) {
-    if (Property.hasValue(value)) {
+    if (org.jeometry.common.util.Property.hasValue(value)) {
       final Long longValue = Numbers.toLong(value);
       if (longValue == null) {
         if (value.length() == 1) {

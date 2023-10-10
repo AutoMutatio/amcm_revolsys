@@ -475,7 +475,7 @@ public interface Point extends Punctual, Serializable, BoundingBox {
       return distancePoint(point);
     } else if (isEmpty()) {
       return Double.POSITIVE_INFINITY;
-    } else if (Property.isEmpty(geometry)) {
+    } else if (org.jeometry.common.util.Property.isEmpty(geometry)) {
       return Double.POSITIVE_INFINITY;
     } else {
       return geometry.distancePoint(this, terminateDistance);
@@ -509,7 +509,7 @@ public interface Point extends Punctual, Serializable, BoundingBox {
   default double distancePoint(Point point) {
     if (isEmpty()) {
       return Double.POSITIVE_INFINITY;
-    } else if (Property.isEmpty(point)) {
+    } else if (org.jeometry.common.util.Property.isEmpty(point)) {
       return Double.POSITIVE_INFINITY;
     } else {
       final GeometryFactory geometryFactory = getGeometryFactory();

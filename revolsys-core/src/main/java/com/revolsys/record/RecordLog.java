@@ -5,9 +5,9 @@ import java.nio.file.Path;
 import org.jeometry.common.data.type.DataType;
 import org.jeometry.common.data.type.DataTypes;
 import org.jeometry.common.io.PathName;
+import org.jeometry.common.util.BaseCloseable;
 
 import com.revolsys.geometry.model.Geometry;
-import com.revolsys.io.BaseCloseable;
 import com.revolsys.io.PathUtil;
 import com.revolsys.io.Writer;
 import com.revolsys.io.file.AtomicPathUpdator;

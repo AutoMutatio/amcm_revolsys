@@ -35,12 +35,13 @@ import java.util.function.Predicate;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import org.jeometry.common.collection.list.Lists;
 import org.jeometry.common.data.type.DataTypes;
 import org.jeometry.common.exception.Exceptions;
 import org.jeometry.common.io.FileProxy;
+import org.jeometry.common.io.IoUtil;
 import org.jeometry.common.net.UrlProxy;
 
-import com.revolsys.collection.list.Lists;
 import com.revolsys.io.FileNames;
 import com.revolsys.io.FileUtil;
 import com.revolsys.io.channels.ChannelReader;
@@ -146,7 +147,7 @@ public interface Resource extends org.springframework.core.io.Resource, FileProx
   }
 
   static Resource getResource(final String location) {
-    if (Property.hasValue(location)) {
+    if (org.jeometry.common.util.Property.hasValue(location)) {
       if (location.charAt(0) == '/' || location.length() > 1 && location.charAt(1) == ':'
         || location.indexOf(':') == -1) {
         return new PathResource(location);
@@ -183,7 +184,7 @@ public interface Resource extends org.springframework.core.io.Resource, FileProx
 
   default String contentsAsString() {
     final Reader reader = newReader();
-    return FileUtil.getString(reader);
+    return IoUtil.getString(reader);
   }
 
   default boolean copyFrom(final InputStream in) {
@@ -196,7 +197,7 @@ public interface Resource extends org.springframework.core.io.Resource, FileProx
         if (out == null) {
           return false;
         } else {
-          FileUtil.copy(in2, out);
+          IoUtil.copy(in2, out);
           return true;
         }
       } catch (final IOException e) {
@@ -232,7 +233,7 @@ public interface Resource extends org.springframework.core.io.Resource, FileProx
     try (
       final OutputStream out2 = out;
       final InputStream in = newBufferedInputStream();) {
-      FileUtil.copy(in, out2);
+      IoUtil.copy(in, out2);
     } catch (final IOException e) {
       throw Exceptions.wrap(e);
     }
@@ -368,7 +369,7 @@ public interface Resource extends org.springframework.core.io.Resource, FileProx
         final File file = FileUtil.newTempFile(baseName, "." + fileNameExtension);
         try (
           InputStream inputStream = getInputStream()) {
-          FileUtil.copy(inputStream, file);
+          IoUtil.copy(inputStream, file);
         } catch (final IOException e1) {
           throw Exceptions.wrap("Error downloading: " + this, e1);
         }

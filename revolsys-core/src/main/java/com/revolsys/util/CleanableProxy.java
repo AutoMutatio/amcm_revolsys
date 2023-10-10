@@ -8,7 +8,7 @@ import java.lang.reflect.Proxy;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-import com.revolsys.io.BaseCloseable;
+import org.jeometry.common.util.BaseCloseable;
 
 public class CleanableProxy<R> implements BaseCloseable {
 

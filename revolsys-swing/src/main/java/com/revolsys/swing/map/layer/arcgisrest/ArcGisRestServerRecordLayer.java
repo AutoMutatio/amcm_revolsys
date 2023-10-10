@@ -10,19 +10,19 @@ import java.util.function.Consumer;
 import javax.measure.Quantity;
 import javax.measure.quantity.Length;
 
+import org.jeometry.common.collection.map.MapEx;
+import org.jeometry.common.collection.map.Maps;
 import org.jeometry.common.io.PathName;
+import org.jeometry.common.json.JsonObject;
 import org.jeometry.common.logging.Logs;
 import org.jeometry.coordinatesystem.model.unit.CustomUnits;
 
-import com.revolsys.collection.map.MapEx;
-import com.revolsys.collection.map.Maps;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.record.Record;
 import com.revolsys.record.RecordFactory;
 import com.revolsys.record.io.RecordReader;
 import com.revolsys.record.io.format.esri.rest.ArcGisRestCatalog;
 import com.revolsys.record.io.format.esri.rest.map.FeatureLayer;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.record.query.Query;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
@@ -229,7 +229,7 @@ public class ArcGisRestServerRecordLayer extends AbstractRecordLayer {
   public List<LayerRecord> getRecords(BoundingBox boundingBox) {
     if (hasGeometryField()) {
       boundingBox = convertBoundingBox(boundingBox);
-      if (Property.hasValue(boundingBox)) {
+      if (org.jeometry.common.util.Property.hasValue(boundingBox)) {
         final List<LayerRecord> records = this.layerDescription.getRecords(this::newLayerRecord,
           boundingBox);
         return records;

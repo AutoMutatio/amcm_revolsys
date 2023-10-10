@@ -1,6 +1,6 @@
 package com.revolsys.net.oauth;
 
-import com.revolsys.record.io.format.json.JsonObject;
+import org.jeometry.common.json.JsonObject;
 
 public class OAuthBadRequestException extends RuntimeException {
 

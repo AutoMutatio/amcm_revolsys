@@ -7,14 +7,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.jeometry.common.collection.map.MapEx;
 import org.jeometry.common.data.type.DataType;
 import org.jeometry.common.data.type.DataTypes;
 import org.jeometry.common.exception.Exceptions;
+import org.jeometry.common.json.JsonObject;
 import org.jeometry.common.number.Numbers;
+import org.jeometry.common.util.BaseCloseable;
 
-import com.revolsys.collection.map.MapEx;
 import com.revolsys.io.AbstractRecordWriter;
-import com.revolsys.io.FileUtil;
 import com.revolsys.io.IoConstants;
 import com.revolsys.record.Record;
 import com.revolsys.record.schema.FieldDefinition;
@@ -80,7 +81,7 @@ public class JsonRecordWriter extends AbstractRecordWriter {
       }
     } catch (final IOException e) {
     } finally {
-      FileUtil.closeSilent(this.out);
+      BaseCloseable.closeSilent(this.out);
       this.out = null;
     }
   }

@@ -35,10 +35,11 @@ import javax.swing.undo.UndoableEdit;
 
 import org.jdesktop.swingx.JXBusyLabel;
 import org.jeometry.common.awt.WebColors;
+import org.jeometry.common.collection.map.Maps;
 import org.jeometry.common.data.type.DataType;
 import org.jeometry.common.number.Doubles;
+import org.jeometry.common.util.BaseCloseable;
 
-import com.revolsys.collection.map.Maps;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.BoundingBoxProxy;
 import com.revolsys.geometry.model.Geometry;
@@ -49,7 +50,6 @@ import com.revolsys.geometry.model.Point;
 import com.revolsys.geometry.model.segment.Segment;
 import com.revolsys.geometry.model.vertex.Vertex;
 import com.revolsys.geometry.util.RectangleUtil;
-import com.revolsys.io.BaseCloseable;
 import com.revolsys.record.Record;
 import com.revolsys.swing.Dialogs;
 import com.revolsys.swing.Icons;
@@ -326,7 +326,7 @@ public class MapPanel extends JPanel implements GeometryFactoryProxy, PropertyCh
     if (!boundingBox.isEmpty()) {
       final String name = Dialogs.showInputDialog("Enter bookmark name", "Add Zoom Bookmark",
         JOptionPane.QUESTION_MESSAGE);
-      if (Property.hasValue(name)) {
+      if (org.jeometry.common.util.Property.hasValue(name)) {
         final Project project = getProject();
         project.addZoomBookmark(name, boundingBox);
       }

@@ -5,9 +5,10 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
+import org.jeometry.common.util.ExitLoopException;
+
 import com.revolsys.geometry.index.SpatialIndex;
 import com.revolsys.geometry.model.BoundingBox;
-import com.revolsys.util.ExitLoopException;
 
 public class RTree<T> implements SpatialIndex<T> {
 

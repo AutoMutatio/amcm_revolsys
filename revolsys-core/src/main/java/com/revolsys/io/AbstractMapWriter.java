@@ -24,7 +24,7 @@ public abstract class AbstractMapWriter extends AbstractWriter<Map<String, ? ext
   }
 
   public boolean isWritable(final Object value) {
-    return Property.hasValue(value) || isWriteNulls();
+    return org.jeometry.common.util.Property.hasValue(value) || isWriteNulls();
   }
 
   public boolean isWriteNulls() {

@@ -1,9 +1,9 @@
 package com.revolsys.swing.map.layer.pointcloud;
 
 import org.jeometry.common.awt.WebColors;
+import org.jeometry.common.json.JsonObject;
 
 import com.revolsys.elevation.cloud.PointCloud;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.swing.map.layer.AbstractLayerRenderer;
 import com.revolsys.swing.map.layer.record.style.GeometryStyle;
 import com.revolsys.swing.map.view.ViewRenderer;

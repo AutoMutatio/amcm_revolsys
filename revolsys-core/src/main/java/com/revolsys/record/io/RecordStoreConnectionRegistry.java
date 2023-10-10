@@ -4,14 +4,14 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Map;
 
+import org.jeometry.common.collection.map.MapEx;
+import org.jeometry.common.collection.map.Maps;
+import org.jeometry.common.json.Json;
 import org.jeometry.common.logging.Logs;
 
-import com.revolsys.collection.map.MapEx;
-import com.revolsys.collection.map.Maps;
 import com.revolsys.connection.AbstractConnectionRegistry;
 import com.revolsys.connection.ConnectionRegistry;
 import com.revolsys.connection.ConnectionRegistryManager;
-import com.revolsys.record.io.format.json.Json;
 import com.revolsys.record.schema.RecordStore;
 import com.revolsys.spring.resource.Resource;
 

@@ -5,9 +5,10 @@ import java.net.URI;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.jeometry.common.util.BaseCloseable;
+
 import com.revolsys.collection.NameProxy;
 import com.revolsys.io.AbstractMapWriter;
-import com.revolsys.io.FileUtil;
 import com.revolsys.io.IoConstants;
 import com.revolsys.record.io.format.xml.XmlWriter;
 import com.revolsys.util.CaseConverter;
@@ -50,7 +51,7 @@ public class XhtmlMapWriter extends AbstractMapWriter {
         this.out.flush();
       } finally {
         if (this.wrap) {
-          FileUtil.closeSilent(this.out);
+          BaseCloseable.closeSilent(this.out);
         }
         this.out = null;
       }

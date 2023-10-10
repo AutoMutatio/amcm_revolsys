@@ -4,9 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.jeometry.common.collection.iterator.Reader;
+import org.jeometry.common.collection.map.Maps;
 import org.junit.Assert;
 
-import com.revolsys.collection.map.Maps;
 import com.revolsys.geometry.io.GeometryReader;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryFactory;
@@ -15,7 +16,6 @@ import com.revolsys.geometry.model.LineJoin;
 import com.revolsys.geometry.model.Polygon;
 import com.revolsys.geometry.model.Polygonal;
 import com.revolsys.geometry.operation.buffer.BufferParameters;
-import com.revolsys.io.Reader;
 import com.revolsys.io.map.MapReader;
 import com.revolsys.spring.resource.ClassPathResource;
 import com.revolsys.spring.resource.PathResource;

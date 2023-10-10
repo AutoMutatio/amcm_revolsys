@@ -13,15 +13,15 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
+import org.jeometry.common.collection.iterator.AbstractIterator;
 import org.jeometry.common.data.type.DataType;
 import org.jeometry.common.data.type.DataTypes;
 import org.jeometry.common.date.Dates;
 import org.jeometry.common.io.PathName;
 import org.jeometry.common.logging.Logs;
+import org.jeometry.common.util.BaseCloseable;
 
-import com.revolsys.collection.iterator.AbstractIterator;
 import com.revolsys.io.Buffers;
-import com.revolsys.io.FileUtil;
 import com.revolsys.record.Record;
 import com.revolsys.record.RecordFactory;
 import com.revolsys.record.io.RecordReader;
@@ -120,7 +120,7 @@ public class XbaseRecordReader extends AbstractIterator<Record> implements Recor
   }
 
   public void forceClose() {
-    FileUtil.closeSilent(this.in);
+    BaseCloseable.closeSilent(this.in);
     this.recordFactory = null;
     this.in = null;
     this.initCallback = null;

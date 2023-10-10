@@ -6,17 +6,18 @@ import java.util.function.Predicate;
 
 import javax.swing.Icon;
 
+import org.jeometry.common.collection.list.Lists;
+import org.jeometry.common.collection.map.MapEx;
+import org.jeometry.common.json.JsonObject;
 import org.jeometry.common.logging.Logs;
+import org.jeometry.common.util.BaseCloneable;
 
-import com.revolsys.collection.list.Lists;
-import com.revolsys.collection.map.MapEx;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.impl.PointDoubleXYOrientation;
 import com.revolsys.io.map.MapObjectFactory;
 import com.revolsys.predicate.Predicates;
 import com.revolsys.record.filter.MultipleAttributeValuesFilter;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordDefinitionProxy;
 import com.revolsys.swing.map.layer.AbstractLayer;
@@ -28,7 +29,6 @@ import com.revolsys.swing.map.layer.record.LayerRecord;
 import com.revolsys.swing.map.layer.record.RecordDefinitionSqlFilter;
 import com.revolsys.swing.map.view.ViewRenderer;
 import com.revolsys.swing.menu.MenuFactory;
-import com.revolsys.util.BaseCloneable;
 import com.revolsys.util.Property;
 
 public abstract class AbstractRecordLayerRenderer extends AbstractLayerRenderer<AbstractRecordLayer>
@@ -75,7 +75,7 @@ public abstract class AbstractRecordLayerRenderer extends AbstractLayerRenderer<
         return new MultipleAttributeValuesFilter(filterDefinition);
       } else if ("queryFilter".equals(type)) {
         String query = (String)filterDefinition.remove("query");
-        if (Property.hasValue(query)) {
+        if (org.jeometry.common.util.Property.hasValue(query)) {
           query = query.replaceAll("!= null", "IS NOT NULL");
           query = query.replaceAll("== null", "IS NULL");
           query = query.replaceAll("==", "=");
@@ -88,7 +88,7 @@ public abstract class AbstractRecordLayerRenderer extends AbstractLayerRenderer<
         }
       } else if ("sqlFilter".equals(type)) {
         final String query = (String)filterDefinition.remove("query");
-        if (Property.hasValue(query)) {
+        if (org.jeometry.common.util.Property.hasValue(query)) {
           return new RecordDefinitionSqlFilter(recordDefinitionProxy, query);
         }
       } else {
@@ -271,7 +271,7 @@ public abstract class AbstractRecordLayerRenderer extends AbstractLayerRenderer<
   public void setQueryFilter(final String query) {
     if (this.filter instanceof RecordDefinitionSqlFilter || this.filter == DEFAULT_FILTER) {
       Predicate<MapEx> filter;
-      if (Property.hasValue(query)) {
+      if (org.jeometry.common.util.Property.hasValue(query)) {
         filter = new RecordDefinitionSqlFilter(this, query);
       } else {
         filter = DEFAULT_FILTER;

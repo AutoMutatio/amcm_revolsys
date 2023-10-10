@@ -42,7 +42,7 @@ public class OgrRecordDefinition extends RecordDefinitionImpl {
     layer.GetNextFeature();
 
     String idFieldName = layer.GetFIDColumn();
-    if (!Property.hasValue(idFieldName)) {
+    if (!org.jeometry.common.util.Property.hasValue(idFieldName)) {
       idFieldName = "rowid";
     }
     final FeatureDefn layerDefinition = layer.GetLayerDefn();

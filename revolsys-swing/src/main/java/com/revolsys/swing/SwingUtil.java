@@ -57,6 +57,7 @@ import org.jeometry.common.data.identifier.Identifier;
 import org.jeometry.common.data.type.DataType;
 import org.jeometry.common.data.type.DataTypes;
 import org.jeometry.common.logging.Logs;
+import org.jeometry.common.util.BaseCloseable;
 
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.io.FileUtil;
@@ -407,7 +408,7 @@ public interface SwingUtil {
     } else if (component instanceof JTextComponent) {
       final JTextComponent textComponent = (JTextComponent)component;
       final String text = textComponent.getText();
-      if (Property.hasValue(text)) {
+      if (org.jeometry.common.util.Property.hasValue(text)) {
         return (V)text;
       } else {
         return null;
@@ -583,10 +584,10 @@ public interface SwingUtil {
         }
       } catch (final Throwable e) {
       } finally {
-        FileUtil.closeSilent(in);
-        FileUtil.closeSilent(out);
-        FileUtil.closeSilent(err);
-        FileUtil.closeSilent(inr);
+        BaseCloseable.closeSilent(in);
+        BaseCloseable.closeSilent(out);
+        BaseCloseable.closeSilent(err);
+        BaseCloseable.closeSilent(inr);
         if (process != null) {
           process.destroy();
         }
@@ -808,7 +809,7 @@ public interface SwingUtil {
     final JFileChooser fileChooser = new JFileChooser();
     fileChooser.setDialogTitle("Open File");
     final String currentDirectoryName = PreferencesUtil.getString(preferencesClass, preferenceName);
-    if (Property.hasValue(currentDirectoryName)) {
+    if (org.jeometry.common.util.Property.hasValue(currentDirectoryName)) {
       File directory = new File(currentDirectoryName);
       while (directory != null && (!directory.exists() || !directory.canRead())) {
         directory = directory.getParentFile();
@@ -825,7 +826,7 @@ public interface SwingUtil {
     final JFileChooser fileChooser = new JFileChooser();
     fileChooser.setDialogTitle(title);
     final String currentDirectoryName = preferences.getValue(preference);
-    if (Property.hasValue(currentDirectoryName)) {
+    if (org.jeometry.common.util.Property.hasValue(currentDirectoryName)) {
       final File directory = new File(currentDirectoryName);
       if (directory.exists() && directory.canRead()) {
         fileChooser.setCurrentDirectory(directory);
@@ -840,7 +841,7 @@ public interface SwingUtil {
     fileChooser.setDialogTitle(title);
     final String currentDirectoryName = PreferencesUtil.getUserString(preferencesGroup,
       preferenceName);
-    if (Property.hasValue(currentDirectoryName)) {
+    if (org.jeometry.common.util.Property.hasValue(currentDirectoryName)) {
       final File directory = new File(currentDirectoryName);
       if (directory.exists() && directory.canRead()) {
         fileChooser.setCurrentDirectory(directory);

@@ -4,17 +4,16 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.locks.ReentrantLock;
 
 import com.revolsys.jdbc.JdbcDataSource.ConnectionConsumer;
-import com.revolsys.parallel.ThreadUtil;
+import com.revolsys.parallel.ReentrantLockEx;
 import com.revolsys.transaction.Isolation;
 import com.revolsys.transaction.TransactionContext;
 import com.revolsys.transaction.TransactionableResource;
 import com.revolsys.util.Debug;
 
 public class JdbcConnectionTransactionResource implements TransactionableResource {
-  private final ReentrantLock lock = new ReentrantLock();
+  private final ReentrantLockEx lock = new ReentrantLockEx();
 
   private Connection connection;
 
@@ -23,6 +22,8 @@ public class JdbcConnectionTransactionResource implements TransactionableResourc
   private final TransactionContext context;
 
   private List<ConnectionConsumer> connectionInitializers;
+
+  private final boolean closed = false;
 
   public JdbcConnectionTransactionResource(final TransactionContext context,
     final JdbcDataSource dataSource) {
@@ -34,7 +35,7 @@ public class JdbcConnectionTransactionResource implements TransactionableResourc
     final ConnectionConsumer initializer) {
     if (initializer != null) {
       try (
-        var l = ThreadUtil.lock(this.lock)) {
+        var l = this.lock.lockX()) {
         if (this.connection == null) {
           if (this.connectionInitializers == null) {
             this.connectionInitializers = new ArrayList<>();
@@ -53,18 +54,9 @@ public class JdbcConnectionTransactionResource implements TransactionableResourc
   }
 
   @Override
-  public void afterCompletion() {
-  }
-
-  @Override
-  public void beforeCompletion() {
-
-  }
-
-  @Override
   public void close() {
     try (
-      var l = ThreadUtil.lock(this.lock)) {
+      var l = this.lock.lockX()) {
       if (this.connection != null) {
         if (this.context.isReadOnly()) {
           try {
@@ -85,7 +77,7 @@ public class JdbcConnectionTransactionResource implements TransactionableResourc
   @Override
   public void commit() {
     try (
-      var l = ThreadUtil.lock(this.lock)) {
+      var l = this.lock.lockX()) {
       if (this.connection != null) {
         try {
           this.connection.commit();
@@ -97,8 +89,11 @@ public class JdbcConnectionTransactionResource implements TransactionableResourc
   }
 
   private Connection getConnection() throws SQLException {
+    if (this.closed) {
+      Debug.noOp();
+    }
     try (
-      var l = ThreadUtil.lock(this.lock)) {
+      var l = this.lock.lockX()) {
       if (this.connection == null) {
         final Connection connection = this.dataSource.getConnectionInternal();
         try {
@@ -140,11 +135,48 @@ public class JdbcConnectionTransactionResource implements TransactionableResourc
   }
 
   public JdbcConnection newJdbcConnection() throws SQLException {
-    final Connection connection = getConnection();
-    if (connection == null) {
-      return null;
-    } else {
-      return new JdbcConnection(this.dataSource, connection, false);
+    if (this.closed) {
+      Debug.noOp();
+    }
+    try (
+      var l = this.lock.lockX()) {
+      if (this.connection == null) {
+        final Connection connection = this.dataSource.getConnectionInternal();
+        try {
+          // Disable auto commit
+          if (connection.getAutoCommit()) {
+            connection.setAutoCommit(false);
+          }
+
+          // Set read-only
+          if (this.context.isReadOnly()) {
+            connection.setReadOnly(true);
+          }
+
+          // Set isolation
+          final Isolation isolation = this.context.getIsolation();
+          if (!Isolation.DEFAULT.equals(isolation)) {
+            final int currentIsolation = connection.getTransactionIsolation();
+            final int isolationLevel = isolation.value();
+            if (currentIsolation != isolationLevel) {
+              connection.setTransactionIsolation(isolationLevel);
+            }
+          }
+          if (this.connectionInitializers != null) {
+            for (final ConnectionConsumer initializer : this.connectionInitializers) {
+              initializer.accept(connection);
+            }
+          }
+        } catch (SQLException | RuntimeException | Error e) {
+          try {
+            connection.close();
+          } catch (final SQLException e2) {
+          }
+          throw e;
+        }
+        this.connection = connection;
+      }
+      return new JdbcConnection(this.dataSource, this.connection, false);
     }
   }
 
@@ -155,7 +187,7 @@ public class JdbcConnectionTransactionResource implements TransactionableResourc
   @Override
   public void rollback() {
     try (
-      var l = ThreadUtil.lock(this.lock)) {
+      var l = this.lock.lockX()) {
       if (this.connection != null) {
         try {
           this.connection.rollback();

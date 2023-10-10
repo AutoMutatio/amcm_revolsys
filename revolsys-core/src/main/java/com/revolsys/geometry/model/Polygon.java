@@ -162,7 +162,7 @@ public interface Polygon extends Polygonal {
   default double distanceGeometry(final Geometry geometry, final double terminateDistance) {
     if (isEmpty()) {
       return Double.POSITIVE_INFINITY;
-    } else if (Property.isEmpty(geometry)) {
+    } else if (org.jeometry.common.util.Property.isEmpty(geometry)) {
       return Double.POSITIVE_INFINITY;
     } else if (geometry instanceof Point) {
       final Point point = (Point)geometry;

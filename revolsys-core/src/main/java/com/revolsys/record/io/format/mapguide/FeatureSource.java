@@ -6,16 +6,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.jeometry.common.collection.map.MapEx;
+import org.jeometry.common.collection.map.Maps;
 import org.jeometry.common.data.type.DataType;
 import org.jeometry.common.data.type.DataTypes;
 import org.jeometry.common.io.PathName;
+import org.jeometry.common.json.JsonObject;
 
 import com.revolsys.collection.Parent;
-import com.revolsys.collection.map.MapEx;
-import com.revolsys.collection.map.Maps;
 import com.revolsys.geometry.model.GeometryDataTypes;
 import com.revolsys.geometry.model.GeometryFactory;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.record.schema.RecordDefinitionImpl;
 import com.revolsys.spring.resource.Resource;
 import com.revolsys.util.Property;
@@ -160,7 +160,7 @@ public class FeatureSource extends ResourceDocument implements Parent<MapGuideFe
                 axisCount = 3;
               }
               final String srsName = getString(fieldElement, "@fdo:srsName");
-              if (Property.hasValue(srsName)) {
+              if (org.jeometry.common.util.Property.hasValue(srsName)) {
                 final Integer coordinateSystemId = Maps.getInteger(this.coordinateSystemIdBySrsName,
                   srsName);
                 if (coordinateSystemId == null) {

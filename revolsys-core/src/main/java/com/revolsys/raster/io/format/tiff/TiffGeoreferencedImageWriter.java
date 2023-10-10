@@ -12,6 +12,7 @@ import org.apache.commons.imaging.formats.tiff.constants.GeoTiffTagConstants;
 import org.apache.commons.imaging.formats.tiff.write.TiffImageWriterLossy;
 import org.apache.commons.imaging.formats.tiff.write.TiffOutputDirectory;
 import org.apache.commons.imaging.formats.tiff.write.TiffOutputSet;
+import org.jeometry.common.collection.map.MapEx;
 import org.jeometry.common.exception.Exceptions;
 import org.jeometry.coordinatesystem.model.Authority;
 import org.jeometry.coordinatesystem.model.Ellipsoid;
@@ -24,7 +25,6 @@ import org.jeometry.coordinatesystem.model.datum.GeodeticDatum;
 import org.jeometry.coordinatesystem.model.unit.AngularUnit;
 import org.jeometry.coordinatesystem.model.unit.LinearUnit;
 
-import com.revolsys.collection.map.MapEx;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.io.AbstractWriter;

@@ -2,9 +2,10 @@ package com.revolsys.swing.map.view.graphics;
 
 import java.awt.Graphics2D;
 
+import org.jeometry.common.util.BaseCloseable;
+
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.impl.BoundingBoxDoubleXY;
-import com.revolsys.io.BaseCloseable;
 import com.revolsys.swing.map.Viewport2D;
 import com.revolsys.swing.map.layer.Project;
 

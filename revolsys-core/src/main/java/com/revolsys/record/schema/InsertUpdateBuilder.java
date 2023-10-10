@@ -3,9 +3,10 @@ package com.revolsys.record.schema;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-import com.revolsys.collection.map.MapEx;
+import org.jeometry.common.collection.map.MapEx;
+import org.jeometry.common.json.JsonObject;
+
 import com.revolsys.record.Record;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.record.query.Query;
 import com.revolsys.transaction.Transactionable;
 

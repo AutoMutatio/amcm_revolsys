@@ -16,13 +16,13 @@ import jakarta.annotation.PreDestroy;
 
 import org.jeometry.common.data.type.DataTypes;
 import org.jeometry.common.io.PathNameProxy;
+import org.jeometry.common.util.Emptyable;
 
 import com.revolsys.record.io.RecordWriter;
 import com.revolsys.record.io.format.tsv.Tsv;
 import com.revolsys.record.io.format.tsv.TsvWriter;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordDefinitionBuilder;
-import com.revolsys.util.Emptyable;
 import com.revolsys.util.Strings;
 
 public class CategoryLabelCountMap implements Emptyable {

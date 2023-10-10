@@ -58,7 +58,7 @@ public class JdbcConnection implements Connection {
 
   @Override
   public void commit() throws SQLException {
-    getConnection().commit();
+    throw new UnsupportedOperationException("Cannot call commit directly");
   }
 
   @Override

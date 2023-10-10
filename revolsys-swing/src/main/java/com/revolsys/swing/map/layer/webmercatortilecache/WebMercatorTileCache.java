@@ -24,7 +24,7 @@ public interface WebMercatorTileCache {
 
     dialog.setSaveAction(() -> {
       final String url = urlField.getText();
-      if (Property.hasValue(url)) {
+      if (org.jeometry.common.util.Property.hasValue(url)) {
         final WebMercatorTileCacheLayer layer = new WebMercatorTileCacheLayer();
         layer.setUrl(url);
         layer.setVisible(true);

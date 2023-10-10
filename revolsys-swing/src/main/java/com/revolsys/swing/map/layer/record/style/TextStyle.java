@@ -27,13 +27,13 @@ import javax.measure.quantity.Length;
 import org.jeometry.common.awt.WebColors;
 import org.jeometry.common.data.type.DataType;
 import org.jeometry.common.data.type.DataTypes;
+import org.jeometry.common.io.MapSerializer;
+import org.jeometry.common.json.JsonObject;
+import org.jeometry.common.json.JsonObjectHash;
 import org.jeometry.common.logging.Logs;
 
-import com.revolsys.io.map.MapSerializer;
 import com.revolsys.properties.BaseObjectWithPropertiesAndChange;
 import com.revolsys.record.Record;
-import com.revolsys.record.io.format.json.JsonObject;
-import com.revolsys.record.io.format.json.JsonObjectHash;
 import com.revolsys.swing.map.view.ViewRenderer;
 import com.revolsys.swing.map.view.graphics.Graphics2DViewRenderer;
 import com.revolsys.util.Property;
@@ -447,7 +447,7 @@ public class TextStyle extends BaseObjectWithPropertiesAndChange
 
   public TextStyle setTextHorizontalAlignment(final String textHorizontalAlignment) {
     final Object oldValue = this.textHorizontalAlignment;
-    if (Property.hasValue(textHorizontalAlignment)) {
+    if (org.jeometry.common.util.Property.hasValue(textHorizontalAlignment)) {
       this.textHorizontalAlignment = textHorizontalAlignment;
     } else {
       this.textHorizontalAlignment = AUTO;
@@ -506,7 +506,7 @@ public class TextStyle extends BaseObjectWithPropertiesAndChange
 
   public TextStyle setTextPlacementType(String textPlacementType) {
     final Object oldValue = this.textPlacementType;
-    if (Property.hasValue(textPlacementType)) {
+    if (org.jeometry.common.util.Property.hasValue(textPlacementType)) {
       textPlacementType = Strings.replaceAll(textPlacementType, "^point\\(", "vertex\\(");
       this.textPlacementType = textPlacementType;
     } else {
@@ -549,7 +549,7 @@ public class TextStyle extends BaseObjectWithPropertiesAndChange
 
   public TextStyle setTextVerticalAlignment(final String textVerticalAlignment) {
     final Object oldValue = this.textVerticalAlignment;
-    if (Property.hasValue(textVerticalAlignment)) {
+    if (org.jeometry.common.util.Property.hasValue(textVerticalAlignment)) {
       this.textVerticalAlignment = textVerticalAlignment;
     } else {
       this.textVerticalAlignment = AUTO;

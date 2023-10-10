@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 import org.jeometry.common.io.PathName;
+import org.jeometry.common.json.JsonObject;
 import org.jeometry.common.logging.Logs;
 
 import com.revolsys.beans.Classes;
@@ -14,7 +15,6 @@ import com.revolsys.record.Record;
 import com.revolsys.record.RecordFactory;
 import com.revolsys.record.io.RecordReader;
 import com.revolsys.record.io.format.esri.rest.ArcGisRestCatalog;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.record.io.format.mapguide.MapGuideFeatureLayer;
 import com.revolsys.record.query.Query;
 import com.revolsys.record.schema.RecordDefinition;
@@ -83,7 +83,7 @@ public class MapGuideWebServerRecordLayer extends AbstractRecordLayer {
   public List<LayerRecord> getRecords(BoundingBox boundingBox) {
     if (hasGeometryField()) {
       boundingBox = convertBoundingBox(boundingBox);
-      if (Property.hasValue(boundingBox)) {
+      if (org.jeometry.common.util.Property.hasValue(boundingBox)) {
         final List<LayerRecord> records = this.webServiceLayer.getRecords(this::newLayerRecord,
           boundingBox);
         return records;

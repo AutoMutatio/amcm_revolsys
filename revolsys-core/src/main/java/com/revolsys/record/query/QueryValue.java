@@ -8,10 +8,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.jeometry.common.collection.map.MapEx;
 import org.jeometry.common.data.type.DataType;
 import org.jeometry.common.data.type.DataTypes;
 
-import com.revolsys.collection.map.MapEx;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.BoundingBoxProxy;
 import com.revolsys.geometry.model.editor.BoundingBoxEditor;
@@ -101,7 +101,7 @@ public interface QueryValue extends Cloneable {
   }
 
   static Condition parseWhere(final RecordDefinition recordDefinition, final String whereClause) {
-    if (Property.hasValue(whereClause)) {
+    if (org.jeometry.common.util.Property.hasValue(whereClause)) {
       final SqlParser parser = new JSqlParser(recordDefinition);
       return parser.whereToCondition(whereClause);
     } else {

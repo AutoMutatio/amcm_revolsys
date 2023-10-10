@@ -3,16 +3,17 @@ package com.revolsys.elevation.tin.compactbinary;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
-import com.revolsys.collection.map.MapEx;
+import org.jeometry.common.collection.map.MapEx;
+import org.jeometry.common.util.BaseCloseable;
+import org.jeometry.common.util.BaseObjectWithProperties;
+
 import com.revolsys.elevation.tin.IntArrayScaleTriangulatedIrregularNetwork;
 import com.revolsys.elevation.tin.TriangleConsumer;
 import com.revolsys.elevation.tin.TriangulatedIrregularNetwork;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactory;
-import com.revolsys.io.BaseCloseable;
 import com.revolsys.io.EndOfFileException;
 import com.revolsys.io.channels.DataReader;
-import com.revolsys.properties.BaseObjectWithProperties;
 import com.revolsys.spring.resource.Resource;
 
 public class ScaledIntegerTriangulatedIrregularNetworkReader extends BaseObjectWithProperties

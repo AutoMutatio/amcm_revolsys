@@ -3,7 +3,7 @@ package com.revolsys.parallel;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import com.revolsys.collection.map.ThreadSharedProperties;
+import org.jeometry.common.collection.map.ThreadSharedProperties;
 
 public class ExecutorServiceFactory {
   private static final String KEY = ExecutorServiceFactory.class.getName() + ".key";

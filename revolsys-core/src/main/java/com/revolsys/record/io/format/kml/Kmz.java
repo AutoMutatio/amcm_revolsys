@@ -3,9 +3,9 @@ package com.revolsys.record.io.format.kml;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
 
+import org.jeometry.common.collection.map.MapEx;
 import org.jeometry.coordinatesystem.model.CoordinateSystem;
 
-import com.revolsys.collection.map.MapEx;
 import com.revolsys.geometry.io.GeometryReader;
 import com.revolsys.io.map.MapWriter;
 import com.revolsys.io.map.MapWriterFactory;

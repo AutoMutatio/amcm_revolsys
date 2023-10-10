@@ -41,7 +41,7 @@ public class SelectedRecordsRenderer {
   public void paintSelected(final ViewRenderer view, final GeometryFactory viewportGeometryFactory,
     Geometry geometry) {
     geometry = view.getGeometry(geometry);
-    if (Property.hasValue(geometry)) {
+    if (org.jeometry.common.util.Property.hasValue(geometry)) {
       view.drawGeometry(geometry, this.highlightStyle);
       if (!(geometry instanceof Punctual)) {
         view.drawGeometryOutline(this.lineStyle, geometry);

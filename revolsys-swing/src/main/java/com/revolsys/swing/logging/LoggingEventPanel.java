@@ -45,11 +45,11 @@ public class LoggingEventPanel extends JPanel {
 
   private static void addField(final JPanel panel, final String fieldName, final Object value,
     final boolean useScrollPane) {
-    if (Property.hasValue(value)) {
+    if (org.jeometry.common.util.Property.hasValue(value)) {
       addLabel(panel, fieldName);
 
       String stringValue = DataTypes.toString(value);
-      if (!Property.hasValue(stringValue)) {
+      if (!org.jeometry.common.util.Property.hasValue(stringValue)) {
         stringValue = "-";
       }
       final JTextPane label = new JTextPane();
@@ -228,7 +228,7 @@ public class LoggingEventPanel extends JPanel {
       this.copyText.append(message);
     }
 
-    if (Property.hasValue(stackTrace)) {
+    if (org.jeometry.common.util.Property.hasValue(stackTrace)) {
       addField(this, "Stack Trace", stackTrace, true);
       if (this.copyText.length() > 0) {
         this.copyText.append("\n");

@@ -2,10 +2,10 @@ package com.revolsys.raster;
 
 import java.io.PrintWriter;
 
+import org.jeometry.common.collection.map.MapEx;
 import org.jeometry.common.logging.Logs;
 import org.jeometry.common.number.Doubles;
 
-import com.revolsys.collection.map.MapEx;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.io.IoFactory;
 import com.revolsys.io.Writer;

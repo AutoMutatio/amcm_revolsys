@@ -97,7 +97,7 @@ public class DETable extends DEDataset {
   }
 
   public String getGlobalIDFieldName() {
-    if (!Property.hasValue(this.globalIDFieldName)) {
+    if (!org.jeometry.common.util.Property.hasValue(this.globalIDFieldName)) {
       for (final Field field : getFields()) {
         if (field.getType() == FieldType.esriFieldTypeGlobalID) {
           this.globalIDFieldName = field.getName();
@@ -136,7 +136,7 @@ public class DETable extends DEDataset {
   }
 
   public boolean isHasGlobalID() {
-    return Property.hasValue(getGlobalIDFieldName());
+    return org.jeometry.common.util.Property.hasValue(getGlobalIDFieldName());
   }
 
   public boolean isHasOID() {

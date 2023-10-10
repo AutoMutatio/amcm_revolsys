@@ -1,11 +1,12 @@
 package com.revolsys.elevation.gridded;
 
-import com.revolsys.collection.map.MapEx;
+import org.jeometry.common.collection.map.MapEx;
+import org.jeometry.common.json.JsonObject;
+import org.jeometry.common.util.BaseCloseable;
+import org.jeometry.common.util.ObjectWithProperties;
+
 import com.revolsys.geometry.model.BoundingBoxProxy;
-import com.revolsys.io.BaseCloseable;
 import com.revolsys.io.IoFactory;
-import com.revolsys.properties.ObjectWithProperties;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.spring.resource.Resource;
 
 public interface GriddedElevationModelReader

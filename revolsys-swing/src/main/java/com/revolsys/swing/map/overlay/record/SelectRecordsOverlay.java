@@ -22,13 +22,14 @@ import java.util.function.Consumer;
 import javax.swing.SwingUtilities;
 
 import org.jeometry.common.awt.WebColors;
+import org.jeometry.common.util.BaseCloseable;
+import org.jeometry.common.util.Cancellable;
 
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.geometry.model.editor.BoundingBoxEditor;
 import com.revolsys.geometry.model.vertex.Vertex;
-import com.revolsys.io.BaseCloseable;
 import com.revolsys.raster.GeoreferencedImage;
 import com.revolsys.record.Record;
 import com.revolsys.swing.Icons;
@@ -57,7 +58,6 @@ import com.revolsys.swing.map.view.graphics.Graphics2DViewRenderer;
 import com.revolsys.swing.parallel.Invoke;
 import com.revolsys.swing.table.AbstractTableModel;
 import com.revolsys.swing.table.TablePanel;
-import com.revolsys.util.Cancellable;
 import com.revolsys.util.Property;
 import com.revolsys.value.ThreadBooleanValue;
 
@@ -279,7 +279,7 @@ public class SelectRecordsOverlay extends AbstractOverlay {
       }
     }
     final List<CloseLocation> closeSelectedLocations = map.getCloseSelectedLocations();
-    if (Property.hasValue(closeSelectedLocations)) {
+    if (org.jeometry.common.util.Property.hasValue(closeSelectedLocations)) {
       for (final CloseLocation location : closeSelectedLocations) {
         final Vertex vertex = location.getVertex();
         CLOSE_VERTEX_STYLE_RENDERER.paintSelected(view, graphics, viewportGeometryFactory, vertex);

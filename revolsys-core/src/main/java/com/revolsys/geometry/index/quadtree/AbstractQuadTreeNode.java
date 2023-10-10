@@ -4,11 +4,12 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.function.Consumer;
 
+import org.jeometry.common.util.Emptyable;
+
 import com.revolsys.geometry.index.DoubleBits;
 import com.revolsys.geometry.index.IntervalSize;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.util.RectangleUtil;
-import com.revolsys.util.Emptyable;
 
 public abstract class AbstractQuadTreeNode<T> implements Emptyable, Serializable {
   private static final long serialVersionUID = 1L;

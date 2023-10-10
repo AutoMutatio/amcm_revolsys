@@ -227,7 +227,7 @@ public class NumberTextField extends JXTextField implements Field, DocumentListe
   }
 
   private Object getTypedValue(final Object value) {
-    if (Property.isEmpty(value)) {
+    if (org.jeometry.common.util.Property.isEmpty(value)) {
       return null;
     } else {
       if ("NaN".equalsIgnoreCase(value.toString())) {
@@ -336,7 +336,7 @@ public class NumberTextField extends JXTextField implements Field, DocumentListe
   private void validateField() {
     final String text = getText();
     String message = null;
-    if (Property.hasValue(text)) {
+    if (org.jeometry.common.util.Property.hasValue(text)) {
       if ("NaN".equalsIgnoreCase(text)) {
         if (this.dataType.equals(DataTypes.DOUBLE)) {
         } else if (this.dataType.equals(DataTypes.FLOAT)) {
@@ -382,7 +382,7 @@ public class NumberTextField extends JXTextField implements Field, DocumentListe
         }
       }
     }
-    final boolean valid = Property.isEmpty(message);
+    final boolean valid = org.jeometry.common.util.Property.isEmpty(message);
     if (valid) {
       this.fieldSupport.setFieldValid();
     } else {

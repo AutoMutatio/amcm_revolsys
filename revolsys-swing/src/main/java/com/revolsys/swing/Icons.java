@@ -204,7 +204,7 @@ public class Icons {
 
   public static Icon getIcon(final IconNameProxy iconNameProxy) {
     final String iconName = iconNameProxy.getIconName();
-    if (Property.hasValue(iconName)) {
+    if (org.jeometry.common.util.Property.hasValue(iconName)) {
       return getIcon(iconName);
     } else {
       return null;
@@ -212,7 +212,7 @@ public class Icons {
   }
 
   public static Icon getIcon(final String imageName) {
-    if (Property.hasValue(imageName)) {
+    if (org.jeometry.common.util.Property.hasValue(imageName)) {
       Icon icon = ICON_CACHE.get(imageName);
       if (icon == null) {
         final String[] parts = imageName.split(":");

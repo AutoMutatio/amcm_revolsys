@@ -9,6 +9,7 @@ import org.jeometry.common.data.type.DataType;
 import org.jeometry.common.exception.Exceptions;
 import org.jeometry.common.exception.WrappedException;
 import org.jeometry.common.io.PathName;
+import org.jeometry.common.json.JsonObject;
 import org.jeometry.common.logging.Logs;
 
 import com.revolsys.geometry.model.BoundingBox;
@@ -16,7 +17,6 @@ import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.record.io.format.esri.rest.ArcGisRestCatalog;
 import com.revolsys.record.io.format.esri.rest.map.MapService;
 import com.revolsys.record.io.format.esri.rest.map.TileInfo;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.spring.resource.UrlResource;
 import com.revolsys.swing.SwingUtil;
 import com.revolsys.swing.component.BasePanel;
@@ -177,7 +177,7 @@ public class ArcGisRestServerTileCacheLayer
     synchronized (this.initSync) {
       if (this.mapService == null) {
         try {
-          if (Property.hasValue(this.connectionName)) {
+          if (org.jeometry.common.util.Property.hasValue(this.connectionName)) {
             final WebService<?> webService = WebServiceConnectionManager
               .getWebService(this.connectionName);
             if (webService instanceof ArcGisRestCatalog) {
@@ -251,7 +251,7 @@ public class ArcGisRestServerTileCacheLayer
     final ValueField panel = super.newPropertiesTabGeneralPanelSource(parent);
 
     final String url = getUrl();
-    if (Property.hasValue(url)) {
+    if (org.jeometry.common.util.Property.hasValue(url)) {
       SwingUtil.addLabelledReadOnlyTextField(panel, "URL", url);
     }
     if (this.mapService != null) {
@@ -323,7 +323,7 @@ public class ArcGisRestServerTileCacheLayer
   @Override
   public JsonObject toMap() {
     final JsonObject map = super.toMap();
-    if (Property.hasValue(this.connectionName)) {
+    if (org.jeometry.common.util.Property.hasValue(this.connectionName)) {
       addToMap(map, "connectionName", this.connectionName);
       addToMap(map, "servicePath", this.servicePath);
     } else {

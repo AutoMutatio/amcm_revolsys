@@ -1,7 +1,8 @@
 package com.revolsys.http;
 
+import org.jeometry.common.json.JsonObject;
+
 import com.revolsys.net.oauth.BearerToken;
-import com.revolsys.record.io.format.json.JsonObject;
 
 public class AzureManagedIdentityBearerToken extends BearerToken {
 

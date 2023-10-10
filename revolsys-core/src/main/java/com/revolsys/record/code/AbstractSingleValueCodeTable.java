@@ -7,10 +7,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.jeometry.common.collection.map.MapEx;
 import org.jeometry.common.data.identifier.Identifier;
 import org.jeometry.common.data.identifier.SingleIdentifier;
 
-import com.revolsys.collection.map.MapEx;
 import com.revolsys.util.CaseConverter;
 
 public abstract class AbstractSingleValueCodeTable extends AbstractCodeTable {

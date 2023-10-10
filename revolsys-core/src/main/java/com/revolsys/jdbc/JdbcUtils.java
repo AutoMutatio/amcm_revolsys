@@ -21,19 +21,19 @@ import java.util.List;
 
 import javax.management.ObjectName;
 
+import org.jeometry.common.collection.map.MapEx;
 import org.jeometry.common.exception.Exceptions;
 import org.jeometry.common.io.PathName;
+import org.jeometry.common.json.JsonObject;
 import org.jeometry.common.logging.Logs;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.support.SQLExceptionTranslator;
 import org.springframework.jdbc.support.SQLStateSQLExceptionTranslator;
 
-import com.revolsys.collection.map.MapEx;
 import com.revolsys.io.PathUtil;
 import com.revolsys.jdbc.exception.JdbcExceptionTranslator;
 import com.revolsys.jdbc.field.JdbcFieldDefinition;
 import com.revolsys.jdbc.field.JdbcFieldDefinitions;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.record.query.Condition;
 import com.revolsys.record.query.Query;
 import com.revolsys.record.query.QueryValue;
@@ -97,37 +97,6 @@ public final class JdbcUtils {
   public static void close(final Statement statement, final ResultSet resultSet) {
     close(resultSet);
     close(statement);
-  }
-
-  public static void commit(final Connection connection) {
-    try {
-      connection.commit();
-    } catch (final SQLException e) {
-    }
-  }
-
-  public static void delete(final Connection connection, final String tableName,
-    final String idColumn, final Object id) {
-
-    final String sql = "DELETE FROM " + cleanObjectName(tableName) + " WHERE "
-      + cleanObjectName(idColumn) + " = ?";
-    try {
-      final PreparedStatement statement = connection.prepareStatement(sql);
-      try {
-        setValue(statement, 1, id);
-        statement.executeQuery();
-      } catch (final SQLException e) {
-        Logs.error(JdbcUtils.class, "Unable to delete:" + sql, e);
-        throw new RuntimeException("Unable to delete:" + sql, e);
-      } finally {
-        close(statement);
-        connection.commit();
-      }
-    } catch (final SQLException e) {
-      Logs.error(JdbcUtils.class, "Invalid table name or id column: " + sql, e);
-      throw new IllegalArgumentException("Invalid table name or id column: " + sql);
-    }
-
   }
 
   public static int executeUpdate(final Connection connection, final String sql,
@@ -209,7 +178,7 @@ public final class JdbcUtils {
   }
 
   public static String getQualifiedTableName(final PathName pathName) {
-    if (Property.hasValue(pathName)) {
+    if (org.jeometry.common.util.Property.hasValue(pathName)) {
       final String path = pathName.toString();
       return getQualifiedTableName(path);
     } else {
@@ -218,7 +187,7 @@ public final class JdbcUtils {
   }
 
   public static String getQualifiedTableName(final String typePath) {
-    if (Property.hasValue(typePath)) {
+    if (org.jeometry.common.util.Property.hasValue(typePath)) {
       final String tableName = typePath.replaceAll("^/+", "");
       return tableName.replaceAll("/", ".");
     } else {
@@ -227,7 +196,7 @@ public final class JdbcUtils {
   }
 
   public static String getSchemaName(final String typePath) {
-    if (Property.hasValue(typePath)) {
+    if (org.jeometry.common.util.Property.hasValue(typePath)) {
       final String path = PathUtil.getPath(typePath);
       return path.replaceAll("(^/|/$)", "");
     } else {

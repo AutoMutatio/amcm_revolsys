@@ -79,7 +79,7 @@ public class SpringSwingMain implements UncaughtExceptionHandler {
 
   protected void runDo() throws Throwable {
     boolean lookSet = false;
-    if (Property.hasValue(this.lookAndFeelName)) {
+    if (org.jeometry.common.util.Property.hasValue(this.lookAndFeelName)) {
       final LookAndFeelInfo[] installedLookAndFeels = UIManager.getInstalledLookAndFeels();
       for (final LookAndFeelInfo lookAndFeelInfo : installedLookAndFeels) {
         final String name = lookAndFeelInfo.getName();
@@ -117,7 +117,7 @@ public class SpringSwingMain implements UncaughtExceptionHandler {
   public void uncaughtException(final Thread t, final Throwable e) {
     final Class<? extends SpringSwingMain> logClass = getClass();
     String message = e.getMessage();
-    if (!Property.hasValue(message)) {
+    if (!org.jeometry.common.util.Property.hasValue(message)) {
       if (e instanceof NullPointerException) {
         message = "Null pointer";
       } else {

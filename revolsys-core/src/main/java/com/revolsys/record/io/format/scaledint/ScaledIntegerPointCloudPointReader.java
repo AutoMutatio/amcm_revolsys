@@ -1,6 +1,7 @@
 package com.revolsys.record.io.format.scaledint;
 
-import com.revolsys.collection.map.MapEx;
+import org.jeometry.common.collection.map.MapEx;
+
 import com.revolsys.geometry.io.PointReader;
 import com.revolsys.geometry.model.Point;
 import com.revolsys.spring.resource.Resource;

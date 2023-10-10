@@ -82,7 +82,7 @@ public class ToolBar extends JToolBar {
     final EnableCheck enableCheck, final Runnable runnable) {
     String name = null;
     Icon icon = null;
-    if (Property.hasValue(iconName)) {
+    if (org.jeometry.common.util.Property.hasValue(iconName)) {
       icon = Icons.getIcon(iconName);
     } else {
       name = title;

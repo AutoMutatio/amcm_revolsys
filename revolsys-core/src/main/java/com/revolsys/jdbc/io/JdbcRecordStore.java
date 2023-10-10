@@ -10,10 +10,10 @@ import java.sql.Statement;
 import java.util.Arrays;
 import java.util.Collection;
 
+import org.jeometry.common.collection.map.MapEx;
 import org.jeometry.common.io.PathName;
 import org.springframework.dao.DataAccessException;
 
-import com.revolsys.collection.map.MapEx;
 import com.revolsys.jdbc.JdbcConnection;
 import com.revolsys.jdbc.JdbcDataSource;
 import com.revolsys.jdbc.JdbcUtils;

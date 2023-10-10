@@ -22,9 +22,12 @@ import java.util.function.Predicate;
 
 import jakarta.annotation.PreDestroy;
 
+import org.jeometry.common.collection.map.MapEx;
+import org.jeometry.common.util.BaseObjectWithProperties;
+import org.jeometry.common.util.ExitLoopException;
+
 import com.revolsys.collection.bplus.BPlusTreeMap;
 import com.revolsys.collection.map.IntHashMap;
-import com.revolsys.collection.map.MapEx;
 import com.revolsys.comparator.ComparatorProxy;
 import com.revolsys.geometry.graph.attribute.NodeProperties;
 import com.revolsys.geometry.graph.comparator.NodeDistanceComparator;
@@ -54,9 +57,7 @@ import com.revolsys.io.page.PageValueManager;
 import com.revolsys.io.page.SerializablePageValueManager;
 import com.revolsys.predicate.PredicateProxy;
 import com.revolsys.predicate.Predicates;
-import com.revolsys.properties.BaseObjectWithProperties;
 import com.revolsys.record.Record;
-import com.revolsys.util.ExitLoopException;
 import com.revolsys.visitor.CreateListVisitor;
 
 public class Graph<T> extends BaseObjectWithProperties implements GeometryFactoryProxy {

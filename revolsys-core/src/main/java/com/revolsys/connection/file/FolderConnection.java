@@ -5,11 +5,11 @@ import java.nio.file.Path;
 import java.util.List;
 
 import org.jeometry.common.data.type.DataType;
+import org.jeometry.common.json.JsonObject;
 
 import com.revolsys.collection.Parent;
 import com.revolsys.connection.AbstractConnection;
 import com.revolsys.io.file.Paths;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.util.Property;
 
 public class FolderConnection extends AbstractConnection<FolderConnection, FolderConnectionRegistry>
@@ -23,7 +23,7 @@ public class FolderConnection extends AbstractConnection<FolderConnection, Folde
     if (path == null) {
       throw new IllegalArgumentException("File must not be null");
     }
-    if (!Property.hasValue(getName())) {
+    if (!org.jeometry.common.util.Property.hasValue(getName())) {
       final String fileName = Paths.getFileName(path);
       setName(fileName);
     }

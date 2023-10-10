@@ -5,8 +5,9 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
 
+import org.jeometry.common.json.JsonObject;
+
 import com.revolsys.net.oauth.BearerToken;
-import com.revolsys.record.io.format.json.JsonObject;
 
 public class AzureCliBearerToken extends BearerToken {
   private static final DateTimeFormatter TIMESTAMP_FORMATTER = DateTimeFormatter

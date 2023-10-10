@@ -14,13 +14,15 @@ import java.util.Set;
 
 import jakarta.annotation.PreDestroy;
 
+import org.jeometry.common.collection.list.Lists;
+import org.jeometry.common.collection.map.Maps;
 import org.jeometry.common.data.type.DataType;
 import org.jeometry.common.io.PathName;
+import org.jeometry.common.json.JsonObject;
+import org.jeometry.common.json.JsonObjectHash;
 import org.jeometry.common.logging.Logs;
 
 import com.revolsys.collection.CollectionUtil;
-import com.revolsys.collection.list.Lists;
-import com.revolsys.collection.map.Maps;
 import com.revolsys.collection.set.Sets;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.ClockDirection;
@@ -32,8 +34,6 @@ import com.revolsys.record.ArrayRecord;
 import com.revolsys.record.Record;
 import com.revolsys.record.RecordFactory;
 import com.revolsys.record.code.CodeTable;
-import com.revolsys.record.io.format.json.JsonObject;
-import com.revolsys.record.io.format.json.JsonObjectHash;
 import com.revolsys.record.property.RecordDefinitionProperty;
 import com.revolsys.record.property.ValueRecordDefinitionProperty;
 import com.revolsys.record.query.ColumnReference;

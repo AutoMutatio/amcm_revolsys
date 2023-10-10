@@ -5,9 +5,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.jeometry.common.collection.map.MapEx;
 import org.jeometry.common.data.type.DataType;
 
-import com.revolsys.collection.map.MapEx;
 import com.revolsys.record.query.AbstractMultiQueryValue;
 import com.revolsys.record.query.Query;
 import com.revolsys.record.query.QueryValue;

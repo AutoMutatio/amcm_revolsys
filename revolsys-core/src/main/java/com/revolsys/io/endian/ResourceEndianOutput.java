@@ -7,8 +7,9 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import org.jeometry.common.exception.Exceptions;
+import org.jeometry.common.io.IoUtil;
+import org.jeometry.common.util.BaseCloseable;
 
-import com.revolsys.io.FileUtil;
 import com.revolsys.spring.resource.PathResource;
 import com.revolsys.spring.resource.Resource;
 
@@ -41,12 +42,12 @@ public class ResourceEndianOutput implements EndianOutput {
     } finally {
       if (!(this.resource instanceof PathResource)) {
         try {
-          FileUtil.copy(this.file, this.resourceOut);
+          IoUtil.copy(this.file, this.resourceOut);
           this.resourceOut.flush();
         } catch (final Throwable e) {
           throw Exceptions.wrap(e);
         } finally {
-          FileUtil.closeSilent(this.resourceOut);
+          BaseCloseable.closeSilent(this.resourceOut);
           if (!(this.resource instanceof PathResource)) {
             this.file.delete();
           }

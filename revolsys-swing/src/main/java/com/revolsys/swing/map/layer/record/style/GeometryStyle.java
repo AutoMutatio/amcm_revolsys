@@ -393,7 +393,7 @@ public class GeometryStyle extends MarkerStyle {
     final List<Double> dashArray = new ArrayList<>();
     if (lineDashArray != null) {
       for (final Object dashObject : lineDashArray) {
-        if (Property.hasValue(dashObject)) {
+        if (org.jeometry.common.util.Property.hasValue(dashObject)) {
           String dashString = dashObject.toString();
           dashString = dashString.replaceAll(" \\[pnt\\]", "");
           final Double dash = MathUtil.toDouble(dashString);

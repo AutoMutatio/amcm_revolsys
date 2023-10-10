@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.jeometry.common.data.type.DataType;
 import org.jeometry.common.data.type.DataTypes;
+import org.jeometry.common.util.BaseCloseable;
 import org.jocl.CL;
 import org.jocl.Pointer;
 import org.jocl.Sizeof;
@@ -21,7 +22,6 @@ import com.revolsys.elevation.gridded.rasterizer.HillShadeGriddedElevationModelR
 import com.revolsys.elevation.gridded.rasterizer.SlopeColorGradientGriddedElevationModelRasterizer;
 import com.revolsys.elevation.gridded.rasterizer.gradient.MultiStopLinearGradient;
 import com.revolsys.geometry.model.GeometryFactory;
-import com.revolsys.io.BaseCloseable;
 import com.revolsys.jocl.core.OpenClCommandQueue;
 import com.revolsys.jocl.core.OpenClContextForDevice;
 import com.revolsys.jocl.core.OpenClDevice;

@@ -1,6 +1,7 @@
 package com.revolsys.elevation.gridded;
 
-import com.revolsys.collection.map.MapEx;
+import org.jeometry.common.collection.map.MapEx;
+
 import com.revolsys.geometry.geoid.GeoidModelReader;
 import com.revolsys.geometry.geoid.GeoidModelReaderFactory;
 import com.revolsys.geometry.geoid.GriddedElevationModelGeoidModelReader;

@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import org.jeometry.common.io.IoUtil;
 import org.jeometry.common.logging.Logs;
 
 import com.revolsys.io.DelegatingWriter;
@@ -47,7 +48,7 @@ public class OutputStreamRecordWriter extends DelegatingWriter<Record> implement
     } finally {
       try {
         try {
-          FileUtil.copy(this.tempFile, this.out);
+          IoUtil.copy(this.tempFile, this.out);
         } finally {
           this.out.close();
         }

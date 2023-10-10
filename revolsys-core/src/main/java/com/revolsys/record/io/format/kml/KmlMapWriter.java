@@ -4,9 +4,10 @@ import java.io.Writer;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.jeometry.common.util.BaseCloseable;
+
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.io.AbstractMapWriter;
-import com.revolsys.io.FileUtil;
 
 public class KmlMapWriter extends AbstractMapWriter {
 
@@ -30,7 +31,7 @@ public class KmlMapWriter extends AbstractMapWriter {
         this.out.endTag();
         this.out.endDocument();
       } finally {
-        FileUtil.closeSilent(this.out);
+        BaseCloseable.closeSilent(this.out);
         this.out = null;
       }
     }

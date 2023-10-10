@@ -7,9 +7,8 @@ import java.lang.ref.WeakReference;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import org.jeometry.common.util.BaseCloseable;
 import org.springframework.aop.framework.ProxyFactory;
-
-import com.revolsys.io.BaseCloseable;
 
 public class CleanableResource<R> implements BaseCloseable {
 

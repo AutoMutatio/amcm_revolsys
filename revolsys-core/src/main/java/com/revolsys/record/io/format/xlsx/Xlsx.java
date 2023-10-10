@@ -3,7 +3,8 @@ package com.revolsys.record.io.format.xlsx;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
 
-import com.revolsys.collection.map.MapEx;
+import org.jeometry.common.collection.map.MapEx;
+
 import com.revolsys.record.Record;
 import com.revolsys.record.RecordFactory;
 import com.revolsys.record.io.AbstractRecordIoFactory;

@@ -13,6 +13,7 @@ import javax.swing.JComponent;
 
 import org.jeometry.common.awt.WebColors;
 import org.jeometry.common.logging.Logs;
+import org.jeometry.common.util.Cancellable;
 
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.Geometry;
@@ -32,7 +33,6 @@ import com.revolsys.swing.map.layer.record.style.GeometryStyle;
 import com.revolsys.swing.map.layer.tile.AbstractTiledLayerRenderer;
 import com.revolsys.swing.map.view.ViewRenderer;
 import com.revolsys.swing.map.view.graphics.Graphics2DViewRenderer;
-import com.revolsys.util.Cancellable;
 import com.revolsys.util.Property;
 
 /**

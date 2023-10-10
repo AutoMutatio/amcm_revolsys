@@ -31,7 +31,7 @@ public class SvgUtil {
   }
 
   public static Document newDocument(final String uri) {
-    if (Property.hasValue(uri)) {
+    if (org.jeometry.common.util.Property.hasValue(uri)) {
       final DocumentFactory documentFactory = new SAXSVGDocumentFactory(PARSER_CLASS_NAME);
       try {
         return documentFactory.createDocument(SVGConstants.SVG_NAMESPACE_URI,

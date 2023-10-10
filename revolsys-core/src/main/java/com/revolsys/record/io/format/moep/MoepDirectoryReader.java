@@ -5,8 +5,8 @@ import java.io.IOException;
 import java.time.LocalDate;
 
 import org.jeometry.common.date.Dates;
+import org.jeometry.common.io.IoUtil;
 
-import com.revolsys.io.FileUtil;
 import com.revolsys.record.ArrayRecord;
 import com.revolsys.record.Record;
 import com.revolsys.record.io.RecordDirectoryReader;
@@ -76,7 +76,7 @@ public class MoepDirectoryReader extends RecordDirectoryReader implements Record
   @Override
   public void setDirectory(final File directory) {
     super.setDirectory(directory);
-    final String name = FileUtil.getFileName(directory);
+    final String name = IoUtil.getFileName(directory);
     final File file = new File(directory, name + "s.bin");
     final RecordReader supDataReader = newReader(new PathResource(file));
     for (final Record supData : supDataReader) {

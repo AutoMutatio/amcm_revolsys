@@ -1,13 +1,13 @@
 package com.revolsys.gis.esri.gdb.file;
 
 import org.jeometry.common.logging.Logs;
+import org.jeometry.common.util.BaseCloseable;
 
 import com.revolsys.esri.filegdb.jni.EnumRows;
 import com.revolsys.esri.filegdb.jni.EsriFileGdb;
 import com.revolsys.esri.filegdb.jni.Geodatabase;
 import com.revolsys.esri.filegdb.jni.Table;
 import com.revolsys.esri.filegdb.jni.VectorOfWString;
-import com.revolsys.io.BaseCloseable;
 import com.revolsys.record.io.format.esri.gdb.xml.model.Domain;
 import com.revolsys.record.io.format.esri.gdb.xml.model.EsriGdbXmlSerializer;
 

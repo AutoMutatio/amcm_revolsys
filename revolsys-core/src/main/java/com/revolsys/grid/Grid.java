@@ -7,6 +7,7 @@ import java.util.function.DoubleConsumer;
 
 import org.jeometry.common.awt.WebColors;
 import org.jeometry.common.function.Consumer3Double;
+import org.jeometry.common.util.ObjectWithProperties;
 import org.jeometry.coordinatesystem.operation.CoordinatesOperation;
 import org.jeometry.coordinatesystem.operation.CoordinatesOperationPoint;
 
@@ -18,7 +19,6 @@ import com.revolsys.geometry.model.Point;
 import com.revolsys.geometry.model.Polygon;
 import com.revolsys.geometry.model.Polygonal;
 import com.revolsys.geometry.simplify.DouglasPeuckerSimplifier;
-import com.revolsys.properties.ObjectWithProperties;
 import com.revolsys.spring.resource.Resource;
 
 /**

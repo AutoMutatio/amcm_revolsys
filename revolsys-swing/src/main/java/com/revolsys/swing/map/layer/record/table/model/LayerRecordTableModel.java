@@ -213,7 +213,7 @@ public class LayerRecordTableModel extends AbstractSingleRecordTableModel
 
     toolBar.addButtonTitleIcon("default", "Edit Field Sets", "fields_filter:edit", () -> {
       final String fieldNamesSetName = FieldNamesSetPanel.showDialog(this.layer);
-      if (Property.hasValue(fieldNamesSetName)) {
+      if (org.jeometry.common.util.Property.hasValue(fieldNamesSetName)) {
         this.fieldNamesSetNamesField.setFieldValue(fieldNamesSetName);
       }
     });

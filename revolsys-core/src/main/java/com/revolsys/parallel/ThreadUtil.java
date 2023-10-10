@@ -2,7 +2,7 @@ package com.revolsys.parallel;
 
 import java.util.concurrent.locks.ReentrantLock;
 
-import com.revolsys.io.BaseCloseable;
+import org.jeometry.common.util.BaseCloseable;
 
 public class ThreadUtil {
 

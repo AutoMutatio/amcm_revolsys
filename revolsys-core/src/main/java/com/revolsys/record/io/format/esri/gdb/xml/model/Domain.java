@@ -11,12 +11,12 @@ import javax.swing.JComponent;
 
 import org.jeometry.common.compare.CompareUtil;
 import org.jeometry.common.data.identifier.Identifier;
+import org.jeometry.common.json.JsonObject;
 
 import com.revolsys.record.code.AbstractCodeTable;
 import com.revolsys.record.io.format.esri.gdb.xml.model.enums.FieldType;
 import com.revolsys.record.io.format.esri.gdb.xml.model.enums.MergePolicyType;
 import com.revolsys.record.io.format.esri.gdb.xml.model.enums.SplitPolicyType;
-import com.revolsys.record.io.format.json.JsonObject;
 
 public class Domain extends AbstractCodeTable implements Cloneable {
   private List<CodedValue> codedValues = new ArrayList<>();

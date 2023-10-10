@@ -203,7 +203,7 @@ public class XbaseRecordWriter extends AbstractRecordWriter {
   }
 
   protected boolean hasField(final String name) {
-    if (Property.hasValue(name)) {
+    if (org.jeometry.common.util.Property.hasValue(name)) {
       return this.fieldNames.contains(name.toUpperCase());
     } else {
       return false;

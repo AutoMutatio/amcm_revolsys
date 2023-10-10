@@ -99,7 +99,7 @@ public class MapPointerLocation extends JLabel implements MouseMotionListener {
     Invoke.later(() -> {
       this.mapLocation = mapLocation;
       String text;
-      if (Property.isEmpty(mapLocation)) {
+      if (org.jeometry.common.util.Property.isEmpty(mapLocation)) {
         text = this.title;
       } else {
         final double projectedX = mapLocation.getX();

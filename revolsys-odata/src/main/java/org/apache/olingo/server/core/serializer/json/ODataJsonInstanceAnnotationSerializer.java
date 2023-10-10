@@ -37,8 +37,7 @@ import org.apache.olingo.commons.api.format.ContentType;
 import org.apache.olingo.commons.core.edm.primitivetype.EdmPrimitiveTypeFactory;
 import org.apache.olingo.server.api.serializer.SerializerException;
 import org.apache.olingo.server.core.serializer.utils.ContentTypeHelper;
-
-import com.revolsys.record.io.format.json.JsonWriter;
+import org.jeometry.common.json.JsonWriter;
 
 public class ODataJsonInstanceAnnotationSerializer {
 

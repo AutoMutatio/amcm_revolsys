@@ -8,11 +8,11 @@ import java.util.List;
 import javax.swing.SwingWorker;
 
 import org.jeometry.common.data.type.DataType;
+import org.jeometry.common.json.JsonObject;
 import org.jeometry.common.logging.Logs;
 
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactory;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.swing.parallel.Invoke;
 import com.revolsys.util.Property;
 
@@ -48,7 +48,7 @@ public class BoundingBoxRecordLayer extends AbstractRecordLayer {
   public List<LayerRecord> getRecords(BoundingBox boundingBox) {
     if (hasGeometryField()) {
       boundingBox = convertBoundingBox(boundingBox);
-      if (Property.hasValue(boundingBox)) {
+      if (org.jeometry.common.util.Property.hasValue(boundingBox)) {
         synchronized (getSync()) {
           if (this.loading) {
             if (!boundingBox.equals(this.boundingBox)) {

@@ -111,7 +111,7 @@ public class ColumnBasedTableModel extends AbstractTableModel {
     }
     final Object value = getValueAt(rowIndex, columnIndex);
 
-    final boolean canCopy = Property.hasValue(value);
+    final boolean canCopy = org.jeometry.common.util.Property.hasValue(value);
     final BaseJTable table = getTable();
     final boolean cellEditable = isCellEditable(rowIndex, columnIndex);
     if (cellEditable) {

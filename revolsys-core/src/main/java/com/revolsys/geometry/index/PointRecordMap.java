@@ -9,7 +9,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
 
-import com.revolsys.collection.list.Lists;
+import org.jeometry.common.collection.list.Lists;
+
 import com.revolsys.collection.set.Sets;
 import com.revolsys.geometry.model.Point;
 import com.revolsys.parallel.channel.Channel;

@@ -34,6 +34,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.Stack;
 
+import org.jeometry.common.io.IoUtil;
+
 import com.revolsys.io.FileUtil;
 
 public class CsnIterator {
@@ -125,7 +127,7 @@ public class CsnIterator {
   private Object value;
 
   public CsnIterator(final File file) throws IOException {
-    this(FileUtil.getFileName(file), new FileReader(file));
+    this(IoUtil.getFileName(file), new FileReader(file));
   }
 
   public CsnIterator(final String fileName, final InputStream in) throws IOException {

@@ -1,6 +1,7 @@
 package com.revolsys.csformat.geoid.usngsbin;
 
-import com.revolsys.collection.map.MapEx;
+import org.jeometry.common.collection.map.MapEx;
+
 import com.revolsys.elevation.gridded.GriddedElevationModelReader;
 import com.revolsys.elevation.gridded.GriddedElevationModelReaderFactory;
 import com.revolsys.io.AbstractIoFactory;

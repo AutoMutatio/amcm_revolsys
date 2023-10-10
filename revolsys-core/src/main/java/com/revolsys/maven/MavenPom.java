@@ -13,11 +13,11 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.jeometry.common.collection.map.MapEx;
+import org.jeometry.common.collection.map.Maps;
+import org.jeometry.common.json.JsonObject;
 import org.jeometry.common.logging.Logs;
 
-import com.revolsys.collection.map.MapEx;
-import com.revolsys.collection.map.Maps;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.util.Property;
 
 public class MavenPom extends GroupArtifactVersion {
@@ -159,13 +159,13 @@ public class MavenPom extends GroupArtifactVersion {
       final String artifactId = dependency.getArtifactId();
       final String dependencyKey = groupId + ":" + artifactId;
       String version = versions.get(dependencyKey);
-      if (!Property.hasValue(version)) {
+      if (!org.jeometry.common.util.Property.hasValue(version)) {
         version = dependency.getVersion();
       }
       final String scope = dependency.getScope();
       final boolean optional = dependency.isOptional();
       if (scope.equals("compile") && (includeOptional || !optional)) {
-        if (!Property.hasValue(version)) {
+        if (!org.jeometry.common.util.Property.hasValue(version)) {
           if (groupId.equals(getGroupId())) {
             version = getVersion();
           }

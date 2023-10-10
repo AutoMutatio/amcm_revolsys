@@ -48,7 +48,7 @@ public class TestDirectory extends TestSuite {
       return "";
     } else {
       final String parentId = this.parent.getId();
-      if (Property.hasValue(parentId)) {
+      if (org.jeometry.common.util.Property.hasValue(parentId)) {
         return parentId + "." + this.index;
       } else {
         return String.valueOf(this.index);

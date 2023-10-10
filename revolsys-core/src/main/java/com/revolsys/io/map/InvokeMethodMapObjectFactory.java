@@ -3,11 +3,11 @@ package com.revolsys.io.map;
 import java.lang.reflect.InvocationTargetException;
 
 import org.apache.commons.beanutils.MethodUtils;
+import org.jeometry.common.collection.map.MapEx;
 import org.jeometry.common.exception.Exceptions;
-
-import com.revolsys.collection.map.MapEx;
-import com.revolsys.record.io.format.json.JsonObject;
-import com.revolsys.record.io.format.json.JsonObjectHash;
+import org.jeometry.common.io.MapSerializer;
+import org.jeometry.common.json.JsonObject;
+import org.jeometry.common.json.JsonObjectHash;
 
 public class InvokeMethodMapObjectFactory extends AbstractMapObjectFactory
   implements MapSerializer {

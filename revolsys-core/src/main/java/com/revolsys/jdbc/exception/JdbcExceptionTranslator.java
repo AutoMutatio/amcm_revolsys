@@ -62,10 +62,10 @@ public class JdbcExceptionTranslator extends SQLErrorCodeSQLExceptionTranslator 
       return null;
     } else {
       final StringBuilder message = new StringBuilder();
-      if (Property.hasValue(task)) {
+      if (org.jeometry.common.util.Property.hasValue(task)) {
         message.append(task);
       }
-      if (Property.hasValue(sql)) {
+      if (org.jeometry.common.util.Property.hasValue(sql)) {
         if (message.length() > 0) {
           message.append("\n  ");
         }

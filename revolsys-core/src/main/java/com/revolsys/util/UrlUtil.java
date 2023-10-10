@@ -36,13 +36,14 @@ import java.util.Map.Entry;
 import java.util.StringTokenizer;
 import java.util.regex.Pattern;
 
+import org.jeometry.common.collection.map.MapEx;
 import org.jeometry.common.data.type.DataTypes;
 import org.jeometry.common.exception.Exceptions;
+import org.jeometry.common.io.IoUtil;
+import org.jeometry.common.json.JsonObject;
 import org.jeometry.common.net.UrlProxy;
 
-import com.revolsys.collection.map.MapEx;
 import com.revolsys.io.FileUtil;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.spring.resource.Resource;
 
 /**
@@ -250,7 +251,7 @@ public final class UrlUtil {
     try {
       final URL url = UrlUtil.getUrl(urlString);
       final InputStream in = url.openStream();
-      return FileUtil.getString(in);
+      return IoUtil.getString(in);
     } catch (final IOException e) {
       throw new RuntimeException("Unable to read " + urlString, e);
     }
@@ -346,7 +347,7 @@ public final class UrlUtil {
   @SuppressWarnings("unchecked")
   public static Map<String, Object> getQueryStringMap(final String queryString) {
     final MapEx map = JsonObject.hash();
-    if (Property.hasValue(queryString)) {
+    if (org.jeometry.common.util.Property.hasValue(queryString)) {
       for (final String part : queryString.split("\\&")) {
         final int equalsIndex = part.indexOf("=");
         if (equalsIndex > -1) {
@@ -398,7 +399,7 @@ public final class UrlUtil {
   }
 
   public static URL getUrl(final String urlString) {
-    if (Property.isEmpty(urlString)) {
+    if (org.jeometry.common.util.Property.isEmpty(urlString)) {
       return null;
     } else {
       try {
@@ -439,7 +440,7 @@ public final class UrlUtil {
         url = baseUrl + '?' + query;
       }
     }
-    if (Property.hasValue(fragment)) {
+    if (org.jeometry.common.util.Property.hasValue(fragment)) {
       return url + "#" + fragment;
     } else {
       return url;

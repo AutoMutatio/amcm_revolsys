@@ -16,10 +16,11 @@ import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
+import org.jeometry.common.collection.map.MapEx;
+import org.jeometry.common.json.JsonObject;
+import org.jeometry.common.util.ObjectWithProperties;
+
 import com.revolsys.collection.EmptyReference;
-import com.revolsys.collection.map.MapEx;
-import com.revolsys.properties.ObjectWithProperties;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.swing.menu.MenuFactory;
 import com.revolsys.swing.parallel.Invoke;
 import com.revolsys.swing.tree.dnd.TreeTransferHandler;

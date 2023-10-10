@@ -5,8 +5,10 @@ import java.util.function.Predicate;
 
 import jakarta.annotation.PreDestroy;
 
-import com.revolsys.collection.iterator.FilterIterator;
-import com.revolsys.collection.map.MapEx;
+import org.jeometry.common.collection.iterator.AbstractReader;
+import org.jeometry.common.collection.iterator.FilterIterator;
+import org.jeometry.common.collection.iterator.Reader;
+import org.jeometry.common.collection.map.MapEx;
 
 public class FilterReader<T> extends AbstractReader<T> {
 

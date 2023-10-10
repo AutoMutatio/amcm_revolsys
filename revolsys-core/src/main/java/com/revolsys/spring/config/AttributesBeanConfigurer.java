@@ -4,6 +4,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.jeometry.common.collection.map.ThreadSharedProperties;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.MutablePropertyValues;
 import org.springframework.beans.PropertyValue;
@@ -13,7 +14,6 @@ import org.springframework.beans.factory.config.MapFactoryBean;
 import org.springframework.context.ApplicationContext;
 
 import com.revolsys.collection.map.AttributeMap;
-import com.revolsys.collection.map.ThreadSharedProperties;
 import com.revolsys.spring.TargetBeanFactoryBean;
 
 public class AttributesBeanConfigurer extends BeanConfigurrer {

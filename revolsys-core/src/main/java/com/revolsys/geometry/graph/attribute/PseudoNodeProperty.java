@@ -6,8 +6,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.jeometry.common.util.ObjectPropertyProxy;
+
 import com.revolsys.geometry.graph.Node;
-import com.revolsys.properties.ObjectPropertyProxy;
 import com.revolsys.record.Record;
 import com.revolsys.record.property.AbstractRecordDefinitionProperty;
 import com.revolsys.record.schema.RecordDefinition;

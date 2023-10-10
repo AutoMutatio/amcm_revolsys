@@ -192,7 +192,7 @@ public abstract class Viewport2D implements GeometryFactoryProxy, PropertyChange
 
   public Geometry getGeometry(final Geometry geometry) {
     final BoundingBox viewExtent = getBoundingBox();
-    if (Property.hasValue(geometry)) {
+    if (org.jeometry.common.util.Property.hasValue(geometry)) {
       if (!viewExtent.isEmpty()) {
         final BoundingBox geometryExtent = geometry.getBoundingBox();
         if (geometryExtent.bboxIntersects(viewExtent)) {

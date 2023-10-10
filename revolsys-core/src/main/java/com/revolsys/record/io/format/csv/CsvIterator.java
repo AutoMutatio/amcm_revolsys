@@ -8,8 +8,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.jeometry.common.exception.Exceptions;
-
-import com.revolsys.io.FileUtil;
+import org.jeometry.common.util.BaseCloseable;
 
 public class CsvIterator implements Iterator<List<String>>, Iterable<List<String>> {
   private static final int BUFFER_SIZE = 8192;
@@ -55,7 +54,7 @@ public class CsvIterator implements Iterator<List<String>>, Iterable<List<String
    * @throws IOException if the close fails
    */
   public void close() {
-    FileUtil.closeSilent(this.in);
+    BaseCloseable.closeSilent(this.in);
   }
 
   /**

@@ -4,13 +4,13 @@ import java.util.function.Supplier;
 
 import org.jeometry.common.exception.Exceptions;
 import org.jeometry.common.io.PathName;
+import org.jeometry.common.util.BaseCloseable;
 
 import com.revolsys.esri.filegdb.jni.EnumRows;
 import com.revolsys.esri.filegdb.jni.Envelope;
 import com.revolsys.esri.filegdb.jni.Row;
 import com.revolsys.esri.filegdb.jni.Table;
 import com.revolsys.geometry.model.BoundingBox;
-import com.revolsys.io.BaseCloseable;
 import com.revolsys.record.Record;
 import com.revolsys.record.RecordState;
 import com.revolsys.record.schema.RecordDefinition;
@@ -95,7 +95,7 @@ public interface TableWrapper extends ValueHolderWrapper<Table>, BaseCloseable {
         logQuery.append(fields);
         logQuery.append(" FROM ");
         logQuery.append(tableReference.getCatalogPath());
-        if (Property.hasValue(whereClause)) {
+        if (org.jeometry.common.util.Property.hasValue(whereClause)) {
           logQuery.append(" WHERE ");
           logQuery.append(whereClause);
         }
@@ -119,7 +119,7 @@ public interface TableWrapper extends ValueHolderWrapper<Table>, BaseCloseable {
           logQuery.append(" FROM ");
           logQuery.append(tableReference.getCatalogPath());
           logQuery.append(" WHERE ");
-          if (Property.hasValue(whereClause)) {
+          if (org.jeometry.common.util.Property.hasValue(whereClause)) {
             logQuery.append(whereClause);
             logQuery.append(" AND");
           }

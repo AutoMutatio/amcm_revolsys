@@ -3,7 +3,7 @@ package com.revolsys.util;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import com.revolsys.io.BaseCloseable;
+import org.jeometry.common.util.BaseCloseable;
 
 public interface ValueWrapper<R> extends BaseCloseable {
 

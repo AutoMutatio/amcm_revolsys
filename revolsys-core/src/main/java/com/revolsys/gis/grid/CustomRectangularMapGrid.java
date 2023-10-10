@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 import org.jeometry.common.function.BiConsumerDouble;
+import org.jeometry.common.json.JsonObject;
 import org.jeometry.common.number.Doubles;
 
 import com.revolsys.geometry.model.BoundingBox;
@@ -14,7 +15,6 @@ import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.geometry.model.Point;
 import com.revolsys.geometry.model.impl.RectangleXY;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.util.Property;
 
 public class CustomRectangularMapGrid extends AbstractRectangularMapGrid {
@@ -115,7 +115,7 @@ public class CustomRectangularMapGrid extends AbstractRectangularMapGrid {
 
   public void forEachTile(final Geometry geometry, final Consumer<RectangularMapTile> action) {
     final Geometry convertedGeometry = toCoordinateSystem(geometry);
-    if (!Property.isEmpty(convertedGeometry)) {
+    if (!org.jeometry.common.util.Property.isEmpty(convertedGeometry)) {
       final BoundingBox boundingBox = convertedGeometry.getBoundingBox();
       forEachTile(boundingBox, tile -> {
         final BoundingBox tileBoundingBox = tile.getBoundingBox();

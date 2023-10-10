@@ -9,6 +9,8 @@ import java.util.NoSuchElementException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.jeometry.common.util.BaseCloseable;
+import org.jeometry.common.util.BaseObjectWithProperties;
 import org.jeometry.coordinatesystem.model.CoordinateSystem;
 import org.jeometry.coordinatesystem.model.systems.EpsgCoordinateSystems;
 
@@ -21,7 +23,6 @@ import com.revolsys.gis.grid.UtmRectangularMapGrid;
 import com.revolsys.io.EndOfFileException;
 import com.revolsys.io.FileUtil;
 import com.revolsys.io.IoConstants;
-import com.revolsys.properties.BaseObjectWithProperties;
 import com.revolsys.record.Record;
 import com.revolsys.record.RecordFactory;
 
@@ -109,7 +110,7 @@ public class MoepBinaryIterator extends BaseObjectWithProperties implements Iter
 
   @Override
   public void close() {
-    FileUtil.closeSilent(this.in);
+    BaseCloseable.closeSilent(this.in);
   }
 
   private String getMapsheetFromFileName(final String fileName) {

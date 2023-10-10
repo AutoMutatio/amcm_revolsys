@@ -63,7 +63,7 @@ public class FormAllFieldsModifiedPredicate implements HighlightPredicate {
               if (originalValue == null) {
                 if (fieldValue instanceof String) {
                   final String string = (String)fieldValue;
-                  if (!Property.hasValue(string)) {
+                  if (!org.jeometry.common.util.Property.hasValue(string)) {
                     equal = true;
                   }
                 }

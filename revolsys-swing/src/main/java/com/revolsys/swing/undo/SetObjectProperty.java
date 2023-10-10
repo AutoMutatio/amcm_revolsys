@@ -47,7 +47,7 @@ public class SetObjectProperty extends AbstractUndoableEdit {
 
   @Override
   protected void redoDo() {
-    Property.setSimple(this.object, this.propertyName, this.newValue);
+    org.jeometry.common.util.Property.setSimple(this.object, this.propertyName, this.newValue);
   }
 
   @Override
@@ -57,6 +57,6 @@ public class SetObjectProperty extends AbstractUndoableEdit {
 
   @Override
   protected void undoDo() {
-    Property.setSimple(this.object, this.propertyName, this.oldValue);
+    org.jeometry.common.util.Property.setSimple(this.object, this.propertyName, this.oldValue);
   }
 }

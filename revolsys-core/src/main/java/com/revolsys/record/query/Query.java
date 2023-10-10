@@ -17,17 +17,19 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
+import org.jeometry.common.collection.list.ListEx;
+import org.jeometry.common.collection.list.Lists;
+import org.jeometry.common.collection.map.MapEx;
 import org.jeometry.common.io.PathName;
+import org.jeometry.common.json.Json;
+import org.jeometry.common.util.BaseObjectWithProperties;
+import org.jeometry.common.util.Cancellable;
 
-import com.revolsys.collection.list.ListEx;
-import com.revolsys.collection.list.Lists;
-import com.revolsys.collection.map.MapEx;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.jdbc.JdbcUtils;
 import com.revolsys.jdbc.field.JdbcFieldDefinition;
 import com.revolsys.jdbc.field.JdbcFieldDefinitions;
 import com.revolsys.predicate.Predicates;
-import com.revolsys.properties.BaseObjectWithProperties;
 import com.revolsys.record.ArrayChangeTrackRecord;
 import com.revolsys.record.ChangeTrackRecord;
 import com.revolsys.record.Record;
@@ -35,7 +37,6 @@ import com.revolsys.record.RecordFactory;
 import com.revolsys.record.Records;
 import com.revolsys.record.io.RecordReader;
 import com.revolsys.record.io.RecordWriter;
-import com.revolsys.record.io.format.json.Json;
 import com.revolsys.record.query.functions.Exists;
 import com.revolsys.record.query.functions.F;
 import com.revolsys.record.schema.FieldDefinition;
@@ -44,7 +45,6 @@ import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordDefinitionProxy;
 import com.revolsys.record.schema.RecordStore;
 import com.revolsys.transaction.Transactionable;
-import com.revolsys.util.Cancellable;
 import com.revolsys.util.CancellableProxy;
 import com.revolsys.util.Property;
 import com.revolsys.util.count.LabelCounters;
@@ -357,7 +357,7 @@ public class Query extends BaseObjectWithProperties
     if (conditions != null) {
       Condition whereCondition = getWhereCondition();
       for (final Condition condition : conditions) {
-        if (Property.hasValue(condition)) {
+        if (org.jeometry.common.util.Property.hasValue(condition)) {
           whereCondition = whereCondition.and(condition);
         }
       }
@@ -370,7 +370,7 @@ public class Query extends BaseObjectWithProperties
     if (conditions != null) {
       Condition whereCondition = getWhereCondition();
       for (final Condition condition : conditions) {
-        if (Property.hasValue(condition)) {
+        if (org.jeometry.common.util.Property.hasValue(condition)) {
           whereCondition = whereCondition.and(condition);
         }
       }
@@ -1175,7 +1175,7 @@ public class Query extends BaseObjectWithProperties
   }
 
   public Query selectCsv(final String select) {
-    if (Property.hasValue(select)) {
+    if (org.jeometry.common.util.Property.hasValue(select)) {
       for (String selectItem : select.split(",")) {
         selectItem = selectItem.strip();
         select(selectItem);

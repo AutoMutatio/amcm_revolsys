@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.jeometry.common.collection.map.MapEx;
+import org.jeometry.common.collection.map.Maps;
 import org.jeometry.common.compare.NumericComparator;
 import org.jeometry.common.data.identifier.Code;
 import org.jeometry.common.data.identifier.Identifier;
@@ -17,25 +19,23 @@ import org.jeometry.common.data.type.CollectionDataType;
 import org.jeometry.common.data.type.DataType;
 import org.jeometry.common.data.type.DataTypeProxy;
 import org.jeometry.common.data.type.DataTypes;
+import org.jeometry.common.io.MapSerializer;
+import org.jeometry.common.json.JsonObject;
+import org.jeometry.common.json.JsonObjectHash;
+import org.jeometry.common.util.BaseCloneable;
+import org.jeometry.common.util.BaseObjectWithProperties;
 
 import com.revolsys.beans.ObjectPropertyException;
-import com.revolsys.collection.map.MapEx;
-import com.revolsys.collection.map.Maps;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.geometry.operation.valid.IsValidOp;
-import com.revolsys.io.map.MapSerializer;
-import com.revolsys.properties.BaseObjectWithProperties;
 import com.revolsys.record.Record;
 import com.revolsys.record.RecordState;
 import com.revolsys.record.code.CodeTable;
-import com.revolsys.record.io.format.json.JsonObject;
-import com.revolsys.record.io.format.json.JsonObjectHash;
 import com.revolsys.record.query.ColumnReference;
 import com.revolsys.record.query.Query;
 import com.revolsys.record.query.SqlAppendable;
 import com.revolsys.record.query.TableReference;
-import com.revolsys.util.BaseCloneable;
 import com.revolsys.util.CaseConverter;
 import com.revolsys.util.Property;
 import com.revolsys.util.Strings;
@@ -718,7 +718,7 @@ public class FieldDefinition extends BaseObjectWithProperties implements CharSeq
   public FieldDefinition setName(final String name) {
     this.name = name;
     String title = getTitle();
-    if (!Property.hasValue(title)) {
+    if (!org.jeometry.common.util.Property.hasValue(title)) {
       title = CaseConverter.toCapitalizedWords(name);
       setTitle(title);
     }
@@ -740,7 +740,7 @@ public class FieldDefinition extends BaseObjectWithProperties implements CharSeq
   }
 
   public FieldDefinition setTitle(final String title) {
-    if (Property.hasValue(title)) {
+    if (org.jeometry.common.util.Property.hasValue(title)) {
       this.title = title;
     } else {
       final String name = getName();
@@ -782,7 +782,7 @@ public class FieldDefinition extends BaseObjectWithProperties implements CharSeq
     } else if (this.codeTable == null) {
       if (value instanceof String) {
         final String string = (String)value;
-        if (!Property.hasValue(string)) {
+        if (!org.jeometry.common.util.Property.hasValue(string)) {
           return null;
         }
       }
@@ -797,7 +797,7 @@ public class FieldDefinition extends BaseObjectWithProperties implements CharSeq
           return ((Code)codeValue).getDescription();
         } else if (codeValue instanceof String) {
           final String string = (String)codeValue;
-          if (Property.hasValue(string)) {
+          if (org.jeometry.common.util.Property.hasValue(string)) {
             return string;
           } else {
             return null;
@@ -819,7 +819,7 @@ public class FieldDefinition extends BaseObjectWithProperties implements CharSeq
       try {
         if (value instanceof String) {
           final String string = (String)value;
-          if (!Property.hasValue(string)) {
+          if (!org.jeometry.common.util.Property.hasValue(string)) {
             return null;
           }
         }
@@ -877,7 +877,7 @@ public class FieldDefinition extends BaseObjectWithProperties implements CharSeq
       try {
         if (value instanceof String) {
           final String string = (String)value;
-          if (!Property.hasValue(string)) {
+          if (!org.jeometry.common.util.Property.hasValue(string)) {
             return null;
           }
         }
@@ -907,7 +907,7 @@ public class FieldDefinition extends BaseObjectWithProperties implements CharSeq
       try {
         if (value instanceof String) {
           final String string = (String)value;
-          if (!Property.hasValue(string)) {
+          if (!org.jeometry.common.util.Property.hasValue(string)) {
             return null;
           }
         }
@@ -963,7 +963,7 @@ public class FieldDefinition extends BaseObjectWithProperties implements CharSeq
     } else {
       if (value instanceof String) {
         final String string = (String)value;
-        if (!Property.hasValue(string)) {
+        if (!org.jeometry.common.util.Property.hasValue(string)) {
           return null;
         }
       }

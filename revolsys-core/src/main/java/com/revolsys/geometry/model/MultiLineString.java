@@ -91,7 +91,7 @@ public interface MultiLineString extends GeometryCollection, Lineal {
   default double distanceGeometry(Geometry geometry, final double terminateDistance) {
     if (isEmpty()) {
       return Double.POSITIVE_INFINITY;
-    } else if (Property.isEmpty(geometry)) {
+    } else if (org.jeometry.common.util.Property.isEmpty(geometry)) {
       return Double.POSITIVE_INFINITY;
     } else {
       final GeometryFactory geometryFactory = getGeometryFactory();

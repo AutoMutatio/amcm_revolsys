@@ -167,7 +167,7 @@ public class InputStreamResource extends AbstractResource {
   }
 
   public InputStreamResource setCharset(final String charset) {
-    if (Property.hasValue(charset)) {
+    if (org.jeometry.common.util.Property.hasValue(charset)) {
       try {
         this.charset = Charset.forName(charset);
       } catch (final Exception e) {

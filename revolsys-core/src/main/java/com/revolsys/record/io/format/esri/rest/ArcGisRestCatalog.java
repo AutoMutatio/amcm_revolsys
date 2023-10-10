@@ -9,11 +9,11 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import org.jeometry.common.collection.map.MapEx;
+import org.jeometry.common.collection.map.Maps;
 import org.jeometry.common.io.PathName;
 import org.jeometry.common.logging.Logs;
 
-import com.revolsys.collection.map.MapEx;
-import com.revolsys.collection.map.Maps;
 import com.revolsys.record.io.RecordReader;
 import com.revolsys.record.io.format.esri.rest.map.FeatureLayer;
 import com.revolsys.record.io.format.esri.rest.map.FeatureService;
@@ -37,7 +37,7 @@ public class ArcGisRestCatalog extends ArcGisResponse<CatalogElement> {
   public static ArcGisRestCatalog newArcGisRestCatalog(
     final Map<String, ? extends Object> properties) {
     final String serviceUrl = (String)properties.get("serviceUrl");
-    if (Property.hasValue(serviceUrl)) {
+    if (org.jeometry.common.util.Property.hasValue(serviceUrl)) {
       final ArcGisRestCatalog service = newArcGisRestCatalog(serviceUrl);
       service.setProperties(properties);
       return service;

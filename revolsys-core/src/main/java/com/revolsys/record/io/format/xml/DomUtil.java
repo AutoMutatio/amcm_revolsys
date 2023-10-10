@@ -38,7 +38,7 @@ public class DomUtil {
 
   public static Double getDouble(final Node node) {
     final String text = getChildText(node);
-    if (Property.hasValue(text)) {
+    if (org.jeometry.common.util.Property.hasValue(text)) {
       return Double.valueOf(text);
     } else {
       return null;
@@ -75,7 +75,7 @@ public class DomUtil {
 
   public static Integer getInteger(final Node node) {
     final String text = getChildText(node);
-    if (Property.hasValue(text)) {
+    if (org.jeometry.common.util.Property.hasValue(text)) {
       return Integer.valueOf(text);
     } else {
       return null;

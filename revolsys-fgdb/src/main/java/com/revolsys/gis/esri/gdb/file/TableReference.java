@@ -4,6 +4,7 @@ import java.util.function.Supplier;
 
 import org.jeometry.common.io.PathName;
 import org.jeometry.common.logging.Logs;
+import org.jeometry.common.util.BaseCloseable;
 
 import com.revolsys.beans.ObjectException;
 import com.revolsys.beans.ObjectPropertyException;
@@ -12,7 +13,6 @@ import com.revolsys.esri.filegdb.jni.Envelope;
 import com.revolsys.esri.filegdb.jni.Row;
 import com.revolsys.esri.filegdb.jni.Table;
 import com.revolsys.gis.esri.gdb.file.capi.type.AbstractFileGdbFieldDefinition;
-import com.revolsys.io.BaseCloseable;
 import com.revolsys.jdbc.JdbcUtils;
 import com.revolsys.record.Record;
 import com.revolsys.record.RecordState;

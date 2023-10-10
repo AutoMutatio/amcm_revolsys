@@ -202,7 +202,7 @@ public class PostgreSQLRecordStore extends AbstractJdbcRecordStore {
     final String dbSchemaName = schema.getQuotedDbName();
     final String shortName = ShortNameProperty.getShortName(recordDefinition);
     String sequenceName;
-    if (Property.hasValue(shortName)) {
+    if (org.jeometry.common.util.Property.hasValue(shortName)) {
       if (this.useSchemaSequencePrefix) {
         sequenceName = dbSchemaName + "." + shortName.toLowerCase() + "_seq";
       } else {

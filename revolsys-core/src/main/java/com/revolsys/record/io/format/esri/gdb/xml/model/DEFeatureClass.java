@@ -71,7 +71,7 @@ public class DEFeatureClass extends DETable {
   }
 
   public void setAreaFieldName(final String areaFieldName) {
-    if (Property.hasValue(areaFieldName)) {
+    if (org.jeometry.common.util.Property.hasValue(areaFieldName)) {
       this.areaFieldName = areaFieldName;
     } else {
       this.areaFieldName = "";
@@ -99,7 +99,7 @@ public class DEFeatureClass extends DETable {
   }
 
   public void setLengthFieldName(final String lengthFieldName) {
-    if (Property.hasValue(lengthFieldName)) {
+    if (org.jeometry.common.util.Property.hasValue(lengthFieldName)) {
       this.lengthFieldName = lengthFieldName;
     } else {
       this.lengthFieldName = "";

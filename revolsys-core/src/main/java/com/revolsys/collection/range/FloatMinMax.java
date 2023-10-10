@@ -1,8 +1,8 @@
 package com.revolsys.collection.range;
 
 import org.jeometry.common.number.Floats;
+import org.jeometry.common.util.Emptyable;
 
-import com.revolsys.util.Emptyable;
 import com.revolsys.util.Property;
 
 public class FloatMinMax extends FloatRange implements Cloneable, Emptyable {
@@ -140,7 +140,7 @@ public class FloatMinMax extends FloatRange implements Cloneable, Emptyable {
   }
 
   public boolean contains(final FloatMinMax minMax) {
-    if (isEmpty() || !Property.hasValue(minMax)) {
+    if (isEmpty() || !org.jeometry.common.util.Property.hasValue(minMax)) {
       return false;
     } else {
       final float min = minMax.getMin();
@@ -193,7 +193,7 @@ public class FloatMinMax extends FloatRange implements Cloneable, Emptyable {
   }
 
   public boolean overlaps(final FloatMinMax minMax) {
-    if (isEmpty() || !Property.hasValue(minMax)) {
+    if (isEmpty() || !org.jeometry.common.util.Property.hasValue(minMax)) {
       return false;
     } else {
       final float min = minMax.getMin();

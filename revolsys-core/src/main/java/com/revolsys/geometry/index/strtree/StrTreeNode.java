@@ -4,8 +4,9 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.function.Consumer;
 
+import org.jeometry.common.util.Emptyable;
+
 import com.revolsys.geometry.model.impl.BoundingBoxDoubleXY;
-import com.revolsys.util.Emptyable;
 
 public class StrTreeNode<I> extends BoundingBoxDoubleXY
   implements Emptyable, Boundable<I>, Serializable {

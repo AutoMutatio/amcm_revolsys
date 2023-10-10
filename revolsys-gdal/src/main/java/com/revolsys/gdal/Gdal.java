@@ -27,6 +27,7 @@ import org.gdal.gdalconst.gdalconstConstants;
 import org.gdal.ogr.ogr;
 import org.gdal.osr.SpatialReference;
 import org.gdal.osr.osr;
+import org.jeometry.common.json.Json;
 import org.jeometry.common.logging.Logs;
 
 import com.revolsys.gdal.raster.GdalImageFactory;
@@ -34,7 +35,6 @@ import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.io.FileUtil;
 import com.revolsys.io.IoFactoryRegistry;
-import com.revolsys.record.io.format.json.Json;
 import com.revolsys.spring.resource.PathResource;
 import com.revolsys.spring.resource.Resource;
 import com.revolsys.util.OS;
@@ -379,7 +379,7 @@ public class Gdal implements ServiceInitializer {
   }
 
   public static Dataset getDataset(final String name, final int mode) {
-    if (Property.hasValue(name)) {
+    if (org.jeometry.common.util.Property.hasValue(name)) {
       final File file = new File(name);
       return getDataset(file, mode);
     } else {
@@ -472,7 +472,7 @@ public class Gdal implements ServiceInitializer {
 
         final Map<String, Object> settings = Json.toMap(settingsFile);
         final String boundingBoxWkt = (String)settings.get("boundingBox");
-        if (Property.hasValue(boundingBoxWkt)) {
+        if (org.jeometry.common.util.Property.hasValue(boundingBoxWkt)) {
           final BoundingBox boundingBox = BoundingBox.bboxNew(boundingBoxWkt);
           if (!boundingBox.isEmpty()) {
             setSpatialReference(dataset, boundingBox.getGeometryFactory());
@@ -501,13 +501,13 @@ public class Gdal implements ServiceInitializer {
 
   private static void setGdalProperty(final String name, final String defaultValue) {
     String value = System.getProperty(name);
-    if (!Property.hasValue(value)) {
+    if (!org.jeometry.common.util.Property.hasValue(value)) {
       value = System.getenv(name);
-      if (!Property.hasValue(value)) {
+      if (!org.jeometry.common.util.Property.hasValue(value)) {
         value = defaultValue;
       }
     }
-    if (Property.hasValue(value)) {
+    if (org.jeometry.common.util.Property.hasValue(value)) {
       gdal.SetConfigOption(name, value);
     }
   }

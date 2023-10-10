@@ -8,6 +8,8 @@ import java.net.URI;
 
 import javax.tools.SimpleJavaFileObject;
 
+import org.jeometry.common.io.IoUtil;
+
 import com.revolsys.io.FileUtil;
 
 public class URIJavaFileObject extends SimpleJavaFileObject {
@@ -22,7 +24,7 @@ public class URIJavaFileObject extends SimpleJavaFileObject {
   @Override
   public CharSequence getCharContent(final boolean ignoreEncodingErrors) throws IOException {
     final InputStream inputStream = openInputStream();
-    return FileUtil.getString(inputStream);
+    return IoUtil.getString(inputStream);
   }
 
   @Override

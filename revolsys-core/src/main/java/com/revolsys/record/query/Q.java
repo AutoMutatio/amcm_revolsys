@@ -519,7 +519,7 @@ public class Q {
   }
 
   public static SqlCondition sql(final String sql) {
-    if (Property.hasValue(sql)) {
+    if (org.jeometry.common.util.Property.hasValue(sql)) {
       return new SqlCondition(sql);
     } else {
       return null;

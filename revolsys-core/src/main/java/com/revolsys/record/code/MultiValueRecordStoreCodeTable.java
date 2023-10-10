@@ -7,17 +7,17 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
+import org.jeometry.common.collection.list.Lists;
 import org.jeometry.common.data.identifier.Identifier;
 import org.jeometry.common.data.identifier.ListIdentifier;
 import org.jeometry.common.data.identifier.SingleIdentifier;
 import org.jeometry.common.date.Dates;
 import org.jeometry.common.io.PathName;
+import org.jeometry.common.json.JsonObject;
 
-import com.revolsys.collection.list.Lists;
 import com.revolsys.record.Record;
 import com.revolsys.record.comparator.RecordFieldComparator;
 import com.revolsys.record.io.RecordReader;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.record.query.And;
 import com.revolsys.record.query.Q;
 import com.revolsys.record.query.Query;
@@ -145,13 +145,13 @@ public class MultiValueRecordStoreCodeTable extends AbstractMultiValueCodeTable
 
   @Override
   public String getIdFieldName() {
-    if (Property.hasValue(this.idFieldName)) {
+    if (org.jeometry.common.util.Property.hasValue(this.idFieldName)) {
       return this.idFieldName;
     } else if (this.recordDefinition == null) {
       return "";
     } else {
       final String idFieldName = this.recordDefinition.getIdFieldName();
-      if (Property.hasValue(idFieldName)) {
+      if (org.jeometry.common.util.Property.hasValue(idFieldName)) {
         return idFieldName;
       } else {
         return this.recordDefinition.getFieldName(0);
