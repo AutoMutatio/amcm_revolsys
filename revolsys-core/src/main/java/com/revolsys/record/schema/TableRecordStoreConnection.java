@@ -2,7 +2,6 @@ package com.revolsys.record.schema;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 import org.jeometry.common.data.identifier.Identifier;
 import org.jeometry.common.io.PathName;
@@ -16,12 +15,14 @@ import com.revolsys.transaction.Transactionable;
 
 public interface TableRecordStoreConnection extends Transactionable, TableRecordStoreFactory {
 
-  default RecordDefinition getRecordDefinition(final CharSequence tableName) {
-    final AbstractTableRecordStore recordStore = getTableRecordStore(tableName);
-    if (recordStore == null) {
-      return null;
-    }
-    return recordStore.getRecordDefinition();
+  @SuppressWarnings("unchecked")
+  default <V, C extends TableRecordStoreConnection> V apply(final Function<C, V> f) {
+    return f.apply((C)this);
+  }
+
+  @Override
+  default <RD extends RecordDefinition> RD getRecordDefinition(final CharSequence tableName) {
+    return getRecordStore().getRecordDefinition(tableName);
   }
 
   RecordStore getRecordStore();

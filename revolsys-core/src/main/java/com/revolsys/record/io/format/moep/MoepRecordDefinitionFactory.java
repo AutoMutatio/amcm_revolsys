@@ -11,15 +11,16 @@ public class MoepRecordDefinitionFactory extends BaseObjectWithProperties
   implements RecordDefinitionFactory {
   private static final Map<String, RecordDefinition> RECORD_DEFINITION_CACHE = new HashMap<>();
 
+  @SuppressWarnings("unchecked")
   @Override
-  public RecordDefinition getRecordDefinition(final String typePath) {
+  public <RD extends RecordDefinition> RD getRecordDefinition(final CharSequence typePath) {
     synchronized (RECORD_DEFINITION_CACHE) {
-      RecordDefinition recordDefinition = RECORD_DEFINITION_CACHE.get(typePath);
+      RecordDefinition recordDefinition = RECORD_DEFINITION_CACHE.get(typePath.toString());
       if (recordDefinition == null) {
-        recordDefinition = MoepConstants.newRecordDefinition(typePath);
-        RECORD_DEFINITION_CACHE.put(typePath, recordDefinition);
+        recordDefinition = MoepConstants.newRecordDefinition(typePath.toString());
+        RECORD_DEFINITION_CACHE.put(typePath.toString(), recordDefinition);
       }
-      return recordDefinition;
+      return (RD)recordDefinition;
     }
   }
 

@@ -2,7 +2,7 @@ package com.revolsys.record.schema;
 
 import org.jeometry.common.io.PathNameProxy;
 
-public interface TableRecordStoreFactory {
+public interface TableRecordStoreFactory extends RecordDefinitionFactory {
 
   <TRS extends AbstractTableRecordStore> TRS getTableRecordStore(CharSequence pathName);
 

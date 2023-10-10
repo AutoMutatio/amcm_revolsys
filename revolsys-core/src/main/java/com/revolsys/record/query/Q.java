@@ -10,6 +10,7 @@ import org.jeometry.common.data.identifier.Identifier;
 import org.jeometry.common.data.type.DataType;
 import org.jeometry.common.data.type.DataTypes;
 
+import com.revolsys.record.query.functions.Exists;
 import com.revolsys.record.query.functions.F;
 import com.revolsys.record.query.functions.JsonRawValue;
 import com.revolsys.record.query.functions.JsonValue;
@@ -57,6 +58,15 @@ public class Q {
 
   public static And and(final List<? extends Condition> conditions) {
     return new And(conditions);
+  }
+
+  public static Any any(final ColumnReference column) {
+    return new Any(column);
+  }
+
+  public static Any any(final TableReferenceProxy table, final String columnName) {
+    final ColumnReference column = table.getColumn(columnName);
+    return any(column);
   }
 
   public static QueryValue arithmatic(final FieldDefinition field, final String operator,
@@ -216,6 +226,10 @@ public class Q {
         "Field count for " + fields + " != count for values " + values);
     }
     return and;
+  }
+
+  public static Exists exists(final QueryValue expression) {
+    return new Exists(expression);
   }
 
   public static GreaterThan greaterThan(final FieldDefinition fieldDefinition, final Object value) {
@@ -457,6 +471,10 @@ public class Q {
   public static Condition notEqual(final String name, final QueryValue right) {
     final QueryValue column = new Column(name);
     return notEqual(column, right);
+  }
+
+  public static Not notExists(final QueryValue expression) {
+    return not(exists(expression));
   }
 
   public static Or or(final Condition... conditions) {

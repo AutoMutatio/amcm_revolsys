@@ -313,7 +313,7 @@ public class SaifReader extends AbstractReader<Record>
   }
 
   @Override
-  public RecordDefinition getRecordDefinition(final String typePath) {
+  public <RD extends RecordDefinition> RD getRecordDefinition(final CharSequence typePath) {
     return this.recordDefinitionFactory.getRecordDefinition(typePath);
   }
 

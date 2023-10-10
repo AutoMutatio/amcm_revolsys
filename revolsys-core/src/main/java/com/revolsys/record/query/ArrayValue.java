@@ -78,8 +78,8 @@ public class ArrayValue implements QueryValue {
     final RecordDefinition newRecordDefinition) {
     final String fieldName = this.column.getName();
     if (Property.hasValue(fieldName)) {
-      final FieldDefinition field = newRecordDefinition.getField(fieldName);
-      setFieldDefinition(field);
+      final FieldDefinition column = newRecordDefinition.getField(fieldName);
+      setColumn(column);
     }
   }
 
@@ -144,7 +144,8 @@ public class ArrayValue implements QueryValue {
     return (V)this.values;
   }
 
-  private void setColumn(final ColumnReference column) {
+  @Override
+  public void setColumn(final ColumnReference column) {
     this.column = column;
     if (column != null) {
       if (column instanceof JdbcFieldDefinition) {
@@ -156,11 +157,6 @@ public class ArrayValue implements QueryValue {
         this.values = this.values.map(this.jdbcField::toFieldValue);
       }
     }
-  }
-
-  @Override
-  public void setFieldDefinition(final FieldDefinition field) {
-    setColumn(field);
   }
 
   @Override
