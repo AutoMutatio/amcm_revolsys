@@ -21,8 +21,8 @@ import oracle.sql.ROWID;
 
 public class OracleJdbcRowIdFieldDefinition extends JdbcFieldDefinition {
   public OracleJdbcRowIdFieldDefinition() {
-    super("rowid", "ORACLE_ROWID", DataTypes.STRING, Types.ROWID, 18, 0, true, "Row identifier",
-      Collections.emptyMap());
+    super("rowid", "ORACLE_ROWID", DataTypes.STRING, Types.ROWID, "rowid", 18, 0, true,
+      "Row identifier", Collections.emptyMap());
   }
 
   @Override

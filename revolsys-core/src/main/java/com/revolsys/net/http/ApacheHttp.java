@@ -23,6 +23,7 @@ import org.jeometry.common.exception.Exceptions;
 import org.jeometry.common.exception.WrappedException;
 
 import com.revolsys.io.FileUtil;
+import com.revolsys.record.io.format.json.JsonList;
 import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.record.io.format.json.JsonParser;
 
@@ -111,6 +112,16 @@ public class ApacheHttp {
   public static JsonObject getJson(final RequestBuilder requestBuilder) {
     final Function<HttpResponse, JsonObject> function = ApacheHttp::getJson;
     return execute(requestBuilder, function);
+  }
+
+  public static JsonList getJsonList(final HttpResponse response) {
+    final HttpEntity entity = response.getEntity();
+    try (
+      InputStream in = entity.getContent()) {
+      return JsonParser.read(in);
+    } catch (final Exception e) {
+      throw Exceptions.wrap(e);
+    }
   }
 
   public static HttpResponse getResponse(final CloseableHttpClient httpClient,

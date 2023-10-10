@@ -270,7 +270,7 @@ public class GeoPackageRecordStore extends AbstractJdbcRecordStore {
   private void executeSql(final String task, final String sql) {
     try (
       JdbcConnection connection = getJdbcConnection(true)) {
-      if (sql.trim().length() > 0) {
+      if (sql.strip().length() > 0) {
         try (
           Statement statement = connection.createStatement()) {
           statement.execute(sql);
@@ -284,7 +284,7 @@ public class GeoPackageRecordStore extends AbstractJdbcRecordStore {
   private void executeSqlNoFunctions(final String task, final String sql) {
     try (
       JdbcConnection connection = super.getJdbcConnection(true)) {
-      if (sql.trim().length() > 0) {
+      if (sql.strip().length() > 0) {
         try (
           Statement statement = connection.createStatement()) {
           statement.execute(sql);
@@ -526,7 +526,7 @@ public class GeoPackageRecordStore extends AbstractJdbcRecordStore {
                 }
                 final Object defaultValue = columnsRs.getString("dflt_value");
                 final FieldDefinition field = addField(recordDefinition, dbColumnName, fieldName,
-                  dataType, sqlType, length, scale, required, null);
+                  sqlType, dataType, length, scale, required, null);
                 field.setDefaultValue(defaultValue);
               }
             }

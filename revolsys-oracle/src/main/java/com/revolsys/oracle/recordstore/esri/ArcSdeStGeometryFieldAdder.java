@@ -18,7 +18,7 @@ public class ArcSdeStGeometryFieldAdder extends JdbcFieldAdder {
   @Override
   public ArcSdeStGeometryFieldDefinition newField(final AbstractJdbcRecordStore recordStore,
     final JdbcRecordDefinition recordDefinition, final String dbName, final String name,
-    final String dbDataType, final int sqlType, final int length, final int scale,
+    final int sqlType, final String dbDataType, final int length, final int scale,
     final boolean required, final String description) {
     final JdbcRecordStoreSchema schema = recordDefinition.getSchema();
     final PathName typePath = recordDefinition.getPathName();
@@ -51,7 +51,7 @@ public class ArcSdeStGeometryFieldAdder extends JdbcFieldAdder {
       columnName, JdbcFieldAdder.GEOMETRY_FACTORY);
 
     final ArcSdeStGeometryFieldDefinition field = new ArcSdeStGeometryFieldDefinition(dbName, name,
-      dataType, required, description, null, spatialReference, axisCount);
+      dataType, dbDataType, required, description, null, spatialReference, axisCount);
     field.setGeometryFactory(geometryFactory);
     return field;
   }

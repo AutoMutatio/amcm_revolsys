@@ -96,7 +96,7 @@ public class PreferParser {
     final Map<String, Preference> partResult = new HashMap<>();
     String separator = "";
     int start = 0;
-    final Matcher matcher = PREFERENCE.matcher(value.trim());
+    final Matcher matcher = PREFERENCE.matcher(value.strip());
     while (matcher.find() && matcher.start() == start) {
       start = matcher.end();
       if (matcher.group(1) != null) {
@@ -134,7 +134,7 @@ public class PreferParser {
     final Map<String, String> result = new HashMap<>();
     String separator = "";
     int start = 0;
-    final Matcher matcher = PARAMETER.matcher(parameters.trim());
+    final Matcher matcher = PARAMETER.matcher(parameters.strip());
     while (matcher.find() && matcher.start() == start) {
       start = matcher.end();
       if (matcher.group(1) != null) {

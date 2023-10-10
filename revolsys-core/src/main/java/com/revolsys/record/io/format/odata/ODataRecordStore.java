@@ -342,7 +342,7 @@ public class ODataRecordStore extends AbstractRecordStore {
     final ApacheHttpRequestBuilder request = this.requestFactory.delete(uri)
       .setParameter(ODataRecordStore.FORMAT_JSON);
     final JsonObject result = request.getJson();
-    return result.getBoolean("deleted", false);
+    return result.isTrue("deleted");
   }
 
   JsonObject getJson(final URI uri) {
@@ -412,7 +412,7 @@ public class ODataRecordStore extends AbstractRecordStore {
   }
 
   @Override
-  public void insertRecord(final Record record) {
+  public Record insertRecord(final Record record) {
     final String name = record.getPathName().getName();
     final URI baseUri = getUri();
     final URI uri = new UriBuilder(baseUri).appendPathSegments(name).build();
@@ -423,6 +423,7 @@ public class ODataRecordStore extends AbstractRecordStore {
       .setJsonEntity(json);
     final JsonObject result = request.getJson();
     record.setValues(result);
+    return record;
   }
 
   @Override

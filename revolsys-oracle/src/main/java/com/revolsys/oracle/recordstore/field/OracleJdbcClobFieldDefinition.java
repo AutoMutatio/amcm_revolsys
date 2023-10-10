@@ -22,15 +22,15 @@ import oracle.jdbc.OracleClob;
 
 public class OracleJdbcClobFieldDefinition extends JdbcFieldDefinition {
   public OracleJdbcClobFieldDefinition(final String dbName, final String name, final int sqlType,
-    final boolean required, final String description) {
-    super(dbName, name, DataTypes.CLOB, sqlType, 0, 0, required, description,
+    final String dbDataType, final boolean required, final String description) {
+    super(dbName, name, DataTypes.CLOB, sqlType, dbDataType, 0, 0, required, description,
       Collections.<String, Object> emptyMap());
   }
 
   @Override
   public OracleJdbcClobFieldDefinition clone() {
     final OracleJdbcClobFieldDefinition clone = new OracleJdbcClobFieldDefinition(getDbName(),
-      getName(), getSqlType(), isRequired(), getDescription());
+      getName(), getSqlType(), getDbDataType(), isRequired(), getDescription());
     postClone(clone);
     return clone;
   }

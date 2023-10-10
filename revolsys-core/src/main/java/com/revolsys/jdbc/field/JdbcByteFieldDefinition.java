@@ -12,14 +12,16 @@ import com.revolsys.record.schema.RecordDefinition;
 
 public class JdbcByteFieldDefinition extends JdbcFieldDefinition {
   public JdbcByteFieldDefinition(final String dbName, final String name, final int sqlType,
-    final boolean required, final String description, final Map<String, Object> properties) {
-    super(dbName, name, DataTypes.BYTE, sqlType, 4, 0, required, description, properties);
+    final String dbDataType, final boolean required, final String description,
+    final Map<String, Object> properties) {
+    super(dbName, name, DataTypes.BYTE, sqlType, dbDataType, 4, 0, required, description,
+      properties);
   }
 
   @Override
   public JdbcByteFieldDefinition clone() {
     final JdbcByteFieldDefinition clone = new JdbcByteFieldDefinition(getDbName(), getName(),
-      getSqlType(), isRequired(), getDescription(), getProperties());
+      getSqlType(), getDbDataType(), isRequired(), getDescription(), getProperties());
     postClone(clone);
     return clone;
   }

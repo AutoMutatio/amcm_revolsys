@@ -18,15 +18,16 @@ import com.revolsys.spring.resource.Resource;
 
 public class JdbcBlobFieldDefinition extends JdbcFieldDefinition {
   public JdbcBlobFieldDefinition(final String dbName, final String name, final int sqlType,
-    final int length, final boolean required, final String description,
+    final String dbDataType, final int length, final boolean required, final String description,
     final Map<String, Object> properties) {
-    super(dbName, name, DataTypes.BLOB, sqlType, length, 0, required, description, properties);
+    super(dbName, name, DataTypes.BLOB, sqlType, dbDataType, length, 0, required, description,
+      properties);
   }
 
   @Override
   public JdbcBlobFieldDefinition clone() {
     final JdbcBlobFieldDefinition clone = new JdbcBlobFieldDefinition(getDbName(), getName(),
-      getSqlType(), getLength(), isRequired(), getDescription(), getProperties());
+      getSqlType(), getDbDataType(), getLength(), isRequired(), getDescription(), getProperties());
     postClone(clone);
     return clone;
   }

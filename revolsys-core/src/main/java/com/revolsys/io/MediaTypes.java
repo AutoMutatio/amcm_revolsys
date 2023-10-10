@@ -56,7 +56,7 @@ public class MediaTypes {
   public static String extension(String extension, String mediaType) {
     init();
     if (extension != null) {
-      extension = extension.trim().toLowerCase();
+      extension = extension.strip().toLowerCase();
       if (mediaTypeByFileExtension.containsKey(extension)) {
         return extension;
       }
@@ -97,9 +97,9 @@ public class MediaTypes {
               final int tabIndex = line.indexOf('\t');
               final String fileExtension = line.substring(0, tabIndex)
                 .toLowerCase()
-                .trim()
+                .strip()
                 .intern();
-              final String mediaType = line.substring(tabIndex + 1).toLowerCase().trim().intern();
+              final String mediaType = line.substring(tabIndex + 1).toLowerCase().strip().intern();
               if (Property.hasValuesAll(fileExtension, mediaType)) {
                 if (!mediaTypeByFileExtension.containsKey(fileExtension)) {
                   mediaTypeByFileExtension.put(fileExtension, mediaType);
@@ -155,7 +155,7 @@ public class MediaTypes {
   public static String mediaType(String mediaType, String extension) {
     init();
     if (mediaType != null) {
-      mediaType = mediaType.trim().toLowerCase();
+      mediaType = mediaType.strip().toLowerCase();
       if (fileExtensionByMediaType.containsKey(mediaType)) {
         return mediaType;
       }

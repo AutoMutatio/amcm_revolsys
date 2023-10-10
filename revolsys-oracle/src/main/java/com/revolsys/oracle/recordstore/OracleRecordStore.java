@@ -331,7 +331,8 @@ public class OracleRecordStore extends AbstractJdbcRecordStore {
         JdbcConnection connection = getJdbcConnection()) {
         try (
           final PreparedStatement statement = connection.prepareStatement(sql)) {
-          setPreparedStatementParameters(statement, query);
+          final Query query1 = query;
+          query1.appendParameters(1, statement);
           try (
             final ResultSet resultSet = statement.executeQuery()) {
             if (resultSet.next()) {

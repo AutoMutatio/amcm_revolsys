@@ -143,7 +143,7 @@ public class HttpRequestStatusLine {
   }
 
   private String parseHttpVersion(final String httpVersion) throws BatchDeserializerException {
-    if (!HTTP_VERSION.equals(httpVersion.trim())) {
+    if (!HTTP_VERSION.equals(httpVersion.strip())) {
       throw new BatchDeserializerException("Invalid http version", MessageKeys.INVALID_HTTP_VERSION,
         Integer.toString(this.statusLine.getLineNumber()));
     } else {
@@ -153,7 +153,7 @@ public class HttpRequestStatusLine {
 
   private HttpMethod parseMethod(final String method) throws BatchDeserializerException {
     try {
-      return HttpMethod.valueOf(method.trim());
+      return HttpMethod.valueOf(method.strip());
     } catch (final IllegalArgumentException e) {
       throw new BatchDeserializerException("Illegal http method", e, MessageKeys.INVALID_METHOD,
         Integer.toString(this.statusLine.getLineNumber()));

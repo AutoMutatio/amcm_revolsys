@@ -569,7 +569,7 @@ public interface SwingUtil {
         inr = new BufferedReader(FileUtil.newUtf8Reader(in));
         String line = inr.readLine();
         while (line != null) {
-          line = line.toLowerCase().trim();
+          line = line.toLowerCase().strip();
           lines.add(line);
           line = inr.readLine();
         }

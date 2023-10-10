@@ -550,4 +550,13 @@ public interface Paths {
     }
   }
 
+  public static void write(final Path file, final String text) {
+    try {
+      Files.writeString(file, text, StandardOpenOption.CREATE,
+        StandardOpenOption.TRUNCATE_EXISTING);
+    } catch (final IOException e) {
+      throw Exceptions.wrap(e);
+    }
+  }
+
 }

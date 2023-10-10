@@ -39,10 +39,11 @@ public class MoepDirectoryReader extends RecordDirectoryReader implements Record
     return this.integrationDate;
   }
 
+  @SuppressWarnings("unchecked")
   @Override
-  public RecordDefinition getRecordDefinition(final String typePath) {
-    if (typePath.equals(MoepConstants.TYPE_NAME)) {
-      return MoepConstants.RECORD_DEFINITION;
+  public <RD extends RecordDefinition> RD getRecordDefinition(final CharSequence typePath) {
+    if (typePath.toString().equals(MoepConstants.TYPE_NAME)) {
+      return (RD)MoepConstants.RECORD_DEFINITION;
     } else {
       return null;
     }

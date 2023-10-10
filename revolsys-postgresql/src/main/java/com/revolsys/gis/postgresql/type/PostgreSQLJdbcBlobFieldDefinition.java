@@ -21,15 +21,15 @@ import com.revolsys.spring.resource.Resource;
 public class PostgreSQLJdbcBlobFieldDefinition extends JdbcBlobFieldDefinition {
 
   public PostgreSQLJdbcBlobFieldDefinition(final String dbName, final String name,
-    final String dataType, final int sqlType, final int length, final int scale,
+    final int sqlType, final String dbDataType, final int length, final int scale,
     final boolean required, final String description, final Map<String, Object> properties) {
-    super(dbName, name, sqlType, length, required, description, properties);
+    super(dbName, name, sqlType, dbDataType, length, required, description, properties);
   }
 
   @Override
   public PostgreSQLJdbcBlobFieldDefinition clone() {
     final PostgreSQLJdbcBlobFieldDefinition clone = new PostgreSQLJdbcBlobFieldDefinition(
-      getDbName(), getName(), null, getSqlType(), getLength(), getScale(), isRequired(),
+      getDbName(), getName(), getSqlType(), getDbDataType(), getLength(), getScale(), isRequired(),
       getDescription(), getProperties());
     postClone(clone);
     return clone;

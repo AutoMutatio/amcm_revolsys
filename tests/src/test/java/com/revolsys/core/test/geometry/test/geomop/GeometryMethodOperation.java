@@ -123,10 +123,10 @@ public class GeometryMethodOperation implements GeometryOperation {
     convArg[0] = null;
     if (destClass == Boolean.class || destClass == boolean.class) {
       if (srcStr.equals("true")) {
-        convArg[0] = new Boolean(true);
+        convArg[0] = true;
         return true;
       } else if (srcStr.equals("false")) {
-        convArg[0] = new Boolean(false);
+        convArg[0] = false;
         return true;
       }
       return false;
@@ -134,7 +134,7 @@ public class GeometryMethodOperation implements GeometryOperation {
     if (destClass == Integer.class || destClass == int.class) {
       // try as an int
       try {
-        convArg[0] = new Integer(srcStr);
+        convArg[0] = srcStr;
         return true;
       } catch (final NumberFormatException e) {
         // eat this exception
@@ -145,7 +145,7 @@ public class GeometryMethodOperation implements GeometryOperation {
     if (destClass == Double.class || destClass == double.class) {
       // try as an int
       try {
-        convArg[0] = new Double(srcStr);
+        convArg[0] = srcStr;
         return true;
       } catch (final NumberFormatException e) {
         // eat this exception

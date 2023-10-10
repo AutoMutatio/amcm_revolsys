@@ -189,7 +189,7 @@ public class OracleSdoGeometryFieldAdder extends JdbcFieldAdder {
   @Override
   public JdbcFieldDefinition newField(final AbstractJdbcRecordStore recordStore,
     final JdbcRecordDefinition recordDefinition, final String dbName, final String name,
-    final String dbDataType, final int sqlType, final int length, final int scale,
+    final int sqlType, final String dbDataType, final int length, final int scale,
     final boolean required, final String description) {
     final PathName typePath = recordDefinition.getPathName();
     final String columnName = name.toUpperCase();
@@ -217,8 +217,8 @@ public class OracleSdoGeometryFieldAdder extends JdbcFieldAdder {
       oracleSrid = 0;
     }
     final OracleSdoGeometryJdbcFieldDefinition field = new OracleSdoGeometryJdbcFieldDefinition(
-      dbName, name, dataType, sqlType, required, description, null, geometryFactory, axisCount,
-      oracleSrid);
+      dbName, name, dataType, sqlType, dbDataType, required, description, null, geometryFactory,
+      axisCount, oracleSrid);
     return field;
   }
 }

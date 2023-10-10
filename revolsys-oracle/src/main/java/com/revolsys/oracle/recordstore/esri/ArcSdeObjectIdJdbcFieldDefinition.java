@@ -46,7 +46,7 @@ public class ArcSdeObjectIdJdbcFieldDefinition extends JdbcFieldDefinition {
   public ArcSdeObjectIdJdbcFieldDefinition(final String dbName, final String name,
     final String description, final Map<String, Object> properties, final String schemaName,
     final long registrationId) {
-    super(dbName, name, DataTypes.INT, -1, 19, 0, true, description, properties);
+    super(dbName, name, DataTypes.INT, -1, "int", 19, 0, true, description, properties);
     this.schemaName = schemaName;
     this.registrationId = registrationId;
   }

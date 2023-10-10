@@ -12,14 +12,16 @@ import com.revolsys.record.schema.RecordDefinition;
 
 public class JdbcLongFieldDefinition extends JdbcFieldDefinition {
   public JdbcLongFieldDefinition(final String dbName, final String name, final int sqlType,
-    final boolean required, final String description, final Map<String, Object> properties) {
-    super(dbName, name, DataTypes.LONG, sqlType, 20, 0, required, description, properties);
+    final String dbDataType, final boolean required, final String description,
+    final Map<String, Object> properties) {
+    super(dbName, name, DataTypes.LONG, sqlType, dbDataType, 20, 0, required, description,
+      properties);
   }
 
   @Override
   public JdbcLongFieldDefinition clone() {
     final JdbcLongFieldDefinition clone = new JdbcLongFieldDefinition(getDbName(), getName(),
-      getSqlType(), isRequired(), getDescription(), getProperties());
+      getSqlType(), getDbDataType(), isRequired(), getDescription(), getProperties());
     postClone(clone);
     return clone;
   }

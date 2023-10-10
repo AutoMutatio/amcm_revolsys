@@ -219,8 +219,8 @@ public class TestReader {
       throw new TestParseException("Missing type attribute in <precisionModel>");
     }
     if (scaleAttribute != null
-      || typeAttribute != null && typeAttribute.getValue().trim().equalsIgnoreCase("FIXED")) {
-      if (typeAttribute != null && typeAttribute.getValue().trim().equalsIgnoreCase("FLOATING")) {
+      || typeAttribute != null && typeAttribute.getValue().strip().equalsIgnoreCase("FIXED")) {
+      if (typeAttribute != null && typeAttribute.getValue().strip().equalsIgnoreCase("FLOATING")) {
         throw new TestParseException("scale attribute not allowed in floating <precisionModel>");
       }
       return newPrecisionModel(precisionModelElement);
@@ -306,7 +306,7 @@ public class TestReader {
       if (runElement.getChild("workspace").getAttribute("dir") == null) {
         throw new TestParseException("Missing <dir> in <workspace>");
       }
-      workspace = new File(runElement.getChild("workspace").getAttribute("dir").getValue().trim());
+      workspace = new File(runElement.getChild("workspace").getAttribute("dir").getValue().strip());
       if (!workspace.exists()) {
         throw new TestParseException("<workspace> does not exist: " + workspace);
       }
@@ -370,14 +370,14 @@ public class TestReader {
           throw new TestParseException("Missing name attribute in <op>");
         }
         final String arg1 = opElement.getAttribute("arg1") == null ? "A"
-          : opElement.getAttribute("arg1").getValue().trim();
+          : opElement.getAttribute("arg1").getValue().strip();
         final String arg2 = opElement.getAttribute("arg2") == null ? null
-          : opElement.getAttribute("arg2").getValue().trim();
+          : opElement.getAttribute("arg2").getValue().strip();
         String arg3 = opElement.getAttribute("arg3") == null ? null
-          : opElement.getAttribute("arg3").getValue().trim();
-        if (arg3 == null && nameAttribute.getValue().trim().equalsIgnoreCase("relate")) {
+          : opElement.getAttribute("arg3").getValue().strip();
+        if (arg3 == null && nameAttribute.getValue().strip().equalsIgnoreCase("relate")) {
           arg3 = opElement.getAttribute("pattern") == null ? null
-            : opElement.getAttribute("pattern").getValue().trim();
+            : opElement.getAttribute("pattern").getValue().strip();
         }
         final ArrayList arguments = new ArrayList();
         if (arg2 != null) {
@@ -386,10 +386,10 @@ public class TestReader {
         if (arg3 != null) {
           arguments.add(arg3);
         }
-        final Result result = toResult(opElement.getTextTrim(), nameAttribute.getValue().trim(),
+        final Result result = toResult(opElement.getTextTrim(), nameAttribute.getValue().strip(),
           testCase.getTestRun());
         final GeometryOperationTest test = new GeometryOperationTest(testCase, testIndex,
-          descElement != null ? descElement.getTextTrim() : "", nameAttribute.getValue().trim(),
+          descElement != null ? descElement.getTextTrim() : "", nameAttribute.getValue().strip(),
           arg1, arguments, result, tolerance);
 
         tests.add(test);
@@ -514,7 +514,7 @@ public class TestReader {
       throw new TestParseException("WKT specified both in-line and in external file");
     }
 
-    final File wktFile = new File(geometryElement.getAttribute("file").getValue().trim());
+    final File wktFile = new File(geometryElement.getAttribute("file").getValue().strip());
     final File absoluteWktFile = absoluteWktFile(wktFile, testRun);
 
     if (!absoluteWktFile.exists()) {

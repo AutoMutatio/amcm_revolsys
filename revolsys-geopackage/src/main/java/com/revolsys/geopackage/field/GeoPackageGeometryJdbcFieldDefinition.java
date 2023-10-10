@@ -79,7 +79,7 @@ public class GeoPackageGeometryJdbcFieldDefinition extends JdbcFieldDefinition {
     final DataType dataType, final boolean required, final String description,
     final Map<String, Object> properties, final int srid, final int axisCount,
     final GeometryFactory geometryFactory) {
-    super(dbName, name, dataType, -1, 0, 0, required, description, properties);
+    super(dbName, name, dataType, -1, "geometry", 0, 0, required, description, properties);
     this.srid = srid;
     setGeometryFactory(geometryFactory);
     this.axisCount = axisCount;

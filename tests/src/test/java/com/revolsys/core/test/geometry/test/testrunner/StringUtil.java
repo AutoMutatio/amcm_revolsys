@@ -185,7 +185,7 @@ public class StringUtil {
     final ArrayList result = new ArrayList();
     final StringTokenizer tokenizer = new StringTokenizer(s, ",");
     while (tokenizer.hasMoreTokens()) {
-      result.add(tokenizer.nextToken().toString().trim());
+      result.add(tokenizer.nextToken().toString().strip());
     }
     return result;
   }
@@ -466,14 +466,14 @@ public class StringUtil {
         continue;
       }
       if (!skipping) {
-        if (token.trim().length() == 0) {
+        if (token.strip().length() == 0) {
           continue;
         }
         if (!writing) {
           buffer.append("\n");
         }
         writing = true;
-        buffer.append(token.trim());
+        buffer.append(token.strip());
       }
     }
     return buffer.toString();

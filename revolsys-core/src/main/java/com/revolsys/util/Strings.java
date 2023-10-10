@@ -304,7 +304,7 @@ public interface Strings {
     final boolean newHasValue = Property.hasValue(newValue);
     if (oldHasValue) {
       if (newHasValue) {
-        if (DataType.equal(oldValue.trim(), newValue.trim())) {
+        if (DataType.equal(oldValue.strip(), newValue.strip())) {
           return true;
         } else {
           return false;
@@ -772,7 +772,7 @@ public interface Strings {
     if (text == null) {
       return null;
     } else {
-      return text.trim();
+      return text.strip();
     }
   }
 
@@ -780,7 +780,7 @@ public interface Strings {
     if (text == null) {
       return 0;
     } else {
-      return text.trim().length();
+      return text.strip().length();
     }
   }
 

@@ -12,14 +12,16 @@ import com.revolsys.record.schema.RecordDefinition;
 
 public class JdbcFloatFieldDefinition extends JdbcFieldDefinition {
   public JdbcFloatFieldDefinition(final String dbName, final String name, final int sqlType,
-    final boolean required, final String description, final Map<String, Object> properties) {
-    super(dbName, name, DataTypes.FLOAT, sqlType, 11, 0, required, description, properties);
+    final String dbDataType, final boolean required, final String description,
+    final Map<String, Object> properties) {
+    super(dbName, name, DataTypes.FLOAT, sqlType, dbDataType, 11, 0, required, description,
+      properties);
   }
 
   @Override
   public JdbcFloatFieldDefinition clone() {
     final JdbcFloatFieldDefinition clone = new JdbcFloatFieldDefinition(getDbName(), getName(),
-      getSqlType(), isRequired(), getDescription(), getProperties());
+      getSqlType(), getDbDataType(), isRequired(), getDescription(), getProperties());
     postClone(clone);
     return clone;
   }

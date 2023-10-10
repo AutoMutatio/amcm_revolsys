@@ -17,14 +17,16 @@ import com.revolsys.util.Property;
 
 public class GeoPackageDateField extends JdbcFieldDefinition {
   public GeoPackageDateField(final String dbName, final String name, final int sqlType,
-    final boolean required, final String description, final Map<String, Object> properties) {
-    super(dbName, name, DataTypes.SQL_DATE, sqlType, 0, 0, required, description, properties);
+    final String dbDataType, final boolean required, final String description,
+    final Map<String, Object> properties) {
+    super(dbName, name, DataTypes.SQL_DATE, sqlType, dbDataType, 0, 0, required, description,
+      properties);
   }
 
   @Override
   public JdbcDateFieldDefinition clone() {
-    return new JdbcDateFieldDefinition(getDbName(), getName(), getSqlType(), isRequired(),
-      getDescription(), getProperties());
+    return new JdbcDateFieldDefinition(getDbName(), getName(), getSqlType(), getDbDataType(),
+      isRequired(), getDescription(), getProperties());
   }
 
   @Override

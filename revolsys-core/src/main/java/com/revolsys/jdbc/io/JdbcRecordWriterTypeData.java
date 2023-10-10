@@ -9,8 +9,10 @@ import java.util.List;
 
 import org.jeometry.common.logging.Logs;
 
+import com.revolsys.jdbc.field.JdbcFieldDefinition;
 import com.revolsys.record.Record;
 import com.revolsys.record.RecordState;
+import com.revolsys.record.query.ColumnIndexes;
 import com.revolsys.util.LongCounter;
 
 public class JdbcRecordWriterTypeData {
@@ -170,9 +172,12 @@ public class JdbcRecordWriterTypeData {
     final RecordState recordState = record.setState(RecordState.INITIALIZING);
     try {
       final ResultSetMetaData metaData = rs.getMetaData();
+      final ColumnIndexes columnIndexes = new ColumnIndexes();
       for (int i = 1; i <= metaData.getColumnCount(); i++) {
         final String name = metaData.getColumnName(i);
-        final Object value = rs.getObject(i);
+        final JdbcFieldDefinition field = (JdbcFieldDefinition)this.recordDefinition.getField(name);
+        final Object value = field.getValueFromResultSet(this.recordDefinition, rs, columnIndexes,
+          false);
         record.setValue(name, value);
       }
     } finally {

@@ -156,7 +156,7 @@ public class WKBHexFileReader {
   private List read(final BufferedReader bufferedReader) throws IOException, ParseException {
     final List geoms = new ArrayList();
     while (!isAtEndOfFile(bufferedReader) && !isAtLimit(geoms)) {
-      final String line = bufferedReader.readLine().trim();
+      final String line = bufferedReader.readLine().strip();
       if (line.length() == 0) {
         continue;
       }

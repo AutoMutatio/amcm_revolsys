@@ -357,7 +357,7 @@ public class NumberTextField extends JXTextField implements Field, DocumentListe
         }
       } else {
         try {
-          BigDecimal number = new BigDecimal(text.trim());
+          BigDecimal number = new BigDecimal(text.strip());
           if (number.scale() < 0) {
             number = number.setScale(this.scale);
           }

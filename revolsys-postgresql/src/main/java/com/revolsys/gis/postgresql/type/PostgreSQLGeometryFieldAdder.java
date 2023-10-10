@@ -39,7 +39,7 @@ public class PostgreSQLGeometryFieldAdder extends JdbcFieldAdder {
   @Override
   public JdbcFieldDefinition newField(final AbstractJdbcRecordStore recordStore,
     final JdbcRecordDefinition recordDefinition, final String dbName, final String name,
-    final String dbDataType, final int sqlType, final int length, final int scale,
+    final int sqlType, final String dbDataType, final int length, final int scale,
     final boolean required, final String description) {
     final JdbcRecordStoreSchema schema = recordDefinition.getSchema();
     final PathName typePath = recordDefinition.getPathName();
@@ -74,7 +74,7 @@ public class PostgreSQLGeometryFieldAdder extends JdbcFieldAdder {
         }
       }
       final PostgreSQLGeometryJdbcFieldDefinition field = new PostgreSQLGeometryJdbcFieldDefinition(
-        dbName, name, dataType, sqlType, required, description, null, srid, axisCount,
+        dbName, name, dataType, sqlType, dbDataType, required, description, null, srid, axisCount,
         geometryFactory);
       field.setGeometryFactory(geometryFactory);
       return field;

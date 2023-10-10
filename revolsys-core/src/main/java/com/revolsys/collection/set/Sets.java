@@ -9,6 +9,9 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.Supplier;
 
+import org.jeometry.common.data.type.DataTypeValueFactory;
+import org.jeometry.common.data.type.DataTypes;
+
 public class Sets {
   @SafeVarargs
   public static <V> void addAll(final Set<V> set, final Collection<? extends V>... collections) {
@@ -35,16 +38,12 @@ public class Sets {
     return set;
   }
 
-  public static <V> Supplier<Set<V>> hashFactory() {
-    return () -> {
-      return new HashSet<>();
-    };
+  public static <V> DataTypeValueFactory<Set<V>> hashFactory() {
+    return DataTypes.SET.newFactory(Sets::newHash);
   }
 
-  public static <V> Supplier<Set<V>> linkedHashFactory() {
-    return () -> {
-      return new LinkedHashSet<>();
-    };
+  public static <V> DataTypeValueFactory<Set<V>> linkedHashFactory() {
+    return DataTypes.SET.newFactory(Sets::newLinkedHash);
   }
 
   public static <V> HashSet<V> newHash() {
@@ -100,6 +99,10 @@ public class Sets {
     return set;
   }
 
+  public static <V> TreeSet<V> newTree() {
+    return new TreeSet<>();
+  }
+
   public static <V> TreeSet<V> newTree(final Comparator<V> comparator, final Iterable<V> values) {
     final TreeSet<V> set = new TreeSet<>(comparator);
     addAll(set, values);
@@ -131,16 +134,12 @@ public class Sets {
     return set;
   }
 
-  public static <V> Supplier<Set<V>> treeFactory() {
-    return () -> {
-      return new TreeSet<>();
-    };
+  public static <V> DataTypeValueFactory<Set<V>> treeFactory() {
+    return DataTypes.SET.newFactory(Sets::newTree);
   }
 
   public static <V> Supplier<Set<V>> treeFactory(final Comparator<V> comparator) {
-    return () -> {
-      return new TreeSet<>(comparator);
-    };
+    return () -> new TreeSet<>(comparator);
   }
 
   public static <V> Set<V> unmodifiableLinked(final Iterable<V> values) {

@@ -20,7 +20,7 @@ public final class I18n extends AbstractPropertyChangeSupportProxy {
   public static CharSequence getCharSequence(final Class<?> clazz, final String key) {
     final I18n i18n = I18n.getInstance(clazz);
     String fullKey;
-    if (key != null && key.trim().length() > 0) {
+    if (key != null && key.strip().length() > 0) {
       fullKey = clazz.getName() + "." + key;
     } else {
       fullKey = clazz.getName();

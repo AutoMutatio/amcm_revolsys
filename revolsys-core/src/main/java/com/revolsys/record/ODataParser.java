@@ -236,7 +236,6 @@ public class ODataParser {
       return new Distance(left, right);
     })
     .add(Methods.CONTAINS, args -> {
-
       QueryValue left = args.get(0);
       QueryValue right = args.get(1);
       if (left instanceof Upper && right instanceof Upper) {
@@ -251,7 +250,49 @@ public class ODataParser {
       } else {
         if (right instanceof Value) {
           final Value value = (Value)right;
-          return Q.like(left, value.getValue().toString());
+          return Q.like(left, "%" + value.getValue() + "%");
+        } else {
+          return Q.like(left, right);
+        }
+      }
+    })
+    .add(Methods.STARTSWITH, args -> {
+      QueryValue left = args.get(0);
+      QueryValue right = args.get(1);
+      if (left instanceof Upper && right instanceof Upper) {
+        left = left.getQueryValues().get(0);
+        right = right.getQueryValues().get(0);
+        if (right instanceof Value) {
+          final Value value = (Value)right;
+          return Q.iLike(left, value.getValue() + "%");
+        } else {
+          return Q.iLike(left, right);
+        }
+      } else {
+        if (right instanceof Value) {
+          final Value value = (Value)right;
+          return Q.like(left, value.getValue() + "%");
+        } else {
+          return Q.like(left, right);
+        }
+      }
+    })
+    .add(Methods.ENDSWITH, args -> {
+      QueryValue left = args.get(0);
+      QueryValue right = args.get(1);
+      if (left instanceof Upper && right instanceof Upper) {
+        left = left.getQueryValues().get(0);
+        right = right.getQueryValues().get(0);
+        if (right instanceof Value) {
+          final Value value = (Value)right;
+          return Q.iLike(left, "%" + value.getValue());
+        } else {
+          return Q.iLike(left, right);
+        }
+      } else {
+        if (right instanceof Value) {
+          final Value value = (Value)right;
+          return Q.like(left, "%" + value.getValue());
         } else {
           return Q.like(left, right);
         }
@@ -262,8 +303,34 @@ public class ODataParser {
   // Order by preference
   private static final Map<String, BiFunction<QueryValue, QueryValue, ? extends QueryValue>> BINARY_OPERATOR_FACTORIES = Maps
     .<String, BiFunction<QueryValue, QueryValue, ? extends QueryValue>> buildLinkedHash()//
-    .add("or", Or::new)
-    .add("and", And::new)
+    .add("or", (a, b) -> {
+      final Or multi = new Or();
+      if (a instanceof final Or multi1) {
+        multi.addConditions(multi1);
+      } else {
+        multi.addCondition((Condition)a);
+      }
+      if (b instanceof final Or multi2) {
+        multi.addConditions(multi2);
+      } else {
+        multi.addCondition((Condition)b);
+      }
+      return multi;
+    })
+    .add("and", (a, b) -> {
+      final And multi = new And();
+      if (a instanceof final And multi1) {
+        multi.addConditions(multi1);
+      } else {
+        multi.addCondition((Condition)a);
+      }
+      if (b instanceof final And multi2) {
+        multi.addConditions(multi2);
+      } else {
+        multi.addCondition((Condition)b);
+      }
+      return multi;
+    })
     .add("eq", Q.EQUAL)
     .add("ne", Q.NOT_EQUAL)
     .add("lt", LessThan::new)
@@ -452,8 +519,8 @@ public class ODataParser {
               .get(op);
             final QueryValue lhs = readExpression(table, tokens.subList(0, i));
             final QueryValue rhs = readExpression(table, tokens.subList(i + 3, ts));
-            if (lhs instanceof FieldDefinition) {
-              rhs.setFieldDefinition((FieldDefinition)lhs);
+            if (lhs instanceof final ColumnReference column) {
+              rhs.setColumn(column);
             }
             return fn.apply(lhs, rhs);
           }

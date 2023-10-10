@@ -53,12 +53,6 @@ public class RecordLayerQuery extends Query {
   }
 
   @Override
-  public Record insertOrUpdateRecord(final Supplier<Record> newRecordSupplier,
-    final Consumer<Record> updateAction) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
   public Record insertRecord(final Supplier<Record> newRecordSupplier) {
     throw new UnsupportedOperationException();
   }

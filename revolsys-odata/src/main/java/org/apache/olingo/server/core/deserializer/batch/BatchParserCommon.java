@@ -99,8 +99,8 @@ public class BatchParserCommon {
       if (headerMatcher.matches() && headerMatcher.groupCount() == 2) {
         iter.remove();
 
-        final String headerName = headerMatcher.group(1).trim();
-        final String headerValue = headerMatcher.group(2).trim();
+        final String headerName = headerMatcher.group(1).strip();
+        final String headerValue = headerMatcher.group(2).strip();
 
         headers.addHeader(headerName, Header.splitValuesByComma(headerValue),
           currentLine.getLineNumber());

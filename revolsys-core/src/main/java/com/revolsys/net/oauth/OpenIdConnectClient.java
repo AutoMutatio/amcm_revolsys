@@ -202,7 +202,7 @@ public class OpenIdConnectClient extends BaseObjectWithProperties {
           if (errorDescription != null) {
             final int index = errorDescription.indexOf("Trace ID:");
             if (index != -1) {
-              errorDescription = errorDescription.substring(0, index).trim();
+              errorDescription = errorDescription.substring(0, index).strip();
             }
             throw new AuthenticationException(errorDescription);
           }

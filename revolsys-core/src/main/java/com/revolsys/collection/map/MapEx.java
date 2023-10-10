@@ -6,6 +6,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -27,6 +28,7 @@ import com.revolsys.record.Record;
 import com.revolsys.record.io.format.json.Json;
 import com.revolsys.record.io.format.json.JsonList;
 import com.revolsys.record.io.format.json.JsonObject;
+import com.revolsys.record.io.format.json.JsonType;
 import com.revolsys.util.Property;
 
 import reactor.core.publisher.Flux;
@@ -66,6 +68,12 @@ public interface MapEx extends MapDefault<String, Object>, Cloneable, DataTypedV
   }
 
   default MapEx addValue(final String key, final Object value) {
+    put(key, value);
+    return this;
+  }
+
+  default MapEx addValue(final String key, Object value, final DataType dataType) {
+    value = dataType.toObject(value);
     put(key, value);
     return this;
   }
@@ -409,12 +417,12 @@ public interface MapEx extends MapDefault<String, Object>, Cloneable, DataTypedV
     }
   }
 
-  default <IN, OUT> OUT getValue(final CharSequence name, final Function<IN, OUT> mapper) {
-    final IN in = getValue(name);
-    if (in == null) {
+  default <I, O> O getValue(final CharSequence name, final Function<I, O> converter) {
+    final I value = getValue(name);
+    if (value == null) {
       return null;
     } else {
-      return mapper.apply(in);
+      return converter.apply(value);
     }
   }
 
@@ -508,6 +516,30 @@ public interface MapEx extends MapDefault<String, Object>, Cloneable, DataTypedV
     }
   }
 
+  default boolean isTrue(final CharSequence name) {
+    return getBoolean(name, false);
+  }
+
+  default boolean removeEmptyProperties() {
+    boolean removed = false;
+    final Collection<Object> entries = values();
+    for (final Iterator<Object> iterator = entries.iterator(); iterator.hasNext();) {
+      final Object value = iterator.next();
+      if (value instanceof JsonType) {
+        final JsonType jsonValue = (JsonType)value;
+        jsonValue.removeEmptyProperties();
+        if (jsonValue.isEmpty()) {
+          iterator.remove();
+          removed = true;
+        }
+      } else if (!Property.hasValue(value)) {
+        iterator.remove();
+        removed = true;
+      }
+    }
+    return removed;
+  }
+
   @SuppressWarnings("unchecked")
   default <T extends Object> T removeValue(final CharSequence name) {
     if (name == null) {
@@ -520,6 +552,15 @@ public interface MapEx extends MapDefault<String, Object>, Cloneable, DataTypedV
   default <T extends Object> T removeValue(final CharSequence name, final DataType dataType) {
     final Object value = removeValue(name);
     return dataType.toObject(value);
+  }
+
+  default <I, O> O removeValue(final CharSequence name, final Function<I, O> converter) {
+    final I value = removeValue(name);
+    if (value == null) {
+      return null;
+    } else {
+      return converter.apply(value);
+    }
   }
 
   default <V> V removeValue(final CharSequence name, final Supplier<V> defaultValue) {

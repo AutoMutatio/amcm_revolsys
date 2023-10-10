@@ -150,7 +150,7 @@ public class XbaseRecordReader extends AbstractIterator<Record> implements Recor
 
   private Date getDate(final int len) {
     final String dateString = getString(len);
-    if (dateString.trim().length() == 0 || dateString.equals("0")) {
+    if (dateString.strip().length() == 0 || dateString.equals("0")) {
       return null;
     } else {
       return java.sql.Date.valueOf(LocalDate.from(Dates.yyyyMMdd.parse(dateString)));
@@ -164,9 +164,9 @@ public class XbaseRecordReader extends AbstractIterator<Record> implements Recor
   private Object getMemo(final int len) throws IOException {
     return null;
     /*
-     * String memoIndexString = new String(record, startIndex, len).trim(); if
+     * String memoIndexString = new String(record, startIndex, len).strip(); if
      * (memoIndexString.length() != 0) { int memoIndex =
-     * Integer.parseInt(memoIndexString.trim()); if (memoIn == null) { File
+     * Integer.parseInt(memoIndexString.strip()); if (memoIn == null) { File
      * memoFile = new File(mappedFile.getParentFile(), typePath + ".dbt"); if
      * (memoFile.exists()) { if (log.isInfoEnabled()) { log.info("Opening memo
      * mappedFile: " + memoFile); } memoIn = new RandomAccessFile(memoFile, "
@@ -220,9 +220,9 @@ public class XbaseRecordReader extends AbstractIterator<Record> implements Recor
     BigDecimal number = null;
     final String string = getString(len);
     final String numberString = string.replace('*', ' ');
-    if (numberString.trim().length() != 0) {
+    if (numberString.strip().length() != 0) {
       try {
-        number = new BigDecimal(numberString.trim());
+        number = new BigDecimal(numberString.strip());
       } catch (final Throwable e) {
         Logs.error(this, "'" + numberString + " 'is not a valid number", e);
       }
@@ -248,7 +248,7 @@ public class XbaseRecordReader extends AbstractIterator<Record> implements Recor
     final byte[] bytes = new byte[len];
     this.recordBuffer.get(bytes, 0, len);
     final String text = new String(bytes, this.charset);
-    return text.trim();
+    return text.strip();
   }
 
   public PathName getTypeName() {

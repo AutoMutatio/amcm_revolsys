@@ -18,9 +18,10 @@ public class RecordDefinitionFactoryImpl extends BaseObjectWithProperties
     }
   }
 
+  @SuppressWarnings("unchecked")
   @Override
-  public RecordDefinition getRecordDefinition(final String path) {
-    return this.recordDefinitions.get(path);
+  public <RD extends RecordDefinition> RD getRecordDefinition(final CharSequence path) {
+    return (RD)this.recordDefinitions.get(path.toString());
   }
 
   public Collection<RecordDefinition> getRecordDefinitions() {

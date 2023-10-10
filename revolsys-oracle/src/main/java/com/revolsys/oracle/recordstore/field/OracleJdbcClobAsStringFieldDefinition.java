@@ -10,14 +10,14 @@ import com.revolsys.record.schema.RecordDefinition;
 
 public class OracleJdbcClobAsStringFieldDefinition extends OracleJdbcClobFieldDefinition {
   public OracleJdbcClobAsStringFieldDefinition(final String dbName, final String name,
-    final int sqlType, final boolean required, final String description) {
-    super(dbName, name, sqlType, required, description);
+    final int sqlType, final String dbDataType, final boolean required, final String description) {
+    super(dbName, name, sqlType, dbDataType, required, description);
   }
 
   @Override
   public OracleJdbcClobAsStringFieldDefinition clone() {
     final OracleJdbcClobAsStringFieldDefinition clone = new OracleJdbcClobAsStringFieldDefinition(
-      getDbName(), getName(), getSqlType(), isRequired(), getDescription());
+      getDbName(), getName(), getSqlType(), getDbDataType(), isRequired(), getDescription());
     postClone(clone);
     return clone;
   }

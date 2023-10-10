@@ -2054,7 +2054,7 @@ public abstract class AbstractRecordLayer extends AbstractLayer implements
               lineIndex = string.indexOf('\r');
             }
             if (lineIndex != -1) {
-              final String line = string.substring(0, lineIndex).trim();
+              final String line = string.substring(0, lineIndex).strip();
               String fieldName;
               final int tabIndex = line.indexOf('\t');
               if (tabIndex != -1) {

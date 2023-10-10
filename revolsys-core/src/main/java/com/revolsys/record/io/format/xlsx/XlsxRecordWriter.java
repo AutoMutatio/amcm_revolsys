@@ -119,7 +119,7 @@ public class XlsxRecordWriter extends AbstractRecordWriter {
       if (name == null) {
         name = "Sheet1";
       } else {
-        name = name.trim();
+        name = name.strip();
         if (name.length() == 0) {
           name = "Sheet1";
         } else if (name.length() > 30) {

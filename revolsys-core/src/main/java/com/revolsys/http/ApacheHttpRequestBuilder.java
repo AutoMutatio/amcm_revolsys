@@ -47,6 +47,7 @@ import org.apache.http.protocol.HTTP;
 import org.apache.http.util.Args;
 
 import com.revolsys.net.http.ApacheHttp;
+import com.revolsys.record.io.format.json.JsonList;
 import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.util.UriBuilder;
 
@@ -362,6 +363,12 @@ public class ApacheHttpRequestBuilder {
   public JsonObject getJson() {
     setHeader("Accept", "application/json");
     final Function<HttpResponse, JsonObject> function = ApacheHttp::getJson;
+    return execute(function);
+  }
+
+  public JsonList getJsonList() {
+    setHeader("Accept", "application/json");
+    final Function<HttpResponse, JsonList> function = ApacheHttp::getJsonList;
     return execute(function);
   }
 

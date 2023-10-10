@@ -13,9 +13,9 @@ public class JdbcFieldFactoryAdder extends JdbcFieldAdder {
   @Override
   public JdbcFieldDefinition newField(final AbstractJdbcRecordStore recordStore,
     final JdbcRecordDefinition recordDefinition, final String dbName, final String name,
-    final String dbDataType, final int sqlType, final int length, final int scale,
+    final int sqlType, final String dbDataType, final int length, final int scale,
     final boolean required, final String description) {
-    return (JdbcFieldDefinition)this.factory.newField(dbName, name, dbDataType, sqlType, length,
+    return (JdbcFieldDefinition)this.factory.newField(dbName, name, sqlType, dbDataType, length,
       scale, required, description, null);
   }
 }

@@ -2,7 +2,6 @@ package com.revolsys.record.schema;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 import org.jeometry.common.data.identifier.Identifier;
 import org.jeometry.common.io.PathName;
@@ -14,20 +13,21 @@ import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.record.query.Query;
 import com.revolsys.transaction.Transactionable;
 
-public interface TableRecordStoreConnection extends Transactionable {
+public interface TableRecordStoreConnection extends Transactionable, TableRecordStoreFactory {
 
-  default RecordDefinition getRecordDefinition(final CharSequence tableName) {
-    final AbstractTableRecordStore recordStore = getTableRecordStore(tableName);
-    if (recordStore == null) {
-      return null;
-    }
-    return recordStore.getRecordDefinition();
+  @SuppressWarnings("unchecked")
+  default <V, C extends TableRecordStoreConnection> V apply(final Function<C, V> f) {
+    return f.apply((C)this);
+  }
+
+  @Override
+  default <RD extends RecordDefinition> RD getRecordDefinition(final CharSequence tableName) {
+    return getRecordStore().getRecordDefinition(tableName);
   }
 
   RecordStore getRecordStore();
 
-  <TRS extends AbstractTableRecordStore> TRS getTableRecordStore(CharSequence pathName);
-
+  @Override
   default <TRS extends AbstractTableRecordStore> TRS getTableRecordStore(
     final PathNameProxy pathNameProxy) {
     if (pathNameProxy != null) {
@@ -41,22 +41,6 @@ public interface TableRecordStoreConnection extends Transactionable {
   default PlatformTransactionManager getTransactionManager() {
     final RecordStore recordStore = getRecordStore();
     return recordStore.getTransactionManager();
-  }
-
-  default <TRS extends AbstractTableRecordStore> Record insertOrUpdateRecord(
-    final CharSequence tablePath, final Function<TRS, Query> querySupplier,
-    final Function<TRS, Record> newRecordSupplier, final Consumer<Record> updateAction) {
-    final TRS tableRecordStore = getTableRecordStore(tablePath);
-    final Query query = querySupplier.apply(tableRecordStore);
-    final Supplier<Record> insertSupplier = () -> newRecordSupplier.apply(tableRecordStore);
-    return query.insertOrUpdateRecord(insertSupplier, updateAction);
-  }
-
-  default <TRS extends AbstractTableRecordStore> Record insertRecord(final CharSequence tablePath,
-    final Function<TRS, Query> querySupplier, final Function<TRS, Record> newRecordSupplier) {
-    final Consumer<Record> updateAction = record -> {
-    };
-    return insertOrUpdateRecord(tablePath, querySupplier, newRecordSupplier, updateAction);
   }
 
   default Record insertRecord(final Record record) {

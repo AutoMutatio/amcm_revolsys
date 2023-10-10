@@ -257,7 +257,7 @@ public class GsbGridShiftFile {
   @SuppressWarnings("unused")
   protected String readRecordString() {
     final long prefix = this.in.getLong();
-    final String value = this.in.getString(8, StandardCharsets.ISO_8859_1).trim();
+    final String value = this.in.getString(8, StandardCharsets.ISO_8859_1).strip();
     return value;
   }
 

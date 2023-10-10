@@ -63,10 +63,10 @@ public class OracleSdoGeometryJdbcFieldDefinition extends JdbcFieldDefinition {
   private final int oracleSrid;
 
   public OracleSdoGeometryJdbcFieldDefinition(final String dbName, final String name,
-    final DataType type, final int sqlType, final boolean required, final String description,
-    final Map<String, Object> properties, final GeometryFactory geometryFactory,
-    final int axisCount, final int oracleSrid) {
-    super(dbName, name, type, sqlType, 0, 0, required, description, properties);
+    final DataType type, final int sqlType, final String dbDataType, final boolean required,
+    final String description, final Map<String, Object> properties,
+    final GeometryFactory geometryFactory, final int axisCount, final int oracleSrid) {
+    super(dbName, name, type, sqlType, dbDataType, 0, 0, required, description, properties);
     setGeometryFactory(geometryFactory);
     this.axisCount = axisCount;
     this.oracleSrid = oracleSrid;
@@ -154,8 +154,8 @@ public class OracleSdoGeometryJdbcFieldDefinition extends JdbcFieldDefinition {
   public OracleSdoGeometryJdbcFieldDefinition clone() {
     final GeometryFactory geometryFactory = getGeometryFactory();
     final OracleSdoGeometryJdbcFieldDefinition clone = new OracleSdoGeometryJdbcFieldDefinition(
-      getDbName(), getName(), getDataType(), getSqlType(), isRequired(), getDescription(),
-      getProperties(), geometryFactory, this.axisCount, this.oracleSrid);
+      getDbName(), getName(), getDataType(), getSqlType(), getDbDataType(), isRequired(),
+      getDescription(), getProperties(), geometryFactory, this.axisCount, this.oracleSrid);
     postClone(clone);
     return clone;
   }
