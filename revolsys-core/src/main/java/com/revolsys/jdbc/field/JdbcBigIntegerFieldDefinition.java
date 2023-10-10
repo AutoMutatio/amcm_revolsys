@@ -14,16 +14,17 @@ import com.revolsys.record.schema.RecordDefinition;
 
 public class JdbcBigIntegerFieldDefinition extends JdbcFieldDefinition {
   public JdbcBigIntegerFieldDefinition(final String dbName, final String name, final int sqlType,
-    final int length, final boolean required, final String description,
+    final String dbDataType, final int length, final boolean required, final String description,
     final Map<String, Object> properties) {
-    super(dbName, name, DataTypes.BIG_INTEGER, sqlType, length, 0, required, description,
-      properties);
+    super(dbName, name, DataTypes.BIG_INTEGER, sqlType, dbDataType, length, 0, required,
+      description, properties);
   }
 
   @Override
   public JdbcBigIntegerFieldDefinition clone() {
     final JdbcBigIntegerFieldDefinition clone = new JdbcBigIntegerFieldDefinition(getDbName(),
-      getName(), getSqlType(), getLength(), isRequired(), getDescription(), getProperties());
+      getName(), getSqlType(), getDbDataType(), getLength(), isRequired(), getDescription(),
+      getProperties());
     postClone(clone);
     return clone;
   }

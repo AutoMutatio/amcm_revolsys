@@ -125,7 +125,7 @@ public class PdfViewport extends Viewport2D implements BaseCloseable {
     if (font == null) {
       final InputStream fontStream = PDDocument.class
         .getResourceAsStream("/org/apache/pdfbox/resources/ttf/ArialMT.ttf");
-      font = PDTrueTypeFont.loadTTF(this.document, fontStream);
+      font = PDTrueTypeFont.load(this.document, fontStream, null);
       this.fonts.put("/org/apache/pdfbox/resources/ttf/ArialMT.ttf", font);
     }
     return font;

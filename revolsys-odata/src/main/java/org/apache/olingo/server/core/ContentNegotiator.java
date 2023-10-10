@@ -88,7 +88,7 @@ public final class ContentNegotiator {
     ContentType result = null;
 
     if (formatOption != null && formatOption.getFormat() != null) {
-      final String formatString = formatOption.getFormat().trim();
+      final String formatString = formatOption.getFormat().strip();
       final ContentType contentType = mapContentType(formatString, representationType);
       boolean isCharsetInFormat = false;
       List<AcceptType> formatTypes = null;

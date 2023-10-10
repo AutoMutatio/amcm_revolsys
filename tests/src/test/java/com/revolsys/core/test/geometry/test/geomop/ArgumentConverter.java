@@ -27,22 +27,22 @@ public class ArgumentConverter {
   private Object convertFromString(final Class destClass, final String src) {
     if (destClass == Boolean.class || destClass == boolean.class) {
       if (src.equals("true")) {
-        return new Boolean(true);
+        return true;
       } else if (src.equals("false")) {
-        return new Boolean(false);
+        return false;
       }
       throwInvalidConversion(destClass, src);
     } else if (destClass == Integer.class || destClass == int.class) {
       // try as an int
       try {
-        return new Integer(src);
+        return src;
       } catch (final NumberFormatException e) {
         // eat this exception - it will be reported below
       }
     } else if (destClass == Double.class || destClass == double.class) {
       // try as an int
       try {
-        return new Double(src);
+        return src;
       } catch (final NumberFormatException e) {
         // eat this exception - it will be reported below
       }

@@ -22,10 +22,10 @@ public class PostgreSQLGeometryJdbcFieldDefinition extends JdbcFieldDefinition {
   private final int srid;
 
   public PostgreSQLGeometryJdbcFieldDefinition(final String dbName, final String name,
-    final DataType dataType, final int sqlType, final boolean required, final String description,
-    final Map<String, Object> properties, final int srid, final int axisCount,
-    final GeometryFactory geometryFactory) {
-    super(dbName, name, dataType, sqlType, 0, 0, required, description, properties);
+    final DataType dataType, final int sqlType, final String dbDataType, final boolean required,
+    final String description, final Map<String, Object> properties, final int srid,
+    final int axisCount, final GeometryFactory geometryFactory) {
+    super(dbName, name, dataType, sqlType, dbDataType, 0, 0, required, description, properties);
     this.srid = srid;
     this.axisCount = axisCount;
     setGeometryFactory(geometryFactory.convertAxisCount(axisCount));
@@ -35,8 +35,8 @@ public class PostgreSQLGeometryJdbcFieldDefinition extends JdbcFieldDefinition {
   public JdbcFieldDefinition clone() {
     final GeometryFactory geometryFactory = getGeometryFactory();
     final PostgreSQLGeometryJdbcFieldDefinition clone = new PostgreSQLGeometryJdbcFieldDefinition(
-      getDbName(), getName(), getDataType(), getSqlType(), isRequired(), getDescription(),
-      getProperties(), this.srid, this.axisCount, geometryFactory);
+      getDbName(), getName(), getDataType(), getSqlType(), getDbDataType(), isRequired(),
+      getDescription(), getProperties(), this.srid, this.axisCount, geometryFactory);
     postClone(clone);
     return clone;
   }

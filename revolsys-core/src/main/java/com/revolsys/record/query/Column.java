@@ -34,14 +34,19 @@ public class Column implements QueryValue, ColumnReference {
 
   @Override
   public void appendColumnName(final SqlAppendable string) {
-    final String name = this.name;
-    if ("*".equals(name) || name.indexOf('"') != -1 || name.indexOf('.') != -1
-      || name.matches("([A-Z][_A-Z1-9]*\\.)?[A-Z][_A-Z1-9]*\\*")) {
-      string.append(name);
+    final FieldDefinition fieldDefinition = getFieldDefinition();
+    if (fieldDefinition == null) {
+      final String name = this.name;
+      if ("*".equals(name) || name.indexOf('"') != -1 || name.indexOf('.') != -1
+        || name.matches("([A-Z][_A-Z1-9]*\\.)?[A-Z][_A-Z1-9]*\\*")) {
+        string.append(name);
+      } else {
+        string.append('"');
+        string.append(name);
+        string.append('"');
+      }
     } else {
-      string.append('"');
-      string.append(name);
-      string.append('"');
+      fieldDefinition.appendColumnName(string);
     }
   }
 
@@ -55,23 +60,13 @@ public class Column implements QueryValue, ColumnReference {
   @Override
   public void appendDefaultSelect(final Query query, final RecordStore recordStore,
     final SqlAppendable sql) {
-    final FieldDefinition fieldDefinition = getFieldDefinition();
-    if (fieldDefinition == null) {
-      appendColumnNameWithPrefix(sql);
-    } else {
-      fieldDefinition.appendSelect(query, recordStore, sql);
-    }
+    appendColumnNameWithPrefix(sql);
   }
 
   @Override
   public void appendDefaultSql(final Query query, final RecordStore recordStore,
     final SqlAppendable sql) {
-    final FieldDefinition fieldDefinition = getFieldDefinition();
-    if (fieldDefinition == null) {
-      appendColumnNameWithPrefix(sql);
-    } else {
-      fieldDefinition.appendColumnNameWithPrefix(sql);
-    }
+    appendColumnNameWithPrefix(sql);
   }
 
   @Override
@@ -180,6 +175,11 @@ public class Column implements QueryValue, ColumnReference {
       field = recordDefinition.getField(alias);
     }
     return field.getValueFromResultSet(recordDefinition, resultSet, indexes, internStrings);
+  }
+
+  @Override
+  public int hashCode() {
+    return this.name.hashCode();
   }
 
   @SuppressWarnings("unchecked")

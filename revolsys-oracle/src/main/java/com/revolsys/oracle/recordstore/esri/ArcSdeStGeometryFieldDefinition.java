@@ -73,10 +73,10 @@ public class ArcSdeStGeometryFieldDefinition extends JdbcFieldDefinition {
   private final ArcSdeSpatialReference spatialReference;
 
   public ArcSdeStGeometryFieldDefinition(final String dbName, final String name,
-    final DataType type, final boolean required, final String description,
+    final DataType type, final String dbDataType, final boolean required, final String description,
     final Map<String, Object> properties, final ArcSdeSpatialReference spatialReference,
     final int axisCount) {
-    super(dbName, name, type, -1, 0, 0, required, description, properties);
+    super(dbName, name, type, -1, dbDataType, 0, 0, required, description, properties);
     this.spatialReference = spatialReference;
     final GeometryFactory geometryFactory = spatialReference.getGeometryFactory();
 
@@ -110,8 +110,9 @@ public class ArcSdeStGeometryFieldDefinition extends JdbcFieldDefinition {
 
   @Override
   public ArcSdeStGeometryFieldDefinition clone() {
-    return new ArcSdeStGeometryFieldDefinition(getDbName(), getName(), getDataType(), isRequired(),
-      getDescription(), getProperties(), this.spatialReference, this.axisCount);
+    return new ArcSdeStGeometryFieldDefinition(getDbName(), getName(), getDataType(),
+      getDbDataType(), isRequired(), getDescription(), getProperties(), this.spatialReference,
+      this.axisCount);
   }
 
   @Override

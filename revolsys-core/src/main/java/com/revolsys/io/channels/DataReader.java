@@ -19,8 +19,6 @@ interface ByteFilter {
 public interface DataReader extends BaseCloseable {
   public static ByteFilter WHITESPACE = Character::isWhitespace;
 
-  public static ByteFilter EOL = c -> c == '\n' || c == '\r';
-
   InputStream asInputStream();
 
   @Override
@@ -181,7 +179,30 @@ public interface DataReader extends BaseCloseable {
   void skipBytes(int count);
 
   default void skipEol() {
-    skipWhile(EOL);
+    while (true) {
+      final byte b = getByte();
+      switch (b) {
+        case -1:
+          return;
+        case '\r': {
+          final byte b2 = getByte();
+          if (b2 == -1) {
+            unreadByte(b);
+          } else if (b2 != '\n') {
+            unreadByte(b2);
+            unreadByte(b);
+            return;
+          }
+          break;
+        }
+        case '\n': {
+          break;
+        }
+        default:
+          unreadByte(b);
+          return;
+      }
+    }
   }
 
   default boolean skipIfChar(final char c) {
@@ -191,6 +212,31 @@ public interface DataReader extends BaseCloseable {
     } else {
       unreadByte(b);
       return false;
+    }
+  }
+
+  default void skipOneEol() {
+    final byte b = getByte();
+    switch (b) {
+      case -1:
+      break;
+      case '\r': {
+        final byte b2 = getByte();
+        if (b2 == -1) {
+          unreadByte(b);
+        } else if (b2 != '\n') {
+          unreadByte(b2);
+          unreadByte(b);
+        }
+        break;
+      }
+      case '\n': {
+        break;
+      }
+      default: {
+        unreadByte(b);
+        break;
+      }
     }
   }
 

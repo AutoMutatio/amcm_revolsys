@@ -234,17 +234,17 @@ public class MoepBinaryIterator extends BaseObjectWithProperties implements Iter
             record.setValue(MoepConstants.FONT_NAME, "31");
             record.setValue(MoepConstants.FONT_WEIGHT, "0");
           } else {
-            final String fontName = new String(attribute.substring(0, 3).trim());
+            final String fontName = new String(attribute.substring(0, 3).strip());
             record.setValue(MoepConstants.FONT_NAME, fontName);
             if (attribute.length() > 3) {
               final String other = new String(
-                attribute.substring(3, Math.min(attribute.length(), 5)).trim());
+                attribute.substring(3, Math.min(attribute.length(), 5)).strip());
               record.setValue(MoepConstants.FONT_WEIGHT, other);
             } else {
               record.setValue(MoepConstants.FONT_WEIGHT, "0");
             }
             if (attribute.length() > 5) {
-              final String textGroup = new String(attribute.substring(4, 9).trim());
+              final String textGroup = new String(attribute.substring(4, 9).strip());
               record.setValue(MoepConstants.TEXT_GROUP, textGroup);
             }
           }
@@ -384,7 +384,7 @@ public class MoepBinaryIterator extends BaseObjectWithProperties implements Iter
   private String readString(final int length) throws IOException {
     final int read = this.in.read(this.buffer, 0, length);
     if (read > -1) {
-      return new String(this.buffer, 0, read).trim();
+      return new String(this.buffer, 0, read).strip();
     } else {
       return null;
     }

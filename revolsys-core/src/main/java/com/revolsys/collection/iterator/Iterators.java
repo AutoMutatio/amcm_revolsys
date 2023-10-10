@@ -1,6 +1,7 @@
 package com.revolsys.collection.iterator;
 
 import java.util.Iterator;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
@@ -21,6 +22,14 @@ public interface Iterators {
       return iterator;
     } else {
       return new FilterIterator<>(filter, iterator);
+    }
+  }
+
+  static <I, O> MapIterator<I, O> map(final Iterator<I> iterator, final Function<I, O> converter) {
+    if (converter == null) {
+      throw new IllegalArgumentException("Converter cannot be null");
+    } else {
+      return new MapIterator<>(iterator, converter);
     }
   }
 

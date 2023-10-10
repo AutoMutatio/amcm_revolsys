@@ -1,8 +1,10 @@
 package com.revolsys.jdbc.field;
 
+import java.sql.Array;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Map;
 
 import org.jeometry.common.data.type.DataTypes;
@@ -15,16 +17,17 @@ public class JdbcStringFieldDefinition extends JdbcFieldDefinition {
   private final boolean intern;
 
   public JdbcStringFieldDefinition(final String dbName, final String name, final int sqlType,
-    final int length, final boolean required, final String description,
+    final String dbDataType, final int length, final boolean required, final String description,
     final Map<String, Object> properties) {
-    super(dbName, name, DataTypes.STRING, sqlType, length, 0, required, description, properties);
+    super(dbName, name, DataTypes.STRING, sqlType, dbDataType, length, 0, required, description,
+      properties);
     this.intern = Property.getBoolean(properties, "stringIntern");
   }
 
   @Override
   public JdbcStringFieldDefinition clone() {
     final JdbcStringFieldDefinition clone = new JdbcStringFieldDefinition(getDbName(), getName(),
-      getSqlType(), getLength(), isRequired(), getDescription(), getProperties());
+      getSqlType(), getDbDataType(), getLength(), isRequired(), getDescription(), getProperties());
     postClone(clone);
     return clone;
   }
@@ -38,6 +41,25 @@ public class JdbcStringFieldDefinition extends JdbcFieldDefinition {
       value = value.intern();
     }
     return value;
+  }
+
+  @Override
+  public int setPreparedStatementArray(final PreparedStatement statement, final int parameterIndex,
+    final List<?> values) throws SQLException {
+    if (values == null) {
+      final int sqlType = getSqlType();
+      statement.setNull(parameterIndex, sqlType);
+    } else {
+      final String[] array = new String[values.size()];
+      int i = 0;
+      for (final Object value : values) {
+        array[i++] = DataTypes.STRING.toObject(value);
+      }
+      final Array sqlArray = getRecordStore().newArray(statement.getConnection(), getDbDataType(),
+        array);
+      statement.setArray(parameterIndex, sqlArray);
+    }
+    return parameterIndex + 1;
   }
 
   @Override

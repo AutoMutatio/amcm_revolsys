@@ -122,7 +122,7 @@ public final class HtmlUtil {
   public static void serializeDiv(final XmlWriter out, final String cssClass,
     final Object content) {
     if (content != null) {
-      final String text = content.toString().trim();
+      final String text = content.toString().strip();
       if (text.length() > 0) {
         out.startTag(HtmlElem.DIV);
         if (cssClass != null) {
@@ -306,7 +306,7 @@ public final class HtmlUtil {
   public static void serializeSpan(final XmlWriter out, final String cssClass,
     final Object content) {
     if (content != null) {
-      final String text = content.toString().trim();
+      final String text = content.toString().strip();
       if (text.length() > 0) {
         out.startTag(HtmlElem.SPAN);
         if (cssClass != null) {

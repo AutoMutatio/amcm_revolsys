@@ -182,7 +182,7 @@ public class BatchLineReader {
     final List<Line> result = new ArrayList<>();
     String currentLine = readLine();
     if (currentLine != null) {
-      this.currentBoundary = currentLine.trim();
+      this.currentBoundary = currentLine.strip();
       int counter = 1;
       result.add(new Line(currentLine, counter++));
 
@@ -198,7 +198,7 @@ public class BatchLineReader {
     final List<String> result = new ArrayList<>();
     String currentLine = readLine();
     if (currentLine != null) {
-      this.currentBoundary = currentLine.trim();
+      this.currentBoundary = currentLine.strip();
       result.add(currentLine);
 
       while ((currentLine = readLine()) != null) {
@@ -215,7 +215,7 @@ public class BatchLineReader {
         final int cutOff = currentLine.endsWith(CRLF) ? 2 : currentLine.endsWith(LFS) ? 1 : 0;
         final ContentType contentType = ContentType.parse(
           currentLine.substring(HttpHeader.CONTENT_TYPE.length() + 1, currentLine.length() - cutOff)
-            .trim());
+            .strip());
         if (contentType != null) {
           final String charsetString = contentType.getParameter(ContentType.PARAMETER_CHARSET);
           this.currentCharset = charsetString == null
