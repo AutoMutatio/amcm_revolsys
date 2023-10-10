@@ -70,17 +70,30 @@ public class JdbcRecordWriter extends AbstractRecordWriter {
   private final Map<JdbcRecordDefinition, LongCounter> typeCountMap = new HashMap<>();
 
   public JdbcRecordWriter(final AbstractJdbcRecordStore recordStore,
-    final RecordDefinitionProxy recordDefinition, final int batchSize,
-    final JdbcConnection connection) {
+    final RecordDefinitionProxy recordDefinition, final CategoryLabelCountMap statistics,
+    final int batchSize) {
     super(recordDefinition);
+    Transaction.assertInTransaction();
     this.recordStore = recordStore;
-    this.connection = connection;
-    this.statistics = recordStore.getStatistics();
-
-    this.batchSize = batchSize;
-    if (this.statistics != null) {
-      this.statistics.connect();
+    this.statistics = statistics;
+    this.connection = recordStore.getJdbcConnection();
+    final DataSource dataSource = this.connection.getDataSource();
+    if (dataSource != null) {
+      try {
+        this.connection.setAutoCommit(false);
+      } catch (final SQLException e) {
+        throw new RuntimeException("Unable to create connection", e);
+      }
     }
+    this.batchSize = batchSize;
+    if (statistics != null) {
+      statistics.connect();
+    }
+  }
+
+  public JdbcRecordWriter(final AbstractJdbcRecordStore recordStore,
+    final RecordDefinitionProxy recordDefinition, final int batchSize) {
+    this(recordStore, recordDefinition, recordStore.getStatistics(), batchSize);
   }
 
   public void appendIdEquals(final SqlAppendable sqlBuffer, final List<FieldDefinition> idFields) {
@@ -166,10 +179,7 @@ public class JdbcRecordWriter extends AbstractRecordWriter {
 
   public synchronized void commit() {
     flush();
-    try {
-      this.connection.commit();
-    } catch (final SQLException e) {
-    }
+    JdbcUtils.commit(this.connection);
   }
 
   private void deleteRecord(final JdbcRecordDefinition recordDefinition, final Record record)
@@ -264,6 +274,63 @@ public class JdbcRecordWriter extends AbstractRecordWriter {
     }
   }
 
+  private String getInsertSql(final JdbcRecordDefinition recordDefinition,
+    final boolean generatePrimaryKey) {
+    final JdbcRecordStore recordStore = this.recordStore;
+    final String tableName = recordDefinition.getDbTableQualifiedName();
+    final boolean hasRowIdField = recordStore.isIdFieldRowid(recordDefinition);
+    final StringBuilderSqlAppendable sqlBuffer = SqlAppendable.stringBuilder();
+    if (this.sqlPrefix != null) {
+      sqlBuffer.append(this.sqlPrefix);
+    }
+    sqlBuffer.append("insert ");
+
+    sqlBuffer.append(" into ");
+    sqlBuffer.append(tableName);
+    sqlBuffer.append(" (");
+    boolean first = true;
+    for (final FieldDefinition fieldDefinition : recordDefinition.getFields()) {
+      final JdbcFieldDefinition jdbcField = (JdbcFieldDefinition)fieldDefinition;
+      if (!jdbcField.isGenerated()) {
+        if (!(hasRowIdField && fieldDefinition.isIdField())) {
+          if (first) {
+            first = false;
+          } else {
+            sqlBuffer.append(',');
+          }
+          fieldDefinition.appendColumnName(sqlBuffer, this.quoteColumnNames);
+        }
+      }
+    }
+
+    sqlBuffer.append(") VALUES (");
+    first = true;
+    for (final FieldDefinition fieldDefinition : recordDefinition.getFields()) {
+      final JdbcFieldDefinition jdbcField = (JdbcFieldDefinition)fieldDefinition;
+      if (!jdbcField.isGenerated()) {
+        final boolean idField = fieldDefinition.isIdField();
+        if (!(hasRowIdField && idField)) {
+          if (first) {
+            first = false;
+          } else {
+            sqlBuffer.append(',');
+          }
+          if (idField && generatePrimaryKey) {
+            final String primaryKeySql = recordStore.getGeneratePrimaryKeySql(recordDefinition);
+            sqlBuffer.append(primaryKeySql);
+          } else {
+            jdbcField.addInsertStatementPlaceHolder(sqlBuffer, generatePrimaryKey);
+          }
+        }
+      }
+    }
+    sqlBuffer.append(")");
+    if (this.sqlSuffix != null) {
+      sqlBuffer.append(this.sqlSuffix);
+    }
+    return sqlBuffer.toSqlString();
+  }
+
   public String getLabel() {
     return this.label;
   }
@@ -293,6 +360,48 @@ public class JdbcRecordWriter extends AbstractRecordWriter {
 
   public String getSqlSuffix() {
     return this.sqlSuffix;
+  }
+
+  private String getUpdateSql(final JdbcRecordDefinition recordDefinition) {
+    final List<FieldDefinition> idFields = recordDefinition.getIdFields();
+    if (idFields.isEmpty()) {
+      throw new RuntimeException("No primary key found for: " + recordDefinition);
+    } else {
+      final String tableName = recordDefinition.getDbTableQualifiedName();
+      final StringBuilderSqlAppendable sqlBuffer = SqlAppendable.stringBuilder();
+      if (this.sqlPrefix != null) {
+        sqlBuffer.append(this.sqlPrefix);
+      }
+      sqlBuffer.append("update ");
+
+      sqlBuffer.append(tableName);
+      sqlBuffer.append(" set ");
+      boolean first = true;
+      for (final FieldDefinition fieldDefinition : recordDefinition.getFields()) {
+        if (!idFields.contains(fieldDefinition)) {
+          final JdbcFieldDefinition jdbcFieldDefinition = (JdbcFieldDefinition)fieldDefinition;
+          if (!jdbcFieldDefinition.isGenerated()) {
+            if (first) {
+              first = false;
+            } else {
+              sqlBuffer.append(", ");
+            }
+            jdbcFieldDefinition.appendColumnName(sqlBuffer, this.quoteColumnNames);
+            sqlBuffer.append(" = ");
+            jdbcFieldDefinition.addInsertStatementPlaceHolder(sqlBuffer, false);
+          }
+        }
+      }
+      sqlBuffer.append(" where ");
+      appendIdEquals(sqlBuffer, idFields);
+
+      sqlBuffer.append(" ");
+      if (this.sqlSuffix != null) {
+        sqlBuffer.append(this.sqlSuffix);
+      }
+      return sqlBuffer.toSqlString();
+
+    }
   }
 
   protected void insert(final JdbcRecordDefinition recordDefinition, final Record record)
@@ -381,12 +490,21 @@ public class JdbcRecordWriter extends AbstractRecordWriter {
 
     JdbcRecordWriterTypeData data = typeDataMap.get(recordDefinition);
     if (data == null) {
-      final String sql = this.recordStore.getInsertSql(recordDefinition, generatePrimaryKey);
-      final PreparedStatement statement = this.recordStore.prepareInsertStatement(this.connection,
-        recordDefinition, returnGeneratedKeys, sql);
-      data = new JdbcRecordWriterTypeData(this, recordDefinition, sql, statement,
-        returnGeneratedKeys);
-      typeDataMap.put(recordDefinition, data);
+      final String sql = getInsertSql(recordDefinition, generatePrimaryKey);
+      try {
+        PreparedStatement statement;
+        if (returnGeneratedKeys) {
+          statement = this.recordStore.insertStatementPrepareRowId(this.connection,
+            recordDefinition, sql);
+        } else {
+          statement = this.connection.prepareStatement(sql);
+        }
+        data = new JdbcRecordWriterTypeData(this, recordDefinition, sql, statement,
+          returnGeneratedKeys);
+        typeDataMap.put(recordDefinition, data);
+      } catch (final SQLException e) {
+        throw this.connection.getException("Prepare Insert SQL", sql, e);
+      }
     }
     return data;
   }
@@ -451,7 +569,7 @@ public class JdbcRecordWriter extends AbstractRecordWriter {
     flushIfRequired(recordDefinition);
     JdbcRecordWriterTypeData data = this.typeUpdateData.get(recordDefinition);
     if (data == null) {
-      final String sql = this.recordStore.getUpdateSql(recordDefinition);
+      final String sql = getUpdateSql(recordDefinition);
       try {
         final PreparedStatement statement = this.connection.prepareStatement(sql);
         data = new JdbcRecordWriterTypeData(this, recordDefinition, sql, statement, false);
@@ -471,8 +589,7 @@ public class JdbcRecordWriter extends AbstractRecordWriter {
         }
       }
     }
-    parameterIndex = this.recordStore.setIdEqualsValues(statement, parameterIndex, recordDefinition,
-      record);
+    parameterIndex = setIdEqualsValues(statement, parameterIndex, recordDefinition, record);
     data.executeUpdate();
     this.recordStore.addStatistic("Update", record);
   }

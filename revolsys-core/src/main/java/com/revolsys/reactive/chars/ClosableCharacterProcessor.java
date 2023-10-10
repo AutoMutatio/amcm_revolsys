@@ -8,7 +8,7 @@ public class ClosableCharacterProcessor implements CharacterProcessor {
 
   private final Closeable closeable;
 
-  public ClosableCharacterProcessor(Closeable closeable, CharacterProcessor processor) {
+  public ClosableCharacterProcessor(final Closeable closeable, final CharacterProcessor processor) {
     this.closeable = closeable;
     this.processor = processor;
   }
@@ -39,16 +39,7 @@ public class ClosableCharacterProcessor implements CharacterProcessor {
   }
 
   @Override
-  public void onError(Throwable e) {
-    try {
-      this.processor.onError(e);
-    } finally {
-      close();
-    }
-  }
-
-  @Override
-  public boolean process(char c) {
+  public boolean process(final char c) {
     return this.processor.process(c);
   }
 

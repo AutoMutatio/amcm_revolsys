@@ -1,6 +1,5 @@
 package com.revolsys.oracle.recordstore;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -20,6 +19,7 @@ import org.jeometry.coordinatesystem.io.WktCsParser;
 import org.jeometry.coordinatesystem.model.CoordinateSystem;
 import org.jeometry.coordinatesystem.model.systems.EpsgCoordinateSystems;
 
+import com.revolsys.collection.ResultPager;
 import com.revolsys.collection.map.IntHashMap;
 import com.revolsys.geometry.model.BoundingBoxProxy;
 import com.revolsys.geometry.model.GeometryFactory;
@@ -39,6 +39,7 @@ import com.revolsys.oracle.recordstore.field.OracleSdoGeometryJdbcFieldDefinitio
 import com.revolsys.record.ArrayRecord;
 import com.revolsys.record.Record;
 import com.revolsys.record.RecordFactory;
+import com.revolsys.record.io.RecordIterator;
 import com.revolsys.record.property.ShortNameProperty;
 import com.revolsys.record.query.Column;
 import com.revolsys.record.query.ILike;
@@ -357,24 +358,6 @@ public class OracleRecordStore extends AbstractJdbcRecordStore {
   }
 
   @Override
-  protected String getSelectSql(final Query query) {
-    String sql = super.getSelectSql(query);
-    final int offset = query.getOffset();
-    final int limit = query.getLimit();
-    if (offset > 0 || limit >= 0 && limit < Integer.MAX_VALUE) {
-      final int startRowNum = offset + 1;
-      final int endRowNum = offset + limit;
-      sql = "SELECT * FROM (" //
-        + "SELECT V.*,ROWNUM \"RNUM\" FROM ("//
-        + sql + //
-        ") V  "//
-        + "WHERE ROWNUM <=  " + endRowNum + ")"//
-        + "WHERE RNUM >= " + startRowNum;
-    }
-    return sql;
-  }
-
-  @Override
   protected String getSequenceName(final JdbcRecordDefinition recordDefinition) {
     if (recordDefinition == null) {
       return null;
@@ -458,7 +441,7 @@ public class OracleRecordStore extends AbstractJdbcRecordStore {
   }
 
   @Override
-  public PreparedStatement insertStatementPrepareRowId(final Connection connection,
+  public PreparedStatement insertStatementPrepareRowId(final JdbcConnection connection,
     final RecordDefinition recordDefinition, final String sql) throws SQLException {
     final List<Integer> idFieldIndexes = recordDefinition.getIdFieldIndexes();
     final int[] indexes = new int[idFieldIndexes.size()];
@@ -490,8 +473,18 @@ public class OracleRecordStore extends AbstractJdbcRecordStore {
   }
 
   @Override
+  public RecordIterator newIterator(final Query query, final Map<String, Object> properties) {
+    return new OracleJdbcQueryIterator(this, query, properties);
+  }
+
+  @Override
   protected JdbcFieldDefinition newRowIdFieldDefinition() {
     return new OracleJdbcRowIdFieldDefinition();
+  }
+
+  @Override
+  public ResultPager<Record> page(final Query query) {
+    return new OracleJdbcQueryResultPager(this, getProperties(), query);
   }
 
   public void setUseSchemaSequencePrefix(final boolean useSchemaSequencePrefix) {

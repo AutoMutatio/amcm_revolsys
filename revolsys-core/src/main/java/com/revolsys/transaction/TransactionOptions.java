@@ -25,22 +25,22 @@ public enum TransactionOptions implements TransactionOption {
     Propagation.REQUIRED,
   };
 
-  private static void readOnly(final TransactionDefinition transaction) {
+  private static void readOnly(final Transaction transaction) {
     transaction.setReadOnly(true);
   }
 
-  private static void rollbackOnly(final TransactionDefinition transaction) {
+  private static void rollbackOnly(final Transaction transaction) {
     transaction.setRollbackOnly();
   }
 
-  private Consumer<TransactionDefinition> initializer;
+  private Consumer<Transaction> initializer;
 
-  private TransactionOptions(final Consumer<TransactionDefinition> initializer) {
+  private TransactionOptions(final Consumer<Transaction> initializer) {
     this.initializer = initializer;
   }
 
   @Override
-  public void initialize(final TransactionDefinition transaction) {
+  public void initialize(final Transaction transaction) {
     this.initializer.accept(transaction);
   }
 }

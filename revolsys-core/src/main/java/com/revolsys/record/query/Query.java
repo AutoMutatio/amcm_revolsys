@@ -19,11 +19,10 @@ import java.util.function.Supplier;
 
 import org.jeometry.common.io.PathName;
 import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.ReactiveTransactionManager;
 
-import com.revolsys.collection.list.ListEx;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.geometry.model.BoundingBox;
+import com.revolsys.jdbc.JdbcUtils;
 import com.revolsys.jdbc.field.JdbcFieldDefinition;
 import com.revolsys.jdbc.field.JdbcFieldDefinitions;
 import com.revolsys.predicate.Predicates;
@@ -51,11 +50,9 @@ import com.revolsys.util.CancellableProxy;
 import com.revolsys.util.Property;
 import com.revolsys.util.count.LabelCounters;
 
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-
 public class Query extends BaseObjectWithProperties
   implements Cloneable, CancellableProxy, Transactionable, QueryValue, TableReferenceProxy {
+
   private static void addFilter(final Query query, final RecordDefinition recordDefinition,
     final Map<String, ?> filter, final AbstractMultiCondition multipleCondition) {
     if (filter != null && !filter.isEmpty()) {
@@ -479,16 +476,6 @@ public class Query extends BaseObjectWithProperties
     return index;
   }
 
-  public void appendQueryValue(final SqlAppendable sql, final QueryValue queryValue) {
-    final RecordDefinition recordDefinition = getRecordDefinition();
-    if (recordDefinition == null) {
-      queryValue.appendSql(this, null, sql);
-    } else {
-      final RecordStore recordStore = recordDefinition.getRecordStore();
-      queryValue.appendSql(this, recordStore, sql);
-    }
-  }
-
   public void appendSelect(final SqlAppendable sql) {
     final TableReference table = this.table;
     final List<QueryValue> select = getSelect();
@@ -548,9 +535,9 @@ public class Query extends BaseObjectWithProperties
     sql.append(" FROM ");
     from.appendFromWithAlias(sql);
     for (final Join join : joins) {
-      appendQueryValue(sql, join);
+      JdbcUtils.appendQueryValue(sql, this, join);
     }
-    appendWhere(sql, sql.isUsePlaceholders());
+    JdbcUtils.appendWhere(sql, this, sql.isUsePlaceholders());
 
     if (groupBy != null) {
       boolean hasGroupBy = false;
@@ -568,14 +555,6 @@ public class Query extends BaseObjectWithProperties
     addOrderBy(sql, table, orderBy);
 
     lockMode.append(sql);
-  }
-
-  protected void appendWhere(final SqlAppendable sql, final boolean usePlaceholders) {
-    final Condition where = getWhereCondition();
-    if (!where.isEmpty()) {
-      sql.append(" WHERE ");
-      appendQueryValue(sql, where);
-    }
   }
 
   public Exists asExists() {
@@ -630,10 +609,6 @@ public class Query extends BaseObjectWithProperties
 
   public int deleteRecords() {
     return getRecordDefinition().getRecordStore().deleteRecords(this);
-  }
-
-  public Flux<Record> flux() {
-    return getRecordDefinition().getRecordStore().getRecordsFlux(this);
   }
 
   public void forEachRecord(final Consumer<? super Record> action) {
@@ -715,12 +690,6 @@ public class Query extends BaseObjectWithProperties
     }
   }
 
-  @Override
-  public ReactiveTransactionManager getReactiveTransactionManager() {
-    return getRecordStore()//
-      .getReactiveTransactionManager();
-  }
-
   @SuppressWarnings("unchecked")
   public <R extends Record> R getRecord() {
     return (R)getRecordDefinition().getRecord(this);
@@ -728,10 +697,6 @@ public class Query extends BaseObjectWithProperties
 
   public long getRecordCount() {
     return getRecordDefinition().getRecordStore().getRecordCount(this);
-  }
-
-  public Mono<Integer> getRecordCount$() {
-    return getRecordDefinition().getRecordStore().getRecordCount$(this);
   }
 
   public RecordDefinition getRecordDefinition() {
@@ -747,17 +712,6 @@ public class Query extends BaseObjectWithProperties
     return (RecordFactory<V>)this.recordFactory;
   }
 
-  public <R extends Record> Mono<R> getRecordMono() {
-    return Mono.defer(() -> {
-      final R record = getRecord();
-      if (record == null) {
-        return Mono.empty();
-      } else {
-        return Mono.just(record);
-      }
-    });
-  }
-
   public RecordReader getRecordReader() {
     return getRecordDefinition().getRecordStore().getRecords(this);
   }
@@ -766,7 +720,7 @@ public class Query extends BaseObjectWithProperties
     return getRecordDefinition().getRecordStore().getRecords(this);
   }
 
-  public ListEx<Record> getRecords() {
+  public List<Record> getRecords() {
     try (
       RecordReader records = getRecordReader()) {
       return records.toList();
@@ -966,7 +920,6 @@ public class Query extends BaseObjectWithProperties
     return join(JoinType.JOIN).table(table);
   }
 
-  @Override
   public Condition newCondition(final CharSequence fieldName,
     final BiFunction<QueryValue, QueryValue, Condition> operator, final Object value) {
     final ColumnReference left = this.table.getColumn(fieldName);
@@ -985,7 +938,6 @@ public class Query extends BaseObjectWithProperties
     return condition;
   }
 
-  @Override
   public Condition newCondition(final CharSequence fieldName,
     final java.util.function.Function<QueryValue, Condition> operator) {
     final ColumnReference column = this.table.getColumn(fieldName);
@@ -993,7 +945,6 @@ public class Query extends BaseObjectWithProperties
     return condition;
   }
 
-  @Override
   public Condition newCondition(final QueryValue left,
     final BiFunction<QueryValue, QueryValue, Condition> operator, final Object value) {
     Condition condition;
@@ -1023,7 +974,7 @@ public class Query extends BaseObjectWithProperties
       from = this.table;
     }
     from.appendFromWithAlias(sql);
-    appendWhere(sql, true);
+    JdbcUtils.appendWhere(sql, this, true);
     return sql.toSqlString();
   }
 

@@ -11,28 +11,28 @@ import org.apache.http.ProtocolVersion;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpUriRequest;
 
-public interface HttpRequestBuilderProxy {
-  default HttpRequestBuilderProxy addHeader(final Header header) {
+public interface ApacheRequestBuilderProxy {
+  default ApacheRequestBuilderProxy addHeader(final Header header) {
     getRequestBuilder().addHeader(header);
     return this;
   }
 
-  default HttpRequestBuilderProxy addHeader(final String name, final String value) {
+  default ApacheRequestBuilderProxy addHeader(final String name, final String value) {
     getRequestBuilder().addHeader(name, value);
     return this;
   }
 
-  default HttpRequestBuilderProxy addParameter(final NameValuePair nvp) {
+  default ApacheRequestBuilderProxy addParameter(final NameValuePair nvp) {
     getRequestBuilder().addParameter(nvp);
     return this;
   }
 
-  default HttpRequestBuilderProxy addParameter(final String name, final Object value) {
+  default ApacheRequestBuilderProxy addParameter(final String name, final Object value) {
     getRequestBuilder().addParameter(name, value);
     return this;
   }
 
-  default HttpRequestBuilderProxy addParameters(final NameValuePair... nvps) {
+  default ApacheRequestBuilderProxy addParameters(final NameValuePair... nvps) {
     getRequestBuilder().getParameters();
     return this;
   }
@@ -73,7 +73,7 @@ public interface HttpRequestBuilderProxy {
     return getRequestBuilder().getParameters();
   }
 
-  HttpRequestBuilder getRequestBuilder();
+  ApacheHttpRequestBuilder getRequestBuilder();
 
   default URI getUri() {
     return getRequestBuilder().getUri();
@@ -83,32 +83,32 @@ public interface HttpRequestBuilderProxy {
     return getRequestBuilder().getVersion();
   }
 
-  default HttpRequestBuilderProxy removeHeader(final Header header) {
+  default ApacheRequestBuilderProxy removeHeader(final Header header) {
     getRequestBuilder().removeHeader(header);
     return this;
   }
 
-  default HttpRequestBuilderProxy removeHeaders(final String name) {
+  default ApacheRequestBuilderProxy removeHeaders(final String name) {
     getRequestBuilder().removeHeaders(name);
     return this;
   }
 
-  default HttpRequestBuilderProxy setConfig(final RequestConfig config) {
+  default ApacheRequestBuilderProxy setConfig(final RequestConfig config) {
     getRequestBuilder().setConfig(config);
     return this;
   }
 
-  default HttpRequestBuilderProxy setEntity(final HttpEntity entity) {
+  default ApacheRequestBuilderProxy setEntity(final HttpEntity entity) {
     getRequestBuilder().setEntity(entity);
     return this;
   }
 
-  default HttpRequestBuilderProxy setParameter(final NameValuePair nvp) {
+  default ApacheRequestBuilderProxy setParameter(final NameValuePair nvp) {
     getRequestBuilder().setParameter(nvp);
     return this;
   }
 
-  default HttpRequestBuilderProxy setParameter(final String name, final Object value) {
+  default ApacheRequestBuilderProxy setParameter(final String name, final Object value) {
     getRequestBuilder().setParameter(name, value);
     return this;
   }

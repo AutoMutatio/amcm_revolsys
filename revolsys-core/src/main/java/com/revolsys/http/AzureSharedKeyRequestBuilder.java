@@ -28,7 +28,7 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.jeometry.common.exception.Exceptions;
 
-public class AzureSharedKeyRequestBuilder extends HttpRequestBuilder {
+public class AzureSharedKeyRequestBuilder extends ApacheHttpRequestBuilder {
 
   public static final DateTimeFormatter DATE_FORMAT;
 

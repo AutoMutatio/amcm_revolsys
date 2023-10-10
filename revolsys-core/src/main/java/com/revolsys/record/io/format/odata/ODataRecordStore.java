@@ -18,9 +18,9 @@ import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryFactoryProxy;
 import com.revolsys.geometry.model.Polygon;
+import com.revolsys.http.ApacheHttpRequestBuilder;
+import com.revolsys.http.ApacheHttpRequestBuilderFactory;
 import com.revolsys.http.ConfigurableRequestBuilderFactory;
-import com.revolsys.http.HttpRequestBuilder;
-import com.revolsys.http.HttpRequestBuilderFactory;
 import com.revolsys.net.http.SimpleNameValuePair;
 import com.revolsys.record.Record;
 import com.revolsys.record.io.RecordReader;
@@ -301,11 +301,11 @@ public class ODataRecordStore extends AbstractRecordStore {
     }
   }
 
-  private final HttpRequestBuilderFactory requestFactory;
+  private final ApacheHttpRequestBuilderFactory requestFactory;
 
   private final URI uri;
 
-  public ODataRecordStore(final HttpRequestBuilderFactory requestFactory, final URI uri) {
+  public ODataRecordStore(final ApacheHttpRequestBuilderFactory requestFactory, final URI uri) {
     this.requestFactory = requestFactory;
     this.uri = uri;
   }
@@ -339,7 +339,7 @@ public class ODataRecordStore extends AbstractRecordStore {
     }
     final URI uri = new UriBuilder(baseUri).appendPathSegments(name + "(" + idString + ")").build();
 
-    final HttpRequestBuilder request = this.requestFactory.delete(uri)
+    final ApacheHttpRequestBuilder request = this.requestFactory.delete(uri)
       .setParameter(ODataRecordStore.FORMAT_JSON);
     final JsonObject result = request.getJson();
     return result.isTrue("deleted");
@@ -369,7 +369,7 @@ public class ODataRecordStore extends AbstractRecordStore {
     query = query.clone();
     query.setLimit(1);
     query.clearOrderBy();
-    final HttpRequestBuilder request = newRequest(query);
+    final ApacheHttpRequestBuilder request = newRequest(query);
     request.setParameter("$count", "true");
     final JsonObject result = request.getJson();
     return result.getInteger("@odata.count", 0);
@@ -390,7 +390,7 @@ public class ODataRecordStore extends AbstractRecordStore {
       idString = "'" + idValue.toString().replace("'", "''") + "'";
     }
     final URI uri = new UriBuilder(baseUri).appendPathSegments(name + "(" + idString + ")").build();
-    final HttpRequestBuilder request = this.requestFactory.get(uri)
+    final ApacheHttpRequestBuilder request = this.requestFactory.get(uri)
       .setParameter(ODataRecordStore.FORMAT_JSON);
 
     final JsonObject result = request.getJson();
@@ -399,7 +399,7 @@ public class ODataRecordStore extends AbstractRecordStore {
 
   @Override
   public RecordReader getRecords(final Query query) {
-    return new ODataQueryIterator(this, this.requestFactory, query, null);
+    return newIterator(query, null);
   }
 
   @Override
@@ -418,7 +418,7 @@ public class ODataRecordStore extends AbstractRecordStore {
     final URI uri = new UriBuilder(baseUri).appendPathSegments(name).build();
 
     final JsonObject json = record.toJson();
-    final HttpRequestBuilder request = this.requestFactory.post(uri)
+    final ApacheHttpRequestBuilder request = this.requestFactory.post(uri)
       .setParameter(ODataRecordStore.FORMAT_JSON)
       .setJsonEntity(json);
     final JsonObject result = request.getJson();
@@ -427,15 +427,20 @@ public class ODataRecordStore extends AbstractRecordStore {
   }
 
   @Override
+  public ODataQueryIterator newIterator(final Query query, final Map<String, Object> properties) {
+    return new ODataQueryIterator(this, this.requestFactory, query, properties);
+  }
+
+  @Override
   public RecordWriter newRecordWriter(final boolean throwExceptions) {
     throw new UnsupportedOperationException("Writing records not supported");
   }
 
-  public HttpRequestBuilder newRequest(final Query query) {
+  public ApacheHttpRequestBuilder newRequest(final Query query) {
     final String name = query.getTablePath().getName();
     final URI baseUri = getUri();
     final URI uri = new UriBuilder(baseUri).appendPathSegments(name).build();
-    final HttpRequestBuilder request = this.requestFactory.get(uri)
+    final ApacheHttpRequestBuilder request = this.requestFactory.get(uri)
       .setParameter(ODataRecordStore.FORMAT_JSON);
     newRequestSelect(query, request);
     newRequestFilter(query, request);
@@ -451,7 +456,7 @@ public class ODataRecordStore extends AbstractRecordStore {
     return request;
   }
 
-  private void newRequestFilter(final Query query, final HttpRequestBuilder request) {
+  private void newRequestFilter(final Query query, final ApacheHttpRequestBuilder request) {
     final QueryValue condition = query.getWhereCondition();
     if (condition != null) {
       final StringBuilder filter = new StringBuilder();
@@ -462,7 +467,7 @@ public class ODataRecordStore extends AbstractRecordStore {
     }
   }
 
-  private void newRequestOrderBy(final HttpRequestBuilder request, final Query query) {
+  private void newRequestOrderBy(final ApacheHttpRequestBuilder request, final Query query) {
     final List<OrderBy> orderBys = query.getOrderBy();
     if (!orderBys.isEmpty()) {
       final StringBuilder order = new StringBuilder();
@@ -486,7 +491,7 @@ public class ODataRecordStore extends AbstractRecordStore {
     }
   }
 
-  private void newRequestSelect(final Query query, final HttpRequestBuilder request) {
+  private void newRequestSelect(final Query query, final ApacheHttpRequestBuilder request) {
     final List<QueryValue> selectValues = query.getSelect();
     if (!selectValues.isEmpty()) {
       final StringBuilder select = new StringBuilder();

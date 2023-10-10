@@ -18,6 +18,7 @@ import com.revolsys.io.PathUtil;
 import com.revolsys.io.filter.ExtensionFilenameFilter;
 import com.revolsys.properties.ObjectWithProperties;
 import com.revolsys.record.Record;
+import com.revolsys.record.io.RecordIterator;
 import com.revolsys.record.io.RecordReader;
 import com.revolsys.record.io.RecordWriter;
 import com.revolsys.record.query.Query;
@@ -147,14 +148,6 @@ public class DirectoryRecordStore extends AbstractRecordStore {
   }
 
   @Override
-  public RecordReader getRecords(final Query query) {
-    final PathName path = query.getTablePath();
-    final RecordReader reader = getRecords(path);
-    reader.setProperties(getProperties());
-    return new RecordReaderQueryIterator(reader, query);
-  }
-
-  @Override
   public String getRecordStoreType() {
     return "Directory";
   }
@@ -236,6 +229,14 @@ public class DirectoryRecordStore extends AbstractRecordStore {
       }
       return recordDefinition;
     }
+  }
+
+  @Override
+  public RecordIterator newIterator(final Query query, final Map<String, Object> properties) {
+    final PathName path = query.getTablePath();
+    final RecordReader reader = getRecords(path);
+    reader.setProperties(properties);
+    return new RecordReaderQueryIterator(reader, query);
   }
 
   @Override

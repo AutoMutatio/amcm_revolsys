@@ -15,23 +15,23 @@ public class MultiToJsonProcessor<V> implements JsonProcessor {
 
   private final Deque<JsonProcessor> processors = new ArrayDeque<>(64);
 
-  public MultiToJsonProcessor(Function<MultiToJsonProcessor<V>, JsonProcessor> constructor) {
+  public MultiToJsonProcessor(final Function<MultiToJsonProcessor<V>, JsonProcessor> constructor) {
     final JsonProcessor processor = constructor.apply(this);
     processorPush(-1, processor);
   }
 
   @Override
-  public void beforeArrayValue(JsonStatus status) {
+  public void beforeArrayValue(final JsonStatus status) {
     this.currentProcessor.beforeArrayValue(status);
   }
 
   @Override
-  public void endArray(JsonStatus status) {
+  public void endArray(final JsonStatus status) {
     this.currentProcessor.endArray(status);
     endDo(status);
   }
 
-  protected void endDo(JsonStatus status) {
+  protected void endDo(final JsonStatus status) {
     if (status.getDepth() <= this.currentProcessorDepth) {
       this.currentProcessor.after();
       this.processors.removeLast();
@@ -42,24 +42,24 @@ public class MultiToJsonProcessor<V> implements JsonProcessor {
   }
 
   @Override
-  public void endDocument(JsonStatus status) {
+  public void endDocument(final JsonStatus status) {
     this.currentProcessor.endDocument(status);
     endDo(status);
   }
 
   @Override
-  public void endObject(JsonStatus status) {
+  public void endObject(final JsonStatus status) {
     this.currentProcessor.endObject(status);
     endDo(status);
   }
 
   @Override
-  public void label(JsonStatus status, String label) {
+  public void label(final JsonStatus status, final String label) {
     this.currentProcessor.label(status, label);
   }
 
   @Override
-  public void nullValue(JsonStatus status) {
+  public void nullValue(final JsonStatus status) {
     this.currentProcessor.nullValue(status);
   }
 
@@ -73,12 +73,7 @@ public class MultiToJsonProcessor<V> implements JsonProcessor {
     this.currentProcessor.onComplete();
   }
 
-  @Override
-  public void onError(Throwable e) {
-    this.currentProcessor.onError(e);
-  }
-
-  private void processorPush(int depth, JsonProcessor processor) {
+  private void processorPush(final int depth, final JsonProcessor processor) {
     processor.before();
     this.currentProcessor = processor;
     this.currentProcessorDepth = depth;
@@ -86,38 +81,38 @@ public class MultiToJsonProcessor<V> implements JsonProcessor {
     this.processorDepths.addLast(depth);
   }
 
-  public void processorPush(JsonStatus status, JsonProcessor processor) {
+  public void processorPush(final JsonStatus status, final JsonProcessor processor) {
     final int depth = status.getDepth();
     processorPush(depth, processor);
   }
 
   @Override
-  public void startArray(JsonStatus status) {
+  public void startArray(final JsonStatus status) {
     this.currentProcessor.startArray(status);
   }
 
   @Override
-  public void startDocument(JsonStatus status) {
+  public void startDocument(final JsonStatus status) {
     this.currentProcessor.startDocument(status);
   }
 
   @Override
-  public void startObject(JsonStatus status) {
+  public void startObject(final JsonStatus status) {
     this.currentProcessor.startObject(status);
   }
 
   @Override
-  public void value(JsonStatus status, BigDecimal value) {
+  public void value(final JsonStatus status, final BigDecimal value) {
     this.currentProcessor.value(status, value);
   }
 
   @Override
-  public void value(JsonStatus status, boolean value) {
+  public void value(final JsonStatus status, final boolean value) {
     this.currentProcessor.value(status, value);
   }
 
   @Override
-  public void value(JsonStatus status, String value) {
+  public void value(final JsonStatus status, final String value) {
     this.currentProcessor.value(status, value);
   }
 }

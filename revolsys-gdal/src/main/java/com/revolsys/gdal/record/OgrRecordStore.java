@@ -34,7 +34,6 @@ import com.revolsys.geometry.model.GeometryDataTypes;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.io.FileUtil;
 import com.revolsys.record.io.RecordIterator;
-import com.revolsys.record.io.RecordReader;
 import com.revolsys.record.io.RecordWriter;
 import com.revolsys.record.query.AbstractMultiCondition;
 import com.revolsys.record.query.BinaryCondition;
@@ -443,25 +442,6 @@ public class OgrRecordStore extends AbstractRecordStore {
   }
 
   @Override
-  public RecordReader getRecords(final Query query) {
-    PathName typePath = query.getTablePath();
-    RecordDefinition recordDefinition = query.getRecordDefinition();
-    if (recordDefinition == null) {
-      typePath = query.getTablePath();
-      recordDefinition = getRecordDefinition(typePath);
-      if (recordDefinition == null) {
-        throw new IllegalArgumentException("Type name does not exist " + typePath);
-      } else {
-        query.setRecordDefinition(recordDefinition);
-      }
-    } else {
-      typePath = recordDefinition.getPathName();
-    }
-    
-    return new OgrQueryIterator(this, query);
-  }
-
-  @Override
   public String getRecordStoreType() {
     return this.driverName;
   }
@@ -518,6 +498,25 @@ public class OgrRecordStore extends AbstractRecordStore {
       dataSource = driver.CreateDataSource(path);
     }
     return dataSource;
+  }
+
+  @Override
+  public RecordIterator newIterator(final Query query, final Map<String, Object> properties) {
+    PathName typePath = query.getTablePath();
+    RecordDefinition recordDefinition = query.getRecordDefinition();
+    if (recordDefinition == null) {
+      typePath = query.getTablePath();
+      recordDefinition = getRecordDefinition(typePath);
+      if (recordDefinition == null) {
+        throw new IllegalArgumentException("Type name does not exist " + typePath);
+      } else {
+        query.setRecordDefinition(recordDefinition);
+      }
+    } else {
+      typePath = recordDefinition.getPathName();
+    }
+
+    return new OgrQueryIterator(this, query);
   }
 
   private RecordDefinition newLayerRecordDefinition(final DataSource dataSource,

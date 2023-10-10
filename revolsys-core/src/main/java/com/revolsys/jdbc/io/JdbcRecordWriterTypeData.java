@@ -2,13 +2,17 @@ package com.revolsys.jdbc.io;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.jeometry.common.logging.Logs;
 
+import com.revolsys.jdbc.field.JdbcFieldDefinition;
 import com.revolsys.record.Record;
+import com.revolsys.record.RecordState;
+import com.revolsys.record.query.ColumnIndexes;
 import com.revolsys.util.LongCounter;
 
 public class JdbcRecordWriterTypeData {
@@ -120,7 +124,17 @@ public class JdbcRecordWriterTypeData {
       }
       addCount();
     } else {
-      this.recordStore.executeInsert(this.recordDefinition, this.statement, record);
+      try {
+        this.recordStore.executeUpdate(this.statement);
+      } catch (final SQLException e) {
+        throw e;
+      }
+      try (
+        final ResultSet generatedKeyResultSet = this.statement.getGeneratedKeys()) {
+        if (generatedKeyResultSet.next()) {
+          setGeneratedValues(generatedKeyResultSet, record);
+        }
+      }
     }
   }
 
@@ -139,8 +153,7 @@ public class JdbcRecordWriterTypeData {
             int recordIndex = 0;
             while (generatedKeyResultSet.next() && recordIndex < this.records.size()) {
               final Record record = this.records.get(recordIndex++);
-              this.recordStore.setGeneratedValues(this.recordDefinition, generatedKeyResultSet,
-                record);
+              setGeneratedValues(generatedKeyResultSet, record);
             }
           }
         }
@@ -155,4 +168,20 @@ public class JdbcRecordWriterTypeData {
     }
   }
 
+  protected void setGeneratedValues(final ResultSet rs, final Record record) throws SQLException {
+    final RecordState recordState = record.setState(RecordState.INITIALIZING);
+    try {
+      final ResultSetMetaData metaData = rs.getMetaData();
+      final ColumnIndexes columnIndexes = new ColumnIndexes();
+      for (int i = 1; i <= metaData.getColumnCount(); i++) {
+        final String name = metaData.getColumnName(i);
+        final JdbcFieldDefinition field = (JdbcFieldDefinition)this.recordDefinition.getField(name);
+        final Object value = field.getValueFromResultSet(this.recordDefinition, rs, columnIndexes,
+          false);
+        record.setValue(name, value);
+      }
+    } finally {
+      record.setState(recordState);
+    }
+  }
 }

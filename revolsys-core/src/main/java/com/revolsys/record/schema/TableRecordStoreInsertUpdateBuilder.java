@@ -11,9 +11,7 @@ import com.revolsys.record.query.Query;
 import com.revolsys.transaction.Transaction;
 import com.revolsys.transaction.TransactionOptions;
 
-import reactor.core.publisher.Mono;
-
-public class TableRecordStoreInsertUpdateBuilder<R extends Record> extends InsertUpdateBuilder<R> {
+public class TableRecordStoreInsertUpdateBuilder extends InsertUpdateBuilder {
 
   private final AbstractTableRecordStore recordStore;
 
@@ -34,54 +32,31 @@ public class TableRecordStoreInsertUpdateBuilder<R extends Record> extends Inser
       Transaction transaction = transactionSupplier.get()) {
       final ChangeTrackRecord changeTrackRecord = query.getRecord();
       if (changeTrackRecord == null) {
-        if (isInsert()) {
-          final Record newRecord = newRecord();
-          if (newRecord == null) {
-            return null;
-          } else {
-            insertRecord(newRecord);
-            try {
-              return this.recordStore.insertRecord(this.connection, newRecord);
-            } catch (final Exception e) {
-              throw Exceptions.wrap("Unable to insert record:\n" + newRecord, e);
-            }
-          }
-        } else {
+        final Record newRecord = newRecord();
+        if (newRecord == null) {
           return null;
+        } else {
+          insertRecord(newRecord);
+          try {
+            return this.recordStore.insertRecord(this.connection, newRecord);
+          } catch (final Exception e) {
+            throw Exceptions.wrap("Unable to insert record:\n" + newRecord, e);
+          }
         }
       } else {
-        if (isUpdate()) {
-          try {
-            updateRecord(changeTrackRecord);
-            this.recordStore.updateRecordDo(this.connection, changeTrackRecord);
-            return changeTrackRecord.newRecord();
-          } catch (final Exception e) {
-            throw Exceptions.wrap("Unable to update record:\n" + changeTrackRecord, e);
-          }
-        } else {
-          return null;
+        try {
+          updateRecord(changeTrackRecord);
+          this.recordStore.updateRecordDo(this.connection, changeTrackRecord);
+          return changeTrackRecord.newRecord();
+        } catch (final Exception e) {
+          throw Exceptions.wrap("Unable to update record:\n" + changeTrackRecord, e);
         }
       }
     }
   }
 
   @Override
-  protected Mono<R> insertRecordMonoDo(final R newRecord) {
-    return this.recordStore.insertRecordMono(this.connection, newRecord);
-  }
-
-  @Override
   protected Transaction newTransaction() {
     return this.connection.newTransaction(TransactionOptions.REQUIRED);
-  }
-
-  @Override
-  protected <V> Mono<V> transaction(final Supplier<Mono<V>> action) {
-    return this.connection.transactionMono(t -> action.get());
-  }
-
-  @Override
-  protected Mono<ChangeTrackRecord> updateRecordMonoDo(final ChangeTrackRecord record) {
-    return this.recordStore.updateRecordMonoDo(this.connection, record);
   }
 }

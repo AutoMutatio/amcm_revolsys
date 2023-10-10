@@ -6,7 +6,7 @@ import java.nio.CharBuffer;
 
 import org.jeometry.common.exception.Exceptions;
 
-public interface CharacterProcessor extends Processor {
+public interface CharacterProcessor {
 
   public static CharacterProcessor from(final Appendable string) {
     return c -> {
@@ -33,6 +33,12 @@ public interface CharacterProcessor extends Processor {
     });
   }
 
+  default void onCancel() {
+  }
+
+  default void onComplete() {
+  }
+
   boolean process(char c);
 
   default boolean process(final CharBuffer chars) {
@@ -45,9 +51,7 @@ public interface CharacterProcessor extends Processor {
       }
       return true;
     } catch (final Exception e) {
-      e.printStackTrace();
-      onError(e);
-      return false;
+      return Exceptions.throwUncheckedException(e);
     }
   }
 

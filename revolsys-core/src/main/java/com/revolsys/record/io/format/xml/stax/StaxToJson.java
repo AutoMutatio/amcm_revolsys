@@ -17,16 +17,11 @@ import org.apache.http.HttpResponse;
 import org.jeometry.common.exception.Exceptions;
 
 import com.revolsys.collection.set.Sets;
-import com.revolsys.reactive.chars.ByteBufFluxProcessor;
-import com.revolsys.reactive.chars.ByteBufs;
 import com.revolsys.record.io.format.json.JsonList;
 import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.record.io.format.xml.XsiConstants;
 
-import reactor.core.publisher.Mono;
-import reactor.netty.ByteBufFlux;
-
-public class StaxToJson implements ByteBufFluxProcessor {
+public class StaxToJson {
 
   private static final Set<String> EXCLUDE_ATTRIBUTE_NAMESPACES = Sets.newHash("xsi", "xsd",
     "xlink", "xi");
@@ -87,25 +82,6 @@ public class StaxToJson implements ByteBufFluxProcessor {
     } else {
       return value;
     }
-  }
-
-  public <V> Mono<V> process(final ByteBufFlux bytes) {
-    return ByteBufs.inputStream$(bytes).flatMap(in -> {
-      try {
-        V value = process(in);
-        if (value == null) {
-          return Mono.empty();
-        } else
-          return Mono.just(value);
-      } catch (Exception e) {
-        return Mono.error(e);
-      } finally {
-        try {
-          in.close();
-        } catch (IOException e) {
-        }
-      }
-    });
   }
 
   public <V> V process(final InputStream in) {

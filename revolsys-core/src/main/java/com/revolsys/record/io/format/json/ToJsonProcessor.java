@@ -93,10 +93,6 @@ public class ToJsonProcessor<V> implements JsonProcessor {
   }
 
   @Override
-  public void onError(final Throwable e) {
-  }
-
-  @Override
   public void startArray(final JsonStatus status) {
     this.values.push(JsonList.array());
   }

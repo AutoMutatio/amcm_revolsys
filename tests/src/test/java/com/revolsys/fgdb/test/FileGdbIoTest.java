@@ -73,7 +73,7 @@ public class FileGdbIoTest {
         writer.write(record);
       }
       try (
-        RecordReader reader = recordStore.newQuery(typePath).getRecordReader()) {
+        RecordReader reader = recordStore.getRecords(typePath)) {
         final List<Record> objects = reader.toList();
         Assert.assertEquals("Geometry Count", 1, objects.size());
         final Geometry actual = objects.get(0).getGeometry();

@@ -15,7 +15,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.jeometry.common.data.identifier.Identifier;
 import org.jeometry.common.data.type.DataType;
 import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.common.exception.Exceptions;
 import org.jeometry.common.io.PathName;
 import org.jeometry.common.logging.Logs;
 
@@ -47,8 +46,6 @@ import com.revolsys.transaction.Transaction;
 import com.revolsys.transaction.TransactionOptions;
 import com.revolsys.transaction.TransactionRecordReader;
 import com.revolsys.util.Property;
-
-import reactor.core.publisher.Mono;
 
 public class AbstractTableRecordStore implements RecordDefinitionProxy {
 
@@ -280,10 +277,6 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     return getRecord(connection, "id", id);
   }
 
-  public Mono<Record> getRecordById$(final TableRecordStoreConnection connection, final Object id) {
-    return Mono.fromSupplier(() -> newQuery(connection).and("id", id).getRecord());
-  }
-
   protected long getRecordCount(final TableRecordStoreConnection connection, final Query query) {
     try (
       Transaction transaction = connection.newTransaction(TransactionOptions.REQUIRED)) {
@@ -361,8 +354,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     }
   }
 
-  public final Record insertRecord(final TableRecordStoreConnection connection,
-    final Record record) {
+  public Record insertRecord(final TableRecordStoreConnection connection, final Record record) {
     try (
       Transaction transaction = connection.newTransaction(TransactionOptions.REQUIRED)) {
       insertRecordBefore(connection, record);
@@ -381,18 +373,6 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     final Record record) {
   }
 
-  final <R extends Record> Mono<R> insertRecordMono(final TableRecordStoreConnection connection,
-    final R record) {
-    return Mono.just(record)//
-      .doOnNext(r -> {
-        insertRecordBefore(connection, r);
-        validateRecord(r);
-      })
-      .flatMap(r -> this.recordStore.insertRecordMono(r))
-      .doOnNext(r -> insertRecordAfter(connection, r))
-      .onErrorMap(e -> Exceptions.wrap("Unable to insert record:\n" + record, e));
-  }
-
   protected boolean isFieldReadonly(final String fieldName) {
     return this.recordDefinition.isIdField(fieldName);
   }
@@ -403,14 +383,8 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     }
   }
 
-  public <R extends Record> InsertUpdateBuilder<R> newInsert(
-    final TableRecordStoreConnection connection) {
-    return this.<R> newInsertUpdate(connection).setUpdate(false);
-  }
-
-  public <R extends Record> InsertUpdateBuilder<R> newInsertUpdate(
-    final TableRecordStoreConnection connection) {
-    return new TableRecordStoreInsertUpdateBuilder<>(this, connection);
+  public InsertUpdateBuilder newInsertUpdate(final TableRecordStoreConnection connection) {
+    return new TableRecordStoreInsertUpdateBuilder(this, connection);
   }
 
   public Condition newODataFilter(String filter) {
@@ -501,11 +475,6 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
 
   public Transaction newTransaction() {
     return this.recordStore.newTransaction();
-  }
-
-  public <R extends Record> InsertUpdateBuilder<R> newUpdate(
-    final TableRecordStoreConnection connection) {
-    return this.<R> newInsertUpdate(connection).setInsert(false);
   }
 
   public UUID newUUID() {
@@ -672,40 +641,18 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     final ChangeTrackRecord record) {
   }
 
-  protected Mono<ChangeTrackRecord> updateRecordAfterMono(
-    final TableRecordStoreConnection connection, final Mono<ChangeTrackRecord> record$) {
-    return record$;
-  }
-
   protected void updateRecordBefore(final TableRecordStoreConnection connection,
     final ChangeTrackRecord record) {
   }
 
-  public final Record updateRecordDo(final TableRecordStoreConnection connection,
+  public Record updateRecordDo(final TableRecordStoreConnection connection,
     final ChangeTrackRecord record) {
-    try {
-      if (record.isModified()) {
-        updateRecordBefore(connection, record);
-        this.recordStore.updateRecord(record);
-        updateRecordAfter(connection, record);
-      }
-      return record.newRecord();
-    } catch (final Exception e) {
-      throw Exceptions.wrap("Unable to update record:\n" + record, e);
-    }
-  }
-
-  final Mono<ChangeTrackRecord> updateRecordMonoDo(final TableRecordStoreConnection connection,
-    final ChangeTrackRecord record) {
-    Mono<ChangeTrackRecord> result;
     if (record.isModified()) {
       updateRecordBefore(connection, record);
-      result = this.recordStore.updateRecordMono(record);
-      result = updateRecordAfterMono(connection, result);
-    } else {
-      result = Mono.just(record);
+      this.recordStore.updateRecord(record);
+      updateRecordAfter(connection, record);
     }
-    return result.onErrorMap(e -> Exceptions.wrap("Unable to update record:\n" + record, e));
+    return record.newRecord();
   }
 
   public int updateRecords(final TableRecordStoreConnection connection, final Query query,

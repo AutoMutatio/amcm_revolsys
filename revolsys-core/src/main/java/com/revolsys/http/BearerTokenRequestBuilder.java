@@ -2,7 +2,7 @@ package com.revolsys.http;
 
 import org.apache.http.client.methods.HttpUriRequest;
 
-public class BearerTokenRequestBuilder extends HttpRequestBuilder {
+public class BearerTokenRequestBuilder extends ApacheHttpRequestBuilder {
 
   public BearerTokenRequestBuilder(final BearerTokenRequestBuilderFactory factory) {
     super(factory);

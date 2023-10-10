@@ -10,8 +10,6 @@ import java.sql.Statement;
 import java.util.Arrays;
 import java.util.Collection;
 
-import javax.sql.DataSource;
-
 import org.jeometry.common.io.PathName;
 
 import com.revolsys.collection.map.MapEx;
@@ -42,13 +40,11 @@ public interface JdbcRecordStore extends RecordStore {
     }
   }
 
-  DataSource getDataSource();
-
   String getGeneratePrimaryKeySql(JdbcRecordDefinition recordDefinition);
 
   JdbcConnection getJdbcConnection();
 
-  JdbcConnection getJdbcConnection(final boolean autoCommit);
+  JdbcConnection getJdbcConnection(boolean autoCommit);
 
   @Override
   default Record getRecord(final Query query) {
@@ -69,7 +65,7 @@ public interface JdbcRecordStore extends RecordStore {
     return statement.executeQuery();
   }
 
-  PreparedStatement insertStatementPrepareRowId(Connection connection,
+  PreparedStatement insertStatementPrepareRowId(JdbcConnection connection,
     RecordDefinition recordDefinition, String sql) throws SQLException;
 
   boolean isIdFieldRowid(RecordDefinition recordDefinition);
@@ -90,6 +86,28 @@ public interface JdbcRecordStore extends RecordStore {
       final String tableName = JdbcUtils.getQualifiedTableName(typePath);
       final String sql = "LOCK TABLE " + tableName + " IN SHARE MODE";
       connection.executeUpdate(sql);
+    }
+  }
+
+  default int selectInt(final String sql, final Object... parameters) {
+    try (
+      Transaction transaction = newTransaction(Propagation.REQUIRED);
+      JdbcConnection connection = getJdbcConnection()) {
+      try (
+        final PreparedStatement statement = connection.prepareStatement(sql)) {
+        JdbcUtils.setParameters(statement, parameters);
+
+        try (
+          final ResultSet resultSet = statement.executeQuery()) {
+          if (resultSet.next()) {
+            return resultSet.getInt(1);
+          } else {
+            throw new IllegalArgumentException("Value not found");
+          }
+        }
+      } catch (final SQLException e) {
+        throw connection.getException("selectInt", sql, e);
+      }
     }
   }
 
@@ -135,6 +153,14 @@ public interface JdbcRecordStore extends RecordStore {
       } catch (final SQLException e) {
         throw connection.getException(null, sql, e);
       }
+    }
+  }
+
+  default String selectString(final String sql, final Object... parameters) throws SQLException {
+    try (
+      Transaction transaction = newTransaction(Propagation.REQUIRED);
+      JdbcConnection connection = getJdbcConnection()) {
+      return JdbcUtils.selectString(connection, sql, parameters);
     }
   }
 

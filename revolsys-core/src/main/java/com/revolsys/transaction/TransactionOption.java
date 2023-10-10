@@ -2,5 +2,5 @@ package com.revolsys.transaction;
 
 public interface TransactionOption {
 
-  void initialize(TransactionDefinition transaction);
+  void initialize(Transaction transaction);
 }

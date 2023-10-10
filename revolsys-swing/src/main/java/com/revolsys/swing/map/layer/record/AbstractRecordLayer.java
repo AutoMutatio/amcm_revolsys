@@ -52,7 +52,6 @@ import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.ReactiveTransactionManager;
 
 import com.revolsys.collection.EmptyReference;
 import com.revolsys.collection.list.Lists;
@@ -342,7 +341,7 @@ public abstract class AbstractRecordLayer extends AbstractLayer implements
   public static final String RECORDS_SELECTED = "recordsSelected";
 
   static {
-    MenuFactory.addMenuInitializer(AbstractRecordLayer.class, menu -> {
+    MenuFactory.addMenuInitializer(AbstractRecordLayer.class, (menu) -> {
       menu.setName("Layer");
       menu.addGroup(0, "table");
       menu.addGroup(2, "edit");
@@ -737,7 +736,7 @@ public abstract class AbstractRecordLayer extends AbstractLayer implements
 
   public void cancelChanges() {
     try {
-      synchronized (getSync()) {
+      synchronized (this.getSync()) {
         boolean cancelled = true;
         try (
           BaseCloseable eventsEnabled = eventsDisabled()) {
@@ -1049,7 +1048,7 @@ public abstract class AbstractRecordLayer extends AbstractLayer implements
   }
 
   public void forEachRecord(final Query query, final Consumer<? super LayerRecord> consumer) {
-    forEachRecordInternal(query, record -> {
+    forEachRecordInternal(query, (record) -> {
       final LayerRecord proxyRecord = record.getRecordProxy();
       consumer.accept(proxyRecord);
     });
@@ -1525,16 +1524,6 @@ public abstract class AbstractRecordLayer extends AbstractLayer implements
   }
 
   @Override
-  public ReactiveTransactionManager getReactiveTransactionManager() {
-    final RecordStore recordStore = getRecordStore();
-    if (recordStore == null) {
-      return null;
-    } else {
-      return recordStore.getReactiveTransactionManager();
-    }
-  }
-
-  @Override
   public LayerRecord getRecord(final Identifier identifier) {
     final RecordDefinition recordDefinition = getRecordDefinition();
     if (recordDefinition != null) {
@@ -1906,7 +1895,7 @@ public abstract class AbstractRecordLayer extends AbstractLayer implements
       if (hasGeometry) {
         menu.addMenuItem("record", "Zoom to Record", "magnifier_zoom_selected", notDeleted,
           this::zoomToRecord);
-        menu.addMenuItem("record", "Pan to Record", "pan_selected", notDeleted, record -> {
+        menu.addMenuItem("record", "Pan to Record", "pan_selected", notDeleted, (record) -> {
           final MapPanel mapPanel = getMapPanel();
           if (mapPanel != null) {
             mapPanel.panToRecord(record);
@@ -2546,7 +2535,7 @@ public abstract class AbstractRecordLayer extends AbstractLayer implements
       LoggingEventPanel.showDialog("Unexpected error pasting records", e);
       return;
     }
-    RecordValidationDialog.validateRecords("Pasting Records", this, newRecords, validator -> {
+    RecordValidationDialog.validateRecords("Pasting Records", this, newRecords, (validator) -> {
       // Success
       // Save the valid records
       final List<LayerRecord> validRecords = validator.getValidRecords();
@@ -2562,7 +2551,7 @@ public abstract class AbstractRecordLayer extends AbstractLayer implements
       if (!invalidRecords.isEmpty()) {
         deleteRecords(invalidRecords);
       }
-    }, validator -> {
+    }, (validator) -> {
       // Cancel, delete all the records
       deleteRecords(newRecords);
     });
@@ -2862,7 +2851,7 @@ public abstract class AbstractRecordLayer extends AbstractLayer implements
         final Set<Boolean> allSaved = new HashSet<>();
         RecordValidationDialog.validateRecords("Save Changes", //
           this, //
-          records, validator -> {
+          records, (validator) -> {
             // Success
             // Save the valid records
             final List<LayerRecord> validRecords = validator.getValidRecords();
@@ -2882,7 +2871,7 @@ public abstract class AbstractRecordLayer extends AbstractLayer implements
             if (!invalidRecords.isEmpty()) {
               allSaved.add(false);
             }
-          }, validator -> {
+          }, (validator) -> {
             allSaved.add(false);
           });
         return allSaved.isEmpty();
@@ -2906,7 +2895,7 @@ public abstract class AbstractRecordLayer extends AbstractLayer implements
     final Set<Boolean> allSaved = new HashSet<>();
     RecordValidationDialog.validateRecords("Save Changes", //
       this, //
-      record, validator -> {
+      record, (validator) -> {
         // Success
         // Save the valid records
         final List<LayerRecord> validRecords = validator.getValidRecords();
@@ -2936,7 +2925,7 @@ public abstract class AbstractRecordLayer extends AbstractLayer implements
         if (!invalidRecords.isEmpty()) {
           allSaved.add(false);
         }
-      }, validator -> {
+      }, (validator) -> {
         allSaved.add(false);
       });
     return allSaved.isEmpty();
@@ -3002,9 +2991,11 @@ public abstract class AbstractRecordLayer extends AbstractLayer implements
         firePropertyChange("preEditable", false, true);
         final boolean hasChanges = isHasChanges();
         if (hasChanges) {
-          final Integer result = Invoke.andWait(() -> Dialogs.showConfirmDialog(
-            "The layer has unsaved changes. Click Yes to save changes. Click No to discard changes. Click Cancel to continue editing.",
-            "Save Changes", JOptionPane.YES_NO_CANCEL_OPTION));
+          final Integer result = Invoke.andWait(() -> {
+            return Dialogs.showConfirmDialog(
+              "The layer has unsaved changes. Click Yes to save changes. Click No to discard changes. Click Cancel to continue editing.",
+              "Save Changes", JOptionPane.YES_NO_CANCEL_OPTION);
+          });
           synchronized (getSync()) {
             if (result == JOptionPane.YES_OPTION) {
               if (!saveChanges()) {
@@ -3019,7 +3010,7 @@ public abstract class AbstractRecordLayer extends AbstractLayer implements
           }
         }
       }
-      synchronized (getSync()) {
+      synchronized (this.getSync()) {
         super.setEditable(editable);
         setCanAddRecords(this.canAddRecords);
         setCanDeleteRecords(this.canDeleteRecords);

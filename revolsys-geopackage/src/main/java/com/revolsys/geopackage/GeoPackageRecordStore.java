@@ -89,7 +89,7 @@ public class GeoPackageRecordStore extends AbstractJdbcRecordStore {
     addSqlQueryAppender(EnvelopeIntersects.class, this::appendEvelopeIntersects);
   }
 
-  private void addFunctions(final Connection connection) {
+  private void addFunctions(final JdbcConnection connection) {
     try {
       final SQLiteConnection dbConnection = connection.unwrap(SQLiteConnection.class);
       BusyHandler.setHandler(dbConnection, this.busyHandler);
@@ -332,6 +332,20 @@ public class GeoPackageRecordStore extends AbstractJdbcRecordStore {
   }
 
   @Override
+  public JdbcConnection getJdbcConnection() {
+    final JdbcConnection connection = super.getJdbcConnection();
+    addFunctions(connection);
+    return connection;
+  }
+
+  @Override
+  public JdbcConnection getJdbcConnection(final boolean autoCommit) {
+    final JdbcConnection connection = super.getJdbcConnection(autoCommit);
+    addFunctions(connection);
+    return connection;
+  }
+
+  @Override
   public Identifier getNextPrimaryKey(final String typePath) {
     return null;
   }
@@ -366,12 +380,6 @@ public class GeoPackageRecordStore extends AbstractJdbcRecordStore {
       .getResource("classpath:/com/revolsys/geopackage/" + fileName)
       .contentsAsString();
     return sqlStatements.split("-- END --");
-  }
-
-  @Override
-  protected void initConnection(final Connection connection) {
-    super.initConnection(connection);
-    addFunctions(connection);
   }
 
   @Override
@@ -422,7 +430,7 @@ public class GeoPackageRecordStore extends AbstractJdbcRecordStore {
   }
 
   @Override
-  public PreparedStatement insertStatementPrepareRowId(final Connection connection,
+  public PreparedStatement insertStatementPrepareRowId(final JdbcConnection connection,
     final RecordDefinition recordDefinition, final String sql) throws SQLException {
     final List<FieldDefinition> idFields = recordDefinition.getIdFields();
     final String[] idColumnNames = new String[idFields.size()];

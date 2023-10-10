@@ -14,7 +14,7 @@ public class JsonChararacterProcessor implements CharacterProcessor {
 
     private final StateProcessor processor;
 
-    public State(String name, StateProcessor processor) {
+    public State(final String name, final StateProcessor processor) {
       this.name = name;
       this.processor = processor;
     }
@@ -81,7 +81,7 @@ public class JsonChararacterProcessor implements CharacterProcessor {
 
   private final JsonStatus status = new JsonStatus();
 
-  public JsonChararacterProcessor(JsonProcessor processor) {
+  public JsonChararacterProcessor(final JsonProcessor processor) {
     this.processor = processor;
   }
 
@@ -118,12 +118,7 @@ public class JsonChararacterProcessor implements CharacterProcessor {
   }
 
   @Override
-  public void onError(Throwable e) {
-    this.processor.onError(e);
-  }
-
-  @Override
-  public boolean process(char c) {
+  public boolean process(final char c) {
     State state;
     if (this.states.isEmpty()) {
       state = this.stateStartDocument;
@@ -136,7 +131,7 @@ public class JsonChararacterProcessor implements CharacterProcessor {
     return true;
   }
 
-  private void processArray(char c) {
+  private void processArray(final char c) {
     if (c == ']') {
       doEndArray();
     } else {
@@ -144,7 +139,7 @@ public class JsonChararacterProcessor implements CharacterProcessor {
     }
   }
 
-  private void processArrayNext(char c) {
+  private void processArrayNext(final char c) {
     if (Character.isWhitespace(c)) {
     } else if (c == ']') {
       doEndArray();
@@ -153,7 +148,7 @@ public class JsonChararacterProcessor implements CharacterProcessor {
     }
   }
 
-  private void processArrayValue(char c) {
+  private void processArrayValue(final char c) {
     if (Character.isWhitespace(c)) {
     } else {
       replaceState(this.stateArrayNext);
@@ -164,7 +159,7 @@ public class JsonChararacterProcessor implements CharacterProcessor {
     }
   }
 
-  private void processEscape(char c) {
+  private void processEscape(final char c) {
     switch (c) {
       case 'b':
         this.text.append('\b');
@@ -202,7 +197,7 @@ public class JsonChararacterProcessor implements CharacterProcessor {
 
   }
 
-  private void processEscapeUnicode(char c) {
+  private void processEscapeUnicode(final char c) {
     if ('0' <= c && c <= '9' || 'a' <= c && c <= 'f' || 'A' <= c && c <= 'F') {
       this.unicode.append(c);
       if (this.unicode.length() == 4) {
@@ -219,7 +214,7 @@ public class JsonChararacterProcessor implements CharacterProcessor {
     }
   }
 
-  private void processFalse(char c) {
+  private void processFalse(final char c) {
     if (FALSE.charAt(this.constantIndex++) == c) {
       if (FALSE.length() == this.constantIndex) {
         this.states.pop();
@@ -230,7 +225,7 @@ public class JsonChararacterProcessor implements CharacterProcessor {
     }
   }
 
-  private void processNextChar(char c) {
+  private void processNextChar(final char c) {
     switch (c) {
       case '{':
         doStartObject();
@@ -268,7 +263,7 @@ public class JsonChararacterProcessor implements CharacterProcessor {
     }
   }
 
-  private void processNull(char c) {
+  private void processNull(final char c) {
     if (NULL.charAt(this.constantIndex++) == c) {
       if (NULL.length() == this.constantIndex) {
         this.states.pop();
@@ -279,7 +274,7 @@ public class JsonChararacterProcessor implements CharacterProcessor {
     }
   }
 
-  private void processNumber(char c) {
+  private void processNumber(final char c) {
     boolean endArray = false;
     boolean endObject = false;
     if (c == '+') {
@@ -340,7 +335,7 @@ public class JsonChararacterProcessor implements CharacterProcessor {
     }
   }
 
-  private void processObject(char c) {
+  private void processObject(final char c) {
     if (c == '}') {
       doEndObject();
     } else {
@@ -348,7 +343,7 @@ public class JsonChararacterProcessor implements CharacterProcessor {
     }
   }
 
-  private void processObjectColon(char c) {
+  private void processObjectColon(final char c) {
     if (Character.isWhitespace(c)) {
     } else if (c == ':') {
       final String label = this.text.toString();
@@ -363,7 +358,7 @@ public class JsonChararacterProcessor implements CharacterProcessor {
     }
   }
 
-  private void processObjectLabel(char c) {
+  private void processObjectLabel(final char c) {
     if (Character.isWhitespace(c)) {
     } else if (c == '"') {
       replaceState(this.stateObjectColon);
@@ -374,7 +369,7 @@ public class JsonChararacterProcessor implements CharacterProcessor {
     }
   }
 
-  private void processObjectNext(char c) {
+  private void processObjectNext(final char c) {
     if (Character.isWhitespace(c)) {
     } else if (c == ',') {
       replaceState(this.stateObjectLabel);
@@ -385,7 +380,7 @@ public class JsonChararacterProcessor implements CharacterProcessor {
     }
   }
 
-  private void processObjectValue(char c) {
+  private void processObjectValue(final char c) {
     if (Character.isWhitespace(c)) {
     } else {
       this.states.pop();
@@ -393,15 +388,15 @@ public class JsonChararacterProcessor implements CharacterProcessor {
     }
   }
 
-  private void processStartDocument(char c) {
+  private void processStartDocument(final char c) {
     processNextChar(c);
   }
 
-  private void processString(char c) {
+  private void processString(final char c) {
     Debug.noOp();
   }
 
-  private void processText(char c) {
+  private void processText(final char c) {
     if (c == '\\') {
       this.states.push(this.stateEscape);
     } else if (c == '"') {
@@ -416,7 +411,7 @@ public class JsonChararacterProcessor implements CharacterProcessor {
     }
   }
 
-  private void processTrue(char c) {
+  private void processTrue(final char c) {
     if (TRUE.charAt(this.constantIndex++) == c) {
       if (TRUE.length() == this.constantIndex) {
         this.states.pop();
@@ -428,7 +423,7 @@ public class JsonChararacterProcessor implements CharacterProcessor {
 
   }
 
-  private void replaceState(State state) {
+  private void replaceState(final State state) {
     this.states.pop();
     this.states.push(state);
   }
@@ -438,7 +433,7 @@ public class JsonChararacterProcessor implements CharacterProcessor {
     this.status.statePop();
   }
 
-  private void statePush(State s1, final JsonState s2) {
+  private void statePush(final State s1, final JsonState s2) {
     this.states.push(s1);
     this.status.statePush(s2);
   }

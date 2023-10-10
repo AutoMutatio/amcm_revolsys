@@ -33,11 +33,6 @@ public class ODataCollectionProcessor {
               }
 
               @Override
-              public void onError(final Throwable e) {
-                s.error(e);
-              }
-
-              @Override
               public boolean process(final JsonObject value) {
                 s.next(value);
                 return true;

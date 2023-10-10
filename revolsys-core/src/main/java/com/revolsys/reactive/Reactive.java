@@ -12,10 +12,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 import org.jeometry.common.exception.Exceptions;
-import org.jeometry.common.logging.Logs;
 import org.reactivestreams.Publisher;
 
 import com.revolsys.collection.list.Lists;
@@ -23,11 +21,9 @@ import com.revolsys.io.BaseCloseable;
 import com.revolsys.io.file.Paths;
 import com.revolsys.util.Pair;
 
-import reactor.core.CoreSubscriber;
 import reactor.core.Disposable;
 import reactor.core.publisher.BaseSubscriber;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.FluxOperator;
 import reactor.core.publisher.FluxSink;
 import reactor.core.publisher.Mono;
 import reactor.core.publisher.ParallelFlux;
@@ -116,22 +112,6 @@ public class Reactive {
     });
   }
 
-  public static <V> Function<Throwable, Flux<V>> errorResumeEmptyFlux(final Object category,
-    final Supplier<String> message) {
-    return e -> {
-      Logs.error(category, message.get(), e);
-      return Flux.empty();
-    };
-  }
-
-  public static <V> Function<Throwable, Mono<V>> errorResumeEmptyMono(final Object category,
-    final Supplier<String> message) {
-    return e -> {
-      Logs.error(category, message.get(), e);
-      return Mono.empty();
-    };
-  }
-
   public static <R extends AutoCloseable, V> Flux<V> fluxCloseable(final Callable<R> supplier,
     final Function<R, Publisher<V>> mapper) {
     return BaseCloseable.fluxUsing(supplier, mapper);
@@ -145,16 +125,6 @@ public class Reactive {
       sink.onDispose(subscriber);
       flux.subscribe(subscriber);
     });
-  }
-
-  public static <I, O> Flux<O> fluxOperator(final Flux<I> source,
-    final Function<I, Publisher<O>> converter) {
-    return new FluxOperator<I, O>(source) {
-      @Override
-      public void subscribe(final CoreSubscriber<? super O> subscriber) {
-        this.source.concatMap(converter).subscribe(subscriber);
-      }
-    };
   }
 
   public static <V> boolean isEmpty(final Publisher<V> publisher) {
@@ -179,17 +149,6 @@ public class Reactive {
     return Mono.just(value).doOnDiscard(clazz, discarder);
   }
 
-  /**
-   * Create a function that accepts a value as an argument, applies the function on that argument, then returns the original value.
-   * @param <V>
-   * @param <V2>
-   * @param action
-   * @return
-   */
-  public static <V, V2> Function<V, Mono<V>> monoThen(final Function<V, Mono<V2>> action) {
-    return value -> thenReturn(action.apply(value), value);
-  }
-
   public static <T> Consumer<T> once(final Runnable action) {
     return new Consumer<>() {
       boolean first = true;
@@ -207,52 +166,6 @@ public class Reactive {
   public static <V> Flux<Pair<V, V>> pair(final Publisher<V> source1, final Publisher<V> source2,
     final Comparator<V> comparator) {
     return Flux.create(sink -> new PairSinkHandler<>(sink, source1, source2, comparator));
-  }
-
-  public static <V> Flux<V> processBuilder(final Consumer<ProcessBuilder> init,
-    final Function<Process, Mono<V>> action) {
-    return Flux.defer(() -> {
-      try {
-        final ProcessBuilder processBuilder = new ProcessBuilder();
-        init.accept(processBuilder);
-        final Process process = processBuilder.start();
-        return Mono.fromFuture(process::onExit).flatMapMany(action);
-      } catch (final IOException e) {
-        return Flux.error(e);
-      }
-    });
-  }
-
-  public static <V> Mono<V> processBuilderMono(final Consumer<ProcessBuilder> init,
-    final Function<Process, Mono<V>> action) {
-    return Mono.defer(() -> {
-      try {
-        final ProcessBuilder processBuilder = new ProcessBuilder();
-        init.accept(processBuilder);
-        final Process process = processBuilder.start();
-        return Mono.fromFuture(process::onExit).flatMap(action);
-      } catch (final IOException e) {
-        return Mono.error(e);
-      }
-    });
-  }
-
-  public static <V, V2> Mono<V> thenReturn(final Publisher<V2> source, final V returnValue) {
-    if (source instanceof final Flux<?> flux) {
-      return thenReturn(returnValue, flux);
-    } else if (source instanceof final Mono<?> mono) {
-      return thenReturn(returnValue, mono);
-    } else {
-      return thenReturn(Flux.from(source), returnValue);
-    }
-  }
-
-  private static <V> Mono<V> thenReturn(final V returnValue, final Flux<?> flux) {
-    return flux.then().thenReturn(returnValue);
-  }
-
-  private static <V> Mono<V> thenReturn(final V returnValue, final Mono<?> mono) {
-    return mono.thenReturn(returnValue);
   }
 
   public static void waitOn(final Flux<?> publisher) {
@@ -392,4 +305,5 @@ public class Reactive {
 
     return Mono.using(resource, publisher, closer);
   }
+
 }

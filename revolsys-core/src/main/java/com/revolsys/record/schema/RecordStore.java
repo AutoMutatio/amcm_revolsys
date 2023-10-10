@@ -4,25 +4,24 @@ import java.io.File;
 import java.nio.file.Path;
 import java.sql.Array;
 import java.sql.Connection;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 import org.jeometry.common.data.identifier.Identifier;
 import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.common.exception.Exceptions;
 import org.jeometry.common.io.PathName;
 import org.jeometry.common.io.PathNameProxy;
-import org.reactivestreams.Publisher;
 import org.springframework.beans.DirectFieldAccessor;
 import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.ReactiveTransaction;
 
+import com.revolsys.collection.ListResultPager;
+import com.revolsys.collection.ResultPager;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactoryProxy;
@@ -37,9 +36,12 @@ import com.revolsys.record.Record;
 import com.revolsys.record.RecordFactory;
 import com.revolsys.record.RecordState;
 import com.revolsys.record.code.CodeTable;
+import com.revolsys.record.io.ListRecordReader;
+import com.revolsys.record.io.RecordIterator;
 import com.revolsys.record.io.RecordReader;
 import com.revolsys.record.io.RecordStoreConnection;
 import com.revolsys.record.io.RecordStoreFactory;
+import com.revolsys.record.io.RecordStoreQueryReader;
 import com.revolsys.record.io.RecordWriter;
 import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.record.query.Condition;
@@ -58,9 +60,6 @@ import com.revolsys.util.Property;
 import com.revolsys.util.count.CategoryLabelCountMap;
 import com.revolsys.util.count.LabelCountMap;
 import com.revolsys.util.count.LabelCounters;
-
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFactory, Transactionable,
   BaseCloseable, ObjectWithProperties {
@@ -376,10 +375,6 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
 
   int getRecordCount(Query query);
 
-  default Mono<Integer> getRecordCount$(final Query query) {
-    return Mono.fromSupplier(() -> getRecordCount(query));
-  }
-
   @Override
   default <RD extends RecordDefinition> RD getRecordDefinition(final CharSequence path) {
     final PathName pathName = PathName.newPathName(path);
@@ -447,18 +442,39 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
     }
   }
 
-  default Mono<Record> getRecordMono(final Query query) {
-    return Mono.fromSupplier(() -> getRecord(query));
+  default RecordReader getRecords(final Collection<Query> queries) {
+    final RecordStoreQueryReader reader = newRecordReader();
+    for (final Query query : queries) {
+      if (query != null) {
+        reader.addQuery(query);
+      }
+    }
+    return reader;
   }
 
   default RecordReader getRecords(final PathName path) {
-    return newQuery().getRecordReader();
+    final RecordStoreSchemaElement element = getRootSchema().getElement(path);
+    if (element instanceof RecordDefinition) {
+      final RecordDefinition recordDefinition = (RecordDefinition)element;
+      final Query query = new Query(recordDefinition);
+      return getRecords(query);
+    } else if (element instanceof RecordStoreSchema) {
+      final RecordStoreSchema schema = (RecordStoreSchema)element;
+      final List<Query> queries = new ArrayList<>();
+      for (final RecordDefinition recordDefinition : schema.getRecordDefinitions()) {
+        final Query query = new Query(recordDefinition);
+        queries.add(query);
+      }
+      return getRecords(queries);
+    } else {
+      return new ListRecordReader(null, Collections.emptyList());
+    }
   }
 
-  RecordReader getRecords(final Query query);
-
-  default Flux<Record> getRecordsFlux(final Query query) {
-    return getRecords(query).flux();
+  default RecordReader getRecords(final Query query) {
+    final RecordStoreQueryReader reader = newRecordReader();
+    reader.addQuery(query);
+    return reader;
   }
 
   @SuppressWarnings("unchecked")
@@ -536,17 +552,6 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
     throw new UnsupportedOperationException("Insert not supported");
   }
 
-  @SuppressWarnings("unchecked")
-  default <R extends Record> Mono<R> insertRecordMono(final R record) {
-    return Mono.defer(() -> {
-      try {
-        return Mono.just((R)insertRecord(record));
-      } catch (final Exception e) {
-        return Mono.error(Exceptions.wrap("Unable to insert record:\n" + record, e));
-      }
-    });
-  }
-
   default int insertRecords(final InsertStatement insertStatement) {
     throw new UnsupportedOperationException("InsertStatement not implemented");
   }
@@ -595,14 +600,7 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
     }
   }
 
-  default <R extends Record> InsertUpdateBuilder<R> newInsert(final PathName pathName) {
-    return this.<R> newInsertUpdate(pathName).setUpdate(false);
-  }
-
-  default <R extends Record> InsertUpdateBuilder<R> newInsertUpdate(final PathName pathName) {
-    final Query query = newQuery(pathName);
-    return new RecordStoreInsertUpdateBuilder<>(this, query);
-  }
+  RecordIterator newIterator(final Query query, Map<String, Object> properties);
 
   default Identifier newPrimaryIdentifier(final PathName typePath) {
     return null;
@@ -721,6 +719,10 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
     }
   }
 
+  default RecordStoreQueryReader newRecordReader() {
+    return new RecordStoreQueryReader(this);
+  }
+
   default Record newRecordWithIdentifier(final RecordDefinition recordDefinition) {
     final Record record = newRecord(recordDefinition);
     if (record != null) {
@@ -749,8 +751,10 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
     return newRecordWriter();
   }
 
-  default <R extends Record> InsertUpdateBuilder<R> newUpdate(final PathName pathName) {
-    return this.<R> newInsertUpdate(pathName).setInsert(false);
+  default ResultPager<Record> page(final Query query) {
+    final RecordReader results = getRecords(query);
+    final List<Record> list = results.toList();
+    return new ListResultPager<>(list);
   }
 
   default void refreshCodeTable(final PathName pathName) {
@@ -775,15 +779,6 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
     }
   }
 
-  default <V> Flux<V> transactionFlux(
-    final Function<ReactiveTransaction, ? extends Publisher<V>> action) {
-    return Flux.from(action.apply(null));
-  }
-
-  default <V> Mono<V> transactionMono(final Function<ReactiveTransaction, Mono<V>> action) {
-    return action.apply(null);
-  }
-
   default Record updateRecord(final Query query, final Consumer<Record> updateAction) {
     try (
       Transaction transaction = newTransaction(TransactionOptions.REQUIRED)) {
@@ -803,13 +798,6 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
 
   default void updateRecord(final Record record) {
     write(record, null);
-  }
-
-  default Mono<ChangeTrackRecord> updateRecordMono(final ChangeTrackRecord record) {
-    return Mono.defer(() -> {
-      write(record, null);
-      return Mono.just(record);
-    });
   }
 
   default void updateRecords(final Iterable<? extends Record> records) {

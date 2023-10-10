@@ -18,11 +18,6 @@ import java.nio.file.StandardOpenOption;
 
 import org.jeometry.common.exception.Exceptions;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
-import reactor.core.publisher.Flux;
-import reactor.netty.ByteBufFlux;
-
 public class FileBackedOutputStreamBuffer extends OutputStream implements Appendable {
 
   private final class ReadChannel extends AbstractInterruptibleChannel
@@ -151,8 +146,7 @@ public class FileBackedOutputStreamBuffer extends OutputStream implements Append
         try {
           this.out.flush();
         } catch (final IOException e) {
-          // TODO Auto-generated catch block
-          e.printStackTrace();
+          throw Exceptions.wrap(e);
         }
       }
     }
@@ -184,17 +178,6 @@ public class FileBackedOutputStreamBuffer extends OutputStream implements Append
     if (this.file == null) {
       this.file = Files.createTempFile("file", ".bin");
       this.out = new BufferedOutputStream(Files.newOutputStream(this.file));
-    }
-  }
-
-  public Flux<ByteBuf> toFlux() {
-    this.buffer.flip();
-    final Flux<ByteBuf> memoryBuffer = Flux.just(Unpooled.wrappedBuffer(this.buffer));
-    if (this.file == null) {
-      return memoryBuffer;
-    } else {
-      final ByteBufFlux fileBuffer = ByteBufFlux.fromPath(this.file);
-      return Flux.concat(memoryBuffer, fileBuffer);
     }
   }
 
