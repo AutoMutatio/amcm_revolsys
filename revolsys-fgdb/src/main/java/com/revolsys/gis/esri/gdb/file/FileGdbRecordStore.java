@@ -629,13 +629,14 @@ public class FileGdbRecordStore extends AbstractRecordStore {
   }
 
   @Override
-  public void insertRecord(final Record record) {
+  public Record insertRecord(final Record record) {
     try (
       TableWrapper tableWrapper = getTableWrapper(record)) {
       if (tableWrapper != null) {
         tableWrapper.insertRecord(record);
       }
     }
+    return record;
   }
 
   public boolean isCreateAreaField() {

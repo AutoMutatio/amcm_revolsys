@@ -15,14 +15,16 @@ import com.revolsys.util.Property;
 
 public class JdbcTimestampFieldDefinition extends JdbcFieldDefinition {
   public JdbcTimestampFieldDefinition(final String dbName, final String name, final int sqlType,
-    final boolean required, final String description, final Map<String, Object> properties) {
-    super(dbName, name, DataTypes.INSTANT, sqlType, 0, 0, required, description, properties);
+    final String dbDataType, final boolean required, final String description,
+    final Map<String, Object> properties) {
+    super(dbName, name, DataTypes.INSTANT, sqlType, dbDataType, 0, 0, required, description,
+      properties);
   }
 
   @Override
   public JdbcTimestampFieldDefinition clone() {
     final JdbcTimestampFieldDefinition clone = new JdbcTimestampFieldDefinition(getDbName(),
-      getName(), getSqlType(), isRequired(), getDescription(), getProperties());
+      getName(), getSqlType(), getDbDataType(), isRequired(), getDescription(), getProperties());
     postClone(clone);
     return clone;
   }

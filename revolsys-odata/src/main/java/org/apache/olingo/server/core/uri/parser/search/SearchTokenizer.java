@@ -627,7 +627,7 @@ public class SearchTokenizer {
       throw new SearchTokenizerException("Invalid Token in Query string '",
         SearchTokenizerException.MessageKeys.NOT_EXPECTED_TOKEN, searchQuery);
     }
-    final char[] chars = searchQuery.trim().toCharArray();
+    final char[] chars = searchQuery.strip().toCharArray();
 
     State state = new SearchExpressionState();
     final List<SearchQueryToken> states = new ArrayList<>();

@@ -28,8 +28,12 @@ public class CollectionValue extends AbstractMultiQueryValue {
     this(null, values);
   }
 
+  public CollectionValue(final ColumnReference field) {
+    setColumn(field);
+  }
+
   public CollectionValue(final ColumnReference field, final Collection<? extends Object> values) {
-    setFieldDefinition((FieldDefinition)field);
+    this(field);
     for (final Object value : values) {
       QueryValue queryValue;
       if (value instanceof QueryValue) {
@@ -39,6 +43,11 @@ public class CollectionValue extends AbstractMultiQueryValue {
       }
       addValue(queryValue);
     }
+  }
+
+  @Override
+  public boolean addValue(final QueryValue value) {
+    return super.addValue(value);
   }
 
   @Override
@@ -107,7 +116,7 @@ public class CollectionValue extends AbstractMultiQueryValue {
         if (codeTable != null) {
           value = codeTable.getIdentifier(value);
         }
-        value = Value.getValue(value);
+        value = Value.toValue(value);
         if (DataType.equal(valueTest, value)) {
           return true;
         }
@@ -156,7 +165,7 @@ public class CollectionValue extends AbstractMultiQueryValue {
         if (codeTable != null) {
           value = codeTable.getIdentifier(value);
         }
-        value = Value.getValue(value);
+        value = Value.toValue(value);
         values.add(value);
       }
     }
@@ -164,21 +173,24 @@ public class CollectionValue extends AbstractMultiQueryValue {
   }
 
   @Override
-  public void setFieldDefinition(final FieldDefinition field) {
-    this.field = field;
-    if (field == null) {
-      this.jdbcField = null;
+  public void setColumn(final ColumnReference column) {
+    this.jdbcField = null;
+    if (column == null) {
+      this.field = null;
     } else {
-      this.codeTable = this.field.getCodeTable();
-      if (field instanceof JdbcFieldDefinition) {
-        this.jdbcField = (JdbcFieldDefinition)field;
-      } else {
-        this.jdbcField = null;
-      }
-      for (final QueryValue queryValue : this.values) {
-        if (queryValue instanceof Value) {
-          final Value value = (Value)queryValue;
-          value.setFieldDefinition(this.jdbcField);
+      this.field = column.getFieldDefinition();
+      if (this.field != null) {
+        this.codeTable = this.field.getCodeTable();
+        if (column instanceof JdbcFieldDefinition) {
+          this.jdbcField = (JdbcFieldDefinition)column;
+        } else {
+          this.jdbcField = null;
+        }
+        for (final QueryValue queryValue : this.values) {
+          if (queryValue instanceof Value) {
+            final Value value = (Value)queryValue;
+            value.setColumn(column);
+          }
         }
       }
     }

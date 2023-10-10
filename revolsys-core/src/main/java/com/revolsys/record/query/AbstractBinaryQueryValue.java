@@ -7,7 +7,6 @@ import java.util.function.Function;
 
 import org.jeometry.common.data.type.DataType;
 
-import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordStore;
 
 public abstract class AbstractBinaryQueryValue implements QueryValue {
@@ -16,15 +15,20 @@ public abstract class AbstractBinaryQueryValue implements QueryValue {
 
   private QueryValue right;
 
-  public AbstractBinaryQueryValue(final QueryValue left, final QueryValue right) {
-    this.left = left;
-    this.right = right;
-    if (left instanceof ColumnReference && right instanceof Value) {
-      final ColumnReference column = (ColumnReference)left;
-      final Value value = (Value)right;
-      final FieldDefinition fieldDefinition = column.getFieldDefinition();
-      value.setFieldDefinition(fieldDefinition);
+  public AbstractBinaryQueryValue(final List<QueryValue> parameters) {
+    final int parameterCount = parameters.size();
+    if (parameterCount == 2) {
+      final QueryValue left = parameters.get(0);
+      final QueryValue right = parameters.get(0);
+      init(left, right);
+    } else {
+      throw new IllegalArgumentException(
+        getClass() + "  requires 2 arguments not " + parameterCount + ": " + parameters);
     }
+  }
+
+  public AbstractBinaryQueryValue(final QueryValue left, final QueryValue right) {
+    init(left, right);
   }
 
   protected void appendLeft(final SqlAppendable sql, final Query query,
@@ -40,18 +44,16 @@ public abstract class AbstractBinaryQueryValue implements QueryValue {
   @Override
   public int appendParameters(int index, final PreparedStatement statement) {
     if (this.left != null) {
-      if (this.right instanceof ColumnReference && !(this.left instanceof ColumnReference)) {
-        final FieldDefinition rightFieldDefinition = ((ColumnReference)this.right)
-          .getFieldDefinition();
-        this.left.setFieldDefinition(rightFieldDefinition);
+      if (this.right instanceof final ColumnReference column
+        && !(this.left instanceof ColumnReference)) {
+        this.left.setColumn(column);
       }
       index = this.left.appendParameters(index, statement);
     }
     if (this.right != null) {
-      if (this.left instanceof ColumnReference && !(this.right instanceof ColumnReference)) {
-        final FieldDefinition rightFieldDefinition = ((ColumnReference)this.left)
-          .getFieldDefinition();
-        this.right.setFieldDefinition(rightFieldDefinition);
+      if (this.left instanceof final ColumnReference column
+        && !(this.right instanceof ColumnReference)) {
+        this.right.setColumn(column);
       }
       index = this.right.appendParameters(index, statement);
     }
@@ -123,6 +125,14 @@ public abstract class AbstractBinaryQueryValue implements QueryValue {
   @SuppressWarnings("unchecked")
   public <V extends QueryValue> V getRight() {
     return (V)this.right;
+  }
+
+  private void init(final QueryValue left, final QueryValue right) {
+    this.left = left;
+    this.right = right;
+    if (left instanceof final ColumnReference column && right instanceof final Value value) {
+      value.setColumn(column);
+    }
   }
 
   public void setLeft(final QueryValue left) {

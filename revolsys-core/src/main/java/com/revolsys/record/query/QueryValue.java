@@ -22,7 +22,6 @@ import com.revolsys.record.query.functions.EnvelopeIntersects;
 import com.revolsys.record.query.functions.WithinDistance;
 import com.revolsys.record.query.parser.JSqlParser;
 import com.revolsys.record.query.parser.SqlParser;
-import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordStore;
 import com.revolsys.util.Property;
@@ -184,7 +183,7 @@ public interface QueryValue extends Cloneable {
     throw new UnsupportedOperationException("getValueFromResultSet not implemented");
   }
 
-  default void setFieldDefinition(final FieldDefinition fieldDefinition) {
+  default void setColumn(final ColumnReference column) {
   }
 
   default String toFormattedString() {

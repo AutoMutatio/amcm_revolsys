@@ -20,15 +20,15 @@ import com.revolsys.spring.resource.Resource;
 
 public class OracleJdbcBlobFieldDefinition extends JdbcFieldDefinition {
   public OracleJdbcBlobFieldDefinition(final String dbName, final String name, final int sqlType,
-    final boolean required, final String description) {
-    super(dbName, name, DataTypes.BLOB, sqlType, 0, 0, required, description,
+    final String dbDataType, final boolean required, final String description) {
+    super(dbName, name, DataTypes.BLOB, sqlType, dbDataType, 0, 0, required, description,
       Collections.<String, Object> emptyMap());
   }
 
   @Override
   public OracleJdbcBlobFieldDefinition clone() {
     final OracleJdbcBlobFieldDefinition clone = new OracleJdbcBlobFieldDefinition(getDbName(),
-      getName(), getSqlType(), isRequired(), getDescription());
+      getName(), getSqlType(), getDbDataType(), isRequired(), getDescription());
     postClone(clone);
     return clone;
   }

@@ -1,11 +1,14 @@
 package com.revolsys.jdbc.io;
 
+import java.sql.Array;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Arrays;
+import java.util.Collection;
 
 import org.jeometry.common.io.PathName;
 
@@ -13,10 +16,7 @@ import com.revolsys.collection.map.MapEx;
 import com.revolsys.jdbc.JdbcConnection;
 import com.revolsys.jdbc.JdbcUtils;
 import com.revolsys.jdbc.field.JdbcFieldDefinition;
-import com.revolsys.jdbc.field.JdbcFieldDefinitions;
 import com.revolsys.record.Record;
-import com.revolsys.record.query.Condition;
-import com.revolsys.record.query.Join;
 import com.revolsys.record.query.Query;
 import com.revolsys.record.query.SqlAppendable;
 import com.revolsys.record.query.StringBuilderSqlAppendable;
@@ -61,7 +61,7 @@ public interface JdbcRecordStore extends RecordStore {
 
   default ResultSet getResultSet(final PreparedStatement statement, final Query query)
     throws SQLException {
-    setPreparedStatementParameters(statement, query);
+    query.appendParameters(1, statement);
     return statement.executeQuery();
   }
 
@@ -164,27 +164,6 @@ public interface JdbcRecordStore extends RecordStore {
     }
   }
 
-  default void setPreparedStatementParameters(final PreparedStatement statement,
-    final Query query) {
-    int index = 1;
-    for (final Object parameter : query.getParameters()) {
-      final JdbcFieldDefinition field = JdbcFieldDefinitions.newFieldDefinition(parameter);
-      try {
-        index = field.setPreparedStatementValue(statement, index, parameter);
-      } catch (final SQLException e) {
-        throw new RuntimeException("Error setting value:" + parameter, e);
-      }
-    }
-    index = query.appendSelectParameters(index, statement);
-    for (final Join join : query.getJoins()) {
-      index = join.appendParameters(index, statement);
-    }
-    final Condition where = query.getWhereCondition();
-    if (!where.isEmpty()) {
-      index = where.appendParameters(index, statement);
-    }
-  }
-
   default int setRole(final String roleName) {
     return executeUpdate("SET ROLE " + roleName);
   }
@@ -203,5 +182,10 @@ public interface JdbcRecordStore extends RecordStore {
   }
 
   JdbcRecordStore setUseUpperCaseNames(boolean useUpperCaseNames);
+
+  default Array toArray(final Connection connection, final JdbcFieldDefinition field,
+    final Collection<?> value) throws SQLException {
+    throw new UnsupportedOperationException("Conversion to array not yet supported");
+  }
 
 }

@@ -9,13 +9,13 @@ public class ThreadLocalList<T> extends AbstractDelegatingList<T> {
 
   private final ThreadLocal<List<T>> localList = new ThreadLocal<>();
 
-  private Supplier<List<T>> factory;
+  private Supplier<ListEx<T>> factory;
 
   public ThreadLocalList() {
     this(Lists.factoryArray());
   }
 
-  public ThreadLocalList(final Supplier<List<T>> factory) {
+  public ThreadLocalList(final Supplier<ListEx<T>> factory) {
     super(true);
     this.factory = factory;
   }

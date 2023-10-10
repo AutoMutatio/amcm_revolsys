@@ -15,14 +15,27 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
 
+import javax.measure.Quantity;
+import javax.measure.Unit;
+
+import org.jeometry.common.data.type.DataType;
+import org.jeometry.common.data.type.DataTypes;
+
+import com.revolsys.util.Property;
 import com.revolsys.util.StringBuilders;
 
-public interface ListEx<V> extends List<V> {
+import tech.units.indriya.quantity.Quantities;
 
+public interface ListEx<V> extends List<V>, Cloneable {
   static class EmptyList<E> extends AbstractList<E> implements RandomAccess, ListEx<E> {
 
     @Override
     public void clear() {
+    }
+
+    @Override
+    public ListEx<E> clone() {
+      return Lists.newArray();
     }
 
     @Override
@@ -120,6 +133,28 @@ public interface ListEx<V> extends List<V> {
     return EMPTY;
   }
 
+  @SuppressWarnings("unchecked")
+  default ListEx<V> addAll(final V... values) {
+    for (final V v : values) {
+      addValue(v);
+    }
+    return this;
+  }
+
+  default ListEx<V> addNotEmpty(final V value) {
+    if (!Property.isEmpty(value)) {
+      add(value);
+    }
+    return this;
+  }
+
+  default ListEx<V> addValue(final V value) {
+    add(value);
+    return this;
+  }
+
+  ListEx<V> clone();
+
   default ListEx<V> filter(final Predicate<? super V> filter) {
     final ListEx<V> newList = new ArrayListEx<>();
     for (final V value : this) {
@@ -128,6 +163,83 @@ public interface ListEx<V> extends List<V> {
       }
     }
     return newList;
+  }
+
+  default Double getDouble(final int index) {
+    return getValue(index, DataTypes.DOUBLE);
+  }
+
+  default Double getDouble(final int index, final double defaultValue) {
+    final Double value = getDouble(index);
+    if (value == null) {
+      return defaultValue;
+    } else {
+      return value;
+    }
+  }
+
+  default Integer getInteger(final int index) {
+    return getValue(index, DataTypes.INT);
+  }
+
+  default int getInteger(final int index, final int defaultValue) {
+    final Integer value = getInteger(index);
+    if (value == null) {
+      return defaultValue;
+    } else {
+      return value;
+    }
+  }
+
+  default <Q extends Quantity<Q>> Quantity<Q> getQuantity(final int index, final Unit<Q> unit) {
+    final Double value = getDouble(index);
+    if (value == null) {
+      return null;
+    } else {
+      return Quantities.getQuantity(value, unit);
+    }
+  }
+
+  default <Q extends Quantity<Q>> Quantity<Q> getQuantity(final int index, final Unit<Q> unit,
+    final Quantity<Q> defaultValue) {
+    final Quantity<Q> value = getQuantity(index, unit);
+    if (value == null) {
+      return defaultValue;
+    } else {
+      return value;
+    }
+  }
+
+  default String getString(final int index) {
+    return getValue(index, DataTypes.STRING);
+  }
+
+  default String getString(final int index, final String defaultValue) {
+    final String value = getString(index);
+    if (value == null) {
+      return defaultValue;
+    } else {
+      return value;
+    }
+  }
+
+  @SuppressWarnings("unchecked")
+  default <T> T getValue(final int index) {
+    return (T)get(index);
+  }
+
+  default <T extends Object> T getValue(final int index, final DataType dataType) {
+    final Object value = get(index);
+    return dataType.toObject(value);
+  }
+
+  default <T extends Object> T getValue(final int index, final T defaultValue) {
+    final T value = getValue(index);
+    if (value == null) {
+      return defaultValue;
+    } else {
+      return value;
+    }
   }
 
   default String join(final String separator) {
@@ -153,4 +265,17 @@ public interface ListEx<V> extends List<V> {
     }
   }
 
+  default ListEx<V> sortThis(final Comparator<? super V> converter) {
+    sort(converter);
+    return this;
+  }
+
+  default int[] toIntArray() {
+    final int[] array = new int[size()];
+    for (int i = 0; i < size(); i++) {
+      final int width = getInteger(i);
+      array[i] = width;
+    }
+    return array;
+  }
 }

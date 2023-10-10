@@ -31,7 +31,7 @@ public class Header implements Iterable<HeaderField>, Cloneable {
 
     final String[] parts = headerValue.split(",");
     for (final String value : parts) {
-      singleValues.add(value.trim());
+      singleValues.add(value.strip());
     }
 
     return singleValues;

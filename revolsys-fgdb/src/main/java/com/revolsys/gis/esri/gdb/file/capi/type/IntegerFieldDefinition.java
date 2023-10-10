@@ -41,7 +41,7 @@ public class IntegerFieldDefinition extends AbstractFileGdbFieldDefinition {
         row.setInteger(this.fieldNumber, intValue);
       }
     } else {
-      final String string = value.toString().trim();
+      final String string = value.toString().strip();
       if (Property.hasValue(string)) {
         final int intValue = Integer.parseInt(string);
         synchronized (row) {

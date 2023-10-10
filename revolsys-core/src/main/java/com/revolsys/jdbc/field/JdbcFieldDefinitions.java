@@ -17,40 +17,40 @@ public class JdbcFieldDefinitions {
   private static final JdbcFieldDefinition FIELD_UNKNOWN = new JdbcFieldDefinition();
 
   private static final JdbcBooleanFieldDefinition FIELD_BOOLEAN = new JdbcBooleanFieldDefinition(
-    UNKNOWN, UNKNOWN, Types.BIT, -1, false, null, null);
+    UNKNOWN, UNKNOWN, Types.BIT, "bit", -1, false, null, null);
 
   private static final JdbcTimestampFieldDefinition FIELD_TIMESTAMP = new JdbcTimestampFieldDefinition(
-    UNKNOWN, UNKNOWN, -1, false, null, null);
+    UNKNOWN, UNKNOWN, -1, "timestamp", false, null, null);
 
   static final JdbcDateFieldDefinition FIELD_DATE = new JdbcDateFieldDefinition(UNKNOWN, UNKNOWN,
-    -1, false, null, null);
+    -1, "date", false, null, null);
 
   private static final JdbcBigDecimalFieldDefinition FIELD_BIG_DECIMAL = new JdbcBigDecimalFieldDefinition(
-    UNKNOWN, UNKNOWN, Types.NUMERIC, -1, -1, false, null, null);
+    UNKNOWN, UNKNOWN, Types.NUMERIC, "numeric", -1, -1, false, null, null);
 
   private static final JdbcFloatFieldDefinition FIELD_FLOAT = new JdbcFloatFieldDefinition(UNKNOWN,
-    UNKNOWN, Types.FLOAT, false, null, null);
+    UNKNOWN, Types.FLOAT, "float", false, null, null);
 
   private static final JdbcDoubleFieldDefinition FIELD_DOUBLE = new JdbcDoubleFieldDefinition(
-    UNKNOWN, UNKNOWN, Types.DOUBLE, false, null, null);
+    UNKNOWN, UNKNOWN, Types.DOUBLE, "double", false, null, null);
 
   private static final JdbcByteFieldDefinition FIELD_BYTE = new JdbcByteFieldDefinition(UNKNOWN,
-    UNKNOWN, Types.TINYINT, false, null, null);
+    UNKNOWN, Types.TINYINT, "tinyint", false, null, null);
 
   private static final JdbcShortFieldDefinition FIELD_SHORT = new JdbcShortFieldDefinition(UNKNOWN,
-    UNKNOWN, Types.SMALLINT, false, null, null);
+    UNKNOWN, Types.SMALLINT, "smallint", false, null, null);
 
   private static final JdbcIntegerFieldDefinition FIELD_INTEGER = new JdbcIntegerFieldDefinition(
-    UNKNOWN, UNKNOWN, Types.INTEGER, false, null, null);
+    UNKNOWN, UNKNOWN, Types.INTEGER, "int", false, null, null);
 
   private static final JdbcLongFieldDefinition FIELD_LONG = new JdbcLongFieldDefinition(UNKNOWN,
-    UNKNOWN, Types.BIGINT, false, null, null);
+    UNKNOWN, Types.BIGINT, "integer", false, null, null);
 
   private static final JdbcStringFieldDefinition FIELD_STRING = new JdbcStringFieldDefinition(
-    UNKNOWN, UNKNOWN, DataTypes.STRING, Types.CHAR, -1, false, null, null);
+    UNKNOWN, UNKNOWN, DataTypes.STRING, Types.CHAR, "char", -1, false, null, null);
 
   private static final JdbcFieldDefinition FIELD_OBJECT = new JdbcFieldDefinition(UNKNOWN, UNKNOWN,
-    DataTypes.OBJECT, Types.OTHER, 0, 0, false, null, null);
+    DataTypes.OBJECT, Types.OTHER, "other", 0, 0, false, null, null);
 
   public static JdbcFieldDefinition newFieldDefinition(Object value) {
     if (value instanceof TypedIdentifier) {

@@ -31,10 +31,10 @@ public class RecordDirectoryReader extends AbstractDirectoryReader<Record>
     }
   }
 
+  @SuppressWarnings("unchecked")
   @Override
-  public RecordDefinition getRecordDefinition(final String path) {
-    final RecordDefinition recordDefinition = this.typePathRecordDefinitionMap.get(path);
-    return recordDefinition;
+  public <RD extends RecordDefinition> RD getRecordDefinition(final CharSequence path) {
+    return (RD)this.typePathRecordDefinitionMap.get(path);
   }
 
   public LabelCounters getStatistics() {

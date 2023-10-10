@@ -83,7 +83,7 @@ public class BatchTransformatorCommon {
 
     if (hostField != null && (hostField.getValues().size() > 1 || !URI.create(baseUri)
       .getAuthority()
-      .equalsIgnoreCase(hostField.getValues().get(0).trim()))) {
+      .equalsIgnoreCase(hostField.getValues().get(0).strip()))) {
       throw new BatchDeserializerException("Invalid Host header", MessageKeys.INVALID_HOST,
         Integer.toString(headers.getLineNumber()));
     }
