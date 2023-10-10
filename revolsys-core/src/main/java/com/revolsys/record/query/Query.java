@@ -1012,7 +1012,11 @@ public class Query extends BaseObjectWithProperties
       final String name = ((CharSequence)select).toString();
       final int dotIndex = name.indexOf('.');
       if (dotIndex == -1) {
-        selectExpression = this.table.getColumn(name);
+        if (this.table.hasColumn(name)) {
+          selectExpression = this.table.getColumn(name);
+        } else {
+          selectExpression = new Column(name);
+        }
       } else {
         final ColumnReference column = this.table.getColumn(name.substring(0, dotIndex));
         if (column.getDataType() == Json.JSON_TYPE) {
