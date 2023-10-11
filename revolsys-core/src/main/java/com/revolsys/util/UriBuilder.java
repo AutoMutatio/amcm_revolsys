@@ -544,6 +544,15 @@ public class UriBuilder {
     return null;
   }
 
+  public UriBuilder removeLastPathSegment() {
+    if (this.pathSegments == null) {
+      throw new IllegalStateException("Cannot remove last path segment from:" + toString());
+    } else {
+      this.pathSegments.remove(this.pathSegments.size() - 1);
+    }
+    return this;
+  }
+
   /**
    * Removes URI query.
    */

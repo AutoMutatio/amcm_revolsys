@@ -15,7 +15,6 @@ import com.revolsys.jdbc.field.JdbcFieldDefinitions;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordStore;
-import com.revolsys.util.Property;
 
 public class ArrayValue implements QueryValue {
 
@@ -154,7 +153,7 @@ public class ArrayValue implements QueryValue {
         this.jdbcField = JdbcFieldDefinitions.newFieldDefinition(this.values.get(0));
       }
       if (!this.dontConvert) {
-        this.values = this.values.map(this.jdbcField::toFieldValue);
+        this.values = this.values.map(this.jdbcField::toFieldValue).toList();
       }
     }
   }
