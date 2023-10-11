@@ -27,6 +27,11 @@ public record ODataResource(HttpRequestBuilderFactory factory, URI uri) {
     return new ODataResource(this.factory, newUri);
   }
 
+  public final ODataResource appendString(final String string) {
+    final URI newUri = new UriBuilder(this.uri).removeQuery().appendPathString(string).build();
+    return new ODataResource(this.factory, newUri);
+  }
+
   public final ODataResource descendent(final String... segments) {
     final URI newUri = new UriBuilder(this.uri).removeQuery().appendPathSegments(segments).build();
     return new ODataResource(this.factory, newUri);

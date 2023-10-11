@@ -20,6 +20,7 @@ import org.apache.http.message.ParserCursor;
 import org.apache.http.message.TokenParser;
 import org.apache.http.util.CharArrayBuffer;
 import org.apache.http.util.TextUtils;
+import org.jeometry.common.util.Property;
 
 /**
  * Builder for {@link URI} instances.
@@ -284,6 +285,21 @@ public class UriBuilder {
     }
     this.encodedSchemeSpecificPart = null;
     this.encodedPath = null;
+    return this;
+  }
+
+  /**
+   * Append the path to the end of the path, segments must be URL encoded
+   * @param string
+   * @return
+   */
+  public UriBuilder appendPathString(String path) {
+    if (Property.hasValue(path)) {
+      if (this.pathSegments != null) {
+        path = getPath() + path;
+      }
+      this.pathSegments = parsePath(path);
+    }
     return this;
   }
 

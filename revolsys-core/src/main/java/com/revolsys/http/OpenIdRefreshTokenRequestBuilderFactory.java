@@ -39,6 +39,16 @@ public class OpenIdRefreshTokenRequestBuilderFactory extends BearerTokenRequestB
       });
   }
 
+  public static OpenIdRefreshTokenRequestBuilderFactory newFactory(final OpenIdBearerToken token) {
+    final var client = token.getClient();
+    final var scope = token.getScope();
+    final var refreshToken = token.getRefreshToken();
+    if (refreshToken == null) {
+      throw new AuthenticationException("Refresh token not found");
+    }
+    return new OpenIdRefreshTokenRequestBuilderFactory(client, refreshToken, scope, null);
+  }
+
   private String refreshToken;
 
   private final OpenIdConnectClient client;
@@ -47,7 +57,7 @@ public class OpenIdRefreshTokenRequestBuilderFactory extends BearerTokenRequestB
 
   private final Consumer<String> tokenChanged;
 
-  public OpenIdRefreshTokenRequestBuilderFactory(final OpenIdConnectClient client,
+  private OpenIdRefreshTokenRequestBuilderFactory(final OpenIdConnectClient client,
     final String refreshToken, final String scope, final Consumer<String> tokenChanged) {
     super();
     this.client = client;

@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.Consumer;
@@ -21,6 +22,7 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.client.config.RequestConfig;
@@ -50,6 +52,7 @@ import org.jeometry.common.json.JsonList;
 import org.jeometry.common.json.JsonObject;
 
 import com.revolsys.net.http.ApacheHttp;
+import com.revolsys.net.http.ApacheHttpException;
 import com.revolsys.util.UriBuilder;
 
 public class HttpRequestBuilder {
@@ -371,6 +374,20 @@ public class HttpRequestBuilder {
     setHeader("Accept", "application/json");
     final Function<HttpResponse, JsonList> function = ApacheHttp::getJsonList;
     return execute(function);
+  }
+
+  public Optional<JsonObject> getJsonObjectOptional() {
+    try {
+      final JsonObject json = getJson();
+      return Optional.ofNullable(json);
+    } catch (final ApacheHttpException e) {
+      final int code = e.getStatusCode();
+      if (code == HttpStatus.SC_NOT_FOUND || code == HttpStatus.SC_GONE) {
+        return Optional.empty();
+      } else {
+        throw e;
+      }
+    }
   }
 
   public Header getLastHeader(final String name) {
