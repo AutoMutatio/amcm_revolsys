@@ -81,7 +81,7 @@ public abstract class InsertUpdateBuilder {
 
   public Mono<Record> executeMono(final Supplier<Transaction> transactionSupplier) {
     // TODO this is a placeholder until full reactive is implemented
-    return Mono.defer(() -> Mono.just(execute(transactionSupplier)));
+    return Mono.fromSupplier(() -> execute(transactionSupplier));
   }
 
   public Query getQuery() {
