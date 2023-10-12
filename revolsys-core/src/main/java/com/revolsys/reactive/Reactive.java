@@ -141,14 +141,6 @@ public class Reactive {
     return BaseCloseable.monoUsing(supplier, mapper);
   }
 
-  public static <T> Mono<T> monoJust(final T value, final Consumer<T> discarder) {
-    @SuppressWarnings({
-      "rawtypes", "unchecked"
-    })
-    final Class<? extends T> clazz = (Class)value.getClass();
-    return Mono.just(value).doOnDiscard(clazz, discarder);
-  }
-
   public static <T> Consumer<T> once(final Runnable action) {
     return new Consumer<>() {
       boolean first = true;
