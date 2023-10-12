@@ -19,9 +19,9 @@ import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryFactoryProxy;
 import com.revolsys.geometry.model.Polygon;
+import com.revolsys.http.ConfigurableRequestBuilderFactory;
 import com.revolsys.http.HttpRequestBuilder;
 import com.revolsys.http.HttpRequestBuilderFactory;
-import com.revolsys.http.ConfigurableRequestBuilderFactory;
 import com.revolsys.net.http.SimpleNameValuePair;
 import com.revolsys.record.Record;
 import com.revolsys.record.io.RecordReader;
@@ -279,7 +279,7 @@ public class ODataRecordStore extends AbstractRecordStore {
     }
   }
 
-  private static void appendQueryValue(final StringBuilder filter, final QueryValue value) {
+  protected static void appendQueryValue(final StringBuilder filter, final QueryValue value) {
     final Class<? extends QueryValue> valueClass = value.getClass();
 
     for (Class<?> clazz = valueClass; clazz != Object.class; clazz = clazz.getSuperclass()) {
@@ -399,7 +399,7 @@ public class ODataRecordStore extends AbstractRecordStore {
 
   @Override
   public RecordReader getRecords(final Query query) {
-    return new ODataQueryIterator(this, this.requestFactory, query, null);
+    return new ODataRecordQueryIterator(this, this.requestFactory, query, null);
   }
 
   @Override

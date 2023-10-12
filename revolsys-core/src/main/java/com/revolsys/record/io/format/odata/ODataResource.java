@@ -70,4 +70,8 @@ public record ODataResource(HttpRequestBuilderFactory factory, URI uri) {
     return new ODataRequestBuilder(this.factory.create(method, this.uri));
   }
 
+  public HttpRequestBuilderFactory getFactory() {
+    return this.factory;
+  }
+
 }
