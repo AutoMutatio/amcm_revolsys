@@ -1,9 +1,14 @@
 package com.revolsys.collection;
 
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Supplier;
 
 public class LazyValueHolder<T> extends SimpleValueHolder<T> {
   private Supplier<T> valueSupplier;
+
+  private final ReentrantLock lock = new ReentrantLock();
+
+  private boolean initialized = false;
 
   protected LazyValueHolder() {
   }
@@ -14,18 +19,33 @@ public class LazyValueHolder<T> extends SimpleValueHolder<T> {
 
   @Override
   public T getValue() {
-    synchronized (this) {
-      if (this.valueSupplier != null) {
+    this.lock.lock();
+    try {
+      if (this.valueSupplier != null && !this.initialized) {
+        this.initialized = true;
         final T value = this.valueSupplier.get();
         super.setValue(value);
-        this.valueSupplier = null;
+        return value;
       }
+    } finally {
+      this.lock.unlock();
     }
+
     return super.getValue();
   }
 
   public boolean isInitialized() {
-    return this.valueSupplier == null;
+    return this.initialized;
+  }
+
+  public void refresh() {
+    this.lock.lock();
+    try {
+      this.initialized = false;
+      setValue(null);
+    } finally {
+      this.lock.unlock();
+    }
   }
 
   @Override

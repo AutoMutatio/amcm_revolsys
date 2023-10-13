@@ -9,7 +9,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.Consumer;
@@ -50,6 +49,7 @@ import org.apache.http.util.Args;
 import org.jeometry.common.collection.list.ListEx;
 import org.jeometry.common.json.JsonList;
 import org.jeometry.common.json.JsonObject;
+import org.jeometry.common.util.Single;
 
 import com.revolsys.net.http.ApacheHttp;
 import com.revolsys.net.http.ApacheHttpException;
@@ -376,14 +376,14 @@ public class HttpRequestBuilder {
     return execute(function);
   }
 
-  public Optional<JsonObject> getJsonObjectOptional() {
+  public Single<JsonObject> jsonObject() {
     try {
       final JsonObject json = getJson();
-      return Optional.ofNullable(json);
+      return Single.ofNullable(json);
     } catch (final ApacheHttpException e) {
       final int code = e.getStatusCode();
       if (code == HttpStatus.SC_NOT_FOUND || code == HttpStatus.SC_GONE) {
-        return Optional.empty();
+        return Single.empty();
       } else {
         throw e;
       }

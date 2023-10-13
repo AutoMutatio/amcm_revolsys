@@ -1,10 +1,10 @@
 package com.revolsys.record.io.format.odata;
 
 import java.io.InputStream;
-import java.util.Optional;
 import java.util.function.Consumer;
 
 import org.jeometry.common.json.JsonObject;
+import org.jeometry.common.util.Single;
 
 import com.revolsys.http.HttpRequestBuilder;
 
@@ -17,8 +17,8 @@ public record ODataRequestBuilder(HttpRequestBuilder request) {
     return this.request.getJson();
   }
 
-  public Optional<JsonObject> getJsonObjectOptional() {
-    return this.request.getJsonObjectOptional();
+  public Single<JsonObject> jsonObject() {
+    return this.request.jsonObject();
   }
 
   public HttpRequestBuilder setJsonEntity(final JsonObject message) {

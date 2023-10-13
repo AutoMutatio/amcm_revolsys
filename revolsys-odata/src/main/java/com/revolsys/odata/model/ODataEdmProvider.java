@@ -23,7 +23,6 @@ import com.revolsys.odata.service.processor.ODataEntityProcessor;
 import com.revolsys.odata.service.processor.ODataPrimitiveProcessor;
 import com.revolsys.odata.service.processor.ODataServiceDocumentMetadataProcessor;
 import com.revolsys.record.schema.RecordStore;
-import com.revolsys.record.schema.TableRecordStoreConnection;
 
 public abstract class ODataEdmProvider extends CsdlAbstractEdmProvider {
 
@@ -141,8 +140,6 @@ public abstract class ODataEdmProvider extends CsdlAbstractEdmProvider {
   public String getServiceRoot() {
     return this.serviceRoot;
   }
-
-  public abstract TableRecordStoreConnection getTableRecordStoreConnection();
 
   @Override
   public CsdlTerm getTerm(final FullQualifiedName termName) throws ODataException {

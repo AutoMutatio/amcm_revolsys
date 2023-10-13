@@ -21,12 +21,15 @@ package org.apache.olingo.server.api;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 import org.apache.olingo.commons.api.http.HttpMethod;
 import org.apache.olingo.server.api.uri.UriInfo;
 import org.apache.olingo.server.api.uri.queryoption.FormatOption;
 import org.apache.olingo.server.api.uri.queryoption.SystemQueryOptionKind;
 import org.apache.olingo.server.core.uri.queryoption.FormatOptionImpl;
+
+import com.revolsys.record.schema.TableRecordStoreConnection;
 
 /**
  * Request object to carry HTTP information optimized for and required to handle OData requests only.
@@ -51,6 +54,8 @@ public class ODataRequest {
   private String protocol;
 
   private UriInfo uriInfo;
+
+  private Function<String, Object> attributesFunction = n -> null;
 
   /**
    * <p>Adds a header to the request.</p>
@@ -84,12 +89,20 @@ public class ODataRequest {
     return this.headers.getHeaderToValues();
   }
 
+  public <T> T getAttribute(final String name) {
+    return (T)this.attributesFunction.apply(name);
+  }
+
   /**
    * Gets the body of the request.
    * @return the request payload as {@link InputStream} or null
    */
   public InputStream getBody() {
     return this.body;
+  }
+
+  public TableRecordStoreConnection getConnection() {
+    return getAttribute("tenant");
   }
 
   /**
@@ -202,6 +215,10 @@ public class ODataRequest {
     return this.uriInfo;
   }
 
+  public void setAttributes(final Function<String, Object> attributesFunction) {
+    this.attributesFunction = attributesFunction;
+  }
+
   /**
    * Sets the body of the request.
    * @param body the request payload as {@link InputStream}
@@ -282,5 +299,4 @@ public class ODataRequest {
   public void setUriInfo(final UriInfo uriInfo) {
     this.uriInfo = uriInfo;
   }
-
 }

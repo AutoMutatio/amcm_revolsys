@@ -21,6 +21,7 @@ import org.jeometry.common.io.PathName;
 import org.jeometry.common.json.JsonObject;
 import org.jeometry.common.logging.Logs;
 import org.jeometry.common.util.BaseCloseable;
+import org.jeometry.common.util.Single;
 
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.Geometry;
@@ -269,11 +270,15 @@ public class RecordStoreLayer extends AbstractRecordLayer {
               try (
                 RecordReader reader = newRecordStoreRecordReader(query)) {
                 com.revolsys.transaction.Transaction.rollback();
-                final R savedRecord = (R)reader.getFirst();
-                if (savedRecord != null) {
+                // final R savedRecord = (R)
+                final Single<Record> first = reader.first();
+                if (first.isPresent()) {
+                  final R savedRecord = (R)first.get();
                   addCachedRecord(identifier, savedRecord);
+                  return savedRecord;
+                } else {
+                  return null;
                 }
-                return savedRecord;
               }
             });
           }
