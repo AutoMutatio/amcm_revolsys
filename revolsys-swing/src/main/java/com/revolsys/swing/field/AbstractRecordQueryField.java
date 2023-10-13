@@ -46,6 +46,7 @@ import org.jdesktop.swingx.decorator.HighlightPredicate;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 import org.jeometry.common.awt.WebColors;
 import org.jeometry.common.collection.map.LruMap;
+import org.jeometry.common.collection.value.ThreadBooleanValue;
 import org.jeometry.common.data.identifier.Identifier;
 import org.jeometry.common.data.type.DataType;
 import org.jeometry.common.io.PathName;
@@ -73,7 +74,6 @@ import com.revolsys.swing.map.list.RecordListCellRenderer;
 import com.revolsys.swing.menu.MenuFactory;
 import com.revolsys.swing.parallel.Invoke;
 import com.revolsys.util.Property;
-import com.revolsys.value.ThreadBooleanValue;
 
 public abstract class AbstractRecordQueryField extends ValueField
   implements DocumentListener, KeyListener, MouseListener, FocusListener, ListDataListener,

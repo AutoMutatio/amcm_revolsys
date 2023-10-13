@@ -21,6 +21,7 @@ import javax.swing.JPanel;
 import javax.swing.WindowConstants;
 
 import org.jeometry.common.collection.map.Maps;
+import org.jeometry.common.collection.value.ThreadBooleanValue;
 import org.jeometry.common.data.type.DataType;
 import org.jeometry.common.logging.Logs;
 import org.jeometry.common.util.BaseCloseable;
@@ -33,7 +34,6 @@ import com.revolsys.swing.layout.GroupLayouts;
 import com.revolsys.swing.parallel.Invoke;
 import com.revolsys.util.Pair;
 import com.revolsys.util.Property;
-import com.revolsys.value.ThreadBooleanValue;
 
 public class Form extends BasePanel {
   private static final long serialVersionUID = 1L;

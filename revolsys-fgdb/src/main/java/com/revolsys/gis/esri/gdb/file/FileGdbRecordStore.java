@@ -125,6 +125,8 @@ public class FileGdbRecordStore extends AbstractRecordStore {
 
   private boolean createAreaField = false;
 
+  private final ThreadLocal<FileGdbWriter> threadWriter = new ThreadLocal<>();
+
   FileGdbRecordStore(final File file) {
     this.fileName = FileUtil.getCanonicalPath(file);
     setConnectionProperties(JsonObject.hash("url", FileUtil.toUrl(file).toString()));
@@ -276,9 +278,9 @@ public class FileGdbRecordStore extends AbstractRecordStore {
     synchronized (this.geodatabase) {
       try {
         if (!isClosed()) {
-          final Writer<Record> writer = getThreadProperty("writer");
+          final Writer<Record> writer = this.threadWriter.get();
           if (writer != null) {
-            setThreadProperty("writer", null);
+            this.threadWriter.set(null);
             writer.close();
           }
           for (final TableReference table : this.tableByCatalogPath.values()) {
@@ -813,10 +815,10 @@ public class FileGdbRecordStore extends AbstractRecordStore {
 
   @Override
   public FileGdbWriter newRecordWriter(final boolean throwExceptions) {
-    FileGdbWriter writer = getThreadProperty("writer");
+    FileGdbWriter writer = this.threadWriter.get();
     if (writer == null || writer.isClosed()) {
       writer = new FileGdbWriter(this);
-      setThreadProperty("writer", writer);
+      this.threadWriter.set(writer);
     }
     return writer;
   }

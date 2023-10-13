@@ -47,9 +47,9 @@ import org.apache.http.message.HeaderGroup;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.Args;
 import org.jeometry.common.collection.list.ListEx;
+import org.jeometry.common.collection.value.Single;
 import org.jeometry.common.json.JsonList;
 import org.jeometry.common.json.JsonObject;
-import org.jeometry.common.util.Single;
 
 import com.revolsys.net.http.ApacheHttp;
 import com.revolsys.net.http.ApacheHttpException;

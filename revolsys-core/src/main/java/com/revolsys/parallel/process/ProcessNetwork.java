@@ -13,7 +13,6 @@ import java.util.function.Consumer;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 
-import org.jeometry.common.collection.map.ThreadSharedProperties;
 import org.jeometry.common.logging.Logs;
 
 import com.revolsys.parallel.ThreadInterruptedException;
@@ -245,7 +244,6 @@ public class ProcessNetwork {
   public void init() {
     if (this.parent == null) {
       this.threadGroup = new ThreadGroup(this.name);
-      ThreadSharedProperties.initialiseThreadGroup(this.threadGroup);
     }
   }
 

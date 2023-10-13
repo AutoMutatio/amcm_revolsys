@@ -48,6 +48,7 @@ import javax.swing.undo.UndoableEdit;
 import org.jdesktop.swingx.VerticalLayout;
 import org.jeometry.common.awt.WebColors;
 import org.jeometry.common.collection.map.Maps;
+import org.jeometry.common.collection.value.ThreadBooleanValue;
 import org.jeometry.common.data.identifier.Identifier;
 import org.jeometry.common.data.type.DataType;
 import org.jeometry.common.data.type.DataTypes;
@@ -97,7 +98,6 @@ import com.revolsys.swing.undo.ReverseRecordUndo;
 import com.revolsys.swing.undo.UndoManager;
 import com.revolsys.util.Property;
 import com.revolsys.util.Strings;
-import com.revolsys.value.ThreadBooleanValue;
 
 public class LayerRecordForm extends JPanel implements PropertyChangeListener, CellEditorListener,
   FocusListener, PropertyChangeSupportProxy, WindowListener {

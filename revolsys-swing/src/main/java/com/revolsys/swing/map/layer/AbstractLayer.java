@@ -32,6 +32,7 @@ import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.ScrollableSizeHint;
 import org.jdesktop.swingx.VerticalLayout;
 import org.jeometry.common.collection.map.MapEx;
+import org.jeometry.common.collection.value.ThreadBooleanValue;
 import org.jeometry.common.data.type.DataType;
 import org.jeometry.common.io.MapSerializer;
 import org.jeometry.common.json.JsonObject;
@@ -81,7 +82,6 @@ import com.revolsys.util.CaseConverter;
 import com.revolsys.util.Preferences;
 import com.revolsys.util.Property;
 import com.revolsys.util.ToolTipProxy;
-import com.revolsys.value.ThreadBooleanValue;
 
 public abstract class AbstractLayer extends BaseObjectWithProperties
   implements Layer, PropertyChangeListener, PropertyChangeSupportProxy, ToolTipProxy {

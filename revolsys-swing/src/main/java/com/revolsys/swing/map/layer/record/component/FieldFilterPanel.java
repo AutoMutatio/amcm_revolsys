@@ -22,6 +22,7 @@ import javax.swing.text.JTextComponent;
 import org.jdesktop.swingx.JXSearchField;
 import org.jeometry.common.awt.WebColors;
 import org.jeometry.common.collection.map.MapEx;
+import org.jeometry.common.collection.value.GlobalBooleanValue;
 import org.jeometry.common.data.type.DataType;
 import org.jeometry.common.data.type.DataTypes;
 import org.jeometry.common.logging.Logs;
@@ -57,7 +58,6 @@ import com.revolsys.swing.map.layer.record.table.model.RecordLayerTableModel;
 import com.revolsys.swing.parallel.Invoke;
 import com.revolsys.swing.table.TablePanel;
 import com.revolsys.util.Property;
-import com.revolsys.value.GlobalBooleanValue;
 
 public class FieldFilterPanel extends JComponent implements PropertyChangeListener {
 

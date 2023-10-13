@@ -3,8 +3,8 @@ package com.revolsys.record.io.format.odata;
 import java.io.InputStream;
 import java.util.function.Consumer;
 
+import org.jeometry.common.collection.value.Single;
 import org.jeometry.common.json.JsonObject;
-import org.jeometry.common.util.Single;
 
 import com.revolsys.http.HttpRequestBuilder;
 

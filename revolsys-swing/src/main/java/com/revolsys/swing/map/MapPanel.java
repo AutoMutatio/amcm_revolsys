@@ -36,6 +36,7 @@ import javax.swing.undo.UndoableEdit;
 import org.jdesktop.swingx.JXBusyLabel;
 import org.jeometry.common.awt.WebColors;
 import org.jeometry.common.collection.map.Maps;
+import org.jeometry.common.collection.value.GlobalBooleanValue;
 import org.jeometry.common.data.type.DataType;
 import org.jeometry.common.number.Doubles;
 import org.jeometry.common.util.BaseCloseable;
@@ -98,7 +99,6 @@ import com.revolsys.util.CaseConverter;
 import com.revolsys.util.Pair;
 import com.revolsys.util.Preferences;
 import com.revolsys.util.Property;
-import com.revolsys.value.GlobalBooleanValue;
 
 public class MapPanel extends JPanel implements GeometryFactoryProxy, PropertyChangeListener {
   public static final String MAP_PANEL = "INTERNAL_layeredPanel";

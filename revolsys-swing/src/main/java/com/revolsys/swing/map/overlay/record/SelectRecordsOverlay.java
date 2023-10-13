@@ -22,6 +22,7 @@ import java.util.function.Consumer;
 import javax.swing.SwingUtilities;
 
 import org.jeometry.common.awt.WebColors;
+import org.jeometry.common.collection.value.ThreadBooleanValue;
 import org.jeometry.common.util.BaseCloseable;
 import org.jeometry.common.util.Cancellable;
 
@@ -59,7 +60,6 @@ import com.revolsys.swing.parallel.Invoke;
 import com.revolsys.swing.table.AbstractTableModel;
 import com.revolsys.swing.table.TablePanel;
 import com.revolsys.util.Property;
-import com.revolsys.value.ThreadBooleanValue;
 
 public class SelectRecordsOverlay extends AbstractOverlay {
   public static final String ACTION_SELECT_RECORDS = "Select Records";
