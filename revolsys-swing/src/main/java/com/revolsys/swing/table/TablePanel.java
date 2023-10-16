@@ -17,8 +17,7 @@ import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableModel;
 
-import org.jeometry.common.data.type.DataTypes;
-
+import com.revolsys.data.type.DataTypes;
 import com.revolsys.swing.action.enablecheck.ObjectPropertyEnableCheck;
 import com.revolsys.swing.dnd.ClipboardUtil;
 import com.revolsys.swing.menu.BaseJPopupMenu;
@@ -26,7 +25,6 @@ import com.revolsys.swing.menu.MenuFactory;
 import com.revolsys.swing.menu.MenuSourceHolder;
 import com.revolsys.swing.table.lambda.column.ColumnBasedTableModel;
 import com.revolsys.swing.toolbar.ToolBar;
-import com.revolsys.util.Property;
 
 public class TablePanel extends JPanel implements MouseListener, Closeable {
   protected class TablePanelEventSource extends MenuSourceHolder {
@@ -361,7 +359,7 @@ public class TablePanel extends JPanel implements MouseListener, Closeable {
       return true;
     } else if (isCurrentCellEditable()) {
       final String value = ClipboardUtil.getContents(DataFlavor.stringFlavor);
-      return org.jeometry.common.util.Property.hasValue(value);
+      return com.revolsys.util.Property.hasValue(value);
     }
     return false;
   }
@@ -385,7 +383,7 @@ public class TablePanel extends JPanel implements MouseListener, Closeable {
     } else if (eventRow > -1 && eventColumn > -1 && eventTable == this.table) {
       final TableModel tableModel = getTableModel();
       final Object value = tableModel.getValueAt(eventRow, eventColumn);
-      return org.jeometry.common.util.Property.hasValue(value);
+      return com.revolsys.util.Property.hasValue(value);
     }
     return false;
   }
@@ -436,7 +434,7 @@ public class TablePanel extends JPanel implements MouseListener, Closeable {
       }
     }
     final String value = ClipboardUtil.getContents(DataFlavor.stringFlavor);
-    if (org.jeometry.common.util.Property.hasValue(value)) {
+    if (com.revolsys.util.Property.hasValue(value)) {
       final TableModel tableModel = getTableModel();
       final int eventRow = getEventRow();
       final int eventColumn = getEventColumn();

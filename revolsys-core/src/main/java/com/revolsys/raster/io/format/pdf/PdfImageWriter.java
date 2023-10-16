@@ -15,8 +15,8 @@ import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 import org.apache.xmpbox.XMPMetadata;
 import org.apache.xmpbox.schema.DublinCoreSchema;
 import org.apache.xmpbox.xml.XmpSerializer;
-import org.jeometry.common.exception.Exceptions;
 
+import com.revolsys.exception.Exceptions;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.io.AbstractWriter;
 import com.revolsys.raster.GeoreferencedImage;

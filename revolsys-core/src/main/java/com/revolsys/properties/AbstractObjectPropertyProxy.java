@@ -1,6 +1,6 @@
 package com.revolsys.properties;
 
-import org.jeometry.common.util.ObjectPropertyProxy;
+import com.revolsys.util.ObjectPropertyProxy;
 
 public abstract class AbstractObjectPropertyProxy<T, O> implements ObjectPropertyProxy<T, O> {
   private transient T value;

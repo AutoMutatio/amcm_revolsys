@@ -5,9 +5,8 @@ import java.time.Instant;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.jeometry.common.collection.map.LruMap;
-import org.jeometry.common.json.JsonObject;
-
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.map.LruMap;
 import com.revolsys.record.io.format.json.JsonIo;
 import com.revolsys.util.Pair;
 

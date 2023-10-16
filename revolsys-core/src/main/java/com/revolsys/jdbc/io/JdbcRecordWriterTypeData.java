@@ -7,9 +7,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jeometry.common.logging.Logs;
-
 import com.revolsys.jdbc.field.JdbcFieldDefinition;
+import com.revolsys.logging.Logs;
 import com.revolsys.record.Record;
 import com.revolsys.record.RecordState;
 import com.revolsys.record.query.ColumnIndexes;

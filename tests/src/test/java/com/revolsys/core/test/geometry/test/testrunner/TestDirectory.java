@@ -4,7 +4,6 @@ import java.io.File;
 
 import com.revolsys.io.FileUtil;
 import com.revolsys.io.map.MapObjectFactory;
-import com.revolsys.util.Property;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -48,7 +47,7 @@ public class TestDirectory extends TestSuite {
       return "";
     } else {
       final String parentId = this.parent.getId();
-      if (org.jeometry.common.util.Property.hasValue(parentId)) {
+      if (com.revolsys.util.Property.hasValue(parentId)) {
         return parentId + "." + this.index;
       } else {
         return String.valueOf(this.index);

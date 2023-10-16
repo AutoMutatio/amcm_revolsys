@@ -9,9 +9,8 @@ import java.nio.charset.Charset;
 import java.sql.Clob;
 import java.sql.SQLException;
 
-import org.jeometry.common.exception.WrappedException;
-import org.jeometry.common.json.JsonParser;
-
+import com.revolsys.collection.json.JsonParser;
+import com.revolsys.exception.WrappedException;
 import com.revolsys.io.AbstractIoFactory;
 import com.revolsys.io.FileUtil;
 import com.revolsys.io.map.MapReader;

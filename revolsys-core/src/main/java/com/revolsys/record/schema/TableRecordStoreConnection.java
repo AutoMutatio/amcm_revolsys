@@ -3,11 +3,10 @@ package com.revolsys.record.schema;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import org.jeometry.common.data.identifier.Identifier;
-import org.jeometry.common.io.PathName;
-import org.jeometry.common.io.PathNameProxy;
-import org.jeometry.common.json.JsonObject;
-
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.data.identifier.Identifier;
+import com.revolsys.io.PathName;
+import com.revolsys.io.PathNameProxy;
 import com.revolsys.record.Record;
 import com.revolsys.record.query.Query;
 import com.revolsys.transaction.Transactionable;

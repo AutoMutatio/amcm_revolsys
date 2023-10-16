@@ -4,11 +4,10 @@ import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import org.jeometry.common.io.IoUtil;
-import org.jeometry.common.logging.Logs;
-
 import com.revolsys.io.DelegatingWriter;
 import com.revolsys.io.FileUtil;
+import com.revolsys.io.IoUtil;
+import com.revolsys.logging.Logs;
 import com.revolsys.record.Record;
 import com.revolsys.record.io.RecordWriter;
 import com.revolsys.record.schema.RecordDefinition;

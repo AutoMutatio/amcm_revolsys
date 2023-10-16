@@ -2,9 +2,8 @@ package com.revolsys.swing.map.layer.record.style.marker;
 
 import java.util.Map;
 
-import org.jeometry.common.io.MapSerializer;
-import org.jeometry.common.json.JsonObject;
-
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.io.MapSerializer;
 import com.revolsys.properties.AbstractNameTitle;
 
 public abstract class AbstractMarkerGroupElement extends AbstractNameTitle

@@ -3,16 +3,14 @@ package com.revolsys.geometry.model.impl;
 import java.io.Serializable;
 import java.util.function.Consumer;
 
-import org.jeometry.common.function.BiConsumerDouble;
-import org.jeometry.common.function.BiFunctionDouble;
-import org.jeometry.common.function.Consumer3Double;
-import org.jeometry.coordinatesystem.operation.CoordinatesOperation;
-import org.jeometry.coordinatesystem.operation.CoordinatesOperationPoint;
-
+import com.revolsys.function.BiConsumerDouble;
+import com.revolsys.function.BiFunctionDouble;
+import com.revolsys.function.Consumer3Double;
+import com.revolsys.geometry.coordinatesystem.operation.CoordinatesOperation;
+import com.revolsys.geometry.coordinatesystem.operation.CoordinatesOperationPoint;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.geometry.model.Point;
 import com.revolsys.geometry.util.Points;
-import com.revolsys.util.Property;
 
 public class PointDoubleXY extends AbstractPoint implements Serializable {
   private static final long serialVersionUID = 1L;
@@ -64,7 +62,7 @@ public class PointDoubleXY extends AbstractPoint implements Serializable {
   public double distancePoint(Point point) {
     if (isEmpty()) {
       return java.lang.Double.POSITIVE_INFINITY;
-    } else if (org.jeometry.common.util.Property.isEmpty(point)) {
+    } else if (com.revolsys.util.Property.isEmpty(point)) {
       return java.lang.Double.POSITIVE_INFINITY;
     } else {
       final GeometryFactory geometryFactory = getGeometryFactory();

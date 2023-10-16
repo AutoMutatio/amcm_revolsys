@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-import org.jeometry.common.util.Cancellable;
+import com.revolsys.util.Cancellable;
 
 public interface CollectionUtil {
   static <V> void addAll(final Collection<V> collection, final Iterable<V> values) {

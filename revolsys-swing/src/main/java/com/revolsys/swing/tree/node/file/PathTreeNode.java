@@ -21,19 +21,18 @@ import javax.swing.Icon;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.exception.Exceptions;
-import org.jeometry.common.logging.Logs;
-import org.jeometry.common.net.UrlProxy;
-
 import com.revolsys.connection.file.FileConnectionManager;
 import com.revolsys.connection.file.FolderConnectionRegistry;
+import com.revolsys.data.type.DataType;
 import com.revolsys.elevation.cloud.PointCloudReadFactory;
 import com.revolsys.elevation.gridded.GriddedElevationModelReaderFactory;
 import com.revolsys.elevation.tin.TriangulatedIrregularNetworkReaderFactory;
+import com.revolsys.exception.Exceptions;
 import com.revolsys.io.FileUtil;
 import com.revolsys.io.IoFactory;
 import com.revolsys.io.file.Paths;
+import com.revolsys.logging.Logs;
+import com.revolsys.net.UrlProxy;
 import com.revolsys.raster.GeoreferencedImage;
 import com.revolsys.raster.GeoreferencedImageReadFactory;
 import com.revolsys.record.io.RecordIo;
@@ -57,7 +56,6 @@ import com.revolsys.swing.tree.TreeNodes;
 import com.revolsys.swing.tree.node.FunctionChildrenTreeNode;
 import com.revolsys.swing.tree.node.LazyLoadTreeNode;
 import com.revolsys.swing.tree.node.record.PathRecordStoreTreeNode;
-import com.revolsys.util.Property;
 
 public class PathTreeNode extends LazyLoadTreeNode implements UrlProxy {
   private static JFileChooser chooser;
@@ -295,7 +293,7 @@ public class PathTreeNode extends LazyLoadTreeNode implements UrlProxy {
       if (panel.isSaved()) {
         final FolderConnectionRegistry registry = registryField.getSelectedItem();
         String connectionName = nameField.getText();
-        if (!org.jeometry.common.util.Property.hasValue(connectionName)) {
+        if (!com.revolsys.util.Property.hasValue(connectionName)) {
           connectionName = fileName;
         }
 

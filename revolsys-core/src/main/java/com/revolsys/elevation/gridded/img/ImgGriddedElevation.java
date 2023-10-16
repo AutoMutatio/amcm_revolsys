@@ -1,7 +1,6 @@
 package com.revolsys.elevation.gridded.img;
 
-import org.jeometry.common.collection.map.MapEx;
-
+import com.revolsys.collection.map.MapEx;
 import com.revolsys.elevation.gridded.GriddedElevationModelReader;
 import com.revolsys.elevation.gridded.GriddedElevationModelReaderFactory;
 import com.revolsys.io.AbstractIoFactory;

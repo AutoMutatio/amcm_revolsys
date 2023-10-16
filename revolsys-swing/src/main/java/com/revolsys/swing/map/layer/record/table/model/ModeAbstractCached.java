@@ -13,9 +13,8 @@ import java.util.function.Supplier;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
 
-import org.jeometry.common.collection.list.ListByIndexIterator;
-import org.jeometry.common.collection.list.Lists;
-
+import com.revolsys.collection.list.ListByIndexIterator;
+import com.revolsys.collection.list.Lists;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.record.Record;
 import com.revolsys.record.RecordState;

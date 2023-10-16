@@ -11,8 +11,6 @@ import java.util.regex.Pattern;
 
 import javax.sql.DataSource;
 
-import org.jeometry.common.collection.map.MapEx;
-import org.jeometry.common.collection.map.Maps;
 import org.postgresql.Driver;
 import org.springframework.dao.CannotAcquireLockException;
 import org.springframework.dao.CannotSerializeTransactionException;
@@ -23,11 +21,12 @@ import org.springframework.dao.DeadlockLoserDataAccessException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.BadSqlGrammarException;
 
+import com.revolsys.collection.map.MapEx;
+import com.revolsys.collection.map.Maps;
 import com.revolsys.jdbc.io.AbstractJdbcDatabaseFactory;
 import com.revolsys.jdbc.io.JdbcRecordStore;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordStore;
-import com.revolsys.util.Property;
 import com.revolsys.util.Strings;
 import com.revolsys.util.UrlUtil;
 
@@ -145,7 +144,7 @@ public class PostgreSQL extends AbstractJdbcDatabaseFactory {
     final Integer port = Maps.getInteger(urlParameters, "port");
     final String database = Maps.getString(urlParameters, "database");
 
-    final boolean hasHost = org.jeometry.common.util.Property.hasValue(host);
+    final boolean hasHost = com.revolsys.util.Property.hasValue(host);
     final boolean hasPort = port != null;
     if (hasHost || hasPort) {
       url.append("//");
@@ -158,7 +157,7 @@ public class PostgreSQL extends AbstractJdbcDatabaseFactory {
       }
       url.append('/');
     }
-    if (org.jeometry.common.util.Property.hasValue(database)) {
+    if (com.revolsys.util.Property.hasValue(database)) {
       url.append(database);
     }
     return url.toString();

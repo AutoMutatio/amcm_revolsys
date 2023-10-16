@@ -11,16 +11,15 @@ import javax.sql.DataSource;
 
 import jakarta.annotation.PreDestroy;
 
-import org.jeometry.common.exception.Exceptions;
-import org.jeometry.common.io.PathName;
-import org.jeometry.common.logging.Logs;
-import org.jeometry.common.util.BaseCloseable;
 import org.springframework.dao.DataAccessException;
 
+import com.revolsys.exception.Exceptions;
 import com.revolsys.io.AbstractRecordWriter;
+import com.revolsys.io.PathName;
 import com.revolsys.jdbc.JdbcConnection;
 import com.revolsys.jdbc.JdbcUtils;
 import com.revolsys.jdbc.field.JdbcFieldDefinition;
+import com.revolsys.logging.Logs;
 import com.revolsys.record.Record;
 import com.revolsys.record.RecordState;
 import com.revolsys.record.property.GlobalIdProperty;
@@ -30,6 +29,7 @@ import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinitionProxy;
 import com.revolsys.record.schema.RecordStore;
 import com.revolsys.transaction.Transaction;
+import com.revolsys.util.BaseCloseable;
 import com.revolsys.util.LongCounter;
 import com.revolsys.util.count.CategoryLabelCountMap;
 

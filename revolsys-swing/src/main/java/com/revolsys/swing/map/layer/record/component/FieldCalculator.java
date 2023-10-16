@@ -22,10 +22,10 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 
 import org.jdesktop.swingx.VerticalLayout;
-import org.jeometry.common.awt.WebColors;
-import org.jeometry.common.data.identifier.Identifier;
-import org.jeometry.common.exception.Exceptions;
 
+import com.revolsys.awt.WebColors;
+import com.revolsys.data.identifier.Identifier;
+import com.revolsys.exception.Exceptions;
 import com.revolsys.record.ArrayRecord;
 import com.revolsys.record.Record;
 import com.revolsys.record.code.CodeTable;
@@ -39,7 +39,6 @@ import com.revolsys.swing.map.layer.record.LayerRecord;
 import com.revolsys.swing.menu.MenuFactory;
 import com.revolsys.swing.scripting.ScriptEngines;
 import com.revolsys.swing.toolbar.ToolBar;
-import com.revolsys.util.Property;
 
 public class FieldCalculator extends AbstractUpdateField implements DocumentListener {
   private static final long serialVersionUID = 1L;
@@ -266,7 +265,7 @@ public class FieldCalculator extends AbstractUpdateField implements DocumentList
         this.errorsField.setText(null);
       } catch (final Throwable e) {
         String errorMessage = e.getMessage();
-        if (!org.jeometry.common.util.Property.hasValue(errorMessage)) {
+        if (!com.revolsys.util.Property.hasValue(errorMessage)) {
           errorMessage = "null pointer";
         }
         this.errorsField.setText(errorMessage);

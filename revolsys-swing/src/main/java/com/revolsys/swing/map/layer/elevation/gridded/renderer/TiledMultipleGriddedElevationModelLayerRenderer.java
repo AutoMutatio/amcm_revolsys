@@ -5,16 +5,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 
-import org.jeometry.common.collection.list.Lists;
-import org.jeometry.common.json.JsonObject;
-import org.jeometry.common.logging.Logs;
-import org.jeometry.common.util.BaseCloneable;
-import org.jeometry.common.util.Cancellable;
-
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.list.Lists;
 import com.revolsys.elevation.gridded.GriddedElevationModel;
 import com.revolsys.elevation.gridded.rasterizer.HillShadeGriddedElevationModelRasterizer;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactory;
+import com.revolsys.logging.Logs;
 import com.revolsys.raster.BufferedGeoreferencedImage;
 import com.revolsys.swing.Icons;
 import com.revolsys.swing.component.Form;
@@ -29,8 +26,9 @@ import com.revolsys.swing.map.layer.tile.AbstractTiledLayer;
 import com.revolsys.swing.map.layer.tile.AbstractTiledLayerRenderer;
 import com.revolsys.swing.map.view.ViewRenderer;
 import com.revolsys.swing.menu.MenuFactory;
+import com.revolsys.util.BaseCloneable;
 import com.revolsys.util.BooleanCancellable;
-import com.revolsys.util.Property;
+import com.revolsys.util.Cancellable;
 
 public class TiledMultipleGriddedElevationModelLayerRenderer
   extends AbstractTiledLayerRenderer<GriddedElevationModel, TiledGriddedElevationModelLayerTile>
@@ -295,7 +293,7 @@ public class TiledMultipleGriddedElevationModelLayerRenderer
   }
 
   public void setStyles(final List<?> styles) {
-    if (org.jeometry.common.util.Property.hasValue(styles)) {
+    if (com.revolsys.util.Property.hasValue(styles)) {
       final List<AbstractGriddedElevationModelLayerRenderer> renderers = new ArrayList<>();
       for (final Object childStyle : styles) {
         if (childStyle instanceof AbstractGriddedElevationModelLayerRenderer) {

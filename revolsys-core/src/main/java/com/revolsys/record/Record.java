@@ -16,27 +16,26 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 
-import org.jeometry.common.collection.map.MapEx;
-import org.jeometry.common.compare.CompareUtil;
-import org.jeometry.common.data.identifier.Identifiable;
-import org.jeometry.common.data.identifier.Identifier;
-import org.jeometry.common.data.identifier.ListIdentifier;
-import org.jeometry.common.data.identifier.TypedIdentifier;
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.common.exception.Exceptions;
-import org.jeometry.common.json.JsonObject;
-import org.jeometry.common.json.JsonType;
-import org.jeometry.common.json.JsonWritable;
-import org.jeometry.common.json.JsonWriter;
-import org.jeometry.common.json.Jsonable;
-import org.jeometry.common.logging.Logs;
-
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.json.JsonType;
+import com.revolsys.collection.json.JsonWritable;
+import com.revolsys.collection.json.JsonWriter;
+import com.revolsys.collection.json.Jsonable;
+import com.revolsys.collection.map.MapEx;
+import com.revolsys.comparator.CompareUtil;
+import com.revolsys.data.identifier.Identifiable;
+import com.revolsys.data.identifier.Identifier;
+import com.revolsys.data.identifier.ListIdentifier;
+import com.revolsys.data.identifier.TypedIdentifier;
+import com.revolsys.data.type.DataType;
+import com.revolsys.data.type.DataTypes;
+import com.revolsys.exception.Exceptions;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.BoundingBoxProxy;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryDataTypes;
 import com.revolsys.geometry.model.GeometryFactory;
+import com.revolsys.logging.Logs;
 import com.revolsys.record.code.CodeTable;
 import com.revolsys.record.query.Value;
 import com.revolsys.record.schema.FieldDefinition;
@@ -321,8 +320,8 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
 
   default double distance(final Geometry geometry) {
     final Geometry recordGeometry = getGeometry();
-    if (org.jeometry.common.util.Property.isEmpty(geometry)
-      || org.jeometry.common.util.Property.isEmpty(recordGeometry)) {
+    if (com.revolsys.util.Property.isEmpty(geometry)
+      || com.revolsys.util.Property.isEmpty(recordGeometry)) {
       return Double.NaN;
     } else {
       final double distance = recordGeometry.distanceGeometry(geometry);
@@ -337,8 +336,8 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
 
   default boolean equalPathValue(final CharSequence fieldPath, final Object value) {
     final Object fieldValue = getValueByPath(fieldPath);
-    final boolean hasValue1 = org.jeometry.common.util.Property.hasValue(value);
-    final boolean hasValue2 = org.jeometry.common.util.Property.hasValue(fieldValue);
+    final boolean hasValue1 = com.revolsys.util.Property.hasValue(value);
+    final boolean hasValue2 = com.revolsys.util.Property.hasValue(fieldValue);
     if (hasValue1) {
       if (hasValue2) {
         return DataType.equal(fieldValue, value);
@@ -531,7 +530,7 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
   @Override
   default Byte getByte(final CharSequence name) {
     final Object value = getValue(name);
-    if (org.jeometry.common.util.Property.hasValue(value)) {
+    if (com.revolsys.util.Property.hasValue(value)) {
       if (value instanceof Number) {
         final Number number = (Number)value;
         return number.byteValue();
@@ -546,7 +545,7 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
   @SuppressWarnings("unchecked")
   default <T> T getCodeValue(final CharSequence fieldName) {
     Object value = getValue(fieldName);
-    if (org.jeometry.common.util.Property.hasValue(value)) {
+    if (com.revolsys.util.Property.hasValue(value)) {
       final FieldDefinition fieldDefinition = getFieldDefinition(fieldName);
       value = fieldDefinition.getCodeValue(value);
     }
@@ -556,7 +555,7 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
   @SuppressWarnings("unchecked")
   default <T> T getCodeValue(final int fieldIndex) {
     Object value = getValue(fieldIndex);
-    if (org.jeometry.common.util.Property.hasValue(value)) {
+    if (com.revolsys.util.Property.hasValue(value)) {
       final FieldDefinition fieldDefinition = getFieldDefinition(fieldIndex);
       value = fieldDefinition.getCodeValue(value);
     }
@@ -618,7 +617,7 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
   @Override
   default Double getDouble(final CharSequence name) {
     final Object value = getValue(name);
-    if (org.jeometry.common.util.Property.hasValue(value)) {
+    if (com.revolsys.util.Property.hasValue(value)) {
       if (value instanceof Number) {
         final Number number = (Number)value;
         return number.doubleValue();
@@ -633,7 +632,7 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
   @Override
   default <E extends Enum<E>> E getEnum(final Class<E> enumType, final CharSequence fieldName) {
     final String value = getString(fieldName);
-    if (org.jeometry.common.util.Property.hasValue(value)) {
+    if (com.revolsys.util.Property.hasValue(value)) {
       return Enum.valueOf(enumType, value);
     } else {
       return null;
@@ -643,7 +642,7 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
   default <E extends Enum<E>> E getEnum(final Class<E> enumType, final CharSequence fieldName,
     final E defaultValue) {
     final String value = getString(fieldName);
-    if (org.jeometry.common.util.Property.hasValue(value)) {
+    if (com.revolsys.util.Property.hasValue(value)) {
       return Enum.valueOf(enumType, value);
     } else {
       return defaultValue;
@@ -653,7 +652,7 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
   @Override
   default Float getFloat(final CharSequence name) {
     final Object value = getValue(name);
-    if (org.jeometry.common.util.Property.hasValue(value)) {
+    if (com.revolsys.util.Property.hasValue(value)) {
       if (value instanceof Number) {
         final Number number = (Number)value;
         return number.floatValue();
@@ -774,7 +773,7 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
   @Override
   default Integer getInteger(final CharSequence name) {
     final Object value = getValue(name);
-    if (org.jeometry.common.util.Property.hasValue(value)) {
+    if (com.revolsys.util.Property.hasValue(value)) {
       if (value instanceof Number) {
         final Number number = (Number)value;
         return number.intValue();
@@ -799,7 +798,7 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
   @Override
   default Long getLong(final CharSequence name) {
     final Object value = getValue(name);
-    if (org.jeometry.common.util.Property.hasValue(value)) {
+    if (com.revolsys.util.Property.hasValue(value)) {
       if (value instanceof Number) {
         final Number number = (Number)value;
         return number.longValue();
@@ -817,7 +816,7 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
   @Override
   default Short getShort(final CharSequence name) {
     final Object value = getValue(name);
-    if (org.jeometry.common.util.Property.hasValue(value)) {
+    if (com.revolsys.util.Property.hasValue(value)) {
       if (value instanceof Number) {
         final Number number = (Number)value;
         return number.shortValue();
@@ -855,7 +854,7 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
   @Override
   default String getString(final CharSequence name, final String defaultValue) {
     final String value = getString(name);
-    if (org.jeometry.common.util.Property.hasValue(value)) {
+    if (com.revolsys.util.Property.hasValue(value)) {
       return value;
     } else {
       return defaultValue;
@@ -875,7 +874,7 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
    */
   default <T extends Object> T getValue(final int index) {
     final String fieldName = getFieldName(index);
-    return org.jeometry.common.util.Property.getSimple(this, fieldName);
+    return com.revolsys.util.Property.getSimple(this, fieldName);
   }
 
   default <T extends Object> T getValue(final int index, final DataType dataType) {
@@ -947,7 +946,7 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
         } else {
           try {
             final Object object = propertyValue;
-            propertyValue = org.jeometry.common.util.Property.getSimple(object, propertyName);
+            propertyValue = com.revolsys.util.Property.getSimple(object, propertyName);
           } catch (final IllegalArgumentException e) {
             Logs.debug(this, "Path does not exist " + path, e);
             return null;
@@ -992,18 +991,18 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
 
   default boolean hasGeometry() {
     final Geometry geometry = getGeometry();
-    return org.jeometry.common.util.Property.hasValue(geometry);
+    return com.revolsys.util.Property.hasValue(geometry);
   }
 
   @Override
   default boolean hasValue(final CharSequence name) {
     final Object value = getValue(name);
-    return org.jeometry.common.util.Property.hasValue(value);
+    return com.revolsys.util.Property.hasValue(value);
   }
 
   default boolean hasValue(final int fieldIndex) {
     final Object value = getValue(fieldIndex);
-    return org.jeometry.common.util.Property.hasValue(value);
+    return com.revolsys.util.Property.hasValue(value);
   }
 
   @Override
@@ -1335,7 +1334,7 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
         return false;
       }
       updated = setValue(name, value);
-    } else if (!org.jeometry.common.util.Property.hasValue(value)) {
+    } else if (!com.revolsys.util.Property.hasValue(value)) {
       updated = setValue(codeTableFieldName, null);
     } else {
       Object targetValue;
@@ -1534,7 +1533,7 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
       for (final FieldDefinition field : fieldDefinitions) {
         final int fieldIndex = field.getIndex();
         final Object value = getValue(fieldIndex);
-        if (org.jeometry.common.util.Property.hasValue(value)) {
+        if (com.revolsys.util.Property.hasValue(value)) {
           final String name = field.getName();
           writer.label(name);
 

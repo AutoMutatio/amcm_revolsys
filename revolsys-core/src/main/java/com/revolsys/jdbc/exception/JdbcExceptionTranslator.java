@@ -13,7 +13,6 @@ import org.springframework.jdbc.support.SQLErrorCodesFactory;
 
 import com.revolsys.jdbc.io.DataSourceImpl;
 import com.revolsys.log.LogbackUtil;
-import com.revolsys.util.Property;
 
 public class JdbcExceptionTranslator extends SQLErrorCodeSQLExceptionTranslator {
   private static final Map<String, BiFunction<String, SQLException, DataAccessException>> ERROR_CODE_TO_FUNCTION = new HashMap<>();
@@ -62,10 +61,10 @@ public class JdbcExceptionTranslator extends SQLErrorCodeSQLExceptionTranslator 
       return null;
     } else {
       final StringBuilder message = new StringBuilder();
-      if (org.jeometry.common.util.Property.hasValue(task)) {
+      if (com.revolsys.util.Property.hasValue(task)) {
         message.append(task);
       }
-      if (org.jeometry.common.util.Property.hasValue(sql)) {
+      if (com.revolsys.util.Property.hasValue(sql)) {
         if (message.length() > 0) {
           message.append("\n  ");
         }

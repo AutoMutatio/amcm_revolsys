@@ -1,10 +1,9 @@
 package com.revolsys.geometry.geoid;
 
-import org.jeometry.common.util.BaseCloseable;
-import org.jeometry.common.util.ObjectWithProperties;
-
 import com.revolsys.geometry.model.BoundingBoxProxy;
 import com.revolsys.io.IoFactory;
+import com.revolsys.util.BaseCloseable;
+import com.revolsys.util.ObjectWithProperties;
 
 public interface GeoidModelReader extends BaseCloseable, BoundingBoxProxy, ObjectWithProperties {
   static boolean isReadable(final Object source) {

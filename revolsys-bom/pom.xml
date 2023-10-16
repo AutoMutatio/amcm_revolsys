@@ -17,11 +17,41 @@
         <version>1.5</version>
       </dependency>
       <dependency>
-        <groupId>org.jeometry</groupId>
-        <artifactId>jeometry-bom</artifactId>
-        <version>${org.jeometry.version}</version>
-        <type>pom</type>
-        <scope>import</scope>
+        <groupId>org.slf4j</groupId>
+        <artifactId>jcl-over-slf4j</artifactId>
+        <version>${org.slf4j.version}</version>
+        <exclusions>
+          <exclusion>
+            <artifactId>commons-logging</artifactId>
+            <groupId>commons-logging</groupId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
+        <version>${org.slf4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>4.13.2</version>
+      </dependency>
+
+      <dependency>
+        <groupId>javax.measure</groupId>
+        <artifactId>unit-api</artifactId>
+        <version>2.2</version>
+      </dependency>
+      <dependency>
+        <groupId>tech.units</groupId>
+        <artifactId>indriya</artifactId>
+        <version>2.2</version>
+      </dependency>
+      <dependency>
+        <groupId>tech.uom.lib</groupId>
+        <artifactId>uom-lib-common</artifactId>
+        <version>2.2</version>
       </dependency>
       <dependency>
         <groupId>ch.qos.logback</groupId>
@@ -461,11 +491,6 @@
         <optional>true</optional>
       </dependency>
       <dependency>
-        <groupId>junit</groupId>
-        <artifactId>junit</artifactId>
-        <version>4.13.2</version>
-      </dependency>
-      <dependency>
         <groupId>org.xerial</groupId>
         <artifactId>sqlite-jdbc</artifactId>
         <version>3.43.0.0</version>
@@ -576,6 +601,7 @@
     <org.docx4j.version>11.4.9</org.docx4j.version>
     <org.gdal.version>2.4.0</org.gdal.version>
     <org.graalvm.version>23.1.0</org.graalvm.version>
+    <org.slf4j.version>2.0.9</org.slf4j.version>
     <org.springframework.version>6.0.12</org.springframework.version>
     <org.springframework.boot.version>3.1.4</org.springframework.boot.version>
     <org.springboot.version>${org.springframework.boot.version}</org.springboot.version>

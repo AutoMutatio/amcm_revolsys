@@ -20,10 +20,8 @@ import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JPopupMenu.Separator;
 
-import org.jeometry.common.logging.Logs;
-import org.jeometry.common.util.BaseObjectWithProperties;
-
 import com.revolsys.beans.ClassRegistry;
+import com.revolsys.logging.Logs;
 import com.revolsys.swing.Icons;
 import com.revolsys.swing.action.AbstractAction;
 import com.revolsys.swing.action.RunnableAction;
@@ -31,7 +29,7 @@ import com.revolsys.swing.action.enablecheck.EnableCheck;
 import com.revolsys.swing.component.ComponentFactory;
 import com.revolsys.swing.field.Field;
 import com.revolsys.swing.tree.TreeNodes;
-import com.revolsys.util.Property;
+import com.revolsys.util.BaseObjectWithProperties;
 import com.revolsys.util.RunnableInitializers;
 
 public class MenuFactory extends BaseObjectWithProperties implements ComponentFactory<JMenuItem> {
@@ -623,7 +621,7 @@ public class MenuFactory extends BaseObjectWithProperties implements ComponentFa
     for (final String groupName : this.groupNames) {
       boolean groupHasItem = false;
       final List<ComponentFactory<?>> factories = this.groups.get(groupName);
-      if (!org.jeometry.common.util.Property.isEmpty(factories)) {
+      if (!com.revolsys.util.Property.isEmpty(factories)) {
         for (final ComponentFactory<?> factory : factories) {
           final Component component = factory.newComponent();
           if (component != null) {
@@ -683,7 +681,7 @@ public class MenuFactory extends BaseObjectWithProperties implements ComponentFa
 
   @Override
   public String toString() {
-    if (org.jeometry.common.util.Property.hasValue(this.name)) {
+    if (com.revolsys.util.Property.hasValue(this.name)) {
       return this.name;
     } else {
       return super.toString();

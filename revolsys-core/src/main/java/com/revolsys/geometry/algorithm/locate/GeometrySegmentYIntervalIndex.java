@@ -4,8 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-import org.jeometry.common.function.Consumer4Double;
-
+import com.revolsys.function.Consumer4Double;
 import com.revolsys.geometry.algorithm.RayCrossingCounter;
 import com.revolsys.geometry.index.intervalrtree.SortedPackedIntervalRTree;
 import com.revolsys.geometry.model.Geometry;

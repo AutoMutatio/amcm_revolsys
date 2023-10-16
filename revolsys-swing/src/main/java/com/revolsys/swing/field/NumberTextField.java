@@ -9,18 +9,17 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 import org.jdesktop.swingx.JXTextField;
-import org.jeometry.common.awt.WebColors;
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.common.exception.Exceptions;
-import org.jeometry.common.number.BigDecimals;
-import org.jeometry.common.number.Numbers;
 
+import com.revolsys.awt.WebColors;
+import com.revolsys.data.type.DataType;
+import com.revolsys.data.type.DataTypes;
+import com.revolsys.exception.Exceptions;
+import com.revolsys.number.BigDecimals;
+import com.revolsys.number.Numbers;
 import com.revolsys.swing.SwingUtil;
 import com.revolsys.swing.listener.WeakFocusListener;
 import com.revolsys.swing.menu.MenuFactory;
 import com.revolsys.swing.parallel.Invoke;
-import com.revolsys.util.Property;
 
 public class NumberTextField extends JXTextField implements Field, DocumentListener, FocusListener {
   private static final long serialVersionUID = 1L;
@@ -227,7 +226,7 @@ public class NumberTextField extends JXTextField implements Field, DocumentListe
   }
 
   private Object getTypedValue(final Object value) {
-    if (org.jeometry.common.util.Property.isEmpty(value)) {
+    if (com.revolsys.util.Property.isEmpty(value)) {
       return null;
     } else {
       if ("NaN".equalsIgnoreCase(value.toString())) {
@@ -336,7 +335,7 @@ public class NumberTextField extends JXTextField implements Field, DocumentListe
   private void validateField() {
     final String text = getText();
     String message = null;
-    if (org.jeometry.common.util.Property.hasValue(text)) {
+    if (com.revolsys.util.Property.hasValue(text)) {
       if ("NaN".equalsIgnoreCase(text)) {
         if (this.dataType.equals(DataTypes.DOUBLE)) {
         } else if (this.dataType.equals(DataTypes.FLOAT)) {
@@ -382,7 +381,7 @@ public class NumberTextField extends JXTextField implements Field, DocumentListe
         }
       }
     }
-    final boolean valid = org.jeometry.common.util.Property.isEmpty(message);
+    final boolean valid = com.revolsys.util.Property.isEmpty(message);
     if (valid) {
       this.fieldSupport.setFieldValid();
     } else {

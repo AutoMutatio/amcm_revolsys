@@ -4,8 +4,7 @@ import java.util.function.Predicate;
 
 import javax.swing.Icon;
 
-import org.jeometry.common.json.JsonObject;
-
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.elevation.gridded.GriddedElevationModel;
 import com.revolsys.raster.BufferedGeoreferencedImage;
 import com.revolsys.swing.map.layer.AbstractLayerRenderer;

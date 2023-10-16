@@ -7,11 +7,10 @@ import org.apache.batik.dom.util.DocumentFactory;
 import org.apache.batik.transcoder.TranscoderInput;
 import org.apache.batik.util.SVGConstants;
 import org.apache.batik.util.XMLResourceDescriptor;
-import org.jeometry.common.logging.Logs;
 import org.w3c.dom.Document;
 
+import com.revolsys.logging.Logs;
 import com.revolsys.spring.resource.Resource;
-import com.revolsys.util.Property;
 
 public class SvgUtil {
   private static final String PARSER_CLASS_NAME = XMLResourceDescriptor.getXMLParserClassName();
@@ -31,7 +30,7 @@ public class SvgUtil {
   }
 
   public static Document newDocument(final String uri) {
-    if (org.jeometry.common.util.Property.hasValue(uri)) {
+    if (com.revolsys.util.Property.hasValue(uri)) {
       final DocumentFactory documentFactory = new SAXSVGDocumentFactory(PARSER_CLASS_NAME);
       try {
         return documentFactory.createDocument(SVGConstants.SVG_NAMESPACE_URI,

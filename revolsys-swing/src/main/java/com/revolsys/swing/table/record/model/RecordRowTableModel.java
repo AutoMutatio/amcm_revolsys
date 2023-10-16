@@ -11,11 +11,10 @@ import javax.swing.SortOrder;
 
 import jakarta.annotation.PreDestroy;
 
-import org.jeometry.common.data.identifier.Identifier;
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.common.date.Dates;
-
+import com.revolsys.data.identifier.Identifier;
+import com.revolsys.data.type.DataType;
+import com.revolsys.data.type.DataTypes;
+import com.revolsys.date.Dates;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.record.Record;
 import com.revolsys.record.RecordState;
@@ -24,7 +23,6 @@ import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.swing.table.SortableTableModel;
 import com.revolsys.swing.table.record.RecordRowTable;
-import com.revolsys.util.Property;
 import com.revolsys.util.Strings;
 
 public abstract class RecordRowTableModel extends AbstractRecordTableModel
@@ -56,7 +54,7 @@ public abstract class RecordRowTableModel extends AbstractRecordTableModel
   public RecordRowTableModel(final RecordDefinition recordDefinition,
     final Collection<String> fieldNames, final int fieldsOffset) {
     super(recordDefinition);
-    if (org.jeometry.common.util.Property.hasValue(fieldNames)) {
+    if (com.revolsys.util.Property.hasValue(fieldNames)) {
       setFieldNamesAndTitles(fieldNames, Collections.<String> emptyList());
     }
     this.fieldsOffset = fieldsOffset;
@@ -521,7 +519,7 @@ public abstract class RecordRowTableModel extends AbstractRecordTableModel
   // TODO initial sort order for session layers doesn't always work
   public SortOrder setSortOrder(final String fieldName) {
     int index = 0;
-    if (org.jeometry.common.util.Property.hasValue(fieldName)) {
+    if (com.revolsys.util.Property.hasValue(fieldName)) {
       index = this.fieldNames.indexOf(fieldName);
       if (index == -1) {
         index = 0;

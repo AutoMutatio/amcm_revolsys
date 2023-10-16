@@ -1,8 +1,7 @@
 package com.revolsys.io.map;
 
-import org.jeometry.common.collection.iterator.Reader;
-import org.jeometry.common.collection.map.MapEx;
-
+import com.revolsys.collection.iterator.Reader;
+import com.revolsys.collection.map.MapEx;
 import com.revolsys.io.IoFactory;
 
 public interface MapReader extends Reader<MapEx> {

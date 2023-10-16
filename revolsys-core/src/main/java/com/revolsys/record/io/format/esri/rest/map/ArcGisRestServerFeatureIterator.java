@@ -9,16 +9,13 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.function.BiFunction;
 
-import org.jeometry.common.collection.iterator.AbstractIterator;
-import org.jeometry.common.collection.map.MapEx;
-import org.jeometry.common.collection.map.Maps;
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.exception.Exceptions;
-import org.jeometry.common.json.JsonParser;
-import org.jeometry.common.json.JsonParser.EventType;
-import org.jeometry.common.logging.Logs;
-import org.jeometry.common.util.BaseCloseable;
-
+import com.revolsys.collection.iterator.AbstractIterator;
+import com.revolsys.collection.json.JsonParser;
+import com.revolsys.collection.json.JsonParser.EventType;
+import com.revolsys.collection.map.MapEx;
+import com.revolsys.collection.map.Maps;
+import com.revolsys.data.type.DataType;
+import com.revolsys.exception.Exceptions;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryDataTypes;
 import com.revolsys.geometry.model.GeometryFactory;
@@ -26,6 +23,7 @@ import com.revolsys.geometry.model.LineString;
 import com.revolsys.geometry.model.LinearRing;
 import com.revolsys.geometry.model.Point;
 import com.revolsys.geometry.model.Polygon;
+import com.revolsys.logging.Logs;
 import com.revolsys.net.urlcache.FileResponseCache;
 import com.revolsys.record.Record;
 import com.revolsys.record.RecordFactory;
@@ -33,6 +31,7 @@ import com.revolsys.record.RecordState;
 import com.revolsys.record.io.RecordReader;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.spring.resource.Resource;
+import com.revolsys.util.BaseCloseable;
 
 public class ArcGisRestServerFeatureIterator extends AbstractIterator<Record>
   implements RecordReader {
@@ -260,7 +259,7 @@ public class ArcGisRestServerFeatureIterator extends AbstractIterator<Record>
             record.setValues(fieldValues);
             if (this.geometryConverter != null) {
               final MapEx geometryProperties = recordMap.getValue("geometry");
-              if (org.jeometry.common.util.Property.hasValue(geometryProperties)) {
+              if (com.revolsys.util.Property.hasValue(geometryProperties)) {
                 final Geometry geometry = this.geometryConverter.apply(this.geometryFactory,
                   geometryProperties);
                 record.setGeometryValue(geometry);

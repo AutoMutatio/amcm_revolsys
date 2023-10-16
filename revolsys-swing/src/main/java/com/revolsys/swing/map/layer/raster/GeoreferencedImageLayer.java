@@ -11,12 +11,9 @@ import java.util.function.Predicate;
 
 import javax.swing.JOptionPane;
 
-import org.jeometry.common.collection.map.MapEx;
-import org.jeometry.common.collection.map.Maps;
-import org.jeometry.common.json.JsonObject;
-import org.jeometry.common.logging.Logs;
-import org.jeometry.common.number.Doubles;
-
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.map.MapEx;
+import com.revolsys.collection.map.Maps;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.geometry.model.LineString;
@@ -25,6 +22,8 @@ import com.revolsys.geometry.model.editor.BoundingBoxEditor;
 import com.revolsys.geometry.model.impl.PointDoubleXY;
 import com.revolsys.io.FileUtil;
 import com.revolsys.io.IoFactory;
+import com.revolsys.logging.Logs;
+import com.revolsys.number.Doubles;
 import com.revolsys.raster.GeoreferencedImage;
 import com.revolsys.raster.GeoreferencedImageMapTile;
 import com.revolsys.raster.GeoreferencedImageReadFactory;
@@ -249,7 +248,7 @@ public class GeoreferencedImageLayer extends AbstractLayer {
   @Override
   protected boolean initializeDo() {
     final String url = getProperty("url");
-    if (org.jeometry.common.util.Property.hasValue(url)) {
+    if (com.revolsys.util.Property.hasValue(url)) {
       this.url = url;
       this.resource = Resource.getResource(url);
       cancelChanges();
@@ -300,7 +299,7 @@ public class GeoreferencedImageLayer extends AbstractLayer {
       SwingUtil.addLabelledReadOnlyTextField(panel, "URL", this.url);
     }
     final String fileNameExtension = FileUtil.getFileNameExtension(this.url);
-    if (org.jeometry.common.util.Property.hasValue(fileNameExtension)) {
+    if (com.revolsys.util.Property.hasValue(fileNameExtension)) {
       SwingUtil.addLabelledReadOnlyTextField(panel, "File Extension", fileNameExtension);
       final GeoreferencedImageReadFactory factory = IoFactory
         .factoryByFileExtension(GeoreferencedImageReadFactory.class, fileNameExtension);

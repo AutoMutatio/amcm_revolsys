@@ -3,9 +3,9 @@ package com.revolsys.util;
 import java.util.List;
 import java.util.ServiceLoader;
 
-import org.jeometry.common.collection.list.Lists;
-import org.jeometry.common.date.Dates;
-import org.jeometry.common.logging.Logs;
+import com.revolsys.collection.list.Lists;
+import com.revolsys.date.Dates;
+import com.revolsys.logging.Logs;
 
 public class ServiceInitializerLoader {
   static {

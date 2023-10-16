@@ -4,9 +4,8 @@ import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
-import org.jeometry.common.collection.map.MapEx;
-import org.jeometry.common.json.JsonObject;
-
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.map.MapEx;
 import com.revolsys.geometry.io.GeometryWriterFactory;
 import com.revolsys.geometry.io.PointReaderFactory;
 import com.revolsys.record.io.GeometryRecordReaderFactory;

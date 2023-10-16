@@ -12,14 +12,13 @@ import java.util.Map;
 import javax.swing.JComponent;
 import javax.swing.undo.UndoableEdit;
 
-import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.common.math.MathUtil;
-
+import com.revolsys.data.type.DataTypes;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.geometry.model.Point;
 import com.revolsys.geometry.model.Polygonal;
 import com.revolsys.geometry.model.vertex.Vertex;
+import com.revolsys.math.MathUtil;
 import com.revolsys.swing.field.NumberTextField;
 import com.revolsys.swing.map.form.GeometryCoordinatesPanel;
 import com.revolsys.swing.map.form.LayerRecordForm;
@@ -28,7 +27,6 @@ import com.revolsys.swing.map.layer.record.LayerRecord;
 import com.revolsys.swing.table.AbstractTableModel;
 import com.revolsys.swing.table.TablePanel;
 import com.revolsys.swing.undo.UndoManager;
-import com.revolsys.util.Property;
 
 public class GeometryCoordinatesTableModel extends AbstractTableModel {
   private static final long serialVersionUID = 1L;
@@ -284,7 +282,7 @@ public class GeometryCoordinatesTableModel extends AbstractTableModel {
 
   @Override
   public void setValueAt(final Object value, final int rowIndex, final int columnIndex) {
-    if (org.jeometry.common.util.Property.hasValue(value)) {
+    if (com.revolsys.util.Property.hasValue(value)) {
       if (rowIndex < getRowCount()) {
         if (columnIndex >= this.numIndexItems) {
           final int axisIndex = columnIndex - this.numIndexItems;

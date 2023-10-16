@@ -7,9 +7,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import org.jeometry.common.collection.map.MapEx;
-import org.jeometry.common.json.JsonObject;
-
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.map.MapEx;
 import com.revolsys.spring.resource.Resource;
 
 public class CsvMapIterator implements Iterator<MapEx> {

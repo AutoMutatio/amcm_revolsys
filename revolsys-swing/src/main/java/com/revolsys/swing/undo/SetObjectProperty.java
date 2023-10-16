@@ -1,7 +1,6 @@
 package com.revolsys.swing.undo;
 
-import org.jeometry.common.data.type.DataType;
-
+import com.revolsys.data.type.DataType;
 import com.revolsys.util.Property;
 
 public class SetObjectProperty extends AbstractUndoableEdit {
@@ -47,7 +46,7 @@ public class SetObjectProperty extends AbstractUndoableEdit {
 
   @Override
   protected void redoDo() {
-    org.jeometry.common.util.Property.setSimple(this.object, this.propertyName, this.newValue);
+    com.revolsys.util.Property.setSimple(this.object, this.propertyName, this.newValue);
   }
 
   @Override
@@ -57,6 +56,6 @@ public class SetObjectProperty extends AbstractUndoableEdit {
 
   @Override
   protected void undoDo() {
-    org.jeometry.common.util.Property.setSimple(this.object, this.propertyName, this.oldValue);
+    com.revolsys.util.Property.setSimple(this.object, this.propertyName, this.oldValue);
   }
 }

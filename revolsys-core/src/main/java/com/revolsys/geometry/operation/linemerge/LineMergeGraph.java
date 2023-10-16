@@ -32,8 +32,7 @@
  */
 package com.revolsys.geometry.operation.linemerge;
 
-import org.jeometry.common.collection.list.Lists;
-
+import com.revolsys.collection.list.Lists;
 import com.revolsys.geometry.model.LineString;
 import com.revolsys.geometry.model.Point;
 import com.revolsys.geometry.planargraph.DirectedEdge;

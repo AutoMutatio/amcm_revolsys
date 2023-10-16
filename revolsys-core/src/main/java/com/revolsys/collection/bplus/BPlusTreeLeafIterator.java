@@ -5,7 +5,7 @@ import java.util.ConcurrentModificationException;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import org.jeometry.common.collection.iterator.AbstractIterator;
+import com.revolsys.collection.iterator.AbstractIterator;
 
 class BPlusTreeLeafIterator<T> extends AbstractIterator<T> {
 

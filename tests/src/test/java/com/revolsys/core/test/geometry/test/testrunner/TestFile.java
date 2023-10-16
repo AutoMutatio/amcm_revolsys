@@ -39,14 +39,12 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 
-import org.jeometry.common.io.MapSerializer;
-import org.jeometry.common.json.JsonObject;
-import org.jeometry.common.json.JsonObjectHash;
-
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.json.JsonObjectHash;
 import com.revolsys.core.test.geometry.test.geomop.GeometryOperation;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.io.FileUtil;
-import com.revolsys.util.Property;
+import com.revolsys.io.MapSerializer;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -85,7 +83,7 @@ public class TestFile extends TestSuite implements MapSerializer {
     final ResultMatcher resultMatcher, final File testFile) {
     this.parent = parent;
     this.runIndex = runIndex;
-    if (org.jeometry.common.util.Property.hasValue(description)) {
+    if (com.revolsys.util.Property.hasValue(description)) {
       this.testDescription = description.replaceAll("\\s+", " ");
     }
     setName(getId() + "." + FileUtil.getBaseName(testFile));
@@ -109,7 +107,7 @@ public class TestFile extends TestSuite implements MapSerializer {
 
   public String getId() {
     final String parentId = this.parent.getId();
-    if (org.jeometry.common.util.Property.hasValue(parentId)) {
+    if (com.revolsys.util.Property.hasValue(parentId)) {
       return parentId + "." + this.runIndex;
     } else {
       return String.valueOf(this.runIndex);

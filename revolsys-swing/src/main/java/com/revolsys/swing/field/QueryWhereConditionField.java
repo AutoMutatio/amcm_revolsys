@@ -35,14 +35,14 @@ import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
 
 import org.jdesktop.swingx.VerticalLayout;
-import org.jeometry.common.awt.WebColors;
-import org.jeometry.common.data.identifier.Identifier;
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.common.exception.Exceptions;
-import org.jeometry.common.exception.WrappedException;
-import org.jeometry.common.logging.Logs;
 
+import com.revolsys.awt.WebColors;
+import com.revolsys.data.identifier.Identifier;
+import com.revolsys.data.type.DataType;
+import com.revolsys.data.type.DataTypes;
+import com.revolsys.exception.Exceptions;
+import com.revolsys.exception.WrappedException;
+import com.revolsys.logging.Logs;
 import com.revolsys.record.code.CodeTable;
 import com.revolsys.record.query.Condition;
 import com.revolsys.record.query.parser.JSqlParser;
@@ -226,7 +226,7 @@ public class QueryWhereConditionField extends ValueField
     if (filter != null) {
       this.whereTextField.setText(filter.toFormattedString());
     }
-    if (org.jeometry.common.util.Property.hasValue(query)) {
+    if (com.revolsys.util.Property.hasValue(query)) {
       this.whereTextField.setText(query);
     }
     final String searchField = layer.getProperty("searchField");
@@ -297,7 +297,7 @@ public class QueryWhereConditionField extends ValueField
     final FieldDefinition fieldDefinition = this.fieldNamesList.getSelectedItem();
     if (fieldDefinition != null) {
       Object fieldValue = ((Field)this.searchField).getFieldValue();
-      if (org.jeometry.common.util.Property.hasValue(fieldValue)) {
+      if (com.revolsys.util.Property.hasValue(fieldValue)) {
         int position = this.whereTextField.getCaretPosition();
         DataType fieldType = fieldDefinition.getDataType();
         if (fieldValue != null) {
@@ -435,7 +435,7 @@ public class QueryWhereConditionField extends ValueField
   }
 
   public void insertText(final String operator) {
-    if (org.jeometry.common.util.Property.hasValue(operator)) {
+    if (com.revolsys.util.Property.hasValue(operator)) {
       int position = this.whereTextField.getCaretPosition();
       String previousText;
       try {
@@ -443,14 +443,14 @@ public class QueryWhereConditionField extends ValueField
       } catch (final BadLocationException e) {
         previousText = "";
       }
-      if (!org.jeometry.common.util.Property.hasValue(previousText)
+      if (!com.revolsys.util.Property.hasValue(previousText)
         || !previousText.matches(".*" + operator.replaceAll("\\(", "\\\\(")
           .replaceAll("\\)", "\\\\)")
           .replaceAll("\\*", "\\\\*")
           .replaceAll("\\+", "\\\\+") + "\\s*$")) {
         final Document document = this.whereTextField.getDocument();
         try {
-          if (org.jeometry.common.util.Property.hasValue(previousText)
+          if (com.revolsys.util.Property.hasValue(previousText)
             && !previousText.substring(previousText.length() - 1).matches("\\s$")) {
             document.insertString(position++, " ", null);
           }
@@ -494,7 +494,7 @@ public class QueryWhereConditionField extends ValueField
     if (event.getSource() == this.fieldNamesList) {
       if (SwingUtilities.isLeftMouseButton(event) && event.getClickCount() == 2) {
         final FieldDefinition fieldDefinition = this.fieldNamesList.getSelectedItem();
-        if (org.jeometry.common.util.Property.hasValue(fieldDefinition)) {
+        if (com.revolsys.util.Property.hasValue(fieldDefinition)) {
           final String fieldName = fieldDefinition.getName();
           int position = this.whereTextField.getCaretPosition();
           String previousText;
@@ -503,11 +503,11 @@ public class QueryWhereConditionField extends ValueField
           } catch (final BadLocationException e) {
             previousText = "";
           }
-          if (!org.jeometry.common.util.Property.hasValue(previousText)
+          if (!com.revolsys.util.Property.hasValue(previousText)
             || !previousText.matches(".*\"?" + fieldName + "\"?\\s*$")) {
             final Document document = this.whereTextField.getDocument();
             try {
-              if (org.jeometry.common.util.Property.hasValue(previousText)
+              if (com.revolsys.util.Property.hasValue(previousText)
                 && !previousText.substring(previousText.length() - 1).matches("\\s$")) {
                 document.insertString(position++, " ", null);
               }
@@ -580,7 +580,7 @@ public class QueryWhereConditionField extends ValueField
   public boolean setFieldValue(final Object value) {
     if (value instanceof Condition) {
       return super.setFieldValue(value);
-    } else if (org.jeometry.common.util.Property.hasValue(value)) {
+    } else if (com.revolsys.util.Property.hasValue(value)) {
       return false;
     } else {
       return super.setFieldValue(value);
@@ -660,7 +660,7 @@ public class QueryWhereConditionField extends ValueField
     this.statusLabel.setText("");
     try {
       final String whereClause = this.whereTextField.getText();
-      if (org.jeometry.common.util.Property.hasValue(whereClause)) {
+      if (com.revolsys.util.Property.hasValue(whereClause)) {
         boolean valid = true;
         Condition condition;
         try {

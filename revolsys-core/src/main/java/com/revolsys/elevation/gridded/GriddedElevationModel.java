@@ -4,10 +4,8 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Map;
 
-import org.jeometry.common.collection.map.MapEx;
-import org.jeometry.common.function.BiFunctionDoubleDouble;
-import org.jeometry.common.json.JsonObject;
-
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.map.MapEx;
 import com.revolsys.elevation.gridded.esriascii.EsriAsciiGriddedElevation;
 import com.revolsys.elevation.gridded.esrifloatgrid.EsriFloatGridGriddedElevation;
 import com.revolsys.elevation.gridded.img.ImgGriddedElevation;
@@ -20,6 +18,7 @@ import com.revolsys.elevation.gridded.rasterizer.gradient.MultiStopLinearGradien
 import com.revolsys.elevation.gridded.scaledint.ScaledIntegerGriddedDigitalElevation;
 import com.revolsys.elevation.gridded.scaledint.compressed.CompressedScaledIntegerGriddedDigitalElevation;
 import com.revolsys.elevation.gridded.usgsdem.UsgsGriddedElevation;
+import com.revolsys.function.BiFunctionDoubleDouble;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.BoundingBoxProxy;
 import com.revolsys.geometry.model.Geometry;

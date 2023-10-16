@@ -11,15 +11,12 @@ import javax.sql.DataSource;
 
 import jakarta.annotation.PostConstruct;
 
-import org.jeometry.common.data.identifier.Identifier;
-import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.common.logging.Logs;
-import org.jeometry.common.number.Doubles;
-import org.jeometry.coordinatesystem.io.WktCsParser;
-import org.jeometry.coordinatesystem.model.CoordinateSystem;
-import org.jeometry.coordinatesystem.model.systems.EpsgCoordinateSystems;
-
 import com.revolsys.collection.map.IntHashMap;
+import com.revolsys.data.identifier.Identifier;
+import com.revolsys.data.type.DataTypes;
+import com.revolsys.geometry.coordinatesystem.io.WktCsParser;
+import com.revolsys.geometry.coordinatesystem.model.CoordinateSystem;
+import com.revolsys.geometry.coordinatesystem.model.systems.EpsgCoordinateSystems;
 import com.revolsys.geometry.model.BoundingBoxProxy;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.geometry.model.editor.BoundingBoxEditor;
@@ -28,6 +25,8 @@ import com.revolsys.jdbc.field.JdbcFieldAdder;
 import com.revolsys.jdbc.field.JdbcFieldDefinition;
 import com.revolsys.jdbc.io.AbstractJdbcRecordStore;
 import com.revolsys.jdbc.io.JdbcRecordDefinition;
+import com.revolsys.logging.Logs;
+import com.revolsys.number.Doubles;
 import com.revolsys.oracle.recordstore.esri.ArcSdeStGeometryFieldDefinition;
 import com.revolsys.oracle.recordstore.esri.ArcSdeStGeometryRecordStoreExtension;
 import com.revolsys.oracle.recordstore.field.OracleBlobFieldAdder;
@@ -382,7 +381,7 @@ public class OracleRecordStore extends AbstractJdbcRecordStore {
       final String dbSchemaName = recordDefinition.getQuotedDbSchemaName();
       final String shortName = ShortNameProperty.getShortName(recordDefinition);
       final String sequenceName;
-      if (org.jeometry.common.util.Property.hasValue(shortName)) {
+      if (com.revolsys.util.Property.hasValue(shortName)) {
         if (this.useSchemaSequencePrefix) {
           sequenceName = dbSchemaName + "." + shortName.toLowerCase() + "_SEQ";
         } else {

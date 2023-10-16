@@ -5,8 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.jeometry.common.collection.list.Lists;
-
+import com.revolsys.collection.list.Lists;
 import com.revolsys.spring.resource.UrlResource;
 import com.revolsys.webservice.WebServiceResource;
 

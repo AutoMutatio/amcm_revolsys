@@ -7,12 +7,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 
-import org.jeometry.common.util.BaseCloseable;
-
 import com.revolsys.io.channels.ChannelWriter;
 import com.revolsys.raster.io.format.tiff.code.TiffBaselineTag;
 import com.revolsys.raster.io.format.tiff.code.TiffCompression;
 import com.revolsys.spring.resource.Resource;
+import com.revolsys.util.BaseCloseable;
 
 public class TiffFileBuilder implements BaseCloseable {
   private boolean bigTiff = false;

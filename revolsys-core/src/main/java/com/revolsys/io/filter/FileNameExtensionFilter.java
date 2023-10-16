@@ -7,7 +7,7 @@ import java.util.Locale;
 
 import javax.swing.filechooser.FileFilter;
 
-import org.jeometry.common.collection.list.Lists;
+import com.revolsys.collection.list.Lists;
 
 public final class FileNameExtensionFilter extends FileFilter {
   private final String description;

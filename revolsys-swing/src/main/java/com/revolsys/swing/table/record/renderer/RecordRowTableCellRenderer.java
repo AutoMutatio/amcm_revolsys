@@ -7,8 +7,7 @@ import javax.swing.JTable;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
 
-import org.jeometry.common.number.Numbers;
-
+import com.revolsys.number.Numbers;
 import com.revolsys.record.Record;
 import com.revolsys.swing.table.record.model.RecordRowTableModel;
 

@@ -2,8 +2,7 @@ package com.revolsys.record.query.functions;
 
 import java.util.List;
 
-import org.jeometry.common.data.type.DataType;
-
+import com.revolsys.data.type.DataType;
 import com.revolsys.record.query.AbstractBinaryQueryValue;
 import com.revolsys.record.query.Query;
 import com.revolsys.record.query.QueryValue;

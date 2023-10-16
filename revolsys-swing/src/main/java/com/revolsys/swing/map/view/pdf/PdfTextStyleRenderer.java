@@ -19,7 +19,6 @@ import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.impl.PointDoubleXYOrientation;
 import com.revolsys.swing.map.layer.record.style.TextStyle;
 import com.revolsys.swing.map.view.TextStyleViewRenderer;
-import com.revolsys.util.Property;
 
 public class PdfTextStyleRenderer extends TextStyleViewRenderer {
 
@@ -39,7 +38,7 @@ public class PdfTextStyleRenderer extends TextStyleViewRenderer {
   @Override
   public void drawText(final String label, final Geometry geometry) {
     try {
-      if (org.jeometry.common.util.Property.hasValue(label) && geometry != null) {
+      if (com.revolsys.util.Property.hasValue(label) && geometry != null) {
         final String textPlacementType = this.style.getTextPlacementType();
         final PointDoubleXYOrientation point = this.view.getPointWithOrientation(geometry,
           textPlacementType);

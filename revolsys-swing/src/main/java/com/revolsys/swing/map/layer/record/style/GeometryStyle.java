@@ -13,14 +13,12 @@ import javax.measure.Quantity;
 import javax.measure.Unit;
 import javax.measure.quantity.Length;
 
-import org.jeometry.common.awt.WebColors;
-import org.jeometry.common.math.MathUtil;
-import org.jeometry.coordinatesystem.model.unit.CustomUnits;
-
+import com.revolsys.awt.WebColors;
+import com.revolsys.geometry.coordinatesystem.model.unit.CustomUnits;
 import com.revolsys.geometry.model.LineCap;
 import com.revolsys.geometry.model.LineJoin;
+import com.revolsys.math.MathUtil;
 import com.revolsys.swing.map.view.ViewRenderer;
-import com.revolsys.util.Property;
 
 import tech.units.indriya.quantity.Quantities;
 
@@ -393,7 +391,7 @@ public class GeometryStyle extends MarkerStyle {
     final List<Double> dashArray = new ArrayList<>();
     if (lineDashArray != null) {
       for (final Object dashObject : lineDashArray) {
-        if (org.jeometry.common.util.Property.hasValue(dashObject)) {
+        if (com.revolsys.util.Property.hasValue(dashObject)) {
           String dashString = dashObject.toString();
           dashString = dashString.replaceAll(" \\[pnt\\]", "");
           final Double dash = MathUtil.toDouble(dashString);

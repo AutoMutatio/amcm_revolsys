@@ -31,13 +31,12 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 
-import org.jeometry.common.io.IoUtil;
-import org.jeometry.common.logging.Logs;
-
 import com.revolsys.io.AbstractRecordWriter;
 import com.revolsys.io.FileUtil;
+import com.revolsys.io.IoUtil;
 import com.revolsys.io.PathUtil;
 import com.revolsys.io.ZipUtil;
+import com.revolsys.logging.Logs;
 import com.revolsys.record.Record;
 import com.revolsys.record.io.format.saif.util.ObjectSetUtil;
 import com.revolsys.record.io.format.saif.util.OsnConverterRegistry;
@@ -45,7 +44,6 @@ import com.revolsys.record.io.format.saif.util.OsnSerializer;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordDefinitionFactory;
 import com.revolsys.spring.resource.Resource;
-import com.revolsys.util.Property;
 
 /**
  * <p>
@@ -490,7 +488,7 @@ public class SaifWriter extends AbstractRecordWriter {
       final String objectSubset = (String)export.get("objectSubset");
       String compositeTypeName = PathUtil.getName(compositeType);
       final String compositeNamespace = PathUtil.getPath(compositeType).replaceAll("/", "");
-      if (org.jeometry.common.util.Property.hasValue(compositeNamespace)) {
+      if (com.revolsys.util.Property.hasValue(compositeNamespace)) {
         compositeTypeName += "::" + compositeNamespace;
       }
       writeExport(exportsSerializer, referenceId, compositeTypeName, objectSubset);

@@ -11,11 +11,9 @@ import jakarta.websocket.SendHandler;
 import jakarta.websocket.SendResult;
 import jakarta.websocket.Session;
 
-import org.jeometry.common.collection.map.MapEx;
-import org.jeometry.common.collection.map.Maps;
-import org.jeometry.common.logging.Logs;
-
-import com.revolsys.util.Property;
+import com.revolsys.collection.map.MapEx;
+import com.revolsys.collection.map.Maps;
+import com.revolsys.logging.Logs;
 import com.revolsys.websocket.AsyncResult;
 
 public class JsonAsyncSender implements SendHandler {
@@ -143,7 +141,7 @@ public class JsonAsyncSender implements SendHandler {
   public boolean setResult(final MapEx message) {
     if (this.open) {
       final String messageId = Maps.getString(message, "messageId");
-      if (org.jeometry.common.util.Property.hasValue(messageId)) {
+      if (com.revolsys.util.Property.hasValue(messageId)) {
         synchronized (this.messageCallbackById) {
           final AsyncResult<MapEx> resultCallback = this.messageCallbackById.get(messageId);
           if (resultCallback != null) {

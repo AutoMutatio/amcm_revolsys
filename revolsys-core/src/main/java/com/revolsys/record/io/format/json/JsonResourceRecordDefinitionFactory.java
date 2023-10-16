@@ -3,13 +3,12 @@ package com.revolsys.record.io.format.json;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.jeometry.common.util.BaseObjectWithProperties;
-
 import com.revolsys.io.map.MapObjectFactory;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordDefinitionFactory;
 import com.revolsys.spring.resource.ClassPathResource;
 import com.revolsys.spring.resource.Resource;
+import com.revolsys.util.BaseObjectWithProperties;
 
 public class JsonResourceRecordDefinitionFactory extends BaseObjectWithProperties
   implements RecordDefinitionFactory {

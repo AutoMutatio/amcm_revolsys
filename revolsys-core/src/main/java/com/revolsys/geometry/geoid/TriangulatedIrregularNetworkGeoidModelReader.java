@@ -1,11 +1,10 @@
 package com.revolsys.geometry.geoid;
 
-import org.jeometry.common.collection.map.MapEx;
-import org.jeometry.common.util.BaseObjectWithProperties;
-
+import com.revolsys.collection.map.MapEx;
 import com.revolsys.elevation.tin.TriangulatedIrregularNetwork;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.spring.resource.Resource;
+import com.revolsys.util.BaseObjectWithProperties;
 
 public class TriangulatedIrregularNetworkGeoidModelReader extends BaseObjectWithProperties
   implements GeoidModelReader {

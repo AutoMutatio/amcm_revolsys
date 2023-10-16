@@ -2,14 +2,12 @@ package com.revolsys.swing.map.layer.record;
 
 import java.util.Map;
 
-import org.jeometry.common.json.JsonObject;
-import org.jeometry.common.logging.Logs;
-import org.jeometry.common.util.BaseCloseable;
-
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.io.FileUtil;
 import com.revolsys.io.IoFactory;
+import com.revolsys.logging.Logs;
 import com.revolsys.record.Record;
 import com.revolsys.record.io.RecordReader;
 import com.revolsys.record.io.RecordReaderFactory;
@@ -21,7 +19,7 @@ import com.revolsys.swing.component.BasePanel;
 import com.revolsys.swing.component.ValueField;
 import com.revolsys.swing.layout.GroupLayouts;
 import com.revolsys.swing.menu.MenuFactory;
-import com.revolsys.util.Property;
+import com.revolsys.util.BaseCloseable;
 
 public class FileRecordLayer extends ListRecordLayer {
 
@@ -51,7 +49,7 @@ public class FileRecordLayer extends ListRecordLayer {
   @Override
   protected boolean initializeDo() {
     this.url = getProperty("url");
-    if (org.jeometry.common.util.Property.hasValue(this.url)) {
+    if (com.revolsys.util.Property.hasValue(this.url)) {
       this.resource = Resource.getResource(this.url);
       return revertDo();
     } else {
@@ -73,7 +71,7 @@ public class FileRecordLayer extends ListRecordLayer {
       SwingUtil.addLabelledReadOnlyTextField(panel, "URL", url);
     }
     final String fileNameExtension = FileUtil.getFileNameExtension(url);
-    if (org.jeometry.common.util.Property.hasValue(fileNameExtension)) {
+    if (com.revolsys.util.Property.hasValue(fileNameExtension)) {
       SwingUtil.addLabelledReadOnlyTextField(panel, "File Extension", fileNameExtension);
       final RecordReaderFactory factory = IoFactory.factory(RecordReaderFactory.class,
         fileNameExtension);

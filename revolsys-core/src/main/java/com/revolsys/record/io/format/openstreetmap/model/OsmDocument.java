@@ -6,15 +6,13 @@ import java.util.List;
 
 import javax.xml.namespace.QName;
 
-import org.jeometry.common.data.identifier.Identifier;
-
 import com.revolsys.collection.map.LongHashMap;
+import com.revolsys.data.identifier.Identifier;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.Point;
 import com.revolsys.record.io.format.xml.stax.StaxReader;
 import com.revolsys.spring.resource.Resource;
 import com.revolsys.spring.resource.UrlResource;
-import com.revolsys.util.Property;
 
 public class OsmDocument implements OsmConstants {
 
@@ -238,7 +236,7 @@ public class OsmDocument implements OsmConstants {
       for (final String fieldName : Arrays.asList("version", "generator", "copyright",
         "attribution", "license")) {
         final String value = in.getAttributeValue(null, fieldName);
-        org.jeometry.common.util.Property.setSimple(this, fieldName, value);
+        com.revolsys.util.Property.setSimple(this, fieldName, value);
       }
       while (in.skipToChildStartElements(OSM_XML_ELEMENTS)) {
         final QName name = in.getName();

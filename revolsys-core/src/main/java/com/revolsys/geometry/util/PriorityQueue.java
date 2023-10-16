@@ -35,7 +35,7 @@ package com.revolsys.geometry.util;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jeometry.common.util.Emptyable;
+import com.revolsys.util.Emptyable;
 
 /**
  * A priority queue over a set of {@link Comparable} objects.

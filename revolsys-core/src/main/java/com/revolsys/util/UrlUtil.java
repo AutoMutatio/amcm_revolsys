@@ -36,14 +36,13 @@ import java.util.Map.Entry;
 import java.util.StringTokenizer;
 import java.util.regex.Pattern;
 
-import org.jeometry.common.collection.map.MapEx;
-import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.common.exception.Exceptions;
-import org.jeometry.common.io.IoUtil;
-import org.jeometry.common.json.JsonObject;
-import org.jeometry.common.net.UrlProxy;
-
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.map.MapEx;
+import com.revolsys.data.type.DataTypes;
+import com.revolsys.exception.Exceptions;
 import com.revolsys.io.FileUtil;
+import com.revolsys.io.IoUtil;
+import com.revolsys.net.UrlProxy;
 import com.revolsys.spring.resource.Resource;
 
 /**
@@ -347,7 +346,7 @@ public final class UrlUtil {
   @SuppressWarnings("unchecked")
   public static Map<String, Object> getQueryStringMap(final String queryString) {
     final MapEx map = JsonObject.hash();
-    if (org.jeometry.common.util.Property.hasValue(queryString)) {
+    if (com.revolsys.util.Property.hasValue(queryString)) {
       for (final String part : queryString.split("\\&")) {
         final int equalsIndex = part.indexOf("=");
         if (equalsIndex > -1) {
@@ -399,7 +398,7 @@ public final class UrlUtil {
   }
 
   public static URL getUrl(final String urlString) {
-    if (org.jeometry.common.util.Property.isEmpty(urlString)) {
+    if (com.revolsys.util.Property.isEmpty(urlString)) {
       return null;
     } else {
       try {
@@ -440,7 +439,7 @@ public final class UrlUtil {
         url = baseUrl + '?' + query;
       }
     }
-    if (org.jeometry.common.util.Property.hasValue(fragment)) {
+    if (com.revolsys.util.Property.hasValue(fragment)) {
       return url + "#" + fragment;
     } else {
       return url;

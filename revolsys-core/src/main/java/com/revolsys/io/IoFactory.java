@@ -21,13 +21,10 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import org.jeometry.common.collection.list.Lists;
-import org.jeometry.common.collection.map.Maps;
-import org.jeometry.common.exception.Exceptions;
-import org.jeometry.common.io.FileNameProxy;
-import org.jeometry.common.io.IoUtil;
-import org.jeometry.coordinatesystem.model.CoordinateSystem;
-
+import com.revolsys.collection.list.Lists;
+import com.revolsys.collection.map.Maps;
+import com.revolsys.exception.Exceptions;
+import com.revolsys.geometry.coordinatesystem.model.CoordinateSystem;
 import com.revolsys.io.channels.ChannelReader;
 import com.revolsys.io.file.Paths;
 import com.revolsys.io.filter.FileNameExtensionFilter;
@@ -36,7 +33,6 @@ import com.revolsys.record.io.RecordWriterFactory;
 import com.revolsys.spring.resource.GzipResource;
 import com.revolsys.spring.resource.Resource;
 import com.revolsys.spring.resource.UrlResource;
-import com.revolsys.util.Property;
 import com.revolsys.util.Strings;
 import com.revolsys.util.UrlUtil;
 
@@ -82,7 +78,7 @@ public interface IoFactory extends Available {
     String fileExtension) {
     if (fileExtension != null) {
       fileExtension = fileExtension.toLowerCase();
-      if (org.jeometry.common.util.Property.hasValue(fileExtension)) {
+      if (com.revolsys.util.Property.hasValue(fileExtension)) {
         return (F)Maps.getMap(IoFactoryRegistry.factoryByClassAndFileExtension, factoryClass,
           fileExtension);
       }
@@ -118,7 +114,7 @@ public interface IoFactory extends Available {
   @SuppressWarnings("unchecked")
   public static <F extends IoFactory> F factoryByMediaType(final Class<F> factoryClass,
     final String mediaType) {
-    if (org.jeometry.common.util.Property.hasValue(mediaType)) {
+    if (com.revolsys.util.Property.hasValue(mediaType)) {
       if (mediaType.contains("/")) {
         return (F)Maps.getMap(IoFactoryRegistry.factoryByClassAndMediaType, factoryClass,
           mediaType);
@@ -145,7 +141,7 @@ public interface IoFactory extends Available {
 
   public static String fileName(final Object source) {
     String fileName = null;
-    if (org.jeometry.common.util.Property.hasValue(source)) {
+    if (com.revolsys.util.Property.hasValue(source)) {
       if (source instanceof FileNameProxy) {
         fileName = ((FileNameProxy)source).getFileName();
       } else if (source instanceof Resource) {
@@ -192,11 +188,11 @@ public interface IoFactory extends Available {
     final Object source) {
     if (factoryClass != null) {
       final List<String> fileExtensions = fileExtensions(factoryClass);
-      if (org.jeometry.common.util.Property.hasValue(fileExtensions)) {
+      if (com.revolsys.util.Property.hasValue(fileExtensions)) {
         try {
           final String fileName = fileName(source);
           for (final String fileExtension : FileUtil.getFileNameExtensions(fileName)) {
-            if (org.jeometry.common.util.Property.hasValue(fileExtension)
+            if (com.revolsys.util.Property.hasValue(fileExtension)
               && fileExtensions.contains(fileExtension.toLowerCase())) {
               return true;
             }

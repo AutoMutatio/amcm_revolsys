@@ -12,11 +12,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.zip.CRC32;
 
-import org.jeometry.common.collection.value.ThreadBooleanValue;
-import org.jeometry.common.io.IoUtil;
-import org.jeometry.common.util.BaseCloseable;
-
+import com.revolsys.collection.value.ThreadBooleanValue;
 import com.revolsys.io.FileUtil;
+import com.revolsys.io.IoUtil;
+import com.revolsys.util.BaseCloseable;
 
 public class FileResponseCache extends ResponseCache {
   private static final ThreadBooleanValue enabled = new ThreadBooleanValue(true);

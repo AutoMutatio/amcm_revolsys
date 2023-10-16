@@ -3,8 +3,8 @@ package com.revolsys.net.oauth;
 import java.util.function.Function;
 
 import org.apache.http.client.methods.RequestBuilder;
-import org.jeometry.common.json.JsonObject;
 
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.net.http.ApacheHttp;
 import com.revolsys.record.io.format.json.JsonIo;
 import com.revolsys.spring.resource.Resource;

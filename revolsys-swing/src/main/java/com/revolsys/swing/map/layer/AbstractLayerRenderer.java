@@ -8,8 +8,7 @@ import java.util.Map;
 
 import javax.swing.Icon;
 
-import org.jeometry.common.json.JsonObject;
-
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.properties.BaseObjectWithPropertiesAndChange;
 import com.revolsys.swing.Icons;
 import com.revolsys.swing.component.Form;
@@ -231,7 +230,7 @@ public abstract class AbstractLayerRenderer<T extends Layer> extends
   @Override
   public void setName(final String name) {
     final String oldName = getName();
-    if (org.jeometry.common.util.Property.hasValue(name)) {
+    if (com.revolsys.util.Property.hasValue(name)) {
       this.name = name;
     } else {
       this.name = CaseConverter.toCapitalizedWords(this.type);
@@ -291,7 +290,7 @@ public abstract class AbstractLayerRenderer<T extends Layer> extends
 
   @Override
   public String toString() {
-    if (org.jeometry.common.util.Property.hasValue(this.name)) {
+    if (com.revolsys.util.Property.hasValue(this.name)) {
       return this.name;
     } else {
       return this.type;

@@ -1,8 +1,7 @@
 package com.revolsys.http;
 
-import org.jeometry.common.json.JsonObject;
-import org.jeometry.common.json.JsonParser;
-
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.json.JsonParser;
 import com.revolsys.io.map.ObjectFactoryConfig;
 
 public interface SecretStore {

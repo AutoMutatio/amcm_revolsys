@@ -30,11 +30,10 @@ import javax.measure.Quantity;
 import javax.measure.Unit;
 import javax.measure.quantity.Length;
 
-import org.jeometry.common.function.BiFunctionDouble;
-import org.jeometry.common.util.BaseCloseable;
 import org.w3c.dom.Document;
 
 import com.revolsys.awt.ResetAffineTransform;
+import com.revolsys.function.BiFunctionDouble;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryFactory;
@@ -64,7 +63,7 @@ import com.revolsys.swing.map.layer.record.style.marker.SvgMarker;
 import com.revolsys.swing.map.layer.record.style.marker.TextMarker;
 import com.revolsys.swing.map.view.TextStyleViewRenderer;
 import com.revolsys.swing.map.view.ViewRenderer;
-import com.revolsys.util.Property;
+import com.revolsys.util.BaseCloseable;
 
 import tech.units.indriya.quantity.Quantities;
 
@@ -580,7 +579,7 @@ public class Graphics2DViewRenderer extends ViewRenderer {
     if (geometry != null) {
       final String label = style.getLabel(record);
       for (final Geometry part : geometry.geometries()) {
-        if (org.jeometry.common.util.Property.hasValue(label) && part != null || this == null) {
+        if (com.revolsys.util.Property.hasValue(label) && part != null || this == null) {
           final String textPlacementType = style.getTextPlacementType();
           final PointDoubleXYOrientation point = AbstractRecordLayerRenderer
             .getPointWithOrientation(this, part, textPlacementType);

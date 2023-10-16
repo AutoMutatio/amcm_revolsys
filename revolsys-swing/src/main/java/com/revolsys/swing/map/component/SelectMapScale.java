@@ -14,8 +14,7 @@ import java.util.Vector;
 import javax.swing.JComboBox;
 import javax.swing.SwingConstants;
 
-import org.jeometry.common.data.type.DataTypes;
-
+import com.revolsys.data.type.DataTypes;
 import com.revolsys.swing.field.FunctionStringConverter;
 import com.revolsys.swing.map.MapPanel;
 import com.revolsys.swing.parallel.Invoke;
@@ -93,11 +92,11 @@ public class SelectMapScale extends JComboBox<Long>
         final Object currentValue = getSelectedItem();
         if (currentValue instanceof Number) {
           currentScale = ((Number)currentValue).doubleValue();
-        } else if (org.jeometry.common.util.Property.hasValue(currentValue)) {
+        } else if (com.revolsys.util.Property.hasValue(currentValue)) {
           final String scaleString = currentValue.toString()
             .replaceAll("1:", "")
             .replaceAll("[^0-9\\.]+", "");
-          if (org.jeometry.common.util.Property.hasValue(scaleString)) {
+          if (com.revolsys.util.Property.hasValue(scaleString)) {
             try {
               currentScale = Double.valueOf(scaleString);
             } catch (final Throwable t) {

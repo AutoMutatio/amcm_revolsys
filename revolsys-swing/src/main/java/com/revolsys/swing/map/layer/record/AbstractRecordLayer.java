@@ -41,24 +41,21 @@ import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.undo.UndoableEdit;
 
-import org.jeometry.common.collection.list.Lists;
-import org.jeometry.common.collection.map.MapEx;
-import org.jeometry.common.collection.map.Maps;
-import org.jeometry.common.compare.CompareUtil;
-import org.jeometry.common.data.identifier.Identifier;
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.common.io.PathName;
-import org.jeometry.common.json.JsonObject;
-import org.jeometry.common.logging.Logs;
-import org.jeometry.common.util.BaseCloseable;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 
 import com.revolsys.collection.EmptyReference;
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.list.Lists;
+import com.revolsys.collection.map.MapEx;
+import com.revolsys.collection.map.Maps;
 import com.revolsys.collection.set.Sets;
+import com.revolsys.comparator.CompareUtil;
+import com.revolsys.data.identifier.Identifier;
+import com.revolsys.data.type.DataType;
+import com.revolsys.data.type.DataTypes;
 import com.revolsys.geometry.index.RecordSpatialIndex;
 import com.revolsys.geometry.index.SpatialIndex;
 import com.revolsys.geometry.index.rstartree.RStarTree;
@@ -71,8 +68,9 @@ import com.revolsys.geometry.model.LineString;
 import com.revolsys.geometry.model.Point;
 import com.revolsys.geometry.model.editor.BoundingBoxEditor;
 import com.revolsys.geometry.util.RectangleUtil;
-import com.revolsys.io.FileUtil;
+import com.revolsys.io.PathName;
 import com.revolsys.io.map.MapObjectFactory;
+import com.revolsys.logging.Logs;
 import com.revolsys.record.ArrayRecord;
 import com.revolsys.record.Record;
 import com.revolsys.record.RecordFactory;
@@ -152,6 +150,7 @@ import com.revolsys.swing.undo.MultipleUndo;
 import com.revolsys.swing.undo.SetRecordFieldValueUndo;
 import com.revolsys.transaction.TransactionBuilder;
 import com.revolsys.transaction.Transactionable;
+import com.revolsys.util.BaseCloseable;
 import com.revolsys.util.PreferenceKey;
 import com.revolsys.util.Preferences;
 import com.revolsys.util.Property;
@@ -961,7 +960,7 @@ public abstract class AbstractRecordLayer extends AbstractLayer implements
   public void exportRecords(final Iterable<LayerRecord> records,
     final Predicate<? super LayerRecord> filter, final Collection<String> fieldNames,
     final List<OrderBy> orderBy, final Object target) {
-    if (org.jeometry.common.util.Property.hasValue(records) && target != null) {
+    if (com.revolsys.util.Property.hasValue(records) && target != null) {
       final List<LayerRecord> exportRecords = Lists.toArray(records);
 
       Records.filterAndSort(exportRecords, filter, orderBy);
@@ -1033,7 +1032,7 @@ public abstract class AbstractRecordLayer extends AbstractLayer implements
     final Predicate<? super LayerRecord> filter, final List<OrderBy> orderBy,
     final Consumer<? super LayerRecord> action) {
     try {
-      if (org.jeometry.common.util.Property.hasValue(records) && action != null) {
+      if (com.revolsys.util.Property.hasValue(records) && action != null) {
         final List<LayerRecord> exportRecords = Lists.toArray(records);
 
         Records.filterAndSort(exportRecords, filter, orderBy);
@@ -1140,11 +1139,11 @@ public abstract class AbstractRecordLayer extends AbstractLayer implements
   }
 
   public List<String> getFieldNamesSet(final String fieldNamesSetName) {
-    if (org.jeometry.common.util.Property.hasValue(fieldNamesSetName)) {
+    if (com.revolsys.util.Property.hasValue(fieldNamesSetName)) {
       List<String> fieldNames = this.fieldNamesSets.get(fieldNamesSetName.toUpperCase());
-      if (org.jeometry.common.util.Property.hasValue(fieldNames)) {
+      if (com.revolsys.util.Property.hasValue(fieldNames)) {
         fieldNames = new ArrayList<>(fieldNames);
-        if (org.jeometry.common.util.Property.hasValue(this.fieldNames)) {
+        if (com.revolsys.util.Property.hasValue(this.fieldNames)) {
           fieldNames.retainAll(this.fieldNames);
         }
         return fieldNames;
@@ -1171,7 +1170,7 @@ public abstract class AbstractRecordLayer extends AbstractLayer implements
   }
 
   public Condition getFilter() {
-    if (org.jeometry.common.util.Property.hasValue(this.where)) {
+    if (com.revolsys.util.Property.hasValue(this.where)) {
       final RecordDefinition recordDefinition = getRecordDefinition();
       if (recordDefinition == null) {
         return Condition.ALL;
@@ -1339,7 +1338,7 @@ public abstract class AbstractRecordLayer extends AbstractLayer implements
           .getContents(RecordReaderTransferable.RECORD_READER_FLAVOR);
         if (reader == null) {
           final String string = ClipboardUtil.getContents(DataFlavor.stringFlavor);
-          if (org.jeometry.common.util.Property.hasValue(string)) {
+          if (com.revolsys.util.Property.hasValue(string)) {
             try {
               geometry = geometryFactory.geometry(string);
               geometry = geometryFactory.geometry(layerGeometryClass, geometry);
@@ -1465,7 +1464,7 @@ public abstract class AbstractRecordLayer extends AbstractLayer implements
       final FieldDefinition geometryField = recordDefinition.getGeometryField();
       if (geometryField != null) {
         final String string = ClipboardUtil.getContents(DataFlavor.stringFlavor);
-        if (org.jeometry.common.util.Property.hasValue(string)) {
+        if (com.revolsys.util.Property.hasValue(string)) {
           final Resource wktResource = new ByteArrayResource("t.wkt", string);
           final GeometryFactory geometryFactory = getGeometryFactory();
           try (
@@ -1639,7 +1638,7 @@ public abstract class AbstractRecordLayer extends AbstractLayer implements
   public <R extends Record> List<R> getRecords(BoundingBox boundingBox) {
     if (hasGeometryField()) {
       boundingBox = convertBoundingBox(boundingBox);
-      if (org.jeometry.common.util.Property.hasValue(boundingBox)) {
+      if (com.revolsys.util.Property.hasValue(boundingBox)) {
         final List<R> records = getRecordsIndex(boundingBox);
         return records;
       }
@@ -1752,7 +1751,7 @@ public abstract class AbstractRecordLayer extends AbstractLayer implements
   }
 
   public String getWhere() {
-    if (org.jeometry.common.util.Property.isEmpty(this.filter)) {
+    if (com.revolsys.util.Property.isEmpty(this.filter)) {
       return this.where;
     } else {
       return this.filter.toFormattedString();
@@ -1760,9 +1759,9 @@ public abstract class AbstractRecordLayer extends AbstractLayer implements
   }
 
   public boolean hasFieldNamesSet(final String fieldNamesSetName) {
-    if (org.jeometry.common.util.Property.hasValue(fieldNamesSetName)) {
+    if (com.revolsys.util.Property.hasValue(fieldNamesSetName)) {
       final List<String> fieldNames = this.fieldNamesSets.get(fieldNamesSetName.toUpperCase());
-      if (org.jeometry.common.util.Property.hasValue(fieldNames)) {
+      if (com.revolsys.util.Property.hasValue(fieldNames)) {
         return true;
       }
     }
@@ -1835,7 +1834,7 @@ public abstract class AbstractRecordLayer extends AbstractLayer implements
     if (this.recordDefinition != null) {
       for (final String menuInitializerExpression : this.recordDefinition
         .getProperty("menuInitializerExpressions", Collections.<String> emptyList())) {
-        if (org.jeometry.common.util.Property.hasValue(menuInitializerExpression)) {
+        if (com.revolsys.util.Property.hasValue(menuInitializerExpression)) {
           if (!menuInitializerExpressions.contains(menuInitializerExpression)) {
             menuInitializerExpressions.add(menuInitializerExpression);
           }
@@ -2037,7 +2036,7 @@ public abstract class AbstractRecordLayer extends AbstractLayer implements
       } else {
         if (ClipboardUtil.isDataFlavorAvailable(DataFlavor.stringFlavor)) {
           final String string = ClipboardUtil.getContents(DataFlavor.stringFlavor);
-          if (org.jeometry.common.util.Property.hasValue(string)) {
+          if (com.revolsys.util.Property.hasValue(string)) {
             int lineIndex = string.indexOf('\n');
             if (lineIndex == -1) {
               lineIndex = string.indexOf('\r');
@@ -2254,7 +2253,7 @@ public abstract class AbstractRecordLayer extends AbstractLayer implements
 
   public LayerRecordForm newForm(final LayerRecord record) {
     final String formFactoryExpression = getProperty(FORM_FACTORY_EXPRESSION);
-    if (org.jeometry.common.util.Property.hasValue(formFactoryExpression)) {
+    if (com.revolsys.util.Property.hasValue(formFactoryExpression)) {
       try {
         final SpelExpressionParser parser = new SpelExpressionParser();
         final Expression expression = parser.parseExpression(formFactoryExpression);
@@ -2485,7 +2484,7 @@ public abstract class AbstractRecordLayer extends AbstractLayer implements
         final List<Geometry> geometries = getPasteWktGeometries();
         if (geometries.isEmpty()) {
           final String string = ClipboardUtil.getContents(DataFlavor.stringFlavor);
-          if (org.jeometry.common.util.Property.hasValue(string)) {
+          if (com.revolsys.util.Property.hasValue(string)) {
             if (string.contains("\n") || string.contains("\r")) {
               if (string.contains("\t")) {
                 final Resource tsvResource = new ByteArrayResource("t.tsv", string);
@@ -3024,7 +3023,7 @@ public abstract class AbstractRecordLayer extends AbstractLayer implements
 
   public void setFieldNamesSetName(final String fieldNamesSetName) {
     final String oldValue = this.fieldNamesSetName;
-    if (org.jeometry.common.util.Property.hasValue(fieldNamesSetName)) {
+    if (com.revolsys.util.Property.hasValue(fieldNamesSetName)) {
       this.fieldNamesSetName = fieldNamesSetName;
     } else {
       this.fieldNamesSetName = ALL;
@@ -3040,13 +3039,13 @@ public abstract class AbstractRecordLayer extends AbstractLayer implements
     if (fieldNamesSets != null) {
       for (final Entry<String, List<String>> entry : fieldNamesSets.entrySet()) {
         final String name = entry.getKey();
-        if (org.jeometry.common.util.Property.hasValue(name)) {
+        if (com.revolsys.util.Property.hasValue(name)) {
           final String upperName = name.toUpperCase();
           final Collection<String> names = entry.getValue();
-          if (org.jeometry.common.util.Property.hasValue(names)) {
+          if (com.revolsys.util.Property.hasValue(names)) {
             final Set<String> fieldNames = new LinkedHashSet<>(names);
             if (ALL.equalsIgnoreCase(name)) {
-              if (org.jeometry.common.util.Property.hasValue(allFieldNames)) {
+              if (com.revolsys.util.Property.hasValue(allFieldNames)) {
                 fieldNames.addAll(allFieldNames);
               }
             } else {
@@ -3062,7 +3061,7 @@ public abstract class AbstractRecordLayer extends AbstractLayer implements
                 this.fieldNamesSetNames.add(name);
               }
             }
-            if (org.jeometry.common.util.Property.hasValue(allFieldNames)) {
+            if (com.revolsys.util.Property.hasValue(allFieldNames)) {
               fieldNames.retainAll(allFieldNames);
             }
             this.fieldNamesSets.put(upperName, new ArrayList<>(fieldNames));
@@ -3150,7 +3149,7 @@ public abstract class AbstractRecordLayer extends AbstractLayer implements
       setIcon(iconName);
       this.fieldNames = recordDefinition.getFieldNames();
       List<String> allFieldNames = this.fieldNamesSets.get(ALL.toUpperCase());
-      if (org.jeometry.common.util.Property.hasValue(allFieldNames)) {
+      if (com.revolsys.util.Property.hasValue(allFieldNames)) {
         final Set<String> mergedFieldNames = new LinkedHashSet<>(allFieldNames);
         mergedFieldNames.addAll(this.fieldNames);
         mergedFieldNames.retainAll(this.fieldNames);
@@ -3501,12 +3500,12 @@ public abstract class AbstractRecordLayer extends AbstractLayer implements
     addToMap(map, "confirmDeleteRecords", this.confirmDeleteRecords);
     map.remove("filter");
     String where;
-    if (org.jeometry.common.util.Property.isEmpty(this.filter)) {
+    if (com.revolsys.util.Property.isEmpty(this.filter)) {
       where = this.where;
     } else {
       where = this.filter.toFormattedString();
     }
-    if (org.jeometry.common.util.Property.hasValue(where)) {
+    if (com.revolsys.util.Property.hasValue(where)) {
       final RecordDefinitionSqlFilter filter = new RecordDefinitionSqlFilter(this, where);
       addToMap(map, "filter", filter);
     }

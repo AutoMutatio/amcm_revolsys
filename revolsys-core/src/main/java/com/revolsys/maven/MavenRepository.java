@@ -12,16 +12,14 @@ import java.util.Map;
 import java.util.Set;
 import java.util.WeakHashMap;
 
-import org.jeometry.common.collection.map.MapEx;
-import org.jeometry.common.json.JsonObject;
-import org.jeometry.common.logging.Logs;
-
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.map.MapEx;
+import com.revolsys.logging.Logs;
 import com.revolsys.record.io.format.xml.Xml;
 import com.revolsys.spring.resource.DefaultResourceLoader;
 import com.revolsys.spring.resource.PathResource;
 import com.revolsys.spring.resource.Resource;
 import com.revolsys.util.Pair;
-import com.revolsys.util.Property;
 import com.revolsys.util.Strings;
 
 public class MavenRepository implements URLStreamHandlerFactory {
@@ -44,13 +42,13 @@ public class MavenRepository implements URLStreamHandlerFactory {
     path.append(artifactId);
     path.append('-');
     path.append(specificVersion);
-    if (org.jeometry.common.util.Property.hasValue(classifier)) {
+    if (com.revolsys.util.Property.hasValue(classifier)) {
       path.append('-');
       path.append(classifier);
     }
     path.append('.');
     path.append(type);
-    if (org.jeometry.common.util.Property.hasValue(algorithm)) {
+    if (com.revolsys.util.Property.hasValue(algorithm)) {
       path.append('.');
       path.append(algorithm);
 
@@ -234,7 +232,7 @@ public class MavenRepository implements URLStreamHandlerFactory {
   public String getSha1(final String groupId, final String artifactId, final String version,
     final String type, final String classifier, final String specificVersion,
     final String algorithm) {
-    if (!org.jeometry.common.util.Property.hasValue(algorithm)) {
+    if (!com.revolsys.util.Property.hasValue(algorithm)) {
       final Resource digestResource = getResource(groupId, artifactId, version, type, classifier,
         specificVersion, "sha1");
       if (digestResource.exists()) {
@@ -269,13 +267,13 @@ public class MavenRepository implements URLStreamHandlerFactory {
         time = versioning.getLong("lastUpdated", 0);
         if (snapshot != null) {
           final String timestamp = snapshot.getString("timestamp");
-          if (org.jeometry.common.util.Property.hasValue(timestamp)) {
+          if (com.revolsys.util.Property.hasValue(timestamp)) {
             final String buildNumber = snapshot.getString("buildNumber");
             final StringBuilder specificVersionBuilder = new StringBuilder(
               version.substring(0, version.length() - 8));
             specificVersionBuilder.append(timestamp);
             specificVersionBuilder.append('-');
-            if (org.jeometry.common.util.Property.hasValue(buildNumber)) {
+            if (com.revolsys.util.Property.hasValue(buildNumber)) {
               specificVersionBuilder.append(buildNumber);
             } else {
               specificVersionBuilder.append('1');

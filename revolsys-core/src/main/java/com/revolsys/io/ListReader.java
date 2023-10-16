@@ -4,7 +4,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import org.jeometry.common.collection.iterator.AbstractReader;
+import com.revolsys.collection.iterator.AbstractReader;
 
 public class ListReader<T> extends AbstractReader<T> {
   private List<T> values = Collections.emptyList();

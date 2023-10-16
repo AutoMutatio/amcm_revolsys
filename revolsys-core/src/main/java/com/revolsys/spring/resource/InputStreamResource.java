@@ -7,9 +7,7 @@ import java.io.Reader;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
-import org.jeometry.common.logging.Logs;
-
-import com.revolsys.util.Property;
+import com.revolsys.logging.Logs;
 
 public class InputStreamResource extends AbstractResource {
 
@@ -167,7 +165,7 @@ public class InputStreamResource extends AbstractResource {
   }
 
   public InputStreamResource setCharset(final String charset) {
-    if (org.jeometry.common.util.Property.hasValue(charset)) {
+    if (com.revolsys.util.Property.hasValue(charset)) {
       try {
         this.charset = Charset.forName(charset);
       } catch (final Exception e) {

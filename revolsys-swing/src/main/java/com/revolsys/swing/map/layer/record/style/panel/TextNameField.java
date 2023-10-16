@@ -57,7 +57,7 @@ public class TextNameField extends ValueField {
 
   public void addFieldName() {
     final String selectedFieldName = this.fieldNamesField.getSelectedItem();
-    if (org.jeometry.common.util.Property.hasValue(selectedFieldName)) {
+    if (com.revolsys.util.Property.hasValue(selectedFieldName)) {
       final int position = this.textNameField.getCaretPosition();
       final Document document = this.textNameField.getDocument();
       try {

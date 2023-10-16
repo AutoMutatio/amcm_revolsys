@@ -2,12 +2,11 @@ package com.revolsys.webservice;
 
 import java.util.List;
 
-import org.jeometry.common.io.MapSerializer;
-import org.jeometry.common.io.PathName;
-import org.jeometry.common.util.ObjectWithProperties;
-
 import com.revolsys.collection.Parent;
+import com.revolsys.io.MapSerializer;
+import com.revolsys.io.PathName;
 import com.revolsys.spring.resource.UrlResource;
+import com.revolsys.util.ObjectWithProperties;
 
 public interface WebService<V>
   extends MapSerializer, Parent<V>, WebServiceResource, ObjectWithProperties {

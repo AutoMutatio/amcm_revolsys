@@ -3,8 +3,7 @@ package com.revolsys.collection;
 import java.time.Duration;
 import java.util.function.Supplier;
 
-import org.jeometry.common.collection.value.SimpleValueHolder;
-
+import com.revolsys.collection.value.SimpleValueHolder;
 import com.revolsys.parallel.ReentrantLockEx;
 
 public class CacheValueHolder<T> extends SimpleValueHolder<T> {

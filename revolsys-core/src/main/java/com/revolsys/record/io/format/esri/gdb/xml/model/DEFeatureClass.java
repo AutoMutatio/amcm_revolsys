@@ -2,7 +2,6 @@ package com.revolsys.record.io.format.esri.gdb.xml.model;
 
 import com.revolsys.record.io.format.esri.gdb.xml.EsriGeodatabaseXmlConstants;
 import com.revolsys.record.io.format.esri.gdb.xml.model.enums.GeometryType;
-import com.revolsys.util.Property;
 
 public class DEFeatureClass extends DETable {
   private String areaFieldName = "";
@@ -71,7 +70,7 @@ public class DEFeatureClass extends DETable {
   }
 
   public void setAreaFieldName(final String areaFieldName) {
-    if (org.jeometry.common.util.Property.hasValue(areaFieldName)) {
+    if (com.revolsys.util.Property.hasValue(areaFieldName)) {
       this.areaFieldName = areaFieldName;
     } else {
       this.areaFieldName = "";
@@ -99,7 +98,7 @@ public class DEFeatureClass extends DETable {
   }
 
   public void setLengthFieldName(final String lengthFieldName) {
-    if (org.jeometry.common.util.Property.hasValue(lengthFieldName)) {
+    if (com.revolsys.util.Property.hasValue(lengthFieldName)) {
       this.lengthFieldName = lengthFieldName;
     } else {
       this.lengthFieldName = "";

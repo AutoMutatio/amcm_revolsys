@@ -8,8 +8,8 @@ import org.apache.http.Header;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.methods.RequestBuilder;
 import org.apache.http.message.BasicHeader;
-import org.jeometry.common.json.JsonObject;
 
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.net.http.ApacheHttp;
 import com.revolsys.net.http.SimpleNameValuePair;
 import com.revolsys.net.oauth.BearerToken;

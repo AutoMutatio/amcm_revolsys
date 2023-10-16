@@ -3,12 +3,11 @@ package com.revolsys.http;
 import java.io.File;
 import java.util.List;
 
-import org.jeometry.common.collection.list.Lists;
-import org.jeometry.common.io.IoUtil;
-import org.jeometry.common.json.JsonObject;
-import org.jeometry.common.logging.Logs;
-
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.list.Lists;
 import com.revolsys.io.FileUtil;
+import com.revolsys.io.IoUtil;
+import com.revolsys.logging.Logs;
 import com.revolsys.net.oauth.BearerToken;
 
 public class AzureCliRequestBuilderFactory extends BearerTokenRequestBuilderFactory {

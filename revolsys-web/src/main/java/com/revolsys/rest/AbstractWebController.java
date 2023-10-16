@@ -9,13 +9,13 @@ import java.nio.charset.StandardCharsets;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-import org.jeometry.common.json.JsonList;
-import org.jeometry.common.json.JsonObject;
-import org.jeometry.common.json.JsonParser;
-import org.jeometry.common.json.JsonWriter;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.revolsys.collection.json.JsonList;
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.json.JsonParser;
+import com.revolsys.collection.json.JsonWriter;
 import com.revolsys.io.IoConstants;
 import com.revolsys.io.IoFactory;
 import com.revolsys.record.Record;

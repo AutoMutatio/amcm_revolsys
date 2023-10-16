@@ -13,8 +13,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.jeometry.common.data.type.DataType;
-
+import com.revolsys.data.type.DataType;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.ClockDirection;
 import com.revolsys.geometry.model.Geometry;
@@ -38,7 +37,6 @@ import com.revolsys.record.query.Query;
 import com.revolsys.record.query.SqlAppendable;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordStore;
-import com.revolsys.util.Property;
 
 import oracle.jdbc.OracleArray;
 
@@ -238,7 +236,7 @@ public class OracleSdoGeometryJdbcFieldDefinition extends JdbcFieldDefinition {
   @Override
   public int setInsertPreparedStatementValue(final PreparedStatement statement,
     final int parameterIndex, final Object value) throws SQLException {
-    if (org.jeometry.common.util.Property.isEmpty(value)) {
+    if (com.revolsys.util.Property.isEmpty(value)) {
       setNull(statement, parameterIndex);
     } else {
       final Connection connection = statement.getConnection();
@@ -256,7 +254,7 @@ public class OracleSdoGeometryJdbcFieldDefinition extends JdbcFieldDefinition {
   @Override
   public int setPreparedStatementValue(final PreparedStatement statement, final int parameterIndex,
     final Object value) throws SQLException {
-    if (org.jeometry.common.util.Property.isEmpty(value)) {
+    if (com.revolsys.util.Property.isEmpty(value)) {
       setNull(statement, parameterIndex);
     } else {
       final Connection connection = statement.getConnection();

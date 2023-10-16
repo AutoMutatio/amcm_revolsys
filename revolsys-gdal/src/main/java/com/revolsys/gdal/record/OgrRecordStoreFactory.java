@@ -12,9 +12,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 
 import org.gdal.ogr.ogr;
-import org.jeometry.common.collection.map.MapEx;
-import org.jeometry.common.collection.map.Maps;
 
+import com.revolsys.collection.map.MapEx;
+import com.revolsys.collection.map.Maps;
 import com.revolsys.gdal.Gdal;
 import com.revolsys.io.FileUtil;
 import com.revolsys.record.io.FileRecordStoreFactory;

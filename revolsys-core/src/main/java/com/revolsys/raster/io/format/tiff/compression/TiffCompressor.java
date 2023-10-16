@@ -3,7 +3,7 @@ package com.revolsys.raster.io.format.tiff.compression;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import org.jeometry.common.util.BaseCloseable;
+import com.revolsys.util.BaseCloseable;
 
 public interface TiffCompressor extends BaseCloseable {
   default void endRow() {

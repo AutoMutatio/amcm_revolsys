@@ -4,16 +4,14 @@ import java.awt.Color;
 
 import javax.measure.quantity.Length;
 
-import org.jeometry.common.awt.WebColors;
-import org.jeometry.coordinatesystem.model.unit.CustomUnits;
-
+import com.revolsys.awt.WebColors;
+import com.revolsys.geometry.coordinatesystem.model.unit.CustomUnits;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.geometry.model.Punctual;
 import com.revolsys.record.Record;
 import com.revolsys.swing.map.layer.record.style.GeometryStyle;
 import com.revolsys.swing.map.view.ViewRenderer;
-import com.revolsys.util.Property;
 
 import tech.units.indriya.ComparableQuantity;
 import tech.units.indriya.quantity.Quantities;
@@ -41,7 +39,7 @@ public class SelectedRecordsRenderer {
   public void paintSelected(final ViewRenderer view, final GeometryFactory viewportGeometryFactory,
     Geometry geometry) {
     geometry = view.getGeometry(geometry);
-    if (org.jeometry.common.util.Property.hasValue(geometry)) {
+    if (com.revolsys.util.Property.hasValue(geometry)) {
       view.drawGeometry(geometry, this.highlightStyle);
       if (!(geometry instanceof Punctual)) {
         view.drawGeometryOutline(this.lineStyle, geometry);

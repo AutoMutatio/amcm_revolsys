@@ -34,18 +34,16 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.data.type.EnumerationDataType;
-import org.jeometry.common.io.IoUtil;
-import org.jeometry.common.logging.Logs;
-
+import com.revolsys.data.type.DataType;
+import com.revolsys.data.type.EnumerationDataType;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.LineString;
 import com.revolsys.geometry.model.Point;
+import com.revolsys.io.IoUtil;
+import com.revolsys.logging.Logs;
 import com.revolsys.record.Record;
 import com.revolsys.record.io.format.saif.SaifConstants;
 import com.revolsys.record.schema.RecordDefinition;
-import com.revolsys.util.Property;
 
 public class OsnSerializer {
   private static final String ATTRIBUTE_SCOPE = "attribute";
@@ -253,7 +251,7 @@ public class OsnSerializer {
   }
 
   private void serialize(final Geometry geometry) throws IOException {
-    final String type = org.jeometry.common.util.Property.getSimple(geometry, "osnGeometryType");
+    final String type = com.revolsys.util.Property.getSimple(geometry, "osnGeometryType");
     OsnConverter converter = this.converters.getConverter(type);
     if (converter == null) {
       if (geometry instanceof Point) {

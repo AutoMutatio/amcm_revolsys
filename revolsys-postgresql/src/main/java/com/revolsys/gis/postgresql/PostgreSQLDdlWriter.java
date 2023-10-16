@@ -3,10 +3,9 @@ package com.revolsys.gis.postgresql;
 import java.io.PrintWriter;
 import java.util.List;
 
-import org.jeometry.common.data.identifier.Identifier;
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.data.type.DataTypes;
-
+import com.revolsys.data.identifier.Identifier;
+import com.revolsys.data.type.DataType;
+import com.revolsys.data.type.DataTypes;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryDataTypes;
 import com.revolsys.geometry.model.GeometryFactory;
@@ -17,7 +16,6 @@ import com.revolsys.record.Record;
 import com.revolsys.record.property.ShortNameProperty;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
-import com.revolsys.util.Property;
 
 public class PostgreSQLDdlWriter extends JdbcDdlWriter {
   public PostgreSQLDdlWriter() {
@@ -36,7 +34,7 @@ public class PostgreSQLDdlWriter extends JdbcDdlWriter {
     if (shortNameProperty != null) {
       shortName = shortNameProperty.getShortName();
     }
-    if (org.jeometry.common.util.Property.hasValue(shortName) && shortNameProperty.isUseForSequence()) {
+    if (com.revolsys.util.Property.hasValue(shortName) && shortNameProperty.isUseForSequence()) {
       final String sequenceName = schema + "." + shortName.toLowerCase() + "_seq";
       return sequenceName;
     } else {

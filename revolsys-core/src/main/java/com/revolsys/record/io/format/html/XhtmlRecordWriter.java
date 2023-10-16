@@ -4,19 +4,17 @@ import java.io.Writer;
 import java.net.URI;
 import java.util.List;
 
-import org.jeometry.common.util.BaseCloseable;
-
 import com.revolsys.io.AbstractRecordWriter;
 import com.revolsys.io.IoConstants;
 import com.revolsys.record.Record;
 import com.revolsys.record.io.format.xml.XmlWriter;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinitionProxy;
+import com.revolsys.util.BaseCloseable;
 import com.revolsys.util.CaseConverter;
 import com.revolsys.util.HtmlAttr;
 import com.revolsys.util.HtmlElem;
 import com.revolsys.util.HtmlUtil;
-import com.revolsys.util.Property;
 
 public class XhtmlRecordWriter extends AbstractRecordWriter {
 
@@ -152,7 +150,7 @@ public class XhtmlRecordWriter extends AbstractRecordWriter {
       this.out.attribute(HtmlAttr.CONTENT, "text/html; charset=utf-8");
       this.out.endTag(HtmlElem.META);
 
-      if (org.jeometry.common.util.Property.hasValue(this.title)) {
+      if (com.revolsys.util.Property.hasValue(this.title)) {
         this.out.element(HtmlElem.TITLE, this.title);
       }
 

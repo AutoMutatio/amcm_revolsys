@@ -3,7 +3,6 @@ package com.revolsys.record.property;
 import com.revolsys.geometry.model.LineString;
 import com.revolsys.record.Record;
 import com.revolsys.record.schema.RecordDefinition;
-import com.revolsys.util.Property;
 
 public class AreaFieldName extends AbstractRecordDefinitionProperty {
   public static final String PROPERTY_NAME = AreaFieldName.class.getName() + ".propertyName";
@@ -46,7 +45,7 @@ public class AreaFieldName extends AbstractRecordDefinitionProperty {
   }
 
   public void setArea(final Record record) {
-    if (org.jeometry.common.util.Property.hasValue(this.fieldName)) {
+    if (com.revolsys.util.Property.hasValue(this.fieldName)) {
       final LineString line = record.getGeometry();
       final double area = line.getArea();
       record.setValue(this.fieldName, area);

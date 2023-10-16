@@ -5,12 +5,10 @@ import java.util.LinkedList;
 import java.util.function.Consumer;
 import java.util.function.DoubleConsumer;
 
-import org.jeometry.common.awt.WebColors;
-import org.jeometry.common.function.Consumer3Double;
-import org.jeometry.common.util.ObjectWithProperties;
-import org.jeometry.coordinatesystem.operation.CoordinatesOperation;
-import org.jeometry.coordinatesystem.operation.CoordinatesOperationPoint;
-
+import com.revolsys.awt.WebColors;
+import com.revolsys.function.Consumer3Double;
+import com.revolsys.geometry.coordinatesystem.operation.CoordinatesOperation;
+import com.revolsys.geometry.coordinatesystem.operation.CoordinatesOperationPoint;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.BoundingBoxProxy;
 import com.revolsys.geometry.model.Geometry;
@@ -20,6 +18,7 @@ import com.revolsys.geometry.model.Polygon;
 import com.revolsys.geometry.model.Polygonal;
 import com.revolsys.geometry.simplify.DouglasPeuckerSimplifier;
 import com.revolsys.spring.resource.Resource;
+import com.revolsys.util.ObjectWithProperties;
 
 /**
  * <p>A grid is a two dimensional array of values. The value could represent and double value and

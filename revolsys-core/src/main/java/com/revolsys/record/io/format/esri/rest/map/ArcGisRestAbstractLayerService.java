@@ -6,20 +6,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.jeometry.common.collection.map.MapEx;
-import org.jeometry.common.collection.map.Maps;
-import org.jeometry.common.function.Function3;
-import org.jeometry.common.io.PathName;
-import org.jeometry.common.json.Json;
-import org.jeometry.common.logging.Logs;
-
 import com.revolsys.collection.Parent;
+import com.revolsys.collection.json.Json;
+import com.revolsys.collection.map.MapEx;
+import com.revolsys.collection.map.Maps;
+import com.revolsys.function.Function3;
+import com.revolsys.io.PathName;
+import com.revolsys.logging.Logs;
 import com.revolsys.record.io.format.esri.rest.ArcGisResponse;
 import com.revolsys.record.io.format.esri.rest.ArcGisRestService;
 import com.revolsys.record.io.format.esri.rest.ArcGisRestServiceContainer;
 import com.revolsys.record.io.format.esri.rest.CatalogElement;
 import com.revolsys.spring.resource.Resource;
-import com.revolsys.util.Property;
 import com.revolsys.webservice.WebServiceResource;
 
 public abstract class ArcGisRestAbstractLayerService extends ArcGisRestService
@@ -62,7 +60,7 @@ public abstract class ArcGisRestAbstractLayerService extends ArcGisRestService
         layer = factory.apply(this, parent, layerProperties);
       }
       final String name = layer.getName();
-      if (org.jeometry.common.util.Property.hasValue(name)) {
+      if (com.revolsys.util.Property.hasValue(name)) {
         layersByName.put(name.toLowerCase(), layer);
         return layer;
       } else {

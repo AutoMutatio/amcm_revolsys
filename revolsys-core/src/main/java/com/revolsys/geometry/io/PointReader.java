@@ -2,10 +2,9 @@ package com.revolsys.geometry.io;
 
 import java.util.function.Consumer;
 
-import org.jeometry.common.collection.iterator.Reader;
-import org.jeometry.common.collection.map.MapEx;
-import org.jeometry.common.json.JsonObject;
-
+import com.revolsys.collection.iterator.Reader;
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.map.MapEx;
 import com.revolsys.geometry.model.GeometryDataTypes;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.geometry.model.GeometryFactoryProxy;

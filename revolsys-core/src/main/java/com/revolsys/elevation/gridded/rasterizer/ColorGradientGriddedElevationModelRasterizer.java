@@ -2,8 +2,7 @@ package com.revolsys.elevation.gridded.rasterizer;
 
 import java.util.Map;
 
-import org.jeometry.common.json.JsonObject;
-
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.elevation.gridded.GriddedElevationModel;
 import com.revolsys.elevation.gridded.rasterizer.gradient.GradientLibrary;
 import com.revolsys.elevation.gridded.rasterizer.gradient.LinearGradient;

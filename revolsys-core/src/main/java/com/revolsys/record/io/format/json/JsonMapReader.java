@@ -4,14 +4,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
 
-import org.jeometry.common.collection.iterator.AbstractReader;
-import org.jeometry.common.collection.map.MapEx;
-import org.jeometry.common.json.JsonMapIterator;
-import org.jeometry.common.json.JsonObject;
-import org.jeometry.common.util.BaseCloseable;
-
+import com.revolsys.collection.iterator.AbstractReader;
+import com.revolsys.collection.json.JsonMapIterator;
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.map.MapEx;
 import com.revolsys.io.FileUtil;
 import com.revolsys.io.map.MapReader;
+import com.revolsys.util.BaseCloseable;
 
 public class JsonMapReader extends AbstractReader<MapEx> implements MapReader {
   private final java.io.Reader in;

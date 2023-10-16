@@ -1,8 +1,6 @@
 package com.revolsys.collection.range;
 
-import org.jeometry.common.number.Numbers;
-
-import com.revolsys.util.Property;
+import com.revolsys.number.Numbers;
 
 public class Ranges {
   private static boolean isNumeric(final RangeSet rangeSet) {
@@ -176,7 +174,7 @@ public class Ranges {
   }
 
   public static Object toValue(final String value) {
-    if (org.jeometry.common.util.Property.hasValue(value)) {
+    if (com.revolsys.util.Property.hasValue(value)) {
       final Long longValue = Numbers.toLong(value);
       if (longValue == null) {
         if (value.length() == 1) {

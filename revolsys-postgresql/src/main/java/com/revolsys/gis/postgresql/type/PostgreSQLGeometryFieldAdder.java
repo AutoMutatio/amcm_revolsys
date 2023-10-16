@@ -3,19 +3,17 @@ package com.revolsys.gis.postgresql.type;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.io.PathName;
-import org.jeometry.common.logging.Logs;
-
+import com.revolsys.data.type.DataType;
 import com.revolsys.geometry.model.GeometryDataTypes;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.gis.postgresql.PostgreSQLRecordStore;
+import com.revolsys.io.PathName;
 import com.revolsys.jdbc.field.JdbcFieldAdder;
 import com.revolsys.jdbc.field.JdbcFieldDefinition;
 import com.revolsys.jdbc.io.AbstractJdbcRecordStore;
 import com.revolsys.jdbc.io.JdbcRecordDefinition;
 import com.revolsys.jdbc.io.JdbcRecordStoreSchema;
-import com.revolsys.util.Property;
+import com.revolsys.logging.Logs;
 
 public class PostgreSQLGeometryFieldAdder extends JdbcFieldAdder {
   private static final Map<String, DataType> DATA_TYPE_MAP = new HashMap<>();
@@ -44,7 +42,7 @@ public class PostgreSQLGeometryFieldAdder extends JdbcFieldAdder {
     final JdbcRecordStoreSchema schema = recordDefinition.getSchema();
     final PathName typePath = recordDefinition.getPathName();
     String dbSchemaName = schema.getDbName();
-    if (!org.jeometry.common.util.Property.hasValue(dbSchemaName)) {
+    if (!com.revolsys.util.Property.hasValue(dbSchemaName)) {
       dbSchemaName = "public";
     }
     final String tableName = recordDefinition.getDbTableName().replace("\"", "");

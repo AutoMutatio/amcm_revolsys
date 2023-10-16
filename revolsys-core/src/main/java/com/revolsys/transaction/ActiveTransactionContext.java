@@ -7,8 +7,8 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import org.jeometry.common.exception.Exceptions;
-import org.jeometry.common.util.BaseCloseable;
+import com.revolsys.exception.Exceptions;
+import com.revolsys.util.BaseCloseable;
 
 public class ActiveTransactionContext implements TransactionContext {
 

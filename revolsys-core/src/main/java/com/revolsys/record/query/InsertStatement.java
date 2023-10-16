@@ -2,29 +2,13 @@ package com.revolsys.record.query;
 
 import java.sql.PreparedStatement;
 
-import org.jeometry.common.collection.list.ArrayListEx;
-import org.jeometry.common.collection.list.ListEx;
-
+import com.revolsys.collection.list.ArrayListEx;
+import com.revolsys.collection.list.ListEx;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordDefinitionProxy;
 import com.revolsys.record.schema.RecordStore;
 
 public class InsertStatement implements RecordDefinitionProxy {
-  private record UpdateSetClause(ColumnReference column, QueryValue value) {
-
-    public void appendSql(final InsertStatement update, final SqlAppendable sql) {
-      this.column.appendColumnName(sql);
-      sql.append(" = ");
-      this.value.appendSql(null, update.getRecordStore(), sql);
-    }
-
-    public int appendParameters(int index, final PreparedStatement statement) {
-      index = this.column.appendParameters(index, statement);
-      index = this.value.appendParameters(index, statement);
-      return index;
-    }
-  }
-
   private TableReference table;
 
   private final ListEx<String> columnNames = new ArrayListEx<>();

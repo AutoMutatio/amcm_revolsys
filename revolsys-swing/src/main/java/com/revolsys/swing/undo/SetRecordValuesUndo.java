@@ -3,8 +3,7 @@ package com.revolsys.swing.undo;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.jeometry.common.collection.map.Maps;
-
+import com.revolsys.collection.map.Maps;
 import com.revolsys.swing.map.layer.record.AbstractRecordLayer;
 import com.revolsys.swing.map.layer.record.LayerRecord;
 

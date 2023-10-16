@@ -1,9 +1,8 @@
 package com.revolsys.elevation.gridded;
 
-import org.jeometry.common.util.BaseCloseable;
-
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.grid.AbstractGrid;
+import com.revolsys.util.BaseCloseable;
 
 public abstract class DirectFileElevationModel extends AbstractGrid
   implements GriddedElevationModel, BaseCloseable {

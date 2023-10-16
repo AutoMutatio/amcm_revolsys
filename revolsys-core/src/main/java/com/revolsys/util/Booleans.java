@@ -1,6 +1,6 @@
 package com.revolsys.util;
 
-import org.jeometry.common.data.type.DataTypes;
+import com.revolsys.data.type.DataTypes;
 
 public interface Booleans {
   static boolean getBoolean(final Object value) {
@@ -46,7 +46,7 @@ public interface Booleans {
   }
 
   static Boolean valueOf(final String string) {
-    if (org.jeometry.common.util.Property.hasValue(string)) {
+    if (com.revolsys.util.Property.hasValue(string)) {
       if ("1".equals(string)) {
         return true;
       } else if ("Y".equalsIgnoreCase(string)) {

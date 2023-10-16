@@ -2,12 +2,10 @@ package com.revolsys.swing.map.layer;
 
 import java.util.List;
 
-import org.jeometry.common.data.type.DataType;
-
+import com.revolsys.data.type.DataType;
 import com.revolsys.swing.menu.MenuFactory;
 import com.revolsys.swing.tree.BaseTree;
 import com.revolsys.swing.tree.BaseTreeNode;
-import com.revolsys.util.Property;
 
 /**
  *
@@ -39,7 +37,7 @@ public interface MultipleLayerRenderer<L extends Layer, C extends LayerRenderer<
 
   @SuppressWarnings("unchecked")
   default <V extends LayerRenderer<?>> V getRenderer(final String name) {
-    if (org.jeometry.common.util.Property.hasValue(name)) {
+    if (com.revolsys.util.Property.hasValue(name)) {
       for (final LayerRenderer<?> renderer : getRenderers()) {
         final String rendererName = renderer.getName();
         if (DataType.equal(name, rendererName)) {

@@ -2,11 +2,10 @@ package com.revolsys.record.io.format.mapguide;
 
 import java.util.Map;
 
-import org.jeometry.common.collection.map.MapEx;
-import org.jeometry.common.io.PathName;
-import org.jeometry.common.json.JsonObject;
-
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.map.MapEx;
 import com.revolsys.geometry.model.BoundingBox;
+import com.revolsys.io.PathName;
 import com.revolsys.record.Record;
 import com.revolsys.record.RecordFactory;
 import com.revolsys.record.io.RecordReader;

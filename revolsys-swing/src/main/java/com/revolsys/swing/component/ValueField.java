@@ -20,8 +20,8 @@ import javax.swing.KeyStroke;
 import javax.swing.WindowConstants;
 
 import org.jdesktop.swingx.VerticalLayout;
-import org.jeometry.common.exception.Exceptions;
 
+import com.revolsys.exception.Exceptions;
 import com.revolsys.swing.Dialogs;
 import com.revolsys.swing.Icons;
 import com.revolsys.swing.SwingUtil;

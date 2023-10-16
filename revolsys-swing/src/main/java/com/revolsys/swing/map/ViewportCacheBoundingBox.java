@@ -11,14 +11,13 @@ import java.util.function.Supplier;
 
 import javax.swing.SwingWorker;
 
-import org.jeometry.common.util.Cancellable;
-
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.BoundingBoxProxy;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.swing.map.layer.Layer;
 import com.revolsys.swing.parallel.AbstractSwingWorker;
 import com.revolsys.swing.parallel.Invoke;
+import com.revolsys.util.Cancellable;
 
 public class ViewportCacheBoundingBox implements BoundingBoxProxy, Cancellable {
   public static final ViewportCacheBoundingBox EMPTY = new ViewportCacheBoundingBox();

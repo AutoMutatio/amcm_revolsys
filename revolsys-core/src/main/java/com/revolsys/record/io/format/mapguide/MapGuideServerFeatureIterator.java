@@ -5,11 +5,9 @@ import java.util.NoSuchElementException;
 
 import javax.xml.namespace.QName;
 
-import org.jeometry.common.collection.iterator.AbstractIterator;
-import org.jeometry.common.logging.Logs;
-import org.jeometry.common.util.BaseCloseable;
-
+import com.revolsys.collection.iterator.AbstractIterator;
 import com.revolsys.geometry.model.GeometryFactory;
+import com.revolsys.logging.Logs;
 import com.revolsys.record.ArrayRecord;
 import com.revolsys.record.Record;
 import com.revolsys.record.RecordFactory;
@@ -18,6 +16,7 @@ import com.revolsys.record.io.RecordReader;
 import com.revolsys.record.io.format.xml.stax.StaxReader;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.spring.resource.Resource;
+import com.revolsys.util.BaseCloseable;
 
 public class MapGuideServerFeatureIterator extends AbstractIterator<Record>
   implements RecordReader {

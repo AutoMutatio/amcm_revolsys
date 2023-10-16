@@ -1,14 +1,13 @@
 package com.revolsys.elevation.tin.compactbinary;
 
-import org.jeometry.common.exception.Exceptions;
-import org.jeometry.common.util.BaseObjectWithProperties;
-
 import com.revolsys.elevation.tin.TriangulatedIrregularNetwork;
 import com.revolsys.elevation.tin.TriangulatedIrregularNetworkWriter;
+import com.revolsys.exception.Exceptions;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.io.channels.ChannelWriter;
 import com.revolsys.spring.resource.Resource;
+import com.revolsys.util.BaseObjectWithProperties;
 
 public class ScaledIntegerTriangulatedIrregularNetworkWriter extends BaseObjectWithProperties
   implements TriangulatedIrregularNetworkWriter {

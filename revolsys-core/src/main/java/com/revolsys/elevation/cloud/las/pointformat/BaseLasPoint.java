@@ -2,18 +2,16 @@ package com.revolsys.elevation.cloud.las.pointformat;
 
 import java.io.Serializable;
 
-import org.jeometry.common.function.BiConsumerDouble;
-import org.jeometry.common.function.BiFunctionDouble;
-import org.jeometry.common.function.Consumer3Double;
-import org.jeometry.common.json.JsonObject;
-import org.jeometry.common.json.JsonObjectHash;
-
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.json.JsonObjectHash;
 import com.revolsys.elevation.cloud.las.LasPointCloud;
+import com.revolsys.function.BiConsumerDouble;
+import com.revolsys.function.BiFunctionDouble;
+import com.revolsys.function.Consumer3Double;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.geometry.model.Point;
 import com.revolsys.geometry.model.impl.AbstractPoint;
 import com.revolsys.geometry.util.Points;
-import com.revolsys.util.Property;
 
 public abstract class BaseLasPoint extends AbstractPoint implements LasPoint, Serializable {
   private static final long serialVersionUID = 1L;
@@ -58,7 +56,7 @@ public abstract class BaseLasPoint extends AbstractPoint implements LasPoint, Se
   public double distancePoint(Point point) {
     if (isEmpty()) {
       return java.lang.Double.POSITIVE_INFINITY;
-    } else if (org.jeometry.common.util.Property.isEmpty(point)) {
+    } else if (com.revolsys.util.Property.isEmpty(point)) {
       return java.lang.Double.POSITIVE_INFINITY;
     } else {
       final GeometryFactory geometryFactory = getGeometryFactory();

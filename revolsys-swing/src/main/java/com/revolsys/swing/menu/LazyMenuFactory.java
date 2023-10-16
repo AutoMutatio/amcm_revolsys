@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-import org.jeometry.common.collection.value.LazyValueHolder;
+import com.revolsys.collection.value.LazyValueHolder;
 
 public class LazyMenuFactory extends LazyValueHolder<MenuFactory> {
 

@@ -5,13 +5,11 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.jeometry.common.logging.Logs;
-import org.jeometry.common.number.Doubles;
-import org.jeometry.coordinatesystem.model.systems.EpsgId;
-
+import com.revolsys.geometry.coordinatesystem.model.systems.EpsgId;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactory;
-import com.revolsys.util.Property;
+import com.revolsys.logging.Logs;
+import com.revolsys.number.Doubles;
 
 public class Nts1000000RectangularMapGrid extends AbstractRectangularMapGrid {
 
@@ -111,7 +109,7 @@ public class Nts1000000RectangularMapGrid extends AbstractRectangularMapGrid {
   }
 
   public int getNtsBlock(final String mapTileName) {
-    if (org.jeometry.common.util.Property.hasValue(mapTileName)) {
+    if (com.revolsys.util.Property.hasValue(mapTileName)) {
       final Matcher matcher = NAME_PATTERN.matcher(mapTileName);
       if (matcher.matches()) {
         final String name = matcher.group(1);

@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 
-import org.jeometry.common.exception.Exceptions;
-import org.jeometry.common.util.BaseCloseable;
+import com.revolsys.exception.Exceptions;
+import com.revolsys.util.BaseCloseable;
 
 public class Transaction {
   public interface Builder {

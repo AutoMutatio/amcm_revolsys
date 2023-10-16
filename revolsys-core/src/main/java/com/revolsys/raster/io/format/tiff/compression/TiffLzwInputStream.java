@@ -21,7 +21,7 @@ package com.revolsys.raster.io.format.tiff.compression;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.jeometry.common.number.Bytes;
+import com.revolsys.number.Bytes;
 
 public class TiffLzwInputStream extends InputStream {
 

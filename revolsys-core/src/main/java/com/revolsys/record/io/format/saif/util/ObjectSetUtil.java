@@ -22,7 +22,7 @@ package com.revolsys.record.io.format.saif.util;
 
 import java.io.File;
 
-import org.jeometry.common.io.IoUtil;
+import com.revolsys.io.IoUtil;
 
 public final class ObjectSetUtil {
   public static final String[] OBJECT_SUBSET_NUMBERS = {

@@ -5,8 +5,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
 
-import org.jeometry.common.json.JsonObject;
-
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.net.oauth.BearerToken;
 
 public class AzureCliBearerToken extends BearerToken {

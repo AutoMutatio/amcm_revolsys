@@ -13,13 +13,13 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
 import org.jdesktop.swingx.VerticalLayout;
-import org.jeometry.common.awt.WebColors;
-import org.jeometry.common.collection.list.Lists;
-import org.jeometry.common.collection.map.MapEx;
-import org.jeometry.common.collection.map.Maps;
-import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.common.json.JsonObject;
 
+import com.revolsys.awt.WebColors;
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.list.Lists;
+import com.revolsys.collection.map.MapEx;
+import com.revolsys.collection.map.Maps;
+import com.revolsys.data.type.DataTypes;
 import com.revolsys.io.IoFactory;
 import com.revolsys.jdbc.exception.DatabaseNotFoundException;
 import com.revolsys.jdbc.io.JdbcDatabaseFactory;
@@ -38,7 +38,6 @@ import com.revolsys.swing.field.PasswordField;
 import com.revolsys.swing.field.TextField;
 import com.revolsys.swing.parallel.Invoke;
 import com.revolsys.util.PasswordUtil;
-import com.revolsys.util.Property;
 import com.revolsys.util.Strings;
 
 public final class RecordStoreConnectionForm extends Form {
@@ -131,7 +130,7 @@ public final class RecordStoreConnectionForm extends Form {
       new TextField("url", 50), //
       ComboBox.newComboBox("recordStoreType", this.recordStoreTypes) //
     );
-    if (org.jeometry.common.util.Property.hasValue(allConnectionUrlMap)) {
+    if (com.revolsys.util.Property.hasValue(allConnectionUrlMap)) {
       final List<String> connectionNames = new ArrayList<>();
       connectionNames.add(null);
       connectionNames.addAll(allConnectionUrlMap.keySet());
@@ -181,7 +180,7 @@ public final class RecordStoreConnectionForm extends Form {
         .get("connection");
       for (final String fieldName : CONNECTION_FIELD_NAMES) {
         Object fieldValue = connectionParameters.get(fieldName);
-        if (org.jeometry.common.util.Property.hasValue(fieldValue)) {
+        if (com.revolsys.util.Property.hasValue(fieldValue)) {
           if ("password".equals(fieldName) && fieldValue instanceof String) {
             fieldValue = PasswordUtil.decrypt((String)fieldValue);
           }
@@ -201,14 +200,14 @@ public final class RecordStoreConnectionForm extends Form {
   @Override
   protected void postSetFieldValues(final Map<String, Object> newValues) {
     String recordStoreType = (String)newValues.get("recordStoreType");
-    if (org.jeometry.common.util.Property.hasValue(recordStoreType)) {
+    if (com.revolsys.util.Property.hasValue(recordStoreType)) {
       if (this.recordStoreTypes.contains(recordStoreType)) {
         refreshUrlFromFieldValues(recordStoreType);
       }
       return;
     }
     final String url = (String)newValues.get("url");
-    if (org.jeometry.common.util.Property.hasValue(url)) {
+    if (com.revolsys.util.Property.hasValue(url)) {
       for (final RecordStoreFactory recordStoreFactory : this.recordStoreFactoryByName.values()) {
         final Map<String, Object> urlFieldValues = recordStoreFactory.parseUrl(url);
         if (!urlFieldValues.isEmpty()) {
@@ -237,7 +236,7 @@ public final class RecordStoreConnectionForm extends Form {
       if (databaseFactory != null) {
         final Map<String, Object> fieldValues = getFieldValues();
         final String newUrl = databaseFactory.toUrl(fieldValues);
-        if (org.jeometry.common.util.Property.hasValue(newUrl)) {
+        if (com.revolsys.util.Property.hasValue(newUrl)) {
           setFieldValue("url", newUrl);
           return;
         }

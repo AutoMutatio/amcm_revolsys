@@ -3,8 +3,8 @@ package com.revolsys.elevation.gridded.img;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jeometry.common.collection.map.MapEx;
-import org.jeometry.common.json.JsonObject;
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.map.MapEx;
 
 class ImgFieldType {
   private List<ImgField> fields = new ArrayList<>();

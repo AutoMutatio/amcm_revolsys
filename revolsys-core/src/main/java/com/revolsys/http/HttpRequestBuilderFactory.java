@@ -6,8 +6,8 @@ import java.util.Map;
 import java.util.function.BiFunction;
 
 import org.apache.http.HttpRequest;
-import org.jeometry.common.json.JsonObject;
 
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.io.map.ObjectFactoryConfig;
 import com.revolsys.util.LazyMap;
 import com.revolsys.util.UriBuilder;

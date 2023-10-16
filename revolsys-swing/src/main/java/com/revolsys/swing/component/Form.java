@@ -20,18 +20,17 @@ import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.WindowConstants;
 
-import org.jeometry.common.collection.map.Maps;
-import org.jeometry.common.collection.value.ThreadBooleanValue;
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.logging.Logs;
-import org.jeometry.common.util.BaseCloseable;
-
+import com.revolsys.collection.map.Maps;
+import com.revolsys.collection.value.ThreadBooleanValue;
+import com.revolsys.data.type.DataType;
+import com.revolsys.logging.Logs;
 import com.revolsys.swing.Dialogs;
 import com.revolsys.swing.SwingUtil;
 import com.revolsys.swing.action.RunnableAction;
 import com.revolsys.swing.field.Field;
 import com.revolsys.swing.layout.GroupLayouts;
 import com.revolsys.swing.parallel.Invoke;
+import com.revolsys.util.BaseCloseable;
 import com.revolsys.util.Pair;
 import com.revolsys.util.Property;
 
@@ -104,7 +103,7 @@ public class Form extends BasePanel {
 
   @SuppressWarnings("unchecked")
   public <V> boolean addFieldValueListener(final String fieldName, final Consumer<V> listener) {
-    if (org.jeometry.common.util.Property.hasValue(fieldName)) {
+    if (com.revolsys.util.Property.hasValue(fieldName)) {
       return addFieldValueListener(fieldName, (name, value) -> {
         listener.accept((V)value);
       });
@@ -298,7 +297,7 @@ public class Form extends BasePanel {
   }
 
   public void setFieldValues(final Map<String, ? extends Object> values) {
-    if (org.jeometry.common.util.Property.hasValue(values)) {
+    if (com.revolsys.util.Property.hasValue(values)) {
       Invoke.later(() -> {
         final Map<String, Object> newValues = new HashMap<>();
         final Map<String, Pair<Object, Throwable>> fieldValueErrors = new HashMap<>();

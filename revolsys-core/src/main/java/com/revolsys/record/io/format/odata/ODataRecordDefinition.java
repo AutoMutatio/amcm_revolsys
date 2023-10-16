@@ -2,14 +2,13 @@ package com.revolsys.record.io.format.odata;
 
 import java.util.List;
 
-import org.jeometry.common.collection.list.ListEx;
-import org.jeometry.common.collection.map.MapEx;
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.data.type.ListDataType;
-import org.jeometry.common.io.PathName;
-import org.jeometry.common.json.JsonObject;
-
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.list.ListEx;
+import com.revolsys.collection.map.MapEx;
+import com.revolsys.data.type.DataType;
+import com.revolsys.data.type.ListDataType;
 import com.revolsys.geometry.model.GeometryFactory;
+import com.revolsys.io.PathName;
 import com.revolsys.record.Record;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinitionImpl;

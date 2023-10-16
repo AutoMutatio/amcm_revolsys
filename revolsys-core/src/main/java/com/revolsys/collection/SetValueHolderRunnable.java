@@ -1,6 +1,6 @@
 package com.revolsys.collection;
 
-import org.jeometry.common.collection.value.SimpleValueHolder;
+import com.revolsys.collection.value.SimpleValueHolder;
 
 /**
  * A value holder that implements Runnable. When run it will change the value to new value.

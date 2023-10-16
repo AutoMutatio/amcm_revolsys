@@ -20,8 +20,8 @@ import javax.swing.border.Border;
 
 import org.apache.commons.io.output.StringBuilderWriter;
 import org.jdesktop.swingx.plaf.basic.core.BasicTransferable;
-import org.jeometry.common.data.type.DataTypes;
 
+import com.revolsys.data.type.DataTypes;
 import com.revolsys.swing.Dialogs;
 import com.revolsys.swing.SwingUtil;
 import com.revolsys.swing.action.RunnableAction;
@@ -29,7 +29,6 @@ import com.revolsys.swing.dnd.ClipboardUtil;
 import com.revolsys.swing.layout.GroupLayouts;
 import com.revolsys.swing.parallel.Invoke;
 import com.revolsys.util.CaseConverter;
-import com.revolsys.util.Property;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.spi.ILoggingEvent;
@@ -45,11 +44,11 @@ public class LoggingEventPanel extends JPanel {
 
   private static void addField(final JPanel panel, final String fieldName, final Object value,
     final boolean useScrollPane) {
-    if (org.jeometry.common.util.Property.hasValue(value)) {
+    if (com.revolsys.util.Property.hasValue(value)) {
       addLabel(panel, fieldName);
 
       String stringValue = DataTypes.toString(value);
-      if (!org.jeometry.common.util.Property.hasValue(stringValue)) {
+      if (!com.revolsys.util.Property.hasValue(stringValue)) {
         stringValue = "-";
       }
       final JTextPane label = new JTextPane();
@@ -228,7 +227,7 @@ public class LoggingEventPanel extends JPanel {
       this.copyText.append(message);
     }
 
-    if (org.jeometry.common.util.Property.hasValue(stackTrace)) {
+    if (com.revolsys.util.Property.hasValue(stackTrace)) {
       addField(this, "Stack Trace", stackTrace, true);
       if (this.copyText.length() > 0) {
         this.copyText.append("\n");

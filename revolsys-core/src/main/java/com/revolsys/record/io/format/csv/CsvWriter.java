@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.Collection;
 
-import org.jeometry.common.exception.Exceptions;
-import org.jeometry.common.util.BaseCloseable;
+import com.revolsys.exception.Exceptions;
+import com.revolsys.util.BaseCloseable;
 
 public class CsvWriter implements BaseCloseable {
   /** The writer */

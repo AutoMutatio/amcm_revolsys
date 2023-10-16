@@ -13,12 +13,12 @@ import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.ODataRequest;
 import org.apache.olingo.server.api.uri.UriInfo;
 import org.apache.olingo.server.api.uri.queryoption.CountOption;
-import org.jeometry.common.util.BaseCloseable;
 
 import com.revolsys.record.Record;
 import com.revolsys.record.io.RecordReader;
 import com.revolsys.record.query.Query;
 import com.revolsys.record.schema.RecordStore;
+import com.revolsys.util.BaseCloseable;
 import com.revolsys.util.UriBuilder;
 
 public class ODataEntityIterator extends AbstractEntityCollection

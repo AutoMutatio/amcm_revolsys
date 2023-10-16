@@ -3,8 +3,8 @@ package com.revolsys.websocket.json;
 import jakarta.websocket.Decoder;
 import jakarta.websocket.EndpointConfig;
 
-import org.jeometry.common.collection.map.MapEx;
-import org.jeometry.common.json.Json;
+import com.revolsys.collection.json.Json;
+import com.revolsys.collection.map.MapEx;
 
 public class JsonDecoder implements Decoder.Text<MapEx> {
 

@@ -4,8 +4,7 @@ import java.awt.image.BufferedImage;
 import java.util.Map;
 import java.util.function.BiFunction;
 
-import org.jeometry.common.json.JsonObject;
-
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.elevation.gridded.GriddedElevationModel;
 import com.revolsys.elevation.gridded.GriddedElevationModelImage;
 import com.revolsys.elevation.gridded.rasterizer.ColorGradientGriddedElevationModelRasterizer;

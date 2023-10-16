@@ -1,9 +1,8 @@
 package com.revolsys.swing.map.overlay;
 
-import org.jeometry.common.collection.list.Lists;
-import org.jeometry.common.data.identifier.Identifier;
-import org.jeometry.common.data.type.DataType;
-
+import com.revolsys.collection.list.Lists;
+import com.revolsys.data.identifier.Identifier;
+import com.revolsys.data.type.DataType;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.geometry.model.Point;
@@ -12,7 +11,6 @@ import com.revolsys.geometry.model.vertex.Vertex;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.swing.map.layer.record.AbstractRecordLayer;
 import com.revolsys.swing.map.layer.record.LayerRecord;
-import com.revolsys.util.Property;
 import com.revolsys.util.Strings;
 
 public class CloseLocation implements Comparable<CloseLocation> {
@@ -222,7 +220,7 @@ public class CloseLocation implements Comparable<CloseLocation> {
   public String toString() {
     final StringBuilder string = new StringBuilder();
     final String layerPath = getLayerPath();
-    if (org.jeometry.common.util.Property.hasValue(layerPath)) {
+    if (com.revolsys.util.Property.hasValue(layerPath)) {
       string.append(layerPath);
     }
     if (getRecordDefinition() != null) {

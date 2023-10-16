@@ -7,10 +7,10 @@ import java.net.URLClassLoader;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 
-import org.jeometry.common.io.IoUtil;
 import org.springframework.beans.factory.config.AbstractFactoryBean;
 
 import com.revolsys.io.FileUtil;
+import com.revolsys.io.IoUtil;
 import com.revolsys.io.filter.DirectoryFilenameFilter;
 import com.revolsys.io.filter.ExtensionFilenameFilter;
 

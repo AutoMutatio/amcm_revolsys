@@ -10,9 +10,9 @@ import org.apache.commons.imaging.ImageReadException;
 import org.apache.commons.imaging.common.bytesource.ByteSource;
 import org.apache.commons.imaging.common.bytesource.ByteSourceFile;
 import org.apache.commons.imaging.common.bytesource.ByteSourceInputStream;
-import org.jeometry.common.exception.Exceptions;
-import org.jeometry.common.json.JsonObject;
 
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.exception.Exceptions;
 import com.revolsys.io.AbstractIoFactory;
 import com.revolsys.raster.BufferedImageReadFactory;
 import com.revolsys.raster.GeoreferencedImage;

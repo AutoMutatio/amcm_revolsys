@@ -34,13 +34,11 @@ import javax.swing.border.BevelBorder;
 import javax.swing.undo.UndoableEdit;
 
 import org.jdesktop.swingx.JXBusyLabel;
-import org.jeometry.common.awt.WebColors;
-import org.jeometry.common.collection.map.Maps;
-import org.jeometry.common.collection.value.GlobalBooleanValue;
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.number.Doubles;
-import org.jeometry.common.util.BaseCloseable;
 
+import com.revolsys.awt.WebColors;
+import com.revolsys.collection.map.Maps;
+import com.revolsys.collection.value.GlobalBooleanValue;
+import com.revolsys.data.type.DataType;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.BoundingBoxProxy;
 import com.revolsys.geometry.model.Geometry;
@@ -51,6 +49,7 @@ import com.revolsys.geometry.model.Point;
 import com.revolsys.geometry.model.segment.Segment;
 import com.revolsys.geometry.model.vertex.Vertex;
 import com.revolsys.geometry.util.RectangleUtil;
+import com.revolsys.number.Doubles;
 import com.revolsys.record.Record;
 import com.revolsys.swing.Dialogs;
 import com.revolsys.swing.Icons;
@@ -95,6 +94,7 @@ import com.revolsys.swing.parallel.Invoke;
 import com.revolsys.swing.parallel.SwingWorkerProgressBar;
 import com.revolsys.swing.toolbar.ToolBar;
 import com.revolsys.swing.undo.UndoManager;
+import com.revolsys.util.BaseCloseable;
 import com.revolsys.util.CaseConverter;
 import com.revolsys.util.Pair;
 import com.revolsys.util.Preferences;
@@ -326,7 +326,7 @@ public class MapPanel extends JPanel implements GeometryFactoryProxy, PropertyCh
     if (!boundingBox.isEmpty()) {
       final String name = Dialogs.showInputDialog("Enter bookmark name", "Add Zoom Bookmark",
         JOptionPane.QUESTION_MESSAGE);
-      if (org.jeometry.common.util.Property.hasValue(name)) {
+      if (com.revolsys.util.Property.hasValue(name)) {
         final Project project = getProject();
         project.addZoomBookmark(name, boundingBox);
       }

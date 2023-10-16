@@ -48,7 +48,6 @@ import com.revolsys.geometry.model.vertex.MultiPointVertex;
 import com.revolsys.geometry.model.vertex.Vertex;
 import com.revolsys.geometry.operation.simple.DuplicateVertexError;
 import com.revolsys.geometry.operation.valid.GeometryValidationError;
-import com.revolsys.util.Property;
 
 /**
  * Models a collection of {@link Point}s.
@@ -84,7 +83,7 @@ public interface MultiPoint extends GeometryCollection, Punctual {
   default double distanceGeometry(Geometry geometry, final double terminateDistance) {
     if (isEmpty()) {
       return Double.POSITIVE_INFINITY;
-    } else if (org.jeometry.common.util.Property.isEmpty(geometry)) {
+    } else if (com.revolsys.util.Property.isEmpty(geometry)) {
       return Double.POSITIVE_INFINITY;
     } else {
       final GeometryFactory geometryFactory = getGeometryFactory();

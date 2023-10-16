@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.FileFilter;
 import java.util.regex.Pattern;
 
-import org.jeometry.common.io.IoUtil;
+import com.revolsys.io.IoUtil;
 
 /**
  * The PatternFileNameFilter is a {@link FileFilter} that only returns files if they

@@ -8,16 +8,14 @@ import java.util.function.Consumer;
 
 import javax.swing.undo.UndoableEdit;
 
-import org.jeometry.common.data.identifier.Identifier;
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.util.BaseCloseable;
-
+import com.revolsys.data.identifier.Identifier;
+import com.revolsys.data.type.DataType;
 import com.revolsys.record.Record;
 import com.revolsys.record.RecordState;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.swing.undo.DeleteLayerRecordUndo;
-import com.revolsys.util.Property;
+import com.revolsys.util.BaseCloseable;
 
 public interface LayerRecord extends Record {
   default boolean cancelChanges() {
@@ -126,9 +124,9 @@ public interface LayerRecord extends Record {
     final List<String> fieldNames = getFieldNames();
     for (final String fieldName : fieldNames) {
       final Object value = getValue(fieldName);
-      if (org.jeometry.common.util.Property.isEmpty(value)) {
+      if (com.revolsys.util.Property.isEmpty(value)) {
         final Object originalValue = getOriginalValue(fieldName);
-        if (!org.jeometry.common.util.Property.isEmpty(originalValue)) {
+        if (!com.revolsys.util.Property.isEmpty(originalValue)) {
           return true;
         }
       }
@@ -255,10 +253,10 @@ public interface LayerRecord extends Record {
       final AbstractRecordLayer layer = getLayer();
       for (final String fieldName : getFieldNames()) {
         final Object value = getValue(fieldName);
-        if (org.jeometry.common.util.Property.isEmpty(value)) {
+        if (com.revolsys.util.Property.isEmpty(value)) {
           if (!layer.isFieldUserReadOnly(fieldName)) {
             final Object originalValue = getOriginalValue(fieldName);
-            if (!org.jeometry.common.util.Property.isEmpty(originalValue)) {
+            if (!com.revolsys.util.Property.isEmpty(originalValue)) {
               setValue(fieldName, originalValue);
             }
           }

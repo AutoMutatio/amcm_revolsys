@@ -4,11 +4,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.jeometry.common.json.JsonObject;
-
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
-import com.revolsys.util.Property;
 
 public abstract class AbstractRecord implements Record, Cloneable {
   @Override
@@ -46,7 +44,7 @@ public abstract class AbstractRecord implements Record, Cloneable {
   protected boolean setValue(final FieldDefinition fieldDefinition, Object value) {
     final String propertyName = fieldDefinition.getName();
     value = fieldDefinition.toFieldValueException(getState(), value);
-    org.jeometry.common.util.Property.setSimple(this, propertyName, value);
+    com.revolsys.util.Property.setSimple(this, propertyName, value);
     return true;
   }
 

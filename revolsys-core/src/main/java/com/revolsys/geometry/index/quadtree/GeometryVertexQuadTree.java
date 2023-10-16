@@ -1,18 +1,16 @@
 package com.revolsys.geometry.index.quadtree;
 
-import org.jeometry.common.number.Doubles;
-
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.vertex.Vertex;
 import com.revolsys.geometry.util.RectangleUtil;
-import com.revolsys.util.Property;
+import com.revolsys.number.Doubles;
 
 public class GeometryVertexQuadTree extends IdObjectQuadTree<Vertex> {
 
   private static final long serialVersionUID = 1L;
 
   public static GeometryVertexQuadTree get(final Geometry geometry) {
-    if (org.jeometry.common.util.Property.hasValue(geometry)) {
+    if (com.revolsys.util.Property.hasValue(geometry)) {
       try {
         return new GeometryVertexQuadTree(geometry);
       } catch (final Error e) {

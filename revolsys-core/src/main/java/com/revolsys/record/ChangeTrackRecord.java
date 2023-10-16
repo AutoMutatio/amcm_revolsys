@@ -1,7 +1,7 @@
 package com.revolsys.record;
 
-import org.jeometry.common.json.JsonList;
-import org.jeometry.common.json.JsonObject;
+import com.revolsys.collection.json.JsonList;
+import com.revolsys.collection.json.JsonObject;
 
 public interface ChangeTrackRecord extends Record {
 

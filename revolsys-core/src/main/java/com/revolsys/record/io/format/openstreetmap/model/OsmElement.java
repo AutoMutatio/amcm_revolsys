@@ -5,18 +5,16 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.common.io.PathName;
-
+import com.revolsys.data.type.DataTypes;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryDataTypes;
+import com.revolsys.io.PathName;
 import com.revolsys.record.AbstractRecord;
 import com.revolsys.record.Record;
 import com.revolsys.record.RecordState;
 import com.revolsys.record.io.format.xml.stax.StaxReader;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordDefinitionImpl;
-import com.revolsys.util.Property;
 
 public class OsmElement extends AbstractRecord implements OsmConstants {
   public static final RecordDefinition RECORD_DEFINITION;
@@ -85,9 +83,9 @@ public class OsmElement extends AbstractRecord implements OsmConstants {
   }
 
   public synchronized void addTag(final String key, final String value) {
-    if (org.jeometry.common.util.Property.hasValue(key)) {
+    if (com.revolsys.util.Property.hasValue(key)) {
       if (key.length() <= 255) {
-        if (org.jeometry.common.util.Property.hasValue(value)) {
+        if (com.revolsys.util.Property.hasValue(value)) {
           if (value.length() <= 255) {
             if (this.tags.isEmpty()) {
               this.tags = new HashMap<>();

@@ -6,7 +6,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.function.Supplier;
 
-import org.jeometry.common.util.BaseCloseable;
+import com.revolsys.util.BaseCloseable;
 
 public class CloseableResourceProxy<R extends BaseCloseable> implements BaseCloseable {
 

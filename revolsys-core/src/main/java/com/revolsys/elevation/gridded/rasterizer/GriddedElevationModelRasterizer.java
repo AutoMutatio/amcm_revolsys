@@ -4,14 +4,13 @@ import java.awt.image.BufferedImage;
 import java.awt.image.DataBuffer;
 import java.awt.image.Raster;
 
-import org.jeometry.common.io.MapSerializer;
-import org.jeometry.common.util.ObjectWithProperties;
-
 import com.revolsys.beans.PropertyChangeSupportProxy;
 import com.revolsys.elevation.gridded.GriddedElevationModel;
 import com.revolsys.geometry.model.BoundingBoxProxy;
+import com.revolsys.io.MapSerializer;
 import com.revolsys.raster.BufferedGeoreferencedImage;
 import com.revolsys.util.IconNameProxy;
+import com.revolsys.util.ObjectWithProperties;
 
 public interface GriddedElevationModelRasterizer extends BoundingBoxProxy, Cloneable, IconNameProxy,
   MapSerializer, ObjectWithProperties, PropertyChangeSupportProxy {

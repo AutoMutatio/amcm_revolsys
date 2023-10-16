@@ -52,34 +52,30 @@ import java.util.zip.ZipFile;
 import javax.measure.Unit;
 import javax.measure.quantity.Length;
 
-import org.jeometry.common.collection.map.Maps;
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.exception.WrappedException;
-import org.jeometry.common.function.BiConsumerDouble;
-import org.jeometry.common.function.BiFunctionDouble;
-import org.jeometry.common.function.Consumer3Double;
-import org.jeometry.common.io.MapSerializer;
-import org.jeometry.common.json.JsonObject;
-import org.jeometry.common.json.JsonObjectHash;
-import org.jeometry.common.logging.Logs;
-import org.jeometry.common.number.Doubles;
-import org.jeometry.coordinatesystem.io.EsriCsWktWriter;
-import org.jeometry.coordinatesystem.model.Area;
-import org.jeometry.coordinatesystem.model.CompoundCoordinateSystem;
-import org.jeometry.coordinatesystem.model.CoordinateSystem;
-import org.jeometry.coordinatesystem.model.CoordinateSystemType;
-import org.jeometry.coordinatesystem.model.EpsgAuthority;
-import org.jeometry.coordinatesystem.model.GeographicCoordinateSystem;
-import org.jeometry.coordinatesystem.model.HorizontalCoordinateSystem;
-import org.jeometry.coordinatesystem.model.ProjectedCoordinateSystem;
-import org.jeometry.coordinatesystem.model.VerticalCoordinateSystem;
-import org.jeometry.coordinatesystem.model.systems.EpsgId;
-import org.jeometry.coordinatesystem.model.systems.EsriCoordinateSystems;
-import org.jeometry.coordinatesystem.operation.CoordinatesOperation;
-import org.jeometry.coordinatesystem.operation.CoordinatesOperationPoint;
-
 import com.revolsys.collection.CollectionUtil;
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.json.JsonObjectHash;
 import com.revolsys.collection.map.IntHashMap;
+import com.revolsys.collection.map.Maps;
+import com.revolsys.data.type.DataType;
+import com.revolsys.exception.WrappedException;
+import com.revolsys.function.BiConsumerDouble;
+import com.revolsys.function.BiFunctionDouble;
+import com.revolsys.function.Consumer3Double;
+import com.revolsys.geometry.coordinatesystem.io.EsriCsWktWriter;
+import com.revolsys.geometry.coordinatesystem.model.Area;
+import com.revolsys.geometry.coordinatesystem.model.CompoundCoordinateSystem;
+import com.revolsys.geometry.coordinatesystem.model.CoordinateSystem;
+import com.revolsys.geometry.coordinatesystem.model.CoordinateSystemType;
+import com.revolsys.geometry.coordinatesystem.model.EpsgAuthority;
+import com.revolsys.geometry.coordinatesystem.model.GeographicCoordinateSystem;
+import com.revolsys.geometry.coordinatesystem.model.HorizontalCoordinateSystem;
+import com.revolsys.geometry.coordinatesystem.model.ProjectedCoordinateSystem;
+import com.revolsys.geometry.coordinatesystem.model.VerticalCoordinateSystem;
+import com.revolsys.geometry.coordinatesystem.model.systems.EpsgId;
+import com.revolsys.geometry.coordinatesystem.model.systems.EsriCoordinateSystems;
+import com.revolsys.geometry.coordinatesystem.operation.CoordinatesOperation;
+import com.revolsys.geometry.coordinatesystem.operation.CoordinatesOperationPoint;
 import com.revolsys.geometry.graph.linemerge.LineMerger;
 import com.revolsys.geometry.model.editor.BoundingBoxEditor;
 import com.revolsys.geometry.model.editor.LineStringEditor;
@@ -106,12 +102,14 @@ import com.revolsys.geometry.model.segment.LineSegment;
 import com.revolsys.geometry.model.segment.LineSegmentDoubleGF;
 import com.revolsys.geometry.operation.union.CascadedPolygonUnion;
 import com.revolsys.geometry.util.RectangleUtil;
+import com.revolsys.io.MapSerializer;
 import com.revolsys.io.StringWriter;
 import com.revolsys.io.channels.ChannelWriter;
 import com.revolsys.io.channels.DataReader;
+import com.revolsys.logging.Logs;
+import com.revolsys.number.Doubles;
 import com.revolsys.record.io.format.wkt.WktParser;
 import com.revolsys.spring.resource.Resource;
-import com.revolsys.util.Property;
 
 import tech.units.indriya.unit.Units;
 
@@ -1295,7 +1293,7 @@ public abstract class GeometryFactory implements GeometryFactoryProxy, MapSerial
 
   @SuppressWarnings("unchecked")
   public <T extends Geometry> T geometry(final String wkt) {
-    if (org.jeometry.common.util.Property.hasValue(wkt)) {
+    if (com.revolsys.util.Property.hasValue(wkt)) {
       return (T)this.parser.parseGeometry(wkt);
     } else {
       return null;
@@ -1830,7 +1828,7 @@ public abstract class GeometryFactory implements GeometryFactoryProxy, MapSerial
   }
 
   public Lineal lineal(final Iterable<?> lines) {
-    if (org.jeometry.common.util.Property.isEmpty(lines)) {
+    if (com.revolsys.util.Property.isEmpty(lines)) {
       return lineString();
     } else {
       final List<LineString> lineStrings = new ArrayList<>();

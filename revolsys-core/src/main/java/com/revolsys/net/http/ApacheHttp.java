@@ -19,13 +19,14 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.ssl.SSLContextBuilder;
-import org.jeometry.common.exception.Exceptions;
-import org.jeometry.common.exception.WrappedException;
-import org.jeometry.common.io.IoUtil;
-import org.jeometry.common.json.JsonList;
-import org.jeometry.common.json.JsonObject;
-import org.jeometry.common.json.JsonParser;
-import org.jeometry.common.util.BaseCloseable;
+
+import com.revolsys.collection.json.JsonList;
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.json.JsonParser;
+import com.revolsys.exception.Exceptions;
+import com.revolsys.exception.WrappedException;
+import com.revolsys.io.IoUtil;
+import com.revolsys.util.BaseCloseable;
 
 public class ApacheHttp {
 

@@ -13,20 +13,19 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import org.jeometry.common.collection.map.MapEx;
-import org.jeometry.common.exception.Exceptions;
-import org.jeometry.common.io.IoUtil;
-import org.jeometry.common.util.BaseObjectWithProperties;
-
+import com.revolsys.collection.map.MapEx;
 import com.revolsys.elevation.gridded.GriddedElevationModel;
 import com.revolsys.elevation.gridded.GriddedElevationModelReader;
+import com.revolsys.exception.Exceptions;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.io.FileUtil;
+import com.revolsys.io.IoUtil;
 import com.revolsys.io.channels.DataReader;
 import com.revolsys.spring.resource.InputStreamResource;
 import com.revolsys.spring.resource.NoSuchResourceException;
 import com.revolsys.spring.resource.Resource;
+import com.revolsys.util.BaseObjectWithProperties;
 
 public class ImgGriddedElevationReader extends BaseObjectWithProperties
   implements GriddedElevationModelReader {

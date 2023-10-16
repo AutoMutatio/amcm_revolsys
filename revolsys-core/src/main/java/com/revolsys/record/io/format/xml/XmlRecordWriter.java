@@ -6,10 +6,8 @@ import java.util.Map.Entry;
 
 import javax.xml.namespace.QName;
 
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.util.BaseCloseable;
-
 import com.revolsys.collection.NameProxy;
+import com.revolsys.data.type.DataType;
 import com.revolsys.io.AbstractRecordWriter;
 import com.revolsys.io.IoConstants;
 import com.revolsys.record.Record;
@@ -17,6 +15,7 @@ import com.revolsys.record.property.RecordProperties;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordDefinitionProxy;
+import com.revolsys.util.BaseCloseable;
 
 public class XmlRecordWriter extends AbstractRecordWriter {
 

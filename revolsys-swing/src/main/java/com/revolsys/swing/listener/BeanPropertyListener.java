@@ -5,8 +5,6 @@ import java.beans.PropertyChangeListener;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 
-import com.revolsys.util.Property;
-
 /**
  * A property change listener that uses the propertyName and newValue from the {@link PropertyChangeEvent}
  * to set the value for that property on the object.
@@ -25,7 +23,7 @@ public class BeanPropertyListener implements PropertyChangeListener {
     if (object != null) {
       final String propertyName = event.getPropertyName();
       final Object value = event.getNewValue();
-      org.jeometry.common.util.Property.setSimple(object, propertyName, value);
+      com.revolsys.util.Property.setSimple(object, propertyName, value);
     }
   }
 }

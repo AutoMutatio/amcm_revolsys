@@ -3,7 +3,7 @@ package com.revolsys.record.io.format.odata;
 import java.util.Iterator;
 import java.util.function.Consumer;
 
-import org.jeometry.common.util.Cancellable;
+import com.revolsys.util.Cancellable;
 
 public class ODataResultSet<T> implements Iterable<T> {
 

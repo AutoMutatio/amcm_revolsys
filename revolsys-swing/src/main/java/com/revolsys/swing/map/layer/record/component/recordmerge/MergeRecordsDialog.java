@@ -16,8 +16,7 @@ import javax.swing.ScrollPaneConstants;
 import javax.swing.SortOrder;
 import javax.swing.WindowConstants;
 
-import org.jeometry.common.data.type.DataTypes;
-
+import com.revolsys.data.type.DataTypes;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.swing.SwingUtil;
 import com.revolsys.swing.TabbedPane;
@@ -41,7 +40,6 @@ import com.revolsys.swing.undo.CreateRecordUndo;
 import com.revolsys.swing.undo.DeleteLayerRecordUndo;
 import com.revolsys.swing.undo.MultipleUndo;
 import com.revolsys.swing.undo.UndoManager;
-import com.revolsys.util.Property;
 
 public class MergeRecordsDialog extends BaseDialog {
 
@@ -316,14 +314,14 @@ public class MergeRecordsDialog extends BaseDialog {
         newTable(mergeableRecord);
       }
     }
-    if (!nonMergeableRecords.isEmpty() || org.jeometry.common.util.Property.hasValue(errorMessage)) {
+    if (!nonMergeableRecords.isEmpty() || com.revolsys.util.Property.hasValue(errorMessage)) {
       final TablePanel tablePanel = RecordListTableModel.newPanel(this.layer, nonMergeableRecords);
       final RecordListTableModel tableModel = tablePanel.getTableModel();
       tableModel.setEditable(false);
       tablePanel.setPreferredSize(new Dimension(100, 50 + nonMergeableRecords.size() * 22));
 
       final JPanel panel = new JPanel(new BorderLayout());
-      if (!org.jeometry.common.util.Property.hasValue(errorMessage)) {
+      if (!com.revolsys.util.Property.hasValue(errorMessage)) {
         errorMessage = "The following records could not be merged and will not be modified.";
       }
       final JLabel unMergeLabel = new JLabel(

@@ -1,7 +1,6 @@
 package com.revolsys.elevation.cloud;
 
-import org.jeometry.common.collection.map.MapEx;
-
+import com.revolsys.collection.map.MapEx;
 import com.revolsys.elevation.cloud.las.LasPointCloudWriter;
 import com.revolsys.io.IoFactory;
 import com.revolsys.spring.resource.Resource;

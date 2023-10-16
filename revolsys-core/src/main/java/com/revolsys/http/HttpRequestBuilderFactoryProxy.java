@@ -47,8 +47,7 @@ public interface HttpRequestBuilderFactoryProxy {
     return initRequestBuilder(requestBuilder);
   }
 
-  default HttpRequestBuilder initRequestBuilder(
-    final HttpRequestBuilder requestBuilder) {
+  default HttpRequestBuilder initRequestBuilder(final HttpRequestBuilder requestBuilder) {
     return requestBuilder;
   }
 

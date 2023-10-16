@@ -2,7 +2,7 @@ package com.revolsys.io.map;
 
 import java.util.function.Function;
 
-import org.jeometry.common.collection.map.MapEx;
+import com.revolsys.collection.map.MapEx;
 
 public class FunctionMapObjectFactory extends AbstractMapObjectFactory {
   private final Function<MapEx, Object> function;

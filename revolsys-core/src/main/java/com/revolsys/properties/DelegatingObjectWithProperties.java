@@ -2,9 +2,9 @@ package com.revolsys.properties;
 
 import jakarta.annotation.PreDestroy;
 
-import org.jeometry.common.collection.map.MapEx;
-import org.jeometry.common.util.BaseObjectWithProperties;
-import org.jeometry.common.util.ObjectWithProperties;
+import com.revolsys.collection.map.MapEx;
+import com.revolsys.util.BaseObjectWithProperties;
+import com.revolsys.util.ObjectWithProperties;
 
 public class DelegatingObjectWithProperties extends BaseObjectWithProperties {
 

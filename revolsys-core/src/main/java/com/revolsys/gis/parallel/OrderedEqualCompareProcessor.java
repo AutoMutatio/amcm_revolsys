@@ -6,10 +6,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.logging.Logs;
-
+import com.revolsys.data.type.DataType;
 import com.revolsys.geometry.model.Geometry;
+import com.revolsys.logging.Logs;
 import com.revolsys.parallel.channel.Channel;
 import com.revolsys.parallel.channel.MultiInputSelector;
 import com.revolsys.parallel.channel.store.Buffer;
@@ -17,7 +16,6 @@ import com.revolsys.parallel.process.AbstractInProcess;
 import com.revolsys.record.Record;
 import com.revolsys.record.RecordLog;
 import com.revolsys.record.schema.RecordDefinition;
-import com.revolsys.util.Property;
 import com.revolsys.util.Strings;
 
 public class OrderedEqualCompareProcessor extends AbstractInProcess<Record> {
@@ -107,7 +105,7 @@ public class OrderedEqualCompareProcessor extends AbstractInProcess<Record> {
   public Channel<Record> getOtherIn() {
     if (this.otherIn == null) {
       if (this.otherInBufferSize < 1) {
-        setOtherIn(new Channel<Record>());
+        setOtherIn(new Channel<>());
       } else {
         final Buffer<Record> buffer = new Buffer<>(this.otherInBufferSize);
         setOtherIn(new Channel<>(buffer));
@@ -344,17 +342,18 @@ public class OrderedEqualCompareProcessor extends AbstractInProcess<Record> {
         return true;
       } else if (value2 instanceof String) {
         final String string2 = (String)value2;
-        return !org.jeometry.common.util.Property.hasValue(string2);
+        return !com.revolsys.util.Property.hasValue(string2);
       }
     } else if (value2 == null) {
       if (value1 instanceof String) {
         final String string1 = (String)value1;
-        return !org.jeometry.common.util.Property.hasValue(string1);
+        return !com.revolsys.util.Property.hasValue(string1);
       } else {
         return false;
       }
     } else if (value1 instanceof String && value2 instanceof String) {
-      if (!org.jeometry.common.util.Property.hasValue((String)value1) && !org.jeometry.common.util.Property.hasValue((String)value2)) {
+      if (!com.revolsys.util.Property.hasValue((String)value1)
+        && !com.revolsys.util.Property.hasValue((String)value2)) {
         return true;
       }
     }

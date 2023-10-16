@@ -2,8 +2,7 @@ package com.revolsys.record.query;
 
 import java.sql.PreparedStatement;
 
-import org.jeometry.common.collection.map.MapEx;
-
+import com.revolsys.collection.map.MapEx;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordStore;
 

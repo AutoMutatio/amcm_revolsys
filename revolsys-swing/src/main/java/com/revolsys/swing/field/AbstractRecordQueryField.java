@@ -44,14 +44,13 @@ import org.jdesktop.swingx.decorator.ColorHighlighter;
 import org.jdesktop.swingx.decorator.ComponentAdapter;
 import org.jdesktop.swingx.decorator.HighlightPredicate;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
-import org.jeometry.common.awt.WebColors;
-import org.jeometry.common.collection.map.LruMap;
-import org.jeometry.common.collection.value.ThreadBooleanValue;
-import org.jeometry.common.data.identifier.Identifier;
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.io.PathName;
-import org.jeometry.common.util.BaseCloseable;
 
+import com.revolsys.awt.WebColors;
+import com.revolsys.collection.map.LruMap;
+import com.revolsys.collection.value.ThreadBooleanValue;
+import com.revolsys.data.identifier.Identifier;
+import com.revolsys.data.type.DataType;
+import com.revolsys.io.PathName;
 import com.revolsys.record.Record;
 import com.revolsys.record.code.CodeTable;
 import com.revolsys.record.query.BinaryCondition;
@@ -73,7 +72,7 @@ import com.revolsys.swing.listener.WeakFocusListener;
 import com.revolsys.swing.map.list.RecordListCellRenderer;
 import com.revolsys.swing.menu.MenuFactory;
 import com.revolsys.swing.parallel.Invoke;
-import com.revolsys.util.Property;
+import com.revolsys.util.BaseCloseable;
 
 public abstract class AbstractRecordQueryField extends ValueField
   implements DocumentListener, KeyListener, MouseListener, FocusListener, ListDataListener,
@@ -456,7 +455,7 @@ public abstract class AbstractRecordQueryField extends ValueField
   protected void search() {
     if (this.eventsEnabled.isTrue()) {
       final String queryText = this.searchField.getText();
-      if (org.jeometry.common.util.Property.hasValue(queryText)) {
+      if (com.revolsys.util.Property.hasValue(queryText)) {
         if (queryText.length() >= this.minSearchCharacters) {
           this.searchField.setFieldValid();
           this.busyLabel.setBusy(true);

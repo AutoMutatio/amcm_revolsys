@@ -1,6 +1,6 @@
 package com.revolsys.record.io.format.mapguide;
 
-import org.jeometry.common.collection.map.MapEx;
+import com.revolsys.collection.map.MapEx;
 
 public class DrawingSource extends ResourceDocument {
   public DrawingSource(final MapEx properties) {

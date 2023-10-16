@@ -9,9 +9,8 @@ import java.util.List;
 
 import org.gdal.gdal.Band;
 import org.gdal.gdal.Dataset;
-import org.jeometry.common.function.Consumer3;
-import org.jeometry.common.util.Cancellable;
 
+import com.revolsys.function.Consumer3;
 import com.revolsys.gdal.Gdal;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactory;
@@ -19,6 +18,7 @@ import com.revolsys.raster.AbstractGeoreferencedImage;
 import com.revolsys.raster.BufferedGeoreferencedImage;
 import com.revolsys.raster.GeoreferencedImage;
 import com.revolsys.spring.resource.Resource;
+import com.revolsys.util.Cancellable;
 
 public class GdalImage extends AbstractGeoreferencedImage {
 

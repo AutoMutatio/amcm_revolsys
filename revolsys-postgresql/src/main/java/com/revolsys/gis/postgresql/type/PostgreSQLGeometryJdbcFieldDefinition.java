@@ -5,8 +5,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Map;
 
-import org.jeometry.common.data.type.DataType;
-
+import com.revolsys.data.type.DataType;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryDataTypes;
@@ -14,7 +13,6 @@ import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.jdbc.field.JdbcFieldDefinition;
 import com.revolsys.record.query.ColumnIndexes;
 import com.revolsys.record.schema.RecordDefinition;
-import com.revolsys.util.Property;
 
 public class PostgreSQLGeometryJdbcFieldDefinition extends JdbcFieldDefinition {
   private final int axisCount;
@@ -57,7 +55,7 @@ public class PostgreSQLGeometryJdbcFieldDefinition extends JdbcFieldDefinition {
       BoundingBox boundingBox = (BoundingBox)value;
       boundingBox = boundingBox.bboxToCs(geometryFactory);
       return new PostgreSQLBoundingBoxWrapper(boundingBox);
-    } else if (org.jeometry.common.util.Property.hasValue(value)) {
+    } else if (com.revolsys.util.Property.hasValue(value)) {
       return value;
     } else {
       return null;

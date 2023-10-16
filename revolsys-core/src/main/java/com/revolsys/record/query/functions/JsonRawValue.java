@@ -5,10 +5,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
-import org.jeometry.common.collection.map.MapEx;
-import org.jeometry.common.json.Json;
-import org.jeometry.common.json.JsonObject;
-
+import com.revolsys.collection.json.Json;
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.map.MapEx;
 import com.revolsys.record.query.ColumnIndexes;
 import com.revolsys.record.query.Query;
 import com.revolsys.record.query.QueryValue;

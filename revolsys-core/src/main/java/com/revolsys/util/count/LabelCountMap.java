@@ -2,12 +2,10 @@ package com.revolsys.util.count;
 
 import java.util.Map;
 import java.util.Map.Entry;
-
-import org.jeometry.common.json.JsonObject;
-
 import java.util.Set;
 import java.util.TreeMap;
 
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.util.Counter;
 import com.revolsys.util.LongCounter;
 

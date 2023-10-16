@@ -41,18 +41,15 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-import org.jeometry.common.exception.Exceptions;
-import org.jeometry.common.io.IoUtil;
-import org.jeometry.common.logging.Logs;
-
 import com.revolsys.connection.file.FileConnectionManager;
 import com.revolsys.connection.file.FolderConnection;
 import com.revolsys.connection.file.FolderConnectionRegistry;
+import com.revolsys.exception.Exceptions;
 import com.revolsys.io.filter.ExtensionFilenameFilter;
 import com.revolsys.io.filter.PatternFilenameFilter;
+import com.revolsys.logging.Logs;
 import com.revolsys.spring.resource.PathResource;
 import com.revolsys.spring.resource.Resource;
-import com.revolsys.util.Property;
 import com.revolsys.util.UrlUtil;
 
 /**
@@ -522,7 +519,7 @@ public final class FileUtil {
 
   public static List<String> getFileNameExtensions(final String fileName) {
     final List<String> extensions = new ArrayList<>();
-    if (org.jeometry.common.util.Property.hasValue(fileName)) {
+    if (com.revolsys.util.Property.hasValue(fileName)) {
       int startIndex = fileName.indexOf("/");
       if (startIndex == -1) {
         startIndex = 0;
@@ -639,7 +636,7 @@ public final class FileUtil {
   }
 
   public static File getUrlFile(final String url) {
-    if (org.jeometry.common.util.Property.hasValue(url)) {
+    if (com.revolsys.util.Property.hasValue(url)) {
       if (url.startsWith("file:") || url.startsWith("folderconnection:")) {
         try {
           final URI uri = new URI(url);

@@ -1,7 +1,7 @@
 package com.revolsys.util;
 
-import org.jeometry.common.collection.value.ValueHolder;
-import org.jeometry.common.data.type.DataType;
+import com.revolsys.collection.value.ValueHolder;
+import com.revolsys.data.type.DataType;
 
 public final class ThreadValue<T> implements ValueHolder<T> {
   private final ThreadLocal<T> threadValue = new ThreadLocal<>();

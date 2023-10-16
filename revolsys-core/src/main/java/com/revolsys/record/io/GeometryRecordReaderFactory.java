@@ -1,7 +1,6 @@
 package com.revolsys.record.io;
 
-import org.jeometry.common.collection.map.MapEx;
-
+import com.revolsys.collection.map.MapEx;
 import com.revolsys.geometry.io.GeometryReader;
 import com.revolsys.geometry.io.GeometryReaderFactory;
 import com.revolsys.record.Record;

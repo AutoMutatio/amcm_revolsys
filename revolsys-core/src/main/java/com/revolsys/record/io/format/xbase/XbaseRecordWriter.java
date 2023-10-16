@@ -19,21 +19,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jeometry.common.data.identifier.SingleIdentifier;
-import org.jeometry.common.data.identifier.TypedIdentifier;
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.common.date.Dates;
-import org.jeometry.common.logging.Logs;
-import org.jeometry.common.number.Doubles;
-
+import com.revolsys.data.identifier.SingleIdentifier;
+import com.revolsys.data.identifier.TypedIdentifier;
+import com.revolsys.data.type.DataType;
+import com.revolsys.data.type.DataTypes;
+import com.revolsys.date.Dates;
 import com.revolsys.io.AbstractRecordWriter;
 import com.revolsys.io.Buffers;
+import com.revolsys.logging.Logs;
+import com.revolsys.number.Doubles;
 import com.revolsys.record.Record;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordDefinitionProxy;
 import com.revolsys.spring.resource.Resource;
-import com.revolsys.util.Property;
 
 /**
  * <p>Xbase fields suffer a number of limitations:</p>
@@ -203,7 +201,7 @@ public class XbaseRecordWriter extends AbstractRecordWriter {
   }
 
   protected boolean hasField(final String name) {
-    if (org.jeometry.common.util.Property.hasValue(name)) {
+    if (com.revolsys.util.Property.hasValue(name)) {
       return this.fieldNames.contains(name.toUpperCase());
     } else {
       return false;

@@ -4,14 +4,13 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import org.jeometry.common.json.JsonObject;
-import org.jeometry.common.util.Cancellable;
-
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.http.HttpRequestBuilder;
 import com.revolsys.record.query.ColumnReference;
 import com.revolsys.record.query.OrderBy;
 import com.revolsys.record.query.Query;
 import com.revolsys.record.query.QueryValue;
+import com.revolsys.util.Cancellable;
 
 public class ODataQuery extends Query {
 

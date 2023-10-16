@@ -3,9 +3,8 @@ package com.revolsys.record.query;
 import java.sql.PreparedStatement;
 import java.util.function.Consumer;
 
-import org.jeometry.common.collection.list.ArrayListEx;
-import org.jeometry.common.collection.list.ListEx;
-
+import com.revolsys.collection.list.ArrayListEx;
+import com.revolsys.collection.list.ListEx;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordDefinitionProxy;
 import com.revolsys.record.schema.RecordStore;

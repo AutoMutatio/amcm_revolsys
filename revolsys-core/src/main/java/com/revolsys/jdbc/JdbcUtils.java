@@ -21,19 +21,19 @@ import java.util.List;
 
 import javax.management.ObjectName;
 
-import org.jeometry.common.collection.map.MapEx;
-import org.jeometry.common.exception.Exceptions;
-import org.jeometry.common.io.PathName;
-import org.jeometry.common.json.JsonObject;
-import org.jeometry.common.logging.Logs;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.support.SQLExceptionTranslator;
 import org.springframework.jdbc.support.SQLStateSQLExceptionTranslator;
 
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.map.MapEx;
+import com.revolsys.exception.Exceptions;
+import com.revolsys.io.PathName;
 import com.revolsys.io.PathUtil;
 import com.revolsys.jdbc.exception.JdbcExceptionTranslator;
 import com.revolsys.jdbc.field.JdbcFieldDefinition;
 import com.revolsys.jdbc.field.JdbcFieldDefinitions;
+import com.revolsys.logging.Logs;
 import com.revolsys.record.query.Condition;
 import com.revolsys.record.query.Query;
 import com.revolsys.record.query.QueryValue;
@@ -41,7 +41,6 @@ import com.revolsys.record.query.SqlAppendable;
 import com.revolsys.record.query.StringBuilderSqlAppendable;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordStore;
-import com.revolsys.util.Property;
 import com.revolsys.util.Strings;
 
 public final class JdbcUtils {
@@ -178,7 +177,7 @@ public final class JdbcUtils {
   }
 
   public static String getQualifiedTableName(final PathName pathName) {
-    if (org.jeometry.common.util.Property.hasValue(pathName)) {
+    if (com.revolsys.util.Property.hasValue(pathName)) {
       final String path = pathName.toString();
       return getQualifiedTableName(path);
     } else {
@@ -187,7 +186,7 @@ public final class JdbcUtils {
   }
 
   public static String getQualifiedTableName(final String typePath) {
-    if (org.jeometry.common.util.Property.hasValue(typePath)) {
+    if (com.revolsys.util.Property.hasValue(typePath)) {
       final String tableName = typePath.replaceAll("^/+", "");
       return tableName.replaceAll("/", ".");
     } else {
@@ -196,7 +195,7 @@ public final class JdbcUtils {
   }
 
   public static String getSchemaName(final String typePath) {
-    if (org.jeometry.common.util.Property.hasValue(typePath)) {
+    if (com.revolsys.util.Property.hasValue(typePath)) {
       final String path = PathUtil.getPath(typePath);
       return path.replaceAll("(^/|/$)", "");
     } else {

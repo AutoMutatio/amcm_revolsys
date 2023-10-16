@@ -3,12 +3,11 @@ package com.revolsys.core.test.io.test;
 import java.util.Arrays;
 import java.util.List;
 
-import org.jeometry.common.io.PathName;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.revolsys.io.PathName;
 import com.revolsys.io.PathUtil;
-import com.revolsys.util.Property;
 
 public class PathTest {
 
@@ -119,7 +118,7 @@ public class PathTest {
   private void assertPath(final String source, final String expected) {
     final String path = PathUtil.getPath(source);
     Assert.assertEquals(expected, path);
-    if (org.jeometry.common.util.Property.hasValue(source)) {
+    if (com.revolsys.util.Property.hasValue(source)) {
       final PathName parent = PathName.newPathName(source).getParent();
       if (parent != null) {
         Assert.assertEquals(expected, parent.toString());

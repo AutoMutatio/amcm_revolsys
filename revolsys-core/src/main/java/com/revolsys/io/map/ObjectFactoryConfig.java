@@ -1,6 +1,6 @@
 package com.revolsys.io.map;
 
-import org.jeometry.common.json.JsonObjectHash;
+import com.revolsys.collection.json.JsonObjectHash;
 
 public class ObjectFactoryConfig extends JsonObjectHash {
 

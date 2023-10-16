@@ -11,8 +11,7 @@ import javax.swing.SortOrder;
 
 import jakarta.annotation.PreDestroy;
 
-import org.jeometry.common.data.type.DataType;
-
+import com.revolsys.data.type.DataType;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.record.Record;
 import com.revolsys.record.comparator.RecordFieldComparator;
@@ -27,7 +26,7 @@ public class RecordListTableModel extends RecordRowTableModel implements Reorder
   private static final long serialVersionUID = 1L;
 
   public static TablePanel newPanel(final AbstractRecordLayer layer) {
-    return newPanel(layer.getRecordDefinition(), new ArrayList<Record>(), layer.getFieldNamesSet());
+    return newPanel(layer.getRecordDefinition(), new ArrayList<>(), layer.getFieldNamesSet());
   }
 
   public static TablePanel newPanel(final AbstractRecordLayer layer,

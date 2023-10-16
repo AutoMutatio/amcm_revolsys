@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
-import org.jeometry.common.collection.map.DelegatingMap;
+import com.revolsys.collection.map.DelegatingMap;
 
 public class LazyMap<V> extends DelegatingMap<String, V> {
 

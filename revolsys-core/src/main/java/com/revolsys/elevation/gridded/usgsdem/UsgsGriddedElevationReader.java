@@ -12,33 +12,32 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import org.jeometry.common.collection.map.MapEx;
-import org.jeometry.common.exception.Exceptions;
-import org.jeometry.common.io.IoUtil;
-import org.jeometry.common.util.BaseObjectWithProperties;
-import org.jeometry.coordinatesystem.model.CoordinateOperationMethod;
-import org.jeometry.coordinatesystem.model.CoordinateSystem;
-import org.jeometry.coordinatesystem.model.GeographicCoordinateSystem;
-import org.jeometry.coordinatesystem.model.HorizontalCoordinateSystem;
-import org.jeometry.coordinatesystem.model.ParameterName;
-import org.jeometry.coordinatesystem.model.ParameterNames;
-import org.jeometry.coordinatesystem.model.ParameterValue;
-import org.jeometry.coordinatesystem.model.ParameterValueNumber;
-import org.jeometry.coordinatesystem.model.ProjectedCoordinateSystem;
-import org.jeometry.coordinatesystem.model.VerticalCoordinateSystem;
-import org.jeometry.coordinatesystem.model.systems.EpsgCoordinateSystems;
-import org.jeometry.coordinatesystem.model.systems.EpsgId;
-import org.jeometry.coordinatesystem.model.unit.LinearUnit;
-import org.jeometry.coordinatesystem.model.unit.Metre;
-
+import com.revolsys.collection.map.MapEx;
 import com.revolsys.elevation.gridded.GriddedElevationModel;
 import com.revolsys.elevation.gridded.GriddedElevationModelReader;
+import com.revolsys.exception.Exceptions;
+import com.revolsys.geometry.coordinatesystem.model.CoordinateOperationMethod;
+import com.revolsys.geometry.coordinatesystem.model.CoordinateSystem;
+import com.revolsys.geometry.coordinatesystem.model.GeographicCoordinateSystem;
+import com.revolsys.geometry.coordinatesystem.model.HorizontalCoordinateSystem;
+import com.revolsys.geometry.coordinatesystem.model.ParameterName;
+import com.revolsys.geometry.coordinatesystem.model.ParameterNames;
+import com.revolsys.geometry.coordinatesystem.model.ParameterValue;
+import com.revolsys.geometry.coordinatesystem.model.ParameterValueNumber;
+import com.revolsys.geometry.coordinatesystem.model.ProjectedCoordinateSystem;
+import com.revolsys.geometry.coordinatesystem.model.VerticalCoordinateSystem;
+import com.revolsys.geometry.coordinatesystem.model.systems.EpsgCoordinateSystems;
+import com.revolsys.geometry.coordinatesystem.model.systems.EpsgId;
+import com.revolsys.geometry.coordinatesystem.model.unit.LinearUnit;
+import com.revolsys.geometry.coordinatesystem.model.unit.Metre;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.io.FileUtil;
+import com.revolsys.io.IoUtil;
 import com.revolsys.spring.resource.InputStreamResource;
 import com.revolsys.spring.resource.NoSuchResourceException;
 import com.revolsys.spring.resource.Resource;
+import com.revolsys.util.BaseObjectWithProperties;
 
 public class UsgsGriddedElevationReader extends BaseObjectWithProperties
   implements GriddedElevationModelReader {
@@ -125,8 +124,8 @@ public class UsgsGriddedElevationReader extends BaseObjectWithProperties
           final String name = zipEntry.getName();
           if (name.equals(projName)) {
             if (this.geometryFactory != GeometryFactory.DEFAULT_3D) {
-              final String wkt = IoUtil
-                .getString(new InputStreamReader(in, StandardCharsets.UTF_8), false);
+              final String wkt = IoUtil.getString(new InputStreamReader(in, StandardCharsets.UTF_8),
+                false);
               final GeometryFactory geometryFactory = GeometryFactory.floating3d(wkt);
               if (geometryFactory.isHasHorizontalCoordinateSystem()) {
                 this.geometryFactory = geometryFactory;

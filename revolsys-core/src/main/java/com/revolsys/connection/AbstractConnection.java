@@ -3,16 +3,14 @@ package com.revolsys.connection;
 import java.nio.file.Path;
 import java.util.Map;
 
-import org.jeometry.common.collection.map.MapEx;
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.json.JsonObject;
-import org.jeometry.common.json.JsonObjectHash;
-import org.jeometry.common.logging.Logs;
-import org.jeometry.common.util.BaseObjectWithProperties;
-
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.json.JsonObjectHash;
+import com.revolsys.collection.map.MapEx;
+import com.revolsys.data.type.DataType;
 import com.revolsys.io.FileUtil;
+import com.revolsys.logging.Logs;
 import com.revolsys.spring.resource.Resource;
-import com.revolsys.util.Property;
+import com.revolsys.util.BaseObjectWithProperties;
 
 public abstract class AbstractConnection<C extends Connection, R extends ConnectionRegistry<C>>
   extends BaseObjectWithProperties implements Connection {
@@ -34,7 +32,7 @@ public abstract class AbstractConnection<C extends Connection, R extends Connect
     this.config.putAll(config);
     this.registry = registry;
     setProperties(config);
-    if (!org.jeometry.common.util.Property.hasValue(this.name)) {
+    if (!com.revolsys.util.Property.hasValue(this.name)) {
       this.name = FileUtil.getBaseName(resourceName);
     }
   }

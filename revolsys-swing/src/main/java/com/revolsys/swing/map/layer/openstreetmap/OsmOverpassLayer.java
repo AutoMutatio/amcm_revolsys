@@ -6,11 +6,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jeometry.common.data.identifier.Identifier;
-import org.jeometry.common.number.Doubles;
-
+import com.revolsys.data.identifier.Identifier;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.Geometry;
+import com.revolsys.number.Doubles;
 import com.revolsys.record.io.format.openstreetmap.model.OsmConstants;
 import com.revolsys.record.io.format.openstreetmap.model.OsmDocument;
 import com.revolsys.record.io.format.openstreetmap.model.OsmElement;
@@ -18,7 +17,6 @@ import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.swing.map.layer.AbstractLayer;
 import com.revolsys.swing.map.layer.record.AbstractRecordLayer;
 import com.revolsys.swing.map.layer.record.LayerRecord;
-import com.revolsys.util.Property;
 
 public class OsmOverpassLayer extends AbstractRecordLayer {
   private static final int TILE_SCALE_X = 50;
@@ -51,7 +49,7 @@ public class OsmOverpassLayer extends AbstractRecordLayer {
   public List<LayerRecord> getRecords(BoundingBox boundingBox) {
     if (hasGeometryField()) {
       boundingBox = convertBoundingBox(boundingBox);
-      if (org.jeometry.common.util.Property.hasValue(boundingBox)) {
+      if (com.revolsys.util.Property.hasValue(boundingBox)) {
         final Map<Identifier, LayerRecord> recordMap = new HashMap<>();
         final List<BoundingBox> boundingBoxes = getTileBoundingBoxes(boundingBox);
         for (final BoundingBox tileBoundingBox : boundingBoxes) {

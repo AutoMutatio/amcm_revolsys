@@ -34,9 +34,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.Stack;
 
-import org.jeometry.common.io.IoUtil;
-
 import com.revolsys.io.FileUtil;
+import com.revolsys.io.IoUtil;
 
 public class CsnIterator {
   public static final int ATTRIBUTE_NAME = 7;

@@ -1,6 +1,6 @@
 package com.revolsys.record.io.format.esri.rest.map;
 
-import org.jeometry.common.util.BaseObjectWithProperties;
+import com.revolsys.util.BaseObjectWithProperties;
 
 public class LevelOfDetail extends BaseObjectWithProperties {
   private double resolution;

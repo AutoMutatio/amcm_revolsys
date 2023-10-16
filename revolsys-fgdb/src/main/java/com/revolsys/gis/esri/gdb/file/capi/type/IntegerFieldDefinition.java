@@ -1,12 +1,10 @@
 package com.revolsys.gis.esri.gdb.file.capi.type;
 
-import org.jeometry.common.data.type.DataTypes;
-
+import com.revolsys.data.type.DataTypes;
 import com.revolsys.esri.filegdb.jni.Row;
 import com.revolsys.record.Record;
 import com.revolsys.record.io.format.esri.gdb.xml.model.Field;
 import com.revolsys.util.Booleans;
-import com.revolsys.util.Property;
 
 public class IntegerFieldDefinition extends AbstractFileGdbFieldDefinition {
   public IntegerFieldDefinition(final int fieldNumber, final Field field) {
@@ -42,7 +40,7 @@ public class IntegerFieldDefinition extends AbstractFileGdbFieldDefinition {
       }
     } else {
       final String string = value.toString().strip();
-      if (org.jeometry.common.util.Property.hasValue(string)) {
+      if (com.revolsys.util.Property.hasValue(string)) {
         final int intValue = Integer.parseInt(string);
         synchronized (row) {
           row.setInteger(this.fieldNumber, intValue);

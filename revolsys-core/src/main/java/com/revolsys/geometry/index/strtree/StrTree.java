@@ -40,13 +40,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.function.Consumer;
 
-import org.jeometry.common.util.Emptyable;
-import org.jeometry.common.util.ExitLoopException;
-
 import com.revolsys.geometry.index.SpatialIndex;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.BoundingBoxProxy;
 import com.revolsys.geometry.util.PriorityQueue;
+import com.revolsys.util.Emptyable;
+import com.revolsys.util.ExitLoopException;
 import com.revolsys.util.Pair;
 
 /**

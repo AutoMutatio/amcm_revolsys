@@ -11,13 +11,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.jeometry.common.collection.map.MapEx;
-import org.jeometry.common.function.Consumer3;
-import org.jeometry.common.io.MapSerializer;
-import org.jeometry.common.json.JsonObject;
-import org.jeometry.common.util.Cancellable;
-import org.jeometry.coordinatesystem.operation.CoordinatesOperationPoint;
-
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.map.MapEx;
+import com.revolsys.function.Consumer3;
+import com.revolsys.geometry.coordinatesystem.operation.CoordinatesOperationPoint;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.BoundingBoxProxy;
 import com.revolsys.geometry.model.GeometryFactory;
@@ -25,8 +22,10 @@ import com.revolsys.geometry.model.GeometryFactoryProxy;
 import com.revolsys.geometry.model.Point;
 import com.revolsys.geometry.model.impl.PointDoubleXY;
 import com.revolsys.io.IoFactory;
+import com.revolsys.io.MapSerializer;
 import com.revolsys.math.matrix.Matrix;
 import com.revolsys.spring.resource.Resource;
+import com.revolsys.util.Cancellable;
 
 public interface GeoreferencedImage
   extends BoundingBoxProxy, MapSerializer, PropertyChangeListener {

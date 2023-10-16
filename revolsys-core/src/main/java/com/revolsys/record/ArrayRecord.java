@@ -4,11 +4,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import org.jeometry.common.data.identifier.SingleIdentifier;
-
+import com.revolsys.data.identifier.SingleIdentifier;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
-import com.revolsys.util.Property;
 
 /**
  * The ArrayRecord is an implementation of {@link Record} which uses an array of
@@ -150,7 +148,7 @@ public class ArrayRecord extends BaseRecord {
     boolean updated = false;
     if (value instanceof String) {
       final String string = (String)value;
-      if (!org.jeometry.common.util.Property.hasValue(string)) {
+      if (!com.revolsys.util.Property.hasValue(string)) {
         value = null;
       }
     }

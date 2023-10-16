@@ -5,8 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import org.jeometry.common.collection.iterator.AbstractIterator;
-
+import com.revolsys.collection.iterator.AbstractIterator;
 import com.revolsys.util.Strings;
 
 public class CrossProductRangeIterator extends AbstractIterator<String> {

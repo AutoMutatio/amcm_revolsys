@@ -43,6 +43,12 @@ class TransactionDefinition<V extends TransactionDefinition<V>> {
   }
 
   @SuppressWarnings("unchecked")
+  public V readOnly() {
+    this.readOnly = true;
+    return (V)this;
+  }
+
+  @SuppressWarnings("unchecked")
   public V setIsolation(final Isolation isolation) {
     this.isolation = isolation;
     return (V)this;
@@ -51,12 +57,6 @@ class TransactionDefinition<V extends TransactionDefinition<V>> {
   @SuppressWarnings("unchecked")
   public V setName(final String name) {
     this.name = name;
-    return (V)this;
-  }
-
-  @SuppressWarnings("unchecked")
-  public V readOnly() {
-    this.readOnly = true;
     return (V)this;
   }
 

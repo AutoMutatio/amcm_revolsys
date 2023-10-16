@@ -1,9 +1,8 @@
 package com.revolsys.maven;
 
-import org.jeometry.common.collection.map.MapEx;
-import org.jeometry.common.util.BaseObjectWithProperties;
-
 import com.revolsys.collection.CollectionUtil;
+import com.revolsys.collection.map.MapEx;
+import com.revolsys.util.BaseObjectWithProperties;
 
 public abstract class GroupArtifactVersion extends BaseObjectWithProperties {
   private String classifier;

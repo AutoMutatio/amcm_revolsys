@@ -18,18 +18,17 @@ import java.nio.file.Path;
 import java.util.Base64;
 import java.util.Map;
 
-import org.jeometry.common.exception.Exceptions;
 import org.springframework.util.Assert;
 import org.springframework.util.ResourceUtils;
 import org.springframework.util.StringUtils;
 
+import com.revolsys.exception.Exceptions;
 import com.revolsys.io.FileUtil;
 import com.revolsys.io.channels.ChannelReader;
 import com.revolsys.io.channels.HttpChannelReader;
 import com.revolsys.io.channels.HttpSeekableByteChannel;
 import com.revolsys.io.file.Paths;
 import com.revolsys.util.Base64Util;
-import com.revolsys.util.Property;
 import com.revolsys.util.UrlUtil;
 
 public class UrlResource extends AbstractResource {
@@ -585,7 +584,7 @@ public class UrlResource extends AbstractResource {
   private void setAuthorization(final URL url, final HttpURLConnection connection) {
     final String username = this.username;
     final String password = this.password;
-    if (org.jeometry.common.util.Property.hasValue(username)) {
+    if (com.revolsys.util.Property.hasValue(username)) {
       final String basicAuth = getBasicAuthorization(username, password);
       connection.setRequestProperty("Authorization", basicAuth);
     } else {

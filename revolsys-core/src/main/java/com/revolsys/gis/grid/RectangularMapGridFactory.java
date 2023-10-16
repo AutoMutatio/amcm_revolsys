@@ -7,9 +7,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jeometry.common.logging.Logs;
-
-import com.revolsys.util.Property;
+import com.revolsys.logging.Logs;
 
 public class RectangularMapGridFactory {
   public static final Map<String, String> gridClassNamesByName = new LinkedHashMap<>();
@@ -45,7 +43,7 @@ public class RectangularMapGridFactory {
   public static RectangularMapGrid getGrid(final String name) {
     try {
       final String className = gridClassNamesByName.get(name);
-      if (org.jeometry.common.util.Property.hasValue(className)) {
+      if (com.revolsys.util.Property.hasValue(className)) {
         return (RectangularMapGrid)Class.forName(className).newInstance();
       }
     } catch (final Throwable e) {

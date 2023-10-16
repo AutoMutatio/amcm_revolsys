@@ -3,7 +3,7 @@ package com.revolsys.util.count;
 import java.util.Map;
 import java.util.function.Supplier;
 
-import org.jeometry.common.collection.map.Maps;
+import com.revolsys.collection.map.Maps;
 
 public class DoubleStatistics {
   public static <K> void addValue(final Map<K, DoubleStatistics> statisticsByKey, final K key,

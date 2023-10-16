@@ -1,8 +1,7 @@
 package com.revolsys.parallel.process;
 
-import org.jeometry.common.util.Cancellable;
-
 import com.revolsys.parallel.channel.Channel;
+import com.revolsys.util.Cancellable;
 
 public class BaseInProcess<T> extends AbstractInProcess<T> implements Cancellable {
   private boolean running = false;

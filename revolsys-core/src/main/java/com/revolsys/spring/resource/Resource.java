@@ -35,21 +35,19 @@ import java.util.function.Predicate;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import org.jeometry.common.collection.list.Lists;
-import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.common.exception.Exceptions;
-import org.jeometry.common.io.FileProxy;
-import org.jeometry.common.io.IoUtil;
-import org.jeometry.common.net.UrlProxy;
-
+import com.revolsys.collection.list.Lists;
+import com.revolsys.data.type.DataTypes;
+import com.revolsys.exception.Exceptions;
 import com.revolsys.io.FileNames;
+import com.revolsys.io.FileProxy;
 import com.revolsys.io.FileUtil;
+import com.revolsys.io.IoUtil;
 import com.revolsys.io.channels.ChannelReader;
 import com.revolsys.io.channels.ChannelWriter;
 import com.revolsys.io.channels.DataReader;
 import com.revolsys.io.file.Paths;
+import com.revolsys.net.UrlProxy;
 import com.revolsys.predicate.Predicates;
-import com.revolsys.util.Property;
 
 public interface Resource extends org.springframework.core.io.Resource, FileProxy, UrlProxy {
   String CLASSPATH_URL_PREFIX = "classpath:";
@@ -147,7 +145,7 @@ public interface Resource extends org.springframework.core.io.Resource, FileProx
   }
 
   static Resource getResource(final String location) {
-    if (org.jeometry.common.util.Property.hasValue(location)) {
+    if (com.revolsys.util.Property.hasValue(location)) {
       if (location.charAt(0) == '/' || location.length() > 1 && location.charAt(1) == ':'
         || location.indexOf(':') == -1) {
         return new PathResource(location);

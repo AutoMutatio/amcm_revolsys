@@ -2,19 +2,17 @@ package com.revolsys.record.query;
 
 import java.util.function.Predicate;
 
-import org.jeometry.common.collection.map.MapEx;
-import org.jeometry.common.util.Emptyable;
-
-import com.revolsys.util.Property;
+import com.revolsys.collection.map.MapEx;
+import com.revolsys.util.Emptyable;
 
 public interface Condition extends QueryValue, Predicate<MapEx>, Emptyable {
 
   AcceptAllCondition ALL = new AcceptAllCondition();
 
   default Condition and(final Condition condition) {
-    if (condition == null || org.jeometry.common.util.Property.isEmpty(condition)) {
+    if (condition == null || com.revolsys.util.Property.isEmpty(condition)) {
       return this;
-    } else if (org.jeometry.common.util.Property.isEmpty(this)) {
+    } else if (com.revolsys.util.Property.isEmpty(this)) {
       return condition;
     } else {
       return new And(this, condition);
@@ -39,7 +37,7 @@ public interface Condition extends QueryValue, Predicate<MapEx>, Emptyable {
   }
 
   default Condition not() {
-    if (org.jeometry.common.util.Property.isEmpty(this)) {
+    if (com.revolsys.util.Property.isEmpty(this)) {
       return this;
     } else {
       return new Not(this);
@@ -47,9 +45,9 @@ public interface Condition extends QueryValue, Predicate<MapEx>, Emptyable {
   }
 
   default Condition or(final Condition condition) {
-    if (condition == null || org.jeometry.common.util.Property.isEmpty(condition)) {
+    if (condition == null || com.revolsys.util.Property.isEmpty(condition)) {
       return this;
-    } else if (org.jeometry.common.util.Property.isEmpty(this)) {
+    } else if (com.revolsys.util.Property.isEmpty(this)) {
       return condition;
     } else {
       return new Or(this, condition);

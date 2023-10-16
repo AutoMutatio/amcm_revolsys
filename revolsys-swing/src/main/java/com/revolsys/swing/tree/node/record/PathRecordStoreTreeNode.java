@@ -11,8 +11,7 @@ import java.util.Map;
 import javax.swing.Icon;
 import javax.swing.JLabel;
 
-import org.jeometry.common.json.JsonObject;
-
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.io.file.Paths;
 import com.revolsys.record.io.RecordStoreConnectionManager;
 import com.revolsys.record.io.RecordStoreConnectionMapProxy;
@@ -31,7 +30,6 @@ import com.revolsys.swing.menu.MenuFactory;
 import com.revolsys.swing.tree.BaseTreeNode;
 import com.revolsys.swing.tree.TreeNodes;
 import com.revolsys.swing.tree.node.file.PathTreeNode;
-import com.revolsys.util.Property;
 
 public class PathRecordStoreTreeNode extends PathTreeNode
   implements RecordStoreProxy, RecordStoreConnectionMapProxy {
@@ -86,7 +84,7 @@ public class PathRecordStoreTreeNode extends PathTreeNode
     if (panel.isSaved()) {
       final RecordStoreConnectionRegistry registry = registryField.getSelectedItem();
       String connectionName = nameField.getText();
-      if (!org.jeometry.common.util.Property.hasValue(connectionName)) {
+      if (!com.revolsys.util.Property.hasValue(connectionName)) {
         connectionName = fileName;
       }
       final String baseConnectionName = connectionName;

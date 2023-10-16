@@ -3,8 +3,7 @@ package com.revolsys.swing.map.layer.record;
 import java.util.Collection;
 import java.util.Map;
 
-import org.jeometry.common.data.identifier.Identifier;
-
+import com.revolsys.data.identifier.Identifier;
 import com.revolsys.record.Record;
 import com.revolsys.record.RecordState;
 import com.revolsys.record.schema.FieldDefinition;

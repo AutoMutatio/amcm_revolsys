@@ -11,10 +11,9 @@ import javax.swing.JTextPane;
 import javax.swing.ScrollPaneConstants;
 
 import org.jdesktop.swingx.VerticalLayout;
-import org.jeometry.common.collection.value.SimpleValueHolder;
-import org.jeometry.common.json.JsonObject;
-import org.jeometry.common.logging.Logs;
 
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.value.SimpleValueHolder;
 import com.revolsys.elevation.cloud.PointCloud;
 import com.revolsys.elevation.cloud.PointCloudReadFactory;
 import com.revolsys.elevation.cloud.las.LasPointCloudWriterFactory;
@@ -23,6 +22,7 @@ import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.io.FileUtil;
 import com.revolsys.io.file.Paths;
 import com.revolsys.io.map.MapObjectFactoryRegistry;
+import com.revolsys.logging.Logs;
 import com.revolsys.spring.resource.Resource;
 import com.revolsys.swing.Borders;
 import com.revolsys.swing.RsSwingServiceInitializer;
@@ -198,7 +198,7 @@ public class PointCloudLayer extends AbstractLayer {
 
   @Override
   protected boolean initializeDo() {
-    if (org.jeometry.common.util.Property.hasValue(this.url)) {
+    if (com.revolsys.util.Property.hasValue(this.url)) {
       cancelChanges();
       return true;
     } else {
@@ -258,7 +258,7 @@ public class PointCloudLayer extends AbstractLayer {
       SwingUtil.addLabelledReadOnlyTextField(panel, "URL", this.url);
     }
     final String fileNameExtension = FileUtil.getFileNameExtension(this.url);
-    if (org.jeometry.common.util.Property.hasValue(fileNameExtension)) {
+    if (com.revolsys.util.Property.hasValue(fileNameExtension)) {
       SwingUtil.addLabelledReadOnlyTextField(panel, "File Extension", fileNameExtension);
     }
     GroupLayouts.makeColumns(panel, 2, true);

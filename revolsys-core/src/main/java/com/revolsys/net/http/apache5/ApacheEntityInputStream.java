@@ -4,9 +4,9 @@ import java.io.IOException;
 
 import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
 import org.apache.hc.core5.http.HttpEntity;
-import org.jeometry.common.util.BaseCloseable;
 
 import com.revolsys.io.DelegatingInputStream;
+import com.revolsys.util.BaseCloseable;
 
 public class ApacheEntityInputStream extends DelegatingInputStream {
 

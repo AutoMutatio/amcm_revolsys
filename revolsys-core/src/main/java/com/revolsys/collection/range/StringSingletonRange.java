@@ -1,7 +1,5 @@
 package com.revolsys.collection.range;
 
-import com.revolsys.util.Property;
-
 /**
  *
  * Ranges are immutable
@@ -14,7 +12,7 @@ public class StringSingletonRange extends AbstractRange<String> {
   }
 
   public StringSingletonRange(final String value) {
-    if (!org.jeometry.common.util.Property.hasValue(value)) {
+    if (!com.revolsys.util.Property.hasValue(value)) {
       throw new IllegalArgumentException("Value must not be empty for " + getClass());
     }
     this.value = value;

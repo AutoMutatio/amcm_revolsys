@@ -12,14 +12,12 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.Consumer;
 
-import org.jeometry.common.collection.map.MapEx;
-import org.jeometry.common.collection.map.Maps;
-import org.jeometry.common.function.Consumer3;
-import org.jeometry.common.io.PathName;
-import org.jeometry.common.logging.Logs;
-import org.jeometry.common.util.BaseObjectWithProperties;
-
+import com.revolsys.collection.map.MapEx;
+import com.revolsys.collection.map.Maps;
+import com.revolsys.function.Consumer3;
 import com.revolsys.geometry.model.GeometryFactory;
+import com.revolsys.io.PathName;
+import com.revolsys.logging.Logs;
 import com.revolsys.parallel.ReentrantLockEx;
 import com.revolsys.record.ArrayRecord;
 import com.revolsys.record.Record;
@@ -31,6 +29,7 @@ import com.revolsys.record.property.RecordDefinitionProperty;
 import com.revolsys.record.query.Query;
 import com.revolsys.record.query.QueryValue;
 import com.revolsys.record.query.SqlAppendable;
+import com.revolsys.util.BaseObjectWithProperties;
 import com.revolsys.util.UrlUtil;
 import com.revolsys.util.count.CategoryLabelCountMap;
 
@@ -470,7 +469,7 @@ public abstract class AbstractRecordStore extends BaseObjectWithProperties imple
 
   @Override
   public String toString() {
-    if (org.jeometry.common.util.Property.hasValue(this.label)) {
+    if (com.revolsys.util.Property.hasValue(this.label)) {
       return this.label;
     } else {
       return super.toString();

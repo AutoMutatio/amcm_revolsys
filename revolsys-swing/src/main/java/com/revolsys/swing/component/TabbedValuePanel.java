@@ -6,10 +6,8 @@ import java.awt.Component;
 import javax.swing.Icon;
 import javax.swing.JTabbedPane;
 
-import org.jeometry.common.data.type.DataType;
-
+import com.revolsys.data.type.DataType;
 import com.revolsys.swing.Icons;
-import com.revolsys.util.Property;
 
 public class TabbedValuePanel extends ValueField {
   private static final long serialVersionUID = 1L;
@@ -61,7 +59,7 @@ public class TabbedValuePanel extends ValueField {
   }
 
   public void setSelectdTab(final String tabName) {
-    if (org.jeometry.common.util.Property.hasValue(tabName)) {
+    if (com.revolsys.util.Property.hasValue(tabName)) {
       for (int i = 0; i < this.tabs.getTabCount(); i++) {
         final String name = this.tabs.getTitleAt(i);
         if (tabName.equals(name)) {

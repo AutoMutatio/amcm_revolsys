@@ -5,12 +5,11 @@ import java.net.URI;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.jeometry.common.util.BaseCloseable;
-
 import com.revolsys.collection.NameProxy;
 import com.revolsys.io.AbstractMapWriter;
 import com.revolsys.io.IoConstants;
 import com.revolsys.record.io.format.xml.XmlWriter;
+import com.revolsys.util.BaseCloseable;
 import com.revolsys.util.CaseConverter;
 import com.revolsys.util.HtmlAttr;
 import com.revolsys.util.HtmlElem;

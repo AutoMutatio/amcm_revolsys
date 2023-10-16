@@ -25,7 +25,6 @@ import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.impl.PointDoubleXYOrientation;
 import com.revolsys.swing.map.layer.record.style.TextStyle;
 import com.revolsys.swing.map.view.TextStyleViewRenderer;
-import com.revolsys.util.Property;
 
 import tech.units.indriya.quantity.Quantities;
 
@@ -58,7 +57,7 @@ public class Graphics2DTextStyleRenderer extends TextStyleViewRenderer {
     final Graphics2DViewRenderer view = this.view;
     double dx = this.dx;
     double dy = this.dy;
-    if (org.jeometry.common.util.Property.hasValue(label) && geometry != null) {
+    if (com.revolsys.util.Property.hasValue(label) && geometry != null) {
       final TextStyle style = this.style;
       final String textPlacementType = style.getTextPlacementType();
       final PointDoubleXYOrientation point = view.getPointWithOrientation(geometry,

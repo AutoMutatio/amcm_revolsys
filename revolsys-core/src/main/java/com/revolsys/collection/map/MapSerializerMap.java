@@ -2,8 +2,7 @@ package com.revolsys.collection.map;
 
 import java.util.Set;
 
-import org.jeometry.common.collection.map.MapEx;
-import org.jeometry.common.io.MapSerializer;
+import com.revolsys.io.MapSerializer;
 
 public class MapSerializerMap implements MapEx {
 

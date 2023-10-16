@@ -19,14 +19,10 @@ import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
-import org.jeometry.common.exception.Exceptions;
-import org.jeometry.common.json.Json;
-import org.jeometry.common.json.JsonObject;
-import org.jeometry.common.logging.Logs;
-import org.jeometry.common.number.Integers;
-import org.jeometry.common.util.BaseCloseable;
-
+import com.revolsys.collection.json.Json;
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.connection.file.FolderConnectionRegistry;
+import com.revolsys.exception.Exceptions;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryFactory;
@@ -35,6 +31,8 @@ import com.revolsys.geometry.util.RectangleUtil;
 import com.revolsys.io.FileUtil;
 import com.revolsys.io.file.Paths;
 import com.revolsys.io.filter.FileNameExtensionFilter;
+import com.revolsys.logging.Logs;
+import com.revolsys.number.Integers;
 import com.revolsys.record.io.RecordStoreConnectionRegistry;
 import com.revolsys.spring.resource.PathResource;
 import com.revolsys.spring.resource.Resource;
@@ -45,8 +43,8 @@ import com.revolsys.swing.component.ValueField;
 import com.revolsys.swing.layout.GroupLayouts;
 import com.revolsys.swing.map.ProjectFrame;
 import com.revolsys.swing.menu.MenuFactory;
+import com.revolsys.util.BaseCloseable;
 import com.revolsys.util.PreferencesUtil;
-import com.revolsys.util.Property;
 import com.revolsys.util.Strings;
 import com.revolsys.webservice.WebServiceConnectionRegistry;
 
@@ -638,7 +636,7 @@ public class Project extends LayerGroupImpl {
   }
 
   public void setViewBoundingBoxAndGeometryFactory(final BoundingBox viewBoundingBox) {
-    if (!org.jeometry.common.util.Property.isEmpty(viewBoundingBox)) {
+    if (!com.revolsys.util.Property.isEmpty(viewBoundingBox)) {
       final BoundingBox oldBoundingBox = this.viewBoundingBox;
       final boolean bboxUpdated = setViewBoundingBoxDo(viewBoundingBox);
 
@@ -652,7 +650,7 @@ public class Project extends LayerGroupImpl {
   }
 
   protected boolean setViewBoundingBoxDo(BoundingBox viewBoundingBox) {
-    if (org.jeometry.common.util.Property.isEmpty(viewBoundingBox)) {
+    if (com.revolsys.util.Property.isEmpty(viewBoundingBox)) {
       return false;
     } else {
       // TODO really should be min scale

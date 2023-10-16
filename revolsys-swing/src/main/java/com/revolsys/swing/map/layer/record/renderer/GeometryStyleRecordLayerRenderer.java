@@ -15,10 +15,8 @@ import javax.measure.quantity.Length;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.json.JsonObject;
-import org.jeometry.common.util.BaseCloseable;
-
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.data.type.DataType;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryDataTypes;
 import com.revolsys.record.schema.FieldDefinition;
@@ -32,6 +30,7 @@ import com.revolsys.swing.map.layer.record.style.panel.GeometryStylePanel;
 import com.revolsys.swing.map.layer.record.style.panel.GeometryStylePreview;
 import com.revolsys.swing.map.overlay.record.SelectedRecordsRenderer;
 import com.revolsys.swing.map.view.ViewRenderer;
+import com.revolsys.util.BaseCloseable;
 
 public class GeometryStyleRecordLayerRenderer extends AbstractGeometryRecordLayerRenderer
   implements GeometryStyleLayerRenderer<AbstractRecordLayer> {

@@ -3,11 +3,10 @@ package com.revolsys.geometry.index.quadtree;
 import java.io.Serializable;
 import java.util.function.Consumer;
 
-import org.jeometry.common.util.ExitLoopException;
-
 import com.revolsys.geometry.index.SpatialIndex;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactory;
+import com.revolsys.util.ExitLoopException;
 
 public class QuadTree<T> implements SpatialIndex<T>, Serializable {
   private static final long serialVersionUID = 1L;

@@ -7,20 +7,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jeometry.common.collection.map.MapEx;
-import org.jeometry.common.json.Json;
-import org.jeometry.common.json.JsonObject;
-import org.jeometry.common.number.Doubles;
-import org.jeometry.coordinatesystem.model.systems.EpsgId;
-
+import com.revolsys.collection.json.Json;
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.map.MapEx;
+import com.revolsys.geometry.coordinatesystem.model.systems.EpsgId;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.geometry.model.Point;
+import com.revolsys.number.Doubles;
 import com.revolsys.raster.BufferedGeoreferencedImage;
 import com.revolsys.raster.BufferedImages;
 import com.revolsys.raster.GeoreferencedImage;
 import com.revolsys.spring.resource.UrlResource;
-import com.revolsys.util.Property;
 import com.revolsys.util.UriTemplate;
 import com.revolsys.util.UrlUtil;
 
@@ -47,7 +45,7 @@ public class BingClient {
   }
 
   public BingClient(final String bingMapsKey) {
-    if (org.jeometry.common.util.Property.hasValue(bingMapsKey)) {
+    if (com.revolsys.util.Property.hasValue(bingMapsKey)) {
       this.bingMapsKey = bingMapsKey;
     } else {
       this.bingMapsKey = "Aot4lgzhMpHW2veWHlULTZEilxA69oF94eZQrA8B_C25uybJpEERRIFi7R2WI1C_";

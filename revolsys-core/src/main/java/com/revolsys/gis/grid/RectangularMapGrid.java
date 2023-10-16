@@ -3,19 +3,17 @@ package com.revolsys.gis.grid;
 import java.nio.file.Path;
 import java.util.List;
 
-import org.jeometry.common.io.MapSerializer;
-import org.jeometry.common.json.JsonObject;
-import org.jeometry.common.json.JsonObjectHash;
-
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.json.JsonObjectHash;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.geometry.model.GeometryFactoryProxy;
 import com.revolsys.geometry.model.Point;
 import com.revolsys.geometry.model.Polygon;
+import com.revolsys.io.MapSerializer;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.spring.resource.Resource;
-import com.revolsys.util.Property;
 
 public interface RectangularMapGrid extends GeometryFactoryProxy, MapSerializer {
 
@@ -38,7 +36,7 @@ public interface RectangularMapGrid extends GeometryFactoryProxy, MapSerializer 
     fileName.append(tileMinX);
     fileName.append('_');
     fileName.append(tileMinY);
-    if (org.jeometry.common.util.Property.hasValue(fileSuffix)) {
+    if (com.revolsys.util.Property.hasValue(fileSuffix)) {
       fileName.append('_');
       fileName.append(fileSuffix);
     }

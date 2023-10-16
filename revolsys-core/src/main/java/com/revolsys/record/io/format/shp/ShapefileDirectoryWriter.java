@@ -16,7 +16,6 @@ import com.revolsys.record.io.RecordWriter;
 import com.revolsys.record.io.format.xbase.XbaseRecordWriter;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.spring.resource.PathResource;
-import com.revolsys.util.Property;
 import com.revolsys.util.count.LabelCountMap;
 import com.revolsys.util.count.LabelCounters;
 
@@ -83,7 +82,7 @@ public class ShapefileDirectoryWriter extends AbstractRecordWriter {
     if (this.useNamespaceAsSubDirectory) {
       final String typePath = recordDefinition.getPath();
       final String schemaName = PathUtil.getPath(typePath);
-      if (org.jeometry.common.util.Property.hasValue(schemaName)) {
+      if (com.revolsys.util.Property.hasValue(schemaName)) {
         final File childDirectory = new File(this.directory, schemaName);
         if (!childDirectory.mkdirs()) {
           if (!childDirectory.isDirectory()) {

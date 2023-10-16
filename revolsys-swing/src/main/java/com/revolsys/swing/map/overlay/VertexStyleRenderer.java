@@ -3,15 +3,13 @@ package com.revolsys.swing.map.overlay;
 import java.awt.Color;
 import java.awt.Graphics2D;
 
-import org.jeometry.common.awt.WebColors;
-import org.jeometry.coordinatesystem.model.unit.CustomUnits;
-
+import com.revolsys.awt.WebColors;
+import com.revolsys.geometry.coordinatesystem.model.unit.CustomUnits;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.geometry.model.vertex.Vertex;
 import com.revolsys.swing.map.layer.record.style.MarkerStyle;
 import com.revolsys.swing.map.overlay.record.SelectedRecordsVertexRenderer;
 import com.revolsys.swing.map.view.ViewRenderer;
-import com.revolsys.util.Property;
 
 import tech.units.indriya.quantity.Quantities;
 
@@ -46,7 +44,7 @@ public class VertexStyleRenderer {
 
   public void paintSelected(final ViewRenderer view, final Graphics2D graphics,
     final GeometryFactory viewportGeometryFactory, final Vertex vertex) {
-    if (org.jeometry.common.util.Property.hasValue(vertex)) {
+    if (com.revolsys.util.Property.hasValue(vertex)) {
       MarkerStyle style;
       final boolean to = vertex.isTo();
       if (vertex.isFrom()) {

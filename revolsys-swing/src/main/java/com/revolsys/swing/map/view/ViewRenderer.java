@@ -14,13 +14,9 @@ import javax.measure.Quantity;
 import javax.measure.Unit;
 import javax.measure.quantity.Length;
 
-import org.jeometry.common.awt.WebColors;
-import org.jeometry.common.logging.Logs;
-import org.jeometry.common.util.BaseCloseable;
-import org.jeometry.common.util.Cancellable;
-import org.jeometry.coordinatesystem.model.Ellipsoid;
-import org.jeometry.coordinatesystem.model.unit.CustomUnits;
-
+import com.revolsys.awt.WebColors;
+import com.revolsys.geometry.coordinatesystem.model.Ellipsoid;
+import com.revolsys.geometry.coordinatesystem.model.unit.CustomUnits;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.BoundingBoxProxy;
 import com.revolsys.geometry.model.Geometry;
@@ -34,6 +30,7 @@ import com.revolsys.geometry.model.impl.PointDoubleXYOrientation;
 import com.revolsys.geometry.model.segment.LineSegment;
 import com.revolsys.geometry.model.segment.Segment;
 import com.revolsys.geometry.model.vertex.Vertex;
+import com.revolsys.logging.Logs;
 import com.revolsys.raster.GeoreferencedImage;
 import com.revolsys.record.Record;
 import com.revolsys.swing.map.Viewport2D;
@@ -51,7 +48,8 @@ import com.revolsys.swing.map.layer.record.style.marker.Marker;
 import com.revolsys.swing.map.layer.record.style.marker.MarkerRenderer;
 import com.revolsys.swing.map.layer.record.style.marker.SvgMarker;
 import com.revolsys.swing.map.layer.record.style.marker.TextMarker;
-import com.revolsys.util.Property;
+import com.revolsys.util.BaseCloseable;
+import com.revolsys.util.Cancellable;
 import com.revolsys.util.QuantityType;
 
 import tech.units.indriya.unit.Units;
@@ -252,7 +250,7 @@ public abstract class ViewRenderer implements BoundingBoxProxy, Cancellable {
 
   public void drawMarker(final MarkerStyle style, Point point, final double orientation) {
     point = getGeometry(point);
-    if (org.jeometry.common.util.Property.hasValue(point)) {
+    if (com.revolsys.util.Property.hasValue(point)) {
       try (
         MarkerRenderer renderer = style.newMarkerRenderer(this)) {
         renderer.renderMarkerPoint(point, orientation);
@@ -442,7 +440,7 @@ public abstract class ViewRenderer implements BoundingBoxProxy, Cancellable {
             }
           }
         }
-        if (org.jeometry.common.util.Property.hasValue(point)) {
+        if (com.revolsys.util.Property.hasValue(point)) {
           if (this.boundingBox.bboxCovers(point)) {
             point = point.convertPoint2d(geometryFactory);
             return new PointDoubleXYOrientation(point, orientation);

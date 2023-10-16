@@ -1,6 +1,6 @@
 package com.revolsys.record.query;
 
-import org.jeometry.common.collection.map.MapEx;
+import com.revolsys.collection.map.MapEx;
 
 public class IsNotNull extends RightUnaryCondition {
 

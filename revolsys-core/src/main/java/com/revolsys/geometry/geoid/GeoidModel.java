@@ -2,13 +2,12 @@ package com.revolsys.geometry.geoid;
 
 import java.util.List;
 
-import org.jeometry.common.collection.map.MapEx;
-import org.jeometry.common.json.JsonObject;
-import org.jeometry.coordinatesystem.operation.ChainedCoordinatesOperation;
-import org.jeometry.coordinatesystem.operation.CoordinatesOperation;
-import org.jeometry.coordinatesystem.operation.CoordinatesOperationPoint;
-import org.jeometry.coordinatesystem.operation.gridshift.VerticalShiftOperation;
-
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.map.MapEx;
+import com.revolsys.geometry.coordinatesystem.operation.ChainedCoordinatesOperation;
+import com.revolsys.geometry.coordinatesystem.operation.CoordinatesOperation;
+import com.revolsys.geometry.coordinatesystem.operation.CoordinatesOperationPoint;
+import com.revolsys.geometry.coordinatesystem.operation.gridshift.VerticalShiftOperation;
 import com.revolsys.geometry.model.BoundingBoxProxy;
 import com.revolsys.io.IoFactory;
 import com.revolsys.spring.resource.Resource;

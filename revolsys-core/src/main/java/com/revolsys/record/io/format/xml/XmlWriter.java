@@ -29,15 +29,13 @@ import java.util.Map;
 
 import javax.xml.namespace.QName;
 
-import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.common.exception.Exceptions;
-import org.jeometry.common.logging.Logs;
-import org.jeometry.common.number.Doubles;
-import org.jeometry.common.number.Floats;
-import org.jeometry.common.number.Numbers;
-
+import com.revolsys.data.type.DataTypes;
+import com.revolsys.exception.Exceptions;
 import com.revolsys.io.FileUtil;
-import com.revolsys.util.Property;
+import com.revolsys.logging.Logs;
+import com.revolsys.number.Doubles;
+import com.revolsys.number.Floats;
+import com.revolsys.number.Numbers;
 
 /**
  * <p>
@@ -569,7 +567,7 @@ public class XmlWriter extends Writer {
 
   public void attribute(final String name, final String value) {
     try {
-      if (org.jeometry.common.util.Property.hasValue(value)) {
+      if (com.revolsys.util.Property.hasValue(value)) {
         checkWriteAttribute();
         this.out.write(' ');
         this.out.write(name);

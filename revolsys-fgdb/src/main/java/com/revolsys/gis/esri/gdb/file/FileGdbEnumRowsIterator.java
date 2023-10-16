@@ -2,8 +2,7 @@ package com.revolsys.gis.esri.gdb.file;
 
 import java.util.NoSuchElementException;
 
-import org.jeometry.common.collection.iterator.AbstractIterator;
-
+import com.revolsys.collection.iterator.AbstractIterator;
 import com.revolsys.esri.filegdb.jni.EnumRows;
 import com.revolsys.esri.filegdb.jni.Row;
 

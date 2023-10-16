@@ -3,9 +3,7 @@ package com.revolsys.swing.map.layer.raster;
 import java.beans.PropertyChangeListener;
 import java.util.List;
 
-import org.jeometry.common.json.JsonObject;
-import org.jeometry.common.util.Cancellable;
-
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.raster.GeoreferencedImage;
@@ -16,6 +14,7 @@ import com.revolsys.swing.map.layer.tile.AbstractTiledLayerRenderer;
 import com.revolsys.swing.map.view.ViewRenderer;
 import com.revolsys.swing.map.view.graphics.Graphics2DViewRenderer;
 import com.revolsys.util.BooleanCancellable;
+import com.revolsys.util.Cancellable;
 
 public class TiledGeoreferencedImageLayerRenderer<T extends GeoreferencedImageMapTile>
   extends AbstractTiledLayerRenderer<GeoreferencedImage, T> implements PropertyChangeListener {

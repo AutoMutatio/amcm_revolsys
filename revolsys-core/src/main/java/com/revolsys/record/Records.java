@@ -14,22 +14,20 @@ import java.util.TreeSet;
 import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 
-import org.jeometry.common.collection.list.Lists;
-import org.jeometry.common.collection.map.MapEx;
-import org.jeometry.common.compare.CompareUtil;
-import org.jeometry.common.data.identifier.Identifier;
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.io.PathName;
-import org.jeometry.common.logging.Logs;
-import org.jeometry.common.util.BaseCloneable;
-
+import com.revolsys.collection.list.Lists;
+import com.revolsys.collection.map.MapEx;
+import com.revolsys.comparator.CompareUtil;
 import com.revolsys.comparator.StringNumberComparator;
+import com.revolsys.data.identifier.Identifier;
+import com.revolsys.data.type.DataType;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryDataTypes;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.geometry.model.TopologyException;
 import com.revolsys.geometry.model.editor.BoundingBoxEditor;
+import com.revolsys.io.PathName;
+import com.revolsys.logging.Logs;
 import com.revolsys.predicate.Predicates;
 import com.revolsys.record.code.CodeTable;
 import com.revolsys.record.io.RecordReader;
@@ -42,7 +40,7 @@ import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordDefinitionImpl;
 import com.revolsys.record.schema.RecordStore;
-import com.revolsys.util.Property;
+import com.revolsys.util.BaseCloneable;
 import com.revolsys.util.Strings;
 
 public interface Records {
@@ -250,12 +248,12 @@ public interface Records {
   static <V extends Record> void filterAndSort(final List<V> records,
     final Predicate<? super V> filter, final List<OrderBy> orderBy) {
     // Filter records
-    if (!org.jeometry.common.util.Property.isEmpty(filter)) {
+    if (!com.revolsys.util.Property.isEmpty(filter)) {
       Predicates.retain(records, filter);
     }
 
     // Sort records
-    if (org.jeometry.common.util.Property.hasValue(orderBy)) {
+    if (com.revolsys.util.Property.hasValue(orderBy)) {
       final Comparator<Record> comparator = newComparatorOrderBy(orderBy);
       Collections.sort(records, comparator);
     }
@@ -341,7 +339,7 @@ public interface Records {
         } else {
           try {
             final Object object = propertyValue;
-            propertyValue = org.jeometry.common.util.Property.getSimple(object, propertyName);
+            propertyValue = com.revolsys.util.Property.getSimple(object, propertyName);
           } catch (final IllegalArgumentException e) {
             throw new IllegalArgumentException("Path does not exist " + path, e);
           }
@@ -392,7 +390,7 @@ public interface Records {
         } else {
           try {
             final Object object = propertyValue;
-            propertyValue = org.jeometry.common.util.Property.getSimple(object, propertyName);
+            propertyValue = com.revolsys.util.Property.getSimple(object, propertyName);
           } catch (final IllegalArgumentException e) {
             throw new IllegalArgumentException("Path does not exist " + path, e);
           }
@@ -446,7 +444,7 @@ public interface Records {
     final List<Identifier> identifiers = new ArrayList<>();
     for (final String fieldName : fieldNames) {
       final Identifier identifier = record.getIdentifier(fieldName);
-      if (org.jeometry.common.util.Property.hasValue(identifier)) {
+      if (com.revolsys.util.Property.hasValue(identifier)) {
         identifiers.add(identifier);
       }
     }
@@ -509,7 +507,7 @@ public interface Records {
   }
 
   static Object getValue(final Record record, final String fieldName) {
-    if (record == null || !org.jeometry.common.util.Property.hasValue(fieldName)) {
+    if (record == null || !com.revolsys.util.Property.hasValue(fieldName)) {
       return null;
     } else {
       return record.getValue(fieldName);
@@ -526,9 +524,9 @@ public interface Records {
   static void mergeStringListValue(final Map<String, Object> record, final String fieldName,
     final String value1, final String value2) {
     Object value;
-    if (!org.jeometry.common.util.Property.hasValue(value1)) {
+    if (!com.revolsys.util.Property.hasValue(value1)) {
       value = value2;
-    } else if (!org.jeometry.common.util.Property.hasValue(value2)) {
+    } else if (!com.revolsys.util.Property.hasValue(value2)) {
       value = value1;
     } else if (DataType.equal(value1, value2)) {
       value = value1;
@@ -546,9 +544,9 @@ public interface Records {
     final String value1 = record1.getString(fieldName);
     final String value2 = record2.getString(fieldName);
     Object value;
-    if (!org.jeometry.common.util.Property.hasValue(value1)) {
+    if (!com.revolsys.util.Property.hasValue(value1)) {
       value = value2;
-    } else if (!org.jeometry.common.util.Property.hasValue(value2)) {
+    } else if (!com.revolsys.util.Property.hasValue(value2)) {
       value = value1;
     } else if (DataType.equal(value1, value2)) {
       value = value1;
@@ -595,7 +593,7 @@ public interface Records {
       if (record1 == record2) {
         return 0;
       } else {
-        if (org.jeometry.common.util.Property.hasValue(orderBy)) {
+        if (com.revolsys.util.Property.hasValue(orderBy)) {
           for (final OrderBy order : orderBy) {
             final QueryValue field = order.getField();
             if (field instanceof ColumnReference) {
@@ -625,7 +623,7 @@ public interface Records {
 
   static <R extends Record> Comparator<R> newComparatorOrderBy(
     final Map<? extends CharSequence, Boolean> orderBy) {
-    if (org.jeometry.common.util.Property.hasValue(orderBy)) {
+    if (com.revolsys.util.Property.hasValue(orderBy)) {
       return (record1, record2) -> {
         if (record1 == record2) {
           return 0;
@@ -654,7 +652,7 @@ public interface Records {
 
   static <R extends Record> Comparator<R> newComparatorOrderByIdentifier(
     final Map<? extends CharSequence, Boolean> orderBy) {
-    if (org.jeometry.common.util.Property.hasValue(orderBy)) {
+    if (com.revolsys.util.Property.hasValue(orderBy)) {
       return (record1, record2) -> {
         if (record1 == record2) {
           return 0;
@@ -732,7 +730,7 @@ public interface Records {
   }
 
   static <R extends Record> Predicate<R> newFilterGeometryIntersects(final Geometry geometry) {
-    if (org.jeometry.common.util.Property.hasValue(geometry)) {
+    if (com.revolsys.util.Property.hasValue(geometry)) {
       final GeometryFactory geometryFactory = geometry.getGeometryFactory();
       return record -> {
         if (record != null) {

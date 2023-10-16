@@ -9,10 +9,9 @@ import java.util.List;
 
 import javax.swing.JOptionPane;
 
-import org.jeometry.common.collection.list.Lists;
-import org.jeometry.common.logging.Logs;
-
+import com.revolsys.collection.list.Lists;
 import com.revolsys.io.FileUtil;
+import com.revolsys.logging.Logs;
 import com.revolsys.parallel.ThreadInterruptedException;
 
 public final class JavaProcess implements Runnable {

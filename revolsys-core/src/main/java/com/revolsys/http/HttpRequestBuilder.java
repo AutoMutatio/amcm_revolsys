@@ -46,11 +46,11 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.message.HeaderGroup;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.Args;
-import org.jeometry.common.collection.list.ListEx;
-import org.jeometry.common.collection.value.Single;
-import org.jeometry.common.json.JsonList;
-import org.jeometry.common.json.JsonObject;
 
+import com.revolsys.collection.json.JsonList;
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.list.ListEx;
+import com.revolsys.collection.value.Single;
 import com.revolsys.net.http.ApacheHttp;
 import com.revolsys.net.http.ApacheHttpException;
 import com.revolsys.util.UriBuilder;
@@ -376,20 +376,6 @@ public class HttpRequestBuilder {
     return execute(function);
   }
 
-  public Single<JsonObject> jsonObject() {
-    try {
-      final JsonObject json = getJson();
-      return Single.ofNullable(json);
-    } catch (final ApacheHttpException e) {
-      final int code = e.getStatusCode();
-      if (code == HttpStatus.SC_NOT_FOUND || code == HttpStatus.SC_GONE) {
-        return Single.empty();
-      } else {
-        throw e;
-      }
-    }
-  }
-
   public Header getLastHeader(final String name) {
     return this.headerGroup != null ? this.headerGroup.getLastHeader(name) : null;
   }
@@ -420,6 +406,20 @@ public class HttpRequestBuilder {
 
   public ProtocolVersion getVersion() {
     return this.version;
+  }
+
+  public Single<JsonObject> jsonObject() {
+    try {
+      final JsonObject json = getJson();
+      return Single.ofNullable(json);
+    } catch (final ApacheHttpException e) {
+      final int code = e.getStatusCode();
+      if (code == HttpStatus.SC_NOT_FOUND || code == HttpStatus.SC_GONE) {
+        return Single.empty();
+      } else {
+        throw e;
+      }
+    }
   }
 
   public InputStream newInputStream() {

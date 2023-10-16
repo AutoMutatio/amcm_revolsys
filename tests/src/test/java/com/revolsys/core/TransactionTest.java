@@ -4,10 +4,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.UUID;
 
-import org.jeometry.common.io.PathName;
-import org.jeometry.common.json.JsonObject;
 import org.junit.Test;
 
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.io.PathName;
 import com.revolsys.record.Record;
 import com.revolsys.record.schema.RecordStore;
 import com.revolsys.transaction.Transaction;

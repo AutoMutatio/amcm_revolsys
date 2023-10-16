@@ -6,15 +6,14 @@ import java.io.Reader;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
-import org.jeometry.common.collection.iterator.AbstractIterator;
-import org.jeometry.common.json.JsonMapIterator;
-import org.jeometry.common.util.BaseCloseable;
-
+import com.revolsys.collection.iterator.AbstractIterator;
+import com.revolsys.collection.json.JsonMapIterator;
 import com.revolsys.io.FileUtil;
 import com.revolsys.record.ArrayRecord;
 import com.revolsys.record.Record;
 import com.revolsys.record.io.RecordReader;
 import com.revolsys.record.schema.RecordDefinition;
+import com.revolsys.util.BaseCloseable;
 
 public class JsonRecordIterator extends AbstractIterator<Record> implements RecordReader {
 

@@ -5,13 +5,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
-import org.jeometry.common.collection.iterator.AbstractIterator;
-import org.jeometry.common.collection.map.MapEx;
-import org.jeometry.common.json.JsonParser;
-import org.jeometry.common.json.JsonParser.EventType;
-import org.jeometry.common.util.BaseCloseable;
-import org.jeometry.coordinatesystem.model.systems.EpsgId;
-
+import com.revolsys.collection.iterator.AbstractIterator;
+import com.revolsys.collection.json.JsonParser;
+import com.revolsys.collection.json.JsonParser.EventType;
+import com.revolsys.collection.map.MapEx;
+import com.revolsys.geometry.coordinatesystem.model.systems.EpsgId;
 import com.revolsys.geometry.io.GeometryReader;
 import com.revolsys.geometry.model.ClockDirection;
 import com.revolsys.geometry.model.Geometry;
@@ -22,6 +20,7 @@ import com.revolsys.geometry.model.Polygon;
 import com.revolsys.geometry.model.impl.LineStringDouble;
 import com.revolsys.io.IoConstants;
 import com.revolsys.spring.resource.Resource;
+import com.revolsys.util.BaseCloseable;
 
 public class GeoJsonGeometryReader extends AbstractIterator<Geometry> implements GeometryReader {
 

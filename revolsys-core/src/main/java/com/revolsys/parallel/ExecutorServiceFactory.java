@@ -3,8 +3,8 @@ package com.revolsys.parallel;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.jeometry.common.collection.value.LazyValueHolder;
-import org.jeometry.common.collection.value.ValueHolder;
+import com.revolsys.collection.value.LazyValueHolder;
+import com.revolsys.collection.value.ValueHolder;
 
 public class ExecutorServiceFactory {
   private static LazyValueHolder<ExecutorService> EXECUTOR = ValueHolder

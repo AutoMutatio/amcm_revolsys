@@ -3,9 +3,8 @@ package com.revolsys.gis.parallel;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import org.jeometry.common.logging.Logs;
-
 import com.revolsys.geometry.model.Geometry;
+import com.revolsys.logging.Logs;
 import com.revolsys.record.Record;
 
 public class OutsideBoundaryObjects {

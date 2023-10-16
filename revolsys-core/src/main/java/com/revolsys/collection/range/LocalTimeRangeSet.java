@@ -6,8 +6,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.jeometry.common.util.Emptyable;
-
+import com.revolsys.util.Emptyable;
 import com.revolsys.util.Strings;
 
 public class LocalTimeRangeSet implements Iterable<LocalTimeRange>, Emptyable {

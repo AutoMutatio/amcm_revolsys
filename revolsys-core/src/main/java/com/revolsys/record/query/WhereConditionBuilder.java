@@ -3,10 +3,8 @@ package com.revolsys.record.query;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
-import org.jeometry.common.io.PathName;
-
+import com.revolsys.io.PathName;
 import com.revolsys.record.schema.RecordDefinition;
-import com.revolsys.util.Property;
 
 public class WhereConditionBuilder implements TableReferenceProxy {
 
@@ -47,7 +45,7 @@ public class WhereConditionBuilder implements TableReferenceProxy {
     if (conditions != null) {
       Condition whereCondition = getWhereCondition();
       for (final Condition condition : conditions) {
-        if (org.jeometry.common.util.Property.hasValue(condition)) {
+        if (com.revolsys.util.Property.hasValue(condition)) {
           whereCondition = whereCondition.and(condition);
         }
       }
@@ -60,7 +58,7 @@ public class WhereConditionBuilder implements TableReferenceProxy {
     if (conditions != null) {
       Condition whereCondition = getWhereCondition();
       for (final Condition condition : conditions) {
-        if (org.jeometry.common.util.Property.hasValue(condition)) {
+        if (com.revolsys.util.Property.hasValue(condition)) {
           whereCondition = whereCondition.and(condition);
         }
       }

@@ -9,8 +9,7 @@ import java.util.function.Supplier;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamConstants;
 
-import org.jeometry.common.data.type.DataTypes;
-
+import com.revolsys.data.type.DataTypes;
 import com.revolsys.record.io.format.xml.XmlConstants;
 import com.revolsys.record.io.format.xml.XmlName;
 import com.revolsys.record.io.format.xml.XmlNameProxy;

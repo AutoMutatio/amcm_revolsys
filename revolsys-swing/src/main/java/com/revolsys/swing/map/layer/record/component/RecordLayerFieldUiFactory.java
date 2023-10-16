@@ -10,9 +10,7 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptException;
 import javax.script.SimpleBindings;
 
-import org.jeometry.common.exception.Exceptions;
-import org.jeometry.common.util.ObjectWithProperties;
-
+import com.revolsys.exception.Exceptions;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.swing.SwingUtil;
 import com.revolsys.swing.field.Field;
@@ -21,6 +19,7 @@ import com.revolsys.swing.map.layer.record.RecordLayerProxy;
 import com.revolsys.swing.scripting.ScriptEngines;
 import com.revolsys.swing.table.BaseJTable;
 import com.revolsys.swing.table.editor.BaseTableCellEditor;
+import com.revolsys.util.ObjectWithProperties;
 
 public interface RecordLayerFieldUiFactory extends RecordLayerProxy {
 

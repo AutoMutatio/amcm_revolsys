@@ -9,8 +9,8 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.Supplier;
 
-import org.jeometry.common.data.type.DataTypeValueFactory;
-import org.jeometry.common.data.type.DataTypes;
+import com.revolsys.data.type.DataTypeValueFactory;
+import com.revolsys.data.type.DataTypes;
 
 public class Sets {
   @SafeVarargs

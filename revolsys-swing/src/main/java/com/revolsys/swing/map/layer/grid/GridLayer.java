@@ -5,15 +5,14 @@ import java.util.Map;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
-import org.jeometry.common.json.JsonObject;
-import org.jeometry.common.logging.Logs;
-
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.gis.grid.RectangularMapGrid;
 import com.revolsys.gis.grid.RectangularMapGridFactory;
 import com.revolsys.gis.grid.RectangularMapTile;
 import com.revolsys.io.map.MapObjectFactory;
+import com.revolsys.logging.Logs;
 import com.revolsys.swing.Dialogs;
 import com.revolsys.swing.component.TabbedValuePanel;
 import com.revolsys.swing.map.layer.AbstractLayer;
@@ -23,7 +22,6 @@ import com.revolsys.swing.map.layer.record.style.panel.LayerStylePanel;
 import com.revolsys.swing.menu.MenuFactory;
 import com.revolsys.util.CaseConverter;
 import com.revolsys.util.PreferencesUtil;
-import com.revolsys.util.Property;
 
 public class GridLayer extends AbstractLayer {
   static {
@@ -65,7 +63,7 @@ public class GridLayer extends AbstractLayer {
   @Override
   protected boolean initializeDo() {
     final String gridName = getGridName();
-    if (org.jeometry.common.util.Property.hasValue(gridName)) {
+    if (com.revolsys.util.Property.hasValue(gridName)) {
       this.grid = RectangularMapGridFactory.getGrid(gridName);
       if (this.grid == null) {
         Logs.error(this, "Cannot find gridName=" + gridName);
@@ -121,7 +119,7 @@ public class GridLayer extends AbstractLayer {
   public JsonObject toMap() {
     final JsonObject map = super.toMap();
     final String gridName = getGridName();
-    if (org.jeometry.common.util.Property.hasValue(gridName)) {
+    if (com.revolsys.util.Property.hasValue(gridName)) {
       addToMap(map, "gridName", gridName);
     } else {
       addToMap(map, "grid", this.grid);
@@ -150,7 +148,7 @@ public class GridLayer extends AbstractLayer {
   public void zoomToSheet(final String mapsheet) {
     final Project project = getProject();
     if (project != null) {
-      if (org.jeometry.common.util.Property.hasValue(mapsheet)) {
+      if (com.revolsys.util.Property.hasValue(mapsheet)) {
         final RectangularMapGrid grid = getGrid();
         final String gridName = grid.getName();
         try {

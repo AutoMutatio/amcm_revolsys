@@ -30,10 +30,9 @@ import org.apache.pdfbox.pdmodel.graphics.image.PDImageXObject;
 import org.apache.pdfbox.pdmodel.graphics.optionalcontent.PDOptionalContentGroup;
 import org.apache.pdfbox.pdmodel.graphics.state.PDExtendedGraphicsState;
 import org.apache.pdfbox.util.Matrix;
-import org.jeometry.common.exception.Exceptions;
-import org.jeometry.common.util.BaseCloseable;
 import org.w3c.dom.Document;
 
+import com.revolsys.exception.Exceptions;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryFactory;
@@ -60,7 +59,7 @@ import com.revolsys.swing.map.layer.record.style.marker.SvgMarker;
 import com.revolsys.swing.map.layer.record.style.marker.TextMarker;
 import com.revolsys.swing.map.view.TextStyleViewRenderer;
 import com.revolsys.swing.map.view.ViewRenderer;
-import com.revolsys.util.Property;
+import com.revolsys.util.BaseCloseable;
 
 import tech.units.indriya.quantity.Quantities;
 
@@ -624,7 +623,7 @@ public class PdfViewRenderer extends ViewRenderer {
   public void drawText(final Record record, final Geometry geometry, final TextStyle style) {
     try {
       final String label = style.getLabel(record);
-      if (org.jeometry.common.util.Property.hasValue(label) && geometry != null) {
+      if (com.revolsys.util.Property.hasValue(label) && geometry != null) {
         final String textPlacementType = style.getTextPlacementType();
         final PointDoubleXYOrientation point = AbstractRecordLayerRenderer
           .getPointWithOrientation(this, geometry, textPlacementType);

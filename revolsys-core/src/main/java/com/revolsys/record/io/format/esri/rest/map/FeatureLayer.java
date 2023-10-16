@@ -4,15 +4,14 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jeometry.common.collection.map.MapEx;
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.io.PathName;
-import org.jeometry.common.json.Json;
-import org.jeometry.common.logging.Logs;
-
+import com.revolsys.collection.json.Json;
+import com.revolsys.collection.map.MapEx;
+import com.revolsys.data.type.DataType;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.ClockDirection;
 import com.revolsys.geometry.model.GeometryFactory;
+import com.revolsys.io.PathName;
+import com.revolsys.logging.Logs;
 import com.revolsys.record.Record;
 import com.revolsys.record.RecordFactory;
 import com.revolsys.record.code.SingleValueCodeTable;
@@ -117,7 +116,7 @@ public class FeatureLayer extends LayerDescription implements WebServiceFeatureL
 
   private DataType getGeometryDataType(final String geometryType) {
     DataType geometryDataType = null;
-    if (org.jeometry.common.util.Property.hasValue(geometryType)) {
+    if (com.revolsys.util.Property.hasValue(geometryType)) {
       final GeometryType esriGeometryType = GeometryType.valueOf(geometryType);
       geometryDataType = esriGeometryType.getDataType();
       if (geometryDataType == null) {
@@ -214,7 +213,7 @@ public class FeatureLayer extends LayerDescription implements WebServiceFeatureL
       for (final MapEx field : fields) {
         addField(newRecordDefinition, geometryType, field);
       }
-      if (org.jeometry.common.util.Property.hasValue(geometryType)) {
+      if (com.revolsys.util.Property.hasValue(geometryType)) {
         if (!newRecordDefinition.hasGeometryField()) {
           final DataType geometryDataType = getGeometryDataType(geometryType);
           if (geometryDataType == null) {
@@ -251,7 +250,7 @@ public class FeatureLayer extends LayerDescription implements WebServiceFeatureL
   public Map<String, Object> newQueryParameters(BoundingBox boundingBox) {
     refreshIfNeeded();
     boundingBox = convertBoundingBox(boundingBox);
-    if (org.jeometry.common.util.Property.hasValue(boundingBox)) {
+    if (com.revolsys.util.Property.hasValue(boundingBox)) {
       final Map<String, Object> parameters = new LinkedHashMap<>();
       parameters.put("f", "json");
       parameters.put("geometryType", "esriGeometryEnvelope");

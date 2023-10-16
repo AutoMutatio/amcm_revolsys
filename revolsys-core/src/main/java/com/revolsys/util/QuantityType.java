@@ -3,8 +3,8 @@ package com.revolsys.util;
 import javax.measure.Quantity;
 import javax.measure.Unit;
 
-import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.coordinatesystem.model.unit.CustomUnits;
+import com.revolsys.data.type.DataTypes;
+import com.revolsys.geometry.coordinatesystem.model.unit.CustomUnits;
 
 import tech.units.indriya.quantity.Quantities;
 
@@ -33,7 +33,7 @@ public interface QuantityType {
   }
 
   static Quantity<?> newQuantity(final String string) {
-    if (org.jeometry.common.util.Property.hasValue(string)) {
+    if (com.revolsys.util.Property.hasValue(string)) {
       final Quantity<?> measure = Quantities.getQuantity(string);
       final Number value = measure.getValue();
       final Unit<?> unit = measure.getUnit();

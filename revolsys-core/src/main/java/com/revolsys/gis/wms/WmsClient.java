@@ -10,10 +10,10 @@ import java.util.Map;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import org.jeometry.common.exception.Exceptions;
-import org.jeometry.coordinatesystem.model.systems.EpsgId;
 import org.w3c.dom.Document;
 
+import com.revolsys.exception.Exceptions;
+import com.revolsys.geometry.coordinatesystem.model.systems.EpsgId;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.gis.wms.capabilities.WmsCapabilities;
@@ -22,7 +22,6 @@ import com.revolsys.raster.BufferedGeoreferencedImage;
 import com.revolsys.raster.BufferedImages;
 import com.revolsys.raster.GeoreferencedImage;
 import com.revolsys.spring.resource.UrlResource;
-import com.revolsys.util.Property;
 import com.revolsys.util.Strings;
 import com.revolsys.webservice.AbstractWebService;
 import com.revolsys.webservice.WebServiceResource;
@@ -52,7 +51,7 @@ public class WmsClient extends AbstractWebService<WmsLayerDefinition>
 
   public static WmsClient newOgcWmsClient(final Map<String, ? extends Object> properties) {
     final String serviceUrl = (String)properties.get("serviceUrl");
-    if (org.jeometry.common.util.Property.hasValue(serviceUrl)) {
+    if (com.revolsys.util.Property.hasValue(serviceUrl)) {
       final WmsClient client = new WmsClient(serviceUrl);
       client.setProperties(properties);
       return client;

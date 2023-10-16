@@ -18,9 +18,9 @@ import java.time.Instant;
 import java.util.Base64;
 import java.util.Base64.Decoder;
 
-import org.jeometry.common.json.JsonList;
-import org.jeometry.common.json.JsonObject;
-import org.jeometry.common.json.JsonParser;
+import com.revolsys.collection.json.JsonList;
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.json.JsonParser;
 
 public class JsonWebToken {
 

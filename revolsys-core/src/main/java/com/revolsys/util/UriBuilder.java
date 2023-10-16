@@ -20,7 +20,6 @@ import org.apache.http.message.ParserCursor;
 import org.apache.http.message.TokenParser;
 import org.apache.http.util.CharArrayBuffer;
 import org.apache.http.util.TextUtils;
-import org.jeometry.common.util.Property;
 
 /**
  * Builder for {@link URI} instances.

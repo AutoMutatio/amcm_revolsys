@@ -6,8 +6,7 @@ import java.util.Map;
 
 import javax.swing.Icon;
 
-import org.jeometry.common.json.JsonObject;
-
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.swing.Icons;
 import com.revolsys.swing.component.Form;

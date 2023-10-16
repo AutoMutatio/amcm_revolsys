@@ -29,9 +29,9 @@ public enum LasZipCompressorType {
     }
   }
 
-  private BiFunction<LasPointCloud, ChannelReader, LasPointCloudIterator> iteratorConstructor;
+  private final BiFunction<LasPointCloud, ChannelReader, LasPointCloudIterator> iteratorConstructor;
 
-  private int id;
+  private final int id;
 
   private LasZipCompressorType(final int id,
     final BiFunction<LasPointCloud, ChannelReader, LasPointCloudIterator> iteratorConstructor) {

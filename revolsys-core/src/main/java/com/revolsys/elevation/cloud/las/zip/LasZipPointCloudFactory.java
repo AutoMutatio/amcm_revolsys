@@ -1,7 +1,6 @@
 package com.revolsys.elevation.cloud.las.zip;
 
-import org.jeometry.common.collection.map.MapEx;
-
+import com.revolsys.collection.map.MapEx;
 import com.revolsys.elevation.cloud.PointCloud;
 import com.revolsys.elevation.cloud.PointCloudReadFactory;
 import com.revolsys.elevation.cloud.las.LasPointCloud;

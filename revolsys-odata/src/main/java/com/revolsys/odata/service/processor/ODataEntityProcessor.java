@@ -51,8 +51,8 @@ public class ODataEntityProcessor extends AbstractProcessor implements EntityPro
 
   }
 
-  private Entity readEntity(ODataRequest request, final EdmEntitySet entitySet, final List<UriParameter> keyPredicates)
-    throws ODataApplicationException {
+  private Entity readEntity(final ODataRequest request, final EdmEntitySet entitySet,
+    final List<UriParameter> keyPredicates) throws ODataApplicationException {
     final ODataEntityType entityType = getEntityType(entitySet);
     return entityType.readEntity(request, entitySet, keyPredicates, null);
   }
@@ -100,7 +100,8 @@ public class ODataEntityProcessor extends AbstractProcessor implements EntityPro
         final ODataNavigationProperty navigationProperty = sourceEntityType
           .getNavigationProperty(navigationPropertyName);
         if (navKeyPredicates.isEmpty()) { // /Products(1)/Category
-          responseEntity = targetEntityType.getRelatedEntity(request, sourceEntity, navigationProperty);
+          responseEntity = targetEntityType.getRelatedEntity(request, sourceEntity,
+            navigationProperty);
         } else { // e.g. /Categories(3)/Products(5)
           // responseEntity = targetEntityType.getRelatedEntity(sourceEntity,
           // responseEdmEntityType,

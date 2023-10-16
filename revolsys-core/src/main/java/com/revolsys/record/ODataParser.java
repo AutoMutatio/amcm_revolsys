@@ -12,10 +12,9 @@ import java.util.UUID;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-import org.jeometry.common.collection.map.Maps;
-import org.jeometry.coordinatesystem.util.Hex;
-
+import com.revolsys.collection.map.Maps;
 import com.revolsys.collection.set.Sets;
+import com.revolsys.geometry.coordinatesystem.util.Hex;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.record.query.Add;

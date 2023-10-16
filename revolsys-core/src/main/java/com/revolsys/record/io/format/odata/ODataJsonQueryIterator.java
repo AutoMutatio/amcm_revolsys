@@ -6,10 +6,9 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.function.Function;
 
-import org.jeometry.common.collection.iterator.AbstractIterator;
-import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.common.json.JsonObject;
-
+import com.revolsys.collection.iterator.AbstractIterator;
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.data.type.DataTypes;
 import com.revolsys.http.HttpRequestBuilder;
 import com.revolsys.http.HttpRequestBuilderFactory;
 

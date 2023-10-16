@@ -12,20 +12,18 @@ import java.util.List;
 import javax.measure.Quantity;
 import javax.measure.quantity.Length;
 
-import org.jeometry.common.number.Doubles;
-import org.jeometry.coordinatesystem.model.Ellipsoid;
-
 import com.revolsys.beans.PropertyChangeSupport;
 import com.revolsys.beans.PropertyChangeSupportProxy;
+import com.revolsys.geometry.coordinatesystem.model.Ellipsoid;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.geometry.model.GeometryFactoryProxy;
 import com.revolsys.geometry.model.Point;
+import com.revolsys.number.Doubles;
 import com.revolsys.swing.map.layer.Project;
 import com.revolsys.swing.map.view.ViewRenderer;
 import com.revolsys.swing.map.view.graphics.Graphics2DViewRenderer;
-import com.revolsys.util.Property;
 import com.revolsys.util.QuantityType;
 
 import tech.units.indriya.unit.Units;
@@ -192,7 +190,7 @@ public abstract class Viewport2D implements GeometryFactoryProxy, PropertyChange
 
   public Geometry getGeometry(final Geometry geometry) {
     final BoundingBox viewExtent = getBoundingBox();
-    if (org.jeometry.common.util.Property.hasValue(geometry)) {
+    if (com.revolsys.util.Property.hasValue(geometry)) {
       if (!viewExtent.isEmpty()) {
         final BoundingBox geometryExtent = geometry.getBoundingBox();
         if (geometryExtent.bboxIntersects(viewExtent)) {

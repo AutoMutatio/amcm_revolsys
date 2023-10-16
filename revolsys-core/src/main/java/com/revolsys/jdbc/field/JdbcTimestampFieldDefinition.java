@@ -6,12 +6,10 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Map;
 
-import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.common.date.Dates;
-
+import com.revolsys.data.type.DataTypes;
+import com.revolsys.date.Dates;
 import com.revolsys.record.query.ColumnIndexes;
 import com.revolsys.record.schema.RecordDefinition;
-import com.revolsys.util.Property;
 
 public class JdbcTimestampFieldDefinition extends JdbcFieldDefinition {
   public JdbcTimestampFieldDefinition(final String dbName, final String name, final int sqlType,
@@ -45,7 +43,7 @@ public class JdbcTimestampFieldDefinition extends JdbcFieldDefinition {
   @Override
   public int setPreparedStatementValue(final PreparedStatement statement, final int parameterIndex,
     final Object value) throws SQLException {
-    if (org.jeometry.common.util.Property.isEmpty(value)) {
+    if (com.revolsys.util.Property.isEmpty(value)) {
       final int sqlType = getSqlType();
       statement.setNull(parameterIndex, sqlType);
     } else if (value instanceof Timestamp) {

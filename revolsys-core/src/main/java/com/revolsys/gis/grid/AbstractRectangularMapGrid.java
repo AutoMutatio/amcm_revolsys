@@ -1,11 +1,10 @@
 package com.revolsys.gis.grid;
 
-import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.common.util.BaseObjectWithProperties;
-
+import com.revolsys.data.type.DataTypes;
 import com.revolsys.geometry.model.GeometryDataTypes;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordDefinitionBuilder;
+import com.revolsys.util.BaseObjectWithProperties;
 
 public abstract class AbstractRectangularMapGrid extends BaseObjectWithProperties
   implements RectangularMapGrid {

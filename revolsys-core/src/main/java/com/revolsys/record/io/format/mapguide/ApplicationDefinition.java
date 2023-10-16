@@ -1,6 +1,6 @@
 package com.revolsys.record.io.format.mapguide;
 
-import org.jeometry.common.collection.map.MapEx;
+import com.revolsys.collection.map.MapEx;
 
 public class ApplicationDefinition extends ResourceDocument {
   public ApplicationDefinition(final MapEx properties) {

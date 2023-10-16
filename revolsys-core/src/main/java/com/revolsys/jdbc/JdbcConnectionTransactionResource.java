@@ -88,52 +88,6 @@ public class JdbcConnectionTransactionResource implements TransactionableResourc
     }
   }
 
-  private Connection getConnection() throws SQLException {
-    if (this.closed) {
-      Debug.noOp();
-    }
-    try (
-      var l = this.lock.lockX()) {
-      if (this.connection == null) {
-        final Connection connection = this.dataSource.getConnectionInternal();
-        try {
-          // Disable auto commit
-          if (connection.getAutoCommit()) {
-            connection.setAutoCommit(false);
-          }
-
-          // Set read-only
-          if (this.context.isReadOnly()) {
-            connection.setReadOnly(true);
-          }
-
-          // Set isolation
-          final Isolation isolation = this.context.getIsolation();
-          if (!Isolation.DEFAULT.equals(isolation)) {
-            final int currentIsolation = connection.getTransactionIsolation();
-            final int isolationLevel = isolation.value();
-            if (currentIsolation != isolationLevel) {
-              connection.setTransactionIsolation(isolationLevel);
-            }
-          }
-          if (this.connectionInitializers != null) {
-            for (final ConnectionConsumer initializer : this.connectionInitializers) {
-              initializer.accept(connection);
-            }
-          }
-        } catch (SQLException | RuntimeException | Error e) {
-          try {
-            connection.close();
-          } catch (final SQLException e2) {
-          }
-          throw e;
-        }
-        this.connection = connection;
-      }
-      return this.connection;
-    }
-  }
-
   public JdbcConnection newJdbcConnection() throws SQLException {
     if (this.closed) {
       Debug.noOp();

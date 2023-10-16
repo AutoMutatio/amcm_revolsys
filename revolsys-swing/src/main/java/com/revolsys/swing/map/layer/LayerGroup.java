@@ -10,27 +10,25 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
-import org.jeometry.common.collection.list.Lists;
-import org.jeometry.common.collection.map.MapEx;
-import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.common.io.PathName;
-import org.jeometry.common.json.Json;
-import org.jeometry.common.json.JsonObject;
-import org.jeometry.common.logging.Logs;
-import org.jeometry.common.util.Cancellable;
-
 import com.revolsys.collection.Parent;
+import com.revolsys.collection.json.Json;
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.list.Lists;
+import com.revolsys.collection.map.MapEx;
 import com.revolsys.connection.Connection;
 import com.revolsys.connection.ConnectionRegistry;
+import com.revolsys.data.type.DataTypes;
 import com.revolsys.elevation.cloud.PointCloudReadFactory;
 import com.revolsys.elevation.gridded.GriddedElevationModelReaderFactory;
 import com.revolsys.elevation.tin.TriangulatedIrregularNetworkReaderFactory;
 import com.revolsys.geometry.model.editor.BoundingBoxEditor;
 import com.revolsys.io.FileUtil;
 import com.revolsys.io.IoFactory;
+import com.revolsys.io.PathName;
 import com.revolsys.io.PathUtil;
 import com.revolsys.io.file.Paths;
 import com.revolsys.io.map.MapObjectFactory;
+import com.revolsys.logging.Logs;
 import com.revolsys.raster.GeoreferencedImageReadFactory;
 import com.revolsys.record.io.RecordReaderFactory;
 import com.revolsys.spring.resource.PathResource;
@@ -43,7 +41,7 @@ import com.revolsys.swing.map.layer.raster.GeoreferencedImageLayer;
 import com.revolsys.swing.map.layer.record.FileRecordLayer;
 import com.revolsys.swing.map.layer.record.renderer.GeometryStyleRecordLayerRenderer;
 import com.revolsys.swing.map.layer.record.style.GeometryStyle;
-import com.revolsys.util.Property;
+import com.revolsys.util.Cancellable;
 import com.revolsys.util.UrlUtil;
 
 public interface LayerGroup extends Layer, Parent<Layer>, Iterable<Layer> {
@@ -93,7 +91,7 @@ public interface LayerGroup extends Layer, Parent<Layer>, Iterable<Layer> {
   int addLayerDo(int index, Layer layer);
 
   default LayerGroup addLayerGroup(final int index, final String name) {
-    if (org.jeometry.common.util.Property.hasValue(name)) {
+    if (com.revolsys.util.Property.hasValue(name)) {
       synchronized (getSync()) {
         final Layer layer = getLayer(name);
         if (layer == null) {

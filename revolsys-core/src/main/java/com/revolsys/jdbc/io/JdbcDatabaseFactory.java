@@ -11,17 +11,16 @@ import java.util.regex.Pattern;
 
 import javax.sql.DataSource;
 
-import org.jeometry.common.collection.map.MapEx;
-import org.jeometry.common.json.JsonObject;
-import org.jeometry.common.logging.Logs;
 import org.springframework.dao.DataAccessException;
 
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.map.MapEx;
 import com.revolsys.io.IoFactory;
+import com.revolsys.logging.Logs;
 import com.revolsys.record.io.RecordStoreFactory;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordStore;
 import com.revolsys.util.PasswordUtil;
-import com.revolsys.util.Property;
 
 public interface JdbcDatabaseFactory extends RecordStoreFactory {
   String URL_FIELD = "urlField";
@@ -132,7 +131,7 @@ public interface JdbcDatabaseFactory extends RecordStoreFactory {
       final String url = (String)newConfig.remove("url");
       final String user = (String)newConfig.remove("user");
       String password = (String)newConfig.remove("password");
-      if (org.jeometry.common.util.Property.hasValue(password)) {
+      if (com.revolsys.util.Property.hasValue(password)) {
         password = PasswordUtil.decrypt(password);
       }
       final DataSourceImpl dataSource = new DataSourceImpl();
@@ -170,7 +169,7 @@ public interface JdbcDatabaseFactory extends RecordStoreFactory {
         final String name = property.getKey();
         final Object value = property.getValue();
         try {
-          org.jeometry.common.util.Property.setSimple(dataSource, name, value);
+          com.revolsys.util.Property.setSimple(dataSource, name, value);
         } catch (final Throwable t) {
           Logs.debug(this,
             "Unable to set data source property " + name + " = " + value + " for " + url, t);

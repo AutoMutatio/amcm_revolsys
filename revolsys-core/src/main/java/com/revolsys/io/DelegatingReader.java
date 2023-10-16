@@ -2,10 +2,10 @@ package com.revolsys.io;
 
 import java.util.Iterator;
 
-import org.jeometry.common.collection.iterator.AbstractIterator;
-import org.jeometry.common.collection.iterator.AbstractReader;
-import org.jeometry.common.collection.iterator.Reader;
-import org.jeometry.common.collection.map.MapEx;
+import com.revolsys.collection.iterator.AbstractIterator;
+import com.revolsys.collection.iterator.AbstractReader;
+import com.revolsys.collection.iterator.Reader;
+import com.revolsys.collection.map.MapEx;
 
 public class DelegatingReader<T> extends AbstractReader<T> {
   private Iterator<T> iterator;

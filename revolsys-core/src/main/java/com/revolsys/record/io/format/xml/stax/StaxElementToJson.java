@@ -1,6 +1,6 @@
 package com.revolsys.record.io.format.xml.stax;
 
-import org.jeometry.common.json.JsonWriter;
+import com.revolsys.collection.json.JsonWriter;
 
 public class StaxElementToJson implements StaxElementCallback, StaxElementFunctionFactory {
 

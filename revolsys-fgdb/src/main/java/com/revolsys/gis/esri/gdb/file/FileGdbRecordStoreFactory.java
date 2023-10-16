@@ -11,16 +11,14 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 
-import org.jeometry.common.collection.map.MapEx;
-import org.jeometry.common.collection.map.Maps;
-
+import com.revolsys.collection.map.MapEx;
+import com.revolsys.collection.map.Maps;
 import com.revolsys.io.FileUtil;
 import com.revolsys.io.IoFactoryRegistry;
 import com.revolsys.io.file.Paths;
 import com.revolsys.record.io.FileRecordStoreFactory;
 import com.revolsys.record.io.RecordStoreRecordAndGeometryWriterFactory;
 import com.revolsys.record.schema.RecordStore;
-import com.revolsys.util.Property;
 
 public class FileGdbRecordStoreFactory implements FileRecordStoreFactory {
   public static final String DESCRIPTION = "ESRI File Geodatabase";
@@ -184,7 +182,7 @@ public class FileGdbRecordStoreFactory implements FileRecordStoreFactory {
   @Override
   public String toUrl(final Map<String, Object> urlParameters) {
     final String file = Maps.getString(urlParameters, "file");
-    if (org.jeometry.common.util.Property.hasValue(file)) {
+    if (com.revolsys.util.Property.hasValue(file)) {
       try {
         return FileUtil.toUrlString(file);
       } catch (final Throwable e) {

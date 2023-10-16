@@ -7,8 +7,7 @@ import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-import org.jeometry.common.exception.Exceptions;
-
+import com.revolsys.exception.Exceptions;
 import com.revolsys.record.code.CodeTable;
 import com.revolsys.record.query.Add;
 import com.revolsys.record.query.And;
@@ -34,7 +33,6 @@ import com.revolsys.record.query.Subtract;
 import com.revolsys.record.query.Value;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
-import com.revolsys.util.Property;
 
 import net.sf.jsqlparser.expression.BinaryExpression;
 import net.sf.jsqlparser.expression.CastExpression;
@@ -388,7 +386,7 @@ public class JSqlParser extends AbstractSqlParser {
 
   @Override
   public Condition whereToCondition(final String whereClause) {
-    if (org.jeometry.common.util.Property.hasValue(whereClause)) {
+    if (com.revolsys.util.Property.hasValue(whereClause)) {
       final String sql = this.sqlPrefix + " (" + "\n" + whereClause + "\n)";
       try {
         final Statement statement = CCJSqlParserUtil.parse(sql);

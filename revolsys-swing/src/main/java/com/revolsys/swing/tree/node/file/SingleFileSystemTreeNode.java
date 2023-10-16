@@ -7,8 +7,7 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 
-import org.jeometry.common.exception.Exceptions;
-
+import com.revolsys.exception.Exceptions;
 import com.revolsys.swing.tree.BaseTreeNode;
 
 public class SingleFileSystemTreeNode extends PathTreeNode {

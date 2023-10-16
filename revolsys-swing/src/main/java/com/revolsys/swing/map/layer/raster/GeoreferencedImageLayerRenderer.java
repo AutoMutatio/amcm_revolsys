@@ -2,8 +2,7 @@ package com.revolsys.swing.map.layer.raster;
 
 import java.awt.RenderingHints;
 
-import org.jeometry.common.json.JsonObject;
-
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.raster.GeoreferencedImage;
 import com.revolsys.swing.map.layer.AbstractLayerRenderer;

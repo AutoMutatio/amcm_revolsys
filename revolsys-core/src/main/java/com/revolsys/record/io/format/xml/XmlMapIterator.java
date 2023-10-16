@@ -6,13 +6,11 @@ import java.util.NoSuchElementException;
 
 import javax.xml.stream.XMLStreamConstants;
 
-import org.jeometry.common.collection.iterator.AbstractIterator;
-import org.jeometry.common.collection.map.MapEx;
-
+import com.revolsys.collection.iterator.AbstractIterator;
+import com.revolsys.collection.map.MapEx;
 import com.revolsys.collection.map.NamedJsonObject;
 import com.revolsys.record.io.format.xml.stax.StaxReader;
 import com.revolsys.spring.resource.Resource;
-import com.revolsys.util.Property;
 
 public class XmlMapIterator extends AbstractIterator<MapEx> {
 
@@ -84,7 +82,7 @@ public class XmlMapIterator extends AbstractIterator<MapEx> {
         case XMLStreamConstants.CDATA:
         case XMLStreamConstants.CHARACTERS:
           final String text = this.in.getText();
-          if (org.jeometry.common.util.Property.hasValue(text)) {
+          if (com.revolsys.util.Property.hasValue(text)) {
             map.put("xmlText" + ++textIndex, text);
           }
         break;
@@ -139,7 +137,7 @@ public class XmlMapIterator extends AbstractIterator<MapEx> {
         case XMLStreamConstants.CDATA:
         case XMLStreamConstants.CHARACTERS:
           final String text = this.in.getText();
-          if (org.jeometry.common.util.Property.hasValue(text)) {
+          if (com.revolsys.util.Property.hasValue(text)) {
             map.put("xmlText" + ++textIndex, text);
           }
         break;

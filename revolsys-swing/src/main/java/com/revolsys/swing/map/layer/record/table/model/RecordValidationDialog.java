@@ -25,8 +25,8 @@ import org.jdesktop.swingx.decorator.ComponentAdapter;
 import org.jdesktop.swingx.decorator.HighlightPredicate;
 import org.jdesktop.swingx.decorator.HighlightPredicate.AndHighlightPredicate;
 import org.jdesktop.swingx.decorator.Highlighter;
-import org.jeometry.common.awt.WebColors;
 
+import com.revolsys.awt.WebColors;
 import com.revolsys.beans.ObjectPropertyException;
 import com.revolsys.record.Record;
 import com.revolsys.record.schema.FieldDefinition;
@@ -105,7 +105,7 @@ public class RecordValidationDialog implements PropertyChangeListener, Closeable
       fieldErrors = this.invalidRecordErrors.get(recordIndex);
     }
     final String oldErrors = fieldErrors.get(fieldName);
-    if (org.jeometry.common.util.Property.hasValue(oldErrors)) {
+    if (com.revolsys.util.Property.hasValue(oldErrors)) {
       final String mergedErrorMessage = oldErrors + "\n" + errorMessage;
       fieldErrors.put(fieldName, mergedErrorMessage);
     } else {
@@ -172,7 +172,7 @@ public class RecordValidationDialog implements PropertyChangeListener, Closeable
         if (!fieldErrors.isEmpty()) {
           final String fieldName = this.layer.getFieldName(columnIndex);
           final String errorMessage = fieldErrors.get(fieldName);
-          if (org.jeometry.common.util.Property.hasValue(errorMessage)) {
+          if (com.revolsys.util.Property.hasValue(errorMessage)) {
             final JComponent jcomponent = (JComponent)renderer;
             jcomponent.setToolTipText(errorMessage);
             return true;

@@ -2,7 +2,7 @@ package com.revolsys.comparator;
 
 import java.util.Comparator;
 
-import org.jeometry.common.number.Doubles;
+import com.revolsys.number.Doubles;
 
 public class VersionComparator implements Comparator<String> {
 

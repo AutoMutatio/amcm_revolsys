@@ -14,8 +14,6 @@ import org.docx4j.openpackaging.parts.DocPropsCustomPart;
 import org.docx4j.openpackaging.parts.SpreadsheetML.SharedStrings;
 import org.docx4j.openpackaging.parts.SpreadsheetML.WorkbookPart;
 import org.docx4j.openpackaging.parts.SpreadsheetML.WorksheetPart;
-import org.jeometry.common.collection.map.MapEx;
-import org.jeometry.common.logging.Logs;
 import org.xlsx4j.exceptions.Xlsx4jException;
 import org.xlsx4j.sml.CTRElt;
 import org.xlsx4j.sml.CTRst;
@@ -28,7 +26,9 @@ import org.xlsx4j.sml.Sheet;
 import org.xlsx4j.sml.SheetData;
 import org.xlsx4j.sml.Worksheet;
 
+import com.revolsys.collection.map.MapEx;
 import com.revolsys.geometry.model.GeometryFactory;
+import com.revolsys.logging.Logs;
 import com.revolsys.record.ArrayRecord;
 import com.revolsys.record.Record;
 import com.revolsys.record.RecordFactory;

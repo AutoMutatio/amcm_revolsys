@@ -6,7 +6,8 @@ import java.awt.Component;
 import org.jdesktop.swingx.decorator.AbstractHighlighter;
 import org.jdesktop.swingx.decorator.ComponentAdapter;
 import org.jdesktop.swingx.decorator.HighlightPredicate;
-import org.jeometry.common.awt.WebColors;
+
+import com.revolsys.awt.WebColors;
 
 public class OddEvenColorHighlighter extends AbstractHighlighter {
   private final Color backgroundSelected;

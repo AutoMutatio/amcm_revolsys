@@ -6,12 +6,11 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.function.Predicate;
 
-import org.jeometry.common.collection.map.MapEx;
-import org.jeometry.common.io.MapSerializer;
-import org.jeometry.common.json.JsonObject;
-import org.jeometry.common.json.JsonObjectHash;
-import org.jeometry.common.logging.Logs;
-
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.json.JsonObjectHash;
+import com.revolsys.collection.map.MapEx;
+import com.revolsys.io.MapSerializer;
+import com.revolsys.logging.Logs;
 import com.revolsys.record.query.Condition;
 import com.revolsys.record.query.QueryValue;
 import com.revolsys.record.schema.RecordDefinition;

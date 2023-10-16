@@ -6,10 +6,9 @@ import java.util.LinkedList;
 import java.util.NoSuchElementException;
 import java.util.Queue;
 
-import org.jeometry.common.util.BaseCloseable;
-
 import com.revolsys.io.channels.DataReader;
 import com.revolsys.spring.resource.Resource;
+import com.revolsys.util.BaseCloseable;
 
 public class TiffDirectoryIterator
   implements BaseCloseable, Iterator<TiffDirectory>, Iterable<TiffDirectory> {

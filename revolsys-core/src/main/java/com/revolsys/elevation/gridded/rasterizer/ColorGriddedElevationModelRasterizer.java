@@ -3,9 +3,8 @@ package com.revolsys.elevation.gridded.rasterizer;
 import java.awt.Color;
 import java.util.Map;
 
-import org.jeometry.common.awt.WebColors;
-import org.jeometry.common.json.JsonObject;
-
+import com.revolsys.awt.WebColors;
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.elevation.gridded.GriddedElevationModel;
 
 public class ColorGriddedElevationModelRasterizer extends AbstractGriddedElevationModelRasterizer {

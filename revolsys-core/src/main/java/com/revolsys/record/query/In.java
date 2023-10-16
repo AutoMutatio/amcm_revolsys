@@ -3,9 +3,8 @@ package com.revolsys.record.query;
 import java.util.Arrays;
 import java.util.Collection;
 
-import org.jeometry.common.collection.map.MapEx;
-import org.jeometry.common.data.type.DataTypes;
-
+import com.revolsys.collection.map.MapEx;
+import com.revolsys.data.type.DataTypes;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordStore;
 

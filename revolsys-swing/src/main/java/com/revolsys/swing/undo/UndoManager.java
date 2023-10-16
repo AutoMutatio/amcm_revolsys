@@ -13,12 +13,11 @@ import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 import javax.swing.undo.UndoableEdit;
 
-import org.jeometry.common.collection.value.GlobalBooleanValue;
-import org.jeometry.common.util.BaseCloseable;
-
 import com.revolsys.beans.PropertyChangeSupport;
 import com.revolsys.beans.PropertyChangeSupportProxy;
+import com.revolsys.collection.value.GlobalBooleanValue;
 import com.revolsys.swing.action.RunnableAction;
+import com.revolsys.util.BaseCloseable;
 import com.revolsys.util.OS;
 
 public class UndoManager extends javax.swing.undo.UndoManager

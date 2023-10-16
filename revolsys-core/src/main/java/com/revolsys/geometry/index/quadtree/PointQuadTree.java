@@ -6,8 +6,6 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.function.Consumer;
 
-import org.jeometry.common.util.ExitLoopException;
-
 import com.revolsys.geometry.index.AbstractPointSpatialIndex;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.BoundingBoxProxy;
@@ -16,11 +14,11 @@ import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.geometry.model.Point;
 import com.revolsys.geometry.model.coordinates.LineSegmentUtil;
 import com.revolsys.geometry.model.vertex.Vertex;
-import com.revolsys.util.Property;
+import com.revolsys.util.ExitLoopException;
 
 public class PointQuadTree<T> extends AbstractPointSpatialIndex<T> {
   public static PointQuadTree<int[]> get(final Geometry geometry) {
-    if (org.jeometry.common.util.Property.hasValue(geometry)) {
+    if (com.revolsys.util.Property.hasValue(geometry)) {
       final GeometryFactory geometryFactory = geometry.getGeometryFactory();
       final PointQuadTree<int[]> index = new PointQuadTree<>(geometryFactory);
       for (final Vertex vertex : geometry.vertices()) {

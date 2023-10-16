@@ -36,14 +36,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.jeometry.common.io.MapSerializer;
-import org.jeometry.common.json.JsonObject;
-import org.jeometry.common.json.JsonObjectHash;
 import org.springframework.util.StringUtils;
 
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.json.JsonObjectHash;
 import com.revolsys.core.test.geometry.test.geomop.GeometryOperation;
 import com.revolsys.geometry.model.Geometry;
-import com.revolsys.util.Property;
+import com.revolsys.io.MapSerializer;
 
 import junit.framework.Assert;
 
@@ -91,7 +90,7 @@ public class GeometryOperationTest extends junit.framework.TestCase implements M
     final List<String> arguments, final Result expectedResult, final double tolerance) {
     this.tolerance = tolerance;
     this.testDescription = StringUtils.trimWhitespace(description);
-    if (!org.jeometry.common.util.Property.hasValue(description)) {
+    if (!com.revolsys.util.Property.hasValue(description)) {
       this.testDescription = operation;
     }
     setName(testCase.getId() + "." + testIndex + "." + this.testDescription);

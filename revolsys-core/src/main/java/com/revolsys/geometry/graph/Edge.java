@@ -17,17 +17,15 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.Predicate;
 
-import org.jeometry.common.collection.map.MapEx;
-import org.jeometry.common.json.JsonObject;
-import org.jeometry.common.util.ObjectWithProperties;
-
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.map.MapEx;
 import com.revolsys.geometry.model.DelegatingLineString;
 import com.revolsys.geometry.model.Direction;
 import com.revolsys.geometry.model.End;
 import com.revolsys.geometry.model.LineString;
 import com.revolsys.geometry.model.Point;
 import com.revolsys.geometry.util.LineStringUtil;
-import com.revolsys.util.Property;
+import com.revolsys.util.ObjectWithProperties;
 
 public class Edge<T> implements DelegatingLineString, ObjectWithProperties, Externalizable {
 
@@ -411,7 +409,7 @@ public class Edge<T> implements DelegatingLineString, ObjectWithProperties, Exte
    */
   @Override
   public End getEnd(final Point point) {
-    if (org.jeometry.common.util.Property.hasValue(point)) {
+    if (com.revolsys.util.Property.hasValue(point)) {
       if (point.equals(getFromNode())) {
         return End.FROM;
       } else if (point.equals(getToNode())) {

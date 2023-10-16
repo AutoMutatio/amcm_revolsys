@@ -14,18 +14,16 @@ import java.util.function.Predicate;
 
 import javax.swing.SwingWorker;
 
-import org.jeometry.common.collection.iterator.Iterators;
-import org.jeometry.common.collection.map.MapEx;
-import org.jeometry.common.collection.value.Single;
-import org.jeometry.common.data.identifier.Identifier;
-import org.jeometry.common.io.PathName;
-import org.jeometry.common.json.JsonObject;
-import org.jeometry.common.logging.Logs;
-import org.jeometry.common.util.BaseCloseable;
-
+import com.revolsys.collection.iterator.Iterators;
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.map.MapEx;
+import com.revolsys.collection.value.Single;
+import com.revolsys.data.identifier.Identifier;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.Geometry;
+import com.revolsys.io.PathName;
 import com.revolsys.io.Writer;
+import com.revolsys.logging.Logs;
 import com.revolsys.predicate.Predicates;
 import com.revolsys.record.Record;
 import com.revolsys.record.RecordFactory;
@@ -51,6 +49,7 @@ import com.revolsys.swing.layout.GroupLayouts;
 import com.revolsys.swing.map.ViewportCacheBoundingBox;
 import com.revolsys.swing.map.layer.record.table.model.RecordLayerErrors;
 import com.revolsys.swing.parallel.Invoke;
+import com.revolsys.util.BaseCloseable;
 import com.revolsys.util.count.LabelCountMap;
 
 public class RecordStoreLayer extends AbstractRecordLayer {
@@ -432,7 +431,7 @@ public class RecordStoreLayer extends AbstractRecordLayer {
   public <R extends Record> List<R> getRecords(BoundingBox boundingBox) {
     if (hasGeometryField()) {
       boundingBox = convertBoundingBox(boundingBox);
-      if (org.jeometry.common.util.Property.hasValue(boundingBox)) {
+      if (com.revolsys.util.Property.hasValue(boundingBox)) {
         try (
           final BaseCloseable booleanValueCloseable = eventsDisabled()) {
           final BoundingBox queryBoundingBox = convertBoundingBox(boundingBox);
@@ -451,7 +450,7 @@ public class RecordStoreLayer extends AbstractRecordLayer {
 
   @Override
   public <R extends Record> List<R> getRecords(final Geometry geometry, final double distance) {
-    if (org.jeometry.common.util.Property.isEmpty(geometry) || !hasGeometryField()) {
+    if (com.revolsys.util.Property.isEmpty(geometry) || !hasGeometryField()) {
       return Collections.emptyList();
     } else {
       final RecordDefinition recordDefinition = getRecordDefinition();
@@ -467,7 +466,7 @@ public class RecordStoreLayer extends AbstractRecordLayer {
     BoundingBox boundingBox) {
     if (hasGeometryField()) {
       boundingBox = convertBoundingBox(boundingBox);
-      if (org.jeometry.common.util.Property.hasValue(boundingBox)) {
+      if (com.revolsys.util.Property.hasValue(boundingBox)) {
         initViewBoundingBoxCache(cache);
         final List<LayerRecord> records = getRecordsIndex(boundingBox);
         return records;
@@ -500,7 +499,7 @@ public class RecordStoreLayer extends AbstractRecordLayer {
   protected List<LayerRecord> getRecordsVisibleDo(BoundingBox boundingBox) {
     if (hasGeometryField()) {
       boundingBox = convertBoundingBox(boundingBox);
-      if (org.jeometry.common.util.Property.hasValue(boundingBox)) {
+      if (com.revolsys.util.Property.hasValue(boundingBox)) {
         try (
           final BaseCloseable booleanValueCloseable = eventsDisabled()) {
           return getRecordsIndex(boundingBox);
@@ -596,7 +595,7 @@ public class RecordStoreLayer extends AbstractRecordLayer {
     final RecordDefinition recordDefinition = getInternalRecordDefinition();
     final FieldDefinition geometryField = recordDefinition.getGeometryField();
     boundingBox = convertBoundingBox(boundingBox);
-    if (geometryField == null || org.jeometry.common.util.Property.isEmpty(boundingBox)) {
+    if (geometryField == null || com.revolsys.util.Property.isEmpty(boundingBox)) {
       return null;
     } else {
       Query query = getQuery();
@@ -909,7 +908,7 @@ public class RecordStoreLayer extends AbstractRecordLayer {
   public void setTypePath(final PathName typePath) {
     this.typePath = typePath;
     if (this.typePath != null) {
-      if (!org.jeometry.common.util.Property.hasValue(getName())) {
+      if (!com.revolsys.util.Property.hasValue(getName())) {
         setName(this.typePath.getName());
       }
     }

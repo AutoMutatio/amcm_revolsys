@@ -1,8 +1,7 @@
 package com.revolsys.swing.map.layer.elevation.tin;
 
-import org.jeometry.common.awt.WebColors;
-import org.jeometry.common.json.JsonObject;
-
+import com.revolsys.awt.WebColors;
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.elevation.tin.TriangulatedIrregularNetwork;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.Triangle;

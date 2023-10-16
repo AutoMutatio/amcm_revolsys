@@ -2,8 +2,7 @@ package com.revolsys.http;
 
 import java.util.function.Consumer;
 
-import org.jeometry.common.json.JsonObject;
-
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.io.map.ObjectFactoryConfig;
 import com.revolsys.net.http.exception.AuthenticationException;
 import com.revolsys.net.oauth.BearerToken;

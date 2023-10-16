@@ -3,9 +3,9 @@ package com.revolsys.collection.range;
 import java.util.Iterator;
 import java.util.List;
 
-import org.jeometry.common.collection.list.Lists;
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.util.Emptyable;
+import com.revolsys.collection.list.Lists;
+import com.revolsys.data.type.DataType;
+import com.revolsys.util.Emptyable;
 
 public abstract class AbstractRange<V>
   implements Iterable<V>, Emptyable, Comparable<AbstractRange<? extends Object>> {

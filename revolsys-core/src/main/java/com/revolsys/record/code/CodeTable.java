@@ -9,17 +9,15 @@ import java.util.Map;
 
 import javax.swing.JComponent;
 
-import org.jeometry.common.compare.CompareUtil;
-import org.jeometry.common.data.identifier.Identifier;
-import org.jeometry.common.data.refresh.Refreshable;
-import org.jeometry.common.json.JsonObject;
-import org.jeometry.common.util.BaseCloseable;
-import org.jeometry.common.util.Emptyable;
-
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.comparator.CompareUtil;
+import com.revolsys.data.identifier.Identifier;
+import com.revolsys.data.refresh.Refreshable;
 import com.revolsys.record.Record;
 import com.revolsys.record.io.RecordReader;
 import com.revolsys.record.schema.FieldDefinition;
-import com.revolsys.util.Property;
+import com.revolsys.util.BaseCloseable;
+import com.revolsys.util.Emptyable;
 
 public interface CodeTable
   extends Emptyable, Cloneable, Comparator<Object>, BaseCloseable, Refreshable {
@@ -142,7 +140,7 @@ public interface CodeTable
   @SuppressWarnings("unchecked")
   default <V> V getValue(final Identifier id) {
     final List<Object> values = getValues(id);
-    if (org.jeometry.common.util.Property.hasValue(values)) {
+    if (com.revolsys.util.Property.hasValue(values)) {
       return (V)values.get(0);
     } else {
       return null;

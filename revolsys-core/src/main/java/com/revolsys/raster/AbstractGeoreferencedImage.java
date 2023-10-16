@@ -19,12 +19,6 @@ import javax.imageio.stream.ImageInputStream;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.json.Json;
-import org.jeometry.common.json.JsonObject;
-import org.jeometry.common.json.JsonObjectHash;
-import org.jeometry.common.logging.Logs;
-import org.jeometry.common.util.BaseCloseable;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -32,12 +26,18 @@ import org.w3c.dom.NodeList;
 
 import com.revolsys.beans.AbstractPropertyChangeSupportProxy;
 import com.revolsys.collection.PropertyChangeArrayList;
+import com.revolsys.collection.json.Json;
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.json.JsonObjectHash;
+import com.revolsys.data.type.DataType;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.geometry.model.Point;
 import com.revolsys.geometry.model.impl.PointDoubleXY;
+import com.revolsys.logging.Logs;
 import com.revolsys.record.io.format.xml.DomUtil;
 import com.revolsys.spring.resource.Resource;
+import com.revolsys.util.BaseCloseable;
 import com.revolsys.util.Property;
 
 public abstract class AbstractGeoreferencedImage extends AbstractPropertyChangeSupportProxy
@@ -375,7 +375,7 @@ public abstract class AbstractGeoreferencedImage extends AbstractPropertyChangeS
           settings = JsonObject.hash();
         }
         final String boundingBoxWkt = (String)settings.get("boundingBox");
-        if (org.jeometry.common.util.Property.hasValue(boundingBoxWkt)) {
+        if (com.revolsys.util.Property.hasValue(boundingBoxWkt)) {
           final BoundingBox boundingBox = BoundingBox.bboxNew(boundingBoxWkt);
           if (!boundingBox.isEmpty()) {
             setBoundingBox(boundingBox);

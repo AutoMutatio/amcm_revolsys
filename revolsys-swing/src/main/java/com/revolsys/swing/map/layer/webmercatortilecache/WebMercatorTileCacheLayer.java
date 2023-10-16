@@ -4,10 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.json.JsonObject;
-import org.jeometry.coordinatesystem.model.systems.EpsgId;
-
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.data.type.DataType;
+import com.revolsys.geometry.coordinatesystem.model.systems.EpsgId;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.swing.SwingUtil;
@@ -18,7 +17,6 @@ import com.revolsys.swing.map.layer.raster.AbstractTiledGeoreferencedImageLayer;
 import com.revolsys.swing.map.layer.tile.AbstractTiledLayerRenderer;
 import com.revolsys.swing.map.view.ViewRenderer;
 import com.revolsys.util.CaseConverter;
-import com.revolsys.util.Property;
 
 public class WebMercatorTileCacheLayer
   extends AbstractTiledGeoreferencedImageLayer<WebMercatorTileCacheMapTile> {
@@ -122,7 +120,7 @@ public class WebMercatorTileCacheLayer
 
   public void setUrl(final String url) {
     final Object oldValue = this.url;
-    if (org.jeometry.common.util.Property.hasValue(url)) {
+    if (com.revolsys.util.Property.hasValue(url)) {
       if (url.endsWith("/")) {
         this.url = url;
       } else {

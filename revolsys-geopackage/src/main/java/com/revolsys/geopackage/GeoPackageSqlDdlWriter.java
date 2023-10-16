@@ -2,10 +2,9 @@ package com.revolsys.geopackage;
 
 import java.io.PrintWriter;
 
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.common.date.Dates;
-
+import com.revolsys.data.type.DataType;
+import com.revolsys.data.type.DataTypes;
+import com.revolsys.date.Dates;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryDataTypes;
@@ -16,7 +15,6 @@ import com.revolsys.jdbc.io.JdbcDdlWriter;
 import com.revolsys.record.property.ShortNameProperty;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
-import com.revolsys.util.Property;
 
 public class GeoPackageSqlDdlWriter extends JdbcDdlWriter {
 
@@ -35,7 +33,7 @@ public class GeoPackageSqlDdlWriter extends JdbcDdlWriter {
     if (shortNameProperty != null) {
       shortName = shortNameProperty.getShortName();
     }
-    if (org.jeometry.common.util.Property.hasValue(shortName) && shortNameProperty.isUseForSequence()) {
+    if (com.revolsys.util.Property.hasValue(shortName) && shortNameProperty.isUseForSequence()) {
       final String sequenceName = schema + "." + shortName.toLowerCase() + "_seq";
       return sequenceName;
     } else {

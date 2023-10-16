@@ -13,7 +13,7 @@ import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.PBEParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
-import org.jeometry.common.exception.Exceptions;
+import com.revolsys.exception.Exceptions;
 
 public class PasswordUtil {
   private static final Pattern PATTERN = Pattern.compile("\\{(\\w+)\\}(.+)");
@@ -91,7 +91,7 @@ public class PasswordUtil {
   }
 
   public static String encrypt(final String password) {
-    if (org.jeometry.common.util.Property.isEmpty(password)) {
+    if (com.revolsys.util.Property.isEmpty(password)) {
       return null;
     } else {
       return "{BASE64}" + Base64.getEncoder().encodeToString(password.getBytes());

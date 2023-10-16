@@ -21,7 +21,6 @@ import com.revolsys.swing.component.BasePanel;
 import com.revolsys.swing.map.layer.record.AbstractRecordLayer;
 import com.revolsys.swing.map.layer.record.LayerRecord;
 import com.revolsys.swing.parallel.Invoke;
-import com.revolsys.util.Property;
 
 public class RecordLayerErrors {
   private final String title;
@@ -63,7 +62,7 @@ public class RecordLayerErrors {
     } else {
       message = exception.getMessage();
     }
-    if (!org.jeometry.common.util.Property.hasValue(message)) {
+    if (!com.revolsys.util.Property.hasValue(message)) {
       message = exception.getClass().getSimpleName();
     }
     this.messages.add(message);

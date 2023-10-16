@@ -3,13 +3,12 @@ package com.revolsys.record.schema;
 import java.util.Collection;
 import java.util.List;
 
-import org.jeometry.common.collection.list.Lists;
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.common.io.PathName;
-import org.jeometry.common.json.JsonObject;
-
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.list.Lists;
+import com.revolsys.data.type.DataType;
+import com.revolsys.data.type.DataTypes;
 import com.revolsys.geometry.model.GeometryFactory;
+import com.revolsys.io.PathName;
 import com.revolsys.record.code.CodeTable;
 
 public class RecordDefinitionBuilder {

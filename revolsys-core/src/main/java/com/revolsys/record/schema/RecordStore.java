@@ -12,20 +12,18 @@ import java.util.Map.Entry;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-import org.jeometry.common.collection.map.MapEx;
-import org.jeometry.common.data.identifier.Identifier;
-import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.common.io.PathName;
-import org.jeometry.common.io.PathNameProxy;
-import org.jeometry.common.json.JsonObject;
-import org.jeometry.common.util.BaseCloseable;
-import org.jeometry.common.util.ObjectWithProperties;
 import org.springframework.beans.DirectFieldAccessor;
 
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.map.MapEx;
+import com.revolsys.data.identifier.Identifier;
+import com.revolsys.data.type.DataTypes;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactoryProxy;
 import com.revolsys.io.FileUtil;
 import com.revolsys.io.IoFactory;
+import com.revolsys.io.PathName;
+import com.revolsys.io.PathNameProxy;
 import com.revolsys.record.ArrayChangeTrackRecord;
 import com.revolsys.record.ArrayRecord;
 import com.revolsys.record.ChangeTrackRecord;
@@ -47,7 +45,8 @@ import com.revolsys.record.query.SqlAppendable;
 import com.revolsys.record.query.TableReferenceImpl;
 import com.revolsys.record.query.UpdateStatement;
 import com.revolsys.transaction.Transactionable;
-import com.revolsys.util.Property;
+import com.revolsys.util.BaseCloseable;
+import com.revolsys.util.ObjectWithProperties;
 import com.revolsys.util.count.CategoryLabelCountMap;
 import com.revolsys.util.count.LabelCountMap;
 import com.revolsys.util.count.LabelCounters;
@@ -142,7 +141,7 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
   @SuppressWarnings("unchecked")
   static <T extends RecordStore> T newRecordStoreInitialized(final MapEx config) {
     final MapEx connectionProperties = (MapEx)config.get("connection");
-    if (org.jeometry.common.util.Property.isEmpty(connectionProperties)) {
+    if (com.revolsys.util.Property.isEmpty(connectionProperties)) {
       throw new IllegalArgumentException(
         "Record store must include a 'connection' map property: " + config);
     } else {
@@ -612,7 +611,7 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
       if (record != null) {
         record.setValues(values);
         final String idFieldName = recordDefinition.getIdFieldName();
-        if (org.jeometry.common.util.Property.hasValue(idFieldName)) {
+        if (com.revolsys.util.Property.hasValue(idFieldName)) {
           if (values.get(idFieldName) == null) {
             final Identifier id = newPrimaryIdentifier(typePath);
             record.setIdentifier(id);
@@ -663,7 +662,7 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
       if (record != null) {
         record.setValues(values);
         final String idFieldName = recordDefinition.getIdFieldName();
-        if (org.jeometry.common.util.Property.hasValue(idFieldName)) {
+        if (com.revolsys.util.Property.hasValue(idFieldName)) {
           if (values.get(idFieldName) == null) {
             final Identifier id = newPrimaryIdentifier(typePath);
             record.setIdentifier(id);
@@ -688,7 +687,7 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
     final Record record = newRecord(recordDefinition);
     if (record != null) {
       final String idFieldName = recordDefinition.getIdFieldName();
-      if (org.jeometry.common.util.Property.hasValue(idFieldName)) {
+      if (com.revolsys.util.Property.hasValue(idFieldName)) {
         final PathName typePath = recordDefinition.getPathName();
         final Identifier id = newPrimaryIdentifier(typePath);
         record.setIdentifier(id);

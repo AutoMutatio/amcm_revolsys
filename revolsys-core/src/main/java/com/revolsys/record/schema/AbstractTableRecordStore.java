@@ -12,20 +12,19 @@ import java.util.function.Supplier;
 
 import jakarta.servlet.http.HttpServletRequest;
 
-import org.jeometry.common.collection.map.MapEx;
-import org.jeometry.common.data.identifier.Identifier;
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.common.exception.Exceptions;
-import org.jeometry.common.io.PathName;
-import org.jeometry.common.json.JsonList;
-import org.jeometry.common.json.JsonObject;
-import org.jeometry.common.logging.Logs;
-
+import com.revolsys.collection.json.JsonList;
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.map.MapEx;
+import com.revolsys.data.identifier.Identifier;
+import com.revolsys.data.type.DataType;
+import com.revolsys.data.type.DataTypes;
+import com.revolsys.exception.Exceptions;
 import com.revolsys.geometry.model.GeometryFactory;
+import com.revolsys.io.PathName;
 import com.revolsys.jdbc.JdbcConnection;
 import com.revolsys.jdbc.field.JdbcFieldDefinition;
 import com.revolsys.jdbc.io.JdbcRecordStore;
+import com.revolsys.logging.Logs;
 import com.revolsys.record.ArrayChangeTrackRecord;
 import com.revolsys.record.ChangeTrackRecord;
 import com.revolsys.record.ODataParser;
@@ -136,7 +135,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
   }
 
   public void addQueryOrderBy(final Query query, final String orderBy) {
-    if (org.jeometry.common.util.Property.hasValue(orderBy)) {
+    if (com.revolsys.util.Property.hasValue(orderBy)) {
       for (String orderClause : orderBy.split(",")) {
         orderClause = orderClause.strip();
         String fieldName;
@@ -369,7 +368,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
   }
 
   public Condition newODataFilter(String filter) {
-    if (org.jeometry.common.util.Property.hasValue(filter)) {
+    if (com.revolsys.util.Property.hasValue(filter)) {
       filter = filter.replace("%2B", "+");
       final TableReference table = getTable();
       return (Condition)ODataParser.parseFilter(table, filter);
@@ -410,7 +409,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
 
     final Query query = newQuery(connection).setOffset(skip).setLimit(top);
 
-    if (org.jeometry.common.util.Property.hasValue(select)) {
+    if (com.revolsys.util.Property.hasValue(select)) {
       for (String selectItem : select.split(",")) {
         selectItem = selectItem.strip();
         addSelect(connection, query, selectItem);
@@ -442,7 +441,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
       final Record record = newRecord();
       for (final String fieldName : values.keySet()) {
         final Object value = values.getValue(fieldName);
-        if (org.jeometry.common.util.Property.hasValue(value)) {
+        if (com.revolsys.util.Property.hasValue(value)) {
           record.setValue(fieldName, value);
         }
       }

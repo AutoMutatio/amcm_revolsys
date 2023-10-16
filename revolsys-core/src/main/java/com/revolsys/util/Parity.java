@@ -2,7 +2,7 @@ package com.revolsys.util;
 
 import java.util.List;
 
-import org.jeometry.common.collection.list.Lists;
+import com.revolsys.collection.list.Lists;
 
 public enum Parity {
   CONTINUOUS("Continuous"), EVEN("Even"), ODD("Odd");
@@ -10,7 +10,7 @@ public enum Parity {
   public static List<Parity> VALUES = Lists.newArray(EVEN, ODD);
 
   public static Parity getParity(final String code) {
-    if (org.jeometry.common.util.Property.hasValue(code)) {
+    if (com.revolsys.util.Property.hasValue(code)) {
       switch (Character.toUpperCase(code.charAt(0))) {
         case 'E':
           return Parity.EVEN;
@@ -41,9 +41,9 @@ public enum Parity {
     }
   }
 
-  private char letter;
+  private final char letter;
 
-  private String name;
+  private final String name;
 
   private Parity(final String name) {
     this.name = name;

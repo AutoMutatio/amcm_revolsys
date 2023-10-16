@@ -3,11 +3,10 @@ package com.revolsys.elevation.cloud.las;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-import org.jeometry.common.util.BaseCloseable;
-
 import com.revolsys.elevation.cloud.las.pointformat.LasPoint;
 import com.revolsys.elevation.cloud.las.pointformat.LasPointFormat;
 import com.revolsys.io.channels.DataReader;
+import com.revolsys.util.BaseCloseable;
 
 public class LasPointCloudIterator
   implements BaseCloseable, Iterator<LasPoint>, Iterable<LasPoint> {

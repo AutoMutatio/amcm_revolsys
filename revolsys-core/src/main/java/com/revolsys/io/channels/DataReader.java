@@ -7,10 +7,9 @@ import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
-import org.jeometry.common.exception.Exceptions;
-import org.jeometry.common.util.BaseCloseable;
-
+import com.revolsys.exception.Exceptions;
 import com.revolsys.io.EndOfFileException;
+import com.revolsys.util.BaseCloseable;
 
 interface ByteFilter {
   boolean accept(byte b);

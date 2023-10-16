@@ -15,7 +15,6 @@ import com.revolsys.swing.EventQueue;
 import com.revolsys.swing.component.ValueField;
 import com.revolsys.swing.layout.GroupLayouts;
 import com.revolsys.swing.undo.UndoManager;
-import com.revolsys.util.Property;
 
 public class FileField extends ValueField implements Field {
   private static final long serialVersionUID = -8433151755294925911L;
@@ -104,7 +103,7 @@ public class FileField extends ValueField implements Field {
 
   public File getFile() {
     final String path = getFilePath();
-    if (org.jeometry.common.util.Property.hasValue(path)) {
+    if (com.revolsys.util.Property.hasValue(path)) {
       return FileUtil.getFile(path);
     } else {
       return null;
@@ -117,7 +116,7 @@ public class FileField extends ValueField implements Field {
 
   public Path getPath() {
     final String path = getFilePath();
-    if (org.jeometry.common.util.Property.hasValue(path)) {
+    if (com.revolsys.util.Property.hasValue(path)) {
       return Paths.get(path);
     } else {
       return null;

@@ -2,8 +2,8 @@ package com.revolsys.geometry.model;
 
 import java.util.Arrays;
 
-import org.jeometry.common.json.JsonObject;
-import org.jeometry.coordinatesystem.model.CoordinateSystem;
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.geometry.coordinatesystem.model.CoordinateSystem;
 
 public class GeometryFactoryWithOffsets extends GeometryFactoryFixed {
 

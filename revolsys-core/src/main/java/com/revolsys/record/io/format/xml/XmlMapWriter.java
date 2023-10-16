@@ -7,11 +7,10 @@ import java.util.Map.Entry;
 
 import javax.xml.namespace.QName;
 
-import org.jeometry.common.util.BaseCloseable;
-
 import com.revolsys.collection.NameProxy;
 import com.revolsys.io.AbstractMapWriter;
 import com.revolsys.io.IoConstants;
+import com.revolsys.util.BaseCloseable;
 
 public class XmlMapWriter extends AbstractMapWriter {
 

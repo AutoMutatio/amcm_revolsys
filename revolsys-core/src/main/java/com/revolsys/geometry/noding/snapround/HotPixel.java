@@ -33,8 +33,6 @@
 
 package com.revolsys.geometry.noding.snapround;
 
-import org.jeometry.common.number.Doubles;
-
 import com.revolsys.geometry.algorithm.LineIntersector;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.Point;
@@ -42,6 +40,7 @@ import com.revolsys.geometry.model.impl.BoundingBoxDoubleXY;
 import com.revolsys.geometry.model.impl.PointDoubleXY;
 import com.revolsys.geometry.noding.NodedSegmentString;
 import com.revolsys.geometry.util.Assert;
+import com.revolsys.number.Doubles;
 
 /**
  * Implements a "hot pixel" as used in the Snap Rounding algorithm.

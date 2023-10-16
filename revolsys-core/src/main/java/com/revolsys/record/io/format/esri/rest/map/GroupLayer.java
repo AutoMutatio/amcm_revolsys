@@ -7,9 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.jeometry.common.collection.map.MapEx;
-
 import com.revolsys.collection.Parent;
+import com.revolsys.collection.map.MapEx;
 import com.revolsys.record.io.format.esri.rest.CatalogElement;
 import com.revolsys.webservice.WebServiceResource;
 

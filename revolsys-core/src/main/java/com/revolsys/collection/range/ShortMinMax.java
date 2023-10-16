@@ -1,9 +1,7 @@
 package com.revolsys.collection.range;
 
-import org.jeometry.common.number.Shorts;
-import org.jeometry.common.util.Emptyable;
-
-import com.revolsys.util.Property;
+import com.revolsys.number.Shorts;
+import com.revolsys.util.Emptyable;
 
 public class ShortMinMax extends ShortRange implements Cloneable, Emptyable {
   public static ShortMinMax newWithIgnore(final short ignoreValue, final short... numbers) {
@@ -140,7 +138,7 @@ public class ShortMinMax extends ShortRange implements Cloneable, Emptyable {
   }
 
   public boolean contains(final ShortMinMax minMax) {
-    if (isEmpty() || !org.jeometry.common.util.Property.hasValue(minMax)) {
+    if (isEmpty() || !com.revolsys.util.Property.hasValue(minMax)) {
       return false;
     } else {
       final short min = minMax.getMin();
@@ -197,7 +195,7 @@ public class ShortMinMax extends ShortRange implements Cloneable, Emptyable {
   }
 
   public boolean overlaps(final ShortMinMax minMax) {
-    if (isEmpty() || !org.jeometry.common.util.Property.hasValue(minMax)) {
+    if (isEmpty() || !com.revolsys.util.Property.hasValue(minMax)) {
       return false;
     } else {
       final short min = minMax.getMin();

@@ -1,7 +1,6 @@
 package com.revolsys.websocket.json;
 
-import org.jeometry.common.collection.map.MapEx;
-
+import com.revolsys.collection.map.MapEx;
 import com.revolsys.websocket.AsyncResult;
 
 public class JsonPropertyAsyncResult implements AsyncResult<MapEx> {

@@ -3,11 +3,10 @@ package com.revolsys.record.io.format.mapguide;
 import java.time.Instant;
 import java.util.List;
 
-import org.jeometry.common.io.PathName;
-import org.jeometry.common.util.BaseObjectWithProperties;
-
 import com.revolsys.beans.Classes;
+import com.revolsys.io.PathName;
 import com.revolsys.spring.resource.UrlResource;
+import com.revolsys.util.BaseObjectWithProperties;
 import com.revolsys.util.Property;
 import com.revolsys.webservice.WebServiceResource;
 

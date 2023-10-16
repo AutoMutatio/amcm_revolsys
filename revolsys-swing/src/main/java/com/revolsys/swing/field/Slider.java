@@ -9,13 +9,11 @@ import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.common.exception.Exceptions;
-import org.jeometry.common.number.Integers;
-import org.jeometry.common.number.Numbers;
-
+import com.revolsys.data.type.DataTypes;
+import com.revolsys.exception.Exceptions;
+import com.revolsys.number.Integers;
+import com.revolsys.number.Numbers;
 import com.revolsys.util.CaseConverter;
-import com.revolsys.util.Property;
 
 public class Slider extends JSlider implements Field, FocusListener, ChangeListener {
   public static final Color DEFAULT_SELECTED_FOREGROUND = new JTextField().getSelectedTextColor();
@@ -43,7 +41,7 @@ public class Slider extends JSlider implements Field, FocusListener, ChangeListe
   public Slider(final String fieldName, final int orientation, final int min, final int max,
     final int value) {
     super(orientation, min, max, value);
-    if (org.jeometry.common.util.Property.hasValue(fieldName)) {
+    if (com.revolsys.util.Property.hasValue(fieldName)) {
       setToolTipText(CaseConverter.toCapitalizedWords(fieldName));
     }
     this.fieldSupport = new FieldSupport(this, fieldName, value, true);

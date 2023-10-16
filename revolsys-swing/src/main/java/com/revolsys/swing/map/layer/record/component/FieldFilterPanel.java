@@ -20,14 +20,13 @@ import javax.swing.event.DocumentListener;
 import javax.swing.text.JTextComponent;
 
 import org.jdesktop.swingx.JXSearchField;
-import org.jeometry.common.awt.WebColors;
-import org.jeometry.common.collection.map.MapEx;
-import org.jeometry.common.collection.value.GlobalBooleanValue;
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.common.logging.Logs;
-import org.jeometry.common.util.BaseCloseable;
 
+import com.revolsys.awt.WebColors;
+import com.revolsys.collection.map.MapEx;
+import com.revolsys.collection.value.GlobalBooleanValue;
+import com.revolsys.data.type.DataType;
+import com.revolsys.data.type.DataTypes;
+import com.revolsys.logging.Logs;
 import com.revolsys.record.code.CodeTable;
 import com.revolsys.record.query.BinaryCondition;
 import com.revolsys.record.query.ColumnReference;
@@ -57,6 +56,7 @@ import com.revolsys.swing.map.layer.record.renderer.AbstractRecordLayerRenderer;
 import com.revolsys.swing.map.layer.record.table.model.RecordLayerTableModel;
 import com.revolsys.swing.parallel.Invoke;
 import com.revolsys.swing.table.TablePanel;
+import com.revolsys.util.BaseCloseable;
 import com.revolsys.util.Property;
 
 public class FieldFilterPanel extends JComponent implements PropertyChangeListener {
@@ -237,7 +237,7 @@ public class FieldFilterPanel extends JComponent implements PropertyChangeListen
         BaseCloseable settingFilter = this.settingFilter.closeable(true)) {
         this.lastValue = null;
         String searchField = this.previousSearchFieldName;
-        if (!org.jeometry.common.util.Property.hasValue(searchField)) {
+        if (!com.revolsys.util.Property.hasValue(searchField)) {
           final List<String> fieldNames = this.recordDefinition.getFieldNames();
           if (!fieldNames.isEmpty()) {
             searchField = fieldNames.get(0);
@@ -275,7 +275,7 @@ public class FieldFilterPanel extends JComponent implements PropertyChangeListen
   public String getSearchFieldName() {
     if (this.nameField != null) {
       final String searchFieldName = this.nameField.getSelectedItem();
-      if (org.jeometry.common.util.Property.hasValue(searchFieldName)) {
+      if (com.revolsys.util.Property.hasValue(searchFieldName)) {
         return searchFieldName;
       }
     }
@@ -347,7 +347,7 @@ public class FieldFilterPanel extends JComponent implements PropertyChangeListen
           BaseCloseable settingFilter = this.settingFilter.closeable(true)) {
           setSearchFilter(filter);
           boolean simple = false;
-          if (org.jeometry.common.util.Property.isEmpty(filter)) {
+          if (com.revolsys.util.Property.isEmpty(filter)) {
             final Field searchField = (Field)this.searchField;
             if (searchField != null) {
               searchField.setFieldValue(null);
@@ -377,7 +377,7 @@ public class FieldFilterPanel extends JComponent implements PropertyChangeListen
                 final Value value = (Value)rightCondition;
                 final Object searchValue = value.getValue();
                 String searchText = DataTypes.toString(searchValue);
-                if (org.jeometry.common.util.Property.hasValue(searchText)) {
+                if (com.revolsys.util.Property.hasValue(searchText)) {
                   setSearchField(this.searchTextField);
                   searchText = searchText.replaceAll("%", "");
                   final String previousSearchText = this.searchTextField.getText();
@@ -509,7 +509,7 @@ public class FieldFilterPanel extends JComponent implements PropertyChangeListen
   }
 
   private void setSearchFieldName(final String searchFieldName) {
-    if (org.jeometry.common.util.Property.hasValue(searchFieldName)
+    if (com.revolsys.util.Property.hasValue(searchFieldName)
       && !DataType.equal(searchFieldName, this.previousSearchFieldName)
       && this.fieldNames.contains(searchFieldName)) {
       this.lastValue = null;
@@ -604,10 +604,10 @@ public class FieldFilterPanel extends JComponent implements PropertyChangeListen
         } else if ("IS NOT NULL".equalsIgnoreCase(searchOperator)) {
           condition = Q.isNotNull(this.field);
         } else if (this.field != null) {
-          if (org.jeometry.common.util.Property.hasValue(DataTypes.toString(searchValue))) {
+          if (com.revolsys.util.Property.hasValue(DataTypes.toString(searchValue))) {
             if ("Like".equalsIgnoreCase(searchOperator)) {
               final String searchText = DataTypes.toString(searchValue);
-              if (org.jeometry.common.util.Property.hasValue(searchText)) {
+              if (com.revolsys.util.Property.hasValue(searchText)) {
                 condition = Q.iLike(this.field, "%" + searchText + "%");
               }
             } else {

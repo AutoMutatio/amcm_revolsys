@@ -14,13 +14,12 @@ import org.apache.pdfbox.cos.COSInteger;
 import org.apache.pdfbox.cos.COSName;
 import org.apache.pdfbox.cos.COSNumber;
 import org.apache.pdfbox.cos.COSObject;
-import org.jeometry.coordinatesystem.operation.CoordinatesOperation;
-import org.jeometry.coordinatesystem.operation.CoordinatesOperationPoint;
 
+import com.revolsys.geometry.coordinatesystem.operation.CoordinatesOperation;
+import com.revolsys.geometry.coordinatesystem.operation.CoordinatesOperationPoint;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.geometry.model.editor.BoundingBoxEditor;
-import com.revolsys.util.Property;
 
 public class PdfUtil {
 
@@ -162,7 +161,7 @@ public class PdfUtil {
             final int srid = gcs.getInt("EPSG");
             if (srid == -1) {
               final String wkt = gcs.getString("WKT");
-              if (org.jeometry.common.util.Property.hasValue(wkt)) {
+              if (com.revolsys.util.Property.hasValue(wkt)) {
                 geometryFactory = GeometryFactory.floating3d(wkt);
               }
             } else {

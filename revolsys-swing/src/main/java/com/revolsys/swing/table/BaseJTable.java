@@ -34,17 +34,16 @@ import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.renderer.DefaultTableRenderer;
 import org.jdesktop.swingx.table.ColumnFactory;
 import org.jdesktop.swingx.table.TableColumnExt;
-import org.jeometry.common.awt.WebColors;
-import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.common.function.BiFunctionInt;
 
+import com.revolsys.awt.WebColors;
+import com.revolsys.data.type.DataTypes;
+import com.revolsys.function.BiFunctionInt;
 import com.revolsys.swing.SwingUtil;
 import com.revolsys.swing.dnd.ClipboardUtil;
 import com.revolsys.swing.parallel.Invoke;
 import com.revolsys.swing.table.editor.BaseTableCellEditor;
 import com.revolsys.swing.table.highlighter.OddEvenColorHighlighter;
 import com.revolsys.swing.table.highlighter.TableModelHighlighter;
-import com.revolsys.util.Property;
 
 public class BaseJTable extends JXTable {
   private static final long serialVersionUID = 1L;
@@ -422,7 +421,7 @@ public class BaseJTable extends JXTable {
       }
     }
     final String value = ClipboardUtil.getContents(DataFlavor.stringFlavor);
-    if (org.jeometry.common.util.Property.hasValue(value)) {
+    if (com.revolsys.util.Property.hasValue(value)) {
       final TableModel tableModel = getTableModel();
       final int eventRow = TablePanel.getEventRow();
       final int eventColumn = TablePanel.getEventColumn();

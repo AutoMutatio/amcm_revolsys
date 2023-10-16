@@ -18,8 +18,8 @@ import javax.swing.JPanel;
 import javax.swing.WindowConstants;
 
 import org.jdesktop.swingx.VerticalLayout;
-import org.jeometry.common.exception.WrappedException;
 
+import com.revolsys.exception.WrappedException;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.swing.Dialogs;
 import com.revolsys.swing.SwingUtil;

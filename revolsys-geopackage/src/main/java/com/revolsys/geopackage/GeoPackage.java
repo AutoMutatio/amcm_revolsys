@@ -15,20 +15,20 @@ import java.util.regex.Pattern;
 
 import javax.sql.DataSource;
 
-import org.jeometry.common.collection.map.MapEx;
-import org.jeometry.common.collection.map.Maps;
-import org.jeometry.common.json.JsonObject;
-import org.jeometry.common.logging.Logs;
 import org.sqlite.SQLiteConfig;
 import org.sqlite.SQLiteConfig.LockingMode;
 import org.sqlite.SQLiteDataSource;
 import org.sqlite.SQLiteJDBCLoader;
 import org.sqlite.SQLiteOpenMode;
 
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.map.MapEx;
+import com.revolsys.collection.map.Maps;
 import com.revolsys.io.FileUtil;
 import com.revolsys.io.file.Paths;
 import com.revolsys.jdbc.io.AbstractJdbcDatabaseFactory;
 import com.revolsys.jdbc.io.JdbcRecordStore;
+import com.revolsys.logging.Logs;
 import com.revolsys.record.Record;
 import com.revolsys.record.RecordFactory;
 import com.revolsys.record.io.FileRecordStoreFactory;
@@ -42,7 +42,6 @@ import com.revolsys.record.schema.RecordDefinitionProxy;
 import com.revolsys.record.schema.RecordStore;
 import com.revolsys.spring.resource.Resource;
 import com.revolsys.spring.resource.UrlResource;
-import com.revolsys.util.Property;
 import com.revolsys.util.RsCoreDataTypes;
 
 /**
@@ -225,7 +224,7 @@ public class GeoPackage extends AbstractJdbcDatabaseFactory
   public DataSource newDataSource(final Map<String, ? extends Object> config) {
     final MapEx newConfig = JsonObject.hash(config);
     String url = (String)newConfig.remove("url");
-    if (!org.jeometry.common.util.Property.hasValue(url)) {
+    if (!com.revolsys.util.Property.hasValue(url)) {
       throw new IllegalArgumentException("jdbc url required");
     }
 
@@ -255,7 +254,7 @@ public class GeoPackage extends AbstractJdbcDatabaseFactory
         final String name = property.getKey();
         final Object value = property.getValue();
         try {
-          org.jeometry.common.util.Property.setSimple(sqliteConfig, name, value);
+          com.revolsys.util.Property.setSimple(sqliteConfig, name, value);
         } catch (final Throwable t) {
           Logs.debug(this,
             "Unable to set data source property " + name + " = " + value + " for " + url, t);

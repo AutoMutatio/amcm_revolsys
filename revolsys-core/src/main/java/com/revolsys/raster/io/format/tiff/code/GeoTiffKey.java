@@ -2,7 +2,7 @@ package com.revolsys.raster.io.format.tiff.code;
 
 import java.util.Map;
 
-import org.jeometry.common.collection.map.Maps;
+import com.revolsys.collection.map.Maps;
 
 public interface GeoTiffKey {
   int getId();

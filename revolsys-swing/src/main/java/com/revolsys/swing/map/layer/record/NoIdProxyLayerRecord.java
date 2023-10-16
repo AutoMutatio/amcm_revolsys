@@ -1,7 +1,6 @@
 package com.revolsys.swing.map.layer.record;
 
-import org.jeometry.common.data.identifier.Identifier;
-
+import com.revolsys.data.identifier.Identifier;
 import com.revolsys.util.Uuid;
 import com.revolsys.util.UuidBuilder;
 import com.revolsys.util.UuidNamespace;

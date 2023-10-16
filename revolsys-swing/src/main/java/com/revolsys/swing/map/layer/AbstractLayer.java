@@ -31,15 +31,6 @@ import javax.swing.table.DefaultTableModel;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.ScrollableSizeHint;
 import org.jdesktop.swingx.VerticalLayout;
-import org.jeometry.common.collection.map.MapEx;
-import org.jeometry.common.collection.value.ThreadBooleanValue;
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.io.MapSerializer;
-import org.jeometry.common.json.JsonObject;
-import org.jeometry.common.logging.Logs;
-import org.jeometry.common.number.Doubles;
-import org.jeometry.common.util.BaseCloseable;
-import org.jeometry.common.util.BaseObjectWithProperties;
 import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
@@ -49,13 +40,20 @@ import com.revolsys.beans.KeyedPropertyChangeEvent;
 import com.revolsys.beans.PropertyChangeSupport;
 import com.revolsys.beans.PropertyChangeSupportProxy;
 import com.revolsys.collection.EmptyReference;
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.map.MapEx;
 import com.revolsys.collection.map.MapSerializerMap;
+import com.revolsys.collection.value.ThreadBooleanValue;
+import com.revolsys.data.type.DataType;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.geometry.model.editor.BoundingBoxEditor;
 import com.revolsys.io.FileUtil;
 import com.revolsys.io.IoFactory;
+import com.revolsys.io.MapSerializer;
 import com.revolsys.io.map.MapObjectFactory;
+import com.revolsys.logging.Logs;
+import com.revolsys.number.Doubles;
 import com.revolsys.swing.Borders;
 import com.revolsys.swing.Dialogs;
 import com.revolsys.swing.Icons;
@@ -78,6 +76,8 @@ import com.revolsys.swing.preferences.PreferenceFields;
 import com.revolsys.swing.table.NumberTableCellRenderer;
 import com.revolsys.swing.tree.TreeNodes;
 import com.revolsys.swing.tree.node.file.PathTreeNode;
+import com.revolsys.util.BaseCloseable;
+import com.revolsys.util.BaseObjectWithProperties;
 import com.revolsys.util.CaseConverter;
 import com.revolsys.util.Preferences;
 import com.revolsys.util.Property;
@@ -538,7 +538,7 @@ public abstract class AbstractLayer extends BaseObjectWithProperties
   protected void initializeMenuExpressions(final List<String> menuInitializerExpressions) {
     for (final String menuInitializerExpression : getProperty("menuInitializerExpressions",
       Collections.<String> emptyList())) {
-      if (org.jeometry.common.util.Property.hasValue(menuInitializerExpression)) {
+      if (com.revolsys.util.Property.hasValue(menuInitializerExpression)) {
         if (!menuInitializerExpressions.contains(menuInitializerExpression)) {
           menuInitializerExpressions.add(menuInitializerExpression);
         }
@@ -997,7 +997,7 @@ public abstract class AbstractLayer extends BaseObjectWithProperties
     } else {
       this.geometryFactory = geometryFactory;
       final BoundingBox boundingBox = getBoundingBox();
-      if (org.jeometry.common.util.Property.isEmpty(boundingBox)) {
+      if (com.revolsys.util.Property.isEmpty(boundingBox)) {
         setBoundingBox(geometryFactory.getAreaBoundingBox());
       } else if (!boundingBox.getGeometryFactory().isHasHorizontalCoordinateSystem()
         && geometryFactory.isHasHorizontalCoordinateSystem()) {

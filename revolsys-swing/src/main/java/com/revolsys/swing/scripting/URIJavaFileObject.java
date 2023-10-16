@@ -8,9 +8,8 @@ import java.net.URI;
 
 import javax.tools.SimpleJavaFileObject;
 
-import org.jeometry.common.io.IoUtil;
-
 import com.revolsys.io.FileUtil;
+import com.revolsys.io.IoUtil;
 
 public class URIJavaFileObject extends SimpleJavaFileObject {
   public URIJavaFileObject(final File file, final Kind kind) {

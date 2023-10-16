@@ -6,20 +6,18 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Map;
 
-import org.jeometry.common.io.PathName;
-import org.jeometry.common.logging.Logs;
-
 import com.revolsys.geometry.model.GeometryFactory;
+import com.revolsys.io.PathName;
 import com.revolsys.io.PathUtil;
 import com.revolsys.jdbc.JdbcUtils;
 import com.revolsys.jdbc.field.JdbcFieldAdder;
 import com.revolsys.jdbc.io.JdbcRecordStoreSchema;
+import com.revolsys.logging.Logs;
 import com.revolsys.oracle.recordstore.OracleRecordStore;
 import com.revolsys.record.io.RecordStoreExtension;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordStore;
 import com.revolsys.record.schema.RecordStoreSchema;
-import com.revolsys.util.Property;
 
 public class ArcSdeStGeometryRecordStoreExtension implements RecordStoreExtension {
 
@@ -94,7 +92,7 @@ public class ArcSdeStGeometryRecordStoreExtension implements RecordStoreExtensio
               JdbcFieldAdder.GEOMETRY_TYPE, ArcSdeConstants.getGeometryDataType(geometryType));
 
             String geometryColumnType = resultSet.getString(6);
-            if (!org.jeometry.common.util.Property.hasValue(geometryColumnType)) {
+            if (!com.revolsys.util.Property.hasValue(geometryColumnType)) {
               geometryColumnType = ArcSdeConstants.SDEBINARY;
             }
             JdbcFieldAdder.setColumnProperty(schema, typePath, columnName,

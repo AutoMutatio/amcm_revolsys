@@ -8,7 +8,6 @@ import com.revolsys.swing.field.TextField;
 import com.revolsys.swing.layout.GroupLayouts;
 import com.revolsys.swing.map.layer.BaseMapLayerGroup;
 import com.revolsys.swing.menu.MenuFactory;
-import com.revolsys.util.Property;
 
 public interface WebMercatorTileCache {
 
@@ -24,7 +23,7 @@ public interface WebMercatorTileCache {
 
     dialog.setSaveAction(() -> {
       final String url = urlField.getText();
-      if (org.jeometry.common.util.Property.hasValue(url)) {
+      if (com.revolsys.util.Property.hasValue(url)) {
         final WebMercatorTileCacheLayer layer = new WebMercatorTileCacheLayer();
         layer.setUrl(url);
         layer.setVisible(true);

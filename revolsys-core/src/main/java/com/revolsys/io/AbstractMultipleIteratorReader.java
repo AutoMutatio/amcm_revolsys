@@ -5,8 +5,8 @@ import java.util.NoSuchElementException;
 
 import jakarta.annotation.PreDestroy;
 
-import org.jeometry.common.collection.iterator.AbstractIterator;
-import org.jeometry.common.collection.iterator.AbstractReader;
+import com.revolsys.collection.iterator.AbstractIterator;
+import com.revolsys.collection.iterator.AbstractReader;
 
 public abstract class AbstractMultipleIteratorReader<T> extends AbstractReader<T>
   implements Iterator<T> {

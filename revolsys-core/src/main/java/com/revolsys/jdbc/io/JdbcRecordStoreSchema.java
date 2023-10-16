@@ -1,7 +1,6 @@
 package com.revolsys.jdbc.io;
 
-import org.jeometry.common.io.PathName;
-
+import com.revolsys.io.PathName;
 import com.revolsys.parallel.ReentrantLockEx;
 import com.revolsys.record.schema.AbstractRecordStore;
 import com.revolsys.record.schema.RecordStoreSchema;

@@ -6,12 +6,10 @@ import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.border.Border;
 
-import org.jeometry.common.data.type.DataType;
-
+import com.revolsys.data.type.DataType;
 import com.revolsys.swing.border.IconBorder;
 import com.revolsys.swing.undo.CascadingUndoManager;
 import com.revolsys.swing.undo.UndoManager;
-import com.revolsys.util.Property;
 
 public class FieldSupport {
   private final JComponent component;
@@ -49,7 +47,7 @@ public class FieldSupport {
   public FieldSupport(final Field field, final JComponent component, final String name,
     final Object value, final boolean showErrorIcon) {
     this.field = field;
-    if (org.jeometry.common.util.Property.isEmpty(name)) {
+    if (com.revolsys.util.Property.isEmpty(name)) {
       this.name = "fieldValue";
     } else {
       this.name = name;
@@ -101,7 +99,7 @@ public class FieldSupport {
   }
 
   public boolean hasError() {
-    return org.jeometry.common.util.Property.hasValue(this.errorMessage);
+    return com.revolsys.util.Property.hasValue(this.errorMessage);
   }
 
   public boolean isEditable() {

@@ -1,7 +1,6 @@
 package com.revolsys.elevation.gridded.rasterizer;
 
-import org.jeometry.common.json.JsonObject;
-
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.elevation.gridded.GriddedElevationModel;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.properties.BaseObjectWithPropertiesAndChange;

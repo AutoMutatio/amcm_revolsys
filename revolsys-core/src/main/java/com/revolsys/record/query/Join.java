@@ -2,10 +2,9 @@ package com.revolsys.record.query;
 
 import java.sql.PreparedStatement;
 
-import org.jeometry.common.collection.map.MapEx;
-import org.jeometry.common.exception.Exceptions;
-import org.jeometry.common.io.PathName;
-
+import com.revolsys.collection.map.MapEx;
+import com.revolsys.exception.Exceptions;
+import com.revolsys.io.PathName;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinitionProxy;
 import com.revolsys.record.schema.RecordStore;

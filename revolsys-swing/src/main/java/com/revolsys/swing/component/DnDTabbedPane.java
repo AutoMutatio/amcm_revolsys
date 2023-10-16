@@ -38,10 +38,9 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
-import org.jeometry.common.util.BaseCloseable;
-
 import com.revolsys.swing.TabbedPane;
 import com.revolsys.swing.parallel.Invoke;
+import com.revolsys.util.BaseCloseable;
 
 public class DnDTabbedPane extends TabbedPane {
   class CDropTargetListener implements DropTargetListener {

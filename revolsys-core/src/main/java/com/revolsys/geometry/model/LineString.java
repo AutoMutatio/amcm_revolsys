@@ -46,21 +46,18 @@ import javax.measure.Quantity;
 import javax.measure.Unit;
 import javax.measure.quantity.Length;
 
-import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.common.function.BiConsumerDouble;
-import org.jeometry.common.function.Consumer3Double;
-import org.jeometry.common.function.Consumer4Double;
-import org.jeometry.common.math.Angle;
-import org.jeometry.common.number.Doubles;
-import org.jeometry.coordinatesystem.model.CoordinateSystem;
-import org.jeometry.coordinatesystem.model.GeographicCoordinateSystem;
-import org.jeometry.coordinatesystem.operation.CoordinatesOperation;
-import org.jeometry.coordinatesystem.operation.CoordinatesOperationPoint;
-
+import com.revolsys.data.type.DataTypes;
+import com.revolsys.function.BiConsumerDouble;
+import com.revolsys.function.Consumer3Double;
+import com.revolsys.function.Consumer4Double;
 import com.revolsys.geometry.algorithm.LineIntersector;
 import com.revolsys.geometry.algorithm.LineStringLocation;
 import com.revolsys.geometry.algorithm.RayCrossingCounter;
 import com.revolsys.geometry.algorithm.RobustLineIntersector;
+import com.revolsys.geometry.coordinatesystem.model.CoordinateSystem;
+import com.revolsys.geometry.coordinatesystem.model.GeographicCoordinateSystem;
+import com.revolsys.geometry.coordinatesystem.operation.CoordinatesOperation;
+import com.revolsys.geometry.coordinatesystem.operation.CoordinatesOperationPoint;
 import com.revolsys.geometry.graph.linemerge.LineMerger;
 import com.revolsys.geometry.model.coordinates.CoordinatesUtil;
 import com.revolsys.geometry.model.coordinates.LineSegmentUtil;
@@ -81,8 +78,9 @@ import com.revolsys.geometry.operation.RectangleIntersection;
 import com.revolsys.geometry.operation.overlay.OverlayOp;
 import com.revolsys.geometry.operation.overlay.snap.SnapIfNeededOverlayOp;
 import com.revolsys.geometry.util.Points;
+import com.revolsys.math.Angle;
+import com.revolsys.number.Doubles;
 import com.revolsys.util.Pair;
-import com.revolsys.util.Property;
 import com.revolsys.util.QuantityType;
 
 import tech.units.indriya.quantity.Quantities;
@@ -720,7 +718,7 @@ public interface LineString extends Lineal {
 
   default boolean equalsVertex(final int axisCount, final int vertexIndex, final LineString line2,
     final int vertexIndex2) {
-    if (org.jeometry.common.util.Property.isEmpty(line2)) {
+    if (com.revolsys.util.Property.isEmpty(line2)) {
       return false;
     } else {
       final Vertex vertex2 = line2.getVertex(vertexIndex2);
@@ -729,7 +727,7 @@ public interface LineString extends Lineal {
   }
 
   default boolean equalsVertex(final int axisCount, final int vertexIndex, final Point point) {
-    if (isEmpty() || org.jeometry.common.util.Property.isEmpty(point)) {
+    if (isEmpty() || com.revolsys.util.Property.isEmpty(point)) {
       return false;
     } else {
       final Point projectedPoint = point.as2d(this);
@@ -750,7 +748,7 @@ public interface LineString extends Lineal {
   }
 
   default boolean equalsVertex(final int vertexIndex, final Point point) {
-    if (org.jeometry.common.util.Property.isEmpty(point)) {
+    if (com.revolsys.util.Property.isEmpty(point)) {
       return false;
     } else {
       final int axisCount = point.getAxisCount();
@@ -2080,7 +2078,8 @@ public interface LineString extends Lineal {
   }
 
   default LineString merge(final Point point, final LineString line2) {
-    if (isEmpty() || org.jeometry.common.util.Property.isEmpty(line2) || org.jeometry.common.util.Property.isEmpty(point)) {
+    if (isEmpty() || com.revolsys.util.Property.isEmpty(line2)
+      || com.revolsys.util.Property.isEmpty(point)) {
       return newLineStringEmpty();
     } else {
       final int axisCount = Math.max(getAxisCount(), line2.getAxisCount());
@@ -2590,7 +2589,7 @@ public interface LineString extends Lineal {
    * @return The end that touches.
    */
   default End touchingEnd(final LineString line) {
-    if (isEmpty() || org.jeometry.common.util.Property.isEmpty(line)) {
+    if (isEmpty() || com.revolsys.util.Property.isEmpty(line)) {
       return null;
     } else {
       for (final End end : End.FROM_TO) {
@@ -2611,7 +2610,7 @@ public interface LineString extends Lineal {
    * @return The end that touches.
    */
   default End touchingEnd(final Point point) {
-    if (isEmpty() || org.jeometry.common.util.Property.isEmpty(point)) {
+    if (isEmpty() || com.revolsys.util.Property.isEmpty(point)) {
       return null;
     } else if (equalsVertex2d(0, point)) {
       return End.FROM;
@@ -2630,7 +2629,7 @@ public interface LineString extends Lineal {
    *         touches, or null if they don't touch.
    */
   default End[] touchingEnds(final LineString line) {
-    if (isEmpty() || org.jeometry.common.util.Property.isEmpty(line)) {
+    if (isEmpty() || com.revolsys.util.Property.isEmpty(line)) {
       return null;
     } else {
       for (final End end : End.FROM_TO) {

@@ -1,7 +1,6 @@
 package com.revolsys.record.query;
 
-import org.jeometry.common.collection.map.MapEx;
-
+import com.revolsys.collection.map.MapEx;
 import com.revolsys.record.schema.RecordStore;
 
 public class Parenthesis extends AbstractUnaryQueryValue implements Condition {

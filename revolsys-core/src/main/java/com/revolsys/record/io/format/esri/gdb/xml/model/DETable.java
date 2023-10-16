@@ -5,7 +5,6 @@ import java.util.List;
 
 import com.revolsys.record.io.format.esri.gdb.xml.EsriGeodatabaseXmlConstants;
 import com.revolsys.record.io.format.esri.gdb.xml.model.enums.FieldType;
-import com.revolsys.util.Property;
 
 public class DETable extends DEDataset {
 
@@ -97,7 +96,7 @@ public class DETable extends DEDataset {
   }
 
   public String getGlobalIDFieldName() {
-    if (!org.jeometry.common.util.Property.hasValue(this.globalIDFieldName)) {
+    if (!com.revolsys.util.Property.hasValue(this.globalIDFieldName)) {
       for (final Field field : getFields()) {
         if (field.getType() == FieldType.esriFieldTypeGlobalID) {
           this.globalIDFieldName = field.getName();
@@ -136,7 +135,7 @@ public class DETable extends DEDataset {
   }
 
   public boolean isHasGlobalID() {
-    return org.jeometry.common.util.Property.hasValue(getGlobalIDFieldName());
+    return com.revolsys.util.Property.hasValue(getGlobalIDFieldName());
   }
 
   public boolean isHasOID() {

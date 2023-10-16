@@ -8,10 +8,9 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.jeometry.common.logging.Logs;
 import org.springframework.util.Assert;
 
-import com.revolsys.util.Property;
+import com.revolsys.logging.Logs;
 
 public class StringTemplate implements Serializable {
   /**
@@ -65,7 +64,7 @@ public class StringTemplate implements Serializable {
 
   public StringTemplate(final String template) {
     this.template = template;
-    if (org.jeometry.common.util.Property.hasValue(template)) {
+    if (com.revolsys.util.Property.hasValue(template)) {
       try {
         final Parser parser = new Parser(template);
         this.variableNames = parser.getVariableNames();

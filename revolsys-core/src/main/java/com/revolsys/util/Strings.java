@@ -12,11 +12,10 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.jeometry.common.collection.list.ListEx;
-import org.jeometry.common.collection.list.Lists;
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.common.util.StringBuilders;
+import com.revolsys.collection.list.ListEx;
+import com.revolsys.collection.list.Lists;
+import com.revolsys.data.type.DataType;
+import com.revolsys.data.type.DataTypes;
 
 public interface Strings {
 
@@ -260,10 +259,10 @@ public interface Strings {
   }
 
   static boolean equalsIgnoreCase(final String string1, final String string2) {
-    if (org.jeometry.common.util.Property.hasValue(string1)) {
+    if (com.revolsys.util.Property.hasValue(string1)) {
       return string1.equalsIgnoreCase(string2);
     } else {
-      return org.jeometry.common.util.Property.isEmpty(string2);
+      return com.revolsys.util.Property.isEmpty(string2);
     }
   }
 
@@ -300,8 +299,8 @@ public interface Strings {
   }
 
   static boolean isEqualTrim(final String oldValue, final String newValue) {
-    final boolean oldHasValue = org.jeometry.common.util.Property.hasValue(oldValue);
-    final boolean newHasValue = org.jeometry.common.util.Property.hasValue(newValue);
+    final boolean oldHasValue = com.revolsys.util.Property.hasValue(oldValue);
+    final boolean newHasValue = com.revolsys.util.Property.hasValue(newValue);
     if (oldHasValue) {
       if (newHasValue) {
         if (DataType.equal(oldValue.strip(), newValue.strip())) {
@@ -401,7 +400,7 @@ public interface Strings {
         if (value == null) {
         } else {
           final String string = DataTypes.toString(value);
-          if (org.jeometry.common.util.Property.hasValue(string)) {
+          if (com.revolsys.util.Property.hasValue(string)) {
             out.print(string);
           }
         }
@@ -469,15 +468,15 @@ public interface Strings {
 
   static String replaceWord(final String text, final String oldValue, final String newValue,
     final char... separators) {
-    if (org.jeometry.common.util.Property.hasValue(oldValue)) {
-      if (org.jeometry.common.util.Property.hasValue(text)) {
+    if (com.revolsys.util.Property.hasValue(oldValue)) {
+      if (com.revolsys.util.Property.hasValue(text)) {
         for (int index = text.indexOf(oldValue); index != -1; index = text.indexOf(text, index)) {
           if (index == 0 || Arrays.binarySearch(separators, text.charAt(index - 1)) != -1) {
             final int nextIndex = index + oldValue.length();
             if (nextIndex == text.length()
               || Arrays.binarySearch(separators, text.charAt(nextIndex)) != -1) {
               final StringBuilder newText = new StringBuilder();
-              final boolean hasNewValue = org.jeometry.common.util.Property.hasValue(newValue);
+              final boolean hasNewValue = com.revolsys.util.Property.hasValue(newValue);
               if (index > 0) {
                 String prefix;
                 if (hasNewValue) {
@@ -709,7 +708,7 @@ public interface Strings {
       for (final Object value : values) {
         if (value != null) {
           final String newString = DataTypes.toString(value);
-          if (org.jeometry.common.util.Property.hasValue(newString)) {
+          if (com.revolsys.util.Property.hasValue(newString)) {
             if (stringBuilder == null) {
               if (string == null) {
                 string = newString;

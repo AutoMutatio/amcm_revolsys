@@ -2,11 +2,9 @@ package com.revolsys.record.query.functions;
 
 import java.util.List;
 
-import org.jeometry.common.collection.map.MapEx;
-
+import com.revolsys.collection.map.MapEx;
 import com.revolsys.record.query.QueryValue;
 import com.revolsys.record.query.Value;
-import com.revolsys.util.Property;
 
 public class RegexpReplace extends SimpleFunction {
 
@@ -35,7 +33,7 @@ public class RegexpReplace extends SimpleFunction {
     if (replace == null) {
       replace = "";
     }
-    if (org.jeometry.common.util.Property.hasValue(text)) {
+    if (com.revolsys.util.Property.hasValue(text)) {
       return (V)text.replaceAll(pattern, replace);
     } else {
       return null;

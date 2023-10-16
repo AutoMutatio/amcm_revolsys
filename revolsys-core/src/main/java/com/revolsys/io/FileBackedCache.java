@@ -6,7 +6,7 @@ import java.io.OutputStream;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 
-import org.jeometry.common.util.BaseCloseable;
+import com.revolsys.util.BaseCloseable;
 
 public class FileBackedCache implements BaseCloseable {
 

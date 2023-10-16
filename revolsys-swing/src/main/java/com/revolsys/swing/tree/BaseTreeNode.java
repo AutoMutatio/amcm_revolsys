@@ -24,16 +24,14 @@ import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
-import org.jeometry.common.collection.iterator.IteratorEnumeration;
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.common.logging.Logs;
-import org.jeometry.common.util.BaseCloneable;
-
 import com.revolsys.beans.ClassRegistry;
 import com.revolsys.beans.NonWeakListener;
 import com.revolsys.collection.NameProxy;
 import com.revolsys.collection.Parent;
+import com.revolsys.collection.iterator.IteratorEnumeration;
+import com.revolsys.data.type.DataType;
+import com.revolsys.data.type.DataTypes;
+import com.revolsys.logging.Logs;
 import com.revolsys.swing.Icons;
 import com.revolsys.swing.menu.MenuFactory;
 import com.revolsys.swing.parallel.Invoke;
@@ -41,6 +39,7 @@ import com.revolsys.swing.tree.dnd.TreePathListTransferable;
 import com.revolsys.swing.tree.dnd.TreeTransferHandler;
 import com.revolsys.swing.tree.node.ParentTreeNode;
 import com.revolsys.swing.tree.node.file.PathTreeNode;
+import com.revolsys.util.BaseCloneable;
 import com.revolsys.util.IconNameProxy;
 import com.revolsys.util.Property;
 import com.revolsys.util.ToolTipProxy;
@@ -807,7 +806,7 @@ public class BaseTreeNode implements TreeNode, Iterable<BaseTreeNode>, PropertyC
 
   @Override
   public String toString() {
-    if (org.jeometry.common.util.Property.hasValue(this.name)) {
+    if (com.revolsys.util.Property.hasValue(this.name)) {
       return this.name;
     } else {
       final Object userObject = getUserObject();

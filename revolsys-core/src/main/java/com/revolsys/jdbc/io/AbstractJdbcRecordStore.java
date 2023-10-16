@@ -23,15 +23,14 @@ import javax.sql.DataSource;
 
 import jakarta.annotation.PreDestroy;
 
-import org.jeometry.common.collection.map.Maps;
-import org.jeometry.common.data.identifier.Identifier;
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.common.exception.Exceptions;
-import org.jeometry.common.io.PathName;
-import org.jeometry.common.logging.Logs;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
+import com.revolsys.collection.map.Maps;
+import com.revolsys.data.identifier.Identifier;
+import com.revolsys.data.type.DataType;
+import com.revolsys.data.type.DataTypes;
+import com.revolsys.exception.Exceptions;
+import com.revolsys.io.PathName;
 import com.revolsys.io.PathUtil;
 import com.revolsys.jdbc.JdbcConnection;
 import com.revolsys.jdbc.JdbcDataSource;
@@ -39,6 +38,7 @@ import com.revolsys.jdbc.field.JdbcFieldAdder;
 import com.revolsys.jdbc.field.JdbcFieldDefinition;
 import com.revolsys.jdbc.field.JdbcFieldFactory;
 import com.revolsys.jdbc.field.JdbcFieldFactoryAdder;
+import com.revolsys.logging.Logs;
 import com.revolsys.record.ArrayRecord;
 import com.revolsys.record.Record;
 import com.revolsys.record.RecordFactory;
@@ -550,7 +550,7 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
   @Override
   public JdbcRecordDefinition getRecordDefinition(PathName typePath,
     final ResultSetMetaData resultSetMetaData, final String dbTableName) {
-    if (org.jeometry.common.util.Property.isEmpty(typePath)) {
+    if (com.revolsys.util.Property.isEmpty(typePath)) {
       typePath = PathName.newPathName("/Record");
     }
 
@@ -584,7 +584,7 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
   public JdbcRecordDefinition getRecordDefinition(final Query query,
     final ResultSetMetaData resultSetMetaData) {
     PathName tablePath = query.getTablePath();
-    if (org.jeometry.common.util.Property.isEmpty(tablePath)) {
+    if (com.revolsys.util.Property.isEmpty(tablePath)) {
       tablePath = PathName.newPathName("/Record");
     }
 
@@ -813,7 +813,7 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
       var l = this.lock.lockX()) {
       final String schemaName = "/" + toUpperIfNeeded(dbSchemaName);
       final Map<String, List<String>> idFieldNames = new HashMap<>();
-      if (org.jeometry.common.util.Property.hasValue(this.primaryKeySql)) {
+      if (com.revolsys.util.Property.hasValue(this.primaryKeySql)) {
         try {
           try (
             final PreparedStatement statement = connection.prepareStatement(this.primaryKeySql);) {
@@ -825,7 +825,7 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
               while (rs.next()) {
                 final String tableName = toUpperIfNeeded(rs.getString("TABLE_NAME"));
                 final String idFieldName = rs.getString("COLUMN_NAME");
-                if (org.jeometry.common.util.Property.hasValue(dbSchemaName)) {
+                if (com.revolsys.util.Property.hasValue(dbSchemaName)) {
                   Maps.addToList(idFieldNames, schemaName + "/" + tableName, idFieldName);
                 } else {
                   Maps.addToList(idFieldNames, "/" + tableName, idFieldName);
@@ -1091,7 +1091,7 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
         for (final JdbcRecordDefinition recordDefinition : recordDefinitionMap.values()) {
           final PathName typePath = recordDefinition.getPathName();
           final List<String> idFieldNames = idFieldNameMap.get(typePath.toString());
-          if (org.jeometry.common.util.Property.isEmpty(idFieldNames)) {
+          if (com.revolsys.util.Property.isEmpty(idFieldNames)) {
             addRowIdFieldDefinition(recordDefinition);
 
           }
@@ -1125,7 +1125,7 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
           for (final RecordDefinitionImpl recordDefinition : recordDefinitionMap.values()) {
             final String typePath = recordDefinition.getPath();
             final List<String> idFieldNames = idFieldNameMap.get(typePath);
-            if (!org.jeometry.common.util.Property.isEmpty(idFieldNames)) {
+            if (!com.revolsys.util.Property.isEmpty(idFieldNames)) {
               recordDefinition.setIdFieldNames(idFieldNames);
             }
           }

@@ -13,14 +13,13 @@ import java.util.Set;
 
 import javax.sql.DataSource;
 
-import org.jeometry.common.data.identifier.Identifier;
-import org.jeometry.common.data.type.CollectionDataType;
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.common.exception.Exceptions;
-import org.jeometry.common.io.PathName;
 import org.postgresql.jdbc.PgConnection;
 
+import com.revolsys.data.identifier.Identifier;
+import com.revolsys.data.type.CollectionDataType;
+import com.revolsys.data.type.DataType;
+import com.revolsys.data.type.DataTypes;
+import com.revolsys.exception.Exceptions;
 import com.revolsys.gis.postgresql.type.PostgreSQLArrayFieldDefinition;
 import com.revolsys.gis.postgresql.type.PostgreSQLBoundingBoxWrapper;
 import com.revolsys.gis.postgresql.type.PostgreSQLGeometryFieldAdder;
@@ -29,8 +28,8 @@ import com.revolsys.gis.postgresql.type.PostgreSQLJdbcBlobFieldDefinition;
 import com.revolsys.gis.postgresql.type.PostgreSQLJsonbFieldDefinition;
 import com.revolsys.gis.postgresql.type.PostgreSQLOidFieldDefinition;
 import com.revolsys.gis.postgresql.type.PostgreSQLTidWrapper;
+import com.revolsys.io.PathName;
 import com.revolsys.jdbc.JdbcConnection;
-import com.revolsys.jdbc.JdbcDataSource;
 import com.revolsys.jdbc.field.JdbcFieldAdder;
 import com.revolsys.jdbc.field.JdbcFieldDefinition;
 import com.revolsys.jdbc.field.JdbcStringFieldAdder;
@@ -50,7 +49,6 @@ import com.revolsys.record.query.functions.JsonRawValue;
 import com.revolsys.record.query.functions.JsonValue;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
-import com.revolsys.util.Property;
 
 public class PostgreSQLRecordStore extends AbstractJdbcRecordStore {
 
@@ -202,7 +200,7 @@ public class PostgreSQLRecordStore extends AbstractJdbcRecordStore {
     final String dbSchemaName = schema.getQuotedDbName();
     final String shortName = ShortNameProperty.getShortName(recordDefinition);
     String sequenceName;
-    if (org.jeometry.common.util.Property.hasValue(shortName)) {
+    if (com.revolsys.util.Property.hasValue(shortName)) {
       if (this.useSchemaSequencePrefix) {
         sequenceName = dbSchemaName + "." + shortName.toLowerCase() + "_seq";
       } else {

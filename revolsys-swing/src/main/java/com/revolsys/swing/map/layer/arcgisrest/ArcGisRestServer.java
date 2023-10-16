@@ -14,7 +14,6 @@ import com.revolsys.swing.map.layer.Layer;
 import com.revolsys.swing.map.layer.LayerGroup;
 import com.revolsys.swing.menu.MenuFactory;
 import com.revolsys.swing.tree.node.WebServiceConnectionTrees;
-import com.revolsys.util.Property;
 
 public interface ArcGisRestServer {
 
@@ -43,7 +42,7 @@ public interface ArcGisRestServer {
 
     dialog.setSaveAction(() -> {
       final String url = urlField.getText();
-      if (org.jeometry.common.util.Property.hasValue(url)) {
+      if (com.revolsys.util.Property.hasValue(url)) {
         final ArcGisRestServerTileCacheLayer layer = new ArcGisRestServerTileCacheLayer();
         layer.setUrl(url);
         layer.setVisible(true);

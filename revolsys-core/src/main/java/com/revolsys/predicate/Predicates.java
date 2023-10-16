@@ -8,7 +8,6 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import com.revolsys.collection.CollectionUtil;
-import com.revolsys.util.Property;
 
 public interface Predicates {
 
@@ -45,9 +44,9 @@ public interface Predicates {
   }
 
   static <V> int count(final Collection<V> values, final Predicate<? super V> filter) {
-    if (org.jeometry.common.util.Property.isEmpty(values)) {
+    if (com.revolsys.util.Property.isEmpty(values)) {
       return 0;
-    } else if (org.jeometry.common.util.Property.isEmpty(filter)) {
+    } else if (com.revolsys.util.Property.isEmpty(filter)) {
       return values.size();
     } else {
       int count = 0;

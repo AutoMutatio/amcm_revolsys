@@ -12,10 +12,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.jeometry.common.collection.map.Maps;
-import org.jeometry.common.logging.Logs;
-
+import com.revolsys.collection.map.Maps;
 import com.revolsys.io.file.Paths;
+import com.revolsys.logging.Logs;
 import com.revolsys.util.Property;
 
 public class MediaTypes {
@@ -65,7 +64,7 @@ public class MediaTypes {
     if (mediaType != null) {
       mediaType = mediaType.toLowerCase();
       final String result = fileExtensionByMediaType.get(mediaType);
-      if (org.jeometry.common.util.Property.hasValue(result)) {
+      if (com.revolsys.util.Property.hasValue(result)) {
         return result;
       }
     }
@@ -164,7 +163,7 @@ public class MediaTypes {
     if (extension != null) {
       extension = extension.toLowerCase();
       final String result = mediaTypeByFileExtension.get(extension);
-      if (org.jeometry.common.util.Property.hasValue(result)) {
+      if (com.revolsys.util.Property.hasValue(result)) {
         return result;
       }
     }

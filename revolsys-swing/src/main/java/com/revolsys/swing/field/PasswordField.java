@@ -7,17 +7,15 @@ import java.awt.event.FocusListener;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
-import org.jeometry.common.awt.WebColors;
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.common.exception.Exceptions;
-
+import com.revolsys.awt.WebColors;
+import com.revolsys.data.type.DataType;
+import com.revolsys.data.type.DataTypes;
+import com.revolsys.exception.Exceptions;
 import com.revolsys.swing.EventQueue;
 import com.revolsys.swing.SwingUtil;
 import com.revolsys.swing.listener.WeakFocusListener;
 import com.revolsys.swing.menu.MenuFactory;
 import com.revolsys.swing.undo.UndoManager;
-import com.revolsys.util.Property;
 
 public class PasswordField extends JPasswordField implements Field, FocusListener {
   private static final long serialVersionUID = 1L;
@@ -45,7 +43,7 @@ public class PasswordField extends JPasswordField implements Field, FocusListene
     this.fieldSupport = new FieldSupport(this, fieldName, text, true);
     setFont(SwingUtil.FONT);
     setDocument(new PropertyChangeDocument(this));
-    if (!org.jeometry.common.util.Property.hasValue(fieldName)) {
+    if (!com.revolsys.util.Property.hasValue(fieldName)) {
       fieldName = "fieldValue";
     }
     setText(text);
@@ -165,7 +163,7 @@ public class PasswordField extends JPasswordField implements Field, FocusListene
     this.fieldSupport.discardAllEdits();
     if (!DataType.equal(text, newText)) {
       if (newText == null) {
-        if (org.jeometry.common.util.Property.hasValue(text)) {
+        if (com.revolsys.util.Property.hasValue(text)) {
           setText("");
         }
       } else {

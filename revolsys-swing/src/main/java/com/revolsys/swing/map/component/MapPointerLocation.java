@@ -9,10 +9,9 @@ import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.border.BevelBorder;
 
-import org.jeometry.common.number.Doubles;
-
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.geometry.model.Point;
+import com.revolsys.number.Doubles;
 import com.revolsys.swing.map.MapPanel;
 import com.revolsys.swing.map.Viewport2D;
 import com.revolsys.swing.parallel.Invoke;
@@ -99,7 +98,7 @@ public class MapPointerLocation extends JLabel implements MouseMotionListener {
     Invoke.later(() -> {
       this.mapLocation = mapLocation;
       String text;
-      if (org.jeometry.common.util.Property.isEmpty(mapLocation)) {
+      if (com.revolsys.util.Property.isEmpty(mapLocation)) {
         text = this.title;
       } else {
         final double projectedX = mapLocation.getX();

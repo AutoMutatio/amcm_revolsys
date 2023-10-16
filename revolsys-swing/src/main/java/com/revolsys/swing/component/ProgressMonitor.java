@@ -22,14 +22,14 @@ import javax.swing.Timer;
 import javax.swing.UIManager;
 
 import org.jdesktop.swingx.VerticalLayout;
-import org.jeometry.common.logging.Logs;
-import org.jeometry.common.util.Cancellable;
 
 import com.revolsys.beans.PropertyChangeSupport;
+import com.revolsys.logging.Logs;
 import com.revolsys.swing.SwingUtil;
 import com.revolsys.swing.action.RunnableAction;
 import com.revolsys.swing.parallel.AbstractSwingWorker;
 import com.revolsys.swing.parallel.Invoke;
+import com.revolsys.util.Cancellable;
 
 public class ProgressMonitor implements Cancellable {
   private class ProgressMonitorDialog extends BaseDialog {

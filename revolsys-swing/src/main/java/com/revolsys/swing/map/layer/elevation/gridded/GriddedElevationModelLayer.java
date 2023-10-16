@@ -8,9 +8,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-import org.jeometry.common.json.JsonObject;
-import org.jeometry.common.logging.Logs;
-
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.elevation.gridded.GriddedElevationModel;
 import com.revolsys.elevation.gridded.GriddedElevationModelReader;
 import com.revolsys.elevation.gridded.GriddedElevationModelReaderFactory;
@@ -22,6 +20,7 @@ import com.revolsys.io.IoFactory;
 import com.revolsys.io.file.Paths;
 import com.revolsys.io.map.MapObjectFactory;
 import com.revolsys.io.map.MapObjectFactoryRegistry;
+import com.revolsys.logging.Logs;
 import com.revolsys.raster.BufferedGeoreferencedImage;
 import com.revolsys.spring.resource.Resource;
 import com.revolsys.swing.Borders;
@@ -182,7 +181,7 @@ public class GriddedElevationModelLayer extends AbstractLayer implements Elevati
   @Override
   protected boolean initializeDo() {
     final String url = getProperty("url");
-    if (org.jeometry.common.util.Property.hasValue(url)) {
+    if (com.revolsys.util.Property.hasValue(url)) {
       this.url = url;
       this.resource = Resource.getResource(url);
       revertDo();
@@ -248,7 +247,7 @@ public class GriddedElevationModelLayer extends AbstractLayer implements Elevati
       SwingUtil.addLabelledReadOnlyTextField(panel, "URL", this.url);
     }
     final String fileExtension = FileUtil.getFileNameExtension(this.url);
-    if (org.jeometry.common.util.Property.hasValue(fileExtension)) {
+    if (com.revolsys.util.Property.hasValue(fileExtension)) {
       SwingUtil.addLabelledReadOnlyTextField(panel, "File Extension", fileExtension);
       final GriddedElevationModelReaderFactory factory = IoFactory
         .factoryByFileExtension(GriddedElevationModelReaderFactory.class, fileExtension);

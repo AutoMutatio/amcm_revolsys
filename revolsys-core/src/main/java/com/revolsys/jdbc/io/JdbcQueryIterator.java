@@ -8,12 +8,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import org.jeometry.common.collection.iterator.AbstractIterator;
-import org.jeometry.common.exception.Exceptions;
-import org.jeometry.common.io.PathName;
-import org.jeometry.common.util.BaseCloseable;
 import org.springframework.dao.DataAccessException;
 
+import com.revolsys.collection.iterator.AbstractIterator;
+import com.revolsys.exception.Exceptions;
+import com.revolsys.io.PathName;
 import com.revolsys.jdbc.JdbcConnection;
 import com.revolsys.jdbc.JdbcUtils;
 import com.revolsys.record.Record;
@@ -24,6 +23,7 @@ import com.revolsys.record.query.Query;
 import com.revolsys.record.query.QueryValue;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.transaction.Transaction;
+import com.revolsys.util.BaseCloseable;
 
 public class JdbcQueryIterator extends AbstractIterator<Record>
   implements RecordReader, RecordIterator {

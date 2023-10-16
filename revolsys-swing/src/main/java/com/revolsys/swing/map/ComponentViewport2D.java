@@ -10,9 +10,7 @@ import javax.measure.Unit;
 import javax.measure.quantity.Length;
 import javax.swing.JComponent;
 
-import org.jeometry.common.collection.value.GlobalBooleanValue;
-import org.jeometry.common.util.BaseCloseable;
-
+import com.revolsys.collection.value.GlobalBooleanValue;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.swing.map.layer.Layer;
@@ -20,6 +18,7 @@ import com.revolsys.swing.map.layer.LayerGroup;
 import com.revolsys.swing.map.layer.Project;
 import com.revolsys.swing.map.view.graphics.Graphics2DViewRenderer;
 import com.revolsys.swing.parallel.Invoke;
+import com.revolsys.util.BaseCloseable;
 import com.revolsys.util.Property;
 
 public class ComponentViewport2D extends Viewport2D implements PropertyChangeListener {
@@ -99,7 +98,7 @@ public class ComponentViewport2D extends Viewport2D implements PropertyChangeLis
     if (geometryFactory.isHasHorizontalCoordinateSystem()) {
       final BoundingBox areaBoundingBox = geometryFactory.getAreaBoundingBox();
       final BoundingBox boundingBox = getBoundingBox();
-      if (org.jeometry.common.util.Property.hasValue(boundingBox)) {
+      if (com.revolsys.util.Property.hasValue(boundingBox)) {
         final BoundingBox newBoundingBox = boundingBox.bboxToCs(geometryFactory);
         BoundingBox intersection = newBoundingBox.bboxIntersection(areaBoundingBox);
         if (intersection.isEmpty()) {

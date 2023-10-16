@@ -5,14 +5,13 @@ import java.util.List;
 
 import javax.swing.Icon;
 
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.io.MapSerializer;
-import org.jeometry.common.util.BaseCloneable;
-import org.jeometry.common.util.ObjectWithProperties;
-
 import com.revolsys.beans.PropertyChangeSupportProxy;
+import com.revolsys.data.type.DataType;
+import com.revolsys.io.MapSerializer;
 import com.revolsys.swing.component.Form;
 import com.revolsys.swing.map.view.ViewRenderer;
+import com.revolsys.util.BaseCloneable;
+import com.revolsys.util.ObjectWithProperties;
 
 public interface LayerRenderer<T extends Layer> extends ObjectWithProperties,
   PropertyChangeListener, PropertyChangeSupportProxy, MapSerializer, BaseCloneable {

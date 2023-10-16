@@ -8,14 +8,13 @@ import java.lang.ref.WeakReference;
 import org.jdesktop.swingx.decorator.ColorHighlighter;
 import org.jdesktop.swingx.decorator.ComponentAdapter;
 import org.jdesktop.swingx.decorator.HighlightPredicate;
-import org.jeometry.common.awt.WebColors;
-import org.jeometry.common.data.identifier.SingleIdentifier;
-import org.jeometry.common.data.type.DataType;
 
+import com.revolsys.awt.WebColors;
+import com.revolsys.data.identifier.SingleIdentifier;
+import com.revolsys.data.type.DataType;
 import com.revolsys.swing.map.form.LayerRecordForm;
 import com.revolsys.swing.map.layer.record.table.model.LayerRecordTableModel;
 import com.revolsys.swing.table.BaseJTable;
-import com.revolsys.util.Property;
 
 public class FormAllFieldsModifiedPredicate implements HighlightPredicate {
 
@@ -63,7 +62,7 @@ public class FormAllFieldsModifiedPredicate implements HighlightPredicate {
               if (originalValue == null) {
                 if (fieldValue instanceof String) {
                   final String string = (String)fieldValue;
-                  if (!org.jeometry.common.util.Property.hasValue(string)) {
+                  if (!com.revolsys.util.Property.hasValue(string)) {
                     equal = true;
                   }
                 }

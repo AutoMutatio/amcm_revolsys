@@ -7,20 +7,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.jeometry.common.collection.map.MapEx;
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.common.exception.Exceptions;
-import org.jeometry.common.json.JsonObject;
-import org.jeometry.common.number.Numbers;
-import org.jeometry.common.util.BaseCloseable;
-
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.map.MapEx;
+import com.revolsys.data.type.DataType;
+import com.revolsys.data.type.DataTypes;
+import com.revolsys.exception.Exceptions;
 import com.revolsys.io.AbstractRecordWriter;
 import com.revolsys.io.IoConstants;
+import com.revolsys.number.Numbers;
 import com.revolsys.record.Record;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordDefinitionProxy;
+import com.revolsys.util.BaseCloseable;
 
 public class JsonRecordWriter extends AbstractRecordWriter {
 

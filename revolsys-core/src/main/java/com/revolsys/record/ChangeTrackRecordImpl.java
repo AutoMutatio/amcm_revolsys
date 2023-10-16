@@ -1,7 +1,6 @@
 package com.revolsys.record;
 
-import org.jeometry.common.json.JsonObject;
-
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.record.schema.FieldDefinition;
 
 public class ChangeTrackRecordImpl extends BaseRecord implements ChangeTrackRecord {

@@ -7,11 +7,9 @@ import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JTextField;
 
-import org.jeometry.common.awt.WebColors;
-
+import com.revolsys.awt.WebColors;
 import com.revolsys.swing.Icons;
 import com.revolsys.swing.undo.UndoManager;
-import com.revolsys.util.Property;
 
 public interface Field extends Cloneable {
   Color DEFAULT_BACKGROUND = new JTextField().getBackground();
@@ -65,7 +63,7 @@ public interface Field extends Cloneable {
     updateFieldValue();
     final FieldSupport fieldSupport = getFieldSupport();
     final Object fieldValue = getFieldValue();
-    return org.jeometry.common.util.Property.hasValue(fieldValue) && fieldSupport.isFieldValid();
+    return com.revolsys.util.Property.hasValue(fieldValue) && fieldSupport.isFieldValid();
   }
 
   default void setFieldBackgroundColor(Color color) {

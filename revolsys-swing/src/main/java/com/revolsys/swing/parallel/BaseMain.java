@@ -14,13 +14,11 @@ import javax.swing.ToolTipManager;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 
-import org.jeometry.common.logging.Logs;
-
 import com.revolsys.log.LogbackUtil;
+import com.revolsys.logging.Logs;
 import com.revolsys.swing.desktop.DesktopInitializer;
 import com.revolsys.swing.logging.ListLoggingAppender;
 import com.revolsys.swing.logging.LoggingEventPanel;
-import com.revolsys.util.Property;
 import com.revolsys.util.Strings;
 
 import ch.qos.logback.classic.Level;
@@ -93,7 +91,7 @@ public class BaseMain implements UncaughtExceptionHandler {
 
   protected void runDo() throws Throwable {
     boolean lookSet = false;
-    if (org.jeometry.common.util.Property.hasValue(this.lookAndFeelName)) {
+    if (com.revolsys.util.Property.hasValue(this.lookAndFeelName)) {
       final LookAndFeelInfo[] installedLookAndFeels = UIManager.getInstalledLookAndFeels();
       for (final LookAndFeelInfo lookAndFeelInfo : installedLookAndFeels) {
         final String name = lookAndFeelInfo.getName();
@@ -131,7 +129,7 @@ public class BaseMain implements UncaughtExceptionHandler {
   public void uncaughtException(final Thread t, final Throwable e) {
     final Class<? extends BaseMain> logClass = getClass();
     String message = e.getMessage();
-    if (!org.jeometry.common.util.Property.hasValue(message)) {
+    if (!com.revolsys.util.Property.hasValue(message)) {
       if (e instanceof NullPointerException) {
         message = "Null pointer";
       } else {

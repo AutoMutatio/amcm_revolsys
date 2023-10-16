@@ -11,17 +11,15 @@ import java.util.function.Predicate;
 
 import javax.swing.Icon;
 
-import org.jeometry.common.collection.list.Lists;
-import org.jeometry.common.json.JsonObject;
-import org.jeometry.common.logging.Logs;
-
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.list.Lists;
+import com.revolsys.logging.Logs;
 import com.revolsys.swing.map.layer.Layer;
 import com.revolsys.swing.map.layer.MultipleLayerRenderer;
 import com.revolsys.swing.map.layer.record.AbstractRecordLayer;
 import com.revolsys.swing.map.layer.record.LayerRecord;
 import com.revolsys.swing.map.view.ViewRenderer;
 import com.revolsys.swing.menu.MenuFactory;
-import com.revolsys.util.Property;
 
 public abstract class AbstractMultipleRecordLayerRenderer extends AbstractRecordLayerRenderer
   implements MultipleLayerRenderer<AbstractRecordLayer, AbstractRecordLayerRenderer> {
@@ -344,7 +342,7 @@ public abstract class AbstractMultipleRecordLayerRenderer extends AbstractRecord
   }
 
   public void setStyles(final List<?> styles) {
-    if (org.jeometry.common.util.Property.hasValue(styles)) {
+    if (com.revolsys.util.Property.hasValue(styles)) {
       final List<AbstractRecordLayerRenderer> renderers = new ArrayList<>();
       for (final Object childStyle : styles) {
         if (childStyle instanceof AbstractRecordLayerRenderer) {

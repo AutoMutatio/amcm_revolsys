@@ -1,8 +1,7 @@
 package com.revolsys.net.oauth;
 
-import org.jeometry.common.json.JsonObject;
-import org.jeometry.common.json.JsonParser;
-
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.json.JsonParser;
 import com.revolsys.net.http.ApacheHttpException;
 
 public class DeviceCodeResponse {

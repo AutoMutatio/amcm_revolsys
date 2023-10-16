@@ -6,9 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.jeometry.common.collection.list.Lists;
-import org.jeometry.common.json.JsonObject;
-
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.list.Lists;
 import com.revolsys.util.CaseConverter;
 
 public class MarkerGroup extends AbstractMarkerGroupElement {

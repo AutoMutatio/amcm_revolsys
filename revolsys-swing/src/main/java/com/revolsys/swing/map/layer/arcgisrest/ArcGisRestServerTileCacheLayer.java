@@ -5,15 +5,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.exception.Exceptions;
-import org.jeometry.common.exception.WrappedException;
-import org.jeometry.common.io.PathName;
-import org.jeometry.common.json.JsonObject;
-import org.jeometry.common.logging.Logs;
-
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.data.type.DataType;
+import com.revolsys.exception.Exceptions;
+import com.revolsys.exception.WrappedException;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactory;
+import com.revolsys.io.PathName;
+import com.revolsys.logging.Logs;
 import com.revolsys.record.io.format.esri.rest.ArcGisRestCatalog;
 import com.revolsys.record.io.format.esri.rest.map.MapService;
 import com.revolsys.record.io.format.esri.rest.map.TileInfo;
@@ -28,7 +27,6 @@ import com.revolsys.swing.map.view.ViewRenderer;
 import com.revolsys.swing.menu.MenuFactory;
 import com.revolsys.util.CaseConverter;
 import com.revolsys.util.PasswordUtil;
-import com.revolsys.util.Property;
 import com.revolsys.webservice.WebService;
 import com.revolsys.webservice.WebServiceConnectionManager;
 import com.revolsys.webservice.WebServiceResource;
@@ -177,7 +175,7 @@ public class ArcGisRestServerTileCacheLayer
     synchronized (this.initSync) {
       if (this.mapService == null) {
         try {
-          if (org.jeometry.common.util.Property.hasValue(this.connectionName)) {
+          if (com.revolsys.util.Property.hasValue(this.connectionName)) {
             final WebService<?> webService = WebServiceConnectionManager
               .getWebService(this.connectionName);
             if (webService instanceof ArcGisRestCatalog) {
@@ -251,7 +249,7 @@ public class ArcGisRestServerTileCacheLayer
     final ValueField panel = super.newPropertiesTabGeneralPanelSource(parent);
 
     final String url = getUrl();
-    if (org.jeometry.common.util.Property.hasValue(url)) {
+    if (com.revolsys.util.Property.hasValue(url)) {
       SwingUtil.addLabelledReadOnlyTextField(panel, "URL", url);
     }
     if (this.mapService != null) {
@@ -323,7 +321,7 @@ public class ArcGisRestServerTileCacheLayer
   @Override
   public JsonObject toMap() {
     final JsonObject map = super.toMap();
-    if (org.jeometry.common.util.Property.hasValue(this.connectionName)) {
+    if (com.revolsys.util.Property.hasValue(this.connectionName)) {
       addToMap(map, "connectionName", this.connectionName);
       addToMap(map, "servicePath", this.servicePath);
     } else {

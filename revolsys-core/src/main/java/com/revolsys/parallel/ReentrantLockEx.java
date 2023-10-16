@@ -3,9 +3,11 @@ package com.revolsys.parallel;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Supplier;
 
-import org.jeometry.common.util.BaseCloseable;
+import com.revolsys.util.BaseCloseable;
 
 public class ReentrantLockEx extends ReentrantLock {
+
+  private static final long serialVersionUID = 1L;
 
   private final BaseCloseable unlock = this::unlock;
 

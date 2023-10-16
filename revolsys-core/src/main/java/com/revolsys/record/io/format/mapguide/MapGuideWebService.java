@@ -7,13 +7,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-import org.jeometry.common.collection.map.MapEx;
-import org.jeometry.common.collection.map.Maps;
-import org.jeometry.common.io.PathName;
-import org.jeometry.common.json.Json;
-import org.jeometry.common.json.JsonObject;
-import org.jeometry.common.logging.Logs;
-
+import com.revolsys.collection.json.Json;
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.map.MapEx;
+import com.revolsys.collection.map.Maps;
+import com.revolsys.io.PathName;
+import com.revolsys.logging.Logs;
 import com.revolsys.record.io.format.json.JsonIo;
 import com.revolsys.spring.resource.Resource;
 import com.revolsys.spring.resource.UrlResource;
@@ -39,7 +38,7 @@ public class MapGuideWebService extends AbstractWebService<MapGuideResource> {
   public static MapGuideWebService newMapGuideWebService(
     final Map<String, ? extends Object> properties) {
     final String serviceUrl = (String)properties.get("serviceUrl");
-    if (org.jeometry.common.util.Property.hasValue(serviceUrl)) {
+    if (com.revolsys.util.Property.hasValue(serviceUrl)) {
       final MapGuideWebService service = new MapGuideWebService(serviceUrl);
       // service.setProperties(properties);
       return service;

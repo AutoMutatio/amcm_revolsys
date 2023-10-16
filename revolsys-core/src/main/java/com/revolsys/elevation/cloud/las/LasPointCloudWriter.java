@@ -5,16 +5,15 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.function.Consumer;
 
-import org.jeometry.common.collection.map.MapEx;
-import org.jeometry.common.util.BaseCloseable;
-import org.jeometry.common.util.BaseObjectWithProperties;
-
+import com.revolsys.collection.map.MapEx;
 import com.revolsys.elevation.cloud.las.pointformat.LasPoint;
 import com.revolsys.elevation.cloud.las.pointformat.LasPointFormat;
 import com.revolsys.elevation.cloud.las.zip.LasZipHeader;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.io.channels.ChannelWriter;
 import com.revolsys.spring.resource.Resource;
+import com.revolsys.util.BaseCloseable;
+import com.revolsys.util.BaseObjectWithProperties;
 import com.revolsys.util.Pair;
 
 public class LasPointCloudWriter extends BaseObjectWithProperties implements BaseCloseable {

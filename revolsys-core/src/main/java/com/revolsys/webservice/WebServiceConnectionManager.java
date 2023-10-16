@@ -12,7 +12,6 @@ import com.revolsys.connection.AbstractConnectionRegistryManager;
 import com.revolsys.spring.resource.PathResource;
 import com.revolsys.spring.resource.Resource;
 import com.revolsys.util.OS;
-import com.revolsys.util.Property;
 
 public class WebServiceConnectionManager
   extends AbstractConnectionRegistryManager<WebServiceConnectionRegistry, WebServiceConnection> {
@@ -54,7 +53,7 @@ public class WebServiceConnectionManager
       throw new IllegalArgumentException("Missing connection in Web Service config");
     } else {
       final String name = (String)connectionProperties.get("name");
-      if (org.jeometry.common.util.Property.hasValue(name)) {
+      if (com.revolsys.util.Property.hasValue(name)) {
         return (W)getWebService(name);
       } else {
         throw new IllegalArgumentException("Missing name in Web Service connection config");

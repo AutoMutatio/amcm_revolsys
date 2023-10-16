@@ -3,13 +3,11 @@ package com.revolsys.geometry.model.vertex;
 import java.awt.geom.PathIterator;
 import java.util.Iterator;
 
-import org.jeometry.common.math.Angle;
-
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryComponent;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.geometry.model.Point;
-import com.revolsys.util.Property;
+import com.revolsys.math.Angle;
 
 public interface Vertex extends Point, Iterator<Vertex>, Iterable<Vertex>, GeometryComponent {
 
@@ -85,7 +83,7 @@ public interface Vertex extends Point, Iterator<Vertex>, Iterable<Vertex>, Geome
       double angle;
       if (isTo()) {
         final Point point2 = getLinePrevious().convertPoint2d(geometryFactory);
-        if (org.jeometry.common.util.Property.hasValue(point2)) {
+        if (com.revolsys.util.Property.hasValue(point2)) {
           final double x1 = point2.getX();
           final double y1 = point2.getY();
           angle = Angle.angleDegrees(x1, y1, x, y);
@@ -94,7 +92,7 @@ public interface Vertex extends Point, Iterator<Vertex>, Iterable<Vertex>, Geome
         }
       } else {
         final Point point2 = getLineNext().convertPoint2d(geometryFactory);
-        if (org.jeometry.common.util.Property.hasValue(point2)) {
+        if (com.revolsys.util.Property.hasValue(point2)) {
           final double x1 = point2.getX();
           final double y1 = point2.getY();
           angle = Angle.angleDegrees(x, y, x1, y1);

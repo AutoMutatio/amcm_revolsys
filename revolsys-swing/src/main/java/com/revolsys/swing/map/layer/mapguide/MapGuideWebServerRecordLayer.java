@@ -5,12 +5,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
-import org.jeometry.common.io.PathName;
-import org.jeometry.common.json.JsonObject;
-import org.jeometry.common.logging.Logs;
-
 import com.revolsys.beans.Classes;
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.geometry.model.BoundingBox;
+import com.revolsys.io.PathName;
+import com.revolsys.logging.Logs;
 import com.revolsys.record.Record;
 import com.revolsys.record.RecordFactory;
 import com.revolsys.record.io.RecordReader;
@@ -22,7 +21,6 @@ import com.revolsys.spring.resource.UrlResource;
 import com.revolsys.swing.map.layer.record.AbstractRecordLayer;
 import com.revolsys.swing.map.layer.record.LayerRecord;
 import com.revolsys.util.PasswordUtil;
-import com.revolsys.util.Property;
 
 public class MapGuideWebServerRecordLayer extends AbstractRecordLayer {
   private static final String J_TYPE = "mapGuideWebServerRecordLayer";
@@ -83,7 +81,7 @@ public class MapGuideWebServerRecordLayer extends AbstractRecordLayer {
   public List<LayerRecord> getRecords(BoundingBox boundingBox) {
     if (hasGeometryField()) {
       boundingBox = convertBoundingBox(boundingBox);
-      if (org.jeometry.common.util.Property.hasValue(boundingBox)) {
+      if (com.revolsys.util.Property.hasValue(boundingBox)) {
         final List<LayerRecord> records = this.webServiceLayer.getRecords(this::newLayerRecord,
           boundingBox);
         return records;

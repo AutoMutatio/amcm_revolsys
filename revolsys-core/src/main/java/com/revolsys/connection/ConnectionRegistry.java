@@ -4,11 +4,10 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 
-import org.jeometry.common.collection.map.MapEx;
-
 import com.revolsys.beans.PropertyChangeSupportProxy;
 import com.revolsys.collection.NameProxy;
 import com.revolsys.collection.Parent;
+import com.revolsys.collection.map.MapEx;
 
 public interface ConnectionRegistry<C extends Connection>
   extends PropertyChangeSupportProxy, Parent<C>, NameProxy {

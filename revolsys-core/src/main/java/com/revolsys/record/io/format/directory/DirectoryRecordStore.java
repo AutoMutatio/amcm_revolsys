@@ -11,11 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.jeometry.common.io.PathName;
-import org.jeometry.common.util.BaseCloseable;
-import org.jeometry.common.util.ObjectWithProperties;
-
 import com.revolsys.io.FileUtil;
+import com.revolsys.io.PathName;
 import com.revolsys.io.PathUtil;
 import com.revolsys.io.filter.ExtensionFilenameFilter;
 import com.revolsys.record.Record;
@@ -32,6 +29,8 @@ import com.revolsys.record.schema.RecordStoreSchema;
 import com.revolsys.record.schema.RecordStoreSchemaElement;
 import com.revolsys.spring.resource.PathResource;
 import com.revolsys.spring.resource.Resource;
+import com.revolsys.util.BaseCloseable;
+import com.revolsys.util.ObjectWithProperties;
 
 public class DirectoryRecordStore extends AbstractRecordStore {
 

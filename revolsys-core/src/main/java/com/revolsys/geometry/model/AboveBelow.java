@@ -2,7 +2,7 @@ package com.revolsys.geometry.model;
 
 import java.util.List;
 
-import org.jeometry.common.collection.list.Lists;
+import com.revolsys.collection.list.Lists;
 
 public enum AboveBelow {
   ABOVE("Above"), BELOW("Below"), ON("On");
@@ -31,11 +31,11 @@ public enum AboveBelow {
     }
   }
 
-  private char letter;
+  private final char letter;
 
-  private String name;
+  private final String name;
 
-  private String upperName;
+  private final String upperName;
 
   private AboveBelow(final String name) {
     this.name = name;

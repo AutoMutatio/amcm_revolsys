@@ -10,17 +10,16 @@ import java.util.Map;
 
 import javax.swing.Icon;
 
-import org.jeometry.common.logging.Logs;
-import org.jeometry.common.util.Cancellable;
-
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactory;
+import com.revolsys.logging.Logs;
 import com.revolsys.swing.map.layer.AbstractLayerRenderer;
 import com.revolsys.swing.map.layer.Layer;
 import com.revolsys.swing.map.view.ViewRenderer;
 import com.revolsys.swing.parallel.RunnableSwingWorkerManager;
 import com.revolsys.util.AbstractMapTile;
 import com.revolsys.util.BooleanCancellable;
+import com.revolsys.util.Cancellable;
 import com.revolsys.util.Property;
 
 public abstract class AbstractTiledLayerRenderer<D, T extends AbstractMapTile<D>>

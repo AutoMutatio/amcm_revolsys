@@ -4,16 +4,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.jeometry.common.data.identifier.Identifier;
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.common.io.PathName;
-
 import com.revolsys.collection.CollectionUtil;
+import com.revolsys.data.identifier.Identifier;
+import com.revolsys.data.type.DataType;
+import com.revolsys.data.type.DataTypes;
 import com.revolsys.geometry.model.GeometryDataTypes;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.geometry.model.Lineal;
 import com.revolsys.geometry.model.Punctual;
+import com.revolsys.io.PathName;
 import com.revolsys.io.PathUtil;
 import com.revolsys.record.ArrayRecord;
 import com.revolsys.record.Record;
@@ -28,7 +27,6 @@ import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordDefinitionImpl;
 import com.revolsys.util.Booleans;
-import com.revolsys.util.Property;
 
 public class EsriXmlRecordDefinitionUtil implements EsriGeodatabaseXmlConstants {
   private static final String DE_TABLE_PROPERTY = EsriXmlRecordDefinitionUtil.class + ".DETable";
@@ -361,7 +359,7 @@ public class EsriXmlRecordDefinitionUtil implements EsriGeodatabaseXmlConstants 
           .getProperty(recordDefinition);
         String lengthFieldName = lengthFieldNameProperty.getFieldName();
         if (createLengthField) {
-          if (!org.jeometry.common.util.Property.hasValue(lengthFieldName)) {
+          if (!com.revolsys.util.Property.hasValue(lengthFieldName)) {
             lengthFieldName = geometryFieldName + "_Length";
             lengthFieldNameProperty.setFieldName(lengthFieldName);
           }
@@ -375,7 +373,7 @@ public class EsriXmlRecordDefinitionUtil implements EsriGeodatabaseXmlConstants 
           final AreaFieldName areaFieldNameProperty = AreaFieldName.getProperty(recordDefinition);
           String areaFieldName = areaFieldNameProperty.getFieldName();
           if (createAreaField) {
-            if (!org.jeometry.common.util.Property.hasValue(areaFieldName)) {
+            if (!com.revolsys.util.Property.hasValue(areaFieldName)) {
               areaFieldName = geometryFieldName + "_Area";
               areaFieldNameProperty.setFieldName(areaFieldName);
             }
@@ -393,7 +391,7 @@ public class EsriXmlRecordDefinitionUtil implements EsriGeodatabaseXmlConstants 
 
     String oidFieldName = recordDefinition
       .getProperty(EsriGeodatabaseXmlConstants.ESRI_OBJECT_ID_FIELD_NAME);
-    if (!org.jeometry.common.util.Property.hasValue(oidFieldName)) {
+    if (!com.revolsys.util.Property.hasValue(oidFieldName)) {
       oidFieldName = "OBJECTID";
     }
     final String catalogPath;

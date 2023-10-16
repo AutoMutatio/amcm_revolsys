@@ -34,8 +34,7 @@ package com.revolsys.core.test.geometry.test.old.algorithm;
 
 import java.util.List;
 
-import org.jeometry.common.collection.iterator.Reader;
-
+import com.revolsys.collection.iterator.Reader;
 import com.revolsys.geometry.io.GeometryReader;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.Point;

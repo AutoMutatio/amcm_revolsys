@@ -9,8 +9,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import com.revolsys.util.Property;
-
 public interface XmlUtil {
 
   static void forEachElement(final Element parentElement, final Consumer<Element> action) {
@@ -50,7 +48,7 @@ public interface XmlUtil {
   static double getAttributeDouble(final Element element, final String attributeName,
     final double defaultValue) {
     final String text = element.getAttribute(attributeName);
-    if (org.jeometry.common.util.Property.isEmpty(text)) {
+    if (com.revolsys.util.Property.isEmpty(text)) {
       return defaultValue;
     } else {
       return Double.parseDouble(text);
@@ -60,7 +58,7 @@ public interface XmlUtil {
   static int getAttributeInt(final Element element, final String attributeName,
     final int defaultValue) {
     final String text = element.getAttribute(attributeName);
-    if (org.jeometry.common.util.Property.isEmpty(text)) {
+    if (com.revolsys.util.Property.isEmpty(text)) {
       return defaultValue;
     } else {
       return Integer.parseInt(text);

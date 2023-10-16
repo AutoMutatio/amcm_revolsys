@@ -2,7 +2,7 @@ package com.revolsys.net.oauth;
 
 import java.time.Instant;
 
-import org.jeometry.common.json.JsonObject;
+import com.revolsys.collection.json.JsonObject;
 
 public class BearerToken {
 

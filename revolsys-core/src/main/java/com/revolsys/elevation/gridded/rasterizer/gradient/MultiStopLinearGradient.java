@@ -8,12 +8,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.jeometry.common.io.MapSerializer;
-import org.jeometry.common.json.JsonObject;
-import org.jeometry.common.logging.Logs;
-import org.jeometry.common.util.BaseObjectWithProperties;
-
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.io.MapSerializer;
+import com.revolsys.logging.Logs;
 import com.revolsys.spring.resource.Resource;
+import com.revolsys.util.BaseObjectWithProperties;
 
 // http://soliton.vm.bytemark.co.uk/pub/cpt-city/
 public class MultiStopLinearGradient extends BaseObjectWithProperties

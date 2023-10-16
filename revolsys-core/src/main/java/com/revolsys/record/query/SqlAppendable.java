@@ -2,8 +2,7 @@ package com.revolsys.record.query;
 
 import java.io.IOException;
 
-import org.jeometry.common.exception.Exceptions;
-
+import com.revolsys.exception.Exceptions;
 import com.revolsys.jdbc.io.AbstractJdbcRecordStore;
 import com.revolsys.record.schema.RecordStore;
 

@@ -6,9 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jeometry.common.collection.map.MapEx;
-import org.jeometry.common.json.Json;
-
+import com.revolsys.collection.json.Json;
+import com.revolsys.collection.map.MapEx;
 import com.revolsys.spring.resource.Resource;
 
 public class GradientLibrary {

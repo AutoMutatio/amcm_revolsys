@@ -10,18 +10,16 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
-import org.jeometry.common.collection.map.MapEx;
-import org.jeometry.common.collection.map.Maps;
-import org.jeometry.common.json.Json;
-import org.jeometry.common.logging.Logs;
-
 import com.revolsys.beans.PropertyChangeSupport;
 import com.revolsys.beans.PropertyChangeSupportProxy;
+import com.revolsys.collection.json.Json;
+import com.revolsys.collection.map.MapEx;
+import com.revolsys.collection.map.Maps;
 import com.revolsys.io.FileUtil;
 import com.revolsys.io.file.Paths;
+import com.revolsys.logging.Logs;
 import com.revolsys.spring.resource.PathResource;
 import com.revolsys.spring.resource.Resource;
-import com.revolsys.util.Property;
 
 public abstract class AbstractConnectionRegistry<C extends Connection>
   implements ConnectionRegistry<C>, PropertyChangeListener, PropertyChangeSupportProxy {
@@ -90,7 +88,7 @@ public abstract class AbstractConnectionRegistry<C extends Connection>
 
   @Override
   public C getConnection(final String connectionName) {
-    if (org.jeometry.common.util.Property.hasValue(connectionName)) {
+    if (com.revolsys.util.Property.hasValue(connectionName)) {
       return this.connections.get(connectionName.toLowerCase());
     } else {
       return null;
@@ -110,7 +108,7 @@ public abstract class AbstractConnectionRegistry<C extends Connection>
   }
 
   protected Path getConnectionFile(final String name) {
-    if (org.jeometry.common.util.Property.hasValue(name)) {
+    if (com.revolsys.util.Property.hasValue(name)) {
       if (!Paths.exists(this.directory)) {
         if (isReadOnly()) {
           return null;
@@ -154,7 +152,7 @@ public abstract class AbstractConnectionRegistry<C extends Connection>
   protected String getConnectionName(final MapEx config, final Path connectionFile,
     final boolean requireUniqueNames) {
     String name = config.getString("name");
-    if (connectionFile != null && !org.jeometry.common.util.Property.hasValue(name)) {
+    if (connectionFile != null && !com.revolsys.util.Property.hasValue(name)) {
       name = Paths.getBaseName(connectionFile);
     }
     if (requireUniqueNames) {
@@ -331,7 +329,7 @@ public abstract class AbstractConnectionRegistry<C extends Connection>
     for (final Connection connection : this.connections.values()) {
       final Path connectionFile = getConnectionFile(connection, useOriginalFile);
       final String name = connection.getName();
-      if (org.jeometry.common.util.Property.hasValue(name)) {
+      if (com.revolsys.util.Property.hasValue(name)) {
         connection.writeToFile(connectionFile);
       } else {
         throw new IllegalArgumentException("Connection must have a name");

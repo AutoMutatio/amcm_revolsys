@@ -6,20 +6,18 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.jeometry.common.collection.map.MapEx;
-import org.jeometry.common.exception.Exceptions;
-import org.jeometry.common.exception.WrappedException;
-import org.jeometry.common.json.Json;
-import org.jeometry.common.logging.Logs;
-import org.jeometry.common.util.BaseCloseable;
-import org.jeometry.common.util.ObjectWithProperties;
-
+import com.revolsys.collection.json.Json;
+import com.revolsys.collection.map.MapEx;
+import com.revolsys.exception.Exceptions;
+import com.revolsys.exception.WrappedException;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactory;
+import com.revolsys.logging.Logs;
 import com.revolsys.net.urlcache.FileResponseCache;
 import com.revolsys.spring.resource.Resource;
 import com.revolsys.spring.resource.UrlResource;
-import com.revolsys.util.Property;
+import com.revolsys.util.BaseCloseable;
+import com.revolsys.util.ObjectWithProperties;
 import com.revolsys.util.UrlUtil;
 import com.revolsys.webservice.AbstractWebService;
 import com.revolsys.webservice.WebService;
@@ -54,7 +52,7 @@ public abstract class ArcGisResponse<V> extends AbstractWebService<V> implements
         srid = spatialReference.getInteger("wkid");
         if (srid == null) {
           final String wkt = spatialReference.getString("wkt");
-          if (org.jeometry.common.util.Property.hasValue(wkt)) {
+          if (com.revolsys.util.Property.hasValue(wkt)) {
             return GeometryFactory.floating3d(wkt);
           } else {
             return GeometryFactory.DEFAULT_3D;
@@ -148,7 +146,7 @@ public abstract class ArcGisResponse<V> extends AbstractWebService<V> implements
   @Override
   public synchronized MapEx getProperties() {
     final MapEx properties = super.getProperties();
-    if (org.jeometry.common.util.Property.isEmpty(properties)) {
+    if (com.revolsys.util.Property.isEmpty(properties)) {
       properties.put("initializing", true);
 
       properties.put("initializing", false);

@@ -7,16 +7,14 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.BiConsumer;
 
-import org.jeometry.common.collection.map.MapEx;
-import org.jeometry.common.collection.map.Maps;
-import org.jeometry.common.json.Json;
-import org.jeometry.common.json.JsonObject;
-import org.jeometry.common.logging.Logs;
-import org.jeometry.common.util.ObjectWithProperties;
-
+import com.revolsys.collection.json.Json;
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.map.MapEx;
+import com.revolsys.collection.map.Maps;
+import com.revolsys.logging.Logs;
 import com.revolsys.spring.resource.Resource;
 import com.revolsys.util.JavaBeanUtil;
-import com.revolsys.util.Property;
+import com.revolsys.util.ObjectWithProperties;
 
 public interface MapObjectFactory {
   static String TYPE = "j:type";
@@ -66,7 +64,7 @@ public interface MapObjectFactory {
   }
 
   static void setType(final Map<String, ? super Object> map, final String type) {
-    if (org.jeometry.common.util.Property.hasValue(type)) {
+    if (com.revolsys.util.Property.hasValue(type)) {
       map.put(TYPE, type);
     }
   }
@@ -86,7 +84,7 @@ public interface MapObjectFactory {
       }
       final String typeClass = getTypeClass(objectMap);
       final V object;
-      if (org.jeometry.common.util.Property.hasValue(typeClass)) {
+      if (com.revolsys.util.Property.hasValue(typeClass)) {
         final Constructor<V> configConstructor = JavaBeanUtil.getConstructor(typeClass, Map.class);
         if (configConstructor == null) {
           object = (V)JavaBeanUtil.createInstance(typeClass);

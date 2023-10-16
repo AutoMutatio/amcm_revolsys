@@ -46,23 +46,20 @@ import javax.measure.Unit;
 import javax.measure.quantity.Area;
 import javax.measure.quantity.Length;
 
-import org.jeometry.common.data.type.DataTypeProxy;
-import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.common.function.BiConsumerDouble;
-import org.jeometry.common.function.BiFunctionDouble;
-import org.jeometry.common.function.Consumer3Double;
-import org.jeometry.common.function.Consumer4Double;
-import org.jeometry.common.function.Function4Double;
-import org.jeometry.common.number.Doubles;
-import org.jeometry.common.util.Emptyable;
-import org.jeometry.coordinatesystem.operation.CoordinatesOperation;
-import org.jeometry.coordinatesystem.operation.CoordinatesOperationPoint;
-
+import com.revolsys.data.type.DataTypeProxy;
+import com.revolsys.data.type.DataTypes;
+import com.revolsys.function.BiConsumerDouble;
+import com.revolsys.function.BiFunctionDouble;
+import com.revolsys.function.Consumer3Double;
+import com.revolsys.function.Consumer4Double;
+import com.revolsys.function.Function4Double;
 import com.revolsys.geometry.algorithm.Centroid;
 import com.revolsys.geometry.algorithm.ConvexHull;
 import com.revolsys.geometry.algorithm.InteriorPointArea;
 import com.revolsys.geometry.algorithm.InteriorPointLine;
 import com.revolsys.geometry.algorithm.PointLocator;
+import com.revolsys.geometry.coordinatesystem.operation.CoordinatesOperation;
+import com.revolsys.geometry.coordinatesystem.operation.CoordinatesOperationPoint;
 import com.revolsys.geometry.graph.linemerge.LineMerger;
 import com.revolsys.geometry.model.editor.AbstractGeometryEditor;
 import com.revolsys.geometry.model.editor.BoundingBoxEditor;
@@ -80,9 +77,10 @@ import com.revolsys.geometry.operation.relate.RelateOp;
 import com.revolsys.geometry.operation.union.UnaryUnionOp;
 import com.revolsys.geometry.operation.valid.GeometryValidationError;
 import com.revolsys.geometry.operation.valid.IsValidOp;
+import com.revolsys.number.Doubles;
 import com.revolsys.record.io.format.wkt.EWktWriter;
+import com.revolsys.util.Emptyable;
 import com.revolsys.util.Pair;
-import com.revolsys.util.Property;
 
 /**
  * A representation of a planar, linear vector geometry.
@@ -981,7 +979,7 @@ public interface Geometry extends BoundingBoxProxy, Cloneable, Comparable<Object
   default double distanceGeometry(Geometry geometry, final double terminateDistance) {
     if (isEmpty()) {
       return Double.POSITIVE_INFINITY;
-    } else if (org.jeometry.common.util.Property.isEmpty(geometry)) {
+    } else if (com.revolsys.util.Property.isEmpty(geometry)) {
       return Double.POSITIVE_INFINITY;
     } else if (geometry instanceof Point) {
       final Point point = (Point)geometry;
@@ -1047,7 +1045,7 @@ public interface Geometry extends BoundingBoxProxy, Cloneable, Comparable<Object
   default double distancePoint(Point point, final double terminateDistance) {
     if (isEmpty()) {
       return Double.POSITIVE_INFINITY;
-    } else if (org.jeometry.common.util.Property.isEmpty(point)) {
+    } else if (com.revolsys.util.Property.isEmpty(point)) {
       return Double.POSITIVE_INFINITY;
     } else {
       final GeometryFactory geometryFactory = getGeometryFactory();

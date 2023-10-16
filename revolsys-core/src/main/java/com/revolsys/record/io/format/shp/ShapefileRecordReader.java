@@ -4,22 +4,20 @@ import java.io.File;
 import java.io.IOException;
 import java.util.NoSuchElementException;
 
-import org.jeometry.common.collection.iterator.AbstractIterator;
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.io.PathName;
-import org.jeometry.common.logging.Logs;
-import org.jeometry.common.util.BaseCloseable;
-
+import com.revolsys.collection.iterator.AbstractIterator;
+import com.revolsys.data.type.DataType;
 import com.revolsys.geometry.model.ClockDirection;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryDataTypes;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.io.EndOfFileException;
 import com.revolsys.io.IoConstants;
+import com.revolsys.io.PathName;
 import com.revolsys.io.endian.EndianInput;
 import com.revolsys.io.endian.EndianInputStream;
 import com.revolsys.io.endian.EndianMappedByteBuffer;
 import com.revolsys.io.endian.LittleEndianRandomAccessFile;
+import com.revolsys.logging.Logs;
 import com.revolsys.record.Record;
 import com.revolsys.record.RecordFactory;
 import com.revolsys.record.Records;
@@ -28,7 +26,7 @@ import com.revolsys.record.io.format.xbase.XbaseRecordReader;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordDefinitionImpl;
 import com.revolsys.spring.resource.Resource;
-import com.revolsys.util.Property;
+import com.revolsys.util.BaseCloseable;
 
 public class ShapefileRecordReader extends AbstractIterator<Record> implements RecordReader {
   private boolean closeFile = true;
@@ -333,7 +331,7 @@ public class ShapefileRecordReader extends AbstractIterator<Record> implements R
   }
 
   public void setTypeName(final PathName typeName) {
-    if (org.jeometry.common.util.Property.hasValue(typeName)) {
+    if (com.revolsys.util.Property.hasValue(typeName)) {
       this.typeName = typeName;
     }
   }

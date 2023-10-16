@@ -1,6 +1,6 @@
 package com.revolsys.io;
 
-import org.jeometry.common.collection.map.MapEx;
+import com.revolsys.collection.map.MapEx;
 
 public class DelegatingWriter<T> extends AbstractWriter<T> {
   private Writer<T> writer;

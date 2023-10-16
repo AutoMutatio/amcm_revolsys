@@ -2,10 +2,9 @@ package com.revolsys.connection;
 
 import java.nio.file.Path;
 
-import org.jeometry.common.collection.map.MapEx;
-import org.jeometry.common.io.MapSerializer;
-
 import com.revolsys.collection.NameProxy;
+import com.revolsys.collection.map.MapEx;
+import com.revolsys.io.MapSerializer;
 import com.revolsys.util.IconNameProxy;
 
 public interface Connection extends MapSerializer, NameProxy, IconNameProxy {

@@ -3,8 +3,7 @@ package com.revolsys.swing.map.form;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 
-import org.jeometry.common.data.type.DataType;
-
+import com.revolsys.data.type.DataType;
 import com.revolsys.swing.action.enablecheck.AbstractEnableCheck;
 import com.revolsys.swing.map.layer.record.LayerRecord;
 import com.revolsys.util.Property;
@@ -48,7 +47,7 @@ public class LayerFormRecordPropertyEnableCheck extends AbstractEnableCheck {
   @Override
   public boolean isEnabled() {
     final LayerRecord record = getRecord();
-    final Object value = org.jeometry.common.util.Property.getSimple(record, this.propertyName);
+    final Object value = com.revolsys.util.Property.getSimple(record, this.propertyName);
     final boolean equal = DataType.equal(value, this.value);
     if (equal == !this.inverse) {
       return enabled();

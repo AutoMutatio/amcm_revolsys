@@ -32,7 +32,7 @@ public class MapScale extends JLabel implements PropertyChangeListener {
         return "Unknown";
       } else {
         final String string = scale.toString();
-        if (org.jeometry.common.util.Property.hasValue(string)) {
+        if (com.revolsys.util.Property.hasValue(string)) {
           return string;
         } else {
           return "Unknown";
