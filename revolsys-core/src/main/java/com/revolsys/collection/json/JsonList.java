@@ -18,8 +18,6 @@ import com.revolsys.data.type.DataType;
 import com.revolsys.exception.Exceptions;
 import com.revolsys.util.Property;
 
-import reactor.core.publisher.Flux;
-
 public interface JsonList extends ListEx<Object>, JsonType {
 
   JsonList EMPTY = new JsonList() {
@@ -251,13 +249,6 @@ public interface JsonList extends ListEx<Object>, JsonType {
       }
     }
     return true;
-  }
-
-  @SuppressWarnings({
-    "unchecked", "rawtypes"
-  })
-  default <T> Flux<T> flux() {
-    return (Flux)Flux.fromIterable(this);
   }
 
   default <T> void forEachType(final Consumer<T> action) {
