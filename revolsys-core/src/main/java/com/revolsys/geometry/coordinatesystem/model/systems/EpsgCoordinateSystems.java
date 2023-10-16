@@ -1034,7 +1034,7 @@ public final class EpsgCoordinateSystems {
   }
 
   private static DataInputStream newDataInputStream(final String fileName) {
-    final String name = "/org/jeometry/coordinatesystem/epsg/" + fileName + ".bin";
+    final String name = "/com/revolsys/geometry/coordinatesystem/epsg/" + fileName + ".bin";
     final InputStream in = EpsgCoordinateSystems.class.getResourceAsStream(name);
     if (in == null) {
       Logs.error(EsriCoordinateSystems.class, "Missing resource: " + name);

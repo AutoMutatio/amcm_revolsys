@@ -40,7 +40,7 @@ public class EsriCoordinateSystemsLoader {
       RecordReader reader = RecordReader
         .newRecordReader(this.mainPath + "data/esri/esriGeographicCs.tsv");
       final ChannelWriter writer = ChannelWriter.newChannelWriter(
-        this.mainPath + "resources/org/jeometry/coordinatesystem/esri/Geographic.cs")) {
+        this.mainPath + "resources/com/revolsys/geometry/coordinatesystem/esri/Geographic.cs")) {
 
       for (final Record record : reader) {
         final int id = record.getInteger("ID");

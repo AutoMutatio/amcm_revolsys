@@ -50,7 +50,7 @@ public final class EpsgCoordinateSystemsLoader {
   }
 
   private final Resource baseResource = new PathResource(
-    "../revolsys-core/src/main/resources/org/jeometry/coordinatesystem/epsg");
+    "../revolsys-core/src/main/resources/com/revolsys/geometry/coordinatesystem/epsg");
 
   private final RecordStore recordStore;
 

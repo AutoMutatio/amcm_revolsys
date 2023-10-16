@@ -36,9 +36,6 @@ Point bcAlbersPoint = bcAlbers.point(120000, 500000);
 Point utmPoint = bcAlbersPoint.convertGeometry(bcAlbersPoint);
 ```
 
-Eventually the geometry code should be moved to the `jeometry` library. The `jeometry` and `revolsys`
-libraries are developed together.
- 
 # Unstructured Data
 
 The Revolsys libraries use the [JSON](https://www.json.org/json-en.html) encoded files for configuration.

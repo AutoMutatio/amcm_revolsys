@@ -303,7 +303,7 @@ public class EsriCoordinateSystems {
   }
 
   private static DataInputStream newDataInputStream(final String fileName) {
-    final String name = "/org/jeometry/coordinatesystem/esri/" + fileName;
+    final String name = "/com/revolsys/geometry/coordinatesystem/esri/" + fileName;
     final InputStream in = EpsgCoordinateSystems.class.getResourceAsStream(name);
     if (in == null) {
       Logs.error(EsriCoordinateSystems.class, "Missing resource: " + name);
