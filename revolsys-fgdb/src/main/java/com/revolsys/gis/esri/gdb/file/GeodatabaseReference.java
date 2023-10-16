@@ -5,10 +5,10 @@ import com.revolsys.esri.filegdb.jni.EsriFileGdb;
 import com.revolsys.esri.filegdb.jni.Geodatabase;
 import com.revolsys.esri.filegdb.jni.Table;
 import com.revolsys.esri.filegdb.jni.VectorOfWString;
-import com.revolsys.io.BaseCloseable;
 import com.revolsys.logging.Logs;
 import com.revolsys.record.io.format.esri.gdb.xml.model.Domain;
 import com.revolsys.record.io.format.esri.gdb.xml.model.EsriGdbXmlSerializer;
+import com.revolsys.util.BaseCloseable;
 
 public class GeodatabaseReference {
 

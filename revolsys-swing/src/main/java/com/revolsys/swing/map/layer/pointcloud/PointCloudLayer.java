@@ -13,6 +13,7 @@ import javax.swing.ScrollPaneConstants;
 import org.jdesktop.swingx.VerticalLayout;
 
 import com.revolsys.collection.SimpleValueHolder;
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.elevation.cloud.PointCloud;
 import com.revolsys.elevation.cloud.PointCloudReadFactory;
 import com.revolsys.elevation.cloud.las.LasPointCloudWriterFactory;
@@ -22,7 +23,6 @@ import com.revolsys.io.FileUtil;
 import com.revolsys.io.file.Paths;
 import com.revolsys.io.map.MapObjectFactoryRegistry;
 import com.revolsys.logging.Logs;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.spring.resource.Resource;
 import com.revolsys.swing.Borders;
 import com.revolsys.swing.RsSwingServiceInitializer;

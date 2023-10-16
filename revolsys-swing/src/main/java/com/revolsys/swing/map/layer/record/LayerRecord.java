@@ -10,12 +10,12 @@ import javax.swing.undo.UndoableEdit;
 
 import com.revolsys.data.identifier.Identifier;
 import com.revolsys.data.type.DataType;
-import com.revolsys.io.BaseCloseable;
 import com.revolsys.record.Record;
 import com.revolsys.record.RecordState;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.swing.undo.DeleteLayerRecordUndo;
+import com.revolsys.util.BaseCloseable;
 import com.revolsys.util.Property;
 
 public interface LayerRecord extends Record {

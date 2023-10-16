@@ -15,11 +15,11 @@ import java.util.function.Predicate;
 import javax.swing.SwingWorker;
 
 import com.revolsys.collection.iterator.Iterators;
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.data.identifier.Identifier;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.Geometry;
-import com.revolsys.io.BaseCloseable;
 import com.revolsys.io.PathName;
 import com.revolsys.io.Writer;
 import com.revolsys.logging.Logs;
@@ -31,7 +31,6 @@ import com.revolsys.record.Records;
 import com.revolsys.record.code.CodeTable;
 import com.revolsys.record.io.RecordReader;
 import com.revolsys.record.io.RecordStoreConnectionManager;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.record.query.Condition;
 import com.revolsys.record.query.In;
 import com.revolsys.record.query.OrderBy;
@@ -51,6 +50,7 @@ import com.revolsys.swing.map.layer.record.table.model.RecordLayerErrors;
 import com.revolsys.swing.parallel.Invoke;
 import com.revolsys.transaction.Propagation;
 import com.revolsys.transaction.Transaction;
+import com.revolsys.util.BaseCloseable;
 import com.revolsys.util.Property;
 import com.revolsys.util.count.LabelCountMap;
 

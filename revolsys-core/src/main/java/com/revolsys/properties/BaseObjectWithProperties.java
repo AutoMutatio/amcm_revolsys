@@ -2,10 +2,10 @@ package com.revolsys.properties;
 
 import jakarta.annotation.PreDestroy;
 
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.collection.map.Maps;
 import com.revolsys.exception.Exceptions;
-import com.revolsys.record.io.format.json.JsonObject;
 
 public class BaseObjectWithProperties implements ObjectWithProperties {
   private MapEx properties = JsonObject.hash();

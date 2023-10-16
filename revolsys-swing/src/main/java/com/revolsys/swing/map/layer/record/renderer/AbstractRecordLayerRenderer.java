@@ -6,6 +6,7 @@ import java.util.function.Predicate;
 
 import javax.swing.Icon;
 
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.list.Lists;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.geometry.model.BoundingBox;
@@ -15,7 +16,6 @@ import com.revolsys.io.map.MapObjectFactory;
 import com.revolsys.logging.Logs;
 import com.revolsys.predicate.Predicates;
 import com.revolsys.record.filter.MultipleAttributeValuesFilter;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordDefinitionProxy;
 import com.revolsys.swing.map.layer.AbstractLayer;

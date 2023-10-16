@@ -11,9 +11,9 @@ import java.util.function.Predicate;
 
 import javax.swing.Icon;
 
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.list.Lists;
 import com.revolsys.logging.Logs;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.swing.map.layer.Layer;
 import com.revolsys.swing.map.layer.MultipleLayerRenderer;
 import com.revolsys.swing.map.layer.record.AbstractRecordLayer;

@@ -22,14 +22,12 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.map.MapEx;
 import com.revolsys.properties.ObjectWithProperties;
+import com.revolsys.util.BaseCloseable;
 import com.revolsys.util.Cancellable;
-import com.revolsys.util.ExitLoopException;
-
-import reactor.core.publisher.Flux;
 
 /**
  * <p>
@@ -53,7 +51,7 @@ import reactor.core.publisher.Flux;
  * @param <T> The type of the item to read.
  */
 public interface Reader<T>
-  extends Iterable<T>, ObjectWithProperties, BaseCloseable, Cancellable, BaseIterable<T> {
+  extends BaseIterable<T>, ObjectWithProperties, BaseCloseable, Cancellable {
   Reader<?> EMPTY = wrap(Collections.emptyIterator());
 
   @SuppressWarnings("unchecked")
@@ -73,17 +71,13 @@ public interface Reader<T>
   }
 
   @Override
-  default BaseIterable<T> filter(final Predicate<? super T> filter) {
+  default Reader<T> filter(final Predicate<? super T> filter) {
     final Iterator<T> iterator = iterator();
     return new FilterIterator<>(filter, iterator);
   }
 
-  default <O> BaseIterable<O> filter(final Predicate<T> filter, final Function<T, O> converter) {
+  default <O> Reader<O> filter(final Predicate<T> filter, final Function<T, O> converter) {
     return filter(filter).map(converter);
-  }
-
-  default Flux<T> flux() {
-    return Flux.fromIterable(this);
   }
 
   default void forEach(final BiConsumer<Cancellable, ? super T> action) {
@@ -91,76 +85,8 @@ public interface Reader<T>
   }
 
   @Override
-  default void forEach(final Cancellable cancellable,
-    final BiConsumer<Cancellable, ? super T> action) {
-    try (
-      Reader<?> reader = this) {
-      if (iterator() != null) {
-        try {
-          for (final T item : this) {
-            if (cancellable.isCancelled()) {
-              return;
-            } else {
-              action.accept(cancellable, item);
-            }
-          }
-        } catch (final ExitLoopException e) {
-        }
-      }
-    }
-  }
-
-  @Override
-  default void forEach(final Cancellable cancellable, final Consumer<? super T> action) {
-    try (
-      Reader<?> reader = this) {
-      if (iterator() != null) {
-        try {
-          for (final T item : this) {
-            if (cancellable.isCancelled()) {
-              return;
-            } else {
-              action.accept(item);
-            }
-          }
-        } catch (final ExitLoopException e) {
-        }
-      }
-    }
-  }
-
-  /**
-   * Visit each item returned from the reader until all items have been visited
-   * or the visit method returns false.
-   *
-   * @param visitor The visitor.
-   */
-  @Override
-  default void forEach(final Consumer<? super T> action) {
-    try (
-      Reader<?> reader = this) {
-      if (iterator() != null) {
-        try {
-          for (final T item : this) {
-            action.accept(item);
-          }
-        } catch (final ExitLoopException e) {
-        }
-      }
-    }
-  }
-
-  @Override
-  @SuppressWarnings("unchecked")
-  default T getFirst() {
-    try (
-      Reader<?> reader = this) {
-      final Iterator<T> iterator = iterator();
-      if (iterator.hasNext()) {
-        return iterator.next();
-      }
-    }
-    return null;
+  default MapEx getProperties() {
+    return JsonObject.EMPTY;
   }
 
   @Override
@@ -169,26 +95,21 @@ public interface Reader<T>
     return (Iterable<V>)this;
   }
 
+  @Override
+  default boolean isCancelled() {
+    return false;
+  }
+
+  @Override
+  default <O> Reader<O> map(final Function<? super T, O> converter) {
+    final var iterator = iterator();
+    return new IteratorConvertReader<>(iterator, converter);
+  }
+
   /**
    * Open the reader so that it is ready to be read from.
    */
   default void open() {
-  }
-
-  @Override
-  default Stream<T> parallelStream() {
-    return StreamSupport.stream(spliterator(), true);
-  }
-
-  @Override
-  default void skipAll() {
-    for (final Iterator<T> iterator = iterator(); iterator.hasNext();) {
-    }
-  }
-
-  @Override
-  default Stream<T> stream() {
-    return StreamSupport.stream(spliterator(), false);
   }
 
 }

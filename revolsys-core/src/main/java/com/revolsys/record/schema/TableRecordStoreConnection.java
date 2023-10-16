@@ -5,11 +5,11 @@ import java.util.function.Function;
 
 import org.springframework.transaction.PlatformTransactionManager;
 
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.data.identifier.Identifier;
 import com.revolsys.io.PathName;
 import com.revolsys.io.PathNameProxy;
 import com.revolsys.record.Record;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.record.query.Query;
 import com.revolsys.transaction.Transactionable;
 

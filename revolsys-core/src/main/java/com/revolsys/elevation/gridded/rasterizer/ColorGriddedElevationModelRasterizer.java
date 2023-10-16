@@ -4,8 +4,8 @@ import java.awt.Color;
 import java.util.Map;
 
 import com.revolsys.awt.WebColors;
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.elevation.gridded.GriddedElevationModel;
-import com.revolsys.record.io.format.json.JsonObject;
 
 public class ColorGriddedElevationModelRasterizer extends AbstractGriddedElevationModelRasterizer {
 

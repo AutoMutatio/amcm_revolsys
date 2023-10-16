@@ -2,6 +2,7 @@ package com.revolsys.geometry.geoid;
 
 import java.util.List;
 
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.geometry.coordinatesystem.operation.ChainedCoordinatesOperation;
 import com.revolsys.geometry.coordinatesystem.operation.CoordinatesOperation;
@@ -9,7 +10,6 @@ import com.revolsys.geometry.coordinatesystem.operation.CoordinatesOperationPoin
 import com.revolsys.geometry.coordinatesystem.operation.gridshift.VerticalShiftOperation;
 import com.revolsys.geometry.model.BoundingBoxProxy;
 import com.revolsys.io.IoFactory;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.spring.resource.Resource;
 
 public interface GeoidModel extends BoundingBoxProxy {

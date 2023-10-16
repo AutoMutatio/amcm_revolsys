@@ -3,7 +3,7 @@ package com.revolsys.http;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 
-import com.revolsys.record.io.format.json.JsonType;
+import com.revolsys.collection.json.JsonType;
 
 public class JsonEntity extends StringEntity {
 

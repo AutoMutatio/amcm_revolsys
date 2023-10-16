@@ -4,9 +4,9 @@ import java.util.Collection;
 import java.util.Set;
 import java.util.UUID;
 
-import com.revolsys.record.io.format.json.JsonList;
-import com.revolsys.record.io.format.json.JsonObject;
-import com.revolsys.record.io.format.json.Jsonable;
+import com.revolsys.collection.json.JsonList;
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.json.Jsonable;
 import com.revolsys.record.io.format.xml.XmlComplexType;
 import com.revolsys.record.io.format.xml.XmlElement;
 import com.revolsys.record.io.format.xml.XmlSchema;

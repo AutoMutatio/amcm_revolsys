@@ -1,4 +1,4 @@
-package com.revolsys.record.io.format.json;
+package com.revolsys.collection.json;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -16,12 +16,13 @@ import com.revolsys.common.number.Numbers;
 import com.revolsys.data.type.DataType;
 import com.revolsys.data.type.DataTypes;
 import com.revolsys.exception.Exceptions;
-import com.revolsys.io.BaseCloseable;
 import com.revolsys.io.FileUtil;
 import com.revolsys.io.map.MapSerializer;
 import com.revolsys.record.Record;
+import com.revolsys.record.io.format.json.JsonStringEncodingWriter;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
+import com.revolsys.util.BaseCloseable;
 import com.revolsys.util.Property;
 
 enum JsonState {

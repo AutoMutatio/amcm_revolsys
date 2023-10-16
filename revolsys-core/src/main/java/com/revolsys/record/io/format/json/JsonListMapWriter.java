@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.Map;
 
+import com.revolsys.collection.json.JsonWriterUtil;
 import com.revolsys.exception.Exceptions;
 import com.revolsys.io.AbstractMapWriter;
 import com.revolsys.io.FileUtil;

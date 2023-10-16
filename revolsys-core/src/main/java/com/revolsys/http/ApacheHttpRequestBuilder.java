@@ -46,9 +46,9 @@ import org.apache.http.message.HeaderGroup;
 import org.apache.http.protocol.HTTP;
 import org.apache.http.util.Args;
 
+import com.revolsys.collection.json.JsonList;
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.net.http.ApacheHttp;
-import com.revolsys.record.io.format.json.JsonList;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.util.UriBuilder;
 
 public class ApacheHttpRequestBuilder {

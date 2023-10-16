@@ -5,8 +5,8 @@ import java.io.Writer;
 import java.util.Collection;
 
 import com.revolsys.exception.Exceptions;
-import com.revolsys.io.BaseCloseable;
 import com.revolsys.io.FileUtil;
+import com.revolsys.util.BaseCloseable;
 
 public class CsvWriter implements BaseCloseable {
   /** The writer */

@@ -21,6 +21,7 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runners.MethodSorters;
 
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.elevation.cloud.PointCloud;
 import com.revolsys.elevation.cloud.las.LasPointCloud;
@@ -32,7 +33,6 @@ import com.revolsys.geometry.coordinatesystem.model.systems.EpsgId;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.geometry.model.GeometryFactoryWithOffsets;
 import com.revolsys.logging.Logs;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.util.Debug;
 import com.revolsys.util.Property;
 import com.revolsys.util.ServiceInitializer;

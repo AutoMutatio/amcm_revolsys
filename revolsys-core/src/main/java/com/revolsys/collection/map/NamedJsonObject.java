@@ -3,7 +3,7 @@ package com.revolsys.collection.map;
 import java.util.Map;
 
 import com.revolsys.collection.NameProxy;
-import com.revolsys.record.io.format.json.JsonObjectHash;
+import com.revolsys.collection.json.JsonObjectHash;
 
 public class NamedJsonObject extends JsonObjectHash implements NameProxy {
   private static final long serialVersionUID = -874346734708399858L;

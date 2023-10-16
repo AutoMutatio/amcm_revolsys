@@ -18,9 +18,9 @@ import java.time.Instant;
 import java.util.Base64;
 import java.util.Base64.Decoder;
 
-import com.revolsys.record.io.format.json.JsonList;
-import com.revolsys.record.io.format.json.JsonObject;
-import com.revolsys.record.io.format.json.JsonParser;
+import com.revolsys.collection.json.JsonList;
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.json.JsonParser;
 
 public class JsonWebToken {
 

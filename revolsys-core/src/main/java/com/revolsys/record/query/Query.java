@@ -19,6 +19,7 @@ import java.util.function.Supplier;
 
 import org.springframework.transaction.PlatformTransactionManager;
 
+import com.revolsys.collection.json.Json;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.io.PathName;
@@ -34,7 +35,6 @@ import com.revolsys.record.RecordFactory;
 import com.revolsys.record.Records;
 import com.revolsys.record.io.RecordReader;
 import com.revolsys.record.io.RecordWriter;
-import com.revolsys.record.io.format.json.Json;
 import com.revolsys.record.query.functions.Exists;
 import com.revolsys.record.query.functions.F;
 import com.revolsys.record.schema.FieldDefinition;

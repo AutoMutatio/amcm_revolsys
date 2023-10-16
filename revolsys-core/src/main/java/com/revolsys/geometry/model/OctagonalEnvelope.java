@@ -302,7 +302,7 @@ public class OctagonalEnvelope {
       || this.maxA < other.minA) {
       return false;
     }
-    if ((this.minB > other.maxB) || (this.maxB < other.minB)) {
+    if (this.minB > other.maxB || this.maxB < other.minB) {
       return false;
     }
     return true;

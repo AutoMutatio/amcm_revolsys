@@ -1,24 +1,27 @@
-package com.revolsys.io;
+package com.revolsys.collection.iterator;
 
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.function.Function;
 
-import com.revolsys.collection.iterator.AbstractIterator;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.properties.ObjectWithProperties;
 
-public class IteratorReader<T> extends AbstractReader<T> {
+public class IteratorConvertReader<I, O> extends AbstractReader<O> implements Iterator<O> {
 
-  private Iterator<T> iterator;
+  private Iterator<I> iterator;
 
   private ObjectWithProperties object;
 
-  public IteratorReader() {
-    setIterator(null);
-  }
+  private final Function<? super I, O> converter;
 
-  public IteratorReader(final Iterator<T> iterator) {
-    setIterator(iterator);
+  public IteratorConvertReader(final Iterator<I> iterator, final Function<? super I, O> converter) {
+    if (iterator == null) {
+      this.iterator = Collections.emptyIterator();
+    } else {
+      this.iterator = iterator;
+    }
+    this.converter = converter;
     if (iterator instanceof ObjectWithProperties) {
       this.object = (ObjectWithProperties)iterator;
     }
@@ -28,11 +31,11 @@ public class IteratorReader<T> extends AbstractReader<T> {
   public void close() {
     try {
       if (this.iterator instanceof AbstractIterator) {
-        final AbstractIterator<T> i = (AbstractIterator<T>)this.iterator;
+        final AbstractIterator<I> i = (AbstractIterator<I>)this.iterator;
         i.close();
       }
     } finally {
-      setIterator(null);
+      this.iterator = Collections.emptyIterator();
     }
   }
 
@@ -56,21 +59,24 @@ public class IteratorReader<T> extends AbstractReader<T> {
   }
 
   @Override
-  public Iterator<T> iterator() {
-    return this.iterator;
+  public boolean hasNext() {
+    return this.iterator.hasNext();
+  }
+
+  @Override
+  public Iterator<O> iterator() {
+    return this;
+  }
+
+  @Override
+  public O next() {
+    final I value = this.iterator.next();
+    return this.converter.apply(value);
   }
 
   @Override
   public void open() {
     this.iterator.hasNext();
-  }
-
-  protected void setIterator(final Iterator<T> iterator) {
-    if (iterator == null) {
-      this.iterator = Collections.<T> emptyList().iterator();
-    } else {
-      this.iterator = iterator;
-    }
   }
 
   @Override

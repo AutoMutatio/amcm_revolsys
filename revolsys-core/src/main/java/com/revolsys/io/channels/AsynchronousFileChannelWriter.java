@@ -6,8 +6,8 @@ import java.nio.ByteOrder;
 import java.nio.channels.AsynchronousFileChannel;
 
 import com.revolsys.exception.Exceptions;
-import com.revolsys.io.BaseCloseable;
 import com.revolsys.io.EndOfFileException;
+import com.revolsys.util.BaseCloseable;
 
 public class AsynchronousFileChannelWriter extends AbstractChannelWriter implements BaseCloseable {
 

@@ -6,6 +6,8 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 
 import com.revolsys.collection.iterator.AbstractIterator;
+import com.revolsys.collection.json.JsonParser;
+import com.revolsys.collection.json.JsonParser.EventType;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.geometry.coordinatesystem.model.systems.EpsgId;
 import com.revolsys.geometry.io.GeometryReader;
@@ -18,8 +20,6 @@ import com.revolsys.geometry.model.Polygon;
 import com.revolsys.geometry.model.impl.LineStringDouble;
 import com.revolsys.io.FileUtil;
 import com.revolsys.io.IoConstants;
-import com.revolsys.record.io.format.json.JsonParser;
-import com.revolsys.record.io.format.json.JsonParser.EventType;
 import com.revolsys.spring.resource.Resource;
 
 public class GeoJsonGeometryReader extends AbstractIterator<Geometry> implements GeometryReader {

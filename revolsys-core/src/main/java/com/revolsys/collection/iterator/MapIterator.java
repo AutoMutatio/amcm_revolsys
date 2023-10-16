@@ -6,11 +6,11 @@ import java.util.function.Function;
 
 public class MapIterator<I, O> extends AbstractIterator<O> {
 
-  private Function<I, O> converter;
+  private Function<? super I, O> converter;
 
   private Iterator<I> iterator;
 
-  public MapIterator(final Iterator<I> iterator, final Function<I, O> converter) {
+  public MapIterator(final Iterator<I> iterator, final Function<? super I, O> converter) {
     this.iterator = iterator;
     this.converter = converter;
   }

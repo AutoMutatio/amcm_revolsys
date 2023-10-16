@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
 
+import com.revolsys.collection.json.JsonMapIterator;
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.io.AbstractReader;
 import com.revolsys.io.FileUtil;

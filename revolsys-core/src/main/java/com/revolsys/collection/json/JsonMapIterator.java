@@ -1,4 +1,4 @@
-package com.revolsys.record.io.format.json;
+package com.revolsys.collection.json;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -6,7 +6,7 @@ import java.io.Reader;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-import com.revolsys.record.io.format.json.JsonParser.EventType;
+import com.revolsys.collection.json.JsonParser.EventType;
 
 public class JsonMapIterator implements Iterator<JsonObject>, Closeable {
   /** The current record. */

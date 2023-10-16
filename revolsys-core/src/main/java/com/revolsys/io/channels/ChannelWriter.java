@@ -13,9 +13,9 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import com.revolsys.exception.Exceptions;
-import com.revolsys.io.BaseCloseable;
 import com.revolsys.io.EndOfFileException;
 import com.revolsys.spring.resource.Resource;
+import com.revolsys.util.BaseCloseable;
 
 public class ChannelWriter extends AbstractChannelWriter implements BaseCloseable {
   public static ChannelWriter newChannelWriter(final Object source) {

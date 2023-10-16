@@ -8,8 +8,8 @@ import java.util.NoSuchElementException;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 
+import com.revolsys.collection.iterator.IteratorReader;
 import com.revolsys.geometry.model.BoundingBox;
-import com.revolsys.io.IteratorReader;
 import com.revolsys.record.Record;
 import com.revolsys.record.query.Query;
 import com.revolsys.record.query.SqlCondition;

@@ -1,12 +1,12 @@
 package com.revolsys.elevation.gridded;
 
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.geometry.model.BoundingBoxProxy;
-import com.revolsys.io.BaseCloseable;
 import com.revolsys.io.IoFactory;
 import com.revolsys.properties.ObjectWithProperties;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.spring.resource.Resource;
+import com.revolsys.util.BaseCloseable;
 
 public interface GriddedElevationModelReader
   extends BaseCloseable, BoundingBoxProxy, ObjectWithProperties {

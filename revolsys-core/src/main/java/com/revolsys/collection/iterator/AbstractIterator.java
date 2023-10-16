@@ -38,7 +38,7 @@ public abstract class AbstractIterator<T> extends BaseObjectWithProperties
   }
 
   @Override
-  public synchronized final boolean hasNext() {
+  public final boolean hasNext() {
     if (this.hasNext) {
       init();
       if (this.loadNext) {
@@ -54,7 +54,7 @@ public abstract class AbstractIterator<T> extends BaseObjectWithProperties
     return this.hasNext;
   }
 
-  public synchronized void init() {
+  public void init() {
     if (!this.initialized) {
       this.initialized = true;
       initDo();
@@ -70,7 +70,7 @@ public abstract class AbstractIterator<T> extends BaseObjectWithProperties
   }
 
   @Override
-  public synchronized final T next() {
+  public final T next() {
     if (hasNext()) {
       final T currentObject = this.object;
       this.loadNext = true;

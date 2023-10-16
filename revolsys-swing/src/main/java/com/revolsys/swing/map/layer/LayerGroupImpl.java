@@ -17,6 +17,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileFilter;
 
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.list.Lists;
 import com.revolsys.data.type.DataType;
 import com.revolsys.elevation.gridded.GriddedElevationModelReaderFactory;
@@ -29,7 +30,6 @@ import com.revolsys.io.IoFactory;
 import com.revolsys.io.filter.FileNameExtensionFilter;
 import com.revolsys.raster.GeoreferencedImageReadFactory;
 import com.revolsys.record.io.RecordReaderFactory;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.spring.resource.PathResource;
 import com.revolsys.swing.Dialogs;
 import com.revolsys.swing.Icons;

@@ -13,9 +13,9 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
+import com.revolsys.collection.json.JsonParser;
 import com.revolsys.data.type.DataType;
 import com.revolsys.data.type.DataTypes;
-import com.revolsys.record.io.format.json.JsonParser;
 import com.revolsys.util.Cancellable;
 import com.revolsys.util.Property;
 

@@ -9,9 +9,9 @@ import javax.swing.JComponent;
 import com.revolsys.common.number.Numbers;
 import com.revolsys.data.identifier.Identifier;
 import com.revolsys.data.type.DataTypes;
-import com.revolsys.io.BaseCloseable;
 import com.revolsys.properties.BaseObjectWithPropertiesAndChange;
 import com.revolsys.record.schema.FieldDefinition;
+import com.revolsys.util.BaseCloseable;
 
 public abstract class AbstractCodeTable extends BaseObjectWithPropertiesAndChange
   implements BaseCloseable, CodeTable, Cloneable {

@@ -36,6 +36,7 @@ import org.apache.olingo.commons.api.edm.provider.CsdlProperty;
 import org.apache.olingo.commons.api.edm.provider.annotation.CsdlConstantExpression;
 import org.apache.olingo.commons.api.edm.provider.annotation.CsdlConstantExpression.ConstantExpressionType;
 
+import com.revolsys.collection.json.Json;
 import com.revolsys.collection.map.IntHashMap;
 import com.revolsys.data.type.CollectionDataType;
 import com.revolsys.data.type.DataType;
@@ -44,7 +45,6 @@ import com.revolsys.geometry.coordinatesystem.model.HorizontalCoordinateSystemPr
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryDataTypes;
 import com.revolsys.geometry.model.GeometryFactory;
-import com.revolsys.record.io.format.json.Json;
 import com.revolsys.record.schema.FieldDefinition;
 
 public class EdmPropertyImpl extends AbstractEdmNamed implements EdmProperty {

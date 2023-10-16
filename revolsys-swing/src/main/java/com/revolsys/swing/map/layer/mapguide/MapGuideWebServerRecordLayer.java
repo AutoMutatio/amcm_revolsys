@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 import com.revolsys.beans.Classes;
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.io.PathName;
 import com.revolsys.logging.Logs;
@@ -13,7 +14,6 @@ import com.revolsys.record.Record;
 import com.revolsys.record.RecordFactory;
 import com.revolsys.record.io.RecordReader;
 import com.revolsys.record.io.format.esri.rest.ArcGisRestCatalog;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.record.io.format.mapguide.MapGuideFeatureLayer;
 import com.revolsys.record.query.Query;
 import com.revolsys.record.schema.RecordDefinition;

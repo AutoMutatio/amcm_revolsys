@@ -1,8 +1,8 @@
 package com.revolsys.net.oauth;
 
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.json.JsonParser;
 import com.revolsys.net.http.ApacheHttpException;
-import com.revolsys.record.io.format.json.JsonObject;
-import com.revolsys.record.io.format.json.JsonParser;
 
 public class DeviceCodeResponse {
 

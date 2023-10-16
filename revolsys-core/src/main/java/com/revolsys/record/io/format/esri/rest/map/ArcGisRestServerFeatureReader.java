@@ -10,6 +10,8 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.function.BiFunction;
 
+import com.revolsys.collection.json.JsonParser;
+import com.revolsys.collection.json.JsonParser.EventType;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.collection.map.Maps;
 import com.revolsys.data.type.DataType;
@@ -23,7 +25,6 @@ import com.revolsys.geometry.model.LineString;
 import com.revolsys.geometry.model.LinearRing;
 import com.revolsys.geometry.model.Point;
 import com.revolsys.geometry.model.Polygon;
-import com.revolsys.io.BaseCloseable;
 import com.revolsys.io.FileUtil;
 import com.revolsys.logging.Logs;
 import com.revolsys.net.urlcache.FileResponseCache;
@@ -32,11 +33,10 @@ import com.revolsys.record.Record;
 import com.revolsys.record.RecordFactory;
 import com.revolsys.record.RecordState;
 import com.revolsys.record.io.AbstractRecordReader;
-import com.revolsys.record.io.format.json.JsonParser;
-import com.revolsys.record.io.format.json.JsonParser.EventType;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.spring.resource.Resource;
+import com.revolsys.util.BaseCloseable;
 import com.revolsys.util.Property;
 
 public class ArcGisRestServerFeatureReader extends AbstractRecordReader {

@@ -10,7 +10,7 @@ import org.springframework.transaction.support.DefaultTransactionStatus;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import com.revolsys.exception.Exceptions;
-import com.revolsys.io.BaseCloseable;
+import com.revolsys.util.BaseCloseable;
 
 public class Transaction implements BaseCloseable, TransactionDefinition {
 

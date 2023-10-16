@@ -7,7 +7,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 
 import com.revolsys.exception.Exceptions;
-import com.revolsys.io.BaseCloseable;
+import com.revolsys.util.BaseCloseable;
 import com.revolsys.util.Cancellable;
 
 public class AtomicPathUpdator implements BaseCloseable {

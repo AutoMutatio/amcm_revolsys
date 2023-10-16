@@ -3,11 +3,11 @@ package com.revolsys.http;
 import java.io.File;
 import java.util.List;
 
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.list.Lists;
 import com.revolsys.io.FileUtil;
 import com.revolsys.logging.Logs;
 import com.revolsys.net.oauth.BearerToken;
-import com.revolsys.record.io.format.json.JsonObject;
 
 public class AzureCliRequestBuilderFactory extends BearerTokenRequestBuilderFactory {
 

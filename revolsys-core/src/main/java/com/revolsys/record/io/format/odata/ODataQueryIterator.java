@@ -8,6 +8,7 @@ import java.util.NoSuchElementException;
 import java.util.function.Function;
 
 import com.revolsys.collection.iterator.AbstractIterator;
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.data.type.DataTypes;
 import com.revolsys.http.ApacheHttpRequestBuilder;
 import com.revolsys.http.ApacheHttpRequestBuilderFactory;
@@ -16,7 +17,6 @@ import com.revolsys.record.RecordFactory;
 import com.revolsys.record.RecordState;
 import com.revolsys.record.io.RecordIterator;
 import com.revolsys.record.io.RecordReader;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.record.query.Query;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;

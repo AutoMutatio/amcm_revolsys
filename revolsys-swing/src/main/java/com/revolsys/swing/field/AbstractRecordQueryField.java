@@ -49,7 +49,6 @@ import com.revolsys.awt.WebColors;
 import com.revolsys.collection.map.LruMap;
 import com.revolsys.data.identifier.Identifier;
 import com.revolsys.data.type.DataType;
-import com.revolsys.io.BaseCloseable;
 import com.revolsys.io.PathName;
 import com.revolsys.record.Record;
 import com.revolsys.record.code.CodeTable;
@@ -72,6 +71,7 @@ import com.revolsys.swing.listener.WeakFocusListener;
 import com.revolsys.swing.map.list.RecordListCellRenderer;
 import com.revolsys.swing.menu.MenuFactory;
 import com.revolsys.swing.parallel.Invoke;
+import com.revolsys.util.BaseCloseable;
 import com.revolsys.util.Property;
 import com.revolsys.value.ThreadBooleanValue;
 

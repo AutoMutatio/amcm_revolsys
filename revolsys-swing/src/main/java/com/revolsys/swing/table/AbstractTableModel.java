@@ -21,12 +21,12 @@ import jakarta.annotation.PreDestroy;
 
 import com.revolsys.beans.PropertyChangeSupport;
 import com.revolsys.beans.PropertyChangeSupportProxy;
+import com.revolsys.collection.json.JsonType;
 import com.revolsys.data.type.DataType;
 import com.revolsys.data.type.DataTypes;
 import com.revolsys.function.BiConsumerInt;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.logging.Logs;
-import com.revolsys.record.io.format.json.JsonType;
 import com.revolsys.record.io.format.tsv.Tsv;
 import com.revolsys.record.io.format.tsv.TsvWriter;
 import com.revolsys.swing.SwingUtil;

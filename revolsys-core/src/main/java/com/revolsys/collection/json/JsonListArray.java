@@ -1,4 +1,4 @@
-package com.revolsys.record.io.format.json;
+package com.revolsys.collection.json;
 
 import java.util.ArrayList;
 import java.util.Collection;

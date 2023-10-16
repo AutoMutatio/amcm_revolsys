@@ -10,6 +10,7 @@ import java.util.function.BiConsumer;
 
 import org.apache.http.NameValuePair;
 
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.data.identifier.Identifier;
 import com.revolsys.data.type.DataTypes;
@@ -25,7 +26,6 @@ import com.revolsys.net.http.SimpleNameValuePair;
 import com.revolsys.record.Record;
 import com.revolsys.record.io.RecordReader;
 import com.revolsys.record.io.RecordWriter;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.record.query.AcceptAllCondition;
 import com.revolsys.record.query.Add;
 import com.revolsys.record.query.And;

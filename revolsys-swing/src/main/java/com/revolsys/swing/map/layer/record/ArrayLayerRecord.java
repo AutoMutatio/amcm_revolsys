@@ -6,11 +6,11 @@ import java.util.Map;
 
 import com.revolsys.data.identifier.Identifier;
 import com.revolsys.data.type.DataType;
-import com.revolsys.io.BaseCloseable;
 import com.revolsys.record.ArrayRecord;
 import com.revolsys.record.RecordState;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
+import com.revolsys.util.BaseCloseable;
 
 public class ArrayLayerRecord extends ArrayRecord implements LayerRecord {
   private static final Map<String, Object> EMPTY_ORIGINAL_VALUES = Collections.emptyMap();

@@ -4,6 +4,7 @@ import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.Map;
 
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.data.type.DataType;
 import com.revolsys.exception.Exceptions;
 import com.revolsys.exception.WrappedException;
@@ -13,7 +14,6 @@ import com.revolsys.gis.wms.WmsClient;
 import com.revolsys.gis.wms.capabilities.WmsLayerDefinition;
 import com.revolsys.logging.Logs;
 import com.revolsys.raster.GeoreferencedImage;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.swing.map.layer.AbstractLayer;
 import com.revolsys.swing.map.layer.BaseMapLayer;
 import com.revolsys.swing.map.layer.raster.ViewFunctionImageLayerRenderer;

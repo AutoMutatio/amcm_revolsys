@@ -1,9 +1,13 @@
 package com.revolsys.util;
 
 import java.io.Closeable;
+import java.io.IOException;
+import java.util.Collection;
 import java.util.function.Consumer;
 
 import com.revolsys.exception.Exceptions;
+import com.revolsys.io.CloseableWrapper;
+import com.revolsys.logging.Logs;
 
 @FunctionalInterface
 public interface BaseCloseable extends Closeable {
@@ -23,7 +27,45 @@ public interface BaseCloseable extends Closeable {
     return CLOSER;
   }
 
+  /**
+   * Close the writer without throwing an I/O exception if the close failed. The
+   * error will be logged instead.
+   *
+   * @param closeables The closables to close.
+   */
+  static void closeSilent(final AutoCloseable... closeables) {
+    for (final AutoCloseable closeable : closeables) {
+      closeSilent(closeable);
+    }
+  }
+
+  static void closeSilent(final AutoCloseable closeable) {
+    if (closeable != null) {
+      try {
+        closeable.close();
+      } catch (final IOException e) {
+      } catch (final Exception e) {
+        Logs.error(BaseCloseable.class, e.getMessage(), e);
+      }
+    }
+  }
+
+  /**
+   * Close the writer without throwing an I/O exception if the close failed. The
+   * error will be logged instead.
+   *
+   * @param closeables The closables to close.
+   */
+  static void closeSilent(final Collection<? extends AutoCloseable> closeables) {
+    for (final AutoCloseable closeable : closeables) {
+      closeSilent(closeable);
+    }
+  }
+
   @Override
   void close();
 
+  default BaseCloseable wrap() {
+    return new CloseableWrapper(this);
+  }
 }

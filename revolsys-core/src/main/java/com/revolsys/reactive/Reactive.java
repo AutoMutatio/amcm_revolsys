@@ -17,7 +17,6 @@ import org.reactivestreams.Publisher;
 
 import com.revolsys.collection.list.Lists;
 import com.revolsys.exception.Exceptions;
-import com.revolsys.io.BaseCloseable;
 import com.revolsys.io.file.Paths;
 import com.revolsys.util.Pair;
 
@@ -112,11 +111,6 @@ public class Reactive {
     });
   }
 
-  public static <R extends AutoCloseable, V> Flux<V> fluxCloseable(final Callable<R> supplier,
-    final Function<R, Publisher<V>> mapper) {
-    return BaseCloseable.fluxUsing(supplier, mapper);
-  }
-
   public static <IN, OUT> Flux<OUT> fluxCreate(final Publisher<IN> source,
     final Function<FluxSink<OUT>, BaseSubscriber<IN>> subscriberConstructor) {
     return Flux.create(sink -> {
@@ -134,11 +128,6 @@ public class Reactive {
   public static <V> MergeSinkHandler<V> merge(final Publisher<V> source1,
     final Publisher<V> source2, final Comparator<V> comparator) {
     return new MergeSinkHandler<>(source1, source2, comparator);
-  }
-
-  public static <R extends AutoCloseable, V> Mono<V> monoCloseable(final Callable<R> supplier,
-    final Function<R, Mono<V>> mapper) {
-    return BaseCloseable.monoUsing(supplier, mapper);
   }
 
   public static <T> Consumer<T> once(final Runnable action) {

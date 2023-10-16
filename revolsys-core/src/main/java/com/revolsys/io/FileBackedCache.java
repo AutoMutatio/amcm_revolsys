@@ -6,6 +6,8 @@ import java.io.OutputStream;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 
+import com.revolsys.util.BaseCloseable;
+
 public class FileBackedCache implements BaseCloseable {
 
   private byte[] buffer;

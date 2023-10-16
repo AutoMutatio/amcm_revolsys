@@ -2,7 +2,7 @@ package com.revolsys.net.oauth;
 
 import java.time.Instant;
 
-import com.revolsys.record.io.format.json.JsonObject;
+import com.revolsys.collection.json.JsonObject;
 
 public class BearerToken {
 

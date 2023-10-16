@@ -1,6 +1,6 @@
 package com.revolsys.record;
 
-import com.revolsys.record.io.format.json.JsonObject;
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.record.schema.FieldDefinition;
 
 public class ChangeTrackRecordImpl extends BaseRecord implements ChangeTrackRecord {

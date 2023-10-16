@@ -3,7 +3,7 @@ package com.revolsys.parallel;
 import java.util.concurrent.Callable;
 
 import com.revolsys.exception.Exceptions;
-import com.revolsys.io.BaseCloseable;
+import com.revolsys.util.BaseCloseable;
 
 public class SingleThreadExecutor implements BaseCloseable {
   private static ThreadLocal<Boolean> IS_THREAD = new ThreadLocal<>();

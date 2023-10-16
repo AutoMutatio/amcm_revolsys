@@ -1,4 +1,4 @@
-package com.revolsys.record.io.format.json;
+package com.revolsys.collection.json;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -39,6 +39,10 @@ import com.revolsys.record.ArrayRecord;
 import com.revolsys.record.Record;
 import com.revolsys.record.io.RecordWriter;
 import com.revolsys.record.io.RecordWriterFactory;
+import com.revolsys.record.io.format.json.JsonMapReader;
+import com.revolsys.record.io.format.json.JsonMapWriter;
+import com.revolsys.record.io.format.json.JsonRecordIterator;
+import com.revolsys.record.io.format.json.JsonRecordWriter;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordDefinitionProxy;
 import com.revolsys.spring.resource.PathResource;

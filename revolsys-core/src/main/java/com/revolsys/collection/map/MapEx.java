@@ -12,6 +12,10 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import com.revolsys.collection.json.Json;
+import com.revolsys.collection.json.JsonList;
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.json.JsonType;
 import com.revolsys.collection.list.ListEx;
 import com.revolsys.comparator.CompareUtil;
 import com.revolsys.data.identifier.Identifier;
@@ -22,10 +26,6 @@ import com.revolsys.data.type.DataTypedValue;
 import com.revolsys.data.type.DataTypes;
 import com.revolsys.logging.Logs;
 import com.revolsys.record.Record;
-import com.revolsys.record.io.format.json.Json;
-import com.revolsys.record.io.format.json.JsonList;
-import com.revolsys.record.io.format.json.JsonObject;
-import com.revolsys.record.io.format.json.JsonType;
 import com.revolsys.util.Property;
 
 import reactor.core.publisher.Flux;

@@ -8,8 +8,8 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 import com.revolsys.exception.Exceptions;
-import com.revolsys.io.BaseCloseable;
 import com.revolsys.io.EndOfFileException;
+import com.revolsys.util.BaseCloseable;
 
 interface ByteFilter {
   boolean accept(byte b);

@@ -14,13 +14,13 @@ import javax.swing.table.JTableHeader;
 import org.jdesktop.swingx.table.TableColumnExt;
 
 import com.revolsys.beans.PropertyChangeSupportProxy;
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.comparator.NumericComparator;
 import com.revolsys.data.identifier.Code;
 import com.revolsys.data.identifier.Identifier;
 import com.revolsys.data.type.DataTypes;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.record.code.CodeTable;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.swing.SwingUtil;
 import com.revolsys.swing.parallel.Invoke;

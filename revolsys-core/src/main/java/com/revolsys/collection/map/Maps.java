@@ -19,9 +19,9 @@ import java.util.function.Supplier;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.data.type.DataType;
 import com.revolsys.data.type.DataTypes;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.util.BaseCloneable;
 import com.revolsys.util.Property;
 

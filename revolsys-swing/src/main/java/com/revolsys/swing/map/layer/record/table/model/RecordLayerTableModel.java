@@ -21,13 +21,12 @@ import javax.swing.SortOrder;
 
 import com.revolsys.beans.PropertyChangeSupportProxy;
 import com.revolsys.collection.CollectionUtil;
+import com.revolsys.collection.json.JsonType;
 import com.revolsys.collection.list.Lists;
 import com.revolsys.data.type.DataType;
 import com.revolsys.geometry.model.BoundingBox;
-import com.revolsys.io.BaseCloseable;
 import com.revolsys.record.Record;
 import com.revolsys.record.Records;
-import com.revolsys.record.io.format.json.JsonType;
 import com.revolsys.record.query.Condition;
 import com.revolsys.record.query.Query;
 import com.revolsys.record.query.TableReference;
@@ -51,6 +50,7 @@ import com.revolsys.swing.table.SortableTableModel;
 import com.revolsys.swing.table.editor.BaseTableCellEditor;
 import com.revolsys.swing.table.record.filter.RecordRowPredicateRowFilter;
 import com.revolsys.swing.table.record.model.RecordRowTableModel;
+import com.revolsys.util.BaseCloseable;
 import com.revolsys.util.Cancellable;
 import com.revolsys.util.Property;
 
