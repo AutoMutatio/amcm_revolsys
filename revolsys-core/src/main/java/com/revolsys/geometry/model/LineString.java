@@ -728,7 +728,7 @@ public interface LineString extends Lineal {
   }
 
   default boolean equalsVertex(final int axisCount, final int vertexIndex, final Point point) {
-    if (isEmpty() || com.revolsys.util.Property.isEmpty(point)) {
+    if (isEmpty() || Property.isEmpty(point)) {
       return false;
     } else {
       final Point projectedPoint = point.as2d(this);
@@ -2079,8 +2079,8 @@ public interface LineString extends Lineal {
   }
 
   default LineString merge(final Point point, final LineString line2) {
-    if (isEmpty() || com.revolsys.util.Property.isEmpty(line2)
-      || com.revolsys.util.Property.isEmpty(point)) {
+    if (isEmpty() || Property.isEmpty(line2)
+      || Property.isEmpty(point)) {
       return newLineStringEmpty();
     } else {
       final int axisCount = Math.max(getAxisCount(), line2.getAxisCount());
@@ -2590,7 +2590,7 @@ public interface LineString extends Lineal {
    * @return The end that touches.
    */
   default End touchingEnd(final LineString line) {
-    if (isEmpty() || com.revolsys.util.Property.isEmpty(line)) {
+    if (isEmpty() || Property.isEmpty(line)) {
       return null;
     } else {
       for (final End end : End.FROM_TO) {
@@ -2611,7 +2611,7 @@ public interface LineString extends Lineal {
    * @return The end that touches.
    */
   default End touchingEnd(final Point point) {
-    if (isEmpty() || com.revolsys.util.Property.isEmpty(point)) {
+    if (isEmpty() || Property.isEmpty(point)) {
       return null;
     } else if (equalsVertex2d(0, point)) {
       return End.FROM;
@@ -2630,7 +2630,7 @@ public interface LineString extends Lineal {
    *         touches, or null if they don't touch.
    */
   default End[] touchingEnds(final LineString line) {
-    if (isEmpty() || com.revolsys.util.Property.isEmpty(line)) {
+    if (isEmpty() || Property.isEmpty(line)) {
       return null;
     } else {
       for (final End end : End.FROM_TO) {

@@ -198,7 +198,7 @@ public class OgcWmsImageLayer extends AbstractLayer implements BaseMapLayer {
         this.serviceUrl = wmsClient.getServiceUrl().toString();
       }
       final String layerTitle = wmsLayerDefinition.getTitle();
-      if (!com.revolsys.util.Property.hasValue(getName())) {
+      if (!Property.hasValue(getName())) {
         setName(layerTitle);
       }
       this.layerName = wmsLayerDefinition.getName();

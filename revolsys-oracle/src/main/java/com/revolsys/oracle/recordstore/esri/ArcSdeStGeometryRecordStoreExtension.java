@@ -18,6 +18,7 @@ import com.revolsys.record.io.RecordStoreExtension;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordStore;
 import com.revolsys.record.schema.RecordStoreSchema;
+import com.revolsys.util.Property;
 
 public class ArcSdeStGeometryRecordStoreExtension implements RecordStoreExtension {
 
@@ -92,7 +93,7 @@ public class ArcSdeStGeometryRecordStoreExtension implements RecordStoreExtensio
               JdbcFieldAdder.GEOMETRY_TYPE, ArcSdeConstants.getGeometryDataType(geometryType));
 
             String geometryColumnType = resultSet.getString(6);
-            if (!com.revolsys.util.Property.hasValue(geometryColumnType)) {
+            if (!Property.hasValue(geometryColumnType)) {
               geometryColumnType = ArcSdeConstants.SDEBINARY;
             }
             JdbcFieldAdder.setColumnProperty(schema, typePath, columnName,

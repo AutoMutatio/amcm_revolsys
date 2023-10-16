@@ -49,7 +49,7 @@ public class LoggingEventPanel extends JPanel {
       addLabel(panel, fieldName);
 
       String stringValue = DataTypes.toString(value);
-      if (!com.revolsys.util.Property.hasValue(stringValue)) {
+      if (!Property.hasValue(stringValue)) {
         stringValue = "-";
       }
       final JTextPane label = new JTextPane();

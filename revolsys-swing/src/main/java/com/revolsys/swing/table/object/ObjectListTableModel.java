@@ -265,7 +265,7 @@ public class ObjectListTableModel<T> extends AbstractTableModel
     if (object != null) {
       final String name = getColumnName(columnIndex);
       final Object oldValue = Property.get(object, name);
-      com.revolsys.util.Property.setSimple(object, name, value);
+      Property.setSimple(object, name, value);
       firePropertyChange(object, name, oldValue, value);
     }
   }

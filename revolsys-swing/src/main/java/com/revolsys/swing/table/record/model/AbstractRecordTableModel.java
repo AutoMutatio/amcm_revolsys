@@ -248,7 +248,7 @@ public abstract class AbstractRecordTableModel extends AbstractTableModel {
   }
 
   public Object toObjectValue(final String fieldName, final Object displayValue) {
-    if (!com.revolsys.util.Property.hasValue(displayValue)) {
+    if (!Property.hasValue(displayValue)) {
       return null;
     }
     final RecordDefinition recordDefinition = getRecordDefinition();

@@ -637,7 +637,7 @@ public class Project extends LayerGroupImpl {
   }
 
   public void setViewBoundingBoxAndGeometryFactory(final BoundingBox viewBoundingBox) {
-    if (!com.revolsys.util.Property.isEmpty(viewBoundingBox)) {
+    if (!Property.isEmpty(viewBoundingBox)) {
       final BoundingBox oldBoundingBox = this.viewBoundingBox;
       final boolean bboxUpdated = setViewBoundingBoxDo(viewBoundingBox);
 

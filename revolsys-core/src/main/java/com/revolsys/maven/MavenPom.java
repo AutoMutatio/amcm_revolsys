@@ -17,6 +17,7 @@ import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.collection.map.Maps;
 import com.revolsys.logging.Logs;
+import com.revolsys.util.Property;
 
 public class MavenPom extends GroupArtifactVersion {
   public static String getGroupAndArtifactId(final String id) {
@@ -157,13 +158,13 @@ public class MavenPom extends GroupArtifactVersion {
       final String artifactId = dependency.getArtifactId();
       final String dependencyKey = groupId + ":" + artifactId;
       String version = versions.get(dependencyKey);
-      if (!com.revolsys.util.Property.hasValue(version)) {
+      if (!Property.hasValue(version)) {
         version = dependency.getVersion();
       }
       final String scope = dependency.getScope();
       final boolean optional = dependency.isOptional();
       if (scope.equals("compile") && (includeOptional || !optional)) {
-        if (!com.revolsys.util.Property.hasValue(version)) {
+        if (!Property.hasValue(version)) {
           if (groupId.equals(getGroupId())) {
             version = getVersion();
           }

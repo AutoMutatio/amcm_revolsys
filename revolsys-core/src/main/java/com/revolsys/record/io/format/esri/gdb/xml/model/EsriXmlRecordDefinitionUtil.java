@@ -27,6 +27,7 @@ import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordDefinitionImpl;
 import com.revolsys.util.Booleans;
+import com.revolsys.util.Property;
 
 public class EsriXmlRecordDefinitionUtil implements EsriGeodatabaseXmlConstants {
   private static final String DE_TABLE_PROPERTY = EsriXmlRecordDefinitionUtil.class + ".DETable";
@@ -359,7 +360,7 @@ public class EsriXmlRecordDefinitionUtil implements EsriGeodatabaseXmlConstants 
           .getProperty(recordDefinition);
         String lengthFieldName = lengthFieldNameProperty.getFieldName();
         if (createLengthField) {
-          if (!com.revolsys.util.Property.hasValue(lengthFieldName)) {
+          if (!Property.hasValue(lengthFieldName)) {
             lengthFieldName = geometryFieldName + "_Length";
             lengthFieldNameProperty.setFieldName(lengthFieldName);
           }
@@ -373,7 +374,7 @@ public class EsriXmlRecordDefinitionUtil implements EsriGeodatabaseXmlConstants 
           final AreaFieldName areaFieldNameProperty = AreaFieldName.getProperty(recordDefinition);
           String areaFieldName = areaFieldNameProperty.getFieldName();
           if (createAreaField) {
-            if (!com.revolsys.util.Property.hasValue(areaFieldName)) {
+            if (!Property.hasValue(areaFieldName)) {
               areaFieldName = geometryFieldName + "_Area";
               areaFieldNameProperty.setFieldName(areaFieldName);
             }
@@ -391,7 +392,7 @@ public class EsriXmlRecordDefinitionUtil implements EsriGeodatabaseXmlConstants 
 
     String oidFieldName = recordDefinition
       .getProperty(EsriGeodatabaseXmlConstants.ESRI_OBJECT_ID_FIELD_NAME);
-    if (!com.revolsys.util.Property.hasValue(oidFieldName)) {
+    if (!Property.hasValue(oidFieldName)) {
       oidFieldName = "OBJECTID";
     }
     final String catalogPath;

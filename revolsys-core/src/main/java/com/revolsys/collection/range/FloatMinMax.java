@@ -2,6 +2,7 @@ package com.revolsys.collection.range;
 
 import com.revolsys.number.Floats;
 import com.revolsys.util.Emptyable;
+import com.revolsys.util.Property;
 
 public class FloatMinMax extends FloatRange implements Cloneable, Emptyable {
   public static FloatMinMax newWithIgnore(final float ignoreValue, final float... numbers) {
@@ -138,7 +139,7 @@ public class FloatMinMax extends FloatRange implements Cloneable, Emptyable {
   }
 
   public boolean contains(final FloatMinMax minMax) {
-    if (isEmpty() || !com.revolsys.util.Property.hasValue(minMax)) {
+    if (isEmpty() || !Property.hasValue(minMax)) {
       return false;
     } else {
       final float min = minMax.getMin();
@@ -191,7 +192,7 @@ public class FloatMinMax extends FloatRange implements Cloneable, Emptyable {
   }
 
   public boolean overlaps(final FloatMinMax minMax) {
-    if (isEmpty() || !com.revolsys.util.Property.hasValue(minMax)) {
+    if (isEmpty() || !Property.hasValue(minMax)) {
       return false;
     } else {
       final float min = minMax.getMin();

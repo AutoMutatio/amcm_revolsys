@@ -14,6 +14,7 @@ import com.revolsys.jdbc.io.AbstractJdbcRecordStore;
 import com.revolsys.jdbc.io.JdbcRecordDefinition;
 import com.revolsys.jdbc.io.JdbcRecordStoreSchema;
 import com.revolsys.logging.Logs;
+import com.revolsys.util.Property;
 
 public class PostgreSQLGeometryFieldAdder extends JdbcFieldAdder {
   private static final Map<String, DataType> DATA_TYPE_MAP = new HashMap<>();
@@ -42,7 +43,7 @@ public class PostgreSQLGeometryFieldAdder extends JdbcFieldAdder {
     final JdbcRecordStoreSchema schema = recordDefinition.getSchema();
     final PathName typePath = recordDefinition.getPathName();
     String dbSchemaName = schema.getDbName();
-    if (!com.revolsys.util.Property.hasValue(dbSchemaName)) {
+    if (!Property.hasValue(dbSchemaName)) {
       dbSchemaName = "public";
     }
     final String tableName = recordDefinition.getDbTableName().replace("\"", "");

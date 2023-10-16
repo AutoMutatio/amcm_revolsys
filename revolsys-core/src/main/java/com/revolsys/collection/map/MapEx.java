@@ -488,7 +488,7 @@ public interface MapEx extends MapDefault<String, Object>, Cloneable, DataTypedV
           iterator.remove();
           removed = true;
         }
-      } else if (!com.revolsys.util.Property.hasValue(value)) {
+      } else if (!Property.hasValue(value)) {
         iterator.remove();
         removed = true;
       }

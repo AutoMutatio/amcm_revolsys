@@ -40,6 +40,7 @@ import com.revolsys.swing.undo.CreateRecordUndo;
 import com.revolsys.swing.undo.DeleteLayerRecordUndo;
 import com.revolsys.swing.undo.MultipleUndo;
 import com.revolsys.swing.undo.UndoManager;
+import com.revolsys.util.Property;
 
 public class MergeRecordsDialog extends BaseDialog {
 
@@ -314,14 +315,14 @@ public class MergeRecordsDialog extends BaseDialog {
         newTable(mergeableRecord);
       }
     }
-    if (!nonMergeableRecords.isEmpty() || com.revolsys.util.Property.hasValue(errorMessage)) {
+    if (!nonMergeableRecords.isEmpty() || Property.hasValue(errorMessage)) {
       final TablePanel tablePanel = RecordListTableModel.newPanel(this.layer, nonMergeableRecords);
       final RecordListTableModel tableModel = tablePanel.getTableModel();
       tableModel.setEditable(false);
       tablePanel.setPreferredSize(new Dimension(100, 50 + nonMergeableRecords.size() * 22));
 
       final JPanel panel = new JPanel(new BorderLayout());
-      if (!com.revolsys.util.Property.hasValue(errorMessage)) {
+      if (!Property.hasValue(errorMessage)) {
         errorMessage = "The following records could not be merged and will not be modified.";
       }
       final JLabel unMergeLabel = new JLabel(

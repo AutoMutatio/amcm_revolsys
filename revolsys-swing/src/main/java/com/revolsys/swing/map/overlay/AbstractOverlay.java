@@ -66,6 +66,7 @@ import com.revolsys.swing.menu.BaseJPopupMenu;
 import com.revolsys.swing.menu.MenuFactory;
 import com.revolsys.swing.undo.SetObjectProperty;
 import com.revolsys.util.Booleans;
+import com.revolsys.util.Property;
 
 public abstract class AbstractOverlay extends JComponent
   implements MapOverlay, PropertyChangeListener, BaseMouseListener, BaseMouseMotionListener,
@@ -150,7 +151,7 @@ public abstract class AbstractOverlay extends JComponent
         final Set<CloseLocation> locations = entry.getValue();
         final CloseLocation firstLocation = CollectionUtil.get(locations, 0);
         final String idFieldName = firstLocation.getIdFieldName();
-        final boolean hasId = com.revolsys.util.Property.hasValue(idFieldName);
+        final boolean hasId = Property.hasValue(idFieldName);
         text.append("<b><i>");
         text.append(typePath);
         if (hasId) {

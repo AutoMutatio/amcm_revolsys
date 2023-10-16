@@ -170,7 +170,7 @@ public interface JdbcDatabaseFactory extends RecordStoreFactory {
         final String name = property.getKey();
         final Object value = property.getValue();
         try {
-          com.revolsys.util.Property.setSimple(dataSource, name, value);
+          Property.setSimple(dataSource, name, value);
         } catch (final Throwable t) {
           Logs.debug(this,
             "Unable to set data source property " + name + " = " + value + " for " + url, t);

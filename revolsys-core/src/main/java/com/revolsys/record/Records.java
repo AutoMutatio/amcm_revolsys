@@ -249,7 +249,7 @@ public interface Records {
   static <V extends Record> void filterAndSort(final List<V> records,
     final Predicate<? super V> filter, final List<OrderBy> orderBy) {
     // Filter records
-    if (!com.revolsys.util.Property.isEmpty(filter)) {
+    if (!Property.isEmpty(filter)) {
       Predicates.retain(records, filter);
     }
 
@@ -340,7 +340,7 @@ public interface Records {
         } else {
           try {
             final Object object = propertyValue;
-            propertyValue = com.revolsys.util.Property.getSimple(object, propertyName);
+            propertyValue = Property.getSimple(object, propertyName);
           } catch (final IllegalArgumentException e) {
             throw new IllegalArgumentException("Path does not exist " + path, e);
           }
@@ -391,7 +391,7 @@ public interface Records {
         } else {
           try {
             final Object object = propertyValue;
-            propertyValue = com.revolsys.util.Property.getSimple(object, propertyName);
+            propertyValue = Property.getSimple(object, propertyName);
           } catch (final IllegalArgumentException e) {
             throw new IllegalArgumentException("Path does not exist " + path, e);
           }
@@ -508,7 +508,7 @@ public interface Records {
   }
 
   static Object getValue(final Record record, final String fieldName) {
-    if (record == null || !com.revolsys.util.Property.hasValue(fieldName)) {
+    if (record == null || !Property.hasValue(fieldName)) {
       return null;
     } else {
       return record.getValue(fieldName);
@@ -525,9 +525,9 @@ public interface Records {
   static void mergeStringListValue(final Map<String, Object> record, final String fieldName,
     final String value1, final String value2) {
     Object value;
-    if (!com.revolsys.util.Property.hasValue(value1)) {
+    if (!Property.hasValue(value1)) {
       value = value2;
-    } else if (!com.revolsys.util.Property.hasValue(value2)) {
+    } else if (!Property.hasValue(value2)) {
       value = value1;
     } else if (DataType.equal(value1, value2)) {
       value = value1;
@@ -545,9 +545,9 @@ public interface Records {
     final String value1 = record1.getString(fieldName);
     final String value2 = record2.getString(fieldName);
     Object value;
-    if (!com.revolsys.util.Property.hasValue(value1)) {
+    if (!Property.hasValue(value1)) {
       value = value2;
-    } else if (!com.revolsys.util.Property.hasValue(value2)) {
+    } else if (!Property.hasValue(value2)) {
       value = value1;
     } else if (DataType.equal(value1, value2)) {
       value = value1;

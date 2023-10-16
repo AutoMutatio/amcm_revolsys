@@ -100,7 +100,7 @@ public interface ObjectWithProperties {
 
   default boolean hasProperty(final String name) {
     final Object value = getProperty(name);
-    return com.revolsys.util.Property.hasValue(value);
+    return Property.hasValue(value);
   }
 
   default boolean isPropertyEqual(final String name, final Object value) {

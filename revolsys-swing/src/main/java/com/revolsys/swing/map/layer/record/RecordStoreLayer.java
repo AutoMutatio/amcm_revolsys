@@ -596,7 +596,7 @@ public class RecordStoreLayer extends AbstractRecordLayer {
     final RecordDefinition recordDefinition = getInternalRecordDefinition();
     final FieldDefinition geometryField = recordDefinition.getGeometryField();
     boundingBox = convertBoundingBox(boundingBox);
-    if (geometryField == null || com.revolsys.util.Property.isEmpty(boundingBox)) {
+    if (geometryField == null || Property.isEmpty(boundingBox)) {
       return null;
     } else {
       Query query = getQuery();
@@ -909,7 +909,7 @@ public class RecordStoreLayer extends AbstractRecordLayer {
   public void setTypePath(final PathName typePath) {
     this.typePath = typePath;
     if (this.typePath != null) {
-      if (!com.revolsys.util.Property.hasValue(getName())) {
+      if (!Property.hasValue(getName())) {
         setName(this.typePath.getName());
       }
     }

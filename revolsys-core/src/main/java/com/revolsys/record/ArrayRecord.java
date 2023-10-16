@@ -7,6 +7,7 @@ import java.util.Map;
 import com.revolsys.data.identifier.SingleIdentifier;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
+import com.revolsys.util.Property;
 
 /**
  * The ArrayRecord is an implementation of {@link Record} which uses an array of
@@ -148,7 +149,7 @@ public class ArrayRecord extends BaseRecord {
     boolean updated = false;
     if (value instanceof String) {
       final String string = (String)value;
-      if (!com.revolsys.util.Property.hasValue(string)) {
+      if (!Property.hasValue(string)) {
         value = null;
       }
     }

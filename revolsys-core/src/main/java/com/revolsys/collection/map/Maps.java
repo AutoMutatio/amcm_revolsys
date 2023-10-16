@@ -676,7 +676,7 @@ public interface Maps {
       return false;
     } else {
       final Object value = map.get(key);
-      return com.revolsys.util.Property.hasValue(value);
+      return Property.hasValue(value);
     }
   }
 

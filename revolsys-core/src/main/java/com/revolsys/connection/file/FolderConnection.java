@@ -9,6 +9,7 @@ import com.revolsys.collection.json.JsonObject;
 import com.revolsys.connection.AbstractConnection;
 import com.revolsys.data.type.DataType;
 import com.revolsys.io.file.Paths;
+import com.revolsys.util.Property;
 
 public class FolderConnection extends AbstractConnection<FolderConnection, FolderConnectionRegistry>
   implements Parent<Path> {
@@ -21,7 +22,7 @@ public class FolderConnection extends AbstractConnection<FolderConnection, Folde
     if (path == null) {
       throw new IllegalArgumentException("File must not be null");
     }
-    if (!com.revolsys.util.Property.hasValue(getName())) {
+    if (!Property.hasValue(getName())) {
       final String fileName = Paths.getFileName(path);
       setName(fileName);
     }

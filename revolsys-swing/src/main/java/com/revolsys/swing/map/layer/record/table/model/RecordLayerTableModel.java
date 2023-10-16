@@ -291,7 +291,7 @@ public class RecordLayerTableModel extends RecordRowTableModel
 
           final Object value = getValueAt(rowIndex, columnIndex);
 
-          final boolean canCopy = com.revolsys.util.Property.hasValue(value);
+          final boolean canCopy = Property.hasValue(value);
           if (cellEditable) {
             final JMenuItem cutMenu = RunnableAction.newMenuItem("Cut Field Value", "cut",
               table::cutFieldValue);

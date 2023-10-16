@@ -47,7 +47,7 @@ public interface RecordReaderFactory extends GeometryReaderFactory, MapReaderFac
       if ("zip".equalsIgnoreCase(fileExtension)) {
         final String baseFileExtension = (String)properties.get("baseFileExtension");
         String baseName = (String)properties.get("baseName");
-        if (!com.revolsys.util.Property.hasValue(baseName)) {
+        if (!Property.hasValue(baseName)) {
           baseName = (String)properties.get("baseFileName");
         }
         if (Property.hasValue(baseName)) {

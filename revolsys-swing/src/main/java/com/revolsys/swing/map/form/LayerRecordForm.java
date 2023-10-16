@@ -760,7 +760,7 @@ public class LayerRecordForm extends JPanel implements PropertyChangeListener, C
         string = Strings.toString(values);
       }
     }
-    if (!com.revolsys.util.Property.hasValue(string)) {
+    if (!Property.hasValue(string)) {
       string = "-";
     }
     return string;
@@ -975,7 +975,7 @@ public class LayerRecordForm extends JPanel implements PropertyChangeListener, C
       return false;
     } else {
       final Object value = field.getFieldValue();
-      return com.revolsys.util.Property.hasValue(value);
+      return Property.hasValue(value);
     }
   }
 
@@ -1162,7 +1162,7 @@ public class LayerRecordForm extends JPanel implements PropertyChangeListener, C
               boolean equal = false;
               if (fieldValue instanceof String) {
                 final String string = (String)fieldValue;
-                if (!com.revolsys.util.Property.hasValue(string) && recordValue == null) {
+                if (!Property.hasValue(string) && recordValue == null) {
                   equal = true;
                 }
               }
@@ -1597,7 +1597,7 @@ public class LayerRecordForm extends JPanel implements PropertyChangeListener, C
         }
         if (run) {
           final Object value = getFieldValue(fieldName);
-          if (!com.revolsys.util.Property.hasValue(value)) {
+          if (!Property.hasValue(value)) {
             valid = addFieldError(fieldName, "Required");
           }
         }

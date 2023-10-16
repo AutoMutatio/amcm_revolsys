@@ -46,7 +46,7 @@ public class ILike extends BinaryCondition {
         return false;
       }
     } else {
-      return !com.revolsys.util.Property.hasValue(value2);
+      return !Property.hasValue(value2);
     }
   }
 

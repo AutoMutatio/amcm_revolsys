@@ -23,6 +23,7 @@ import com.revolsys.record.io.format.xml.XmlWriter;
 import com.revolsys.record.io.format.xml.XsiConstants;
 import com.revolsys.util.CaseConverter;
 import com.revolsys.util.JavaBeanUtil;
+import com.revolsys.util.Property;
 
 public class EsriGdbXmlSerializer implements EsriGeodatabaseXmlConstants {
   public static String toString(final Object object) {
@@ -325,7 +326,7 @@ public class EsriGdbXmlSerializer implements EsriGeodatabaseXmlConstants {
             propertyName = CaseConverter.toLowerFirstChar(propertyName);
           }
           final String propertyName1 = propertyName;
-          final Object value = com.revolsys.util.Property.getSimple(object, propertyName1);
+          final Object value = Property.getSimple(object, propertyName1);
           if (this.writeNull || value != null) {
             final Method method = getClassPropertyMethod(objectClass, propertyTagName);
             if (method == null) {

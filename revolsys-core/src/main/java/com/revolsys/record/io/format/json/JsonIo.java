@@ -9,6 +9,7 @@ import java.nio.charset.Charset;
 import java.sql.Clob;
 import java.sql.SQLException;
 
+import com.revolsys.collection.json.Json;
 import com.revolsys.collection.json.JsonParser;
 import com.revolsys.exception.WrappedException;
 import com.revolsys.io.AbstractIoFactory;
@@ -24,12 +25,6 @@ import com.revolsys.spring.resource.Resource;
 
 public class JsonIo extends AbstractIoFactory
   implements MapReaderFactory, MapWriterFactory, RecordWriterFactory {
-
-  public static final String FILE_EXTENSION = "json";
-
-  public static final String MIME_TYPE = "application/json";
-
-  public static final String MIME_TYPE_UTF8 = "application/json;charset=utf-8";
 
   public static JsonParser newParser(final Object source) {
     Runnable closeAction = null;
@@ -74,7 +69,7 @@ public class JsonIo extends AbstractIoFactory
 
   public JsonIo() {
     super("JSON");
-    addMediaTypeAndFileExtension(MIME_TYPE, FILE_EXTENSION);
+    addMediaTypeAndFileExtension(Json.MIME_TYPE, Json.FILE_EXTENSION);
   }
 
   @Override

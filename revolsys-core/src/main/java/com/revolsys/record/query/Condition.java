@@ -11,7 +11,7 @@ public interface Condition extends QueryValue, Predicate<MapEx>, Emptyable {
   AcceptAllCondition ALL = new AcceptAllCondition();
 
   default Condition and(final Condition condition) {
-    if (condition == null || com.revolsys.util.Property.isEmpty(condition)) {
+    if (condition == null || Property.isEmpty(condition)) {
       return this;
     } else if (Property.isEmpty(this)) {
       return condition;
@@ -46,7 +46,7 @@ public interface Condition extends QueryValue, Predicate<MapEx>, Emptyable {
   }
 
   default Condition or(final Condition condition) {
-    if (condition == null || com.revolsys.util.Property.isEmpty(condition)) {
+    if (condition == null || Property.isEmpty(condition)) {
       return this;
     } else if (Property.isEmpty(this)) {
       return condition;

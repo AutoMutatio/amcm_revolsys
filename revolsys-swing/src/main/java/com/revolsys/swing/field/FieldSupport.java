@@ -100,7 +100,7 @@ public class FieldSupport {
   }
 
   public boolean hasError() {
-    return com.revolsys.util.Property.hasValue(this.errorMessage);
+    return Property.hasValue(this.errorMessage);
   }
 
   public boolean isEditable() {

@@ -42,6 +42,7 @@ import com.revolsys.record.schema.RecordDefinitionProxy;
 import com.revolsys.record.schema.RecordStore;
 import com.revolsys.spring.resource.Resource;
 import com.revolsys.spring.resource.UrlResource;
+import com.revolsys.util.Property;
 import com.revolsys.util.RsCoreDataTypes;
 
 /**
@@ -224,7 +225,7 @@ public class GeoPackage extends AbstractJdbcDatabaseFactory
   public DataSource newDataSource(final Map<String, ? extends Object> config) {
     final MapEx newConfig = JsonObject.hash(config);
     String url = (String)newConfig.remove("url");
-    if (!com.revolsys.util.Property.hasValue(url)) {
+    if (!Property.hasValue(url)) {
       throw new IllegalArgumentException("jdbc url required");
     }
 
@@ -254,7 +255,7 @@ public class GeoPackage extends AbstractJdbcDatabaseFactory
         final String name = property.getKey();
         final Object value = property.getValue();
         try {
-          com.revolsys.util.Property.setSimple(sqliteConfig, name, value);
+          Property.setSimple(sqliteConfig, name, value);
         } catch (final Throwable t) {
           Logs.debug(this,
             "Unable to set data source property " + name + " = " + value + " for " + url, t);

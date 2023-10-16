@@ -12,6 +12,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.revolsys.collection.json.Json;
 import com.revolsys.collection.json.JsonList;
 import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.json.JsonParser;
@@ -24,7 +25,6 @@ import com.revolsys.record.io.RecordWriter;
 import com.revolsys.record.io.RecordWriterFactory;
 import com.revolsys.record.io.format.csv.Csv;
 import com.revolsys.record.io.format.csv.CsvRecordWriter;
-import com.revolsys.record.io.format.json.JsonIo;
 import com.revolsys.record.io.format.json.JsonRecordWriter;
 import com.revolsys.record.schema.RecordDefinition;
 
@@ -61,7 +61,7 @@ public class AbstractWebController {
   }
 
   public static void setContentTypeJson(final HttpServletResponse response) {
-    setContentTypeText(response, JsonIo.MIME_TYPE_UTF8);
+    setContentTypeText(response, Json.MIME_TYPE_UTF8);
   }
 
   public static void setContentTypeText(final HttpServletResponse response,

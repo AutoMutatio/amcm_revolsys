@@ -143,7 +143,7 @@ public class RecordStoreConnectionManager
           final Map<String, ? extends Object> connectionProperties = (Map<String, ? extends Object>)configClone
             .get("connection");
           final String name = (String)connectionProperties.get("name");
-          if (!com.revolsys.util.Property.hasValue(name)) {
+          if (!Property.hasValue(name)) {
             // TODO release for connections from connection registries
             recordStore.close();
           }

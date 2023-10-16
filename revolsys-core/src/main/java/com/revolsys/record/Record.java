@@ -320,7 +320,7 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
 
   default double distance(final Geometry geometry) {
     final Geometry recordGeometry = getGeometry();
-    if (Property.isEmpty(geometry) || com.revolsys.util.Property.isEmpty(recordGeometry)) {
+    if (Property.isEmpty(geometry) || Property.isEmpty(recordGeometry)) {
       return Double.NaN;
     } else {
       final double distance = recordGeometry.distanceGeometry(geometry);
@@ -335,8 +335,8 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
 
   default boolean equalPathValue(final CharSequence fieldPath, final Object value) {
     final Object fieldValue = getValueByPath(fieldPath);
-    final boolean hasValue1 = com.revolsys.util.Property.hasValue(value);
-    final boolean hasValue2 = com.revolsys.util.Property.hasValue(fieldValue);
+    final boolean hasValue1 = Property.hasValue(value);
+    final boolean hasValue2 = Property.hasValue(fieldValue);
     if (hasValue1) {
       if (hasValue2) {
         return DataType.equal(fieldValue, value);
@@ -873,7 +873,7 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
    */
   default <T extends Object> T getValue(final int index) {
     final String fieldName = getFieldName(index);
-    return com.revolsys.util.Property.getSimple(this, fieldName);
+    return Property.getSimple(this, fieldName);
   }
 
   default <T extends Object> T getValue(final int index, final DataType dataType) {
@@ -945,7 +945,7 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
         } else {
           try {
             final Object object = propertyValue;
-            propertyValue = com.revolsys.util.Property.getSimple(object, propertyName);
+            propertyValue = Property.getSimple(object, propertyName);
           } catch (final IllegalArgumentException e) {
             Logs.debug(this, "Path does not exist " + path, e);
             return null;
@@ -990,18 +990,18 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
 
   default boolean hasGeometry() {
     final Geometry geometry = getGeometry();
-    return com.revolsys.util.Property.hasValue(geometry);
+    return Property.hasValue(geometry);
   }
 
   @Override
   default boolean hasValue(final CharSequence name) {
     final Object value = getValue(name);
-    return com.revolsys.util.Property.hasValue(value);
+    return Property.hasValue(value);
   }
 
   default boolean hasValue(final int fieldIndex) {
     final Object value = getValue(fieldIndex);
-    return com.revolsys.util.Property.hasValue(value);
+    return Property.hasValue(value);
   }
 
   @Override
@@ -1333,7 +1333,7 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
         return false;
       }
       updated = setValue(name, value);
-    } else if (!com.revolsys.util.Property.hasValue(value)) {
+    } else if (!Property.hasValue(value)) {
       updated = setValue(codeTableFieldName, null);
     } else {
       Object targetValue;

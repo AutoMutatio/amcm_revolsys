@@ -622,7 +622,7 @@ public class MenuFactory extends BaseObjectWithProperties implements ComponentFa
     for (final String groupName : this.groupNames) {
       boolean groupHasItem = false;
       final List<ComponentFactory<?>> factories = this.groups.get(groupName);
-      if (!com.revolsys.util.Property.isEmpty(factories)) {
+      if (!Property.isEmpty(factories)) {
         for (final ComponentFactory<?> factory : factories) {
           final Component component = factory.newComponent();
           if (component != null) {

@@ -233,7 +233,7 @@ public class MavenRepository implements URLStreamHandlerFactory {
   public String getSha1(final String groupId, final String artifactId, final String version,
     final String type, final String classifier, final String specificVersion,
     final String algorithm) {
-    if (!com.revolsys.util.Property.hasValue(algorithm)) {
+    if (!Property.hasValue(algorithm)) {
       final Resource digestResource = getResource(groupId, artifactId, version, type, classifier,
         specificVersion, "sha1");
       if (digestResource.exists()) {

@@ -13,7 +13,7 @@ public interface StringBuilders {
     boolean first = true;
     for (final Object value : values) {
       final String string = DataTypes.toString(value);
-      if (!skipNulls || com.revolsys.util.Property.hasValue(string)) {
+      if (!skipNulls || Property.hasValue(string)) {
         if (first) {
           first = false;
         } else {

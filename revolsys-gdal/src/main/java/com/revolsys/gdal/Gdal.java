@@ -501,9 +501,9 @@ public class Gdal implements ServiceInitializer {
 
   private static void setGdalProperty(final String name, final String defaultValue) {
     String value = System.getProperty(name);
-    if (!com.revolsys.util.Property.hasValue(value)) {
+    if (!Property.hasValue(value)) {
       value = System.getenv(name);
-      if (!com.revolsys.util.Property.hasValue(value)) {
+      if (!Property.hasValue(value)) {
         value = defaultValue;
       }
     }

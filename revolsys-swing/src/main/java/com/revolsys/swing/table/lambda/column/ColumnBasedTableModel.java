@@ -12,6 +12,7 @@ import com.revolsys.swing.menu.BaseJPopupMenu;
 import com.revolsys.swing.menu.MenuFactory;
 import com.revolsys.swing.table.AbstractTableModel;
 import com.revolsys.swing.table.BaseJTable;
+import com.revolsys.util.Property;
 
 public class ColumnBasedTableModel extends AbstractTableModel {
 
@@ -110,7 +111,7 @@ public class ColumnBasedTableModel extends AbstractTableModel {
     }
     final Object value = getValueAt(rowIndex, columnIndex);
 
-    final boolean canCopy = com.revolsys.util.Property.hasValue(value);
+    final boolean canCopy = Property.hasValue(value);
     final BaseJTable table = getTable();
     final boolean cellEditable = isCellEditable(rowIndex, columnIndex);
     if (cellEditable) {

@@ -127,7 +127,7 @@ public interface LayerRecord extends Record {
       final Object value = getValue(fieldName);
       if (Property.isEmpty(value)) {
         final Object originalValue = getOriginalValue(fieldName);
-        if (!com.revolsys.util.Property.isEmpty(originalValue)) {
+        if (!Property.isEmpty(originalValue)) {
           return true;
         }
       }
@@ -257,7 +257,7 @@ public interface LayerRecord extends Record {
         if (Property.isEmpty(value)) {
           if (!layer.isFieldUserReadOnly(fieldName)) {
             final Object originalValue = getOriginalValue(fieldName);
-            if (!com.revolsys.util.Property.isEmpty(originalValue)) {
+            if (!Property.isEmpty(originalValue)) {
               setValue(fieldName, originalValue);
             }
           }

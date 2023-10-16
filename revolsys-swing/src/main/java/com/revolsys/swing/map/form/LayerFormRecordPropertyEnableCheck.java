@@ -47,7 +47,7 @@ public class LayerFormRecordPropertyEnableCheck extends AbstractEnableCheck {
   @Override
   public boolean isEnabled() {
     final LayerRecord record = getRecord();
-    final Object value = com.revolsys.util.Property.getSimple(record, this.propertyName);
+    final Object value = Property.getSimple(record, this.propertyName);
     final boolean equal = DataType.equal(value, this.value);
     if (equal == !this.inverse) {
       return enabled();

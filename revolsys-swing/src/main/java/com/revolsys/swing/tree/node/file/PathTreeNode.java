@@ -56,6 +56,7 @@ import com.revolsys.swing.tree.TreeNodes;
 import com.revolsys.swing.tree.node.FunctionChildrenTreeNode;
 import com.revolsys.swing.tree.node.LazyLoadTreeNode;
 import com.revolsys.swing.tree.node.record.PathRecordStoreTreeNode;
+import com.revolsys.util.Property;
 
 public class PathTreeNode extends LazyLoadTreeNode implements UrlProxy {
   private static JFileChooser chooser;
@@ -63,7 +64,7 @@ public class PathTreeNode extends LazyLoadTreeNode implements UrlProxy {
   public static final LazyMenuFactory MENU = new LazyMenuFactory("File");
 
   static {
-    MENU.addInitializer((menu) -> {
+    MENU.addInitializer(menu -> {
       addRefreshMenuItem(menu);
 
       TreeNodes
@@ -221,7 +222,7 @@ public class PathTreeNode extends LazyLoadTreeNode implements UrlProxy {
 
   public static BaseTreeNode newFileSystemsTreeNode() {
     final BaseTreeNode fileSystems = new FunctionChildrenTreeNode(FileSystems.getDefault(),
-      "File Systems", getIconFolder("drive"), (fileSystem) -> {
+      "File Systems", getIconFolder("drive"), fileSystem -> {
         final Iterable<Path> roots = ((FileSystem)fileSystem).getRootDirectories();
         return getPathNodes(roots, true);
       });
@@ -293,7 +294,7 @@ public class PathTreeNode extends LazyLoadTreeNode implements UrlProxy {
       if (panel.isSaved()) {
         final FolderConnectionRegistry registry = registryField.getSelectedItem();
         String connectionName = nameField.getText();
-        if (!com.revolsys.util.Property.hasValue(connectionName)) {
+        if (!Property.hasValue(connectionName)) {
           connectionName = fileName;
         }
 

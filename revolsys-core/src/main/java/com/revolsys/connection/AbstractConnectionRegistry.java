@@ -153,7 +153,7 @@ public abstract class AbstractConnectionRegistry<C extends Connection>
   protected String getConnectionName(final MapEx config, final Path connectionFile,
     final boolean requireUniqueNames) {
     String name = config.getString("name");
-    if (connectionFile != null && !com.revolsys.util.Property.hasValue(name)) {
+    if (connectionFile != null && !Property.hasValue(name)) {
       name = Paths.getBaseName(connectionFile);
     }
     if (requireUniqueNames) {

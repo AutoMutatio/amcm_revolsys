@@ -382,7 +382,7 @@ public class NumberTextField extends JXTextField implements Field, DocumentListe
         }
       }
     }
-    final boolean valid = com.revolsys.util.Property.isEmpty(message);
+    final boolean valid = Property.isEmpty(message);
     if (valid) {
       this.fieldSupport.setFieldValid();
     } else {

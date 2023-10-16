@@ -16,6 +16,7 @@ import com.revolsys.swing.Panels;
 import com.revolsys.swing.field.Field;
 import com.revolsys.swing.map.layer.record.renderer.GeometryStyleLayerRenderer;
 import com.revolsys.swing.map.layer.record.style.GeometryStyle;
+import com.revolsys.util.Property;
 
 public class GeometryStylePanel extends BaseStylePanel implements PropertyChangeListener {
   private static final long serialVersionUID = 1L;
@@ -81,7 +82,7 @@ public class GeometryStylePanel extends BaseStylePanel implements PropertyChange
       final Field field = (Field)source;
       final String fieldName = field.getFieldName();
       Object fieldValue = field.getFieldValue();
-      if ("lineDashOffset".equals(fieldName) && !com.revolsys.util.Property.hasValue(fieldValue)) {
+      if ("lineDashOffset".equals(fieldName) && !Property.hasValue(fieldValue)) {
         fieldValue = 0;
       }
       this.geometryStyle.setProperty(fieldName, fieldValue);

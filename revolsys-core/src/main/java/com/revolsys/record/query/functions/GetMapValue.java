@@ -17,7 +17,7 @@ public class GetMapValue extends SimpleFunction {
   public <V> V getValue(final MapEx record) {
     final Map<String, ?> map = getParameterValue(0, record);
     final String key = getParameterStringValue(1, record);
-    if (map == null || !com.revolsys.util.Property.hasValue(key)) {
+    if (map == null || !Property.hasValue(key)) {
       return null;
     } else {
       final V value = Property.get(map, key);

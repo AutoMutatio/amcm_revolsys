@@ -44,6 +44,7 @@ import com.revolsys.logging.Logs;
 import com.revolsys.record.Record;
 import com.revolsys.record.io.format.saif.SaifConstants;
 import com.revolsys.record.schema.RecordDefinition;
+import com.revolsys.util.Property;
 
 public class OsnSerializer {
   private static final String ATTRIBUTE_SCOPE = "attribute";
@@ -251,7 +252,7 @@ public class OsnSerializer {
   }
 
   private void serialize(final Geometry geometry) throws IOException {
-    final String type = com.revolsys.util.Property.getSimple(geometry, "osnGeometryType");
+    final String type = Property.getSimple(geometry, "osnGeometryType");
     OsnConverter converter = this.converters.getConverter(type);
     if (converter == null) {
       if (geometry instanceof Point) {

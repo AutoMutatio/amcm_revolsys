@@ -3,6 +3,7 @@ package com.revolsys.io;
 import java.util.Map;
 
 import com.revolsys.io.map.MapWriter;
+import com.revolsys.util.Property;
 
 public abstract class AbstractMapWriter extends AbstractWriter<Map<String, ? extends Object>>
   implements MapWriter {
@@ -23,7 +24,7 @@ public abstract class AbstractMapWriter extends AbstractWriter<Map<String, ? ext
   }
 
   public boolean isWritable(final Object value) {
-    return com.revolsys.util.Property.hasValue(value) || isWriteNulls();
+    return Property.hasValue(value) || isWriteNulls();
   }
 
   public boolean isWriteNulls() {

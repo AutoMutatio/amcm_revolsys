@@ -13,6 +13,7 @@ import com.revolsys.geometry.model.Point;
 import com.revolsys.record.io.format.xml.stax.StaxReader;
 import com.revolsys.spring.resource.Resource;
 import com.revolsys.spring.resource.UrlResource;
+import com.revolsys.util.Property;
 
 public class OsmDocument implements OsmConstants {
 
@@ -236,7 +237,7 @@ public class OsmDocument implements OsmConstants {
       for (final String fieldName : Arrays.asList("version", "generator", "copyright",
         "attribution", "license")) {
         final String value = in.getAttributeValue(null, fieldName);
-        com.revolsys.util.Property.setSimple(this, fieldName, value);
+        Property.setSimple(this, fieldName, value);
       }
       while (in.skipToChildStartElements(OSM_XML_ELEMENTS)) {
         final QName name = in.getName();

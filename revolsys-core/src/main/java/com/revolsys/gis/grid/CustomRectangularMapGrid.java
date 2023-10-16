@@ -14,6 +14,7 @@ import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.geometry.model.Point;
 import com.revolsys.geometry.model.impl.RectangleXY;
 import com.revolsys.number.Doubles;
+import com.revolsys.util.Property;
 
 public class CustomRectangularMapGrid extends AbstractRectangularMapGrid {
   private static final double DEFAULT_TILE_SIZE = 1000;
@@ -113,7 +114,7 @@ public class CustomRectangularMapGrid extends AbstractRectangularMapGrid {
 
   public void forEachTile(final Geometry geometry, final Consumer<RectangularMapTile> action) {
     final Geometry convertedGeometry = toCoordinateSystem(geometry);
-    if (!com.revolsys.util.Property.isEmpty(convertedGeometry)) {
+    if (!Property.isEmpty(convertedGeometry)) {
       final BoundingBox boundingBox = convertedGeometry.getBoundingBox();
       forEachTile(boundingBox, tile -> {
         final BoundingBox tileBoundingBox = tile.getBoundingBox();

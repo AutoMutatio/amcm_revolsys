@@ -43,6 +43,7 @@ import com.revolsys.collection.json.JsonObjectHash;
 import com.revolsys.core.test.geometry.test.geomop.GeometryOperation;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.io.MapSerializer;
+import com.revolsys.util.Property;
 
 import junit.framework.Assert;
 
@@ -90,7 +91,7 @@ public class GeometryOperationTest extends junit.framework.TestCase implements M
     final List<String> arguments, final Result expectedResult, final double tolerance) {
     this.tolerance = tolerance;
     this.testDescription = StringUtils.trimWhitespace(description);
-    if (!com.revolsys.util.Property.hasValue(description)) {
+    if (!Property.hasValue(description)) {
       this.testDescription = operation;
     }
     setName(testCase.getId() + "." + testIndex + "." + this.testDescription);

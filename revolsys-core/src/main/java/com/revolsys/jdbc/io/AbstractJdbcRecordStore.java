@@ -1126,7 +1126,7 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
           for (final RecordDefinitionImpl recordDefinition : recordDefinitionMap.values()) {
             final String typePath = recordDefinition.getPath();
             final List<String> idFieldNames = idFieldNameMap.get(typePath);
-            if (!com.revolsys.util.Property.isEmpty(idFieldNames)) {
+            if (!Property.isEmpty(idFieldNames)) {
               recordDefinition.setIdFieldNames(idFieldNames);
             }
           }

@@ -11,6 +11,7 @@ import com.revolsys.io.FileUtil;
 import com.revolsys.logging.Logs;
 import com.revolsys.properties.BaseObjectWithProperties;
 import com.revolsys.spring.resource.Resource;
+import com.revolsys.util.Property;
 
 public abstract class AbstractConnection<C extends Connection, R extends ConnectionRegistry<C>>
   extends BaseObjectWithProperties implements Connection {
@@ -32,7 +33,7 @@ public abstract class AbstractConnection<C extends Connection, R extends Connect
     this.config.putAll(config);
     this.registry = registry;
     setProperties(config);
-    if (!com.revolsys.util.Property.hasValue(this.name)) {
+    if (!Property.hasValue(this.name)) {
       this.name = FileUtil.getBaseName(resourceName);
     }
   }

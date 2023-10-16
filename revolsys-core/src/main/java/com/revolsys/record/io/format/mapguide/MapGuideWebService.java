@@ -13,7 +13,6 @@ import com.revolsys.collection.map.MapEx;
 import com.revolsys.collection.map.Maps;
 import com.revolsys.io.PathName;
 import com.revolsys.logging.Logs;
-import com.revolsys.record.io.format.json.JsonIo;
 import com.revolsys.spring.resource.Resource;
 import com.revolsys.spring.resource.UrlResource;
 import com.revolsys.util.Property;
@@ -91,7 +90,7 @@ public class MapGuideWebService extends AbstractWebService<MapGuideResource> {
 
   public MapEx getJsonResponse(final String operation,
     final Map<String, ? extends Object> parameters) {
-    final Resource resource = getResource(operation, JsonIo.MIME_TYPE, parameters);
+    final Resource resource = getResource(operation, Json.MIME_TYPE, parameters);
     return Json.toMap(resource);
   }
 

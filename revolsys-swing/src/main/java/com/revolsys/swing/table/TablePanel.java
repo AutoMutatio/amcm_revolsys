@@ -360,7 +360,7 @@ public class TablePanel extends JPanel implements MouseListener, Closeable {
       return true;
     } else if (isCurrentCellEditable()) {
       final String value = ClipboardUtil.getContents(DataFlavor.stringFlavor);
-      return com.revolsys.util.Property.hasValue(value);
+      return Property.hasValue(value);
     }
     return false;
   }
@@ -384,7 +384,7 @@ public class TablePanel extends JPanel implements MouseListener, Closeable {
     } else if (eventRow > -1 && eventColumn > -1 && eventTable == this.table) {
       final TableModel tableModel = getTableModel();
       final Object value = tableModel.getValueAt(eventRow, eventColumn);
-      return com.revolsys.util.Property.hasValue(value);
+      return Property.hasValue(value);
     }
     return false;
   }

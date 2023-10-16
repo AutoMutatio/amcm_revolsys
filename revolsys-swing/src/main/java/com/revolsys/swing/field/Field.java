@@ -10,6 +10,7 @@ import javax.swing.JTextField;
 import com.revolsys.awt.WebColors;
 import com.revolsys.swing.Icons;
 import com.revolsys.swing.undo.UndoManager;
+import com.revolsys.util.Property;
 
 public interface Field extends Cloneable {
   Color DEFAULT_BACKGROUND = new JTextField().getBackground();
@@ -63,7 +64,7 @@ public interface Field extends Cloneable {
     updateFieldValue();
     final FieldSupport fieldSupport = getFieldSupport();
     final Object fieldValue = getFieldValue();
-    return com.revolsys.util.Property.hasValue(fieldValue) && fieldSupport.isFieldValid();
+    return Property.hasValue(fieldValue) && fieldSupport.isFieldValid();
   }
 
   default void setFieldBackgroundColor(Color color) {

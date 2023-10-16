@@ -237,7 +237,7 @@ public class FieldFilterPanel extends JComponent implements PropertyChangeListen
         BaseCloseable settingFilter = this.settingFilter.closeable(true)) {
         this.lastValue = null;
         String searchField = this.previousSearchFieldName;
-        if (!com.revolsys.util.Property.hasValue(searchField)) {
+        if (!Property.hasValue(searchField)) {
           final List<String> fieldNames = this.recordDefinition.getFieldNames();
           if (!fieldNames.isEmpty()) {
             searchField = fieldNames.get(0);

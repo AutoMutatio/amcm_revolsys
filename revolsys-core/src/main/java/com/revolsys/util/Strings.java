@@ -262,7 +262,7 @@ public interface Strings {
     if (Property.hasValue(string1)) {
       return string1.equalsIgnoreCase(string2);
     } else {
-      return com.revolsys.util.Property.isEmpty(string2);
+      return Property.isEmpty(string2);
     }
   }
 
@@ -299,8 +299,8 @@ public interface Strings {
   }
 
   static boolean isEqualTrim(final String oldValue, final String newValue) {
-    final boolean oldHasValue = com.revolsys.util.Property.hasValue(oldValue);
-    final boolean newHasValue = com.revolsys.util.Property.hasValue(newValue);
+    final boolean oldHasValue = Property.hasValue(oldValue);
+    final boolean newHasValue = Property.hasValue(newValue);
     if (oldHasValue) {
       if (newHasValue) {
         if (DataType.equal(oldValue.strip(), newValue.strip())) {
@@ -476,7 +476,7 @@ public interface Strings {
             if (nextIndex == text.length()
               || Arrays.binarySearch(separators, text.charAt(nextIndex)) != -1) {
               final StringBuilder newText = new StringBuilder();
-              final boolean hasNewValue = com.revolsys.util.Property.hasValue(newValue);
+              final boolean hasNewValue = Property.hasValue(newValue);
               if (index > 0) {
                 String prefix;
                 if (hasNewValue) {

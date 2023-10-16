@@ -333,7 +333,7 @@ public interface Property {
   }
 
   static PropertyDescriptor descriptor(final Class<?> beanClass, final String name) {
-    if (beanClass != null && com.revolsys.util.Property.hasValue(name)) {
+    if (beanClass != null && Property.hasValue(name)) {
       try {
         final BeanInfo beanInfo = Introspector.getBeanInfo(beanClass);
         final PropertyDescriptor[] props = beanInfo.getPropertyDescriptors();
@@ -400,8 +400,8 @@ public interface Property {
       } else {
         final String firstName = Property.getFirstName(key);
         final String subName = Property.getSubName(key);
-        final Object value = com.revolsys.util.Property.getSimple(object, firstName);
-        if (value == null || !com.revolsys.util.Property.hasValue(subName)) {
+        final Object value = Property.getSimple(object, firstName);
+        if (value == null || !Property.hasValue(subName)) {
           return (T)value;
         } else {
           return (T)get(value, subName);
@@ -552,7 +552,7 @@ public interface Property {
         final Annotation annotation = (Annotation)object;
         return (T)AnnotationUtils.getValue(annotation, key);
       } else {
-        return com.revolsys.util.Property.getSimple(object, key);
+        return Property.getSimple(object, key);
       }
     }
   }
@@ -718,7 +718,7 @@ public interface Property {
       return false;
     } else {
       for (final Object value : values) {
-        if (!com.revolsys.util.Property.hasValue(value)) {
+        if (!Property.hasValue(value)) {
           return false;
         }
       }
@@ -758,8 +758,8 @@ public interface Property {
   }
 
   static boolean isChanged(final Object oldValue, final Object newValue) {
-    final boolean oldHasValue = com.revolsys.util.Property.hasValue(oldValue);
-    final boolean newHasValue = com.revolsys.util.Property.hasValue(newValue);
+    final boolean oldHasValue = Property.hasValue(oldValue);
+    final boolean newHasValue = Property.hasValue(newValue);
     if (oldHasValue) {
       if (newHasValue) {
         if (DataType.equal(oldValue, newValue)) {
@@ -1048,7 +1048,7 @@ public interface Property {
         final Map<String, Object> map = (Map<String, Object>)object;
         map.put(propertyName, value);
       } else {
-        com.revolsys.util.Property.setSimple(object, propertyName, value);
+        Property.setSimple(object, propertyName, value);
       }
     }
   }

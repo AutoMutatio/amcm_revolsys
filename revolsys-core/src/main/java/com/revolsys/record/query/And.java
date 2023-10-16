@@ -3,6 +3,7 @@ package com.revolsys.record.query;
 import java.util.Arrays;
 
 import com.revolsys.collection.map.MapEx;
+import com.revolsys.util.Property;
 
 public class And extends AbstractMultiCondition {
 
@@ -20,7 +21,7 @@ public class And extends AbstractMultiCondition {
 
   @Override
   public And and(final Condition condition) {
-    if (condition != null && !com.revolsys.util.Property.isEmpty(condition)) {
+    if (condition != null && !Property.isEmpty(condition)) {
       addCondition(condition);
     }
     return this;

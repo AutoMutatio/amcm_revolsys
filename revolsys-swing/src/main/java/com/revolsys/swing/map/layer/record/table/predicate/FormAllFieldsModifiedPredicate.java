@@ -15,6 +15,7 @@ import com.revolsys.data.type.DataType;
 import com.revolsys.swing.map.form.LayerRecordForm;
 import com.revolsys.swing.map.layer.record.table.model.LayerRecordTableModel;
 import com.revolsys.swing.table.BaseJTable;
+import com.revolsys.util.Property;
 
 public class FormAllFieldsModifiedPredicate implements HighlightPredicate {
 
@@ -62,7 +63,7 @@ public class FormAllFieldsModifiedPredicate implements HighlightPredicate {
               if (originalValue == null) {
                 if (fieldValue instanceof String) {
                   final String string = (String)fieldValue;
-                  if (!com.revolsys.util.Property.hasValue(string)) {
+                  if (!Property.hasValue(string)) {
                     equal = true;
                   }
                 }

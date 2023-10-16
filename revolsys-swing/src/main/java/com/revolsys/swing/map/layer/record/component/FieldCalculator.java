@@ -39,6 +39,7 @@ import com.revolsys.swing.map.layer.record.LayerRecord;
 import com.revolsys.swing.menu.MenuFactory;
 import com.revolsys.swing.scripting.ScriptEngines;
 import com.revolsys.swing.toolbar.ToolBar;
+import com.revolsys.util.Property;
 
 public class FieldCalculator extends AbstractUpdateField implements DocumentListener {
   private static final long serialVersionUID = 1L;
@@ -154,9 +155,7 @@ public class FieldCalculator extends AbstractUpdateField implements DocumentList
     final AbstractRecordLayer layer = getLayer();
     final List<String> fieldNames = layer.getFieldNames();
     final ComboBox<String> fieldNamesField = ComboBox.newComboBox("fieldNames", fieldNames,
-      (final Object name) -> {
-        return layer.getFieldTitle((String)name);
-      });
+      (final Object name) -> layer.getFieldTitle((String)name));
     toolBar.addComponent("fieldName", fieldNamesField);
     toolBar.add(fieldNamesField);
     fieldNamesField.setMaximumSize(new Dimension(250, 30));
@@ -265,7 +264,7 @@ public class FieldCalculator extends AbstractUpdateField implements DocumentList
         this.errorsField.setText(null);
       } catch (final Throwable e) {
         String errorMessage = e.getMessage();
-        if (!com.revolsys.util.Property.hasValue(errorMessage)) {
+        if (!Property.hasValue(errorMessage)) {
           errorMessage = "null pointer";
         }
         this.errorsField.setText(errorMessage);

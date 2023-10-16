@@ -16,6 +16,7 @@ import com.revolsys.parallel.process.AbstractInProcess;
 import com.revolsys.record.Record;
 import com.revolsys.record.RecordLog;
 import com.revolsys.record.schema.RecordDefinition;
+import com.revolsys.util.Property;
 import com.revolsys.util.Strings;
 
 public class OrderedEqualCompareProcessor extends AbstractInProcess<Record> {
@@ -342,18 +343,18 @@ public class OrderedEqualCompareProcessor extends AbstractInProcess<Record> {
         return true;
       } else if (value2 instanceof String) {
         final String string2 = (String)value2;
-        return !com.revolsys.util.Property.hasValue(string2);
+        return !Property.hasValue(string2);
       }
     } else if (value2 == null) {
       if (value1 instanceof String) {
         final String string1 = (String)value1;
-        return !com.revolsys.util.Property.hasValue(string1);
+        return !Property.hasValue(string1);
       } else {
         return false;
       }
     } else if (value1 instanceof String && value2 instanceof String) {
-      if (!com.revolsys.util.Property.hasValue((String)value1)
-        && !com.revolsys.util.Property.hasValue((String)value2)) {
+      if (!Property.hasValue((String)value1)
+        && !Property.hasValue((String)value2)) {
         return true;
       }
     }

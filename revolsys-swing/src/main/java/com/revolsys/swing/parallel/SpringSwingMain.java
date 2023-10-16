@@ -116,7 +116,7 @@ public class SpringSwingMain implements UncaughtExceptionHandler {
   public void uncaughtException(final Thread t, final Throwable e) {
     final Class<? extends SpringSwingMain> logClass = getClass();
     String message = e.getMessage();
-    if (!com.revolsys.util.Property.hasValue(message)) {
+    if (!Property.hasValue(message)) {
       if (e instanceof NullPointerException) {
         message = "Null pointer";
       } else {

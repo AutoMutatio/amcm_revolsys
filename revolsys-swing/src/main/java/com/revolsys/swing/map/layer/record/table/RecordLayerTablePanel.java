@@ -505,7 +505,7 @@ public class RecordLayerTablePanel extends TablePanel
   }
 
   private void setTableRecordsMode(TableRecordsMode tableRecordsMode) {
-    if (!com.revolsys.util.Property.hasValue(tableRecordsMode)) {
+    if (!Property.hasValue(tableRecordsMode)) {
       tableRecordsMode = this.tableModel.getTableRecordsMode();
     }
     final Color borderColor = tableRecordsMode.getBorderColor();

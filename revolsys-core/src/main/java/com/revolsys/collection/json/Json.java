@@ -446,4 +446,10 @@ public class Json {
     }
   }
 
+  public static final String FILE_EXTENSION = "json";
+
+  public static final String MIME_TYPE = "application/json";
+
+  public static final String MIME_TYPE_UTF8 = "application/json;charset=utf-8";
+
 }

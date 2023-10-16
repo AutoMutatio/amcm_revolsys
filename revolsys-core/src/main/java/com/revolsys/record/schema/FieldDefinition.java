@@ -717,7 +717,7 @@ public class FieldDefinition extends BaseObjectWithProperties implements CharSeq
   public FieldDefinition setName(final String name) {
     this.name = name;
     String title = getTitle();
-    if (!com.revolsys.util.Property.hasValue(title)) {
+    if (!Property.hasValue(title)) {
       title = CaseConverter.toCapitalizedWords(name);
       setTitle(title);
     }
@@ -781,7 +781,7 @@ public class FieldDefinition extends BaseObjectWithProperties implements CharSeq
     } else if (this.codeTable == null) {
       if (value instanceof String) {
         final String string = (String)value;
-        if (!com.revolsys.util.Property.hasValue(string)) {
+        if (!Property.hasValue(string)) {
           return null;
         }
       }
@@ -818,7 +818,7 @@ public class FieldDefinition extends BaseObjectWithProperties implements CharSeq
       try {
         if (value instanceof String) {
           final String string = (String)value;
-          if (!com.revolsys.util.Property.hasValue(string)) {
+          if (!Property.hasValue(string)) {
             return null;
           }
         }
@@ -876,7 +876,7 @@ public class FieldDefinition extends BaseObjectWithProperties implements CharSeq
       try {
         if (value instanceof String) {
           final String string = (String)value;
-          if (!com.revolsys.util.Property.hasValue(string)) {
+          if (!Property.hasValue(string)) {
             return null;
           }
         }
@@ -906,7 +906,7 @@ public class FieldDefinition extends BaseObjectWithProperties implements CharSeq
       try {
         if (value instanceof String) {
           final String string = (String)value;
-          if (!com.revolsys.util.Property.hasValue(string)) {
+          if (!Property.hasValue(string)) {
             return null;
           }
         }
@@ -962,7 +962,7 @@ public class FieldDefinition extends BaseObjectWithProperties implements CharSeq
     } else {
       if (value instanceof String) {
         final String string = (String)value;
-        if (!com.revolsys.util.Property.hasValue(string)) {
+        if (!Property.hasValue(string)) {
           return null;
         }
       }

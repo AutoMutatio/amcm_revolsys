@@ -44,7 +44,7 @@ public class PasswordField extends JPasswordField implements Field, FocusListene
     this.fieldSupport = new FieldSupport(this, fieldName, text, true);
     setFont(SwingUtil.FONT);
     setDocument(new PropertyChangeDocument(this));
-    if (!com.revolsys.util.Property.hasValue(fieldName)) {
+    if (!Property.hasValue(fieldName)) {
       fieldName = "fieldValue";
     }
     setText(text);

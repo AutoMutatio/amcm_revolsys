@@ -21,6 +21,7 @@ import com.revolsys.record.query.SqlAppendable;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinitionImpl;
 import com.revolsys.record.schema.RecordStoreSchema;
+import com.revolsys.util.Property;
 
 public class OgrRecordDefinition extends RecordDefinitionImpl {
   public static OgrRecordDefinition newRecordDefinition(final OgrRecordStore recordStore,
@@ -41,7 +42,7 @@ public class OgrRecordDefinition extends RecordDefinitionImpl {
     layer.GetNextFeature();
 
     String idFieldName = layer.GetFIDColumn();
-    if (!com.revolsys.util.Property.hasValue(idFieldName)) {
+    if (!Property.hasValue(idFieldName)) {
       idFieldName = "rowid";
     }
     final FeatureDefn layerDefinition = layer.GetLayerDefn();

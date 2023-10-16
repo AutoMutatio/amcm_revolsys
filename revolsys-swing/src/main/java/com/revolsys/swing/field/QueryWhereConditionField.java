@@ -443,7 +443,7 @@ public class QueryWhereConditionField extends ValueField
       } catch (final BadLocationException e) {
         previousText = "";
       }
-      if (!com.revolsys.util.Property.hasValue(previousText)
+      if (!Property.hasValue(previousText)
         || !previousText.matches(".*" + operator.replaceAll("\\(", "\\\\(")
           .replaceAll("\\)", "\\\\)")
           .replaceAll("\\*", "\\\\*")
@@ -503,7 +503,7 @@ public class QueryWhereConditionField extends ValueField
           } catch (final BadLocationException e) {
             previousText = "";
           }
-          if (!com.revolsys.util.Property.hasValue(previousText)
+          if (!Property.hasValue(previousText)
             || !previousText.matches(".*\"?" + fieldName + "\"?\\s*$")) {
             final Document document = this.whereTextField.getDocument();
             try {

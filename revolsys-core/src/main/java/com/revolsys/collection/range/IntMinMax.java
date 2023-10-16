@@ -4,6 +4,7 @@ import com.revolsys.number.Integers;
 import com.revolsys.number.Numbers;
 import com.revolsys.util.Emptyable;
 import com.revolsys.util.Parity;
+import com.revolsys.util.Property;
 
 public class IntMinMax extends IntRange implements Cloneable, Emptyable {
   public IntMinMax() {
@@ -128,7 +129,7 @@ public class IntMinMax extends IntRange implements Cloneable, Emptyable {
   }
 
   public boolean contains(final IntMinMax minMax) {
-    if (isEmpty() || !com.revolsys.util.Property.hasValue(minMax)) {
+    if (isEmpty() || !Property.hasValue(minMax)) {
       return false;
     } else {
       final int min = minMax.getMin();
@@ -213,7 +214,7 @@ public class IntMinMax extends IntRange implements Cloneable, Emptyable {
   }
 
   public boolean overlaps(final IntMinMax minMax) {
-    if (isEmpty() || !com.revolsys.util.Property.hasValue(minMax)) {
+    if (isEmpty() || !Property.hasValue(minMax)) {
       return false;
     } else {
       final int min = minMax.getMin();

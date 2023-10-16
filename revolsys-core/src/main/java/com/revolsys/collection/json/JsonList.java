@@ -15,6 +15,7 @@ import com.revolsys.collection.list.ArrayListEx;
 import com.revolsys.collection.list.ListEx;
 import com.revolsys.data.type.DataType;
 import com.revolsys.exception.Exceptions;
+import com.revolsys.util.Property;
 
 public interface JsonList extends ListEx<Object>, JsonType {
 
@@ -294,7 +295,7 @@ public interface JsonList extends ListEx<Object>, JsonType {
           iterator.remove();
           removed = true;
         }
-      } else if (!com.revolsys.util.Property.hasValue(value)) {
+      } else if (!Property.hasValue(value)) {
         iterator.remove();
         removed = true;
       }

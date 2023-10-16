@@ -261,7 +261,7 @@ public class Oracle extends AbstractJdbcDatabaseFactory {
       final Integer port = Maps.getInteger(urlParameters, "port");
       final String database = Maps.getString(urlParameters, "database");
 
-      final boolean hasHost = com.revolsys.util.Property.hasValue(host);
+      final boolean hasHost = Property.hasValue(host);
       final boolean hasPort = port != null;
       if (hasHost || hasPort) {
         url.append("//");

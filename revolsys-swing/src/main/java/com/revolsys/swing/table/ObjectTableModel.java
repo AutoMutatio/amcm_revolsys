@@ -3,6 +3,8 @@ package com.revolsys.swing.table;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.revolsys.util.Property;
+
 public class ObjectTableModel<T> extends AbstractTableModel {
   /**
    *
@@ -47,7 +49,7 @@ public class ObjectTableModel<T> extends AbstractTableModel {
   public Object getValueAt(final int rowIndex, final int columnIndex) {
     final Object row = this.rows.get(rowIndex);
     final String propertyName = this.propertyNames[columnIndex];
-    return com.revolsys.util.Property.getSimple(row, propertyName);
+    return Property.getSimple(row, propertyName);
   }
 
   public void insertRow(final int rowIndex, final T row) {
@@ -75,7 +77,7 @@ public class ObjectTableModel<T> extends AbstractTableModel {
   public void setValueAt(final Object value, final int rowIndex, final int columnIndex) {
     final Object row = this.rows.get(rowIndex);
     final String propertyName = this.propertyNames[columnIndex];
-    com.revolsys.util.Property.setSimple(row, propertyName, value);
+    Property.setSimple(row, propertyName, value);
   }
 
 }
