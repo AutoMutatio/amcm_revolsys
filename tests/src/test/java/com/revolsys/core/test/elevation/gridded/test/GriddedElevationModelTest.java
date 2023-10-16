@@ -34,7 +34,7 @@ public abstract class GriddedElevationModelTest {
   1. Write the model to the file specified by filePath.
   2. Read the model from the written file.
   3. Compare the read model with the original model
-  
+
    * @param model The model to test.
    * @param filePath The file to write to.
    */
