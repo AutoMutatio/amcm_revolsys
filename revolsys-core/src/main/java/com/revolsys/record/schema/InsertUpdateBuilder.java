@@ -9,8 +9,6 @@ import com.revolsys.record.Record;
 import com.revolsys.record.query.Query;
 import com.revolsys.transaction.Transaction;
 
-import reactor.core.publisher.Mono;
-
 public abstract class InsertUpdateBuilder {
 
   private final Query query;
@@ -75,14 +73,6 @@ public abstract class InsertUpdateBuilder {
 
   public abstract Record executeDo(Supplier<Transaction> transactionSupplier);
 
-  public final Mono<Record> executeMono() {
-    return executeMono(this::newTransaction);
-  }
-
-  public Mono<Record> executeMono(final Supplier<Transaction> transactionSupplier) {
-    // TODO this is a placeholder until full reactive is implemented
-    return Mono.fromSupplier(() -> execute(transactionSupplier));
-  }
 
   public Query getQuery() {
     return this.query;

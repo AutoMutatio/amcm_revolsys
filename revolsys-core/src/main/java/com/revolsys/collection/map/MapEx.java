@@ -28,8 +28,6 @@ import com.revolsys.logging.Logs;
 import com.revolsys.record.Record;
 import com.revolsys.util.Property;
 
-import reactor.core.publisher.Flux;
-
 public interface MapEx extends MapDefault<String, Object>, Cloneable, DataTypedValue {
   static MapEx asEx(final Map<String, ? extends Object> map) {
     if (map instanceof MapEx) {
@@ -220,23 +218,6 @@ public interface MapEx extends MapDefault<String, Object>, Cloneable, DataTypedV
       return defaultValue;
     } else {
       return value;
-    }
-  }
-
-  @SuppressWarnings({
-    "unchecked", "rawtypes"
-  })
-  default <V> Flux<V> getFlux(final CharSequence name) {
-    final Object value = getValue(name);
-    if (value == null) {
-      return Flux.empty();
-    } else if (value instanceof Flux) {
-      return (Flux)value;
-    } else if (value instanceof Iterable) {
-      return Flux.fromIterable((Iterable)value);
-    } else {
-      throw new IllegalArgumentException(
-        "Cannot convert " + value.getClass() + " to Flux \n" + value);
     }
   }
 
