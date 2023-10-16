@@ -3,7 +3,7 @@ package com.revolsys.visitor;
 import java.util.Comparator;
 import java.util.function.Predicate;
 
-import com.revolsys.util.ExitLoopException;
+import org.jeometry.common.util.ExitLoopException;
 
 public class SingleObjectVisitor<T> extends BaseVisitor<T> {
   private T object;

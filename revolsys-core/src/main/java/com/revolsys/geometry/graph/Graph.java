@@ -22,6 +22,8 @@ import java.util.function.Predicate;
 
 import jakarta.annotation.PreDestroy;
 
+import org.jeometry.common.util.ExitLoopException;
+
 import com.revolsys.collection.bplus.BPlusTreeMap;
 import com.revolsys.collection.map.IntHashMap;
 import com.revolsys.collection.map.MapEx;
@@ -56,7 +58,6 @@ import com.revolsys.predicate.PredicateProxy;
 import com.revolsys.predicate.Predicates;
 import com.revolsys.properties.BaseObjectWithProperties;
 import com.revolsys.record.Record;
-import com.revolsys.util.ExitLoopException;
 import com.revolsys.visitor.CreateListVisitor;
 
 public class Graph<T> extends BaseObjectWithProperties implements GeometryFactoryProxy {

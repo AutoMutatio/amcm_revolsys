@@ -15,7 +15,6 @@
  */
 package com.revolsys.io;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -26,10 +25,12 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import org.jeometry.common.collection.iterator.BaseIterable;
+import org.jeometry.common.util.ExitLoopException;
+
 import com.revolsys.collection.iterator.FilterIterator;
 import com.revolsys.properties.ObjectWithProperties;
 import com.revolsys.util.Cancellable;
-import com.revolsys.util.ExitLoopException;
 
 import reactor.core.publisher.Flux;
 
@@ -54,7 +55,8 @@ import reactor.core.publisher.Flux;
  * @author Paul Austin
  * @param <T> The type of the item to read.
  */
-public interface Reader<T> extends Iterable<T>, ObjectWithProperties, BaseCloseable, Cancellable {
+public interface Reader<T>
+  extends Iterable<T>, ObjectWithProperties, BaseCloseable, Cancellable, BaseIterable<T> {
   Reader<?> EMPTY = wrap(Collections.emptyIterator());
 
   @SuppressWarnings("unchecked")
@@ -73,12 +75,13 @@ public interface Reader<T> extends Iterable<T>, ObjectWithProperties, BaseClosea
   default void close() {
   }
 
-  default Reader<T> filter(final Predicate<T> filter) {
+  @Override
+  default BaseIterable<T> filter(final Predicate<? super T> filter) {
     final Iterator<T> iterator = iterator();
     return new FilterIterator<>(filter, iterator);
   }
 
-  default <O> Reader<O> filter(final Predicate<T> filter, final Function<T, O> converter) {
+  default <O> BaseIterable<O> filter(final Predicate<T> filter, final Function<T, O> converter) {
     return filter(filter).map(converter);
   }
 
@@ -148,26 +151,23 @@ public interface Reader<T> extends Iterable<T>, ObjectWithProperties, BaseClosea
     }
   }
 
+  @Override
   @SuppressWarnings("unchecked")
-  default <V extends T> V getFirst() {
+  default T getFirst() {
     try (
       Reader<?> reader = this) {
       final Iterator<T> iterator = iterator();
       if (iterator.hasNext()) {
-        return (V)iterator.next();
+        return iterator.next();
       }
     }
     return null;
   }
 
+  @Override
   @SuppressWarnings("unchecked")
   default <V extends T> Iterable<V> i() {
     return (Iterable<V>)this;
-  }
-
-  default <O> Reader<O> map(final Function<T, O> converter) {
-    final var iterator = iterator();
-    return new IteratorConvertReader<>(iterator, converter);
   }
 
   /**
@@ -176,34 +176,20 @@ public interface Reader<T> extends Iterable<T>, ObjectWithProperties, BaseClosea
   default void open() {
   }
 
+  @Override
   default Stream<T> parallelStream() {
     return StreamSupport.stream(spliterator(), true);
   }
 
+  @Override
   default void skipAll() {
     for (final Iterator<T> iterator = iterator(); iterator.hasNext();) {
     }
   }
 
+  @Override
   default Stream<T> stream() {
     return StreamSupport.stream(spliterator(), false);
   }
 
-  /**
-   * Read all items and return a List containing the items.
-   *
-   * @return The list of items.
-   */
-  default List<T> toList() {
-    final List<T> items = new ArrayList<>();
-    try (
-      Reader<?> reader = this) {
-      if (iterator() != null) {
-        for (final T item : this) {
-          items.add(item);
-        }
-      }
-    }
-    return items;
-  }
 }

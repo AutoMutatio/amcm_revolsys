@@ -25,10 +25,28 @@
   </dependencyManagement>
 
   <dependencies>
+  
     <dependency>
-      <groupId>org.jeometry</groupId>
-      <artifactId>jeometry-coordinatesystem</artifactId>
+      <groupId>org.slf4j</groupId>
+      <artifactId>jcl-over-slf4j</artifactId>
     </dependency>
+
+    <!-- Units of measure -->
+    <dependency>
+      <groupId>javax.measure</groupId>
+      <artifactId>unit-api</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>tech.units</groupId>
+      <artifactId>indriya</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>tech.uom.lib</groupId>
+      <artifactId>uom-lib-common</artifactId>
+    </dependency>
+
     <dependency>
       <groupId>jakarta.annotation</groupId>
       <artifactId>jakarta.annotation-api</artifactId>

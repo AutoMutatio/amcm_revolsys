@@ -14,10 +14,12 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
+import java.util.stream.Stream;
 
 import javax.measure.Quantity;
 import javax.measure.Unit;
 
+import org.jeometry.common.collection.iterator.BaseIterable;
 import org.jeometry.common.data.type.DataType;
 import org.jeometry.common.data.type.DataTypes;
 
@@ -26,7 +28,7 @@ import com.revolsys.util.StringBuilders;
 
 import tech.units.indriya.quantity.Quantities;
 
-public interface ListEx<V> extends List<V>, Cloneable {
+public interface ListEx<V> extends List<V>, Cloneable, BaseIterable<V> {
   static class EmptyList<E> extends AbstractList<E> implements RandomAccess, ListEx<E> {
 
     @Override
@@ -155,6 +157,7 @@ public interface ListEx<V> extends List<V>, Cloneable {
 
   ListEx<V> clone();
 
+  @Override
   default ListEx<V> filter(final Predicate<? super V> filter) {
     final ListEx<V> newList = new ArrayListEx<>();
     for (final V value : this) {
@@ -248,6 +251,7 @@ public interface ListEx<V> extends List<V>, Cloneable {
     return string.toString();
   }
 
+  @Override
   default <OUT> ListEx<OUT> map(final Function<? super V, OUT> converter) {
     final ListEx<OUT> newList = new ArrayListEx<>();
     for (final V value : this) {
@@ -255,6 +259,11 @@ public interface ListEx<V> extends List<V>, Cloneable {
       newList.add(newValue);
     }
     return newList;
+  }
+
+  @Override
+  default Stream<V> parallelStream() {
+    return List.super.parallelStream();
   }
 
   default V removeLast() {
@@ -268,6 +277,11 @@ public interface ListEx<V> extends List<V>, Cloneable {
   default ListEx<V> sortThis(final Comparator<? super V> converter) {
     sort(converter);
     return this;
+  }
+
+  @Override
+  default Stream<V> stream() {
+    return List.super.stream();
   }
 
   default int[] toIntArray() {

@@ -1,4 +1,4 @@
-package com.revolsys.util;
+package org.jeometry.common.util;
 
 public class ExitLoopException extends RuntimeException {
 

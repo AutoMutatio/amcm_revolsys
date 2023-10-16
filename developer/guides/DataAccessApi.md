@@ -23,8 +23,8 @@ Suite (JTS) 1.x that is no longer backwards compatible.
 The `com.revolsys.geometry.model.Geometry` interface is the parent of all geometries. With `Point`, `LineString`,
 `Polygon`, `MultiPoint`, `MultiLineString`, `MultiPolygon`, `GeometryCollection` interfaces and a various implementations.
 
-The `com.revolsys.geometry.model.GeometryFactory` class defines the coordinate systems (`jeometry-coordinatesystem`
-library), axis count (2=xy, 3=xyz, 4=xyzm) and precision model (1000 = 1mm precision). The geometry
+The `com.revolsys.geometry.model.GeometryFactory` class defines the coordinate systems,
+axis count (2=xy, 3=xyz, 4=xyzm) and precision model (1000 = 1mm precision). The geometry
 factory can then be used to create instances of the Geometry interfaces.
 
 Geometries can be converted from one coordinate system to another using a projection library;

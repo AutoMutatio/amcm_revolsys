@@ -7,11 +7,10 @@ import java.util.function.Predicate;
 import com.revolsys.collection.iterator.CancelIterable;
 import com.revolsys.collection.iterator.Iterators;
 
-public interface Cancellable {
-  static Cancellable FALSE = () -> {
-    return false;
-  };
+public interface Cancellable extends org.jeometry.common.util.Cancellable {
+  static Cancellable FALSE = () -> false;
 
+  @Override
   default void cancel() {
   }
 
@@ -39,6 +38,7 @@ public interface Cancellable {
    * @param action
    * @return true if cancelled, false otherwise
    */
+  @Override
   default <V> boolean forCancel(final Iterable<V> iterable, final Consumer<V> action) {
     for (final V value : iterable) {
       if (isCancelled()) {
@@ -50,5 +50,6 @@ public interface Cancellable {
     return isCancelled();
   }
 
+  @Override
   boolean isCancelled();
 }

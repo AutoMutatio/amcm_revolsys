@@ -21,6 +21,7 @@ import org.jeometry.common.data.type.DataTypedValue;
 import org.jeometry.common.data.type.DataTypes;
 import org.jeometry.common.logging.Logs;
 
+import com.revolsys.collection.list.ListEx;
 import com.revolsys.record.Record;
 import com.revolsys.record.io.format.json.Json;
 import com.revolsys.record.io.format.json.JsonList;
@@ -291,6 +292,10 @@ public interface MapEx extends MapDefault<String, Object>, Cloneable, DataTypedV
     } else {
       return value;
     }
+  }
+
+  default <V> ListEx<V> getList(final CharSequence name) {
+    return getValue(name, DataTypes.LIST, ListEx.empty());
   }
 
   default Long getLong(final CharSequence name) {

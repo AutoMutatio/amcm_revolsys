@@ -269,7 +269,7 @@ public class RecordStoreLayer extends AbstractRecordLayer {
               Transaction transaction = recordStore.newTransaction(Propagation.REQUIRED);
               RecordReader reader = newRecordStoreRecordReader(query)) {
               transaction.setRollbackOnly();
-              record = reader.getFirst();
+              record = (R)reader.getFirst();
               if (record != null) {
                 addCachedRecord(identifier, record);
               }

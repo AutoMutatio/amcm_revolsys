@@ -55,4 +55,11 @@ public interface Transactionable {
       return transaction.execute(action);
     }
   }
+
+  default void transactionNewRun(final Runnable action) {
+    try (
+      var t = newTransaction()) {
+      action.run();
+    }
+  }
 }

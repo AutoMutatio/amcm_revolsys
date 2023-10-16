@@ -13,8 +13,8 @@ public class EsriCoordinateSystemsTest {
 
   private void doFileTest(final String type) {
     try (
-      RecordReader reader = RecordReader.newRecordReader(
-        "../../jeometry/jeometry-coordinatesystem/src/main/data/esri/esri" + type + "Cs.tsv");) {
+      RecordReader reader = RecordReader
+        .newRecordReader("../revolsys-core/src/main/data/esri/esri" + type + "Cs.tsv");) {
       for (final Record record : reader) {
         final int id = record.getInteger("ID");
         final String wkt = record.getString("WKT");
@@ -42,8 +42,8 @@ public class EsriCoordinateSystemsTest {
   @Test
   public void verticalCoordinateSystems() {
     try (
-      RecordReader reader = RecordReader.newRecordReader(
-        "../../jeometry/jeometry-coordinatesystem/src/main/data/esri/esriVerticalCs.tsv");) {
+      RecordReader reader = RecordReader
+        .newRecordReader("../revolsys-core/src/main/data/esri/esriVerticalCs.tsv");) {
       for (final Record record : reader) {
         final int id = record.getInteger("ID");
         final String wkt = record.getString("WKT");

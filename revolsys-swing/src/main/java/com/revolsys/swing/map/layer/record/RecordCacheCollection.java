@@ -4,9 +4,9 @@ import java.util.Collection;
 import java.util.function.Consumer;
 
 import org.jeometry.common.data.identifier.Identifier;
+import org.jeometry.common.util.ExitLoopException;
 
 import com.revolsys.record.Record;
-import com.revolsys.util.ExitLoopException;
 
 public class RecordCacheCollection extends AbstractRecordCache<AbstractRecordLayer> {
 
