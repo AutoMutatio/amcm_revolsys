@@ -33,16 +33,15 @@ import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-import org.jeometry.common.exception.Exceptions;
-import org.jeometry.common.logging.Logs;
-
 import com.revolsys.collection.SimpleValueHolder;
 import com.revolsys.collection.list.Lists;
 import com.revolsys.collection.set.Sets;
 import com.revolsys.connection.file.FileConnectionManager;
 import com.revolsys.connection.file.FolderConnection;
 import com.revolsys.connection.file.FolderConnectionRegistry;
+import com.revolsys.exception.Exceptions;
 import com.revolsys.io.FileNames;
+import com.revolsys.logging.Logs;
 import com.revolsys.util.Property;
 import com.revolsys.util.UrlUtil;
 

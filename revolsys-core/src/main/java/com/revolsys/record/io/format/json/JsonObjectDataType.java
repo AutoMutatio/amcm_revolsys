@@ -5,8 +5,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.jeometry.common.data.type.AbstractDataType;
-import org.jeometry.common.data.type.DataType;
+import com.revolsys.data.type.AbstractDataType;
+import com.revolsys.data.type.DataType;
 
 public class JsonObjectDataType extends AbstractDataType {
 

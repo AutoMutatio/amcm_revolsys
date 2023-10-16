@@ -20,11 +20,10 @@ import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.WindowConstants;
 
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.logging.Logs;
-
 import com.revolsys.collection.map.Maps;
+import com.revolsys.data.type.DataType;
 import com.revolsys.io.BaseCloseable;
+import com.revolsys.logging.Logs;
 import com.revolsys.swing.Dialogs;
 import com.revolsys.swing.SwingUtil;
 import com.revolsys.swing.action.RunnableAction;

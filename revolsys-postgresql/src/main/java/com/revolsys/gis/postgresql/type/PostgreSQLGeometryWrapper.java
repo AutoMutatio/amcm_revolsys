@@ -4,12 +4,12 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Map;
 
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.function.Consumer3;
-import org.jeometry.common.number.Doubles;
 import org.postgresql.util.PGobject;
 
 import com.revolsys.collection.map.Maps;
+import com.revolsys.common.number.Doubles;
+import com.revolsys.data.type.DataType;
+import com.revolsys.function.Consumer3;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryDataTypes;
 import com.revolsys.geometry.model.GeometryFactory;

@@ -35,14 +35,14 @@ import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
 
 import org.jdesktop.swingx.VerticalLayout;
-import org.jeometry.common.awt.WebColors;
-import org.jeometry.common.data.identifier.Identifier;
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.common.exception.Exceptions;
-import org.jeometry.common.exception.WrappedException;
-import org.jeometry.common.logging.Logs;
 
+import com.revolsys.awt.WebColors;
+import com.revolsys.data.identifier.Identifier;
+import com.revolsys.data.type.DataType;
+import com.revolsys.data.type.DataTypes;
+import com.revolsys.exception.Exceptions;
+import com.revolsys.exception.WrappedException;
+import com.revolsys.logging.Logs;
 import com.revolsys.record.code.CodeTable;
 import com.revolsys.record.query.Condition;
 import com.revolsys.record.query.parser.JSqlParser;

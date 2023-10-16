@@ -7,10 +7,9 @@ import java.net.URL;
 
 import javax.measure.Quantity;
 
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.data.type.FunctionDataType;
-import org.jeometry.common.io.FileProxy;
-
+import com.revolsys.data.type.DataType;
+import com.revolsys.data.type.FunctionDataType;
+import com.revolsys.io.FileProxy;
 import com.revolsys.io.FileUtil;
 
 public class RsCoreDataTypes {

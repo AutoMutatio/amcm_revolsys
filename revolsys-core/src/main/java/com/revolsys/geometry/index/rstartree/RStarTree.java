@@ -6,14 +6,13 @@ import java.util.List;
 import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 
-import org.jeometry.common.util.ExitLoopException;
-
 import com.revolsys.collection.ArrayUtil;
 import com.revolsys.geometry.index.SpatialIndex;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.BoundingBoxProxy;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.geometry.model.editor.BoundingBoxEditor;
+import com.revolsys.util.ExitLoopException;
 
 public class RStarTree<T> implements SpatialIndex<T> {
 

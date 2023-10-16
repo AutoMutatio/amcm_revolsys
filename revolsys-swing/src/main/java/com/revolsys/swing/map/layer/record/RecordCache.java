@@ -5,8 +5,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
 
-import org.jeometry.common.data.identifier.Identifier;
-
+import com.revolsys.data.identifier.Identifier;
 import com.revolsys.record.Record;
 
 public interface RecordCache {

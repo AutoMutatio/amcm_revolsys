@@ -13,8 +13,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.jeometry.common.collection.map.LruMap;
-
+import com.revolsys.collection.map.LruMap;
 import com.revolsys.io.FileUtil;
 
 public class FileMappedPageManager implements PageManager {

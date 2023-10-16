@@ -1,8 +1,7 @@
 package com.revolsys.geometry.model;
 
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.data.type.FunctionDataType;
-
+import com.revolsys.data.type.DataType;
+import com.revolsys.data.type.FunctionDataType;
 import com.revolsys.geometry.model.editor.GeometryCollectionImplEditor;
 import com.revolsys.geometry.model.editor.LineStringEditor;
 import com.revolsys.geometry.model.editor.LinearRingEditor;

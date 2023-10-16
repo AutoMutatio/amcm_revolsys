@@ -3,9 +3,8 @@ package com.revolsys.swing.tree.node.record;
 import java.util.LinkedList;
 import java.util.Map;
 
-import org.jeometry.common.io.PathName;
-
 import com.revolsys.io.FileUtil;
+import com.revolsys.io.PathName;
 import com.revolsys.io.map.MapObjectFactory;
 import com.revolsys.record.io.RecordStoreConnection;
 import com.revolsys.record.io.RecordStoreConnectionManager;

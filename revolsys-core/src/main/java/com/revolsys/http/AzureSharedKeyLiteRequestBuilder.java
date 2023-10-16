@@ -13,7 +13,8 @@ import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.methods.HttpUriRequest;
-import org.jeometry.common.exception.Exceptions;
+
+import com.revolsys.exception.Exceptions;
 
 public class AzureSharedKeyLiteRequestBuilder extends ApacheHttpRequestBuilder {
 

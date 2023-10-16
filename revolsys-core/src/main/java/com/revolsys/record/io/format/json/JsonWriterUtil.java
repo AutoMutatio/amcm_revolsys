@@ -8,12 +8,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.common.exception.Exceptions;
-import org.jeometry.common.number.Doubles;
-import org.jeometry.common.number.Numbers;
-
 import com.revolsys.collection.list.Lists;
+import com.revolsys.common.number.Doubles;
+import com.revolsys.common.number.Numbers;
+import com.revolsys.data.type.DataTypes;
+import com.revolsys.exception.Exceptions;
 import com.revolsys.io.StringPrinter;
 
 public final class JsonWriterUtil {

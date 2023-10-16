@@ -6,8 +6,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Predicate;
 
-import org.jeometry.common.data.identifier.Identifier;
-
+import com.revolsys.data.identifier.Identifier;
 import com.revolsys.record.Record;
 import com.revolsys.record.code.CodeTable;
 import com.revolsys.record.schema.RecordDefinition;

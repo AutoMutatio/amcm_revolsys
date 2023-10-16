@@ -5,10 +5,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 
-import org.jeometry.common.compare.CompareUtil;
-import org.jeometry.common.data.type.DataType;
-
 import com.revolsys.collection.map.MapEx;
+import com.revolsys.comparator.CompareUtil;
+import com.revolsys.data.type.DataType;
 import com.revolsys.record.schema.RecordStore;
 
 public class Between extends AbstractUnaryQueryValue implements Condition {

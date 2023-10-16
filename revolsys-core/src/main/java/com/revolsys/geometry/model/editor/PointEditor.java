@@ -4,10 +4,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.function.Consumer;
 
-import org.jeometry.common.number.Doubles;
-import org.jeometry.coordinatesystem.operation.CoordinatesOperation;
-import org.jeometry.coordinatesystem.operation.CoordinatesOperationPoint;
-
+import com.revolsys.common.number.Doubles;
+import com.revolsys.geometry.coordinatesystem.operation.CoordinatesOperation;
+import com.revolsys.geometry.coordinatesystem.operation.CoordinatesOperationPoint;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryFactory;

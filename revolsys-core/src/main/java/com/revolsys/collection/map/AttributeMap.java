@@ -5,8 +5,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 
-import org.jeometry.common.logging.Logs;
-
+import com.revolsys.logging.Logs;
 import com.revolsys.spring.resource.Resource;
 
 public class AttributeMap extends LinkedHashMap<String, Object> {

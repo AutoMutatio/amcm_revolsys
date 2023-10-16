@@ -11,10 +11,9 @@ import jakarta.websocket.SendHandler;
 import jakarta.websocket.SendResult;
 import jakarta.websocket.Session;
 
-import org.jeometry.common.logging.Logs;
-
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.collection.map.Maps;
+import com.revolsys.logging.Logs;
 import com.revolsys.util.Property;
 import com.revolsys.websocket.AsyncResult;
 

@@ -3,9 +3,9 @@ package com.revolsys.geometry.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jeometry.coordinatesystem.model.CoordinateSystem;
-import org.jeometry.coordinatesystem.model.systems.EpsgCoordinateSystems;
-import org.jeometry.coordinatesystem.model.systems.EsriCoordinateSystems;
+import com.revolsys.geometry.coordinatesystem.model.CoordinateSystem;
+import com.revolsys.geometry.coordinatesystem.model.systems.EpsgCoordinateSystems;
+import com.revolsys.geometry.coordinatesystem.model.systems.EsriCoordinateSystems;
 
 public class GeometryFactories {
 

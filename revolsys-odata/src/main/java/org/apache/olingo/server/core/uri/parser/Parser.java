@@ -74,7 +74,8 @@ import org.apache.olingo.server.core.uri.queryoption.SystemQueryOptionImpl;
 import org.apache.olingo.server.core.uri.queryoption.TopOptionImpl;
 import org.apache.olingo.server.core.uri.queryoption.apply.DynamicStructuredType;
 import org.apache.olingo.server.core.uri.validator.UriValidationException;
-import org.jeometry.common.logging.Logs;
+
+import com.revolsys.logging.Logs;
 
 public class Parser {
   private static final String ATOM = "atom";

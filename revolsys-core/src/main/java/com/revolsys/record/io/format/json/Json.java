@@ -21,13 +21,12 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.jeometry.common.data.type.AbstractDataType;
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.common.data.type.FunctionDataType;
-import org.jeometry.common.exception.Exceptions;
-
 import com.revolsys.collection.map.MapEx;
+import com.revolsys.data.type.AbstractDataType;
+import com.revolsys.data.type.DataType;
+import com.revolsys.data.type.DataTypes;
+import com.revolsys.data.type.FunctionDataType;
+import com.revolsys.exception.Exceptions;
 import com.revolsys.io.AbstractIoFactory;
 import com.revolsys.io.FileUtil;
 import com.revolsys.io.IoConstants;

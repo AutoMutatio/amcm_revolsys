@@ -3,8 +3,7 @@ package com.revolsys.record.io.format.geojson;
 import java.io.BufferedWriter;
 import java.io.Writer;
 
-import org.jeometry.coordinatesystem.model.systems.EpsgId;
-
+import com.revolsys.geometry.coordinatesystem.model.systems.EpsgId;
 import com.revolsys.geometry.model.ClockDirection;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryFactory;

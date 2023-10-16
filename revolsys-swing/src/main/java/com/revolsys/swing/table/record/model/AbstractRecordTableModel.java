@@ -9,9 +9,8 @@ import java.util.Set;
 
 import jakarta.annotation.PreDestroy;
 
-import org.jeometry.common.data.identifier.Identifier;
-import org.jeometry.common.data.type.DataTypes;
-
+import com.revolsys.data.identifier.Identifier;
+import com.revolsys.data.type.DataTypes;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.record.code.CodeTable;
 import com.revolsys.record.io.format.json.JsonObject;

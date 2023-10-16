@@ -2,11 +2,10 @@ package com.revolsys.elevation.gridded.rasterizer;
 
 import java.util.Map;
 
-import org.jeometry.common.awt.WebColors;
-import org.jeometry.common.math.Angle;
-
+import com.revolsys.awt.WebColors;
 import com.revolsys.elevation.gridded.GriddedElevationModel;
 import com.revolsys.grid.Grid;
+import com.revolsys.math.Angle;
 import com.revolsys.record.io.format.json.JsonObject;
 
 public class HillShadeGriddedElevationModelRasterizer

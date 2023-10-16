@@ -16,11 +16,10 @@ import java.util.function.Supplier;
 import javax.swing.SwingUtilities;
 import javax.swing.SwingWorker;
 
-import org.jeometry.common.exception.Exceptions;
-
 import com.revolsys.beans.PropertyChangeSupport;
 import com.revolsys.collection.list.Lists;
 import com.revolsys.collection.map.Maps;
+import com.revolsys.exception.Exceptions;
 import com.revolsys.parallel.ThreadInterruptedException;
 import com.revolsys.util.Property;
 

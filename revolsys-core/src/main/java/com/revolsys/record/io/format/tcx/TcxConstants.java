@@ -2,8 +2,7 @@ package com.revolsys.record.io.format.tcx;
 
 import javax.xml.namespace.QName;
 
-import org.jeometry.coordinatesystem.model.systems.EpsgId;
-
+import com.revolsys.geometry.coordinatesystem.model.systems.EpsgId;
 import com.revolsys.geometry.model.GeometryFactory;
 
 public interface TcxConstants {

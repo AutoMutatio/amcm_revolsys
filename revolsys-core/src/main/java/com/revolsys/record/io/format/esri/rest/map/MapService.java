@@ -5,13 +5,12 @@ import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.Map;
 
-import org.jeometry.common.exception.Exceptions;
-import org.jeometry.common.exception.WrappedException;
-import org.jeometry.common.io.PathName;
-
 import com.revolsys.collection.map.MapEx;
+import com.revolsys.exception.Exceptions;
+import com.revolsys.exception.WrappedException;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactory;
+import com.revolsys.io.PathName;
 import com.revolsys.raster.BufferedImages;
 import com.revolsys.record.io.format.esri.rest.ArcGisResponse;
 import com.revolsys.record.io.format.esri.rest.ArcGisRestCatalog;

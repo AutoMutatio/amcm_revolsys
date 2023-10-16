@@ -1,10 +1,10 @@
 package com.revolsys.core.test.geometry.test.model;
 
-import org.jeometry.coordinatesystem.model.systems.EpsgId;
 import org.junit.Assert;
 import org.junit.Test;
 
 import com.revolsys.core.test.geometry.test.TestConstants;
+import com.revolsys.geometry.coordinatesystem.model.systems.EpsgId;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.geometry.model.Point;
 import com.revolsys.geometry.model.impl.PointDouble;

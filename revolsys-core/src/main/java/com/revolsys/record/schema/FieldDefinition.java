@@ -10,17 +10,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.jeometry.common.compare.NumericComparator;
-import org.jeometry.common.data.identifier.Code;
-import org.jeometry.common.data.identifier.Identifier;
-import org.jeometry.common.data.type.CollectionDataType;
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.data.type.DataTypeProxy;
-import org.jeometry.common.data.type.DataTypes;
-
 import com.revolsys.beans.ObjectPropertyException;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.collection.map.Maps;
+import com.revolsys.comparator.NumericComparator;
+import com.revolsys.data.identifier.Code;
+import com.revolsys.data.identifier.Identifier;
+import com.revolsys.data.type.CollectionDataType;
+import com.revolsys.data.type.DataType;
+import com.revolsys.data.type.DataTypeProxy;
+import com.revolsys.data.type.DataTypes;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.geometry.operation.valid.IsValidOp;

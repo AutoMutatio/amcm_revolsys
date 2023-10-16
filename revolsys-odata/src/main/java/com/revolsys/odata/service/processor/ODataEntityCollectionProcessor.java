@@ -26,8 +26,8 @@ import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceEntitySet;
 import org.apache.olingo.server.api.uri.UriResourceNavigation;
 import org.apache.olingo.server.api.uri.queryoption.SelectOption;
-import org.jeometry.common.logging.Logs;
 
+import com.revolsys.logging.Logs;
 import com.revolsys.odata.model.ODataEdmProvider;
 import com.revolsys.odata.model.ODataEntityIterator;
 import com.revolsys.odata.model.ODataEntityType;

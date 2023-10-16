@@ -2,8 +2,7 @@ package com.revolsys.elevation.gridded;
 
 import java.util.Map;
 
-import org.jeometry.common.collection.map.LruMap;
-
+import com.revolsys.collection.map.LruMap;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.grid.AbstractGrid;
 import com.revolsys.util.IntPair;

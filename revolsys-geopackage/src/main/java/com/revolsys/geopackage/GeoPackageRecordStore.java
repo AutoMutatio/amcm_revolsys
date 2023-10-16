@@ -19,22 +19,21 @@ import java.util.TreeMap;
 
 import jakarta.annotation.PostConstruct;
 
-import org.jeometry.common.data.identifier.Identifier;
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.common.io.PathName;
-import org.jeometry.common.logging.Logs;
-import org.jeometry.coordinatesystem.model.CoordinateSystem;
 import org.sqlite.BusyHandler;
 import org.sqlite.SQLiteConnection;
 
 import com.revolsys.collection.map.MapEx;
+import com.revolsys.data.identifier.Identifier;
+import com.revolsys.data.type.DataType;
+import com.revolsys.data.type.DataTypes;
+import com.revolsys.geometry.coordinatesystem.model.CoordinateSystem;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.geopackage.field.GeoPackageGeometryFieldAdder;
 import com.revolsys.geopackage.field.GeoPackageJdbcFieldAdder;
 import com.revolsys.geopackage.function.GeoPackageEnvelopeValueFunction;
 import com.revolsys.geopackage.function.GeoPackageIsEmptyFunction;
+import com.revolsys.io.PathName;
 import com.revolsys.io.StringWriter;
 import com.revolsys.io.file.Paths;
 import com.revolsys.jdbc.JdbcConnection;
@@ -43,6 +42,7 @@ import com.revolsys.jdbc.field.JdbcFieldDefinition;
 import com.revolsys.jdbc.io.AbstractJdbcRecordStore;
 import com.revolsys.jdbc.io.JdbcRecordDefinition;
 import com.revolsys.jdbc.io.JdbcRecordStoreSchema;
+import com.revolsys.logging.Logs;
 import com.revolsys.record.io.RecordWriter;
 import com.revolsys.record.query.CollectionValue;
 import com.revolsys.record.query.ColumnReference;

@@ -2,10 +2,10 @@
 
 Values in software programming languages have some kind of data type. This can be a  primitive
 (e.g. int, double, boolean) or complex (e.g. String, UUID, URI, Point, Line, Polygon, List, Map. Json).
-The `org.jeometry.common.data.type.DataType` interface defines a data type and conversion from that
+The `com.revolsys.data.type.DataType` interface defines a data type and conversion from that
 data  type to strings or other data types.
 
-The `org.jeometry.common.data.type.DataTypes` class contains constants for the standard data types
+The `com.revolsys.data.type.DataTypes` class contains constants for the standard data types
 and a registry to get a DataType instance from a Java Class.
 
 Other constants for data types are defined on the following classes.
@@ -36,9 +36,6 @@ Point bcAlbersPoint = bcAlbers.point(120000, 500000);
 Point utmPoint = bcAlbersPoint.convertGeometry(bcAlbersPoint);
 ```
 
-Eventually the geometry code should be moved to the `jeometry` library. The `jeometry` and `revolsys`
-libraries are developed together.
- 
 # Unstructured Data
 
 The Revolsys libraries use the [JSON](https://www.json.org/json-en.html) encoded files for configuration.
@@ -90,7 +87,7 @@ The list of supported fields and other field/record level metadata is described 
 `com.revolsys.record.schema.FieldDefinition.FieldDefinition` class stores the metadata (e.g. name, DataType,
 length, required). If a database or file format can contain multiple record types the
 `com.revolsys.record.schema.RecordStoreSchema` can be used to navigate through nested schema and record
-definitions. Each record definition is identified `org.jeometry.common.io.PathName` instance that abstracts
+definitions. Each record definition is identified `com.revolsys.io.PathName` instance that abstracts
 the different notations for qualified table names. So /HR/EMPLOYEE instead of HR.EMPLOYEE.
 
 The `com.revolsys.record.schema.RecordStore` interface defines a connection to a database. For example a

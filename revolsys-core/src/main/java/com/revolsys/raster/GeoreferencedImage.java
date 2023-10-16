@@ -11,10 +11,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.jeometry.common.function.Consumer3;
-import org.jeometry.coordinatesystem.operation.CoordinatesOperationPoint;
-
 import com.revolsys.collection.map.MapEx;
+import com.revolsys.function.Consumer3;
+import com.revolsys.geometry.coordinatesystem.operation.CoordinatesOperationPoint;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.BoundingBoxProxy;
 import com.revolsys.geometry.model.GeometryFactory;

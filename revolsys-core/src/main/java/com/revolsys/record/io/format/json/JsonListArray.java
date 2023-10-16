@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.jeometry.common.data.type.DataType;
+import com.revolsys.data.type.DataType;
 
 public class JsonListArray extends ArrayList<Object> implements JsonList {
   private static final long serialVersionUID = 1L;

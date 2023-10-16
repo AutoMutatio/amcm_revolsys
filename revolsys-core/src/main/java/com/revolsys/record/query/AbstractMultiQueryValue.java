@@ -5,8 +5,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.exception.Exceptions;
+import com.revolsys.data.type.DataType;
+import com.revolsys.exception.Exceptions;
 
 public abstract class AbstractMultiQueryValue implements QueryValue {
   private static final QueryValue[] EMPTY_ARRAY = new QueryValue[0];

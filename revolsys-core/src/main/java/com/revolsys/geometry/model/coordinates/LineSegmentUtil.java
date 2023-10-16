@@ -3,9 +3,7 @@ package com.revolsys.geometry.model.coordinates;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.jeometry.common.math.Angle;
-import org.jeometry.common.number.Doubles;
-
+import com.revolsys.common.number.Doubles;
 import com.revolsys.geometry.algorithm.LineIntersector;
 import com.revolsys.geometry.algorithm.RobustDeterminant;
 import com.revolsys.geometry.algorithm.RobustLineIntersector;
@@ -20,6 +18,7 @@ import com.revolsys.geometry.model.impl.PointDoubleXY;
 import com.revolsys.geometry.model.impl.PointDoubleXYZ;
 import com.revolsys.geometry.util.Points;
 import com.revolsys.geometry.util.RectangleUtil;
+import com.revolsys.math.Angle;
 
 public class LineSegmentUtil {
 

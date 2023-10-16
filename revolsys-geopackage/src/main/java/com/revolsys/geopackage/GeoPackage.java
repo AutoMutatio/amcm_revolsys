@@ -15,7 +15,6 @@ import java.util.regex.Pattern;
 
 import javax.sql.DataSource;
 
-import org.jeometry.common.logging.Logs;
 import org.sqlite.SQLiteConfig;
 import org.sqlite.SQLiteConfig.LockingMode;
 import org.sqlite.SQLiteDataSource;
@@ -28,6 +27,7 @@ import com.revolsys.io.FileUtil;
 import com.revolsys.io.file.Paths;
 import com.revolsys.jdbc.io.AbstractJdbcDatabaseFactory;
 import com.revolsys.jdbc.io.JdbcRecordStore;
+import com.revolsys.logging.Logs;
 import com.revolsys.record.Record;
 import com.revolsys.record.RecordFactory;
 import com.revolsys.record.io.FileRecordStoreFactory;

@@ -7,11 +7,10 @@ import java.util.List;
 
 import javax.swing.SwingWorker;
 
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.logging.Logs;
-
+import com.revolsys.data.type.DataType;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactory;
+import com.revolsys.logging.Logs;
 import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.swing.parallel.Invoke;
 import com.revolsys.util.Property;

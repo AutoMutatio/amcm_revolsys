@@ -30,10 +30,10 @@ import javax.measure.Quantity;
 import javax.measure.Unit;
 import javax.measure.quantity.Length;
 
-import org.jeometry.common.function.BiFunctionDouble;
 import org.w3c.dom.Document;
 
 import com.revolsys.awt.ResetAffineTransform;
+import com.revolsys.function.BiFunctionDouble;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryFactory;

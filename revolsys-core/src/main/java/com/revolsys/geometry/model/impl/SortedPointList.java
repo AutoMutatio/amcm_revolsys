@@ -3,8 +3,7 @@ package com.revolsys.geometry.model.impl;
 import java.util.AbstractList;
 import java.util.Arrays;
 
-import org.jeometry.common.function.Function4;
-
+import com.revolsys.function.Function4;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.geometry.model.Point;
 

@@ -2,10 +2,11 @@ package com.revolsys.core.test.datatype;
 
 import java.util.Arrays;
 
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.data.type.DataTypes;
 import org.junit.Assert;
 import org.junit.Test;
+
+import com.revolsys.data.type.DataType;
+import com.revolsys.data.type.DataTypes;
 
 public class DataTypeTest {
 

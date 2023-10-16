@@ -8,12 +8,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jeometry.common.data.identifier.Identifier;
-import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.coordinatesystem.model.CoordinateSystem;
-import org.jeometry.coordinatesystem.model.HorizontalCoordinateSystem;
-import org.jeometry.coordinatesystem.model.VerticalCoordinateSystem;
-import org.jeometry.coordinatesystem.model.systems.EpsgCoordinateSystems;
+import com.revolsys.data.identifier.Identifier;
+import com.revolsys.data.type.DataTypes;
+import com.revolsys.geometry.coordinatesystem.model.CoordinateSystem;
+import com.revolsys.geometry.coordinatesystem.model.HorizontalCoordinateSystem;
+import com.revolsys.geometry.coordinatesystem.model.VerticalCoordinateSystem;
+import com.revolsys.geometry.coordinatesystem.model.systems.EpsgCoordinateSystems;
 
 public class EpsgCoordinateSystemsCodeTable extends AbstractCodeTable {
 

@@ -41,9 +41,9 @@ public enum Parity {
     }
   }
 
-  private char letter;
+  private final char letter;
 
-  private String name;
+  private final String name;
 
   private Parity(final String name) {
     this.name = name;

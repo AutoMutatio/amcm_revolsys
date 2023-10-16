@@ -1,10 +1,10 @@
 package com.revolsys.core.test.geometry.cs.esri;
 
-import org.jeometry.coordinatesystem.model.VerticalCoordinateSystem;
-import org.jeometry.coordinatesystem.model.systems.EsriCoordinateSystems;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.revolsys.geometry.coordinatesystem.model.VerticalCoordinateSystem;
+import com.revolsys.geometry.coordinatesystem.model.systems.EsriCoordinateSystems;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.record.Record;
 import com.revolsys.record.io.RecordReader;

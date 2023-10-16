@@ -4,8 +4,8 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.UUID;
 
-import org.jeometry.common.data.identifier.Identifier;
-import org.jeometry.common.data.type.DataTypes;
+import com.revolsys.data.identifier.Identifier;
+import com.revolsys.data.type.DataTypes;
 
 public class UuidBuilder {
 

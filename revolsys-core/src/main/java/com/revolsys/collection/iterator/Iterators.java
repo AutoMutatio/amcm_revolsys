@@ -5,8 +5,6 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-import com.revolsys.io.Reader;
-
 public interface Iterators {
   static <V> Reader<V> filter(final Iterable<V> iterable, final Predicate<? super V> filter) {
     if (filter == null) {

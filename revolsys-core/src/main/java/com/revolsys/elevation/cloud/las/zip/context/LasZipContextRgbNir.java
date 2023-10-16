@@ -1,7 +1,6 @@
 package com.revolsys.elevation.cloud.las.zip.context;
 
-import org.jeometry.common.number.Integers;
-
+import com.revolsys.common.number.Integers;
 import com.revolsys.elevation.cloud.las.pointformat.LasPoint;
 import com.revolsys.math.arithmeticcoding.ArithmeticCodingCodec;
 import com.revolsys.math.arithmeticcoding.ArithmeticDecoder;

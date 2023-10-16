@@ -8,8 +8,7 @@ import java.awt.RenderingHints;
 
 import javax.swing.JPanel;
 
-import org.jeometry.common.awt.WebColors;
-
+import com.revolsys.awt.WebColors;
 import com.revolsys.geometry.model.Point;
 import com.revolsys.geometry.model.impl.PointDoubleXY;
 import com.revolsys.swing.map.layer.record.style.MarkerStyle;

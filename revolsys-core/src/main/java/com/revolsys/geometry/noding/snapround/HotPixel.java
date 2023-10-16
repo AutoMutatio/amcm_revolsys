@@ -33,8 +33,7 @@
 
 package com.revolsys.geometry.noding.snapround;
 
-import org.jeometry.common.number.Doubles;
-
+import com.revolsys.common.number.Doubles;
 import com.revolsys.geometry.algorithm.LineIntersector;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.Point;

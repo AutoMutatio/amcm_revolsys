@@ -3,6 +3,7 @@ package com.revolsys.io;
 import java.util.Iterator;
 
 import com.revolsys.collection.iterator.AbstractIterator;
+import com.revolsys.collection.iterator.Reader;
 import com.revolsys.collection.map.MapEx;
 
 public class DelegatingReader<T> extends AbstractReader<T> {

@@ -3,8 +3,7 @@ package com.revolsys.record.io.format.json;
 import java.io.IOException;
 import java.io.Writer;
 
-import org.jeometry.common.exception.Exceptions;
-
+import com.revolsys.exception.Exceptions;
 import com.revolsys.spring.resource.Resource;
 
 public interface Jsonable {

@@ -3,8 +3,6 @@ package com.revolsys.collection.list;
 import java.util.List;
 import java.util.function.Supplier;
 
-import org.jeometry.common.collection.list.AbstractDelegatingList;
-
 public class ThreadLocalList<T> extends AbstractDelegatingList<T> {
 
   private final ThreadLocal<List<T>> localList = new ThreadLocal<>();

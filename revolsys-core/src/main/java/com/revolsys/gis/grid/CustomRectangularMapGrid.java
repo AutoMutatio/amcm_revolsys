@@ -5,9 +5,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
-import org.jeometry.common.function.BiConsumerDouble;
-import org.jeometry.common.number.Doubles;
-
+import com.revolsys.common.number.Doubles;
+import com.revolsys.function.BiConsumerDouble;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.BoundingBoxProxy;
 import com.revolsys.geometry.model.Geometry;

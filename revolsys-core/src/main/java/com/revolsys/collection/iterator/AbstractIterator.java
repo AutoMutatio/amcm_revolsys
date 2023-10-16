@@ -3,9 +3,6 @@ package com.revolsys.collection.iterator;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-import jakarta.annotation.PreDestroy;
-
-import com.revolsys.io.Reader;
 import com.revolsys.properties.BaseObjectWithProperties;
 
 public abstract class AbstractIterator<T> extends BaseObjectWithProperties
@@ -20,7 +17,6 @@ public abstract class AbstractIterator<T> extends BaseObjectWithProperties
   private T object;
 
   @Override
-  @PreDestroy
   public final void close() {
     this.hasNext = false;
     this.object = null;

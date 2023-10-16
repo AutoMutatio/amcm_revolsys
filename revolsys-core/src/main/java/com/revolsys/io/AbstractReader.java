@@ -1,5 +1,6 @@
 package com.revolsys.io;
 
+import com.revolsys.collection.iterator.Reader;
 import com.revolsys.properties.BaseObjectWithProperties;
 import com.revolsys.util.Cancellable;
 

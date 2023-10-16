@@ -4,11 +4,10 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.jeometry.coordinatesystem.model.ParameterName;
-import org.jeometry.coordinatesystem.model.ParameterNames;
-import org.jeometry.coordinatesystem.model.ParameterValue;
-
 import com.revolsys.collection.map.IntHashMap;
+import com.revolsys.geometry.coordinatesystem.model.ParameterName;
+import com.revolsys.geometry.coordinatesystem.model.ParameterNames;
+import com.revolsys.geometry.coordinatesystem.model.ParameterValue;
 import com.revolsys.raster.io.format.tiff.TiffImageFactory;
 
 public enum GeoTiffKeyProjectionParameterName implements GeoTiffKey {
@@ -63,9 +62,9 @@ public enum GeoTiffKeyProjectionParameterName implements GeoTiffKey {
     return parameters;
   }
 
-  private int id;
+  private final int id;
 
-  private ParameterName parameterName;
+  private final ParameterName parameterName;
 
   private GeoTiffKeyProjectionParameterName(final int code, final ParameterName parameterName) {
     this.id = code;

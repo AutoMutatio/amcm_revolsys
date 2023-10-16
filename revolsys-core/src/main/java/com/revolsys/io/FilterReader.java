@@ -6,6 +6,7 @@ import java.util.function.Predicate;
 import jakarta.annotation.PreDestroy;
 
 import com.revolsys.collection.iterator.FilterIterator;
+import com.revolsys.collection.iterator.Reader;
 import com.revolsys.collection.map.MapEx;
 
 public class FilterReader<T> extends AbstractReader<T> {

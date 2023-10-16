@@ -298,13 +298,11 @@ public class OctagonalEnvelope {
     if (isNull() || other.isNull() || this.minX > other.maxX || this.maxX < other.minX) {
       return false;
     }
-    if ((this.minY > other.maxY) || (this.maxY < other.minY) || (this.minA > other.maxA) || (this.maxA < other.minA)) {
+    if (this.minY > other.maxY || this.maxY < other.minY || this.minA > other.maxA
+      || this.maxA < other.minA) {
       return false;
     }
-    if (this.minB > other.maxB) {
-      return false;
-    }
-    if (this.maxB < other.minB) {
+    if ((this.minB > other.maxB) || (this.maxB < other.minB)) {
       return false;
     }
     return true;
@@ -318,7 +316,7 @@ public class OctagonalEnvelope {
 
     final double A = computeA(p.getX(), p.getY());
     final double B = computeB(p.getX(), p.getY());
-    if ((this.minA > A) || (this.maxA < A) || (this.minB > B) || (this.maxB < B)) {
+    if (this.minA > A || this.maxA < A || this.minB > B || this.maxB < B) {
       return false;
     }
     return true;

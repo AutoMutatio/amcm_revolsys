@@ -1,7 +1,6 @@
 package com.revolsys.util;
 
-import org.jeometry.common.data.type.DataType;
-
+import com.revolsys.data.type.DataType;
 import com.revolsys.value.ValueHolder;
 
 public final class ThreadValue<T> implements ValueHolder<T> {

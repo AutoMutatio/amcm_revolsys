@@ -4,8 +4,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.Map;
 
-import org.jeometry.common.exception.Exceptions;
-
+import com.revolsys.exception.Exceptions;
 import com.revolsys.io.AbstractMapWriter;
 import com.revolsys.io.FileUtil;
 import com.revolsys.io.IoConstants;

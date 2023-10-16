@@ -1,7 +1,6 @@
 package com.revolsys.core.test.geometry.test.old.noding;
 
-import org.jeometry.common.number.Doubles;
-
+import com.revolsys.common.number.Doubles;
 import com.revolsys.geometry.model.Point;
 import com.revolsys.geometry.model.impl.PointDoubleXY;
 import com.revolsys.geometry.model.segment.LineSegment;

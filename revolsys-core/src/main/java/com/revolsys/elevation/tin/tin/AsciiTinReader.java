@@ -3,9 +3,8 @@ package com.revolsys.elevation.tin.tin;
 import java.io.BufferedReader;
 import java.io.IOException;
 
-import org.jeometry.common.number.Doubles;
-import org.jeometry.common.number.Integers;
-
+import com.revolsys.common.number.Doubles;
+import com.revolsys.common.number.Integers;
 import com.revolsys.elevation.tin.CompactTriangulatedIrregularNetwork;
 import com.revolsys.elevation.tin.TriangulatedIrregularNetwork;
 import com.revolsys.geometry.model.GeometryFactory;

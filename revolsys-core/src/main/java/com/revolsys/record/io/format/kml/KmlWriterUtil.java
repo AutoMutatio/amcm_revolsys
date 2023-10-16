@@ -3,8 +3,7 @@ package com.revolsys.record.io.format.kml;
 import java.io.IOException;
 import java.io.Writer;
 
-import org.jeometry.common.number.Doubles;
-
+import com.revolsys.common.number.Doubles;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.LineString;
 import com.revolsys.geometry.model.LinearRing;

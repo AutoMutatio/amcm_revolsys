@@ -5,8 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jeometry.common.number.Doubles;
-
+import com.revolsys.common.number.Doubles;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.record.io.format.openstreetmap.model.OsmConstants;
 import com.revolsys.record.io.format.openstreetmap.model.OsmDocument;

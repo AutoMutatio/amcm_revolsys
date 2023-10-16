@@ -3,9 +3,8 @@ package com.revolsys.record.io.format.csv;
 import java.io.IOException;
 import java.io.Writer;
 
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.exception.Exceptions;
-
+import com.revolsys.data.type.DataType;
+import com.revolsys.exception.Exceptions;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.io.AbstractRecordWriter;
 import com.revolsys.record.Record;

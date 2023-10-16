@@ -42,19 +42,18 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.tree.TreePath;
 
-import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.common.logging.Logs;
-
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.collection.set.Sets;
 import com.revolsys.connection.file.FileConnectionManager;
 import com.revolsys.connection.file.FolderConnectionRegistry;
+import com.revolsys.data.type.DataTypes;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.geometry.util.RectangleUtil;
 import com.revolsys.io.FileUtil;
 import com.revolsys.io.file.Paths;
 import com.revolsys.io.filter.FileNameExtensionFilter;
+import com.revolsys.logging.Logs;
 import com.revolsys.process.JavaProcess;
 import com.revolsys.raster.GeoreferencedImageWriterFactory;
 import com.revolsys.record.io.RecordStoreConnectionManager;
@@ -112,7 +111,7 @@ public class ProjectFrame extends BaseFrame {
     PREFERENCE_PROJECT, "recentProject");
 
   private static final PreferenceKey PREFERENCE_RECENT_PROJECTS = new PreferenceKey(
-    PREFERENCE_PROJECT, "recentProjects", DataTypes.LIST, new ArrayList<String>());
+    PREFERENCE_PROJECT, "recentProjects", DataTypes.LIST, new ArrayList<>());
 
   private static final String BOTTOM_TAB = "INTERNAL_bottomTab";
 

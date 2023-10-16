@@ -17,9 +17,8 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileFilter;
 
-import org.jeometry.common.data.type.DataType;
-
 import com.revolsys.collection.list.Lists;
+import com.revolsys.data.type.DataType;
 import com.revolsys.elevation.gridded.GriddedElevationModelReaderFactory;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryDataTypes;

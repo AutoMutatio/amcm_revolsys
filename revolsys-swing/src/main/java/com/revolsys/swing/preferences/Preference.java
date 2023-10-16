@@ -4,10 +4,9 @@ import java.util.function.Function;
 
 import javax.swing.JComponent;
 
-import org.jeometry.common.data.type.DataType;
-
 import com.revolsys.beans.PropertyChangeSupport;
 import com.revolsys.beans.PropertyChangeSupportProxy;
+import com.revolsys.data.type.DataType;
 import com.revolsys.swing.SwingUtil;
 import com.revolsys.swing.field.Field;
 import com.revolsys.util.PreferenceKey;

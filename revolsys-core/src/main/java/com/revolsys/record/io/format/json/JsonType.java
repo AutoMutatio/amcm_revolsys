@@ -4,10 +4,9 @@ import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 
-import org.jeometry.common.data.type.DataTypedValue;
-import org.jeometry.common.exception.Exceptions;
-
 import com.revolsys.collection.map.MapEx;
+import com.revolsys.data.type.DataTypedValue;
+import com.revolsys.exception.Exceptions;
 import com.revolsys.util.BaseCloneable;
 import com.revolsys.util.JavaBeanUtil;
 

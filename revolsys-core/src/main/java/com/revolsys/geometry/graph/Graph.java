@@ -22,8 +22,6 @@ import java.util.function.Predicate;
 
 import jakarta.annotation.PreDestroy;
 
-import org.jeometry.common.util.ExitLoopException;
-
 import com.revolsys.collection.bplus.BPlusTreeMap;
 import com.revolsys.collection.map.IntHashMap;
 import com.revolsys.collection.map.MapEx;
@@ -58,6 +56,7 @@ import com.revolsys.predicate.PredicateProxy;
 import com.revolsys.predicate.Predicates;
 import com.revolsys.properties.BaseObjectWithProperties;
 import com.revolsys.record.Record;
+import com.revolsys.util.ExitLoopException;
 import com.revolsys.visitor.CreateListVisitor;
 
 public class Graph<T> extends BaseObjectWithProperties implements GeometryFactoryProxy {
@@ -127,7 +126,7 @@ public class Graph<T> extends BaseObjectWithProperties implements GeometryFactor
   }
 
   protected Graph(final boolean storeLines) {
-    graphs.put(this.id, new WeakReference<Graph<?>>(this));
+    graphs.put(this.id, new WeakReference<>(this));
     if (!storeLines) {
       this.edgeLinesById = null;
     }
@@ -174,7 +173,7 @@ public class Graph<T> extends BaseObjectWithProperties implements GeometryFactor
       this.nodePropertiesById = BPlusTreeMap.newIntSeralizableTempDisk(this.nodePropertiesById);
       this.nodesById = BPlusTreeMap.newIntSeralizableTempDisk(this.nodesById);
       this.nodesIdsByPoint = BPlusTreeMap.newTempDisk(this.nodesIdsByPoint,
-        new SerializablePageValueManager<Point>(), PageValueManager.INT);
+        new SerializablePageValueManager<>(), PageValueManager.INT);
       this.inMemory = false;
     }
     final Node<T> fromNode = getNode(fromX, fromY);

@@ -11,11 +11,9 @@ import java.util.function.Predicate;
 
 import javax.swing.JOptionPane;
 
-import org.jeometry.common.logging.Logs;
-import org.jeometry.common.number.Doubles;
-
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.collection.map.Maps;
+import com.revolsys.common.number.Doubles;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.geometry.model.LineString;
@@ -24,6 +22,7 @@ import com.revolsys.geometry.model.editor.BoundingBoxEditor;
 import com.revolsys.geometry.model.impl.PointDoubleXY;
 import com.revolsys.io.FileUtil;
 import com.revolsys.io.IoFactory;
+import com.revolsys.logging.Logs;
 import com.revolsys.raster.GeoreferencedImage;
 import com.revolsys.raster.GeoreferencedImageMapTile;
 import com.revolsys.raster.GeoreferencedImageReadFactory;

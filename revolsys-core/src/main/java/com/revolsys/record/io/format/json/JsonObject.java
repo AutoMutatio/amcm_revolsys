@@ -8,11 +8,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.data.type.DataTypeValueFactory;
-import org.jeometry.common.exception.Exceptions;
-
 import com.revolsys.collection.map.MapEx;
+import com.revolsys.data.type.DataType;
+import com.revolsys.data.type.DataTypeValueFactory;
+import com.revolsys.exception.Exceptions;
 import com.revolsys.util.Property;
 
 import reactor.core.publisher.Mono;

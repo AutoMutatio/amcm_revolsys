@@ -10,11 +10,10 @@ import java.util.List;
 import javax.swing.Icon;
 import javax.swing.SwingUtilities;
 
-import org.jeometry.common.data.type.DataTypes;
-
 import com.revolsys.beans.PropertyChangeSupportProxy;
 import com.revolsys.collection.Child;
 import com.revolsys.collection.map.MapEx;
+import com.revolsys.data.type.DataTypes;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.BoundingBoxProxy;
 import com.revolsys.geometry.model.GeometryFactoryProxy;

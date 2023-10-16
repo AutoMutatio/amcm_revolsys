@@ -5,11 +5,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
-import org.jeometry.common.io.PathName;
-import org.jeometry.common.logging.Logs;
-
 import com.revolsys.beans.Classes;
 import com.revolsys.geometry.model.BoundingBox;
+import com.revolsys.io.PathName;
+import com.revolsys.logging.Logs;
 import com.revolsys.record.Record;
 import com.revolsys.record.RecordFactory;
 import com.revolsys.record.io.RecordReader;

@@ -7,10 +7,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jeometry.common.number.Doubles;
-import org.jeometry.coordinatesystem.model.systems.EpsgId;
-
 import com.revolsys.collection.map.MapEx;
+import com.revolsys.common.number.Doubles;
+import com.revolsys.geometry.coordinatesystem.model.systems.EpsgId;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.geometry.model.Point;

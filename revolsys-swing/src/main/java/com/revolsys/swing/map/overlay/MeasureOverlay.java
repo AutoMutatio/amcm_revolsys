@@ -21,12 +21,11 @@ import javax.measure.Unit;
 import javax.measure.quantity.Area;
 import javax.measure.quantity.Length;
 
-import org.jeometry.common.awt.WebColors;
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.number.Doubles;
-import org.jeometry.coordinatesystem.model.unit.CustomUnits;
-
+import com.revolsys.awt.WebColors;
 import com.revolsys.collection.map.Maps;
+import com.revolsys.common.number.Doubles;
+import com.revolsys.data.type.DataType;
+import com.revolsys.geometry.coordinatesystem.model.unit.CustomUnits;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryDataTypes;
 import com.revolsys.geometry.model.GeometryFactory;

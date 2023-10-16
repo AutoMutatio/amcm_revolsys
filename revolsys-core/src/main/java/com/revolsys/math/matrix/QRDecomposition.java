@@ -1,6 +1,6 @@
 package com.revolsys.math.matrix;
 
-import org.jeometry.common.number.Doubles;
+import com.revolsys.common.number.Doubles;
 
 /** QR Decomposition.
 <P>

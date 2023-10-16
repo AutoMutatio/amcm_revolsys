@@ -10,16 +10,15 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import org.jeometry.common.exception.Exceptions;
-import org.jeometry.common.number.Doubles;
-import org.jeometry.common.number.Numbers;
-
 import com.revolsys.collection.iterator.AbstractIterator;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.collection.map.Maps;
+import com.revolsys.common.number.Doubles;
+import com.revolsys.common.number.Numbers;
 import com.revolsys.elevation.gridded.DoubleArrayGriddedElevationModel;
 import com.revolsys.elevation.gridded.GriddedElevationModel;
 import com.revolsys.elevation.gridded.GriddedElevationModelReader;
+import com.revolsys.exception.Exceptions;
 import com.revolsys.geometry.io.PointReader;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactory;

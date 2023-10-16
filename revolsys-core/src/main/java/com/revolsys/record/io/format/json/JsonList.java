@@ -11,12 +11,11 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.exception.Exceptions;
-
 import com.revolsys.collection.iterator.Iterators;
+import com.revolsys.collection.iterator.Reader;
 import com.revolsys.collection.list.ListEx;
-import com.revolsys.io.Reader;
+import com.revolsys.data.type.DataType;
+import com.revolsys.exception.Exceptions;
 import com.revolsys.util.Property;
 
 import reactor.core.publisher.Flux;

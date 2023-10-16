@@ -13,21 +13,21 @@ import java.util.Map.Entry;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-import org.jeometry.common.data.identifier.Identifier;
-import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.common.io.PathName;
-import org.jeometry.common.io.PathNameProxy;
 import org.springframework.beans.DirectFieldAccessor;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import com.revolsys.collection.ListResultPager;
 import com.revolsys.collection.ResultPager;
 import com.revolsys.collection.map.MapEx;
+import com.revolsys.data.identifier.Identifier;
+import com.revolsys.data.type.DataTypes;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactoryProxy;
 import com.revolsys.io.BaseCloseable;
 import com.revolsys.io.FileUtil;
 import com.revolsys.io.IoFactory;
+import com.revolsys.io.PathName;
+import com.revolsys.io.PathNameProxy;
 import com.revolsys.properties.ObjectWithProperties;
 import com.revolsys.record.ArrayChangeTrackRecord;
 import com.revolsys.record.ArrayRecord;

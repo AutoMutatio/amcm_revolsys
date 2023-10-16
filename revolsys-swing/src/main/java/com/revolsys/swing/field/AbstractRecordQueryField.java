@@ -44,13 +44,13 @@ import org.jdesktop.swingx.decorator.ColorHighlighter;
 import org.jdesktop.swingx.decorator.ComponentAdapter;
 import org.jdesktop.swingx.decorator.HighlightPredicate;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
-import org.jeometry.common.awt.WebColors;
-import org.jeometry.common.collection.map.LruMap;
-import org.jeometry.common.data.identifier.Identifier;
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.io.PathName;
 
+import com.revolsys.awt.WebColors;
+import com.revolsys.collection.map.LruMap;
+import com.revolsys.data.identifier.Identifier;
+import com.revolsys.data.type.DataType;
 import com.revolsys.io.BaseCloseable;
+import com.revolsys.io.PathName;
 import com.revolsys.record.Record;
 import com.revolsys.record.code.CodeTable;
 import com.revolsys.record.query.BinaryCondition;

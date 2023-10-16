@@ -5,7 +5,8 @@ import java.net.URISyntaxException;
 
 import org.apache.hc.core5.http.ClassicHttpRequest;
 import org.apache.hc.core5.http.ClassicHttpResponse;
-import org.jeometry.common.exception.Exceptions;
+
+import com.revolsys.exception.Exceptions;
 
 public class ApacheHttpException extends RuntimeException {
   private static final long serialVersionUID = 1L;

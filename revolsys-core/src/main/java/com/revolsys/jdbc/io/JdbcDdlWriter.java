@@ -7,8 +7,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jeometry.common.number.Numbers;
-
+import com.revolsys.common.number.Numbers;
 import com.revolsys.io.PathUtil;
 import com.revolsys.record.Record;
 import com.revolsys.record.property.ShortNameProperty;

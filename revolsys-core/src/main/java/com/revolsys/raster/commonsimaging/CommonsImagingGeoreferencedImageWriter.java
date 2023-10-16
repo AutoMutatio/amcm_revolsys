@@ -6,9 +6,9 @@ import java.io.OutputStream;
 
 import org.apache.commons.imaging.ImageParser;
 import org.apache.commons.imaging.ImageWriteException;
-import org.jeometry.common.exception.Exceptions;
 
 import com.revolsys.collection.map.MapEx;
+import com.revolsys.exception.Exceptions;
 import com.revolsys.io.AbstractWriter;
 import com.revolsys.raster.GeoreferencedImage;
 import com.revolsys.raster.GeoreferencedImageWriter;

@@ -13,9 +13,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 
-import org.jeometry.common.logging.Logs;
 import org.springframework.beans.factory.BeanNameAware;
 
+import com.revolsys.logging.Logs;
 import com.revolsys.parallel.NamedThreadFactory;
 import com.revolsys.parallel.ThreadInterruptedException;
 import com.revolsys.parallel.channel.Channel;
@@ -34,7 +34,7 @@ public class RunnableChannelExecutor extends ThreadPoolExecutor implements Proce
   private final AtomicInteger taskCount = new AtomicInteger();
 
   public RunnableChannelExecutor() {
-    super(0, 100, 60, TimeUnit.SECONDS, new SynchronousQueue<Runnable>(), new NamedThreadFactory());
+    super(0, 100, 60, TimeUnit.SECONDS, new SynchronousQueue<>(), new NamedThreadFactory());
   }
 
   @Override

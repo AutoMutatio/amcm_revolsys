@@ -9,11 +9,10 @@ import java.util.UUID;
 import java.util.function.BiConsumer;
 
 import org.apache.http.NameValuePair;
-import org.jeometry.common.data.identifier.Identifier;
-import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.common.io.PathName;
 
 import com.revolsys.collection.map.MapEx;
+import com.revolsys.data.identifier.Identifier;
+import com.revolsys.data.type.DataTypes;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryFactoryProxy;
@@ -21,6 +20,7 @@ import com.revolsys.geometry.model.Polygon;
 import com.revolsys.http.ApacheHttpRequestBuilder;
 import com.revolsys.http.ApacheHttpRequestBuilderFactory;
 import com.revolsys.http.ConfigurableRequestBuilderFactory;
+import com.revolsys.io.PathName;
 import com.revolsys.net.http.SimpleNameValuePair;
 import com.revolsys.record.Record;
 import com.revolsys.record.io.RecordReader;

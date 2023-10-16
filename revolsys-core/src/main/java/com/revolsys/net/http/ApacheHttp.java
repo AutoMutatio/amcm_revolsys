@@ -19,9 +19,9 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.ssl.SSLContextBuilder;
-import org.jeometry.common.exception.Exceptions;
-import org.jeometry.common.exception.WrappedException;
 
+import com.revolsys.exception.Exceptions;
+import com.revolsys.exception.WrappedException;
 import com.revolsys.io.FileUtil;
 import com.revolsys.record.io.format.json.JsonList;
 import com.revolsys.record.io.format.json.JsonObject;

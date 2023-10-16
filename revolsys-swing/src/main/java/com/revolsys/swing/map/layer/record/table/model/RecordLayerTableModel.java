@@ -19,11 +19,10 @@ import javax.swing.ListSelectionModel;
 import javax.swing.RowFilter;
 import javax.swing.SortOrder;
 
-import org.jeometry.common.data.type.DataType;
-
 import com.revolsys.beans.PropertyChangeSupportProxy;
 import com.revolsys.collection.CollectionUtil;
 import com.revolsys.collection.list.Lists;
+import com.revolsys.data.type.DataType;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.io.BaseCloseable;
 import com.revolsys.record.Record;

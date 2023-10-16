@@ -9,9 +9,8 @@ import java.util.concurrent.ExecutionException;
 import javax.swing.RootPaneContainer;
 import javax.swing.SwingWorker;
 
-import org.jeometry.common.date.Dates;
-import org.jeometry.common.logging.Logs;
-
+import com.revolsys.date.Dates;
+import com.revolsys.logging.Logs;
 import com.revolsys.swing.SwingUtil;
 import com.revolsys.util.Cancellable;
 

@@ -3,10 +3,9 @@ package com.revolsys.http;
 import java.io.File;
 import java.util.List;
 
-import org.jeometry.common.logging.Logs;
-
 import com.revolsys.collection.list.Lists;
 import com.revolsys.io.FileUtil;
+import com.revolsys.logging.Logs;
 import com.revolsys.net.oauth.BearerToken;
 import com.revolsys.record.io.format.json.JsonObject;
 

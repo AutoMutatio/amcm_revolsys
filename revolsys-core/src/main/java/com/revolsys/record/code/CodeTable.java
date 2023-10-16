@@ -9,10 +9,9 @@ import java.util.Map;
 
 import javax.swing.JComponent;
 
-import org.jeometry.common.compare.CompareUtil;
-import org.jeometry.common.data.identifier.Identifier;
-import org.jeometry.common.data.refresh.Refreshable;
-
+import com.revolsys.comparator.CompareUtil;
+import com.revolsys.data.identifier.Identifier;
+import com.revolsys.data.refresh.Refreshable;
 import com.revolsys.io.BaseCloseable;
 import com.revolsys.record.Record;
 import com.revolsys.record.io.RecordReader;

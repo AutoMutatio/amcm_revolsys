@@ -11,7 +11,7 @@ public enum ImagerySet {
   OrdnanceSurvey(23), //
   Road(20);
 
-  private int maxLevelOfDetail;
+  private final int maxLevelOfDetail;
 
   private ImagerySet(final int maxLevelOfDetail) {
     this.maxLevelOfDetail = maxLevelOfDetail;

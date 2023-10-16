@@ -5,13 +5,13 @@ import java.nio.file.Paths;
 import java.util.Map;
 import java.util.function.Supplier;
 
+import com.revolsys.collection.iterator.Reader;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.collection.map.Maps;
 import com.revolsys.geometry.io.GeometryReader;
 import com.revolsys.geometry.io.GeometryReaderFactory;
 import com.revolsys.io.FileUtil;
 import com.revolsys.io.PathUtil;
-import com.revolsys.io.Reader;
 import com.revolsys.io.map.MapReader;
 import com.revolsys.io.map.MapReaderFactory;
 import com.revolsys.record.ArrayRecord;

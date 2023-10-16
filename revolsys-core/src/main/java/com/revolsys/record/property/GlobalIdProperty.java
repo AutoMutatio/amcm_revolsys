@@ -2,8 +2,7 @@ package com.revolsys.record.property;
 
 import java.util.UUID;
 
-import org.jeometry.common.data.identifier.Identifier;
-
+import com.revolsys.data.identifier.Identifier;
 import com.revolsys.record.Record;
 import com.revolsys.record.schema.RecordDefinition;
 

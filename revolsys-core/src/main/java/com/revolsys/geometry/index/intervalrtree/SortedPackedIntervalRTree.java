@@ -38,7 +38,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.function.Consumer;
 
-import org.jeometry.common.util.ExitLoopException;
+import com.revolsys.util.ExitLoopException;
 
 /**
  * A static index on a set of 1-dimensional intervals,

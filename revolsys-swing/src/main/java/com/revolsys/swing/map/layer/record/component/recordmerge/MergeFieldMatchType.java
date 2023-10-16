@@ -3,8 +3,7 @@ package com.revolsys.swing.map.layer.record.component.recordmerge;
 import java.awt.Color;
 import java.awt.Component;
 
-import org.jeometry.common.awt.WebColors;
-
+import com.revolsys.awt.WebColors;
 import com.revolsys.util.CaseConverter;
 
 enum MergeFieldMatchType {

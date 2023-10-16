@@ -5,8 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jeometry.common.number.Doubles;
-
+import com.revolsys.common.number.Doubles;
 import com.revolsys.geometry.algorithm.RobustDeterminant;
 import com.revolsys.geometry.graph.Edge;
 import com.revolsys.geometry.graph.Graph;

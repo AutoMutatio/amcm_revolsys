@@ -3,8 +3,8 @@ package com.revolsys.comparator;
 import java.math.BigDecimal;
 import java.util.Comparator;
 
-import org.jeometry.common.number.BigDecimals;
-import org.jeometry.common.number.Numbers;
+import com.revolsys.common.number.BigDecimals;
+import com.revolsys.common.number.Numbers;
 
 public class StringNumberComparator implements Comparator<String> {
   @Override

@@ -6,7 +6,7 @@ import java.util.function.Function;
 
 import javax.xml.namespace.QName;
 
-import org.jeometry.common.data.type.DataType;
+import com.revolsys.data.type.DataType;
 
 public class XmlSchema {
   private final XmlNamespace namespace;

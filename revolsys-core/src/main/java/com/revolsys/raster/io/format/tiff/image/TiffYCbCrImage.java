@@ -3,8 +3,7 @@ package com.revolsys.raster.io.format.tiff.image;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 
-import org.jeometry.common.exception.Exceptions;
-
+import com.revolsys.exception.Exceptions;
 import com.revolsys.raster.io.format.tiff.TiffDirectory;
 import com.revolsys.raster.io.format.tiff.code.TiffBaselineTag;
 import com.revolsys.raster.io.format.tiff.code.TiffExtensionTag;

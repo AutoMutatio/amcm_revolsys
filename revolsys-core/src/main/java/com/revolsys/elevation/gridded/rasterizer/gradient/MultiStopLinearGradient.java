@@ -8,9 +8,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.jeometry.common.logging.Logs;
-
 import com.revolsys.io.map.MapSerializer;
+import com.revolsys.logging.Logs;
 import com.revolsys.properties.BaseObjectWithProperties;
 import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.spring.resource.Resource;

@@ -12,8 +12,7 @@ package com.revolsys.elevation.cloud.las.zip.v3;
 
 import java.util.Arrays;
 
-import org.jeometry.common.number.Longs;
-
+import com.revolsys.common.number.Longs;
 import com.revolsys.elevation.cloud.las.pointformat.LasPoint;
 import com.revolsys.elevation.cloud.las.zip.ArithmeticDecoderByteArray;
 import com.revolsys.elevation.cloud.las.zip.ArithmeticEncoderByteArray;

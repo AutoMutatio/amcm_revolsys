@@ -2,9 +2,8 @@ package com.revolsys.swing.map.layer.record;
 
 import java.util.List;
 
-import org.jeometry.common.io.PathName;
-
 import com.revolsys.geometry.model.BoundingBox;
+import com.revolsys.io.PathName;
 import com.revolsys.record.query.Query;
 import com.revolsys.swing.map.ViewportCacheBoundingBox;
 import com.revolsys.swing.map.layer.AbstractLayer;

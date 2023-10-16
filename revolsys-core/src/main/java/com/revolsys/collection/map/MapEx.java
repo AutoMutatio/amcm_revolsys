@@ -12,16 +12,15 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import org.jeometry.common.compare.CompareUtil;
-import org.jeometry.common.data.identifier.Identifier;
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.data.type.DataTypeProxy;
-import org.jeometry.common.data.type.DataTypeValueFactory;
-import org.jeometry.common.data.type.DataTypedValue;
-import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.common.logging.Logs;
-
 import com.revolsys.collection.list.ListEx;
+import com.revolsys.comparator.CompareUtil;
+import com.revolsys.data.identifier.Identifier;
+import com.revolsys.data.type.DataType;
+import com.revolsys.data.type.DataTypeProxy;
+import com.revolsys.data.type.DataTypeValueFactory;
+import com.revolsys.data.type.DataTypedValue;
+import com.revolsys.data.type.DataTypes;
+import com.revolsys.logging.Logs;
 import com.revolsys.record.Record;
 import com.revolsys.record.io.format.json.Json;
 import com.revolsys.record.io.format.json.JsonList;

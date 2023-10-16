@@ -16,8 +16,7 @@ import static com.revolsys.math.arithmeticcoding.ArithmeticModel.BM__LengthShift
 import static com.revolsys.math.arithmeticcoding.ArithmeticModel.DM__LengthShift;
 import static java.lang.Integer.compareUnsigned;
 
-import org.jeometry.common.number.Longs;
-
+import com.revolsys.common.number.Longs;
 import com.revolsys.io.channels.DataReader;
 
 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
