@@ -35,6 +35,7 @@ import com.revolsys.data.type.DataTypes;
 import com.revolsys.exception.Exceptions;
 import com.revolsys.logging.Logs;
 import com.revolsys.number.Integers;
+import com.revolsys.properties.ObjectWithProperties;
 import com.revolsys.record.Record;
 
 public interface Property {

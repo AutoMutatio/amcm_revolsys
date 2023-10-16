@@ -22,6 +22,7 @@ import javax.swing.JPopupMenu.Separator;
 
 import com.revolsys.beans.ClassRegistry;
 import com.revolsys.logging.Logs;
+import com.revolsys.properties.BaseObjectWithProperties;
 import com.revolsys.swing.Icons;
 import com.revolsys.swing.action.AbstractAction;
 import com.revolsys.swing.action.RunnableAction;
@@ -29,7 +30,6 @@ import com.revolsys.swing.action.enablecheck.EnableCheck;
 import com.revolsys.swing.component.ComponentFactory;
 import com.revolsys.swing.field.Field;
 import com.revolsys.swing.tree.TreeNodes;
-import com.revolsys.util.BaseObjectWithProperties;
 import com.revolsys.util.RunnableInitializers;
 
 public class MenuFactory extends BaseObjectWithProperties implements ComponentFactory<JMenuItem> {

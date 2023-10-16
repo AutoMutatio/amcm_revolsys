@@ -7,10 +7,10 @@ import java.util.List;
 import java.util.Set;
 
 import com.revolsys.geometry.graph.Node;
+import com.revolsys.properties.ObjectPropertyProxy;
 import com.revolsys.record.Record;
 import com.revolsys.record.property.AbstractRecordDefinitionProperty;
 import com.revolsys.record.schema.RecordDefinition;
-import com.revolsys.util.ObjectPropertyProxy;
 
 public class PseudoNodeProperty extends AbstractRecordDefinitionProperty {
   protected static final List<String> DEFAULT_EXCLUDE = Arrays.asList(Record.EXCLUDE_ID,

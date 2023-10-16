@@ -11,8 +11,8 @@ import java.util.Map;
 import com.revolsys.collection.json.JsonObject;
 import com.revolsys.io.MapSerializer;
 import com.revolsys.logging.Logs;
+import com.revolsys.properties.BaseObjectWithProperties;
 import com.revolsys.spring.resource.Resource;
-import com.revolsys.util.BaseObjectWithProperties;
 
 // http://soliton.vm.bytemark.co.uk/pub/cpt-city/
 public class MultiStopLinearGradient extends BaseObjectWithProperties

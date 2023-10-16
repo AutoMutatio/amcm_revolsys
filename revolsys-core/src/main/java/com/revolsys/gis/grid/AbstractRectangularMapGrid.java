@@ -2,9 +2,9 @@ package com.revolsys.gis.grid;
 
 import com.revolsys.data.type.DataTypes;
 import com.revolsys.geometry.model.GeometryDataTypes;
+import com.revolsys.properties.BaseObjectWithProperties;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordDefinitionBuilder;
-import com.revolsys.util.BaseObjectWithProperties;
 
 public abstract class AbstractRectangularMapGrid extends BaseObjectWithProperties
   implements RectangularMapGrid {

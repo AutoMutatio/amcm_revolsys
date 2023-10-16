@@ -4,8 +4,8 @@ import com.revolsys.collection.NameProxy;
 import com.revolsys.geometry.model.GeometryFactoryProxy;
 import com.revolsys.io.PathName;
 import com.revolsys.io.PathNameProxy;
+import com.revolsys.properties.ObjectWithProperties;
 import com.revolsys.util.IconNameProxy;
-import com.revolsys.util.ObjectWithProperties;
 
 public interface RecordStoreSchemaElement extends GeometryFactoryProxy, ObjectWithProperties,
   PathNameProxy, Comparable<RecordStoreSchemaElement>, NameProxy, IconNameProxy {

@@ -19,11 +19,11 @@ import javax.swing.tree.TreeSelectionModel;
 import com.revolsys.collection.EmptyReference;
 import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.map.MapEx;
+import com.revolsys.properties.ObjectWithProperties;
 import com.revolsys.swing.menu.MenuFactory;
 import com.revolsys.swing.parallel.Invoke;
 import com.revolsys.swing.tree.dnd.TreeTransferHandler;
 import com.revolsys.swing.tree.node.OpenStateTreeNode;
-import com.revolsys.util.ObjectWithProperties;
 
 public class BaseTree extends JTree implements ObjectWithProperties {
   private static Reference<BaseTreeNode> menuNode = new EmptyReference<>();

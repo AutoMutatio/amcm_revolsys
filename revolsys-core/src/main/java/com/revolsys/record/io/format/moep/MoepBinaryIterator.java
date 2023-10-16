@@ -20,10 +20,10 @@ import com.revolsys.gis.grid.UtmRectangularMapGrid;
 import com.revolsys.io.EndOfFileException;
 import com.revolsys.io.FileUtil;
 import com.revolsys.io.IoConstants;
+import com.revolsys.properties.BaseObjectWithProperties;
 import com.revolsys.record.Record;
 import com.revolsys.record.RecordFactory;
 import com.revolsys.util.BaseCloseable;
-import com.revolsys.util.BaseObjectWithProperties;
 
 public class MoepBinaryIterator extends BaseObjectWithProperties implements Iterator<Record> {
   private static final int COMPLEX_LINE = 3;

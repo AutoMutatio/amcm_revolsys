@@ -12,8 +12,8 @@ import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.io.IoFactory;
 import com.revolsys.io.channels.DataReader;
+import com.revolsys.properties.BaseObjectWithProperties;
 import com.revolsys.spring.resource.Resource;
-import com.revolsys.util.BaseObjectWithProperties;
 
 public class UsNgsBinGeoidModelReader extends BaseObjectWithProperties
   implements GriddedElevationModelReader {

@@ -12,8 +12,8 @@ import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.io.IoFactory;
 import com.revolsys.io.channels.DataReader;
+import com.revolsys.properties.BaseObjectWithProperties;
 import com.revolsys.spring.resource.Resource;
-import com.revolsys.util.BaseObjectWithProperties;
 
 /*
  The total size of the file is 2,076,480 bytes. This file was created

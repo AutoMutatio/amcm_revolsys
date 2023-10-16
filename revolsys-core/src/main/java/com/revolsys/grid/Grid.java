@@ -17,8 +17,8 @@ import com.revolsys.geometry.model.Point;
 import com.revolsys.geometry.model.Polygon;
 import com.revolsys.geometry.model.Polygonal;
 import com.revolsys.geometry.simplify.DouglasPeuckerSimplifier;
+import com.revolsys.properties.ObjectWithProperties;
 import com.revolsys.spring.resource.Resource;
-import com.revolsys.util.ObjectWithProperties;
 
 /**
  * <p>A grid is a two dimensional array of values. The value could represent and double value and

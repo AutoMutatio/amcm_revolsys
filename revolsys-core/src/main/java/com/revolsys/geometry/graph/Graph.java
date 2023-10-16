@@ -54,8 +54,8 @@ import com.revolsys.io.page.PageValueManager;
 import com.revolsys.io.page.SerializablePageValueManager;
 import com.revolsys.predicate.PredicateProxy;
 import com.revolsys.predicate.Predicates;
+import com.revolsys.properties.BaseObjectWithProperties;
 import com.revolsys.record.Record;
-import com.revolsys.util.BaseObjectWithProperties;
 import com.revolsys.util.ExitLoopException;
 import com.revolsys.visitor.CreateListVisitor;
 

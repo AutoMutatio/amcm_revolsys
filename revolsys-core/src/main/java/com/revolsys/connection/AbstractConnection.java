@@ -9,8 +9,8 @@ import com.revolsys.collection.map.MapEx;
 import com.revolsys.data.type.DataType;
 import com.revolsys.io.FileUtil;
 import com.revolsys.logging.Logs;
+import com.revolsys.properties.BaseObjectWithProperties;
 import com.revolsys.spring.resource.Resource;
-import com.revolsys.util.BaseObjectWithProperties;
 
 public abstract class AbstractConnection<C extends Connection, R extends ConnectionRegistry<C>>
   extends BaseObjectWithProperties implements Connection {

@@ -15,8 +15,8 @@ import com.revolsys.io.IoFactory;
 import com.revolsys.io.channels.DataReader;
 import com.revolsys.math.arithmeticcoding.ArithmeticCodingInteger;
 import com.revolsys.math.arithmeticcoding.ArithmeticDecoder;
+import com.revolsys.properties.BaseObjectWithProperties;
 import com.revolsys.spring.resource.Resource;
-import com.revolsys.util.BaseObjectWithProperties;
 
 public class CompressedScaledIntegerGriddedDigitalElevationModelReader
   extends BaseObjectWithProperties implements GriddedElevationModelReader {

@@ -1,7 +1,5 @@
 package com.revolsys.properties;
 
-import com.revolsys.util.ObjectPropertyProxy;
-
 public abstract class AbstractObjectPropertyProxy<T, O> implements ObjectPropertyProxy<T, O> {
   private transient T value;
 

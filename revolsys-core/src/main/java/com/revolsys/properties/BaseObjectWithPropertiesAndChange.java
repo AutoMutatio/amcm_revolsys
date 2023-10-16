@@ -6,8 +6,6 @@ import com.revolsys.beans.KeyedPropertyChangeEvent;
 import com.revolsys.beans.PropertyChangeSupport;
 import com.revolsys.beans.PropertyChangeSupportProxy;
 import com.revolsys.data.type.DataType;
-import com.revolsys.util.BaseObjectWithProperties;
-import com.revolsys.util.ObjectWithProperties;
 
 public class BaseObjectWithPropertiesAndChange extends BaseObjectWithProperties
   implements PropertyChangeSupportProxy {

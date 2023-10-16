@@ -26,6 +26,7 @@ import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.geometry.operation.valid.IsValidOp;
 import com.revolsys.io.MapSerializer;
+import com.revolsys.properties.BaseObjectWithProperties;
 import com.revolsys.record.Record;
 import com.revolsys.record.RecordState;
 import com.revolsys.record.code.CodeTable;
@@ -34,7 +35,6 @@ import com.revolsys.record.query.Query;
 import com.revolsys.record.query.SqlAppendable;
 import com.revolsys.record.query.TableReference;
 import com.revolsys.util.BaseCloneable;
-import com.revolsys.util.BaseObjectWithProperties;
 import com.revolsys.util.CaseConverter;
 import com.revolsys.util.Strings;
 

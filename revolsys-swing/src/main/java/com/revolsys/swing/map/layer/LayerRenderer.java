@@ -8,10 +8,10 @@ import javax.swing.Icon;
 import com.revolsys.beans.PropertyChangeSupportProxy;
 import com.revolsys.data.type.DataType;
 import com.revolsys.io.MapSerializer;
+import com.revolsys.properties.ObjectWithProperties;
 import com.revolsys.swing.component.Form;
 import com.revolsys.swing.map.view.ViewRenderer;
 import com.revolsys.util.BaseCloneable;
-import com.revolsys.util.ObjectWithProperties;
 
 public interface LayerRenderer<T extends Layer> extends ObjectWithProperties,
   PropertyChangeListener, PropertyChangeSupportProxy, MapSerializer, BaseCloneable {

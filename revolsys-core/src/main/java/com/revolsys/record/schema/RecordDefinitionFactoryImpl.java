@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import com.revolsys.util.BaseObjectWithProperties;
+import com.revolsys.properties.BaseObjectWithProperties;
 
 public class RecordDefinitionFactoryImpl extends BaseObjectWithProperties
   implements RecordDefinitionFactory {

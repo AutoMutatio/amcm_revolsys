@@ -1,4 +1,4 @@
-package com.revolsys.util;
+package com.revolsys.properties;
 
 import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
@@ -10,6 +10,7 @@ import com.revolsys.collection.map.MapEx;
 import com.revolsys.data.type.DataType;
 import com.revolsys.io.MapSerializer;
 import com.revolsys.logging.Logs;
+import com.revolsys.util.Property;
 
 public interface ObjectWithProperties {
 

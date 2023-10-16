@@ -2,7 +2,7 @@ package com.revolsys.maven;
 
 import com.revolsys.collection.CollectionUtil;
 import com.revolsys.collection.map.MapEx;
-import com.revolsys.util.BaseObjectWithProperties;
+import com.revolsys.properties.BaseObjectWithProperties;
 
 public abstract class GroupArtifactVersion extends BaseObjectWithProperties {
   private String classifier;

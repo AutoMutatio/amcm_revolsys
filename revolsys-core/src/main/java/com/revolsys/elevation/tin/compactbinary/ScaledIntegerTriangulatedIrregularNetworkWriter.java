@@ -6,8 +6,8 @@ import com.revolsys.exception.Exceptions;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.io.channels.ChannelWriter;
+import com.revolsys.properties.BaseObjectWithProperties;
 import com.revolsys.spring.resource.Resource;
-import com.revolsys.util.BaseObjectWithProperties;
 
 public class ScaledIntegerTriangulatedIrregularNetworkWriter extends BaseObjectWithProperties
   implements TriangulatedIrregularNetworkWriter {

@@ -1,4 +1,4 @@
-package com.revolsys.util;
+package com.revolsys.properties;
 
 import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.map.MapEx;

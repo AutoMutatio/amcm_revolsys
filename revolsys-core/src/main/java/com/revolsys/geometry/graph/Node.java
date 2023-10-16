@@ -27,8 +27,8 @@ import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.geometry.model.LineString;
 import com.revolsys.geometry.model.Point;
 import com.revolsys.geometry.model.impl.PointDoubleXY;
-import com.revolsys.util.ObjectPropertyProxy;
-import com.revolsys.util.ObjectWithProperties;
+import com.revolsys.properties.ObjectPropertyProxy;
+import com.revolsys.properties.ObjectWithProperties;
 
 public class Node<T> extends PointDoubleXY implements ObjectWithProperties, Externalizable {
   private static final int[] EMPTY_IDS = new int[0];

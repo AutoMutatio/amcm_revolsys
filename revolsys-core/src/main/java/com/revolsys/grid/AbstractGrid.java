@@ -4,8 +4,8 @@ import com.revolsys.awt.WebColors;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.geometry.util.RectangleUtil;
+import com.revolsys.properties.BaseObjectWithProperties;
 import com.revolsys.spring.resource.Resource;
-import com.revolsys.util.BaseObjectWithProperties;
 
 public abstract class AbstractGrid extends BaseObjectWithProperties implements Grid {
   protected double[] bounds = RectangleUtil.newBounds(3);

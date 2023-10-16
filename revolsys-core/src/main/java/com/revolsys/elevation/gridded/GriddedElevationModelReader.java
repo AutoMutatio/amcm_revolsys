@@ -4,9 +4,9 @@ import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.geometry.model.BoundingBoxProxy;
 import com.revolsys.io.IoFactory;
+import com.revolsys.properties.ObjectWithProperties;
 import com.revolsys.spring.resource.Resource;
 import com.revolsys.util.BaseCloseable;
-import com.revolsys.util.ObjectWithProperties;
 
 public interface GriddedElevationModelReader
   extends BaseCloseable, BoundingBoxProxy, ObjectWithProperties {

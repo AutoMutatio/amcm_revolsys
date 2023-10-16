@@ -3,7 +3,7 @@ package com.revolsys.collection.iterator;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-import com.revolsys.util.BaseObjectWithProperties;
+import com.revolsys.properties.BaseObjectWithProperties;
 
 public abstract class AbstractIterator<T> extends BaseObjectWithProperties
   implements Iterator<T>, Reader<T> {

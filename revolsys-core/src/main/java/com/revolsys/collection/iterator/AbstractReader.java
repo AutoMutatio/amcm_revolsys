@@ -1,6 +1,6 @@
 package com.revolsys.collection.iterator;
 
-import com.revolsys.util.BaseObjectWithProperties;
+import com.revolsys.properties.BaseObjectWithProperties;
 import com.revolsys.util.Cancellable;
 
 public abstract class AbstractReader<T> extends BaseObjectWithProperties implements Reader<T> {

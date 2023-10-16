@@ -12,9 +12,9 @@ import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.collection.map.Maps;
 import com.revolsys.logging.Logs;
+import com.revolsys.properties.ObjectWithProperties;
 import com.revolsys.spring.resource.Resource;
 import com.revolsys.util.JavaBeanUtil;
-import com.revolsys.util.ObjectWithProperties;
 
 public interface MapObjectFactory {
   static String TYPE = "j:type";

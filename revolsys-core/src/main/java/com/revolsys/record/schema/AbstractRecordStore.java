@@ -19,6 +19,7 @@ import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.io.PathName;
 import com.revolsys.logging.Logs;
 import com.revolsys.parallel.ReentrantLockEx;
+import com.revolsys.properties.BaseObjectWithProperties;
 import com.revolsys.record.ArrayRecord;
 import com.revolsys.record.Record;
 import com.revolsys.record.RecordFactory;
@@ -29,7 +30,6 @@ import com.revolsys.record.property.RecordDefinitionProperty;
 import com.revolsys.record.query.Query;
 import com.revolsys.record.query.QueryValue;
 import com.revolsys.record.query.SqlAppendable;
-import com.revolsys.util.BaseObjectWithProperties;
 import com.revolsys.util.UrlUtil;
 import com.revolsys.util.count.CategoryLabelCountMap;
 

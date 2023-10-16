@@ -12,9 +12,9 @@ import com.revolsys.io.map.ObjectFactoryConfig;
 import com.revolsys.net.http.ApacheHttp;
 import com.revolsys.net.http.ApacheHttpException;
 import com.revolsys.net.http.exception.AuthenticationException;
+import com.revolsys.properties.BaseObjectWithProperties;
 import com.revolsys.record.io.format.json.JsonIo;
 import com.revolsys.spring.resource.Resource;
-import com.revolsys.util.BaseObjectWithProperties;
 import com.revolsys.util.Strings;
 
 public class OpenIdConnectClient extends BaseObjectWithProperties {

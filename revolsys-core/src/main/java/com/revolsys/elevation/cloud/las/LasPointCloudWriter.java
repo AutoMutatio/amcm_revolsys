@@ -11,9 +11,9 @@ import com.revolsys.elevation.cloud.las.pointformat.LasPointFormat;
 import com.revolsys.elevation.cloud.las.zip.LasZipHeader;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.io.channels.ChannelWriter;
+import com.revolsys.properties.BaseObjectWithProperties;
 import com.revolsys.spring.resource.Resource;
 import com.revolsys.util.BaseCloseable;
-import com.revolsys.util.BaseObjectWithProperties;
 import com.revolsys.util.Pair;
 
 public class LasPointCloudWriter extends BaseObjectWithProperties implements BaseCloseable {

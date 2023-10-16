@@ -25,7 +25,7 @@ import com.revolsys.geometry.model.End;
 import com.revolsys.geometry.model.LineString;
 import com.revolsys.geometry.model.Point;
 import com.revolsys.geometry.util.LineStringUtil;
-import com.revolsys.util.ObjectWithProperties;
+import com.revolsys.properties.ObjectWithProperties;
 
 public class Edge<T> implements DelegatingLineString, ObjectWithProperties, Externalizable {
 

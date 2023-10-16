@@ -10,8 +10,8 @@ import com.revolsys.geometry.model.Point;
 import com.revolsys.geometry.model.Triangle;
 import com.revolsys.geometry.model.impl.AbstractTriangle;
 import com.revolsys.geometry.model.impl.BaseBoundingBox;
+import com.revolsys.properties.BaseObjectWithProperties;
 import com.revolsys.spring.resource.Resource;
-import com.revolsys.util.BaseObjectWithProperties;
 
 public class IntArrayScaleTriangulatedIrregularNetwork extends BaseObjectWithProperties
   implements TriangulatedIrregularNetwork {

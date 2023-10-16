@@ -3,8 +3,6 @@ package com.revolsys.properties;
 import jakarta.annotation.PreDestroy;
 
 import com.revolsys.collection.map.MapEx;
-import com.revolsys.util.BaseObjectWithProperties;
-import com.revolsys.util.ObjectWithProperties;
 
 public class DelegatingObjectWithProperties extends BaseObjectWithProperties {
 

@@ -25,9 +25,9 @@ import java.util.function.Predicate;
 
 import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.map.MapEx;
+import com.revolsys.properties.ObjectWithProperties;
 import com.revolsys.util.BaseCloseable;
 import com.revolsys.util.Cancellable;
-import com.revolsys.util.ObjectWithProperties;
 
 /**
  * <p>

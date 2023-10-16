@@ -5,8 +5,8 @@ import java.util.List;
 import com.revolsys.collection.Parent;
 import com.revolsys.io.MapSerializer;
 import com.revolsys.io.PathName;
+import com.revolsys.properties.ObjectWithProperties;
 import com.revolsys.spring.resource.UrlResource;
-import com.revolsys.util.ObjectWithProperties;
 
 public interface WebService<V>
   extends MapSerializer, Parent<V>, WebServiceResource, ObjectWithProperties {

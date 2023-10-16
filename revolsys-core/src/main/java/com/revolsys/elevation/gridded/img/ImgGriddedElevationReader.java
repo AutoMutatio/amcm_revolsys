@@ -22,10 +22,10 @@ import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.io.FileUtil;
 import com.revolsys.io.IoUtil;
 import com.revolsys.io.channels.DataReader;
+import com.revolsys.properties.BaseObjectWithProperties;
 import com.revolsys.spring.resource.InputStreamResource;
 import com.revolsys.spring.resource.NoSuchResourceException;
 import com.revolsys.spring.resource.Resource;
-import com.revolsys.util.BaseObjectWithProperties;
 
 public class ImgGriddedElevationReader extends BaseObjectWithProperties
   implements GriddedElevationModelReader {

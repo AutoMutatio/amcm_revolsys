@@ -2,8 +2,8 @@ package com.revolsys.io;
 
 import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.map.MapEx;
+import com.revolsys.properties.ObjectWithProperties;
 import com.revolsys.util.BaseCloseable;
-import com.revolsys.util.ObjectWithProperties;
 
 public interface Writer<T> extends ObjectWithProperties, BaseCloseable {
   @Override

@@ -20,6 +20,7 @@ import com.revolsys.geometry.model.BoundingBoxProxy;
 import com.revolsys.geometry.model.GeometryFactoryProxy;
 import com.revolsys.geometry.model.editor.BoundingBoxEditor;
 import com.revolsys.io.MapSerializer;
+import com.revolsys.properties.ObjectWithProperties;
 import com.revolsys.swing.component.TabbedValuePanel;
 import com.revolsys.swing.map.MapPanel;
 import com.revolsys.swing.map.ProjectFrame;
@@ -28,7 +29,6 @@ import com.revolsys.swing.map.Viewport2D;
 import com.revolsys.swing.map.layer.record.style.panel.LayerStylePanel;
 import com.revolsys.swing.menu.MenuFactory;
 import com.revolsys.util.Booleans;
-import com.revolsys.util.ObjectWithProperties;
 import com.revolsys.util.PreferenceKey;
 import com.revolsys.util.Preferences;
 

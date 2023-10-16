@@ -6,7 +6,7 @@ import java.util.Map;
 import com.revolsys.awt.WebColors;
 import com.revolsys.collection.json.JsonObject;
 import com.revolsys.io.MapSerializer;
-import com.revolsys.util.BaseObjectWithProperties;
+import com.revolsys.properties.BaseObjectWithProperties;
 
 public class GradientStop extends BaseObjectWithProperties
   implements Cloneable, MapSerializer, Comparable<GradientStop> {

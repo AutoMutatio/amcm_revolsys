@@ -1,6 +1,6 @@
 package com.revolsys.record.io.format.esri.rest.map;
 
-import com.revolsys.util.BaseObjectWithProperties;
+import com.revolsys.properties.BaseObjectWithProperties;
 
 public class TimeReference extends BaseObjectWithProperties {
   private boolean respectsDaylightSaving;

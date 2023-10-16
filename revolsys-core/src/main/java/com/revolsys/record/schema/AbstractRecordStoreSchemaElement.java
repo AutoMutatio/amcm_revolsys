@@ -1,7 +1,7 @@
 package com.revolsys.record.schema;
 
 import com.revolsys.io.PathName;
-import com.revolsys.util.BaseObjectWithProperties;
+import com.revolsys.properties.BaseObjectWithProperties;
 
 public abstract class AbstractRecordStoreSchemaElement extends BaseObjectWithProperties
   implements RecordStoreSchemaElement, Comparable<RecordStoreSchemaElement> {

@@ -4,8 +4,8 @@ import java.util.Map;
 
 import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.map.MapEx;
+import com.revolsys.properties.BaseObjectWithProperties;
 import com.revolsys.spring.resource.UrlResource;
-import com.revolsys.util.BaseObjectWithProperties;
 import com.revolsys.util.PasswordUtil;
 
 public abstract class AbstractWebService<V> extends BaseObjectWithProperties

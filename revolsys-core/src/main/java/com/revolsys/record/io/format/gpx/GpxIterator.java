@@ -27,6 +27,7 @@ import com.revolsys.geometry.model.Point;
 import com.revolsys.geometry.model.coordinates.list.CoordinatesListUtil;
 import com.revolsys.io.PathName;
 import com.revolsys.number.Doubles;
+import com.revolsys.properties.BaseObjectWithProperties;
 import com.revolsys.record.Record;
 import com.revolsys.record.RecordFactory;
 import com.revolsys.record.io.RecordReader;
@@ -34,7 +35,6 @@ import com.revolsys.record.io.format.xml.stax.StaxReader;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordDefinitionImpl;
 import com.revolsys.spring.resource.Resource;
-import com.revolsys.util.BaseObjectWithProperties;
 
 public class GpxIterator extends BaseObjectWithProperties
   implements Iterator<Record>, RecordReader, GpxAttributes, GpxElements {

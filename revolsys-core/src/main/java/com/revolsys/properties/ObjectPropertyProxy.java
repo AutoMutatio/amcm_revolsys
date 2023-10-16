@@ -1,4 +1,4 @@
-package com.revolsys.util;
+package com.revolsys.properties;
 
 public interface ObjectPropertyProxy<T, O> {
   void clearValue();

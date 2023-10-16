@@ -4,8 +4,8 @@ import com.revolsys.collection.map.MapEx;
 import com.revolsys.elevation.cloud.las.LasPointCloud;
 import com.revolsys.elevation.cloud.las.LasPointCloudHeader;
 import com.revolsys.elevation.cloud.las.LasPointCloudWriter;
+import com.revolsys.properties.BaseObjectWithProperties;
 import com.revolsys.spring.resource.Resource;
-import com.revolsys.util.BaseObjectWithProperties;
 
 public class LasZipPointCloudWriterFactory extends BaseObjectWithProperties {
 
