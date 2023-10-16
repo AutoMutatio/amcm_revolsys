@@ -259,7 +259,7 @@ public interface Strings {
   }
 
   static boolean equalsIgnoreCase(final String string1, final String string2) {
-    if (com.revolsys.util.Property.hasValue(string1)) {
+    if (Property.hasValue(string1)) {
       return string1.equalsIgnoreCase(string2);
     } else {
       return com.revolsys.util.Property.isEmpty(string2);
@@ -400,7 +400,7 @@ public interface Strings {
         if (value == null) {
         } else {
           final String string = DataTypes.toString(value);
-          if (com.revolsys.util.Property.hasValue(string)) {
+          if (Property.hasValue(string)) {
             out.print(string);
           }
         }
@@ -468,8 +468,8 @@ public interface Strings {
 
   static String replaceWord(final String text, final String oldValue, final String newValue,
     final char... separators) {
-    if (com.revolsys.util.Property.hasValue(oldValue)) {
-      if (com.revolsys.util.Property.hasValue(text)) {
+    if (Property.hasValue(oldValue)) {
+      if (Property.hasValue(text)) {
         for (int index = text.indexOf(oldValue); index != -1; index = text.indexOf(text, index)) {
           if (index == 0 || Arrays.binarySearch(separators, text.charAt(index - 1)) != -1) {
             final int nextIndex = index + oldValue.length();
@@ -708,7 +708,7 @@ public interface Strings {
       for (final Object value : values) {
         if (value != null) {
           final String newString = DataTypes.toString(value);
-          if (com.revolsys.util.Property.hasValue(newString)) {
+          if (Property.hasValue(newString)) {
             if (stringBuilder == null) {
               if (string == null) {
                 string = newString;

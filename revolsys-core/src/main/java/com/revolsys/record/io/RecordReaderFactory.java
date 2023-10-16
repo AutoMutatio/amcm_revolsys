@@ -19,6 +19,7 @@ import com.revolsys.record.ArrayRecord;
 import com.revolsys.record.Record;
 import com.revolsys.record.RecordFactory;
 import com.revolsys.spring.resource.Resource;
+import com.revolsys.util.Property;
 import com.revolsys.util.SupplierWithProperties;
 
 public interface RecordReaderFactory extends GeometryReaderFactory, MapReaderFactory {
@@ -29,11 +30,11 @@ public interface RecordReaderFactory extends GeometryReaderFactory, MapReaderFac
     final String fileUrl = (String)properties.get("fileUrl");
     String defaultFileExtension;
     Object source;
-    if (com.revolsys.util.Property.hasValue(fileName)) {
+    if (Property.hasValue(fileName)) {
       source = Paths.get(fileName);
       defaultFileExtension = FileUtil.getFileNameExtension(fileName);
 
-    } else if (com.revolsys.util.Property.hasValue(fileUrl)) {
+    } else if (Property.hasValue(fileUrl)) {
       final Resource resource = Resource.getResource(fileUrl);
       source = resource;
       defaultFileExtension = resource.getFileNameExtension();
@@ -49,7 +50,7 @@ public interface RecordReaderFactory extends GeometryReaderFactory, MapReaderFac
         if (!com.revolsys.util.Property.hasValue(baseName)) {
           baseName = (String)properties.get("baseFileName");
         }
-        if (com.revolsys.util.Property.hasValue(baseName)) {
+        if (Property.hasValue(baseName)) {
           reader = RecordReader.newZipRecordReader(source, baseName, baseFileExtension);
         } else {
           reader = RecordReader.newZipRecordReader(source, baseFileExtension);

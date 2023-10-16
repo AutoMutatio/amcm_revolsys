@@ -20,6 +20,7 @@ import com.revolsys.swing.map.layer.record.AbstractRecordLayer;
 import com.revolsys.swing.map.layer.record.LayerRecord;
 import com.revolsys.swing.map.view.ViewRenderer;
 import com.revolsys.swing.menu.MenuFactory;
+import com.revolsys.util.Property;
 
 public abstract class AbstractMultipleRecordLayerRenderer extends AbstractRecordLayerRenderer
   implements MultipleLayerRenderer<AbstractRecordLayer, AbstractRecordLayerRenderer> {
@@ -60,10 +61,7 @@ public abstract class AbstractMultipleRecordLayerRenderer extends AbstractRecord
   protected static void addConvertMenuItem(final MenuFactory menu, final String type,
     final Class<?> rendererClass, final Consumer<AbstractMultipleRecordLayerRenderer> consumer) {
     final String iconName = ("style_" + type + "_go").toLowerCase();
-    final Predicate<AbstractMultipleRecordLayerRenderer> enabledFilter = (
-      final AbstractMultipleRecordLayerRenderer renderer) -> {
-      return renderer.getClass() != rendererClass;
-    };
+    final Predicate<AbstractMultipleRecordLayerRenderer> enabledFilter = (final AbstractMultipleRecordLayerRenderer renderer) -> (renderer.getClass() != rendererClass);
     final String name = "Convert to " + type + " Style";
     menu.addMenuItem("convert", -1, name, iconName, enabledFilter, consumer, false);
   }
@@ -342,7 +340,7 @@ public abstract class AbstractMultipleRecordLayerRenderer extends AbstractRecord
   }
 
   public void setStyles(final List<?> styles) {
-    if (com.revolsys.util.Property.hasValue(styles)) {
+    if (Property.hasValue(styles)) {
       final List<AbstractRecordLayerRenderer> renderers = new ArrayList<>();
       for (final Object childStyle : styles) {
         if (childStyle instanceof AbstractRecordLayerRenderer) {

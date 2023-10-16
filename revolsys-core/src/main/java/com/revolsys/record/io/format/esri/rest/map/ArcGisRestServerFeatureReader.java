@@ -36,6 +36,7 @@ import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.spring.resource.Resource;
 import com.revolsys.util.BaseCloseable;
+import com.revolsys.util.Property;
 
 public class ArcGisRestServerFeatureReader extends AbstractRecordReader {
   private static Map<DataType, BiFunction<GeometryFactory, MapEx, Geometry>> GEOMETRY_CONVERTER_BY_TYPE = new HashMap<>();
@@ -278,7 +279,7 @@ public class ArcGisRestServerFeatureReader extends AbstractRecordReader {
             record.setValues(fieldValues);
             if (this.geometryConverter != null) {
               final MapEx geometryProperties = recordMap.getValue("geometry");
-              if (com.revolsys.util.Property.hasValue(geometryProperties)) {
+              if (Property.hasValue(geometryProperties)) {
                 final Geometry geometry = this.geometryConverter.apply(this.geometryFactory,
                   geometryProperties);
                 record.setGeometryValue(geometry);

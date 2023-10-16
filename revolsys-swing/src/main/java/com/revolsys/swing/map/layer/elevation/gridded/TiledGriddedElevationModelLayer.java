@@ -30,6 +30,7 @@ import com.revolsys.swing.map.layer.record.style.panel.LayerStylePanel;
 import com.revolsys.swing.map.layer.tile.AbstractTiledLayer;
 import com.revolsys.swing.map.layer.tile.AbstractTiledLayerRenderer;
 import com.revolsys.swing.map.view.ViewRenderer;
+import com.revolsys.util.Property;
 import com.revolsys.util.Strings;
 
 public class TiledGriddedElevationModelLayer
@@ -240,7 +241,7 @@ public class TiledGriddedElevationModelLayer
       SwingUtil.addLabelledReadOnlyTextField(panel, "Base URL", this.url);
     }
     SwingUtil.addLabelledReadOnlyTextField(panel, "File Prefix", this.filePrefix);
-    if (com.revolsys.util.Property.hasValue(this.fileExtension)) {
+    if (Property.hasValue(this.fileExtension)) {
       SwingUtil.addLabelledReadOnlyTextField(panel, "File Extension", this.fileExtension);
       final GriddedElevationModelReaderFactory factory = IoFactory
         .factoryByFileExtension(GriddedElevationModelReaderFactory.class, this.fileExtension);

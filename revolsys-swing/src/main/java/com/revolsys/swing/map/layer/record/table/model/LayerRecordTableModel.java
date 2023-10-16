@@ -212,7 +212,7 @@ public class LayerRecordTableModel extends AbstractSingleRecordTableModel
 
     toolBar.addButtonTitleIcon("default", "Edit Field Sets", "fields_filter:edit", () -> {
       final String fieldNamesSetName = FieldNamesSetPanel.showDialog(this.layer);
-      if (com.revolsys.util.Property.hasValue(fieldNamesSetName)) {
+      if (Property.hasValue(fieldNamesSetName)) {
         this.fieldNamesSetNamesField.setFieldValue(fieldNamesSetName);
       }
     });

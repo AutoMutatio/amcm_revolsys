@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import com.revolsys.util.Property;
 import com.revolsys.util.Strings;
 
 /**
@@ -22,7 +23,7 @@ public class CrossProductRange extends AbstractRange<String> {
   }
 
   public CrossProductRange(final Collection<? extends AbstractRange<?>> ranges) {
-    if (com.revolsys.util.Property.hasValue(ranges)) {
+    if (Property.hasValue(ranges)) {
       this.ranges = new ArrayList<>(ranges);
     } else {
       throw new IllegalArgumentException("List of ranges must not be empty");

@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.record.query.QueryValue;
+import com.revolsys.util.Property;
 
 public class Lower extends UnaryFunction {
 
@@ -27,7 +28,7 @@ public class Lower extends UnaryFunction {
   public <V> V getValue(final MapEx record) {
     final QueryValue parameter = getParameter();
     final String stringValue = parameter.getStringValue(record);
-    if (com.revolsys.util.Property.hasValue(stringValue)) {
+    if (Property.hasValue(stringValue)) {
       return (V)stringValue.toLowerCase();
     } else {
       return (V)stringValue;

@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.record.query.QueryValue;
+import com.revolsys.util.Property;
 
 public class Upper extends UnaryFunction {
 
@@ -28,7 +29,7 @@ public class Upper extends UnaryFunction {
 
     final QueryValue parameter = getParameter();
     final String stringValue = parameter.getStringValue(record);
-    if (com.revolsys.util.Property.hasValue(stringValue)) {
+    if (Property.hasValue(stringValue)) {
       return (V)stringValue.toUpperCase();
     } else {
       return (V)stringValue;

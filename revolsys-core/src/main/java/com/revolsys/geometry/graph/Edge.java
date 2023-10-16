@@ -26,6 +26,7 @@ import com.revolsys.geometry.model.LineString;
 import com.revolsys.geometry.model.Point;
 import com.revolsys.geometry.util.LineStringUtil;
 import com.revolsys.properties.ObjectWithProperties;
+import com.revolsys.util.Property;
 
 public class Edge<T> implements DelegatingLineString, ObjectWithProperties, Externalizable {
 
@@ -409,7 +410,7 @@ public class Edge<T> implements DelegatingLineString, ObjectWithProperties, Exte
    */
   @Override
   public End getEnd(final Point point) {
-    if (com.revolsys.util.Property.hasValue(point)) {
+    if (Property.hasValue(point)) {
       if (point.equals(getFromNode())) {
         return End.FROM;
       } else if (point.equals(getToNode())) {

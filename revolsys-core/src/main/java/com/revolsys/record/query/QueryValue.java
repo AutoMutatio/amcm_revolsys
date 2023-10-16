@@ -23,6 +23,7 @@ import com.revolsys.record.query.parser.JSqlParser;
 import com.revolsys.record.query.parser.SqlParser;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordStore;
+import com.revolsys.util.Property;
 
 public interface QueryValue extends Cloneable {
   static <V extends QueryValue> List<V> cloneQueryValues(final TableReference oldTable,
@@ -99,7 +100,7 @@ public interface QueryValue extends Cloneable {
   }
 
   static Condition parseWhere(final RecordDefinition recordDefinition, final String whereClause) {
-    if (com.revolsys.util.Property.hasValue(whereClause)) {
+    if (Property.hasValue(whereClause)) {
       final SqlParser parser = new JSqlParser(recordDefinition);
       return parser.whereToCondition(whereClause);
     } else {

@@ -198,7 +198,7 @@ public class PointCloudLayer extends AbstractLayer {
 
   @Override
   protected boolean initializeDo() {
-    if (com.revolsys.util.Property.hasValue(this.url)) {
+    if (Property.hasValue(this.url)) {
       cancelChanges();
       return true;
     } else {
@@ -258,7 +258,7 @@ public class PointCloudLayer extends AbstractLayer {
       SwingUtil.addLabelledReadOnlyTextField(panel, "URL", this.url);
     }
     final String fileNameExtension = FileUtil.getFileNameExtension(this.url);
-    if (com.revolsys.util.Property.hasValue(fileNameExtension)) {
+    if (Property.hasValue(fileNameExtension)) {
       SwingUtil.addLabelledReadOnlyTextField(panel, "File Extension", fileNameExtension);
     }
     GroupLayouts.makeColumns(panel, 2, true);

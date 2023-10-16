@@ -8,6 +8,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 import com.revolsys.logging.Logs;
+import com.revolsys.util.Property;
 
 public class InputStreamResource extends AbstractResource {
 
@@ -165,7 +166,7 @@ public class InputStreamResource extends AbstractResource {
   }
 
   public InputStreamResource setCharset(final String charset) {
-    if (com.revolsys.util.Property.hasValue(charset)) {
+    if (Property.hasValue(charset)) {
       try {
         this.charset = Charset.forName(charset);
       } catch (final Exception e) {

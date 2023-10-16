@@ -15,6 +15,7 @@ import com.revolsys.swing.SwingUtil;
 import com.revolsys.swing.listener.WeakFocusListener;
 import com.revolsys.swing.menu.MenuFactory;
 import com.revolsys.swing.undo.UndoManager;
+import com.revolsys.util.Property;
 
 public class TextField extends JTextField implements Field, FocusListener {
   private static final long serialVersionUID = 1L;
@@ -161,7 +162,7 @@ public class TextField extends JTextField implements Field, FocusListener {
     this.fieldSupport.discardAllEdits();
     if (!DataType.equal(text, newText)) {
       if (newText == null) {
-        if (com.revolsys.util.Property.hasValue(text)) {
+        if (Property.hasValue(text)) {
           setText("");
         }
       } else {

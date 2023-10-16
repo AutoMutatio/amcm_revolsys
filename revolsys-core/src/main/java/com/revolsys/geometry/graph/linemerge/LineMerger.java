@@ -11,6 +11,7 @@ import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.geometry.model.LineString;
 import com.revolsys.geometry.model.Lineal;
+import com.revolsys.util.Property;
 
 public class LineMerger {
 
@@ -24,7 +25,7 @@ public class LineMerger {
   }
 
   public static List<LineString> merge(final Iterable<? extends Geometry> geometries) {
-    if (com.revolsys.util.Property.hasValue(geometries)) {
+    if (Property.hasValue(geometries)) {
       final LineMerger lineMerger = new LineMerger(geometries);
       return lineMerger.getLineStrings();
     } else {
@@ -33,7 +34,7 @@ public class LineMerger {
   }
 
   public static Lineal mergeLineal(final Geometry geometry) {
-    if (com.revolsys.util.Property.hasValue(geometry)) {
+    if (Property.hasValue(geometry)) {
       final LineMerger lineMerger = new LineMerger(geometry);
       return lineMerger.getLineal();
     } else {
@@ -42,7 +43,7 @@ public class LineMerger {
   }
 
   public static Lineal mergeLineal(final Iterable<? extends Geometry> geometries) {
-    if (com.revolsys.util.Property.hasValue(geometries)) {
+    if (Property.hasValue(geometries)) {
       final LineMerger lineMerger = new LineMerger(geometries);
       return lineMerger.getLineal();
     } else {

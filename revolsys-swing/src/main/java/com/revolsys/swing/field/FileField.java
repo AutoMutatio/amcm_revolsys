@@ -15,6 +15,7 @@ import com.revolsys.swing.EventQueue;
 import com.revolsys.swing.component.ValueField;
 import com.revolsys.swing.layout.GroupLayouts;
 import com.revolsys.swing.undo.UndoManager;
+import com.revolsys.util.Property;
 
 public class FileField extends ValueField implements Field {
   private static final long serialVersionUID = -8433151755294925911L;
@@ -38,7 +39,7 @@ public class FileField extends ValueField implements Field {
     this.fileName = new TextField(fieldName, 70);
     add(this.fileName);
     this.browseButton.setText("Browse...");
-    EventQueue.addAction(this.browseButton, () -> browseClick());
+    EventQueue.addAction(this.browseButton, this::browseClick);
     add(this.browseButton);
     GroupLayouts.makeColumns(this, 2, false, true);
     setFileSelectionMode(fileSelectionMode);
@@ -103,7 +104,7 @@ public class FileField extends ValueField implements Field {
 
   public File getFile() {
     final String path = getFilePath();
-    if (com.revolsys.util.Property.hasValue(path)) {
+    if (Property.hasValue(path)) {
       return FileUtil.getFile(path);
     } else {
       return null;
@@ -116,7 +117,7 @@ public class FileField extends ValueField implements Field {
 
   public Path getPath() {
     final String path = getFilePath();
-    if (com.revolsys.util.Property.hasValue(path)) {
+    if (Property.hasValue(path)) {
       return Paths.get(path);
     } else {
       return null;

@@ -960,7 +960,7 @@ public abstract class AbstractRecordLayer extends AbstractLayer implements
   public void exportRecords(final Iterable<LayerRecord> records,
     final Predicate<? super LayerRecord> filter, final Collection<String> fieldNames,
     final List<OrderBy> orderBy, final Object target) {
-    if (com.revolsys.util.Property.hasValue(records) && target != null) {
+    if (Property.hasValue(records) && target != null) {
       final List<LayerRecord> exportRecords = Lists.toArray(records);
 
       Records.filterAndSort(exportRecords, filter, orderBy);
@@ -1032,7 +1032,7 @@ public abstract class AbstractRecordLayer extends AbstractLayer implements
     final Predicate<? super LayerRecord> filter, final List<OrderBy> orderBy,
     final Consumer<? super LayerRecord> action) {
     try {
-      if (com.revolsys.util.Property.hasValue(records) && action != null) {
+      if (Property.hasValue(records) && action != null) {
         final List<LayerRecord> exportRecords = Lists.toArray(records);
 
         Records.filterAndSort(exportRecords, filter, orderBy);
@@ -1139,11 +1139,11 @@ public abstract class AbstractRecordLayer extends AbstractLayer implements
   }
 
   public List<String> getFieldNamesSet(final String fieldNamesSetName) {
-    if (com.revolsys.util.Property.hasValue(fieldNamesSetName)) {
+    if (Property.hasValue(fieldNamesSetName)) {
       List<String> fieldNames = this.fieldNamesSets.get(fieldNamesSetName.toUpperCase());
-      if (com.revolsys.util.Property.hasValue(fieldNames)) {
+      if (Property.hasValue(fieldNames)) {
         fieldNames = new ArrayList<>(fieldNames);
-        if (com.revolsys.util.Property.hasValue(this.fieldNames)) {
+        if (Property.hasValue(this.fieldNames)) {
           fieldNames.retainAll(this.fieldNames);
         }
         return fieldNames;
@@ -1170,7 +1170,7 @@ public abstract class AbstractRecordLayer extends AbstractLayer implements
   }
 
   public Condition getFilter() {
-    if (com.revolsys.util.Property.hasValue(this.where)) {
+    if (Property.hasValue(this.where)) {
       final RecordDefinition recordDefinition = getRecordDefinition();
       if (recordDefinition == null) {
         return Condition.ALL;
@@ -1338,7 +1338,7 @@ public abstract class AbstractRecordLayer extends AbstractLayer implements
           .getContents(RecordReaderTransferable.RECORD_READER_FLAVOR);
         if (reader == null) {
           final String string = ClipboardUtil.getContents(DataFlavor.stringFlavor);
-          if (com.revolsys.util.Property.hasValue(string)) {
+          if (Property.hasValue(string)) {
             try {
               geometry = geometryFactory.geometry(string);
               geometry = geometryFactory.geometry(layerGeometryClass, geometry);
@@ -1464,7 +1464,7 @@ public abstract class AbstractRecordLayer extends AbstractLayer implements
       final FieldDefinition geometryField = recordDefinition.getGeometryField();
       if (geometryField != null) {
         final String string = ClipboardUtil.getContents(DataFlavor.stringFlavor);
-        if (com.revolsys.util.Property.hasValue(string)) {
+        if (Property.hasValue(string)) {
           final Resource wktResource = new ByteArrayResource("t.wkt", string);
           final GeometryFactory geometryFactory = getGeometryFactory();
           try (
@@ -1638,7 +1638,7 @@ public abstract class AbstractRecordLayer extends AbstractLayer implements
   public <R extends Record> List<R> getRecords(BoundingBox boundingBox) {
     if (hasGeometryField()) {
       boundingBox = convertBoundingBox(boundingBox);
-      if (com.revolsys.util.Property.hasValue(boundingBox)) {
+      if (Property.hasValue(boundingBox)) {
         final List<R> records = getRecordsIndex(boundingBox);
         return records;
       }
@@ -1751,7 +1751,7 @@ public abstract class AbstractRecordLayer extends AbstractLayer implements
   }
 
   public String getWhere() {
-    if (com.revolsys.util.Property.isEmpty(this.filter)) {
+    if (Property.isEmpty(this.filter)) {
       return this.where;
     } else {
       return this.filter.toFormattedString();
@@ -1759,9 +1759,9 @@ public abstract class AbstractRecordLayer extends AbstractLayer implements
   }
 
   public boolean hasFieldNamesSet(final String fieldNamesSetName) {
-    if (com.revolsys.util.Property.hasValue(fieldNamesSetName)) {
+    if (Property.hasValue(fieldNamesSetName)) {
       final List<String> fieldNames = this.fieldNamesSets.get(fieldNamesSetName.toUpperCase());
-      if (com.revolsys.util.Property.hasValue(fieldNames)) {
+      if (Property.hasValue(fieldNames)) {
         return true;
       }
     }
@@ -1834,7 +1834,7 @@ public abstract class AbstractRecordLayer extends AbstractLayer implements
     if (this.recordDefinition != null) {
       for (final String menuInitializerExpression : this.recordDefinition
         .getProperty("menuInitializerExpressions", Collections.<String> emptyList())) {
-        if (com.revolsys.util.Property.hasValue(menuInitializerExpression)) {
+        if (Property.hasValue(menuInitializerExpression)) {
           if (!menuInitializerExpressions.contains(menuInitializerExpression)) {
             menuInitializerExpressions.add(menuInitializerExpression);
           }
@@ -2036,7 +2036,7 @@ public abstract class AbstractRecordLayer extends AbstractLayer implements
       } else {
         if (ClipboardUtil.isDataFlavorAvailable(DataFlavor.stringFlavor)) {
           final String string = ClipboardUtil.getContents(DataFlavor.stringFlavor);
-          if (com.revolsys.util.Property.hasValue(string)) {
+          if (Property.hasValue(string)) {
             int lineIndex = string.indexOf('\n');
             if (lineIndex == -1) {
               lineIndex = string.indexOf('\r');
@@ -2253,7 +2253,7 @@ public abstract class AbstractRecordLayer extends AbstractLayer implements
 
   public LayerRecordForm newForm(final LayerRecord record) {
     final String formFactoryExpression = getProperty(FORM_FACTORY_EXPRESSION);
-    if (com.revolsys.util.Property.hasValue(formFactoryExpression)) {
+    if (Property.hasValue(formFactoryExpression)) {
       try {
         final SpelExpressionParser parser = new SpelExpressionParser();
         final Expression expression = parser.parseExpression(formFactoryExpression);
@@ -2484,7 +2484,7 @@ public abstract class AbstractRecordLayer extends AbstractLayer implements
         final List<Geometry> geometries = getPasteWktGeometries();
         if (geometries.isEmpty()) {
           final String string = ClipboardUtil.getContents(DataFlavor.stringFlavor);
-          if (com.revolsys.util.Property.hasValue(string)) {
+          if (Property.hasValue(string)) {
             if (string.contains("\n") || string.contains("\r")) {
               if (string.contains("\t")) {
                 final Resource tsvResource = new ByteArrayResource("t.tsv", string);
@@ -3023,7 +3023,7 @@ public abstract class AbstractRecordLayer extends AbstractLayer implements
 
   public void setFieldNamesSetName(final String fieldNamesSetName) {
     final String oldValue = this.fieldNamesSetName;
-    if (com.revolsys.util.Property.hasValue(fieldNamesSetName)) {
+    if (Property.hasValue(fieldNamesSetName)) {
       this.fieldNamesSetName = fieldNamesSetName;
     } else {
       this.fieldNamesSetName = ALL;
@@ -3039,13 +3039,13 @@ public abstract class AbstractRecordLayer extends AbstractLayer implements
     if (fieldNamesSets != null) {
       for (final Entry<String, List<String>> entry : fieldNamesSets.entrySet()) {
         final String name = entry.getKey();
-        if (com.revolsys.util.Property.hasValue(name)) {
+        if (Property.hasValue(name)) {
           final String upperName = name.toUpperCase();
           final Collection<String> names = entry.getValue();
-          if (com.revolsys.util.Property.hasValue(names)) {
+          if (Property.hasValue(names)) {
             final Set<String> fieldNames = new LinkedHashSet<>(names);
             if (ALL.equalsIgnoreCase(name)) {
-              if (com.revolsys.util.Property.hasValue(allFieldNames)) {
+              if (Property.hasValue(allFieldNames)) {
                 fieldNames.addAll(allFieldNames);
               }
             } else {
@@ -3061,7 +3061,7 @@ public abstract class AbstractRecordLayer extends AbstractLayer implements
                 this.fieldNamesSetNames.add(name);
               }
             }
-            if (com.revolsys.util.Property.hasValue(allFieldNames)) {
+            if (Property.hasValue(allFieldNames)) {
               fieldNames.retainAll(allFieldNames);
             }
             this.fieldNamesSets.put(upperName, new ArrayList<>(fieldNames));
@@ -3149,7 +3149,7 @@ public abstract class AbstractRecordLayer extends AbstractLayer implements
       setIcon(iconName);
       this.fieldNames = recordDefinition.getFieldNames();
       List<String> allFieldNames = this.fieldNamesSets.get(ALL.toUpperCase());
-      if (com.revolsys.util.Property.hasValue(allFieldNames)) {
+      if (Property.hasValue(allFieldNames)) {
         final Set<String> mergedFieldNames = new LinkedHashSet<>(allFieldNames);
         mergedFieldNames.addAll(this.fieldNames);
         mergedFieldNames.retainAll(this.fieldNames);
@@ -3500,12 +3500,12 @@ public abstract class AbstractRecordLayer extends AbstractLayer implements
     addToMap(map, "confirmDeleteRecords", this.confirmDeleteRecords);
     map.remove("filter");
     String where;
-    if (com.revolsys.util.Property.isEmpty(this.filter)) {
+    if (Property.isEmpty(this.filter)) {
       where = this.where;
     } else {
       where = this.filter.toFormattedString();
     }
-    if (com.revolsys.util.Property.hasValue(where)) {
+    if (Property.hasValue(where)) {
       final RecordDefinitionSqlFilter filter = new RecordDefinitionSqlFilter(this, where);
       addToMap(map, "filter", filter);
     }

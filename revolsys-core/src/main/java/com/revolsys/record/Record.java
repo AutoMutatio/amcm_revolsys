@@ -320,8 +320,7 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
 
   default double distance(final Geometry geometry) {
     final Geometry recordGeometry = getGeometry();
-    if (com.revolsys.util.Property.isEmpty(geometry)
-      || com.revolsys.util.Property.isEmpty(recordGeometry)) {
+    if (Property.isEmpty(geometry) || com.revolsys.util.Property.isEmpty(recordGeometry)) {
       return Double.NaN;
     } else {
       final double distance = recordGeometry.distanceGeometry(geometry);
@@ -530,7 +529,7 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
   @Override
   default Byte getByte(final CharSequence name) {
     final Object value = getValue(name);
-    if (com.revolsys.util.Property.hasValue(value)) {
+    if (Property.hasValue(value)) {
       if (value instanceof Number) {
         final Number number = (Number)value;
         return number.byteValue();
@@ -545,7 +544,7 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
   @SuppressWarnings("unchecked")
   default <T> T getCodeValue(final CharSequence fieldName) {
     Object value = getValue(fieldName);
-    if (com.revolsys.util.Property.hasValue(value)) {
+    if (Property.hasValue(value)) {
       final FieldDefinition fieldDefinition = getFieldDefinition(fieldName);
       value = fieldDefinition.getCodeValue(value);
     }
@@ -555,7 +554,7 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
   @SuppressWarnings("unchecked")
   default <T> T getCodeValue(final int fieldIndex) {
     Object value = getValue(fieldIndex);
-    if (com.revolsys.util.Property.hasValue(value)) {
+    if (Property.hasValue(value)) {
       final FieldDefinition fieldDefinition = getFieldDefinition(fieldIndex);
       value = fieldDefinition.getCodeValue(value);
     }
@@ -617,7 +616,7 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
   @Override
   default Double getDouble(final CharSequence name) {
     final Object value = getValue(name);
-    if (com.revolsys.util.Property.hasValue(value)) {
+    if (Property.hasValue(value)) {
       if (value instanceof Number) {
         final Number number = (Number)value;
         return number.doubleValue();
@@ -632,7 +631,7 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
   @Override
   default <E extends Enum<E>> E getEnum(final Class<E> enumType, final CharSequence fieldName) {
     final String value = getString(fieldName);
-    if (com.revolsys.util.Property.hasValue(value)) {
+    if (Property.hasValue(value)) {
       return Enum.valueOf(enumType, value);
     } else {
       return null;
@@ -642,7 +641,7 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
   default <E extends Enum<E>> E getEnum(final Class<E> enumType, final CharSequence fieldName,
     final E defaultValue) {
     final String value = getString(fieldName);
-    if (com.revolsys.util.Property.hasValue(value)) {
+    if (Property.hasValue(value)) {
       return Enum.valueOf(enumType, value);
     } else {
       return defaultValue;
@@ -652,7 +651,7 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
   @Override
   default Float getFloat(final CharSequence name) {
     final Object value = getValue(name);
-    if (com.revolsys.util.Property.hasValue(value)) {
+    if (Property.hasValue(value)) {
       if (value instanceof Number) {
         final Number number = (Number)value;
         return number.floatValue();
@@ -773,7 +772,7 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
   @Override
   default Integer getInteger(final CharSequence name) {
     final Object value = getValue(name);
-    if (com.revolsys.util.Property.hasValue(value)) {
+    if (Property.hasValue(value)) {
       if (value instanceof Number) {
         final Number number = (Number)value;
         return number.intValue();
@@ -798,7 +797,7 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
   @Override
   default Long getLong(final CharSequence name) {
     final Object value = getValue(name);
-    if (com.revolsys.util.Property.hasValue(value)) {
+    if (Property.hasValue(value)) {
       if (value instanceof Number) {
         final Number number = (Number)value;
         return number.longValue();
@@ -816,7 +815,7 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
   @Override
   default Short getShort(final CharSequence name) {
     final Object value = getValue(name);
-    if (com.revolsys.util.Property.hasValue(value)) {
+    if (Property.hasValue(value)) {
       if (value instanceof Number) {
         final Number number = (Number)value;
         return number.shortValue();
@@ -854,7 +853,7 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
   @Override
   default String getString(final CharSequence name, final String defaultValue) {
     final String value = getString(name);
-    if (com.revolsys.util.Property.hasValue(value)) {
+    if (Property.hasValue(value)) {
       return value;
     } else {
       return defaultValue;
@@ -1533,7 +1532,7 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
       for (final FieldDefinition field : fieldDefinitions) {
         final int fieldIndex = field.getIndex();
         final Object value = getValue(fieldIndex);
-        if (com.revolsys.util.Property.hasValue(value)) {
+        if (Property.hasValue(value)) {
           final String name = field.getName();
           writer.label(name);
 

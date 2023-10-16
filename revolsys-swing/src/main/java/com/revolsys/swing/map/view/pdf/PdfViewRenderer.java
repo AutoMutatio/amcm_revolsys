@@ -60,6 +60,7 @@ import com.revolsys.swing.map.layer.record.style.marker.TextMarker;
 import com.revolsys.swing.map.view.TextStyleViewRenderer;
 import com.revolsys.swing.map.view.ViewRenderer;
 import com.revolsys.util.BaseCloseable;
+import com.revolsys.util.Property;
 
 import tech.units.indriya.quantity.Quantities;
 
@@ -623,7 +624,7 @@ public class PdfViewRenderer extends ViewRenderer {
   public void drawText(final Record record, final Geometry geometry, final TextStyle style) {
     try {
       final String label = style.getLabel(record);
-      if (com.revolsys.util.Property.hasValue(label) && geometry != null) {
+      if (Property.hasValue(label) && geometry != null) {
         final String textPlacementType = style.getTextPlacementType();
         final PointDoubleXYOrientation point = AbstractRecordLayerRenderer
           .getPointWithOrientation(this, geometry, textPlacementType);

@@ -12,6 +12,7 @@ import javax.swing.event.ListDataListener;
 import com.revolsys.collection.list.Lists;
 import com.revolsys.data.type.DataType;
 import com.revolsys.swing.parallel.Invoke;
+import com.revolsys.util.Property;
 import com.revolsys.util.Reorderable;
 
 public class ArrayListModel<T> extends ArrayList<T>
@@ -50,7 +51,7 @@ public class ArrayListModel<T> extends ArrayList<T>
 
   @Override
   public boolean addAll(final int index, final Collection<? extends T> values) {
-    if (com.revolsys.util.Property.hasValue(values)) {
+    if (Property.hasValue(values)) {
       Invoke.andWait(() -> {
         super.addAll(index, values);
         fireIntervalAdded(index, index + values.size());
@@ -218,7 +219,7 @@ public class ArrayListModel<T> extends ArrayList<T>
 
   public void setAll(final Iterable<? extends T> elements) {
     Invoke.andWait(() -> {
-      if (com.revolsys.util.Property.isEmpty(elements)) {
+      if (Property.isEmpty(elements)) {
         clear();
       } else if (!DataType.equal(elements, this)) {
         final int oldSize = size();

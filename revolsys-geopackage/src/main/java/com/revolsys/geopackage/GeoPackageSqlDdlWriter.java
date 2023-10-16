@@ -15,6 +15,7 @@ import com.revolsys.jdbc.io.JdbcDdlWriter;
 import com.revolsys.record.property.ShortNameProperty;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
+import com.revolsys.util.Property;
 
 public class GeoPackageSqlDdlWriter extends JdbcDdlWriter {
 
@@ -33,7 +34,7 @@ public class GeoPackageSqlDdlWriter extends JdbcDdlWriter {
     if (shortNameProperty != null) {
       shortName = shortNameProperty.getShortName();
     }
-    if (com.revolsys.util.Property.hasValue(shortName) && shortNameProperty.isUseForSequence()) {
+    if (Property.hasValue(shortName) && shortNameProperty.isUseForSequence()) {
       final String sequenceName = schema + "." + shortName.toLowerCase() + "_seq";
       return sequenceName;
     } else {

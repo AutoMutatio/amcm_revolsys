@@ -12,6 +12,7 @@ import com.revolsys.collection.list.Lists;
 import com.revolsys.data.type.DataType;
 import com.revolsys.geometry.model.End;
 import com.revolsys.util.Emptyable;
+import com.revolsys.util.Property;
 import com.revolsys.util.Strings;
 
 public class RangeSet extends AbstractSet<Object>
@@ -42,7 +43,7 @@ public class RangeSet extends AbstractSet<Object>
 
   public static RangeSet newRangeSet(final String rangeSpec) {
     final RangeSet set = new RangeSet();
-    if (com.revolsys.util.Property.hasValue(rangeSpec)) {
+    if (Property.hasValue(rangeSpec)) {
       int partStart = 0;
       int partEnd = 0;
       boolean inRange = false;

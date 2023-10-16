@@ -14,6 +14,7 @@ import com.revolsys.io.map.MapObjectFactory;
 import com.revolsys.record.schema.RecordStore;
 import com.revolsys.record.schema.RecordStoreSchema;
 import com.revolsys.record.schema.RecordStoreSchemaElement;
+import com.revolsys.util.Property;
 
 public class RecordStoreConnection
   extends AbstractConnection<RecordStoreConnection, RecordStoreConnectionRegistry>
@@ -26,7 +27,7 @@ public class RecordStoreConnection
     final String resourceName, final Map<String, ? extends Object> config) {
     super(registry, resourceName, config);
     final String type = MapObjectFactory.getType(this);
-    if (com.revolsys.util.Property.isEmpty(type)) {
+    if (Property.isEmpty(type)) {
       setProperty(MapObjectFactory.TYPE, "recordStore");
     }
   }

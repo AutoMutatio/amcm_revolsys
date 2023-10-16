@@ -81,6 +81,7 @@ import com.revolsys.geometry.util.Points;
 import com.revolsys.math.Angle;
 import com.revolsys.number.Doubles;
 import com.revolsys.util.Pair;
+import com.revolsys.util.Property;
 import com.revolsys.util.QuantityType;
 
 import tech.units.indriya.quantity.Quantities;
@@ -718,7 +719,7 @@ public interface LineString extends Lineal {
 
   default boolean equalsVertex(final int axisCount, final int vertexIndex, final LineString line2,
     final int vertexIndex2) {
-    if (com.revolsys.util.Property.isEmpty(line2)) {
+    if (Property.isEmpty(line2)) {
       return false;
     } else {
       final Vertex vertex2 = line2.getVertex(vertexIndex2);
@@ -748,7 +749,7 @@ public interface LineString extends Lineal {
   }
 
   default boolean equalsVertex(final int vertexIndex, final Point point) {
-    if (com.revolsys.util.Property.isEmpty(point)) {
+    if (Property.isEmpty(point)) {
       return false;
     } else {
       final int axisCount = point.getAxisCount();
@@ -1520,8 +1521,8 @@ public interface LineString extends Lineal {
 
   @Override
   default Point getPointWithin() {
-    final GeometryFactory geometryFactory = this.getGeometryFactory();
-    if (this.isEmpty()) {
+    final GeometryFactory geometryFactory = getGeometryFactory();
+    if (isEmpty()) {
       return geometryFactory.point();
     } else {
       final int numPoints = getVertexCount();
@@ -2133,7 +2134,7 @@ public interface LineString extends Lineal {
   @Override
   default LineString newGeometry(final GeometryFactory geometryFactory) {
     if (geometryFactory == null) {
-      return this.clone();
+      return clone();
     } else if (isEmpty()) {
       return newLineStringEmpty(geometryFactory);
     } else {
@@ -2568,7 +2569,7 @@ public interface LineString extends Lineal {
     if (isClockwise()) {
       return (G)this;
     } else {
-      return (G)this.reverse();
+      return (G)reverse();
     }
   }
 
@@ -2576,7 +2577,7 @@ public interface LineString extends Lineal {
   @SuppressWarnings("unchecked")
   default <G extends Geometry> G toCounterClockwise() {
     if (isClockwise()) {
-      return (G)this.reverse();
+      return (G)reverse();
     } else {
       return (G)this;
     }

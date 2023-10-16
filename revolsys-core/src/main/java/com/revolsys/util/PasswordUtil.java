@@ -91,7 +91,7 @@ public class PasswordUtil {
   }
 
   public static String encrypt(final String password) {
-    if (com.revolsys.util.Property.isEmpty(password)) {
+    if (Property.isEmpty(password)) {
       return null;
     } else {
       return "{BASE64}" + Base64.getEncoder().encodeToString(password.getBytes());

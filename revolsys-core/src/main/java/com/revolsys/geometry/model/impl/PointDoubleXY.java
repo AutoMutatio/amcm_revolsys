@@ -11,6 +11,7 @@ import com.revolsys.geometry.coordinatesystem.operation.CoordinatesOperationPoin
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.geometry.model.Point;
 import com.revolsys.geometry.util.Points;
+import com.revolsys.util.Property;
 
 public class PointDoubleXY extends AbstractPoint implements Serializable {
   private static final long serialVersionUID = 1L;
@@ -62,7 +63,7 @@ public class PointDoubleXY extends AbstractPoint implements Serializable {
   public double distancePoint(Point point) {
     if (isEmpty()) {
       return java.lang.Double.POSITIVE_INFINITY;
-    } else if (com.revolsys.util.Property.isEmpty(point)) {
+    } else if (Property.isEmpty(point)) {
       return java.lang.Double.POSITIVE_INFINITY;
     } else {
       final GeometryFactory geometryFactory = getGeometryFactory();

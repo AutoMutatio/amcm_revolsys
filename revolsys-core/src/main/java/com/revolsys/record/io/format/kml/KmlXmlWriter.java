@@ -16,6 +16,7 @@ import com.revolsys.geometry.model.Polygon;
 import com.revolsys.io.StringBuilderWriter;
 import com.revolsys.number.Doubles;
 import com.revolsys.record.io.format.xml.XmlWriter;
+import com.revolsys.util.Property;
 import com.revolsys.util.UrlUtil;
 
 public class KmlXmlWriter extends XmlWriter implements Kml22Constants {
@@ -90,7 +91,7 @@ public class KmlXmlWriter extends XmlWriter implements Kml22Constants {
       if (!(value instanceof Geometry)) {
         if (value != null) {
           final String stringValue = value.toString();
-          if (com.revolsys.util.Property.hasValue(stringValue)) {
+          if (Property.hasValue(stringValue)) {
             if (!hasValues) {
               hasValues = true;
               startTag(EXTENDED_DATA);

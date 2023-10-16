@@ -17,6 +17,7 @@ import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.swing.map.layer.AbstractLayer;
 import com.revolsys.swing.map.layer.record.AbstractRecordLayer;
 import com.revolsys.swing.map.layer.record.LayerRecord;
+import com.revolsys.util.Property;
 
 public class OsmOverpassLayer extends AbstractRecordLayer {
   private static final int TILE_SCALE_X = 50;
@@ -49,7 +50,7 @@ public class OsmOverpassLayer extends AbstractRecordLayer {
   public List<LayerRecord> getRecords(BoundingBox boundingBox) {
     if (hasGeometryField()) {
       boundingBox = convertBoundingBox(boundingBox);
-      if (com.revolsys.util.Property.hasValue(boundingBox)) {
+      if (Property.hasValue(boundingBox)) {
         final Map<Identifier, LayerRecord> recordMap = new HashMap<>();
         final List<BoundingBox> boundingBoxes = getTileBoundingBoxes(boundingBox);
         for (final BoundingBox tileBoundingBox : boundingBoxes) {

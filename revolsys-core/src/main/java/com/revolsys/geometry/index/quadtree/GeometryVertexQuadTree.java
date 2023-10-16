@@ -4,13 +4,14 @@ import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.vertex.Vertex;
 import com.revolsys.geometry.util.RectangleUtil;
 import com.revolsys.number.Doubles;
+import com.revolsys.util.Property;
 
 public class GeometryVertexQuadTree extends IdObjectQuadTree<Vertex> {
 
   private static final long serialVersionUID = 1L;
 
   public static GeometryVertexQuadTree get(final Geometry geometry) {
-    if (com.revolsys.util.Property.hasValue(geometry)) {
+    if (Property.hasValue(geometry)) {
       try {
         return new GeometryVertexQuadTree(geometry);
       } catch (final Error e) {

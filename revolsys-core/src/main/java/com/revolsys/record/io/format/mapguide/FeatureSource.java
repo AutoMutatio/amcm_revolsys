@@ -17,6 +17,7 @@ import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.io.PathName;
 import com.revolsys.record.schema.RecordDefinitionImpl;
 import com.revolsys.spring.resource.Resource;
+import com.revolsys.util.Property;
 import com.revolsys.webservice.WebServiceResource;
 
 public class FeatureSource extends ResourceDocument implements Parent<MapGuideFeatureLayer> {
@@ -158,7 +159,7 @@ public class FeatureSource extends ResourceDocument implements Parent<MapGuideFe
                 axisCount = 3;
               }
               final String srsName = getString(fieldElement, "@fdo:srsName");
-              if (com.revolsys.util.Property.hasValue(srsName)) {
+              if (Property.hasValue(srsName)) {
                 final Integer coordinateSystemId = Maps.getInteger(this.coordinateSystemIdBySrsName,
                   srsName);
                 if (coordinateSystemId == null) {

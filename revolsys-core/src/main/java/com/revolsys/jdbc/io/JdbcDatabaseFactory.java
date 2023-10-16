@@ -21,6 +21,7 @@ import com.revolsys.record.io.RecordStoreFactory;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordStore;
 import com.revolsys.util.PasswordUtil;
+import com.revolsys.util.Property;
 
 public interface JdbcDatabaseFactory extends RecordStoreFactory {
   String URL_FIELD = "urlField";
@@ -131,7 +132,7 @@ public interface JdbcDatabaseFactory extends RecordStoreFactory {
       final String url = (String)newConfig.remove("url");
       final String user = (String)newConfig.remove("user");
       String password = (String)newConfig.remove("password");
-      if (com.revolsys.util.Property.hasValue(password)) {
+      if (Property.hasValue(password)) {
         password = PasswordUtil.decrypt(password);
       }
       final DataSourceImpl dataSource = new DataSourceImpl();

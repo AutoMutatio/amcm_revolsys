@@ -20,6 +20,7 @@ import com.revolsys.record.io.format.xml.XmlWriter;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordDefinitionProxy;
+import com.revolsys.util.Property;
 
 public class KmlRecordWriter extends AbstractRecordWriter implements Kml22Constants {
   private static final Map<Class<?>, String> TYPE_MAP = new HashMap<>();
@@ -111,8 +112,8 @@ public class KmlRecordWriter extends AbstractRecordWriter implements Kml22Consta
       } else {
         styleUrl = value.toString();
       }
-      if (com.revolsys.util.Property.hasValue(styleUrl)) {
-        if (com.revolsys.util.Property.hasValue(this.defaultStyleUrl)) {
+      if (Property.hasValue(styleUrl)) {
+        if (Property.hasValue(this.defaultStyleUrl)) {
           this.styleUrl = styleUrl;
         } else {
           this.defaultStyleUrl = styleUrl;
@@ -162,7 +163,7 @@ public class KmlRecordWriter extends AbstractRecordWriter implements Kml22Consta
       if (description == null) {
         description = getProperty(IoConstants.DESCRIPTION_PROPERTY);
       }
-      if (com.revolsys.util.Property.hasValue(description)) {
+      if (Property.hasValue(description)) {
         this.writer.write("<description>");
         this.writer.write("<![CDATA[");
         this.writer.write(description);
@@ -202,11 +203,11 @@ public class KmlRecordWriter extends AbstractRecordWriter implements Kml22Consta
 
       }
       writeLookAt(geometry);
-      if (com.revolsys.util.Property.hasValue(this.styleUrl)) {
+      if (Property.hasValue(this.styleUrl)) {
         this.writer.write("<styleUrl>");
         XmlWriter.writeElementContent(this.writer, this.styleUrl);
         this.writer.write("</styleUrl>\n");
-      } else if (com.revolsys.util.Property.hasValue(this.defaultStyleUrl)) {
+      } else if (Property.hasValue(this.defaultStyleUrl)) {
         this.writer.write("<styleUrl>");
         XmlWriter.writeElementContent(this.writer, this.defaultStyleUrl);
         this.writer.write("</styleUrl>\n");
@@ -231,7 +232,7 @@ public class KmlRecordWriter extends AbstractRecordWriter implements Kml22Consta
             XmlWriter.writeAttributeContent(this.writer, fieldName);
             this.writer.write("\">\n");
             this.writer.write("<value>");
-            if (com.revolsys.util.Property.hasValue(value)) {
+            if (Property.hasValue(value)) {
               XmlWriter.writeElementContent(this.writer, value.toString());
             }
             this.writer.write("</value>\n");
@@ -266,19 +267,19 @@ public class KmlRecordWriter extends AbstractRecordWriter implements Kml22Consta
     if (!Boolean.TRUE.equals(getProperty(IoConstants.SINGLE_OBJECT_PROPERTY))) {
       this.writer.write("<Document>\n");
       final String name = getProperty(DOCUMENT_NAME_PROPERTY);
-      if (com.revolsys.util.Property.hasValue(name)) {
+      if (Property.hasValue(name)) {
         this.writer.write("<name>");
         XmlWriter.writeElementContent(this.writer, name);
         this.writer.write("</name>\n");
       }
       final String snippet = getProperty(SNIPPET_PROPERTY);
-      if (com.revolsys.util.Property.hasValue(snippet)) {
+      if (Property.hasValue(snippet)) {
         this.writer.write("<Snippet>");
         XmlWriter.writeElementContent(this.writer, snippet);
         this.writer.write("</Snippet>\n");
       }
       final String description = getProperty(DOCUMENT_DESCRIPTION_PROPERTY);
-      if (com.revolsys.util.Property.hasValue(description)) {
+      if (Property.hasValue(description)) {
         this.writer.write("<description>");
         XmlWriter.writeElementContent(this.writer, description);
         this.writer.write("</description>\n");
@@ -296,7 +297,7 @@ public class KmlRecordWriter extends AbstractRecordWriter implements Kml22Consta
         writeLookAt(x, y, range.longValue());
       }
       final String style = getProperty(STYLE_PROPERTY);
-      if (com.revolsys.util.Property.hasValue(style)) {
+      if (Property.hasValue(style)) {
         this.writer.write(style);
       }
 

@@ -4,6 +4,7 @@ import java.util.function.Predicate;
 
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.util.Emptyable;
+import com.revolsys.util.Property;
 
 public interface Condition extends QueryValue, Predicate<MapEx>, Emptyable {
 
@@ -12,7 +13,7 @@ public interface Condition extends QueryValue, Predicate<MapEx>, Emptyable {
   default Condition and(final Condition condition) {
     if (condition == null || com.revolsys.util.Property.isEmpty(condition)) {
       return this;
-    } else if (com.revolsys.util.Property.isEmpty(this)) {
+    } else if (Property.isEmpty(this)) {
       return condition;
     } else {
       return new And(this, condition);
@@ -37,7 +38,7 @@ public interface Condition extends QueryValue, Predicate<MapEx>, Emptyable {
   }
 
   default Condition not() {
-    if (com.revolsys.util.Property.isEmpty(this)) {
+    if (Property.isEmpty(this)) {
       return this;
     } else {
       return new Not(this);
@@ -47,7 +48,7 @@ public interface Condition extends QueryValue, Predicate<MapEx>, Emptyable {
   default Condition or(final Condition condition) {
     if (condition == null || com.revolsys.util.Property.isEmpty(condition)) {
       return this;
-    } else if (com.revolsys.util.Property.isEmpty(this)) {
+    } else if (Property.isEmpty(this)) {
       return condition;
     } else {
       return new Or(this, condition);

@@ -5,6 +5,7 @@ import javax.swing.SwingConstants;
 import org.jdesktop.swingx.JXLabel;
 
 import com.revolsys.swing.SwingUtil;
+import com.revolsys.util.Property;
 
 public class BaseLabel extends JXLabel {
 
@@ -29,7 +30,7 @@ public class BaseLabel extends JXLabel {
 
   @Override
   public void setText(String text) {
-    if (com.revolsys.util.Property.hasValue(text)) {
+    if (Property.hasValue(text)) {
       if (!text.startsWith("<html")) {
         if (text.startsWith("<")) {
           text = "<html>" + text + "</html>";

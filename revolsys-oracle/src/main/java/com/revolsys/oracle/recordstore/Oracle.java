@@ -28,6 +28,7 @@ import com.revolsys.jdbc.io.JdbcRecordStore;
 import com.revolsys.logging.Logs;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordStore;
+import com.revolsys.util.Property;
 import com.revolsys.util.Strings;
 
 /**
@@ -201,11 +202,11 @@ public class Oracle extends AbstractJdbcDatabaseFactory {
       if (hostMatcher.matches()) {
         parameters.put("recordStoreType", getName());
         final String user = hostMatcher.group(1);
-        if (com.revolsys.util.Property.hasValue(user)) {
+        if (Property.hasValue(user)) {
           parameters.put("user", user.toLowerCase());
         }
         final String password = hostMatcher.group(2);
-        if (com.revolsys.util.Property.hasValue(password)) {
+        if (Property.hasValue(password)) {
           parameters.put("password", password);
         }
         final String host = hostMatcher.group(3);
@@ -221,11 +222,11 @@ public class Oracle extends AbstractJdbcDatabaseFactory {
       if (tnsmatcher.matches()) {
         parameters.put("recordStoreType", getProductName());
         final String user = tnsmatcher.group(1);
-        if (com.revolsys.util.Property.hasValue(user)) {
+        if (Property.hasValue(user)) {
           parameters.put("user", user.toLowerCase());
         }
         final String password = tnsmatcher.group(2);
-        if (com.revolsys.util.Property.hasValue(password)) {
+        if (Property.hasValue(password)) {
           parameters.put("password", password);
         }
         parameters.put("host", null);
@@ -253,7 +254,7 @@ public class Oracle extends AbstractJdbcDatabaseFactory {
   public String toUrl(final Map<String, Object> urlParameters) {
     final StringBuilder url = new StringBuilder("jdbc:oracle:thin:@");
     final String namedConnection = Maps.getString(urlParameters, "namedConnection");
-    if (com.revolsys.util.Property.hasValue(namedConnection)) {
+    if (Property.hasValue(namedConnection)) {
       url.append(namedConnection.toLowerCase());
     } else {
       final String host = Maps.getString(urlParameters, "host");
@@ -273,7 +274,7 @@ public class Oracle extends AbstractJdbcDatabaseFactory {
         }
         url.append('/');
       }
-      if (com.revolsys.util.Property.hasValue(database)) {
+      if (Property.hasValue(database)) {
         url.append(database);
       }
     }

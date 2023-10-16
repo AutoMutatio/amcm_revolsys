@@ -45,6 +45,7 @@ import com.revolsys.swing.map.ProjectFrame;
 import com.revolsys.swing.menu.MenuFactory;
 import com.revolsys.util.BaseCloseable;
 import com.revolsys.util.PreferencesUtil;
+import com.revolsys.util.Property;
 import com.revolsys.util.Strings;
 import com.revolsys.webservice.WebServiceConnectionRegistry;
 
@@ -52,7 +53,7 @@ public class Project extends LayerGroupImpl {
   private static WeakReference<Project> projectReference = new WeakReference<>(null);
 
   static {
-    MenuFactory.addMenuInitializer(Project.class, (menu) -> {
+    MenuFactory.addMenuInitializer(Project.class, menu -> {
       menu.deleteMenuItem("layer", "Delete");
     });
   }
@@ -650,7 +651,7 @@ public class Project extends LayerGroupImpl {
   }
 
   protected boolean setViewBoundingBoxDo(BoundingBox viewBoundingBox) {
-    if (com.revolsys.util.Property.isEmpty(viewBoundingBox)) {
+    if (Property.isEmpty(viewBoundingBox)) {
       return false;
     } else {
       // TODO really should be min scale

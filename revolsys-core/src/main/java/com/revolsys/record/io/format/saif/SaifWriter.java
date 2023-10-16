@@ -44,6 +44,7 @@ import com.revolsys.record.io.format.saif.util.OsnSerializer;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordDefinitionFactory;
 import com.revolsys.spring.resource.Resource;
+import com.revolsys.util.Property;
 
 /**
  * <p>
@@ -488,7 +489,7 @@ public class SaifWriter extends AbstractRecordWriter {
       final String objectSubset = (String)export.get("objectSubset");
       String compositeTypeName = PathUtil.getName(compositeType);
       final String compositeNamespace = PathUtil.getPath(compositeType).replaceAll("/", "");
-      if (com.revolsys.util.Property.hasValue(compositeNamespace)) {
+      if (Property.hasValue(compositeNamespace)) {
         compositeTypeName += "::" + compositeNamespace;
       }
       writeExport(exportsSerializer, referenceId, compositeTypeName, objectSubset);

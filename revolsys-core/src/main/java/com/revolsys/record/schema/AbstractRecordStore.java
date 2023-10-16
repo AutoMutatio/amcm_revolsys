@@ -30,6 +30,7 @@ import com.revolsys.record.property.RecordDefinitionProperty;
 import com.revolsys.record.query.Query;
 import com.revolsys.record.query.QueryValue;
 import com.revolsys.record.query.SqlAppendable;
+import com.revolsys.util.Property;
 import com.revolsys.util.UrlUtil;
 import com.revolsys.util.count.CategoryLabelCountMap;
 
@@ -469,7 +470,7 @@ public abstract class AbstractRecordStore extends BaseObjectWithProperties imple
 
   @Override
   public String toString() {
-    if (com.revolsys.util.Property.hasValue(this.label)) {
+    if (Property.hasValue(this.label)) {
       return this.label;
     } else {
       return super.toString();

@@ -67,6 +67,7 @@ import com.revolsys.record.schema.RecordStoreSchema;
 import com.revolsys.record.schema.RecordStoreSchemaElement;
 import com.revolsys.transaction.Transaction;
 import com.revolsys.util.Booleans;
+import com.revolsys.util.Property;
 
 public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
   implements JdbcRecordStore, RecordStoreExtension {
@@ -550,7 +551,7 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
   @Override
   public JdbcRecordDefinition getRecordDefinition(PathName typePath,
     final ResultSetMetaData resultSetMetaData, final String dbTableName) {
-    if (com.revolsys.util.Property.isEmpty(typePath)) {
+    if (Property.isEmpty(typePath)) {
       typePath = PathName.newPathName("/Record");
     }
 
@@ -584,7 +585,7 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
   public JdbcRecordDefinition getRecordDefinition(final Query query,
     final ResultSetMetaData resultSetMetaData) {
     PathName tablePath = query.getTablePath();
-    if (com.revolsys.util.Property.isEmpty(tablePath)) {
+    if (Property.isEmpty(tablePath)) {
       tablePath = PathName.newPathName("/Record");
     }
 
@@ -813,7 +814,7 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
       var l = this.lock.lockX()) {
       final String schemaName = "/" + toUpperIfNeeded(dbSchemaName);
       final Map<String, List<String>> idFieldNames = new HashMap<>();
-      if (com.revolsys.util.Property.hasValue(this.primaryKeySql)) {
+      if (Property.hasValue(this.primaryKeySql)) {
         try {
           try (
             final PreparedStatement statement = connection.prepareStatement(this.primaryKeySql);) {
@@ -825,7 +826,7 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
               while (rs.next()) {
                 final String tableName = toUpperIfNeeded(rs.getString("TABLE_NAME"));
                 final String idFieldName = rs.getString("COLUMN_NAME");
-                if (com.revolsys.util.Property.hasValue(dbSchemaName)) {
+                if (Property.hasValue(dbSchemaName)) {
                   Maps.addToList(idFieldNames, schemaName + "/" + tableName, idFieldName);
                 } else {
                   Maps.addToList(idFieldNames, "/" + tableName, idFieldName);
@@ -1091,7 +1092,7 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
         for (final JdbcRecordDefinition recordDefinition : recordDefinitionMap.values()) {
           final PathName typePath = recordDefinition.getPathName();
           final List<String> idFieldNames = idFieldNameMap.get(typePath.toString());
-          if (com.revolsys.util.Property.isEmpty(idFieldNames)) {
+          if (Property.isEmpty(idFieldNames)) {
             addRowIdFieldDefinition(recordDefinition);
 
           }

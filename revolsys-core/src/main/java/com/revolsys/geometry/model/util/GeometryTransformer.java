@@ -45,6 +45,7 @@ import com.revolsys.geometry.model.Point;
 import com.revolsys.geometry.model.Polygon;
 import com.revolsys.geometry.model.Polygonal;
 import com.revolsys.geometry.model.Punctual;
+import com.revolsys.util.Property;
 
 /**
  * A framework for processes which transform an input {@link Geometry} into
@@ -290,7 +291,7 @@ public abstract class GeometryTransformer {
     components.add(newShell);
     for (final LinearRing hole : polygon.holes()) {
       final Geometry newHole = transformLinearRing(hole, polygon);
-      if (com.revolsys.util.Property.hasValue(newHole)) {
+      if (Property.hasValue(newHole)) {
         if (!(newHole instanceof LinearRing)) {
           isAllValidLinearRings = false;
         }

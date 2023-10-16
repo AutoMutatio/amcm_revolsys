@@ -10,6 +10,7 @@ import com.revolsys.data.type.DataType;
 import com.revolsys.swing.border.IconBorder;
 import com.revolsys.swing.undo.CascadingUndoManager;
 import com.revolsys.swing.undo.UndoManager;
+import com.revolsys.util.Property;
 
 public class FieldSupport {
   private final JComponent component;
@@ -47,7 +48,7 @@ public class FieldSupport {
   public FieldSupport(final Field field, final JComponent component, final String name,
     final Object value, final boolean showErrorIcon) {
     this.field = field;
-    if (com.revolsys.util.Property.isEmpty(name)) {
+    if (Property.isEmpty(name)) {
       this.name = "fieldValue";
     } else {
       this.name = name;

@@ -18,6 +18,7 @@ import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.swing.parallel.Invoke;
 import com.revolsys.swing.table.AbstractTableModel;
+import com.revolsys.util.Property;
 
 public abstract class AbstractRecordTableModel extends AbstractTableModel {
 
@@ -54,7 +55,7 @@ public abstract class AbstractRecordTableModel extends AbstractTableModel {
     string.append('[');
     boolean first = true;
     for (final Object value : list) {
-      if (com.revolsys.util.Property.hasValue(value)) {
+      if (Property.hasValue(value)) {
         if (first) {
           first = false;
         } else {
@@ -71,7 +72,7 @@ public abstract class AbstractRecordTableModel extends AbstractTableModel {
     boolean first = true;
     for (final String name : jsonObject.keySet()) {
       final Object value = jsonObject.get(name);
-      if (com.revolsys.util.Property.hasValue(value)) {
+      if (Property.hasValue(value)) {
         if (first) {
           first = false;
         } else {
@@ -90,7 +91,7 @@ public abstract class AbstractRecordTableModel extends AbstractTableModel {
     boolean first = true;
     for (final String name : jsonObject.keySet()) {
       final Object value = jsonObject.get(name);
-      if (com.revolsys.util.Property.hasValue(value)) {
+      if (Property.hasValue(value)) {
         if (first) {
           first = false;
         } else {

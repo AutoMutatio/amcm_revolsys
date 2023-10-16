@@ -8,6 +8,7 @@ import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.Point;
 import com.revolsys.predicate.Predicates;
 import com.revolsys.record.Record;
+import com.revolsys.util.Property;
 
 public class ClosestRecordFilter implements Predicate<Record> {
 
@@ -67,7 +68,7 @@ public class ClosestRecordFilter implements Predicate<Record> {
   public boolean test(final Record record) {
     if (this.filter.test(record)) {
       final Geometry geometry = record.getGeometry();
-      if (com.revolsys.util.Property.hasValue(geometry)) {
+      if (Property.hasValue(geometry)) {
         if (!(geometry instanceof Point)) {
           final BoundingBox boundingBox = geometry.getBoundingBox();
           if (!boundingBox.bboxWithinDistance(this.geometry, this.maxDistance)) {

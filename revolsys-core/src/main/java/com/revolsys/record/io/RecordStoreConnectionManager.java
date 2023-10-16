@@ -21,6 +21,7 @@ import com.revolsys.spring.resource.PathResource;
 import com.revolsys.spring.resource.Resource;
 import com.revolsys.util.BaseCloneable;
 import com.revolsys.util.OS;
+import com.revolsys.util.Property;
 
 public class RecordStoreConnectionManager
   extends AbstractConnectionRegistryManager<RecordStoreConnectionRegistry, RecordStoreConnection> {
@@ -76,7 +77,7 @@ public class RecordStoreConnectionManager
       if (recordStore == null) {
         final MapEx connectionProperties = configClone.getValue("connection");
         final String name = (String)connectionProperties.get("name");
-        if (com.revolsys.util.Property.hasValue(name)) {
+        if (Property.hasValue(name)) {
           recordStore = getRecordStore(name);
           if (recordStore == null) {
             // TODO give option to add

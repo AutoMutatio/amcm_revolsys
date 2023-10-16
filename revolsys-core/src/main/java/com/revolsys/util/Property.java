@@ -503,7 +503,7 @@ public interface Property {
   }
 
   static String getFirstName(final String name) {
-    if (com.revolsys.util.Property.hasValue(name)) {
+    if (Property.hasValue(name)) {
       final int index = name.indexOf(".");
       if (index == -1) {
         return name;
@@ -625,7 +625,7 @@ public interface Property {
   }
 
   static String getSubName(final String name) {
-    if (com.revolsys.util.Property.hasValue(name)) {
+    if (Property.hasValue(name)) {
       final int index = name.indexOf(".");
       if (index == -1) {
         return "";
@@ -731,7 +731,7 @@ public interface Property {
       return false;
     } else {
       for (final Object value : values) {
-        if (com.revolsys.util.Property.hasValue(value)) {
+        if (Property.hasValue(value)) {
           return true;
         }
       }

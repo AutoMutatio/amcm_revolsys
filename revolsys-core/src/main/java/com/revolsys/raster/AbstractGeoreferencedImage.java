@@ -375,7 +375,7 @@ public abstract class AbstractGeoreferencedImage extends AbstractPropertyChangeS
           settings = JsonObject.hash();
         }
         final String boundingBoxWkt = (String)settings.get("boundingBox");
-        if (com.revolsys.util.Property.hasValue(boundingBoxWkt)) {
+        if (Property.hasValue(boundingBoxWkt)) {
           final BoundingBox boundingBox = BoundingBox.bboxNew(boundingBoxWkt);
           if (!boundingBox.isEmpty()) {
             setBoundingBox(boundingBox);

@@ -27,6 +27,7 @@ import com.revolsys.jdbc.io.AbstractJdbcDatabaseFactory;
 import com.revolsys.jdbc.io.JdbcRecordStore;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordStore;
+import com.revolsys.util.Property;
 import com.revolsys.util.Strings;
 import com.revolsys.util.UrlUtil;
 
@@ -157,7 +158,7 @@ public class PostgreSQL extends AbstractJdbcDatabaseFactory {
       }
       url.append('/');
     }
-    if (com.revolsys.util.Property.hasValue(database)) {
+    if (Property.hasValue(database)) {
       url.append(database);
     }
     return url.toString();

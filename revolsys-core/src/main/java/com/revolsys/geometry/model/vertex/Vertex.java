@@ -8,6 +8,7 @@ import com.revolsys.geometry.model.GeometryComponent;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.geometry.model.Point;
 import com.revolsys.math.Angle;
+import com.revolsys.util.Property;
 
 public interface Vertex extends Point, Iterator<Vertex>, Iterable<Vertex>, GeometryComponent {
 
@@ -83,7 +84,7 @@ public interface Vertex extends Point, Iterator<Vertex>, Iterable<Vertex>, Geome
       double angle;
       if (isTo()) {
         final Point point2 = getLinePrevious().convertPoint2d(geometryFactory);
-        if (com.revolsys.util.Property.hasValue(point2)) {
+        if (Property.hasValue(point2)) {
           final double x1 = point2.getX();
           final double y1 = point2.getY();
           angle = Angle.angleDegrees(x1, y1, x, y);
@@ -92,7 +93,7 @@ public interface Vertex extends Point, Iterator<Vertex>, Iterable<Vertex>, Geome
         }
       } else {
         final Point point2 = getLineNext().convertPoint2d(geometryFactory);
-        if (com.revolsys.util.Property.hasValue(point2)) {
+        if (Property.hasValue(point2)) {
           final double x1 = point2.getX();
           final double y1 = point2.getY();
           angle = Angle.angleDegrees(x, y, x1, y1);

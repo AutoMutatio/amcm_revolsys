@@ -22,6 +22,7 @@ import com.revolsys.swing.map.layer.record.style.panel.LayerStylePanel;
 import com.revolsys.swing.menu.MenuFactory;
 import com.revolsys.util.CaseConverter;
 import com.revolsys.util.PreferencesUtil;
+import com.revolsys.util.Property;
 
 public class GridLayer extends AbstractLayer {
   static {
@@ -63,7 +64,7 @@ public class GridLayer extends AbstractLayer {
   @Override
   protected boolean initializeDo() {
     final String gridName = getGridName();
-    if (com.revolsys.util.Property.hasValue(gridName)) {
+    if (Property.hasValue(gridName)) {
       this.grid = RectangularMapGridFactory.getGrid(gridName);
       if (this.grid == null) {
         Logs.error(this, "Cannot find gridName=" + gridName);
@@ -119,7 +120,7 @@ public class GridLayer extends AbstractLayer {
   public JsonObject toMap() {
     final JsonObject map = super.toMap();
     final String gridName = getGridName();
-    if (com.revolsys.util.Property.hasValue(gridName)) {
+    if (Property.hasValue(gridName)) {
       addToMap(map, "gridName", gridName);
     } else {
       addToMap(map, "grid", this.grid);
@@ -148,7 +149,7 @@ public class GridLayer extends AbstractLayer {
   public void zoomToSheet(final String mapsheet) {
     final Project project = getProject();
     if (project != null) {
-      if (com.revolsys.util.Property.hasValue(mapsheet)) {
+      if (Property.hasValue(mapsheet)) {
         final RectangularMapGrid grid = getGrid();
         final String gridName = grid.getName();
         try {

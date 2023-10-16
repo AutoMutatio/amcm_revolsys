@@ -19,6 +19,7 @@ import com.revolsys.geometry.model.LineCap;
 import com.revolsys.geometry.model.LineJoin;
 import com.revolsys.math.MathUtil;
 import com.revolsys.swing.map.view.ViewRenderer;
+import com.revolsys.util.Property;
 
 import tech.units.indriya.quantity.Quantities;
 
@@ -391,7 +392,7 @@ public class GeometryStyle extends MarkerStyle {
     final List<Double> dashArray = new ArrayList<>();
     if (lineDashArray != null) {
       for (final Object dashObject : lineDashArray) {
-        if (com.revolsys.util.Property.hasValue(dashObject)) {
+        if (Property.hasValue(dashObject)) {
           String dashString = dashObject.toString();
           dashString = dashString.replaceAll(" \\[pnt\\]", "");
           final Double dash = MathUtil.toDouble(dashString);

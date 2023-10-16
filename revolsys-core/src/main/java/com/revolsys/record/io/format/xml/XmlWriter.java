@@ -36,6 +36,7 @@ import com.revolsys.logging.Logs;
 import com.revolsys.number.Doubles;
 import com.revolsys.number.Floats;
 import com.revolsys.number.Numbers;
+import com.revolsys.util.Property;
 
 /**
  * <p>
@@ -567,7 +568,7 @@ public class XmlWriter extends Writer {
 
   public void attribute(final String name, final String value) {
     try {
-      if (com.revolsys.util.Property.hasValue(value)) {
+      if (Property.hasValue(value)) {
         checkWriteAttribute();
         this.out.write(' ');
         this.out.write(name);

@@ -15,6 +15,7 @@ import com.revolsys.record.query.functions.JsonRawValue;
 import com.revolsys.record.query.functions.JsonValue;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordStore;
+import com.revolsys.util.Property;
 
 public class Q {
   public static BiFunction<QueryValue, QueryValue, Condition> ILIKE = ILike::new;
@@ -517,7 +518,7 @@ public class Q {
   }
 
   public static SqlCondition sql(final String sql) {
-    if (com.revolsys.util.Property.hasValue(sql)) {
+    if (Property.hasValue(sql)) {
       return new SqlCondition(sql);
     } else {
       return null;

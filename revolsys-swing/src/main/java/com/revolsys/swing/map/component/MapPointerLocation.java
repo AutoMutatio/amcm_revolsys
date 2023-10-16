@@ -98,7 +98,7 @@ public class MapPointerLocation extends JLabel implements MouseMotionListener {
     Invoke.later(() -> {
       this.mapLocation = mapLocation;
       String text;
-      if (com.revolsys.util.Property.isEmpty(mapLocation)) {
+      if (Property.isEmpty(mapLocation)) {
         text = this.title;
       } else {
         final double projectedX = mapLocation.getX();

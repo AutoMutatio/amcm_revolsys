@@ -42,6 +42,7 @@ import com.revolsys.swing.map.layer.record.FileRecordLayer;
 import com.revolsys.swing.map.layer.record.renderer.GeometryStyleRecordLayerRenderer;
 import com.revolsys.swing.map.layer.record.style.GeometryStyle;
 import com.revolsys.util.Cancellable;
+import com.revolsys.util.Property;
 import com.revolsys.util.UrlUtil;
 
 public interface LayerGroup extends Layer, Parent<Layer>, Iterable<Layer> {
@@ -91,7 +92,7 @@ public interface LayerGroup extends Layer, Parent<Layer>, Iterable<Layer> {
   int addLayerDo(int index, Layer layer);
 
   default LayerGroup addLayerGroup(final int index, final String name) {
-    if (com.revolsys.util.Property.hasValue(name)) {
+    if (Property.hasValue(name)) {
       synchronized (getSync()) {
         final Layer layer = getLayer(name);
         if (layer == null) {

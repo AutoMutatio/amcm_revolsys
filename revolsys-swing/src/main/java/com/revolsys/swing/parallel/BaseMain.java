@@ -19,6 +19,7 @@ import com.revolsys.logging.Logs;
 import com.revolsys.swing.desktop.DesktopInitializer;
 import com.revolsys.swing.logging.ListLoggingAppender;
 import com.revolsys.swing.logging.LoggingEventPanel;
+import com.revolsys.util.Property;
 import com.revolsys.util.Strings;
 
 import ch.qos.logback.classic.Level;
@@ -91,7 +92,7 @@ public class BaseMain implements UncaughtExceptionHandler {
 
   protected void runDo() throws Throwable {
     boolean lookSet = false;
-    if (com.revolsys.util.Property.hasValue(this.lookAndFeelName)) {
+    if (Property.hasValue(this.lookAndFeelName)) {
       final LookAndFeelInfo[] installedLookAndFeels = UIManager.getInstalledLookAndFeels();
       for (final LookAndFeelInfo lookAndFeelInfo : installedLookAndFeels) {
         final String name = lookAndFeelInfo.getName();

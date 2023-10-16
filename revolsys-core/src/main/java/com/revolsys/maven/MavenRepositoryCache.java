@@ -15,6 +15,7 @@ import com.revolsys.logging.Logs;
 import com.revolsys.spring.resource.PathResource;
 import com.revolsys.spring.resource.Resource;
 import com.revolsys.util.Pair;
+import com.revolsys.util.Property;
 
 public class MavenRepositoryCache extends MavenRepository {
   private List<MavenRepository> repositories = new ArrayList<>();
@@ -50,7 +51,7 @@ public class MavenRepositoryCache extends MavenRepository {
       specificVersion, algorithm);
     final Resource repositoryResource = repository.getRoot().newChildResource(path);
     try {
-      if (com.revolsys.util.Property.hasValue(sha1Digest)) {
+      if (Property.hasValue(sha1Digest)) {
         final InputStream in = repositoryResource.getInputStream();
         final DigestInputStream digestIn = new DigestInputStream(in,
           MessageDigest.getInstance("SHA-1"));

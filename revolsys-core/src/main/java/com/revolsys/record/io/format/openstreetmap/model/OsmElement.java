@@ -15,6 +15,7 @@ import com.revolsys.record.RecordState;
 import com.revolsys.record.io.format.xml.stax.StaxReader;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordDefinitionImpl;
+import com.revolsys.util.Property;
 
 public class OsmElement extends AbstractRecord implements OsmConstants {
   public static final RecordDefinition RECORD_DEFINITION;
@@ -83,9 +84,9 @@ public class OsmElement extends AbstractRecord implements OsmConstants {
   }
 
   public synchronized void addTag(final String key, final String value) {
-    if (com.revolsys.util.Property.hasValue(key)) {
+    if (Property.hasValue(key)) {
       if (key.length() <= 255) {
-        if (com.revolsys.util.Property.hasValue(value)) {
+        if (Property.hasValue(value)) {
           if (value.length() <= 255) {
             if (this.tags.isEmpty()) {
               this.tags = new HashMap<>();

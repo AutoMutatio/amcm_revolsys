@@ -27,6 +27,7 @@ import com.revolsys.swing.map.layer.record.LayerRecord;
 import com.revolsys.swing.table.AbstractTableModel;
 import com.revolsys.swing.table.TablePanel;
 import com.revolsys.swing.undo.UndoManager;
+import com.revolsys.util.Property;
 
 public class GeometryCoordinatesTableModel extends AbstractTableModel {
   private static final long serialVersionUID = 1L;
@@ -282,7 +283,7 @@ public class GeometryCoordinatesTableModel extends AbstractTableModel {
 
   @Override
   public void setValueAt(final Object value, final int rowIndex, final int columnIndex) {
-    if (com.revolsys.util.Property.hasValue(value)) {
+    if (Property.hasValue(value)) {
       if (rowIndex < getRowCount()) {
         if (columnIndex >= this.numIndexItems) {
           final int axisIndex = columnIndex - this.numIndexItems;

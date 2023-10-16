@@ -10,6 +10,7 @@ import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.logging.Logs;
 import com.revolsys.number.Doubles;
+import com.revolsys.util.Property;
 
 public class Nts1000000RectangularMapGrid extends AbstractRectangularMapGrid {
 
@@ -109,7 +110,7 @@ public class Nts1000000RectangularMapGrid extends AbstractRectangularMapGrid {
   }
 
   public int getNtsBlock(final String mapTileName) {
-    if (com.revolsys.util.Property.hasValue(mapTileName)) {
+    if (Property.hasValue(mapTileName)) {
       final Matcher matcher = NAME_PATTERN.matcher(mapTileName);
       if (matcher.matches()) {
         final String name = matcher.group(1);

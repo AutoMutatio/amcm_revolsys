@@ -12,6 +12,7 @@ import com.revolsys.collection.map.MapEx;
 import com.revolsys.data.type.DataType;
 import com.revolsys.data.type.DataTypeValueFactory;
 import com.revolsys.exception.Exceptions;
+import com.revolsys.util.Property;
 
 public interface JsonObject extends MapEx, JsonType {
   JsonObject EMPTY = new JsonObject() {
@@ -152,14 +153,14 @@ public interface JsonObject extends MapEx, JsonType {
   }
 
   default JsonObject addNotEmpty(final String key, final Object value) {
-    if (com.revolsys.util.Property.hasValue(value)) {
+    if (Property.hasValue(value)) {
       addValue(key, value);
     }
     return this;
   }
 
   default JsonObject addNotEmpty(final String key, final Object value, final DataType dataType) {
-    if (com.revolsys.util.Property.hasValue(value)) {
+    if (Property.hasValue(value)) {
       addValue(key, dataType.toObject(value));
     }
     return this;

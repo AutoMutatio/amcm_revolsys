@@ -16,6 +16,7 @@ import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.swing.undo.DeleteLayerRecordUndo;
 import com.revolsys.util.BaseCloseable;
+import com.revolsys.util.Property;
 
 public interface LayerRecord extends Record {
   default boolean cancelChanges() {
@@ -124,7 +125,7 @@ public interface LayerRecord extends Record {
     final List<String> fieldNames = getFieldNames();
     for (final String fieldName : fieldNames) {
       final Object value = getValue(fieldName);
-      if (com.revolsys.util.Property.isEmpty(value)) {
+      if (Property.isEmpty(value)) {
         final Object originalValue = getOriginalValue(fieldName);
         if (!com.revolsys.util.Property.isEmpty(originalValue)) {
           return true;
@@ -253,7 +254,7 @@ public interface LayerRecord extends Record {
       final AbstractRecordLayer layer = getLayer();
       for (final String fieldName : getFieldNames()) {
         final Object value = getValue(fieldName);
-        if (com.revolsys.util.Property.isEmpty(value)) {
+        if (Property.isEmpty(value)) {
           if (!layer.isFieldUserReadOnly(fieldName)) {
             final Object originalValue = getOriginalValue(fieldName);
             if (!com.revolsys.util.Property.isEmpty(originalValue)) {

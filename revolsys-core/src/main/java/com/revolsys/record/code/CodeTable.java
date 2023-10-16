@@ -18,6 +18,7 @@ import com.revolsys.record.io.RecordReader;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.util.BaseCloseable;
 import com.revolsys.util.Emptyable;
+import com.revolsys.util.Property;
 
 public interface CodeTable
   extends Emptyable, Cloneable, Comparator<Object>, BaseCloseable, Refreshable {
@@ -140,7 +141,7 @@ public interface CodeTable
   @SuppressWarnings("unchecked")
   default <V> V getValue(final Identifier id) {
     final List<Object> values = getValues(id);
-    if (com.revolsys.util.Property.hasValue(values)) {
+    if (Property.hasValue(values)) {
       return (V)values.get(0);
     } else {
       return null;

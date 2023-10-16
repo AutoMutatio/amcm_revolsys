@@ -41,6 +41,7 @@ import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordDefinitionImpl;
 import com.revolsys.record.schema.RecordStore;
 import com.revolsys.util.BaseCloneable;
+import com.revolsys.util.Property;
 import com.revolsys.util.Strings;
 
 public interface Records {
@@ -253,7 +254,7 @@ public interface Records {
     }
 
     // Sort records
-    if (com.revolsys.util.Property.hasValue(orderBy)) {
+    if (Property.hasValue(orderBy)) {
       final Comparator<Record> comparator = newComparatorOrderBy(orderBy);
       Collections.sort(records, comparator);
     }
@@ -444,7 +445,7 @@ public interface Records {
     final List<Identifier> identifiers = new ArrayList<>();
     for (final String fieldName : fieldNames) {
       final Identifier identifier = record.getIdentifier(fieldName);
-      if (com.revolsys.util.Property.hasValue(identifier)) {
+      if (Property.hasValue(identifier)) {
         identifiers.add(identifier);
       }
     }
@@ -593,7 +594,7 @@ public interface Records {
       if (record1 == record2) {
         return 0;
       } else {
-        if (com.revolsys.util.Property.hasValue(orderBy)) {
+        if (Property.hasValue(orderBy)) {
           for (final OrderBy order : orderBy) {
             final QueryValue field = order.getField();
             if (field instanceof ColumnReference) {
@@ -623,7 +624,7 @@ public interface Records {
 
   static <R extends Record> Comparator<R> newComparatorOrderBy(
     final Map<? extends CharSequence, Boolean> orderBy) {
-    if (com.revolsys.util.Property.hasValue(orderBy)) {
+    if (Property.hasValue(orderBy)) {
       return (record1, record2) -> {
         if (record1 == record2) {
           return 0;
@@ -652,7 +653,7 @@ public interface Records {
 
   static <R extends Record> Comparator<R> newComparatorOrderByIdentifier(
     final Map<? extends CharSequence, Boolean> orderBy) {
-    if (com.revolsys.util.Property.hasValue(orderBy)) {
+    if (Property.hasValue(orderBy)) {
       return (record1, record2) -> {
         if (record1 == record2) {
           return 0;
@@ -730,7 +731,7 @@ public interface Records {
   }
 
   static <R extends Record> Predicate<R> newFilterGeometryIntersects(final Geometry geometry) {
-    if (com.revolsys.util.Property.hasValue(geometry)) {
+    if (Property.hasValue(geometry)) {
       final GeometryFactory geometryFactory = geometry.getGeometryFactory();
       return record -> {
         if (record != null) {

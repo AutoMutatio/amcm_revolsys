@@ -1285,7 +1285,7 @@ public class LayerRecordForm extends JPanel implements PropertyChangeListener, C
 
   public void setFieldInvalidToolTip(final String fieldName, final JComponent field) {
     final String message = this.fieldInValidMessage.get(fieldName);
-    if (com.revolsys.util.Property.hasValue(message)) {
+    if (Property.hasValue(message)) {
       field.setToolTipText(message);
     }
   }
@@ -1396,7 +1396,7 @@ public class LayerRecordForm extends JPanel implements PropertyChangeListener, C
     this.recordDefinition = recordDefinition;
     setRecordStore(recordDefinition.getRecordStore());
     final String idFieldName = recordDefinition.getIdFieldName();
-    if (com.revolsys.util.Property.hasValue(idFieldName)) {
+    if (Property.hasValue(idFieldName)) {
       this.readOnlyFieldNames.add(idFieldName);
     }
     for (final FieldDefinition field : recordDefinition.getFields()) {
@@ -1519,15 +1519,15 @@ public class LayerRecordForm extends JPanel implements PropertyChangeListener, C
       final String fieldName = field.getFieldName();
       final List<String> errors = this.fieldErrors.get(fieldName);
       final List<String> warnings = this.fieldWarnings.get(fieldName);
-      if (com.revolsys.util.Property.hasValue(errors)) {
+      if (Property.hasValue(errors)) {
         String message = Strings.toString("<br />", errors);
-        if (com.revolsys.util.Property.hasValue(warnings)) {
+        if (Property.hasValue(warnings)) {
           message += "<br />" + warnings;
         }
         field.setFieldInvalid("<html>" + message + "</html>");
       } else {
         field.setFieldValid();
-        if (com.revolsys.util.Property.hasValue(warnings)) {
+        if (Property.hasValue(warnings)) {
           field.setFieldToolTip("<html>" + Strings.toString("<br />", warnings) + "</html>");
           field.setFieldBackgroundColor(WebColors.Yellow);
         }

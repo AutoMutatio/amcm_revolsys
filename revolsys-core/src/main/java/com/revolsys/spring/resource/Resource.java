@@ -48,6 +48,7 @@ import com.revolsys.io.channels.DataReader;
 import com.revolsys.io.file.Paths;
 import com.revolsys.net.UrlProxy;
 import com.revolsys.predicate.Predicates;
+import com.revolsys.util.Property;
 
 public interface Resource extends org.springframework.core.io.Resource, FileProxy, UrlProxy {
   String CLASSPATH_URL_PREFIX = "classpath:";
@@ -145,7 +146,7 @@ public interface Resource extends org.springframework.core.io.Resource, FileProx
   }
 
   static Resource getResource(final String location) {
-    if (com.revolsys.util.Property.hasValue(location)) {
+    if (Property.hasValue(location)) {
       if (location.charAt(0) == '/' || location.length() > 1 && location.charAt(1) == ':'
         || location.indexOf(':') == -1) {
         return new PathResource(location);

@@ -20,6 +20,7 @@ import com.revolsys.swing.component.ValueField;
 import com.revolsys.swing.layout.GroupLayouts;
 import com.revolsys.swing.menu.MenuFactory;
 import com.revolsys.util.BaseCloseable;
+import com.revolsys.util.Property;
 
 public class FileRecordLayer extends ListRecordLayer {
 
@@ -49,7 +50,7 @@ public class FileRecordLayer extends ListRecordLayer {
   @Override
   protected boolean initializeDo() {
     this.url = getProperty("url");
-    if (com.revolsys.util.Property.hasValue(this.url)) {
+    if (Property.hasValue(this.url)) {
       this.resource = Resource.getResource(this.url);
       return revertDo();
     } else {
@@ -71,7 +72,7 @@ public class FileRecordLayer extends ListRecordLayer {
       SwingUtil.addLabelledReadOnlyTextField(panel, "URL", url);
     }
     final String fileNameExtension = FileUtil.getFileNameExtension(url);
-    if (com.revolsys.util.Property.hasValue(fileNameExtension)) {
+    if (Property.hasValue(fileNameExtension)) {
       SwingUtil.addLabelledReadOnlyTextField(panel, "File Extension", fileNameExtension);
       final RecordReaderFactory factory = IoFactory.factory(RecordReaderFactory.class,
         fileNameExtension);

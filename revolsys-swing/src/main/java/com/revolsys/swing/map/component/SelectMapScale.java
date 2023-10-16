@@ -92,11 +92,11 @@ public class SelectMapScale extends JComboBox<Long>
         final Object currentValue = getSelectedItem();
         if (currentValue instanceof Number) {
           currentScale = ((Number)currentValue).doubleValue();
-        } else if (com.revolsys.util.Property.hasValue(currentValue)) {
+        } else if (Property.hasValue(currentValue)) {
           final String scaleString = currentValue.toString()
             .replaceAll("1:", "")
             .replaceAll("[^0-9\\.]+", "");
-          if (com.revolsys.util.Property.hasValue(scaleString)) {
+          if (Property.hasValue(scaleString)) {
             try {
               currentScale = Double.valueOf(scaleString);
             } catch (final Throwable t) {

@@ -13,6 +13,7 @@ import com.revolsys.record.Record;
 import com.revolsys.record.RecordState;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.util.BaseCloseable;
+import com.revolsys.util.Property;
 import com.revolsys.util.ValueHolderWrapper;
 
 public interface TableWrapper extends ValueHolderWrapper<Table>, BaseCloseable {
@@ -93,7 +94,7 @@ public interface TableWrapper extends ValueHolderWrapper<Table>, BaseCloseable {
         logQuery.append(fields);
         logQuery.append(" FROM ");
         logQuery.append(tableReference.getCatalogPath());
-        if (com.revolsys.util.Property.hasValue(whereClause)) {
+        if (Property.hasValue(whereClause)) {
           logQuery.append(" WHERE ");
           logQuery.append(whereClause);
         }
@@ -117,7 +118,7 @@ public interface TableWrapper extends ValueHolderWrapper<Table>, BaseCloseable {
           logQuery.append(" FROM ");
           logQuery.append(tableReference.getCatalogPath());
           logQuery.append(" WHERE ");
-          if (com.revolsys.util.Property.hasValue(whereClause)) {
+          if (Property.hasValue(whereClause)) {
             logQuery.append(whereClause);
             logQuery.append(" AND");
           }

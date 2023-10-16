@@ -21,6 +21,7 @@ import com.revolsys.geometry.model.impl.LineStringDouble;
 import com.revolsys.geometry.model.impl.PointDouble;
 import com.revolsys.record.io.format.xml.stax.StaxReader;
 import com.revolsys.spring.resource.Resource;
+import com.revolsys.util.Property;
 
 public class KmlGeometryReader extends AbstractIterator<Geometry>
   implements GeometryReader, Kml22Constants {
@@ -88,7 +89,7 @@ public class KmlGeometryReader extends AbstractIterator<Geometry>
   private LineString parseCoordinates() throws XMLStreamException {
     this.reader.requireLocalName(COORDINATES);
     final String coordinatesListString = this.reader.getElementText();
-    if (com.revolsys.util.Property.hasValue(coordinatesListString)) {
+    if (Property.hasValue(coordinatesListString)) {
       int axisCount = 2;
       final String[] coordinatesListArray = coordinatesListString.strip().split("\\s+");
       final List<Point> points = new ArrayList<>();

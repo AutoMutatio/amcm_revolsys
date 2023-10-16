@@ -15,6 +15,7 @@ import com.revolsys.logging.Logs;
 import com.revolsys.properties.ObjectWithProperties;
 import com.revolsys.spring.resource.Resource;
 import com.revolsys.util.JavaBeanUtil;
+import com.revolsys.util.Property;
 
 public interface MapObjectFactory {
   static String TYPE = "j:type";
@@ -64,7 +65,7 @@ public interface MapObjectFactory {
   }
 
   static void setType(final Map<String, ? super Object> map, final String type) {
-    if (com.revolsys.util.Property.hasValue(type)) {
+    if (Property.hasValue(type)) {
       map.put(TYPE, type);
     }
   }
@@ -84,7 +85,7 @@ public interface MapObjectFactory {
       }
       final String typeClass = getTypeClass(objectMap);
       final V object;
-      if (com.revolsys.util.Property.hasValue(typeClass)) {
+      if (Property.hasValue(typeClass)) {
         final Constructor<V> configConstructor = JavaBeanUtil.getConstructor(typeClass, Map.class);
         if (configConstructor == null) {
           object = (V)JavaBeanUtil.createInstance(typeClass);

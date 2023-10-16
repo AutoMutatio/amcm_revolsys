@@ -10,7 +10,7 @@ public enum Parity {
   public static List<Parity> VALUES = Lists.newArray(EVEN, ODD);
 
   public static Parity getParity(final String code) {
-    if (com.revolsys.util.Property.hasValue(code)) {
+    if (Property.hasValue(code)) {
       switch (Character.toUpperCase(code.charAt(0))) {
         case 'E':
           return Parity.EVEN;

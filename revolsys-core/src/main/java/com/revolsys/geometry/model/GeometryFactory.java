@@ -110,6 +110,7 @@ import com.revolsys.logging.Logs;
 import com.revolsys.number.Doubles;
 import com.revolsys.record.io.format.wkt.WktParser;
 import com.revolsys.spring.resource.Resource;
+import com.revolsys.util.Property;
 
 import tech.units.indriya.unit.Units;
 
@@ -1293,7 +1294,7 @@ public abstract class GeometryFactory implements GeometryFactoryProxy, MapSerial
 
   @SuppressWarnings("unchecked")
   public <T extends Geometry> T geometry(final String wkt) {
-    if (com.revolsys.util.Property.hasValue(wkt)) {
+    if (Property.hasValue(wkt)) {
       return (T)this.parser.parseGeometry(wkt);
     } else {
       return null;
@@ -1828,7 +1829,7 @@ public abstract class GeometryFactory implements GeometryFactoryProxy, MapSerial
   }
 
   public Lineal lineal(final Iterable<?> lines) {
-    if (com.revolsys.util.Property.isEmpty(lines)) {
+    if (Property.isEmpty(lines)) {
       return lineString();
     } else {
       final List<LineString> lineStrings = new ArrayList<>();

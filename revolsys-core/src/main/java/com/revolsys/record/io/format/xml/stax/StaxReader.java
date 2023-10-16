@@ -24,6 +24,7 @@ import com.revolsys.exception.Exceptions;
 import com.revolsys.record.io.format.xml.XmlNameProxy;
 import com.revolsys.spring.resource.Resource;
 import com.revolsys.util.BaseCloseable;
+import com.revolsys.util.Property;
 
 public class StaxReader extends StreamReaderDelegate implements BaseCloseable {
   private static final XMLInputFactory FACTORY = XMLInputFactory.newInstance();
@@ -278,7 +279,7 @@ public class StaxReader extends StreamReaderDelegate implements BaseCloseable {
 
   public double getElementTextDouble(final double defaultValue) {
     final String text = getElementText();
-    if (com.revolsys.util.Property.hasValue(text)) {
+    if (Property.hasValue(text)) {
       try {
         return Double.parseDouble(text);
       } catch (final Throwable e) {
@@ -290,7 +291,7 @@ public class StaxReader extends StreamReaderDelegate implements BaseCloseable {
 
   public int getElementTextInt(final int defaultValue) {
     final String text = getElementText();
-    if (com.revolsys.util.Property.hasValue(text)) {
+    if (Property.hasValue(text)) {
       try {
         return Integer.parseInt(text);
       } catch (final Throwable e) {

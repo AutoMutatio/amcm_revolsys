@@ -27,6 +27,7 @@ import com.revolsys.swing.map.view.ViewRenderer;
 import com.revolsys.swing.menu.MenuFactory;
 import com.revolsys.util.CaseConverter;
 import com.revolsys.util.PasswordUtil;
+import com.revolsys.util.Property;
 import com.revolsys.webservice.WebService;
 import com.revolsys.webservice.WebServiceConnectionManager;
 import com.revolsys.webservice.WebServiceResource;
@@ -175,7 +176,7 @@ public class ArcGisRestServerTileCacheLayer
     synchronized (this.initSync) {
       if (this.mapService == null) {
         try {
-          if (com.revolsys.util.Property.hasValue(this.connectionName)) {
+          if (Property.hasValue(this.connectionName)) {
             final WebService<?> webService = WebServiceConnectionManager
               .getWebService(this.connectionName);
             if (webService instanceof ArcGisRestCatalog) {
@@ -249,7 +250,7 @@ public class ArcGisRestServerTileCacheLayer
     final ValueField panel = super.newPropertiesTabGeneralPanelSource(parent);
 
     final String url = getUrl();
-    if (com.revolsys.util.Property.hasValue(url)) {
+    if (Property.hasValue(url)) {
       SwingUtil.addLabelledReadOnlyTextField(panel, "URL", url);
     }
     if (this.mapService != null) {
@@ -321,7 +322,7 @@ public class ArcGisRestServerTileCacheLayer
   @Override
   public JsonObject toMap() {
     final JsonObject map = super.toMap();
-    if (com.revolsys.util.Property.hasValue(this.connectionName)) {
+    if (Property.hasValue(this.connectionName)) {
       addToMap(map, "connectionName", this.connectionName);
       addToMap(map, "servicePath", this.servicePath);
     } else {

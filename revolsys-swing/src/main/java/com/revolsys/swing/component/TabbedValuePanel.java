@@ -8,6 +8,7 @@ import javax.swing.JTabbedPane;
 
 import com.revolsys.data.type.DataType;
 import com.revolsys.swing.Icons;
+import com.revolsys.util.Property;
 
 public class TabbedValuePanel extends ValueField {
   private static final long serialVersionUID = 1L;
@@ -59,7 +60,7 @@ public class TabbedValuePanel extends ValueField {
   }
 
   public void setSelectdTab(final String tabName) {
-    if (com.revolsys.util.Property.hasValue(tabName)) {
+    if (Property.hasValue(tabName)) {
       for (int i = 0; i < this.tabs.getTabCount(); i++) {
         final String name = this.tabs.getTitleAt(i);
         if (tabName.equals(name)) {

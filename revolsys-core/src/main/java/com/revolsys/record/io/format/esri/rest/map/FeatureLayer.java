@@ -116,7 +116,7 @@ public class FeatureLayer extends LayerDescription implements WebServiceFeatureL
 
   private DataType getGeometryDataType(final String geometryType) {
     DataType geometryDataType = null;
-    if (com.revolsys.util.Property.hasValue(geometryType)) {
+    if (Property.hasValue(geometryType)) {
       final GeometryType esriGeometryType = GeometryType.valueOf(geometryType);
       geometryDataType = esriGeometryType.getDataType();
       if (geometryDataType == null) {
@@ -213,7 +213,7 @@ public class FeatureLayer extends LayerDescription implements WebServiceFeatureL
       for (final MapEx field : fields) {
         addField(newRecordDefinition, geometryType, field);
       }
-      if (com.revolsys.util.Property.hasValue(geometryType)) {
+      if (Property.hasValue(geometryType)) {
         if (!newRecordDefinition.hasGeometryField()) {
           final DataType geometryDataType = getGeometryDataType(geometryType);
           if (geometryDataType == null) {
@@ -250,7 +250,7 @@ public class FeatureLayer extends LayerDescription implements WebServiceFeatureL
   public Map<String, Object> newQueryParameters(BoundingBox boundingBox) {
     refreshIfNeeded();
     boundingBox = convertBoundingBox(boundingBox);
-    if (com.revolsys.util.Property.hasValue(boundingBox)) {
+    if (Property.hasValue(boundingBox)) {
       final Map<String, Object> parameters = new LinkedHashMap<>();
       parameters.put("f", "json");
       parameters.put("geometryType", "esriGeometryEnvelope");

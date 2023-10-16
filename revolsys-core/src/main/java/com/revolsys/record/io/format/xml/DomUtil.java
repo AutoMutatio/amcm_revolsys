@@ -8,6 +8,8 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import com.revolsys.util.Property;
+
 public class DomUtil {
   public static void appendChildText(final StringBuilder text, final Node node) {
     if (node != null) {
@@ -36,7 +38,7 @@ public class DomUtil {
 
   public static Double getDouble(final Node node) {
     final String text = getChildText(node);
-    if (com.revolsys.util.Property.hasValue(text)) {
+    if (Property.hasValue(text)) {
       return Double.valueOf(text);
     } else {
       return null;
@@ -73,7 +75,7 @@ public class DomUtil {
 
   public static Integer getInteger(final Node node) {
     final String text = getChildText(node);
-    if (com.revolsys.util.Property.hasValue(text)) {
+    if (Property.hasValue(text)) {
       return Integer.valueOf(text);
     } else {
       return null;

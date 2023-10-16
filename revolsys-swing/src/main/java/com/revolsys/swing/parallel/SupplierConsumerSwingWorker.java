@@ -3,6 +3,8 @@ package com.revolsys.swing.parallel;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import com.revolsys.util.Property;
+
 public class SupplierConsumerSwingWorker<B> extends AbstractSwingWorker<B, Void> {
   private final Supplier<B> backgroundTask;
 
@@ -23,7 +25,7 @@ public class SupplierConsumerSwingWorker<B> extends AbstractSwingWorker<B, Void>
 
   public SupplierConsumerSwingWorker(final String description, final Supplier<B> backgroundTask,
     final Consumer<B> doneTask) {
-    if (com.revolsys.util.Property.isEmpty(description)) {
+    if (Property.isEmpty(description)) {
       this.description = backgroundTask.toString();
     } else {
       this.description = description;

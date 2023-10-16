@@ -22,6 +22,7 @@ import com.revolsys.raster.BufferedGeoreferencedImage;
 import com.revolsys.raster.BufferedImages;
 import com.revolsys.raster.GeoreferencedImage;
 import com.revolsys.spring.resource.UrlResource;
+import com.revolsys.util.Property;
 import com.revolsys.util.Strings;
 import com.revolsys.webservice.AbstractWebService;
 import com.revolsys.webservice.WebServiceResource;
@@ -51,7 +52,7 @@ public class WmsClient extends AbstractWebService<WmsLayerDefinition>
 
   public static WmsClient newOgcWmsClient(final Map<String, ? extends Object> properties) {
     final String serviceUrl = (String)properties.get("serviceUrl");
-    if (com.revolsys.util.Property.hasValue(serviceUrl)) {
+    if (Property.hasValue(serviceUrl)) {
       final WmsClient client = new WmsClient(serviceUrl);
       client.setProperties(properties);
       return client;

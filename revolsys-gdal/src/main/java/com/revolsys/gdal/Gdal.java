@@ -38,6 +38,7 @@ import com.revolsys.logging.Logs;
 import com.revolsys.spring.resource.PathResource;
 import com.revolsys.spring.resource.Resource;
 import com.revolsys.util.OS;
+import com.revolsys.util.Property;
 import com.revolsys.util.ServiceInitializer;
 
 public class Gdal implements ServiceInitializer {
@@ -378,7 +379,7 @@ public class Gdal implements ServiceInitializer {
   }
 
   public static Dataset getDataset(final String name, final int mode) {
-    if (com.revolsys.util.Property.hasValue(name)) {
+    if (Property.hasValue(name)) {
       final File file = new File(name);
       return getDataset(file, mode);
     } else {
@@ -471,7 +472,7 @@ public class Gdal implements ServiceInitializer {
 
         final Map<String, Object> settings = Json.toMap(settingsFile);
         final String boundingBoxWkt = (String)settings.get("boundingBox");
-        if (com.revolsys.util.Property.hasValue(boundingBoxWkt)) {
+        if (Property.hasValue(boundingBoxWkt)) {
           final BoundingBox boundingBox = BoundingBox.bboxNew(boundingBoxWkt);
           if (!boundingBox.isEmpty()) {
             setSpatialReference(dataset, boundingBox.getGeometryFactory());
@@ -506,7 +507,7 @@ public class Gdal implements ServiceInitializer {
         value = defaultValue;
       }
     }
-    if (com.revolsys.util.Property.hasValue(value)) {
+    if (Property.hasValue(value)) {
       gdal.SetConfigOption(name, value);
     }
   }

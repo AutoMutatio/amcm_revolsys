@@ -17,6 +17,7 @@ import com.revolsys.record.Record;
 import com.revolsys.record.property.ShortNameProperty;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
+import com.revolsys.util.Property;
 
 public class OracleDdlWriter extends JdbcDdlWriter {
   public OracleDdlWriter() {
@@ -34,7 +35,7 @@ public class OracleDdlWriter extends JdbcDdlWriter {
     if (shortNameProperty != null) {
       shortName = shortNameProperty.getShortName();
     }
-    if (com.revolsys.util.Property.hasValue(shortName) && shortNameProperty.isUseForSequence()) {
+    if (Property.hasValue(shortName) && shortNameProperty.isUseForSequence()) {
       final String schema = JdbcUtils.getSchemaName(typePath);
       final String sequenceName = schema + "." + shortName.toUpperCase() + "_SEQ";
       return sequenceName;

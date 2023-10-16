@@ -16,6 +16,7 @@ import com.revolsys.logging.Logs;
 import com.revolsys.record.io.format.json.JsonIo;
 import com.revolsys.spring.resource.Resource;
 import com.revolsys.spring.resource.UrlResource;
+import com.revolsys.util.Property;
 import com.revolsys.webservice.AbstractWebService;
 import com.revolsys.webservice.WebServiceResource;
 
@@ -38,7 +39,7 @@ public class MapGuideWebService extends AbstractWebService<MapGuideResource> {
   public static MapGuideWebService newMapGuideWebService(
     final Map<String, ? extends Object> properties) {
     final String serviceUrl = (String)properties.get("serviceUrl");
-    if (com.revolsys.util.Property.hasValue(serviceUrl)) {
+    if (Property.hasValue(serviceUrl)) {
       final MapGuideWebService service = new MapGuideWebService(serviceUrl);
       // service.setProperties(properties);
       return service;

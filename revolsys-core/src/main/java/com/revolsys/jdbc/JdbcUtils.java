@@ -41,6 +41,7 @@ import com.revolsys.record.query.SqlAppendable;
 import com.revolsys.record.query.StringBuilderSqlAppendable;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordStore;
+import com.revolsys.util.Property;
 import com.revolsys.util.Strings;
 
 public final class JdbcUtils {
@@ -177,7 +178,7 @@ public final class JdbcUtils {
   }
 
   public static String getQualifiedTableName(final PathName pathName) {
-    if (com.revolsys.util.Property.hasValue(pathName)) {
+    if (Property.hasValue(pathName)) {
       final String path = pathName.toString();
       return getQualifiedTableName(path);
     } else {
@@ -186,7 +187,7 @@ public final class JdbcUtils {
   }
 
   public static String getQualifiedTableName(final String typePath) {
-    if (com.revolsys.util.Property.hasValue(typePath)) {
+    if (Property.hasValue(typePath)) {
       final String tableName = typePath.replaceAll("^/+", "");
       return tableName.replaceAll("/", ".");
     } else {
@@ -195,7 +196,7 @@ public final class JdbcUtils {
   }
 
   public static String getSchemaName(final String typePath) {
-    if (com.revolsys.util.Property.hasValue(typePath)) {
+    if (Property.hasValue(typePath)) {
       final String path = PathUtil.getPath(typePath);
       return path.replaceAll("(^/|/$)", "");
     } else {

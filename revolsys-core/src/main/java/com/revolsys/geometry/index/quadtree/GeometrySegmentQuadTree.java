@@ -7,13 +7,14 @@ import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.Point;
 import com.revolsys.geometry.model.coordinates.filter.LineSegmentCoordinateDistanceFilter;
 import com.revolsys.geometry.model.segment.Segment;
+import com.revolsys.util.Property;
 
 public class GeometrySegmentQuadTree extends IdObjectQuadTree<Segment> {
 
   private static final long serialVersionUID = 1L;
 
   public static GeometrySegmentQuadTree get(final Geometry geometry) {
-    if (com.revolsys.util.Property.hasValue(geometry)) {
+    if (Property.hasValue(geometry)) {
       return new GeometrySegmentQuadTree(geometry);
     } else {
       return null;

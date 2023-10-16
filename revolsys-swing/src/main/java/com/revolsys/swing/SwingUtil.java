@@ -407,7 +407,7 @@ public interface SwingUtil {
     } else if (component instanceof JTextComponent) {
       final JTextComponent textComponent = (JTextComponent)component;
       final String text = textComponent.getText();
-      if (com.revolsys.util.Property.hasValue(text)) {
+      if (Property.hasValue(text)) {
         return (V)text;
       } else {
         return null;
@@ -808,7 +808,7 @@ public interface SwingUtil {
     final JFileChooser fileChooser = new JFileChooser();
     fileChooser.setDialogTitle("Open File");
     final String currentDirectoryName = PreferencesUtil.getString(preferencesClass, preferenceName);
-    if (com.revolsys.util.Property.hasValue(currentDirectoryName)) {
+    if (Property.hasValue(currentDirectoryName)) {
       File directory = new File(currentDirectoryName);
       while (directory != null && (!directory.exists() || !directory.canRead())) {
         directory = directory.getParentFile();
@@ -825,7 +825,7 @@ public interface SwingUtil {
     final JFileChooser fileChooser = new JFileChooser();
     fileChooser.setDialogTitle(title);
     final String currentDirectoryName = preferences.getValue(preference);
-    if (com.revolsys.util.Property.hasValue(currentDirectoryName)) {
+    if (Property.hasValue(currentDirectoryName)) {
       final File directory = new File(currentDirectoryName);
       if (directory.exists() && directory.canRead()) {
         fileChooser.setCurrentDirectory(directory);
@@ -840,7 +840,7 @@ public interface SwingUtil {
     fileChooser.setDialogTitle(title);
     final String currentDirectoryName = PreferencesUtil.getUserString(preferencesGroup,
       preferenceName);
-    if (com.revolsys.util.Property.hasValue(currentDirectoryName)) {
+    if (Property.hasValue(currentDirectoryName)) {
       final File directory = new File(currentDirectoryName);
       if (directory.exists() && directory.canRead()) {
         fileChooser.setCurrentDirectory(directory);

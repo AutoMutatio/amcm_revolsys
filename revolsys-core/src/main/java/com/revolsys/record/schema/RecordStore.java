@@ -47,6 +47,7 @@ import com.revolsys.record.query.TableReferenceImpl;
 import com.revolsys.record.query.UpdateStatement;
 import com.revolsys.transaction.Transactionable;
 import com.revolsys.util.BaseCloseable;
+import com.revolsys.util.Property;
 import com.revolsys.util.count.CategoryLabelCountMap;
 import com.revolsys.util.count.LabelCountMap;
 import com.revolsys.util.count.LabelCounters;
@@ -141,7 +142,7 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
   @SuppressWarnings("unchecked")
   static <T extends RecordStore> T newRecordStoreInitialized(final MapEx config) {
     final MapEx connectionProperties = (MapEx)config.get("connection");
-    if (com.revolsys.util.Property.isEmpty(connectionProperties)) {
+    if (Property.isEmpty(connectionProperties)) {
       throw new IllegalArgumentException(
         "Record store must include a 'connection' map property: " + config);
     } else {
@@ -611,7 +612,7 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
       if (record != null) {
         record.setValues(values);
         final String idFieldName = recordDefinition.getIdFieldName();
-        if (com.revolsys.util.Property.hasValue(idFieldName)) {
+        if (Property.hasValue(idFieldName)) {
           if (values.get(idFieldName) == null) {
             final Identifier id = newPrimaryIdentifier(typePath);
             record.setIdentifier(id);
@@ -662,7 +663,7 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
       if (record != null) {
         record.setValues(values);
         final String idFieldName = recordDefinition.getIdFieldName();
-        if (com.revolsys.util.Property.hasValue(idFieldName)) {
+        if (Property.hasValue(idFieldName)) {
           if (values.get(idFieldName) == null) {
             final Identifier id = newPrimaryIdentifier(typePath);
             record.setIdentifier(id);
@@ -687,7 +688,7 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
     final Record record = newRecord(recordDefinition);
     if (record != null) {
       final String idFieldName = recordDefinition.getIdFieldName();
-      if (com.revolsys.util.Property.hasValue(idFieldName)) {
+      if (Property.hasValue(idFieldName)) {
         final PathName typePath = recordDefinition.getPathName();
         final Identifier id = newPrimaryIdentifier(typePath);
         record.setIdentifier(id);

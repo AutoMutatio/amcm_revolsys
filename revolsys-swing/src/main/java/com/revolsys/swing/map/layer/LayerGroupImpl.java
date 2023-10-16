@@ -124,7 +124,7 @@ public class LayerGroupImpl extends AbstractLayer implements LayerGroup {
   private LayerGroup actionAddLayerGroup() {
     final String name = Dialogs.showInputDialog("Enter the name of the new Layer Group.",
       "Add Layer Group", JOptionPane.PLAIN_MESSAGE);
-    if (com.revolsys.util.Property.hasValue(name)) {
+    if (Property.hasValue(name)) {
       final LayerGroup newGroup = new LayerGroupImpl(name);
       addLayer(newGroup);
       return newGroup;
@@ -244,7 +244,7 @@ public class LayerGroupImpl extends AbstractLayer implements LayerGroup {
   private void actionOpenUrlLayer() {
     final String urlString = Dialogs.showInputDialog("URL");
 
-    if (com.revolsys.util.Property.hasValue(urlString)) {
+    if (Property.hasValue(urlString)) {
       final URL url = UrlUtil.getUrl(urlString);
       final Object menuSource = MenuFactory.getMenuSource();
       final LayerGroup layerGroup;

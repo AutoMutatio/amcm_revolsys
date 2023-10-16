@@ -181,7 +181,7 @@ public class GriddedElevationModelLayer extends AbstractLayer implements Elevati
   @Override
   protected boolean initializeDo() {
     final String url = getProperty("url");
-    if (com.revolsys.util.Property.hasValue(url)) {
+    if (Property.hasValue(url)) {
       this.url = url;
       this.resource = Resource.getResource(url);
       revertDo();
@@ -247,7 +247,7 @@ public class GriddedElevationModelLayer extends AbstractLayer implements Elevati
       SwingUtil.addLabelledReadOnlyTextField(panel, "URL", this.url);
     }
     final String fileExtension = FileUtil.getFileNameExtension(this.url);
-    if (com.revolsys.util.Property.hasValue(fileExtension)) {
+    if (Property.hasValue(fileExtension)) {
       SwingUtil.addLabelledReadOnlyTextField(panel, "File Extension", fileExtension);
       final GriddedElevationModelReaderFactory factory = IoFactory
         .factoryByFileExtension(GriddedElevationModelReaderFactory.class, fileExtension);

@@ -19,6 +19,7 @@ import com.revolsys.io.file.Paths;
 import com.revolsys.record.io.FileRecordStoreFactory;
 import com.revolsys.record.io.RecordStoreRecordAndGeometryWriterFactory;
 import com.revolsys.record.schema.RecordStore;
+import com.revolsys.util.Property;
 
 public class FileGdbRecordStoreFactory implements FileRecordStoreFactory {
   public static final String DESCRIPTION = "ESRI File Geodatabase";
@@ -182,7 +183,7 @@ public class FileGdbRecordStoreFactory implements FileRecordStoreFactory {
   @Override
   public String toUrl(final Map<String, Object> urlParameters) {
     final String file = Maps.getString(urlParameters, "file");
-    if (com.revolsys.util.Property.hasValue(file)) {
+    if (Property.hasValue(file)) {
       try {
         return FileUtil.toUrlString(file);
       } catch (final Throwable e) {

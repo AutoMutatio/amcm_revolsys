@@ -21,6 +21,7 @@ import org.springframework.web.util.UrlPathHelper;
 
 import com.revolsys.data.type.DataTypes;
 import com.revolsys.io.FileUtil;
+import com.revolsys.util.Property;
 import com.revolsys.util.UriBuilder;
 
 public final class HttpServletUtils {
@@ -70,7 +71,7 @@ public final class HttpServletUtils {
   public static boolean getBooleanParameter(final HttpServletRequest request,
     final String paramName) {
     final String value = request.getParameter(paramName);
-    if (com.revolsys.util.Property.hasValue(value)) {
+    if (Property.hasValue(value)) {
       return Boolean.parseBoolean(value);
     }
     return false;
@@ -78,7 +79,7 @@ public final class HttpServletUtils {
 
   public static Boolean getBoolParameter(final HttpServletRequest request, final String paramName) {
     final String value = request.getParameter(paramName);
-    if (com.revolsys.util.Property.hasValue(value)) {
+    if (Property.hasValue(value)) {
       return Boolean.parseBoolean(value);
     }
     return null;
@@ -102,7 +103,7 @@ public final class HttpServletUtils {
 
   public static int getIntegerParameter(final HttpServletRequest request, final String paramName) {
     final String value = request.getParameter(paramName);
-    if (com.revolsys.util.Property.hasValue(value)) {
+    if (Property.hasValue(value)) {
       try {
         return Integer.parseInt(value);
       } catch (final NumberFormatException e) {
@@ -114,7 +115,7 @@ public final class HttpServletUtils {
   public static int getIntParameter(final HttpServletRequest request, final String paramName,
     final int defaultValue) {
     final String value = request.getParameter(paramName);
-    if (com.revolsys.util.Property.hasValue(value)) {
+    if (Property.hasValue(value)) {
       return Integer.parseInt(value);
     }
     return defaultValue;
@@ -260,11 +261,11 @@ public final class HttpServletUtils {
 
   public static boolean isApiCall(final HttpServletRequest request) {
     final String requestedWith = request.getHeader("x-requested-with");
-    if (com.revolsys.util.Property.hasValue(requestedWith)) {
+    if (Property.hasValue(requestedWith)) {
       return true;
     } else {
       final String referrer = request.getHeader("referrer");
-      if (com.revolsys.util.Property.hasValue(referrer)) {
+      if (Property.hasValue(referrer)) {
         return false;
       } else {
         final String accept = request.getHeader("accept");

@@ -13,6 +13,7 @@ import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.logging.Logs;
 import com.revolsys.swing.parallel.Invoke;
+import com.revolsys.util.Property;
 
 public class BoundingBoxRecordLayer extends AbstractRecordLayer {
 
@@ -46,7 +47,7 @@ public class BoundingBoxRecordLayer extends AbstractRecordLayer {
   public List<LayerRecord> getRecords(BoundingBox boundingBox) {
     if (hasGeometryField()) {
       boundingBox = convertBoundingBox(boundingBox);
-      if (com.revolsys.util.Property.hasValue(boundingBox)) {
+      if (Property.hasValue(boundingBox)) {
         synchronized (getSync()) {
           if (this.loading) {
             if (!boundingBox.equals(this.boundingBox)) {

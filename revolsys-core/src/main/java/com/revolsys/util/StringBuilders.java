@@ -32,7 +32,7 @@ public interface StringBuilders {
     for (final Object value : values) {
       if (value != null) {
         final String string = DataTypes.toString(value);
-        if (com.revolsys.util.Property.hasValue(string)) {
+        if (Property.hasValue(string)) {
           if (first) {
             first = false;
           } else {

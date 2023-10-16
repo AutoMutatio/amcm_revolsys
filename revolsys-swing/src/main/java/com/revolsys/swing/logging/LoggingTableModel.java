@@ -24,6 +24,7 @@ import com.revolsys.swing.parallel.Invoke;
 import com.revolsys.swing.table.AbstractTableModel;
 import com.revolsys.swing.table.BaseJTable;
 import com.revolsys.swing.table.TablePanel;
+import com.revolsys.util.Property;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -173,7 +174,7 @@ public class LoggingTableModel extends AbstractTableModel {
       html.append("</b>");
     }
     final String stackTrace = LoggingEventPanel.getStackTrace((ThrowableProxy)event.get(5));
-    if (com.revolsys.util.Property.hasValue(stackTrace)) {
+    if (Property.hasValue(stackTrace)) {
       if (plain.length() > 0) {
         plain.append("\n");
       }

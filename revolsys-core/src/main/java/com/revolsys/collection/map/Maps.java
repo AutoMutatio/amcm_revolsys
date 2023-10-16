@@ -23,6 +23,7 @@ import com.revolsys.collection.json.JsonObject;
 import com.revolsys.data.type.DataType;
 import com.revolsys.data.type.DataTypes;
 import com.revolsys.util.BaseCloneable;
+import com.revolsys.util.Property;
 
 public interface Maps {
   public static final Supplier<Map<?, ?>> FACTORY_TREE = TreeMap::new;
@@ -33,7 +34,7 @@ public interface Maps {
 
   static <K1, V> boolean addAllToSet(final Map<K1, Set<V>> map, final K1 key1,
     final Collection<? extends V> values) {
-    if (com.revolsys.util.Property.hasValue(values)) {
+    if (Property.hasValue(values)) {
       final Set<V> set = getSet(map, key1);
       return set.addAll(values);
     } else {
@@ -277,7 +278,7 @@ public interface Maps {
   }
 
   static <V> V first(final Map<?, V> map) {
-    if (com.revolsys.util.Property.hasValue(map)) {
+    if (Property.hasValue(map)) {
       return map.values().iterator().next();
     }
     return null;
@@ -415,7 +416,7 @@ public interface Maps {
       return number.doubleValue();
     } else {
       final String stringValue = value.toString();
-      if (com.revolsys.util.Property.hasValue(stringValue)) {
+      if (Property.hasValue(stringValue)) {
         try {
           return Double.valueOf(stringValue);
         } catch (final NumberFormatException e) {
@@ -463,7 +464,7 @@ public interface Maps {
       return number.intValue();
     } else {
       final String stringValue = value.toString();
-      if (com.revolsys.util.Property.hasValue(stringValue)) {
+      if (Property.hasValue(stringValue)) {
         try {
           return Integer.valueOf(stringValue);
         } catch (final NumberFormatException e) {
@@ -517,7 +518,7 @@ public interface Maps {
       return number.longValue();
     } else {
       final String stringValue = value.toString();
-      if (com.revolsys.util.Property.hasValue(stringValue)) {
+      if (Property.hasValue(stringValue)) {
         try {
           return Long.valueOf(stringValue);
         } catch (final NumberFormatException e) {
@@ -539,7 +540,7 @@ public interface Maps {
       return number.longValue();
     } else {
       final String stringValue = value.toString();
-      if (com.revolsys.util.Property.hasValue(stringValue)) {
+      if (Property.hasValue(stringValue)) {
         try {
           return Long.valueOf(stringValue);
         } catch (final NumberFormatException e) {

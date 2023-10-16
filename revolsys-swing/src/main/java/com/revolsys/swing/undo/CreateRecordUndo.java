@@ -4,6 +4,7 @@ import java.util.Map;
 
 import com.revolsys.swing.map.layer.record.AbstractRecordLayer;
 import com.revolsys.swing.map.layer.record.LayerRecord;
+import com.revolsys.util.Property;
 
 public class CreateRecordUndo extends AbstractUndoableEdit {
   private static final long serialVersionUID = 1L;
@@ -25,7 +26,7 @@ public class CreateRecordUndo extends AbstractUndoableEdit {
 
   @Override
   protected void redoDo() {
-    if (com.revolsys.util.Property.hasValue(this.newValues) && this.layerRecord == null) {
+    if (Property.hasValue(this.newValues) && this.layerRecord == null) {
       this.layerRecord = this.layer.newLayerRecord(this.newValues);
       this.layerRecord.saveChanges();
       if (this.selected) {

@@ -217,7 +217,7 @@ public class RecordLayerTablePanel extends TablePanel
     final JMenuItem editMenuItem = RunnableAction.newMenuItem("Edit Field Sets",
       "fields_filter:edit", () -> {
         final String fieldNamesSetName = FieldNamesSetPanel.showDialog(this.layer);
-        if (com.revolsys.util.Property.hasValue(fieldNamesSetName)) {
+        if (Property.hasValue(fieldNamesSetName)) {
           this.tableModel.setFieldNamesSetName(fieldNamesSetName);
         }
       });

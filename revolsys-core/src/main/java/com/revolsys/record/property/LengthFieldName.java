@@ -3,6 +3,7 @@ package com.revolsys.record.property;
 import com.revolsys.geometry.model.LineString;
 import com.revolsys.record.Record;
 import com.revolsys.record.schema.RecordDefinition;
+import com.revolsys.util.Property;
 
 public class LengthFieldName extends AbstractRecordDefinitionProperty {
   public static final String PROPERTY_NAME = LengthFieldName.class.getName() + ".propertyName";
@@ -49,7 +50,7 @@ public class LengthFieldName extends AbstractRecordDefinitionProperty {
   }
 
   public void setLength(final Record record) {
-    if (com.revolsys.util.Property.hasValue(this.fieldName)) {
+    if (Property.hasValue(this.fieldName)) {
       final LineString line = record.getGeometry();
       final double length = line.getLength();
       record.setValue(this.fieldName, length);

@@ -326,7 +326,7 @@ public class MapPanel extends JPanel implements GeometryFactoryProxy, PropertyCh
     if (!boundingBox.isEmpty()) {
       final String name = Dialogs.showInputDialog("Enter bookmark name", "Add Zoom Bookmark",
         JOptionPane.QUESTION_MESSAGE);
-      if (com.revolsys.util.Property.hasValue(name)) {
+      if (Property.hasValue(name)) {
         final Project project = getProject();
         project.addZoomBookmark(name, boundingBox);
       }

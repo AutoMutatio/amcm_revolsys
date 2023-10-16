@@ -44,6 +44,7 @@ import com.revolsys.swing.parallel.Invoke;
 import com.revolsys.swing.table.editor.BaseTableCellEditor;
 import com.revolsys.swing.table.highlighter.OddEvenColorHighlighter;
 import com.revolsys.swing.table.highlighter.TableModelHighlighter;
+import com.revolsys.util.Property;
 
 public class BaseJTable extends JXTable {
   private static final long serialVersionUID = 1L;
@@ -421,7 +422,7 @@ public class BaseJTable extends JXTable {
       }
     }
     final String value = ClipboardUtil.getContents(DataFlavor.stringFlavor);
-    if (com.revolsys.util.Property.hasValue(value)) {
+    if (Property.hasValue(value)) {
       final TableModel tableModel = getTableModel();
       final int eventRow = TablePanel.getEventRow();
       final int eventColumn = TablePanel.getEventColumn();

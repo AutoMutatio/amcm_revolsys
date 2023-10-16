@@ -45,6 +45,7 @@ import com.revolsys.record.schema.RecordStore;
 import com.revolsys.transaction.Transactionable;
 import com.revolsys.util.Cancellable;
 import com.revolsys.util.CancellableProxy;
+import com.revolsys.util.Property;
 import com.revolsys.util.count.LabelCounters;
 
 public class Query extends BaseObjectWithProperties
@@ -355,7 +356,7 @@ public class Query extends BaseObjectWithProperties
     if (conditions != null) {
       Condition whereCondition = getWhereCondition();
       for (final Condition condition : conditions) {
-        if (com.revolsys.util.Property.hasValue(condition)) {
+        if (Property.hasValue(condition)) {
           whereCondition = whereCondition.and(condition);
         }
       }
@@ -368,7 +369,7 @@ public class Query extends BaseObjectWithProperties
     if (conditions != null) {
       Condition whereCondition = getWhereCondition();
       for (final Condition condition : conditions) {
-        if (com.revolsys.util.Property.hasValue(condition)) {
+        if (Property.hasValue(condition)) {
           whereCondition = whereCondition.and(condition);
         }
       }
@@ -1177,7 +1178,7 @@ public class Query extends BaseObjectWithProperties
   }
 
   public Query selectCsv(final String select) {
-    if (com.revolsys.util.Property.hasValue(select)) {
+    if (Property.hasValue(select)) {
       for (String selectItem : select.split(",")) {
         selectItem = selectItem.strip();
         select(selectItem);

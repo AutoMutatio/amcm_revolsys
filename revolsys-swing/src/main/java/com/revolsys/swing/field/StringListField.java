@@ -26,6 +26,7 @@ import com.revolsys.swing.component.ValueField;
 import com.revolsys.swing.list.ArrayListModel;
 import com.revolsys.swing.listener.EventQueueRunnableListener;
 import com.revolsys.swing.toolbar.ToolBar;
+import com.revolsys.util.Property;
 import com.revolsys.util.Strings;
 
 public class StringListField extends ValueField {
@@ -78,7 +79,7 @@ public class StringListField extends ValueField {
     updateFields();
 
     final EventQueueRunnableListener updateFieldListener = EventQueue.addDocument(this.valueEntry,
-      () -> updateFields());
+      this::updateFields);
 
     this.valuesField.addListSelectionListener(updateFieldListener);
 
@@ -96,7 +97,7 @@ public class StringListField extends ValueField {
   }
 
   public boolean addValue(final String value) {
-    if (com.revolsys.util.Property.hasValue(value)) {
+    if (Property.hasValue(value)) {
       if (!this.values.contains(value)) {
 
         if (this.comparator == null || this.values.isEmpty()) {
@@ -159,10 +160,10 @@ public class StringListField extends ValueField {
           this.values.clear();
         } else {
           final String string = value.toString();
-          if (com.revolsys.util.Property.hasValue(string)) {
+          if (Property.hasValue(string)) {
             final List<String> newValues = new ArrayList<>();
             for (final String item : string.replaceAll("\\s+", "").split(",+")) {
-              if (com.revolsys.util.Property.hasValue(item)) {
+              if (Property.hasValue(item)) {
                 newValues.add(item);
               }
             }
@@ -194,7 +195,7 @@ public class StringListField extends ValueField {
   public void updateFields() {
     this.valueEntry.setEnabled(true);
     final String text = this.valueEntry.getText();
-    if (com.revolsys.util.Property.hasValue(text) && !this.values.contains(text)) {
+    if (Property.hasValue(text) && !this.values.contains(text)) {
       this.addButton.setEnabled(true);
     } else {
       this.addButton.setEnabled(false);

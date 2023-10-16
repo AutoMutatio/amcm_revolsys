@@ -38,6 +38,7 @@ import com.revolsys.swing.field.PasswordField;
 import com.revolsys.swing.field.TextField;
 import com.revolsys.swing.parallel.Invoke;
 import com.revolsys.util.PasswordUtil;
+import com.revolsys.util.Property;
 import com.revolsys.util.Strings;
 
 public final class RecordStoreConnectionForm extends Form {
@@ -47,16 +48,14 @@ public final class RecordStoreConnectionForm extends Form {
   private static final long serialVersionUID = 2750736040832727823L;
 
   public static void addHandlers() {
-    RecordStoreConnectionManager.setInvalidRecordStoreFunction((connection, exception) -> {
-      return Invoke.andWait(() -> {
-        final RecordStoreConnectionRegistry registry = connection.getRegistry();
-        final RecordStoreConnectionForm form = new RecordStoreConnectionForm(registry, connection,
-          exception);
-        return form.showDialog();
-      });
-    });
+    RecordStoreConnectionManager.setInvalidRecordStoreFunction((connection, exception) -> Invoke.andWait(() -> {
+      final RecordStoreConnectionRegistry registry = connection.getRegistry();
+      final RecordStoreConnectionForm form = new RecordStoreConnectionForm(registry, connection,
+        exception);
+      return form.showDialog();
+    }));
 
-    RecordStoreConnectionManager.setMissingRecordStoreFunction((name) -> {
+    RecordStoreConnectionManager.setMissingRecordStoreFunction(name -> {
       final RecordStoreConnectionRegistry registry = RecordStoreConnectionManager.get()
         .getUserConnectionRegistry();
       Invoke.andWait(() -> {
@@ -130,16 +129,14 @@ public final class RecordStoreConnectionForm extends Form {
       new TextField("url", 50), //
       ComboBox.newComboBox("recordStoreType", this.recordStoreTypes) //
     );
-    if (com.revolsys.util.Property.hasValue(allConnectionUrlMap)) {
+    if (Property.hasValue(allConnectionUrlMap)) {
       final List<String> connectionNames = new ArrayList<>();
       connectionNames.add(null);
       connectionNames.addAll(allConnectionUrlMap.keySet());
 
       final ComboBox<String> connectionNamesField = ComboBox.newComboBox("namedConnection",
         connectionNames);
-      connectionNamesField.addItemListener((e) ->
-
-      {
+      connectionNamesField.addItemListener(e -> {
         if (e.getStateChange() == ItemEvent.SELECTED) {
           final String connectionName = (String)e.getItem();
           if (connectionName != null) {
@@ -180,7 +177,7 @@ public final class RecordStoreConnectionForm extends Form {
         .get("connection");
       for (final String fieldName : CONNECTION_FIELD_NAMES) {
         Object fieldValue = connectionParameters.get(fieldName);
-        if (com.revolsys.util.Property.hasValue(fieldValue)) {
+        if (Property.hasValue(fieldValue)) {
           if ("password".equals(fieldName) && fieldValue instanceof String) {
             fieldValue = PasswordUtil.decrypt((String)fieldValue);
           }
@@ -200,14 +197,14 @@ public final class RecordStoreConnectionForm extends Form {
   @Override
   protected void postSetFieldValues(final Map<String, Object> newValues) {
     String recordStoreType = (String)newValues.get("recordStoreType");
-    if (com.revolsys.util.Property.hasValue(recordStoreType)) {
+    if (Property.hasValue(recordStoreType)) {
       if (this.recordStoreTypes.contains(recordStoreType)) {
         refreshUrlFromFieldValues(recordStoreType);
       }
       return;
     }
     final String url = (String)newValues.get("url");
-    if (com.revolsys.util.Property.hasValue(url)) {
+    if (Property.hasValue(url)) {
       for (final RecordStoreFactory recordStoreFactory : this.recordStoreFactoryByName.values()) {
         final Map<String, Object> urlFieldValues = recordStoreFactory.parseUrl(url);
         if (!urlFieldValues.isEmpty()) {
@@ -236,7 +233,7 @@ public final class RecordStoreConnectionForm extends Form {
       if (databaseFactory != null) {
         final Map<String, Object> fieldValues = getFieldValues();
         final String newUrl = databaseFactory.toUrl(fieldValues);
-        if (com.revolsys.util.Property.hasValue(newUrl)) {
+        if (Property.hasValue(newUrl)) {
           setFieldValue("url", newUrl);
           return;
         }

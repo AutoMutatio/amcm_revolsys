@@ -39,6 +39,7 @@ import com.revolsys.swing.map.layer.record.style.GeometryStyle;
 import com.revolsys.swing.map.layer.record.style.MarkerStyle;
 import com.revolsys.swing.map.layer.record.style.TextStyle;
 import com.revolsys.util.PasswordUtil;
+import com.revolsys.util.Property;
 
 import tech.units.indriya.quantity.Quantities;
 
@@ -227,7 +228,7 @@ public class ArcGisRestServerRecordLayer extends AbstractRecordLayer {
   public List<LayerRecord> getRecords(BoundingBox boundingBox) {
     if (hasGeometryField()) {
       boundingBox = convertBoundingBox(boundingBox);
-      if (com.revolsys.util.Property.hasValue(boundingBox)) {
+      if (Property.hasValue(boundingBox)) {
         final List<LayerRecord> records = this.layerDescription.getRecords(this::newLayerRecord,
           boundingBox);
         return records;

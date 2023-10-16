@@ -32,6 +32,7 @@ import com.revolsys.record.Record;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordDefinitionProxy;
 import com.revolsys.spring.resource.Resource;
+import com.revolsys.util.Property;
 
 /**
  * <p>Xbase fields suffer a number of limitations:</p>
@@ -201,7 +202,7 @@ public class XbaseRecordWriter extends AbstractRecordWriter {
   }
 
   protected boolean hasField(final String name) {
-    if (com.revolsys.util.Property.hasValue(name)) {
+    if (Property.hasValue(name)) {
       return this.fieldNames.contains(name.toUpperCase());
     } else {
       return false;

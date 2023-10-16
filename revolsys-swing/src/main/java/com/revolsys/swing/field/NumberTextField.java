@@ -20,6 +20,7 @@ import com.revolsys.swing.SwingUtil;
 import com.revolsys.swing.listener.WeakFocusListener;
 import com.revolsys.swing.menu.MenuFactory;
 import com.revolsys.swing.parallel.Invoke;
+import com.revolsys.util.Property;
 
 public class NumberTextField extends JXTextField implements Field, DocumentListener, FocusListener {
   private static final long serialVersionUID = 1L;
@@ -226,7 +227,7 @@ public class NumberTextField extends JXTextField implements Field, DocumentListe
   }
 
   private Object getTypedValue(final Object value) {
-    if (com.revolsys.util.Property.isEmpty(value)) {
+    if (Property.isEmpty(value)) {
       return null;
     } else {
       if ("NaN".equalsIgnoreCase(value.toString())) {
@@ -335,7 +336,7 @@ public class NumberTextField extends JXTextField implements Field, DocumentListe
   private void validateField() {
     final String text = getText();
     String message = null;
-    if (com.revolsys.util.Property.hasValue(text)) {
+    if (Property.hasValue(text)) {
       if ("NaN".equalsIgnoreCase(text)) {
         if (this.dataType.equals(DataTypes.DOUBLE)) {
         } else if (this.dataType.equals(DataTypes.FLOAT)) {

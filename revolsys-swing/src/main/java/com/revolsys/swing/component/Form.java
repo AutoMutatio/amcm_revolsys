@@ -103,7 +103,7 @@ public class Form extends BasePanel {
 
   @SuppressWarnings("unchecked")
   public <V> boolean addFieldValueListener(final String fieldName, final Consumer<V> listener) {
-    if (com.revolsys.util.Property.hasValue(fieldName)) {
+    if (Property.hasValue(fieldName)) {
       return addFieldValueListener(fieldName, (name, value) -> {
         listener.accept((V)value);
       });
@@ -297,7 +297,7 @@ public class Form extends BasePanel {
   }
 
   public void setFieldValues(final Map<String, ? extends Object> values) {
-    if (com.revolsys.util.Property.hasValue(values)) {
+    if (Property.hasValue(values)) {
       Invoke.later(() -> {
         final Map<String, Object> newValues = new HashMap<>();
         final Map<String, Pair<Object, Throwable>> fieldValueErrors = new HashMap<>();

@@ -10,6 +10,7 @@ import com.revolsys.geometry.model.vertex.Vertex;
 import com.revolsys.swing.map.layer.record.style.MarkerStyle;
 import com.revolsys.swing.map.overlay.record.SelectedRecordsVertexRenderer;
 import com.revolsys.swing.map.view.ViewRenderer;
+import com.revolsys.util.Property;
 
 import tech.units.indriya.quantity.Quantities;
 
@@ -44,7 +45,7 @@ public class VertexStyleRenderer {
 
   public void paintSelected(final ViewRenderer view, final Graphics2D graphics,
     final GeometryFactory viewportGeometryFactory, final Vertex vertex) {
-    if (com.revolsys.util.Property.hasValue(vertex)) {
+    if (Property.hasValue(vertex)) {
       MarkerStyle style;
       final boolean to = vertex.isTo();
       if (vertex.isFrom()) {

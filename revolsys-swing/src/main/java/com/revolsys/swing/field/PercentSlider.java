@@ -16,6 +16,7 @@ import com.revolsys.exception.Exceptions;
 import com.revolsys.number.Floats;
 import com.revolsys.number.Numbers;
 import com.revolsys.util.CaseConverter;
+import com.revolsys.util.Property;
 
 public class PercentSlider extends JSlider implements Field, FocusListener, ChangeListener {
   public static final Color DEFAULT_SELECTED_FOREGROUND = new JTextField().getSelectedTextColor();
@@ -49,7 +50,7 @@ public class PercentSlider extends JSlider implements Field, FocusListener, Chan
     labelTable.put(1000, new JLabel("100"));
     setLabelTable(labelTable);
 
-    if (com.revolsys.util.Property.hasValue(fieldName)) {
+    if (Property.hasValue(fieldName)) {
       setToolTipText(CaseConverter.toCapitalizedWords(fieldName));
     }
     this.fieldSupport = new FieldSupport(this, fieldName, value, true);

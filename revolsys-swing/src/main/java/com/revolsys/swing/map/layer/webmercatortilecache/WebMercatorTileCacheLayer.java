@@ -17,6 +17,7 @@ import com.revolsys.swing.map.layer.raster.AbstractTiledGeoreferencedImageLayer;
 import com.revolsys.swing.map.layer.tile.AbstractTiledLayerRenderer;
 import com.revolsys.swing.map.view.ViewRenderer;
 import com.revolsys.util.CaseConverter;
+import com.revolsys.util.Property;
 
 public class WebMercatorTileCacheLayer
   extends AbstractTiledGeoreferencedImageLayer<WebMercatorTileCacheMapTile> {
@@ -120,7 +121,7 @@ public class WebMercatorTileCacheLayer
 
   public void setUrl(final String url) {
     final Object oldValue = this.url;
-    if (com.revolsys.util.Property.hasValue(url)) {
+    if (Property.hasValue(url)) {
       if (url.endsWith("/")) {
         this.url = url;
       } else {

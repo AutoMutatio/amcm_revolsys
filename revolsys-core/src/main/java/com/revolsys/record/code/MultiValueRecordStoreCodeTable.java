@@ -144,13 +144,13 @@ public class MultiValueRecordStoreCodeTable extends AbstractMultiValueCodeTable
 
   @Override
   public String getIdFieldName() {
-    if (com.revolsys.util.Property.hasValue(this.idFieldName)) {
+    if (Property.hasValue(this.idFieldName)) {
       return this.idFieldName;
     } else if (this.recordDefinition == null) {
       return "";
     } else {
       final String idFieldName = this.recordDefinition.getIdFieldName();
-      if (com.revolsys.util.Property.hasValue(idFieldName)) {
+      if (Property.hasValue(idFieldName)) {
         return idFieldName;
       } else {
         return this.recordDefinition.getFieldName(0);

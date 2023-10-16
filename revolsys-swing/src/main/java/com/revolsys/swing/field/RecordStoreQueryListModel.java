@@ -20,6 +20,7 @@ import com.revolsys.record.query.Q;
 import com.revolsys.record.query.Query;
 import com.revolsys.record.query.TableReference;
 import com.revolsys.record.schema.RecordStore;
+import com.revolsys.util.Property;
 
 public class RecordStoreQueryListModel implements ListModel {
 
@@ -88,7 +89,7 @@ public class RecordStoreQueryListModel implements ListModel {
   }
 
   protected List<Record> getRecords(final String searchParam) {
-    if (com.revolsys.util.Property.hasValue(searchParam) && searchParam.length() >= 2) {
+    if (Property.hasValue(searchParam) && searchParam.length() >= 2) {
       final Map<String, Record> allObjects = new TreeMap<>();
       for (Query query : this.queries) {
         if (allObjects.size() < this.maxResults) {
@@ -155,7 +156,7 @@ public class RecordStoreQueryListModel implements ListModel {
   }
 
   public void setSearchText(final String searchText) {
-    if (com.revolsys.util.Property.hasValue(searchText)) {
+    if (Property.hasValue(searchText)) {
       if (!this.searchText.equals(searchText)) {
         this.searchText = searchText;
         this.records = getRecords(this.searchText);

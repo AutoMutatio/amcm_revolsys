@@ -98,7 +98,7 @@ public class ComponentViewport2D extends Viewport2D implements PropertyChangeLis
     if (geometryFactory.isHasHorizontalCoordinateSystem()) {
       final BoundingBox areaBoundingBox = geometryFactory.getAreaBoundingBox();
       final BoundingBox boundingBox = getBoundingBox();
-      if (com.revolsys.util.Property.hasValue(boundingBox)) {
+      if (Property.hasValue(boundingBox)) {
         final BoundingBox newBoundingBox = boundingBox.bboxToCs(geometryFactory);
         BoundingBox intersection = newBoundingBox.bboxIntersection(areaBoundingBox);
         if (intersection.isEmpty()) {

@@ -5,6 +5,7 @@ import java.util.function.Consumer;
 
 import com.revolsys.io.PathName;
 import com.revolsys.record.schema.RecordDefinition;
+import com.revolsys.util.Property;
 
 public class WhereConditionBuilder implements TableReferenceProxy {
 
@@ -45,7 +46,7 @@ public class WhereConditionBuilder implements TableReferenceProxy {
     if (conditions != null) {
       Condition whereCondition = getWhereCondition();
       for (final Condition condition : conditions) {
-        if (com.revolsys.util.Property.hasValue(condition)) {
+        if (Property.hasValue(condition)) {
           whereCondition = whereCondition.and(condition);
         }
       }
@@ -58,7 +59,7 @@ public class WhereConditionBuilder implements TableReferenceProxy {
     if (conditions != null) {
       Condition whereCondition = getWhereCondition();
       for (final Condition condition : conditions) {
-        if (com.revolsys.util.Property.hasValue(condition)) {
+        if (Property.hasValue(condition)) {
           whereCondition = whereCondition.and(condition);
         }
       }

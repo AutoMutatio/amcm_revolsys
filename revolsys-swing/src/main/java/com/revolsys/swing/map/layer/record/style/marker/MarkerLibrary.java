@@ -11,6 +11,7 @@ import com.revolsys.collection.json.JsonObject;
 import com.revolsys.io.map.MapObjectFactory;
 import com.revolsys.io.map.MapObjectFactoryRegistry;
 import com.revolsys.logging.Logs;
+import com.revolsys.util.Property;
 
 public class MarkerLibrary extends MarkerGroup {
   private static final Map<String, MarkerLibrary> LIBRARIES = new LinkedHashMap<>();
@@ -26,15 +27,9 @@ public class MarkerLibrary extends MarkerGroup {
   }
 
   public static void factoryInit() {
-    MapObjectFactoryRegistry.newFactory("markerLibrary", config -> {
-      return new MarkerLibrary(config);
-    });
-    MapObjectFactoryRegistry.newFactory("markerGroup", config -> {
-      return new MarkerGroup(config);
-    });
-    MapObjectFactoryRegistry.newFactory("markerSvg", config -> {
-      return new SvgMarker(config);
-    });
+    MapObjectFactoryRegistry.newFactory("markerLibrary", MarkerLibrary::new);
+    MapObjectFactoryRegistry.newFactory("markerGroup", MarkerGroup::new);
+    MapObjectFactoryRegistry.newFactory("markerSvg", SvgMarker::new);
   }
 
   public static Marker findMarker(final String name) {
@@ -118,7 +113,7 @@ public class MarkerLibrary extends MarkerGroup {
   }
 
   public static Marker newMarker(final String markerType) {
-    if (com.revolsys.util.Property.hasValue(markerType)) {
+    if (Property.hasValue(markerType)) {
       final Marker symbol = findMarker(markerType);
       return symbol;
     }

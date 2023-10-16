@@ -45,6 +45,7 @@ import com.revolsys.core.test.geometry.test.geomop.GeometryOperation;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.io.FileUtil;
 import com.revolsys.io.MapSerializer;
+import com.revolsys.util.Property;
 
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -83,7 +84,7 @@ public class TestFile extends TestSuite implements MapSerializer {
     final ResultMatcher resultMatcher, final File testFile) {
     this.parent = parent;
     this.runIndex = runIndex;
-    if (com.revolsys.util.Property.hasValue(description)) {
+    if (Property.hasValue(description)) {
       this.testDescription = description.replaceAll("\\s+", " ");
     }
     setName(getId() + "." + FileUtil.getBaseName(testFile));
@@ -107,7 +108,7 @@ public class TestFile extends TestSuite implements MapSerializer {
 
   public String getId() {
     final String parentId = this.parent.getId();
-    if (com.revolsys.util.Property.hasValue(parentId)) {
+    if (Property.hasValue(parentId)) {
       return parentId + "." + this.runIndex;
     } else {
       return String.valueOf(this.runIndex);

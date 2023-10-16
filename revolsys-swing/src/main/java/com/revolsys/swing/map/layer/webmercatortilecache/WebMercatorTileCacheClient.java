@@ -5,6 +5,7 @@ import java.awt.image.BufferedImage;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.raster.BufferedImages;
+import com.revolsys.util.Property;
 
 public class WebMercatorTileCacheClient {
   private static final double[] METRES_PER_PIXEL = {
@@ -16,7 +17,7 @@ public class WebMercatorTileCacheClient {
   private final String serverUrl;
 
   public WebMercatorTileCacheClient(final String serverUrl) {
-    if (com.revolsys.util.Property.hasValue(serverUrl)) {
+    if (Property.hasValue(serverUrl)) {
       this.serverUrl = serverUrl;
     } else {
       throw new IllegalArgumentException("Open Street Map tile server URL must be specified");

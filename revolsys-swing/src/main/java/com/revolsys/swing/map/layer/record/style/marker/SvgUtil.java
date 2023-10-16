@@ -11,6 +11,7 @@ import org.w3c.dom.Document;
 
 import com.revolsys.logging.Logs;
 import com.revolsys.spring.resource.Resource;
+import com.revolsys.util.Property;
 
 public class SvgUtil {
   private static final String PARSER_CLASS_NAME = XMLResourceDescriptor.getXMLParserClassName();
@@ -30,7 +31,7 @@ public class SvgUtil {
   }
 
   public static Document newDocument(final String uri) {
-    if (com.revolsys.util.Property.hasValue(uri)) {
+    if (Property.hasValue(uri)) {
       final DocumentFactory documentFactory = new SAXSVGDocumentFactory(PARSER_CLASS_NAME);
       try {
         return documentFactory.createDocument(SVGConstants.SVG_NAMESPACE_URI,

@@ -40,7 +40,7 @@ public class QueryFilterField extends ValueField implements PropertyChangeListen
 
     this.clearButton = toolBar.addButtonTitleIcon("search", "Clear Filter", "filter:delete",
       () -> this.queryField.setFieldValue(""));
-    this.clearButton.setEnabled(com.revolsys.util.Property.hasValue(this.queryField.getText()));
+    this.clearButton.setEnabled(Property.hasValue(this.queryField.getText()));
 
     add(toolBar);
     add(new JScrollPane(this.queryField));
@@ -79,7 +79,7 @@ public class QueryFilterField extends ValueField implements PropertyChangeListen
         this.queryField.setFieldValue(filter.toFormattedString());
       }
     }
-    this.clearButton.setEnabled(com.revolsys.util.Property.hasValue(this.queryField.getText()));
+    this.clearButton.setEnabled(Property.hasValue(this.queryField.getText()));
   }
 
   @Override

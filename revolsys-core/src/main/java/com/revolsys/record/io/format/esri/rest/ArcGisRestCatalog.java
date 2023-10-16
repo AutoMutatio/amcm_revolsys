@@ -19,6 +19,7 @@ import com.revolsys.record.io.format.esri.rest.map.FeatureService;
 import com.revolsys.record.io.format.esri.rest.map.MapService;
 import com.revolsys.record.query.Query;
 import com.revolsys.spring.resource.UrlResource;
+import com.revolsys.util.Property;
 import com.revolsys.util.SupplierWithProperties;
 import com.revolsys.webservice.WebServiceResource;
 
@@ -35,7 +36,7 @@ public class ArcGisRestCatalog extends ArcGisResponse<CatalogElement> {
   public static ArcGisRestCatalog newArcGisRestCatalog(
     final Map<String, ? extends Object> properties) {
     final String serviceUrl = (String)properties.get("serviceUrl");
-    if (com.revolsys.util.Property.hasValue(serviceUrl)) {
+    if (Property.hasValue(serviceUrl)) {
       final ArcGisRestCatalog service = newArcGisRestCatalog(serviceUrl);
       service.setProperties(properties);
       return service;

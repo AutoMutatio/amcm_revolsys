@@ -17,6 +17,7 @@ import com.revolsys.geometry.model.Polygonal;
 import com.revolsys.geometry.model.Punctual;
 import com.revolsys.geometry.model.editor.LineStringEditor;
 import com.revolsys.io.IoUtil;
+import com.revolsys.util.Property;
 
 public class WktParser {
 
@@ -466,7 +467,7 @@ public class WktParser {
   @SuppressWarnings("unchecked")
   public <T extends Geometry> T parseGeometry(final String value,
     final boolean useAxisCountFromGeometryFactory) {
-    if (com.revolsys.util.Property.hasValue(value)) {
+    if (Property.hasValue(value)) {
       final PushbackReader reader = new PushbackReader(new StringReader(value), 20);
       final GeometryFactory geometryFactory = this.geometryFactory;
       return (T)parseGeometry(geometryFactory, useAxisCountFromGeometryFactory, reader);

@@ -20,6 +20,7 @@ import com.revolsys.spring.resource.DefaultResourceLoader;
 import com.revolsys.spring.resource.PathResource;
 import com.revolsys.spring.resource.Resource;
 import com.revolsys.util.Pair;
+import com.revolsys.util.Property;
 import com.revolsys.util.Strings;
 
 public class MavenRepository implements URLStreamHandlerFactory {
@@ -42,13 +43,13 @@ public class MavenRepository implements URLStreamHandlerFactory {
     path.append(artifactId);
     path.append('-');
     path.append(specificVersion);
-    if (com.revolsys.util.Property.hasValue(classifier)) {
+    if (Property.hasValue(classifier)) {
       path.append('-');
       path.append(classifier);
     }
     path.append('.');
     path.append(type);
-    if (com.revolsys.util.Property.hasValue(algorithm)) {
+    if (Property.hasValue(algorithm)) {
       path.append('.');
       path.append(algorithm);
 
@@ -267,13 +268,13 @@ public class MavenRepository implements URLStreamHandlerFactory {
         time = versioning.getLong("lastUpdated", 0);
         if (snapshot != null) {
           final String timestamp = snapshot.getString("timestamp");
-          if (com.revolsys.util.Property.hasValue(timestamp)) {
+          if (Property.hasValue(timestamp)) {
             final String buildNumber = snapshot.getString("buildNumber");
             final StringBuilder specificVersionBuilder = new StringBuilder(
               version.substring(0, version.length() - 8));
             specificVersionBuilder.append(timestamp);
             specificVersionBuilder.append('-');
-            if (com.revolsys.util.Property.hasValue(buildNumber)) {
+            if (Property.hasValue(buildNumber)) {
               specificVersionBuilder.append(buildNumber);
             } else {
               specificVersionBuilder.append('1');

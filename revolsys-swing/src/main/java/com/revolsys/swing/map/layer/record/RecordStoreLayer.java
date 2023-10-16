@@ -50,6 +50,7 @@ import com.revolsys.swing.map.ViewportCacheBoundingBox;
 import com.revolsys.swing.map.layer.record.table.model.RecordLayerErrors;
 import com.revolsys.swing.parallel.Invoke;
 import com.revolsys.util.BaseCloseable;
+import com.revolsys.util.Property;
 import com.revolsys.util.count.LabelCountMap;
 
 public class RecordStoreLayer extends AbstractRecordLayer {
@@ -431,7 +432,7 @@ public class RecordStoreLayer extends AbstractRecordLayer {
   public <R extends Record> List<R> getRecords(BoundingBox boundingBox) {
     if (hasGeometryField()) {
       boundingBox = convertBoundingBox(boundingBox);
-      if (com.revolsys.util.Property.hasValue(boundingBox)) {
+      if (Property.hasValue(boundingBox)) {
         try (
           final BaseCloseable booleanValueCloseable = eventsDisabled()) {
           final BoundingBox queryBoundingBox = convertBoundingBox(boundingBox);
@@ -450,7 +451,7 @@ public class RecordStoreLayer extends AbstractRecordLayer {
 
   @Override
   public <R extends Record> List<R> getRecords(final Geometry geometry, final double distance) {
-    if (com.revolsys.util.Property.isEmpty(geometry) || !hasGeometryField()) {
+    if (Property.isEmpty(geometry) || !hasGeometryField()) {
       return Collections.emptyList();
     } else {
       final RecordDefinition recordDefinition = getRecordDefinition();
@@ -466,7 +467,7 @@ public class RecordStoreLayer extends AbstractRecordLayer {
     BoundingBox boundingBox) {
     if (hasGeometryField()) {
       boundingBox = convertBoundingBox(boundingBox);
-      if (com.revolsys.util.Property.hasValue(boundingBox)) {
+      if (Property.hasValue(boundingBox)) {
         initViewBoundingBoxCache(cache);
         final List<LayerRecord> records = getRecordsIndex(boundingBox);
         return records;
@@ -499,7 +500,7 @@ public class RecordStoreLayer extends AbstractRecordLayer {
   protected List<LayerRecord> getRecordsVisibleDo(BoundingBox boundingBox) {
     if (hasGeometryField()) {
       boundingBox = convertBoundingBox(boundingBox);
-      if (com.revolsys.util.Property.hasValue(boundingBox)) {
+      if (Property.hasValue(boundingBox)) {
         try (
           final BaseCloseable booleanValueCloseable = eventsDisabled()) {
           return getRecordsIndex(boundingBox);

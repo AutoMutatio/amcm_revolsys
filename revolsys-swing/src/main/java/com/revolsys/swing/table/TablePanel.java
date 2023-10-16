@@ -25,6 +25,7 @@ import com.revolsys.swing.menu.MenuFactory;
 import com.revolsys.swing.menu.MenuSourceHolder;
 import com.revolsys.swing.table.lambda.column.ColumnBasedTableModel;
 import com.revolsys.swing.toolbar.ToolBar;
+import com.revolsys.util.Property;
 
 public class TablePanel extends JPanel implements MouseListener, Closeable {
   protected class TablePanelEventSource extends MenuSourceHolder {
@@ -434,7 +435,7 @@ public class TablePanel extends JPanel implements MouseListener, Closeable {
       }
     }
     final String value = ClipboardUtil.getContents(DataFlavor.stringFlavor);
-    if (com.revolsys.util.Property.hasValue(value)) {
+    if (Property.hasValue(value)) {
       final TableModel tableModel = getTableModel();
       final int eventRow = getEventRow();
       final int eventColumn = getEventColumn();

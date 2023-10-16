@@ -58,6 +58,7 @@ import com.revolsys.swing.table.AbstractTableModel;
 import com.revolsys.swing.table.TablePanel;
 import com.revolsys.util.BaseCloseable;
 import com.revolsys.util.Cancellable;
+import com.revolsys.util.Property;
 
 public class SelectRecordsOverlay extends AbstractOverlay {
   public static final String ACTION_SELECT_RECORDS = "Select Records";
@@ -277,7 +278,7 @@ public class SelectRecordsOverlay extends AbstractOverlay {
       }
     }
     final List<CloseLocation> closeSelectedLocations = map.getCloseSelectedLocations();
-    if (com.revolsys.util.Property.hasValue(closeSelectedLocations)) {
+    if (Property.hasValue(closeSelectedLocations)) {
       for (final CloseLocation location : closeSelectedLocations) {
         final Vertex vertex = location.getVertex();
         CLOSE_VERTEX_STYLE_RENDERER.paintSelected(view, graphics, viewportGeometryFactory, vertex);
@@ -571,7 +572,7 @@ public class SelectRecordsOverlay extends AbstractOverlay {
   private void unSelectRecords(final LayerGroup group, final BoundingBox boundingBox) {
 
     final double scale = getViewportScale();
-    group.forEachReverse((layer) -> {
+    group.forEachReverse(layer -> {
       if (layer instanceof LayerGroup) {
         final LayerGroup childGroup = (LayerGroup)layer;
         unSelectRecords(childGroup, boundingBox);

@@ -64,7 +64,7 @@ public class MediaTypes {
     if (mediaType != null) {
       mediaType = mediaType.toLowerCase();
       final String result = fileExtensionByMediaType.get(mediaType);
-      if (com.revolsys.util.Property.hasValue(result)) {
+      if (Property.hasValue(result)) {
         return result;
       }
     }
@@ -163,7 +163,7 @@ public class MediaTypes {
     if (extension != null) {
       extension = extension.toLowerCase();
       final String result = mediaTypeByFileExtension.get(extension);
-      if (com.revolsys.util.Property.hasValue(result)) {
+      if (Property.hasValue(result)) {
         return result;
       }
     }

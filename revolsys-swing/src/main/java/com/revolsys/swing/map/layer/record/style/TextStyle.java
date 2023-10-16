@@ -446,7 +446,7 @@ public class TextStyle extends BaseObjectWithPropertiesAndChange
 
   public TextStyle setTextHorizontalAlignment(final String textHorizontalAlignment) {
     final Object oldValue = this.textHorizontalAlignment;
-    if (com.revolsys.util.Property.hasValue(textHorizontalAlignment)) {
+    if (Property.hasValue(textHorizontalAlignment)) {
       this.textHorizontalAlignment = textHorizontalAlignment;
     } else {
       this.textHorizontalAlignment = AUTO;
@@ -505,7 +505,7 @@ public class TextStyle extends BaseObjectWithPropertiesAndChange
 
   public TextStyle setTextPlacementType(String textPlacementType) {
     final Object oldValue = this.textPlacementType;
-    if (com.revolsys.util.Property.hasValue(textPlacementType)) {
+    if (Property.hasValue(textPlacementType)) {
       textPlacementType = Strings.replaceAll(textPlacementType, "^point\\(", "vertex\\(");
       this.textPlacementType = textPlacementType;
     } else {
@@ -548,7 +548,7 @@ public class TextStyle extends BaseObjectWithPropertiesAndChange
 
   public TextStyle setTextVerticalAlignment(final String textVerticalAlignment) {
     final Object oldValue = this.textVerticalAlignment;
-    if (com.revolsys.util.Property.hasValue(textVerticalAlignment)) {
+    if (Property.hasValue(textVerticalAlignment)) {
       this.textVerticalAlignment = textVerticalAlignment;
     } else {
       this.textVerticalAlignment = AUTO;

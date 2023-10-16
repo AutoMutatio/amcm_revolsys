@@ -18,6 +18,7 @@ import com.revolsys.record.io.format.esri.rest.ArcGisRestService;
 import com.revolsys.record.io.format.esri.rest.ArcGisRestServiceContainer;
 import com.revolsys.record.io.format.esri.rest.CatalogElement;
 import com.revolsys.spring.resource.Resource;
+import com.revolsys.util.Property;
 import com.revolsys.webservice.WebServiceResource;
 
 public abstract class ArcGisRestAbstractLayerService extends ArcGisRestService
@@ -60,7 +61,7 @@ public abstract class ArcGisRestAbstractLayerService extends ArcGisRestService
         layer = factory.apply(this, parent, layerProperties);
       }
       final String name = layer.getName();
-      if (com.revolsys.util.Property.hasValue(name)) {
+      if (Property.hasValue(name)) {
         layersByName.put(name.toLowerCase(), layer);
         return layer;
       } else {

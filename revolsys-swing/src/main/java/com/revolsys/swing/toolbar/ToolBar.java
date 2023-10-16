@@ -17,6 +17,7 @@ import com.revolsys.swing.action.RunnableAction;
 import com.revolsys.swing.action.enablecheck.EnableCheck;
 import com.revolsys.swing.component.ComponentGroup;
 import com.revolsys.swing.menu.ToggleButton;
+import com.revolsys.util.Property;
 
 public class ToolBar extends JToolBar {
   private static final long serialVersionUID = 1L;
@@ -81,7 +82,7 @@ public class ToolBar extends JToolBar {
     final EnableCheck enableCheck, final Runnable runnable) {
     String name = null;
     Icon icon = null;
-    if (com.revolsys.util.Property.hasValue(iconName)) {
+    if (Property.hasValue(iconName)) {
       icon = Icons.getIcon(iconName);
     } else {
       name = title;

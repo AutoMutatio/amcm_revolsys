@@ -12,6 +12,7 @@ import com.revolsys.jdbc.field.JdbcDateFieldDefinition;
 import com.revolsys.jdbc.field.JdbcFieldDefinition;
 import com.revolsys.record.query.ColumnIndexes;
 import com.revolsys.record.schema.RecordDefinition;
+import com.revolsys.util.Property;
 
 public class GeoPackageDateField extends JdbcFieldDefinition {
   public GeoPackageDateField(final String dbName, final String name, final int sqlType,
@@ -38,7 +39,7 @@ public class GeoPackageDateField extends JdbcFieldDefinition {
   @Override
   public int setPreparedStatementValue(final PreparedStatement statement, final int parameterIndex,
     final Object value) throws SQLException {
-    if (com.revolsys.util.Property.isEmpty(value)) {
+    if (Property.isEmpty(value)) {
       final int sqlType = getSqlType();
       statement.setNull(parameterIndex, sqlType);
     } else {

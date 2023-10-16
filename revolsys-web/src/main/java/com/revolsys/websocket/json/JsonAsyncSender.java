@@ -14,6 +14,7 @@ import jakarta.websocket.Session;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.collection.map.Maps;
 import com.revolsys.logging.Logs;
+import com.revolsys.util.Property;
 import com.revolsys.websocket.AsyncResult;
 
 public class JsonAsyncSender implements SendHandler {
@@ -36,7 +37,7 @@ public class JsonAsyncSender implements SendHandler {
     synchronized (this) {
       this.session = null;
       this.async = null;
-      this.notifyAll();
+      notifyAll();
     }
   }
 
@@ -141,7 +142,7 @@ public class JsonAsyncSender implements SendHandler {
   public boolean setResult(final MapEx message) {
     if (this.open) {
       final String messageId = Maps.getString(message, "messageId");
-      if (com.revolsys.util.Property.hasValue(messageId)) {
+      if (Property.hasValue(messageId)) {
         synchronized (this.messageCallbackById) {
           final AsyncResult<MapEx> resultCallback = this.messageCallbackById.get(messageId);
           if (resultCallback != null) {
@@ -165,7 +166,7 @@ public class JsonAsyncSender implements SendHandler {
           this.async = this.session.getAsyncRemote();
         }
       }
-      this.notifyAll();
+      notifyAll();
     }
   }
 }

@@ -8,6 +8,7 @@ import org.junit.Test;
 
 import com.revolsys.io.PathName;
 import com.revolsys.io.PathUtil;
+import com.revolsys.util.Property;
 
 public class PathTest {
 
@@ -118,7 +119,7 @@ public class PathTest {
   private void assertPath(final String source, final String expected) {
     final String path = PathUtil.getPath(source);
     Assert.assertEquals(expected, path);
-    if (com.revolsys.util.Property.hasValue(source)) {
+    if (Property.hasValue(source)) {
       final PathName parent = PathName.newPathName(source).getParent();
       if (parent != null) {
         Assert.assertEquals(expected, parent.toString());

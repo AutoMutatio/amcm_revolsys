@@ -73,6 +73,7 @@ import com.revolsys.swing.map.list.RecordListCellRenderer;
 import com.revolsys.swing.menu.MenuFactory;
 import com.revolsys.swing.parallel.Invoke;
 import com.revolsys.util.BaseCloseable;
+import com.revolsys.util.Property;
 
 public abstract class AbstractRecordQueryField extends ValueField
   implements DocumentListener, KeyListener, MouseListener, FocusListener, ListDataListener,
@@ -455,7 +456,7 @@ public abstract class AbstractRecordQueryField extends ValueField
   protected void search() {
     if (this.eventsEnabled.isTrue()) {
       final String queryText = this.searchField.getText();
-      if (com.revolsys.util.Property.hasValue(queryText)) {
+      if (Property.hasValue(queryText)) {
         if (queryText.length() >= this.minSearchCharacters) {
           this.searchField.setFieldValid();
           this.busyLabel.setBusy(true);
@@ -489,7 +490,7 @@ public abstract class AbstractRecordQueryField extends ValueField
     if (this.searchField != null) {
       if (value == null) {
         try (
-          BaseCloseable eventsDisabled = this.eventsDisabled()) {
+          BaseCloseable eventsDisabled = eventsDisabled()) {
           this.searchField.setFieldValue("");
           clear();
         }

@@ -28,12 +28,13 @@ import com.revolsys.swing.map.layer.record.RecordDefinitionSqlFilter;
 import com.revolsys.swing.map.view.ViewRenderer;
 import com.revolsys.swing.menu.MenuFactory;
 import com.revolsys.util.BaseCloneable;
+import com.revolsys.util.Property;
 
 public abstract class AbstractRecordLayerRenderer extends AbstractLayerRenderer<AbstractRecordLayer>
   implements RecordDefinitionProxy {
 
   static {
-    MenuFactory.addMenuInitializer(AbstractRecordLayerRenderer.class, (menu) -> {
+    MenuFactory.addMenuInitializer(AbstractRecordLayerRenderer.class, menu -> {
       menu.addMenuItem("layer", -1, "View/Edit Style", "palette",
         ((Predicate<AbstractRecordLayerRenderer>)AbstractRecordLayerRenderer::isEditing).negate(),
         AbstractRecordLayerRenderer::showProperties, false);
@@ -73,7 +74,7 @@ public abstract class AbstractRecordLayerRenderer extends AbstractLayerRenderer<
         return new MultipleAttributeValuesFilter(filterDefinition);
       } else if ("queryFilter".equals(type)) {
         String query = (String)filterDefinition.remove("query");
-        if (com.revolsys.util.Property.hasValue(query)) {
+        if (Property.hasValue(query)) {
           query = query.replaceAll("!= null", "IS NOT NULL");
           query = query.replaceAll("== null", "IS NULL");
           query = query.replaceAll("==", "=");
@@ -86,7 +87,7 @@ public abstract class AbstractRecordLayerRenderer extends AbstractLayerRenderer<
         }
       } else if ("sqlFilter".equals(type)) {
         final String query = (String)filterDefinition.remove("query");
-        if (com.revolsys.util.Property.hasValue(query)) {
+        if (Property.hasValue(query)) {
           return new RecordDefinitionSqlFilter(recordDefinitionProxy, query);
         }
       } else {
@@ -197,9 +198,7 @@ public abstract class AbstractRecordLayerRenderer extends AbstractLayerRenderer<
       List<LayerRecord> records = layer.getRecordsBackground(view.getCacheBoundingBox(),
         boundingBox);
       if (!view.isShowHiddenRecords()) {
-        final Predicate<LayerRecord> filter = record -> {
-          return !layer.isHidden(record);
-        };
+        final Predicate<LayerRecord> filter = record -> !layer.isHidden(record);
         records = Lists.filter(view, records, filter);
       }
       renderRecords(view, layer, records);
@@ -212,9 +211,7 @@ public abstract class AbstractRecordLayerRenderer extends AbstractLayerRenderer<
   public final void renderSelectedRecords(final ViewRenderer view, final AbstractRecordLayer layer,
     List<LayerRecord> records) {
     if (layer.hasGeometryField()) {
-      records = Lists.filter(view, records, record -> {
-        return !layer.isDeleted(record);
-      });
+      records = Lists.filter(view, records, record -> !layer.isDeleted(record));
       renderSelectedRecordsDo(view, layer, records);
     }
   }
@@ -269,7 +266,7 @@ public abstract class AbstractRecordLayerRenderer extends AbstractLayerRenderer<
   public void setQueryFilter(final String query) {
     if (this.filter instanceof RecordDefinitionSqlFilter || this.filter == DEFAULT_FILTER) {
       Predicate<MapEx> filter;
-      if (com.revolsys.util.Property.hasValue(query)) {
+      if (Property.hasValue(query)) {
         filter = new RecordDefinitionSqlFilter(this, query);
       } else {
         filter = DEFAULT_FILTER;
@@ -289,7 +286,7 @@ public abstract class AbstractRecordLayerRenderer extends AbstractLayerRenderer<
 
   protected void wrap(final AbstractLayer layer, final AbstractMultipleRecordLayerRenderer parent,
     final AbstractMultipleRecordLayerRenderer newRenderer) {
-    newRenderer.addRenderer(this.clone());
+    newRenderer.addRenderer(clone());
     replace(layer, parent, newRenderer);
   }
 

@@ -806,7 +806,7 @@ public class BaseTreeNode implements TreeNode, Iterable<BaseTreeNode>, PropertyC
 
   @Override
   public String toString() {
-    if (com.revolsys.util.Property.hasValue(this.name)) {
+    if (Property.hasValue(this.name)) {
       return this.name;
     } else {
       final Object userObject = getUserObject();

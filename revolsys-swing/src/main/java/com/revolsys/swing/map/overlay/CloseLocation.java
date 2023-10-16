@@ -11,6 +11,7 @@ import com.revolsys.geometry.model.vertex.Vertex;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.swing.map.layer.record.AbstractRecordLayer;
 import com.revolsys.swing.map.layer.record.LayerRecord;
+import com.revolsys.util.Property;
 import com.revolsys.util.Strings;
 
 public class CloseLocation implements Comparable<CloseLocation> {
@@ -220,7 +221,7 @@ public class CloseLocation implements Comparable<CloseLocation> {
   public String toString() {
     final StringBuilder string = new StringBuilder();
     final String layerPath = getLayerPath();
-    if (com.revolsys.util.Property.hasValue(layerPath)) {
+    if (Property.hasValue(layerPath)) {
       string.append(layerPath);
     }
     if (getRecordDefinition() != null) {

@@ -57,6 +57,7 @@ import com.revolsys.geometry.util.Points;
 import com.revolsys.math.Angle;
 import com.revolsys.number.Doubles;
 import com.revolsys.util.Pair;
+import com.revolsys.util.Property;
 
 /**
  * Represents a single point.
@@ -473,7 +474,7 @@ public interface Point extends Punctual, Serializable, BoundingBox {
       return distancePoint(point);
     } else if (isEmpty()) {
       return Double.POSITIVE_INFINITY;
-    } else if (com.revolsys.util.Property.isEmpty(geometry)) {
+    } else if (Property.isEmpty(geometry)) {
       return Double.POSITIVE_INFINITY;
     } else {
       return geometry.distancePoint(this, terminateDistance);
@@ -507,7 +508,7 @@ public interface Point extends Punctual, Serializable, BoundingBox {
   default double distancePoint(Point point) {
     if (isEmpty()) {
       return Double.POSITIVE_INFINITY;
-    } else if (com.revolsys.util.Property.isEmpty(point)) {
+    } else if (Property.isEmpty(point)) {
       return Double.POSITIVE_INFINITY;
     } else {
       final GeometryFactory geometryFactory = getGeometryFactory();
@@ -1068,7 +1069,7 @@ public interface Point extends Punctual, Serializable, BoundingBox {
   default Point newGeometry(GeometryFactory geometryFactory) {
     final GeometryFactory sourceGeometryFactory = getGeometryFactory();
     if (geometryFactory == null) {
-      return this.clone();
+      return clone();
     } else if (isEmpty()) {
       return geometryFactory.point();
     } else {

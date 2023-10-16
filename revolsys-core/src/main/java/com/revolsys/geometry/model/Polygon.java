@@ -59,6 +59,7 @@ import com.revolsys.geometry.operation.overlay.OverlayOp;
 import com.revolsys.geometry.operation.overlay.snap.SnapIfNeededOverlayOp;
 import com.revolsys.geometry.operation.polygonize.Polygonizer;
 import com.revolsys.geometry.operation.valid.GeometryValidationError;
+import com.revolsys.util.Property;
 
 /**
  * Represents a polygon with linear edges, which may include holes.
@@ -160,7 +161,7 @@ public interface Polygon extends Polygonal {
   default double distanceGeometry(final Geometry geometry, final double terminateDistance) {
     if (isEmpty()) {
       return Double.POSITIVE_INFINITY;
-    } else if (com.revolsys.util.Property.isEmpty(geometry)) {
+    } else if (Property.isEmpty(geometry)) {
       return Double.POSITIVE_INFINITY;
     } else if (geometry instanceof Point) {
       final Point point = (Point)geometry;

@@ -14,6 +14,7 @@ import com.revolsys.geometry.model.Polygon;
 import com.revolsys.io.MapSerializer;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.spring.resource.Resource;
+import com.revolsys.util.Property;
 
 public interface RectangularMapGrid extends GeometryFactoryProxy, MapSerializer {
 
@@ -36,7 +37,7 @@ public interface RectangularMapGrid extends GeometryFactoryProxy, MapSerializer 
     fileName.append(tileMinX);
     fileName.append('_');
     fileName.append(tileMinY);
-    if (com.revolsys.util.Property.hasValue(fileSuffix)) {
+    if (Property.hasValue(fileSuffix)) {
       fileName.append('_');
       fileName.append(fileSuffix);
     }

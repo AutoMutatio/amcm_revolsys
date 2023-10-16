@@ -50,6 +50,7 @@ import com.revolsys.swing.map.layer.record.style.marker.SvgMarker;
 import com.revolsys.swing.map.layer.record.style.marker.TextMarker;
 import com.revolsys.util.BaseCloseable;
 import com.revolsys.util.Cancellable;
+import com.revolsys.util.Property;
 import com.revolsys.util.QuantityType;
 
 import tech.units.indriya.unit.Units;
@@ -250,7 +251,7 @@ public abstract class ViewRenderer implements BoundingBoxProxy, Cancellable {
 
   public void drawMarker(final MarkerStyle style, Point point, final double orientation) {
     point = getGeometry(point);
-    if (com.revolsys.util.Property.hasValue(point)) {
+    if (Property.hasValue(point)) {
       try (
         MarkerRenderer renderer = style.newMarkerRenderer(this)) {
         renderer.renderMarkerPoint(point, orientation);
@@ -440,7 +441,7 @@ public abstract class ViewRenderer implements BoundingBoxProxy, Cancellable {
             }
           }
         }
-        if (com.revolsys.util.Property.hasValue(point)) {
+        if (Property.hasValue(point)) {
           if (this.boundingBox.bboxCovers(point)) {
             point = point.convertPoint2d(geometryFactory);
             return new PointDoubleXYOrientation(point, orientation);

@@ -18,6 +18,7 @@ import com.revolsys.swing.map.layer.AbstractLayer;
 import com.revolsys.swing.map.layer.BaseMapLayer;
 import com.revolsys.swing.map.layer.raster.ViewFunctionImageLayerRenderer;
 import com.revolsys.swing.map.view.ViewRenderer;
+import com.revolsys.util.Property;
 import com.revolsys.webservice.WebService;
 import com.revolsys.webservice.WebServiceConnectionManager;
 
@@ -95,7 +96,7 @@ public class OgcWmsImageLayer extends AbstractLayer implements BaseMapLayer {
     if (initialized) {
       try {
         final WmsClient wmsClient;
-        if (com.revolsys.util.Property.hasValue(this.connectionName)) {
+        if (Property.hasValue(this.connectionName)) {
           final WebService<?> webService = WebServiceConnectionManager
             .getWebService(this.connectionName);
           if (webService == null) {
@@ -109,7 +110,7 @@ public class OgcWmsImageLayer extends AbstractLayer implements BaseMapLayer {
               getPath() + ": Web service " + this.connectionName + ": is not a OGS WMS service");
             return false;
           }
-        } else if (com.revolsys.util.Property.hasValue(this.serviceUrl)) {
+        } else if (Property.hasValue(this.serviceUrl)) {
           wmsClient = new WmsClient(this.serviceUrl);
         } else {
           Logs.error(this, getPath()
@@ -190,7 +191,7 @@ public class OgcWmsImageLayer extends AbstractLayer implements BaseMapLayer {
       setExists(true);
       final WmsClient wmsClient = wmsLayerDefinition.getWmsClient();
       final String connectionName = wmsClient.getName();
-      if (com.revolsys.util.Property.hasValue(connectionName)) {
+      if (Property.hasValue(connectionName)) {
         this.connectionName = connectionName;
         this.serviceUrl = null;
       } else {
@@ -217,7 +218,7 @@ public class OgcWmsImageLayer extends AbstractLayer implements BaseMapLayer {
     map.keySet()
       .removeAll(Arrays.asList("readOnly", "querySupported", "selectSupported", "minimumScale",
         "maximumScale"));
-    if (com.revolsys.util.Property.hasValue(this.connectionName)) {
+    if (Property.hasValue(this.connectionName)) {
       addToMap(map, "connectionName", this.connectionName);
     } else {
       addToMap(map, "serviceUrl", this.serviceUrl);

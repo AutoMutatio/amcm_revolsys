@@ -230,7 +230,7 @@ public abstract class AbstractLayerRenderer<T extends Layer> extends
   @Override
   public void setName(final String name) {
     final String oldName = getName();
-    if (com.revolsys.util.Property.hasValue(name)) {
+    if (Property.hasValue(name)) {
       this.name = name;
     } else {
       this.name = CaseConverter.toCapitalizedWords(this.type);
@@ -290,7 +290,7 @@ public abstract class AbstractLayerRenderer<T extends Layer> extends
 
   @Override
   public String toString() {
-    if (com.revolsys.util.Property.hasValue(this.name)) {
+    if (Property.hasValue(this.name)) {
       return this.name;
     } else {
       return this.type;

@@ -36,6 +36,7 @@ import com.revolsys.record.query.SqlAppendable;
 import com.revolsys.record.query.TableReference;
 import com.revolsys.util.BaseCloneable;
 import com.revolsys.util.CaseConverter;
+import com.revolsys.util.Property;
 import com.revolsys.util.Strings;
 
 /**
@@ -738,7 +739,7 @@ public class FieldDefinition extends BaseObjectWithProperties implements CharSeq
   }
 
   public FieldDefinition setTitle(final String title) {
-    if (com.revolsys.util.Property.hasValue(title)) {
+    if (Property.hasValue(title)) {
       this.title = title;
     } else {
       final String name = getName();
@@ -795,7 +796,7 @@ public class FieldDefinition extends BaseObjectWithProperties implements CharSeq
           return ((Code)codeValue).getDescription();
         } else if (codeValue instanceof String) {
           final String string = (String)codeValue;
-          if (com.revolsys.util.Property.hasValue(string)) {
+          if (Property.hasValue(string)) {
             return string;
           } else {
             return null;

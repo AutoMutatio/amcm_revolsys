@@ -46,7 +46,7 @@ public interface Booleans {
   }
 
   static Boolean valueOf(final String string) {
-    if (com.revolsys.util.Property.hasValue(string)) {
+    if (Property.hasValue(string)) {
       if ("1".equals(string)) {
         return true;
       } else if ("Y".equalsIgnoreCase(string)) {

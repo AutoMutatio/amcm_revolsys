@@ -14,6 +14,7 @@ import com.revolsys.jdbc.field.JdbcFieldDefinitions;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordStore;
+import com.revolsys.util.Property;
 
 public class ArrayValue implements QueryValue {
 
@@ -75,7 +76,7 @@ public class ArrayValue implements QueryValue {
   public void changeRecordDefinition(final RecordDefinition oldRecordDefinition,
     final RecordDefinition newRecordDefinition) {
     final String fieldName = this.column.getName();
-    if (com.revolsys.util.Property.hasValue(fieldName)) {
+    if (Property.hasValue(fieldName)) {
       final FieldDefinition column = newRecordDefinition.getField(fieldName);
       setColumn(column);
     }

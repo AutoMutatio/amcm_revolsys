@@ -30,6 +30,7 @@ import com.revolsys.swing.action.enablecheck.EnableCheck;
 import com.revolsys.swing.component.ComponentFactory;
 import com.revolsys.swing.field.Field;
 import com.revolsys.swing.tree.TreeNodes;
+import com.revolsys.util.Property;
 import com.revolsys.util.RunnableInitializers;
 
 public class MenuFactory extends BaseObjectWithProperties implements ComponentFactory<JMenuItem> {
@@ -681,7 +682,7 @@ public class MenuFactory extends BaseObjectWithProperties implements ComponentFa
 
   @Override
   public String toString() {
-    if (com.revolsys.util.Property.hasValue(this.name)) {
+    if (Property.hasValue(this.name)) {
       return this.name;
     } else {
       return super.toString();

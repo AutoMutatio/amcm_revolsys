@@ -20,6 +20,7 @@ import com.revolsys.data.type.DataTypes;
 import com.revolsys.data.type.FunctionDataType;
 import com.revolsys.exception.Exceptions;
 import com.revolsys.io.JavaIo;
+import com.revolsys.util.Property;
 
 public class Json {
   private static class JsonDataType extends AbstractDataType {
@@ -355,7 +356,7 @@ public class Json {
   }
 
   public static JsonObject toObjectMap(final String string) {
-    if (com.revolsys.util.Property.hasValue(string)) {
+    if (Property.hasValue(string)) {
       final StringReader in = new StringReader(string);
       try (
         final JsonObjectReader reader = new JsonObjectReader(in, true)) {

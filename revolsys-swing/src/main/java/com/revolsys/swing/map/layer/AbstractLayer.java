@@ -538,7 +538,7 @@ public abstract class AbstractLayer extends BaseObjectWithProperties
   protected void initializeMenuExpressions(final List<String> menuInitializerExpressions) {
     for (final String menuInitializerExpression : getProperty("menuInitializerExpressions",
       Collections.<String> emptyList())) {
-      if (com.revolsys.util.Property.hasValue(menuInitializerExpression)) {
+      if (Property.hasValue(menuInitializerExpression)) {
         if (!menuInitializerExpressions.contains(menuInitializerExpression)) {
           menuInitializerExpressions.add(menuInitializerExpression);
         }
@@ -997,7 +997,7 @@ public abstract class AbstractLayer extends BaseObjectWithProperties
     } else {
       this.geometryFactory = geometryFactory;
       final BoundingBox boundingBox = getBoundingBox();
-      if (com.revolsys.util.Property.isEmpty(boundingBox)) {
+      if (Property.isEmpty(boundingBox)) {
         setBoundingBox(geometryFactory.getAreaBoundingBox());
       } else if (!boundingBox.getGeometryFactory().isHasHorizontalCoordinateSystem()
         && geometryFactory.isHasHorizontalCoordinateSystem()) {

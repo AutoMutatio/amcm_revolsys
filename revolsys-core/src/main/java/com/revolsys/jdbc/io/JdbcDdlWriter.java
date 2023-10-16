@@ -13,6 +13,7 @@ import com.revolsys.record.Record;
 import com.revolsys.record.property.ShortNameProperty;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
+import com.revolsys.util.Property;
 import com.revolsys.util.Strings;
 
 public abstract class JdbcDdlWriter implements Cloneable {
@@ -309,7 +310,7 @@ public abstract class JdbcDdlWriter implements Cloneable {
   }
 
   public void writeTableName(final String schemaName, final String tableName) {
-    if (com.revolsys.util.Property.hasValue(schemaName)) {
+    if (Property.hasValue(schemaName)) {
       this.out.print(schemaName);
       this.out.print('.');
     }

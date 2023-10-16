@@ -5,6 +5,7 @@ import java.util.Map;
 import javax.swing.Icon;
 
 import com.revolsys.swing.map.layer.record.style.MarkerStyle;
+import com.revolsys.util.Property;
 
 public abstract class AbstractMarker extends AbstractMarkerGroupElement implements Marker {
   private Icon icon;
@@ -36,7 +37,7 @@ public abstract class AbstractMarker extends AbstractMarkerGroupElement implemen
   @Override
   public String getName() {
     final String name = super.getName();
-    if (com.revolsys.util.Property.hasValue(name)) {
+    if (Property.hasValue(name)) {
       return name;
     } else {
       return "unknown";
@@ -46,7 +47,7 @@ public abstract class AbstractMarker extends AbstractMarkerGroupElement implemen
   @Override
   public String toString() {
     final String name = getName();
-    if (com.revolsys.util.Property.hasValue(name)) {
+    if (Property.hasValue(name)) {
       return name;
     } else {
       return super.toString();

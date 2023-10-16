@@ -11,6 +11,7 @@ import java.util.regex.Pattern;
 import org.springframework.util.Assert;
 
 import com.revolsys.logging.Logs;
+import com.revolsys.util.Property;
 
 public class StringTemplate implements Serializable {
   /**
@@ -64,7 +65,7 @@ public class StringTemplate implements Serializable {
 
   public StringTemplate(final String template) {
     this.template = template;
-    if (com.revolsys.util.Property.hasValue(template)) {
+    if (Property.hasValue(template)) {
       try {
         final Parser parser = new Parser(template);
         this.variableNames = parser.getVariableNames();

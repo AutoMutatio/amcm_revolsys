@@ -50,6 +50,7 @@ import com.revolsys.record.query.functions.GeometryEqual2d;
 import com.revolsys.record.query.functions.WithinDistance;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
+import com.revolsys.util.Property;
 
 public class OracleRecordStore extends AbstractJdbcRecordStore {
   public static final List<String> ORACLE_INTERNAL_SCHEMAS = Arrays.asList("ANONYMOUS",
@@ -381,7 +382,7 @@ public class OracleRecordStore extends AbstractJdbcRecordStore {
       final String dbSchemaName = recordDefinition.getQuotedDbSchemaName();
       final String shortName = ShortNameProperty.getShortName(recordDefinition);
       final String sequenceName;
-      if (com.revolsys.util.Property.hasValue(shortName)) {
+      if (Property.hasValue(shortName)) {
         if (this.useSchemaSequencePrefix) {
           sequenceName = dbSchemaName + "." + shortName.toLowerCase() + "_SEQ";
         } else {

@@ -44,6 +44,7 @@ import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.geometry.model.Polygon;
 import com.revolsys.geometry.model.Polygonal;
 import com.revolsys.geometry.model.TopologyException;
+import com.revolsys.util.Property;
 
 /**
  * Provides an efficient method of unioning a collection of
@@ -293,9 +294,9 @@ public class CascadedPolygonUnion {
    * @return
    */
   private Polygonal unionActual(final Polygonal polygonal1, final Polygonal polygonal2) {
-    if (com.revolsys.util.Property.isEmpty(polygonal1)) {
+    if (Property.isEmpty(polygonal1)) {
       return polygonal2;
-    } else if (com.revolsys.util.Property.isEmpty(polygonal2)) {
+    } else if (Property.isEmpty(polygonal2)) {
       return polygonal1;
     } else {
       try {

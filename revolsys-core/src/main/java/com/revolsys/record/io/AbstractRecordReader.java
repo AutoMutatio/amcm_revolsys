@@ -197,7 +197,7 @@ public abstract class AbstractRecordReader extends AbstractIterator<Record>
     if (!com.revolsys.util.Property.hasValue(typePath)) {
       typePath = "/" + baseName;
       String schemaPath = getProperty("schemaPath");
-      if (com.revolsys.util.Property.hasValue(schemaPath)) {
+      if (Property.hasValue(schemaPath)) {
         if (!schemaPath.startsWith("/")) {
           schemaPath = "/" + schemaPath;
         }

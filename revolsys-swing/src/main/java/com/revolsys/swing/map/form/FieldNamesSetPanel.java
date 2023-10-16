@@ -181,7 +181,7 @@ public class FieldNamesSetPanel extends ValueField
   private void actionAdd() {
     final String name = Dialogs.showInputDialog("Enter the name of the new field set.",
       "Add Field Set", JOptionPane.PLAIN_MESSAGE);
-    if (com.revolsys.util.Property.hasValue(name)) {
+    if (Property.hasValue(name)) {
       boolean found = false;
       for (int i = 0; i < this.fieldNamesSetNamesModel.size(); i++) {
         final String name2 = this.fieldNamesSetNamesModel.get(i);
@@ -332,7 +332,7 @@ public class FieldNamesSetPanel extends ValueField
       final String newName = (String)Dialogs.showInputDialog(
         "Enter the new name for the field set.", "Rename Field Set", JOptionPane.PLAIN_MESSAGE,
         null, null, oldName);
-      if (com.revolsys.util.Property.hasValue(newName)) {
+      if (Property.hasValue(newName)) {
         int index = -1;
         for (int i = 0; i < this.fieldNamesSetNamesModel.size(); i++) {
           final String name = this.fieldNamesSetNamesModel.get(i);
@@ -380,7 +380,7 @@ public class FieldNamesSetPanel extends ValueField
     final Map<String, List<String>> fieldNamesSets = new LinkedHashMap<>();
     for (final String name : this.fieldNamesSetNamesModel) {
       final List<String> fieldNames = this.fieldNamesSets.get(name);
-      if (com.revolsys.util.Property.hasValue(fieldNames)) {
+      if (Property.hasValue(fieldNames)) {
         fieldNamesSets.put(name, fieldNames);
       }
     }
@@ -388,7 +388,7 @@ public class FieldNamesSetPanel extends ValueField
   }
 
   public void setFieldNamesSetName(String fieldNamesSetName) {
-    if (com.revolsys.util.Property.isEmpty(fieldNamesSetName)
+    if (Property.isEmpty(fieldNamesSetName)
       || !this.fieldNamesSetNamesModel.contains(fieldNamesSetName)) {
       fieldNamesSetName = "All";
     }

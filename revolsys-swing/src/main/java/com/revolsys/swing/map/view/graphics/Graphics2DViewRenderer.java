@@ -64,6 +64,7 @@ import com.revolsys.swing.map.layer.record.style.marker.TextMarker;
 import com.revolsys.swing.map.view.TextStyleViewRenderer;
 import com.revolsys.swing.map.view.ViewRenderer;
 import com.revolsys.util.BaseCloseable;
+import com.revolsys.util.Property;
 
 import tech.units.indriya.quantity.Quantities;
 
@@ -579,7 +580,7 @@ public class Graphics2DViewRenderer extends ViewRenderer {
     if (geometry != null) {
       final String label = style.getLabel(record);
       for (final Geometry part : geometry.geometries()) {
-        if (com.revolsys.util.Property.hasValue(label) && part != null || this == null) {
+        if (Property.hasValue(label) && part != null || this == null) {
           final String textPlacementType = style.getTextPlacementType();
           final PointDoubleXYOrientation point = AbstractRecordLayerRenderer
             .getPointWithOrientation(this, part, textPlacementType);
@@ -650,7 +651,7 @@ public class Graphics2DViewRenderer extends ViewRenderer {
                   dx = 0;
                   horizontalAlignment = "left";
                 }
-                final double viewWidth = this.getViewWidthPixels();
+                final double viewWidth = getViewWidthPixels();
                 if (screenX + maxWidth > viewWidth) {
                   screenX = (int)(viewWidth - maxWidth - 1);
                   dx = 0;
@@ -660,7 +661,7 @@ public class Graphics2DViewRenderer extends ViewRenderer {
                   screenY = 1;
                   dy = 0;
                 }
-                final double viewHeight = this.getViewHeightPixels();
+                final double viewHeight = getViewHeightPixels();
                 if (screenY > viewHeight) {
                   screenY = viewHeight - 1 - maxHeight;
                   dy = 0;
@@ -709,8 +710,7 @@ public class Graphics2DViewRenderer extends ViewRenderer {
 
                 final double radius = style.getTextHaloRadius();
                 final Unit<Length> unit = style.getTextSizeUnit();
-                final double textHaloRadius = this
-                  .toDisplayValue(Quantities.getQuantity(radius, unit));
+                final double textHaloRadius = toDisplayValue(Quantities.getQuantity(radius, unit));
                 if (textHaloRadius > 0) {
                   final Stroke savedStroke = graphics.getStroke();
                   final Stroke outlineStroke = new BasicStroke((float)(textHaloRadius + 1),

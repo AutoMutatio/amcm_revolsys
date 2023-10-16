@@ -275,7 +275,7 @@ public class FieldFilterPanel extends JComponent implements PropertyChangeListen
   public String getSearchFieldName() {
     if (this.nameField != null) {
       final String searchFieldName = this.nameField.getSelectedItem();
-      if (com.revolsys.util.Property.hasValue(searchFieldName)) {
+      if (Property.hasValue(searchFieldName)) {
         return searchFieldName;
       }
     }
@@ -347,7 +347,7 @@ public class FieldFilterPanel extends JComponent implements PropertyChangeListen
           BaseCloseable settingFilter = this.settingFilter.closeable(true)) {
           setSearchFilter(filter);
           boolean simple = false;
-          if (com.revolsys.util.Property.isEmpty(filter)) {
+          if (Property.isEmpty(filter)) {
             final Field searchField = (Field)this.searchField;
             if (searchField != null) {
               searchField.setFieldValue(null);
@@ -377,7 +377,7 @@ public class FieldFilterPanel extends JComponent implements PropertyChangeListen
                 final Value value = (Value)rightCondition;
                 final Object searchValue = value.getValue();
                 String searchText = DataTypes.toString(searchValue);
-                if (com.revolsys.util.Property.hasValue(searchText)) {
+                if (Property.hasValue(searchText)) {
                   setSearchField(this.searchTextField);
                   searchText = searchText.replaceAll("%", "");
                   final String previousSearchText = this.searchTextField.getText();
@@ -509,7 +509,7 @@ public class FieldFilterPanel extends JComponent implements PropertyChangeListen
   }
 
   private void setSearchFieldName(final String searchFieldName) {
-    if (com.revolsys.util.Property.hasValue(searchFieldName)
+    if (Property.hasValue(searchFieldName)
       && !DataType.equal(searchFieldName, this.previousSearchFieldName)
       && this.fieldNames.contains(searchFieldName)) {
       this.lastValue = null;
@@ -604,10 +604,10 @@ public class FieldFilterPanel extends JComponent implements PropertyChangeListen
         } else if ("IS NOT NULL".equalsIgnoreCase(searchOperator)) {
           condition = Q.isNotNull(this.field);
         } else if (this.field != null) {
-          if (com.revolsys.util.Property.hasValue(DataTypes.toString(searchValue))) {
+          if (Property.hasValue(DataTypes.toString(searchValue))) {
             if ("Like".equalsIgnoreCase(searchOperator)) {
               final String searchText = DataTypes.toString(searchValue);
-              if (com.revolsys.util.Property.hasValue(searchText)) {
+              if (Property.hasValue(searchText)) {
                 condition = Q.iLike(this.field, "%" + searchText + "%");
               }
             } else {

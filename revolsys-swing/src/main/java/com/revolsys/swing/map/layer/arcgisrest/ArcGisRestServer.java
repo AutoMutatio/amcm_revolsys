@@ -14,6 +14,7 @@ import com.revolsys.swing.map.layer.Layer;
 import com.revolsys.swing.map.layer.LayerGroup;
 import com.revolsys.swing.menu.MenuFactory;
 import com.revolsys.swing.tree.node.WebServiceConnectionTrees;
+import com.revolsys.util.Property;
 
 public interface ArcGisRestServer {
 
@@ -42,7 +43,7 @@ public interface ArcGisRestServer {
 
     dialog.setSaveAction(() -> {
       final String url = urlField.getText();
-      if (com.revolsys.util.Property.hasValue(url)) {
+      if (Property.hasValue(url)) {
         final ArcGisRestServerTileCacheLayer layer = new ArcGisRestServerTileCacheLayer();
         layer.setUrl(url);
         layer.setVisible(true);
@@ -55,19 +56,13 @@ public interface ArcGisRestServer {
 
   public static void factoryInit() {
     MapObjectFactoryRegistry.newFactory("arcGisRestServerRecordLayer",
-      "Arc GIS REST Server Record Layer", (config) -> {
-        return new ArcGisRestServerRecordLayer(config);
-      });
+      "Arc GIS REST Server Record Layer", ArcGisRestServerRecordLayer::new);
 
     MapObjectFactoryRegistry.newFactory("arcGisRestServerTileLayer",
-      "Arc GIS REST Server Tile Cache Layer", (config) -> {
-        return new ArcGisRestServerTileCacheLayer(config);
-      });
+      "Arc GIS REST Server Tile Cache Layer", ArcGisRestServerTileCacheLayer::new);
 
     MapObjectFactoryRegistry.newFactory("arcgisServerRest", "Arc GIS REST Server Tile Cache Layer",
-      (config) -> {
-        return new ArcGisRestServerTileCacheLayer(config);
-      });
+      ArcGisRestServerTileCacheLayer::new);
 
     MenuFactory.addMenuInitializer(() -> {
       ArcGisRestServer.initMenus();
@@ -75,17 +70,17 @@ public interface ArcGisRestServer {
   }
 
   public static void initMenus() {
-    MenuFactory.addMenuInitializer(FeatureLayer.class, (menu) -> {
+    MenuFactory.addMenuInitializer(FeatureLayer.class, menu -> {
       menu.addMenuItem("default", "Add Layer", "map:add", ArcGisRestServer::actionAddRecordLayer,
         false);
     });
 
-    MenuFactory.addMenuInitializer(BaseMapLayerGroup.class, (menu) -> {
+    MenuFactory.addMenuInitializer(BaseMapLayerGroup.class, menu -> {
       menu.addMenuItem("group", "Add ArcGIS Tile Cache", Icons.getIconWithBadge("map", "add"),
         ArcGisRestServer::actionAddTileCacheLayer, false);
     });
 
-    MenuFactory.addMenuInitializer(TileInfo.class, (menu) -> {
+    MenuFactory.addMenuInitializer(TileInfo.class, menu -> {
       BaseMapLayer.addNewLayerMenu(menu, (final TileInfo tileInfo) -> {
         return new ArcGisRestServerTileCacheLayer(tileInfo);
       });

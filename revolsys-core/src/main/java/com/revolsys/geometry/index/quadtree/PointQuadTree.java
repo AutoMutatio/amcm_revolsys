@@ -15,10 +15,11 @@ import com.revolsys.geometry.model.Point;
 import com.revolsys.geometry.model.coordinates.LineSegmentUtil;
 import com.revolsys.geometry.model.vertex.Vertex;
 import com.revolsys.util.ExitLoopException;
+import com.revolsys.util.Property;
 
 public class PointQuadTree<T> extends AbstractPointSpatialIndex<T> {
   public static PointQuadTree<int[]> get(final Geometry geometry) {
-    if (com.revolsys.util.Property.hasValue(geometry)) {
+    if (Property.hasValue(geometry)) {
       final GeometryFactory geometryFactory = geometry.getGeometryFactory();
       final PointQuadTree<int[]> index = new PointQuadTree<>(geometryFactory);
       for (final Vertex vertex : geometry.vertices()) {

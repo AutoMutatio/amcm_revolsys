@@ -96,7 +96,7 @@ public class TriangulatedIrregularNetworkLayer extends AbstractLayer
   @Override
   protected boolean initializeDo() {
     final String url = getProperty("url");
-    if (com.revolsys.util.Property.hasValue(url)) {
+    if (Property.hasValue(url)) {
       this.url = url;
       this.resource = Resource.getResource(url);
       revertDo();
@@ -130,7 +130,7 @@ public class TriangulatedIrregularNetworkLayer extends AbstractLayer
       SwingUtil.addLabelledReadOnlyTextField(panel, "URL", this.url);
     }
     final String fileNameExtension = FileUtil.getFileNameExtension(this.url);
-    if (com.revolsys.util.Property.hasValue(fileNameExtension)) {
+    if (Property.hasValue(fileNameExtension)) {
       SwingUtil.addLabelledReadOnlyTextField(panel, "File Extension", fileNameExtension);
       final TriangulatedIrregularNetworkReaderFactory factory = IoFactory
         .factoryByFileExtension(TriangulatedIrregularNetworkReaderFactory.class, fileNameExtension);

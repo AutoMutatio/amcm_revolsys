@@ -2,6 +2,7 @@ package com.revolsys.record.query;
 
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.data.type.DataType;
+import com.revolsys.util.Property;
 
 public class ILike extends BinaryCondition {
 
@@ -27,8 +28,8 @@ public class ILike extends BinaryCondition {
     final QueryValue right = getRight();
     String value2 = right.getStringValue(record);
 
-    if (com.revolsys.util.Property.hasValue(value1)) {
-      if (com.revolsys.util.Property.hasValue(value2)) {
+    if (Property.hasValue(value1)) {
+      if (Property.hasValue(value2)) {
         value1 = value1.toUpperCase();
         value2 = value2.toUpperCase();
         if (value2.contains("%")) {

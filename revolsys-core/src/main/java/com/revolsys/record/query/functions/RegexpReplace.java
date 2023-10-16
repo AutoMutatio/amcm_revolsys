@@ -5,6 +5,7 @@ import java.util.List;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.record.query.QueryValue;
 import com.revolsys.record.query.Value;
+import com.revolsys.util.Property;
 
 public class RegexpReplace extends SimpleFunction {
 
@@ -33,7 +34,7 @@ public class RegexpReplace extends SimpleFunction {
     if (replace == null) {
       replace = "";
     }
-    if (com.revolsys.util.Property.hasValue(text)) {
+    if (Property.hasValue(text)) {
       return (V)text.replaceAll(pattern, replace);
     } else {
       return null;

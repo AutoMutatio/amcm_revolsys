@@ -50,6 +50,7 @@ import com.revolsys.geometry.model.vertex.MultiLineStringVertex;
 import com.revolsys.geometry.model.vertex.Vertex;
 import com.revolsys.geometry.operation.BoundaryOp;
 import com.revolsys.geometry.operation.valid.GeometryValidationError;
+import com.revolsys.util.Property;
 
 /**
  * Models a collection of (@link LineString}s.
@@ -90,7 +91,7 @@ public interface MultiLineString extends GeometryCollection, Lineal {
   default double distanceGeometry(Geometry geometry, final double terminateDistance) {
     if (isEmpty()) {
       return Double.POSITIVE_INFINITY;
-    } else if (com.revolsys.util.Property.isEmpty(geometry)) {
+    } else if (Property.isEmpty(geometry)) {
       return Double.POSITIVE_INFINITY;
     } else {
       final GeometryFactory geometryFactory = getGeometryFactory();

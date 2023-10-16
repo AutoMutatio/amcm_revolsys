@@ -21,6 +21,7 @@ import com.revolsys.collection.list.Lists;
 import com.revolsys.collection.map.Maps;
 import com.revolsys.exception.Exceptions;
 import com.revolsys.parallel.ThreadInterruptedException;
+import com.revolsys.util.Property;
 
 public class Invoke {
   private static final PropertyChangeListener PROPERTY_CHANGE_LISTENER = new PropertyChangeListener() {
@@ -41,7 +42,7 @@ public class Invoke {
               final int maxThreads = maxThreadsWorker.getMaxThreads();
               int threads = Maps.decrementCount(WORKER_COUNTS, workerKey);
               final List<SwingWorker<?, ?>> waitingWorkers = WAITING_WORKERS.get(workerKey);
-              while (com.revolsys.util.Property.hasValue(waitingWorkers) && threads < maxThreads) {
+              while (Property.hasValue(waitingWorkers) && threads < maxThreads) {
                 final SwingWorker<?, ?> nextWorker = waitingWorkers.remove(0);
                 Maps.addCount(WORKER_COUNTS, workerKey);
                 nextWorker.execute();

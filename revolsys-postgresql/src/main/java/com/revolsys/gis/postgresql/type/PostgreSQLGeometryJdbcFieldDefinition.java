@@ -13,6 +13,7 @@ import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.jdbc.field.JdbcFieldDefinition;
 import com.revolsys.record.query.ColumnIndexes;
 import com.revolsys.record.schema.RecordDefinition;
+import com.revolsys.util.Property;
 
 public class PostgreSQLGeometryJdbcFieldDefinition extends JdbcFieldDefinition {
   private final int axisCount;
@@ -55,7 +56,7 @@ public class PostgreSQLGeometryJdbcFieldDefinition extends JdbcFieldDefinition {
       BoundingBox boundingBox = (BoundingBox)value;
       boundingBox = boundingBox.bboxToCs(geometryFactory);
       return new PostgreSQLBoundingBoxWrapper(boundingBox);
-    } else if (com.revolsys.util.Property.hasValue(value)) {
+    } else if (Property.hasValue(value)) {
       return value;
     } else {
       return null;

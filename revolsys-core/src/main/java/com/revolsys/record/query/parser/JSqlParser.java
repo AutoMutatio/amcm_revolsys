@@ -33,6 +33,7 @@ import com.revolsys.record.query.Subtract;
 import com.revolsys.record.query.Value;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
+import com.revolsys.util.Property;
 
 import net.sf.jsqlparser.expression.BinaryExpression;
 import net.sf.jsqlparser.expression.CastExpression;
@@ -386,7 +387,7 @@ public class JSqlParser extends AbstractSqlParser {
 
   @Override
   public Condition whereToCondition(final String whereClause) {
-    if (com.revolsys.util.Property.hasValue(whereClause)) {
+    if (Property.hasValue(whereClause)) {
       final String sql = this.sqlPrefix + " (" + "\n" + whereClause + "\n)";
       try {
         final Statement statement = CCJSqlParserUtil.parse(sql);

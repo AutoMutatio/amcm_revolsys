@@ -14,6 +14,7 @@ import com.revolsys.exception.Exceptions;
 import com.revolsys.number.Integers;
 import com.revolsys.number.Numbers;
 import com.revolsys.util.CaseConverter;
+import com.revolsys.util.Property;
 
 public class Slider extends JSlider implements Field, FocusListener, ChangeListener {
   public static final Color DEFAULT_SELECTED_FOREGROUND = new JTextField().getSelectedTextColor();
@@ -41,7 +42,7 @@ public class Slider extends JSlider implements Field, FocusListener, ChangeListe
   public Slider(final String fieldName, final int orientation, final int min, final int max,
     final int value) {
     super(orientation, min, max, value);
-    if (com.revolsys.util.Property.hasValue(fieldName)) {
+    if (Property.hasValue(fieldName)) {
       setToolTipText(CaseConverter.toCapitalizedWords(fieldName));
     }
     this.fieldSupport = new FieldSupport(this, fieldName, value, true);

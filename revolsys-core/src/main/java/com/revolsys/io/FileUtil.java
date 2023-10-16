@@ -50,6 +50,7 @@ import com.revolsys.io.filter.PatternFilenameFilter;
 import com.revolsys.logging.Logs;
 import com.revolsys.spring.resource.PathResource;
 import com.revolsys.spring.resource.Resource;
+import com.revolsys.util.Property;
 import com.revolsys.util.UrlUtil;
 
 /**
@@ -519,7 +520,7 @@ public final class FileUtil {
 
   public static List<String> getFileNameExtensions(final String fileName) {
     final List<String> extensions = new ArrayList<>();
-    if (com.revolsys.util.Property.hasValue(fileName)) {
+    if (Property.hasValue(fileName)) {
       int startIndex = fileName.indexOf("/");
       if (startIndex == -1) {
         startIndex = 0;
@@ -636,7 +637,7 @@ public final class FileUtil {
   }
 
   public static File getUrlFile(final String url) {
-    if (com.revolsys.util.Property.hasValue(url)) {
+    if (Property.hasValue(url)) {
       if (url.startsWith("file:") || url.startsWith("folderconnection:")) {
         try {
           final URI uri = new URI(url);

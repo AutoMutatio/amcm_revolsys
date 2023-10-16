@@ -28,7 +28,7 @@ public final class HtmlUtil {
   public static void elementWithId(final XmlWriter writer, final QName tag, final String id,
     final Object content) {
     writer.startTag(tag);
-    if (com.revolsys.util.Property.hasValue(id)) {
+    if (Property.hasValue(id)) {
       writer.attribute(HtmlAttr.ID, id.replaceAll("[^A-Za-z0-9\\-:.]", "_"));
     }
     writer.text(content);
@@ -63,7 +63,7 @@ public final class HtmlUtil {
     out.attribute(HtmlAttr.TYPE, type);
     out.attribute(HtmlAttr.VALUE, value);
     out.attribute(HtmlAttr.CLASS, cssClass);
-    if (com.revolsys.util.Property.hasValue(text)) {
+    if (Property.hasValue(text)) {
       out.text(text);
     }
     out.endTag(HtmlElem.BUTTON);
@@ -180,7 +180,7 @@ public final class HtmlUtil {
   }
 
   public static void serializeImage(final XmlWriter out, final String src, final String title) {
-    if (com.revolsys.util.Property.hasValue(src)) {
+    if (Property.hasValue(src)) {
       out.startTag(HtmlElem.IMG);
       out.attribute(HtmlAttr.SRC, src);
       out.attribute(HtmlAttr.ALT, title);
@@ -191,7 +191,7 @@ public final class HtmlUtil {
 
   public static void serializeImage(final XmlWriter out, final String src, final String title,
     final String cssClass) {
-    if (com.revolsys.util.Property.hasValue(src)) {
+    if (Property.hasValue(src)) {
       out.startTag(HtmlElem.IMG);
       out.attribute(HtmlAttr.SRC, src);
       if (title != null) {
@@ -204,7 +204,7 @@ public final class HtmlUtil {
   }
 
   public static void serializeP(final XmlWriter out, final String cssClass, final String text) {
-    if (com.revolsys.util.Property.hasValue(text)) {
+    if (Property.hasValue(text)) {
       out.startTag(HtmlElem.P);
       out.attribute(HtmlAttr.CLASS, cssClass);
       out.text(text);

@@ -346,7 +346,7 @@ public final class UrlUtil {
   @SuppressWarnings("unchecked")
   public static Map<String, Object> getQueryStringMap(final String queryString) {
     final MapEx map = JsonObject.hash();
-    if (com.revolsys.util.Property.hasValue(queryString)) {
+    if (Property.hasValue(queryString)) {
       for (final String part : queryString.split("\\&")) {
         final int equalsIndex = part.indexOf("=");
         if (equalsIndex > -1) {
@@ -398,7 +398,7 @@ public final class UrlUtil {
   }
 
   public static URL getUrl(final String urlString) {
-    if (com.revolsys.util.Property.isEmpty(urlString)) {
+    if (Property.isEmpty(urlString)) {
       return null;
     } else {
       try {
@@ -439,7 +439,7 @@ public final class UrlUtil {
         url = baseUrl + '?' + query;
       }
     }
-    if (com.revolsys.util.Property.hasValue(fragment)) {
+    if (Property.hasValue(fragment)) {
       return url + "#" + fragment;
     } else {
       return url;

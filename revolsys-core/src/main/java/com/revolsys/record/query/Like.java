@@ -2,6 +2,7 @@ package com.revolsys.record.query;
 
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.data.type.DataType;
+import com.revolsys.util.Property;
 
 public class Like extends BinaryCondition {
 
@@ -52,8 +53,8 @@ public class Like extends BinaryCondition {
     final QueryValue right = getRight();
     String value2 = right.getStringValue(record);
 
-    if (com.revolsys.util.Property.hasValue(value1)) {
-      if (com.revolsys.util.Property.hasValue(value2)) {
+    if (Property.hasValue(value1)) {
+      if (Property.hasValue(value2)) {
         if (value2.contains("%")) {
           value2 = toPattern(value2);
           if (value1.matches(value2)) {

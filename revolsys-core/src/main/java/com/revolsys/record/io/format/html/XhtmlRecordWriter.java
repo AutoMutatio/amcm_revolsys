@@ -15,6 +15,7 @@ import com.revolsys.util.CaseConverter;
 import com.revolsys.util.HtmlAttr;
 import com.revolsys.util.HtmlElem;
 import com.revolsys.util.HtmlUtil;
+import com.revolsys.util.Property;
 
 public class XhtmlRecordWriter extends AbstractRecordWriter {
 
@@ -150,7 +151,7 @@ public class XhtmlRecordWriter extends AbstractRecordWriter {
       this.out.attribute(HtmlAttr.CONTENT, "text/html; charset=utf-8");
       this.out.endTag(HtmlElem.META);
 
-      if (com.revolsys.util.Property.hasValue(this.title)) {
+      if (Property.hasValue(this.title)) {
         this.out.element(HtmlElem.TITLE, this.title);
       }
 

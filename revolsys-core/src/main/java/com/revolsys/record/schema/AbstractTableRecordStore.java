@@ -42,6 +42,7 @@ import com.revolsys.record.query.Query;
 import com.revolsys.record.query.QueryValue;
 import com.revolsys.record.query.TableReference;
 import com.revolsys.record.query.UpdateStatement;
+import com.revolsys.util.Property;
 
 public class AbstractTableRecordStore implements RecordDefinitionProxy {
 
@@ -135,7 +136,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
   }
 
   public void addQueryOrderBy(final Query query, final String orderBy) {
-    if (com.revolsys.util.Property.hasValue(orderBy)) {
+    if (Property.hasValue(orderBy)) {
       for (String orderClause : orderBy.split(",")) {
         orderClause = orderClause.strip();
         String fieldName;
@@ -368,7 +369,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
   }
 
   public Condition newODataFilter(String filter) {
-    if (com.revolsys.util.Property.hasValue(filter)) {
+    if (Property.hasValue(filter)) {
       filter = filter.replace("%2B", "+");
       final TableReference table = getTable();
       return (Condition)ODataParser.parseFilter(table, filter);
@@ -409,7 +410,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
 
     final Query query = newQuery(connection).setOffset(skip).setLimit(top);
 
-    if (com.revolsys.util.Property.hasValue(select)) {
+    if (Property.hasValue(select)) {
       for (String selectItem : select.split(",")) {
         selectItem = selectItem.strip();
         addSelect(connection, query, selectItem);
@@ -441,7 +442,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
       final Record record = newRecord();
       for (final String fieldName : values.keySet()) {
         final Object value = values.getValue(fieldName);
-        if (com.revolsys.util.Property.hasValue(value)) {
+        if (Property.hasValue(value)) {
           record.setValue(fieldName, value);
         }
       }

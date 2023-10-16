@@ -29,6 +29,7 @@ import com.revolsys.swing.menu.MenuFactory;
 import com.revolsys.util.BaseCloneable;
 import com.revolsys.util.BooleanCancellable;
 import com.revolsys.util.Cancellable;
+import com.revolsys.util.Property;
 
 public class TiledMultipleGriddedElevationModelLayerRenderer
   extends AbstractTiledLayerRenderer<GriddedElevationModel, TiledGriddedElevationModelLayerTile>
@@ -293,7 +294,7 @@ public class TiledMultipleGriddedElevationModelLayerRenderer
   }
 
   public void setStyles(final List<?> styles) {
-    if (com.revolsys.util.Property.hasValue(styles)) {
+    if (Property.hasValue(styles)) {
       final List<AbstractGriddedElevationModelLayerRenderer> renderers = new ArrayList<>();
       for (final Object childStyle : styles) {
         if (childStyle instanceof AbstractGriddedElevationModelLayerRenderer) {

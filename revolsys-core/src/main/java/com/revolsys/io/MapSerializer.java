@@ -15,12 +15,13 @@ import com.revolsys.collection.json.Jsonable;
 import com.revolsys.collection.list.Lists;
 import com.revolsys.data.type.DataType;
 import com.revolsys.data.type.DataTypes;
+import com.revolsys.util.Property;
 
 public interface MapSerializer extends Jsonable {
   static String TYPE = "j:type";
 
   static void setType(final Map<String, ? super Object> map, final String type) {
-    if (com.revolsys.util.Property.hasValue(type)) {
+    if (Property.hasValue(type)) {
       map.put(TYPE, type);
     }
   }
@@ -47,7 +48,7 @@ public interface MapSerializer extends Jsonable {
   default void addToMap(final JsonObject map, final CharSequence name, final Object value) {
     if (name != null) {
       final Object mapValue = toMapValue(value);
-      if (com.revolsys.util.Property.hasValue(mapValue)) {
+      if (Property.hasValue(mapValue)) {
         map.put(name.toString(), mapValue);
       } else {
         map.remove(name);
@@ -61,7 +62,7 @@ public interface MapSerializer extends Jsonable {
       map.remove(name);
     } else {
       final Object mapValue = toMapValue(value);
-      if (com.revolsys.util.Property.hasValue(mapValue) || defaultValue == null) {
+      if (Property.hasValue(mapValue) || defaultValue == null) {
         map.put(name, mapValue);
       } else {
         map.remove(name);
@@ -159,7 +160,7 @@ public interface MapSerializer extends Jsonable {
         return value;
       } else if (value instanceof String) {
         final String string = (String)value;
-        if (com.revolsys.util.Property.hasValue(string)) {
+        if (Property.hasValue(string)) {
           return string.strip();
         } else {
           return null;
@@ -170,7 +171,7 @@ public interface MapSerializer extends Jsonable {
         return null;
       } else {
         final String string = DataTypes.toString(value);
-        if (com.revolsys.util.Property.hasValue(string)) {
+        if (Property.hasValue(string)) {
           return string.strip();
         } else {
           return null;

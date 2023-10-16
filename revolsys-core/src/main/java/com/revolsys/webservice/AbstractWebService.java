@@ -7,6 +7,7 @@ import com.revolsys.collection.map.MapEx;
 import com.revolsys.properties.BaseObjectWithProperties;
 import com.revolsys.spring.resource.UrlResource;
 import com.revolsys.util.PasswordUtil;
+import com.revolsys.util.Property;
 
 public abstract class AbstractWebService<V> extends BaseObjectWithProperties
   implements WebService<V> {
@@ -105,11 +106,11 @@ public abstract class AbstractWebService<V> extends BaseObjectWithProperties
 
   public void setServiceUrl(final UrlResource serviceUrl) {
     final String username = serviceUrl.getUsername();
-    if (com.revolsys.util.Property.hasValue(username)) {
+    if (Property.hasValue(username)) {
       this.username = username;
     }
     final String password = serviceUrl.getPassword();
-    if (com.revolsys.util.Property.hasValue(password)) {
+    if (Property.hasValue(password)) {
       this.password = password;
     }
     this.serviceUrl = serviceUrl.newUrlResourceAuthorization(this.username, this.password);

@@ -525,7 +525,7 @@ public class RecordLayerTableModel extends RecordRowTableModel
         final Object oldValue = this.filter;
         this.filter = filter;
         updateFilterQuery();
-        if (com.revolsys.util.Property.isEmpty(filter)) {
+        if (Property.isEmpty(filter)) {
           this.rowFilterCondition = null;
         } else {
           this.rowFilterCondition = new RecordRowPredicateRowFilter(filter);
@@ -614,7 +614,7 @@ public class RecordLayerTableModel extends RecordRowTableModel
   }
 
   private void setOrderByInternal(final Map<? extends CharSequence, Boolean> orderBy) {
-    if (com.revolsys.util.Property.hasValue(orderBy)) {
+    if (Property.hasValue(orderBy)) {
       this.orderBy = orderBy;
       this.orderByComparatorIdentifier = Records.newComparatorOrderBy(orderBy);
     } else {
@@ -634,7 +634,7 @@ public class RecordLayerTableModel extends RecordRowTableModel
       final SortOrder sortOrder = super.setSortOrder(columnIndex);
       if (sortOrder != SortOrder.UNSORTED) {
         final FieldDefinition fieldName = getColumnFieldDefinition(columnIndex);
-        if (com.revolsys.util.Property.hasValue(fieldName)) {
+        if (Property.hasValue(fieldName)) {
           Map<FieldDefinition, Boolean> orderBy = null;
           if (sortOrder == SortOrder.ASCENDING) {
             orderBy = Collections.singletonMap(fieldName, true);

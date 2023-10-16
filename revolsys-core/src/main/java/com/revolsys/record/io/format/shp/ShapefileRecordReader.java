@@ -27,6 +27,7 @@ import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordDefinitionImpl;
 import com.revolsys.spring.resource.Resource;
 import com.revolsys.util.BaseCloseable;
+import com.revolsys.util.Property;
 
 public class ShapefileRecordReader extends AbstractIterator<Record> implements RecordReader {
   private boolean closeFile = true;
@@ -165,7 +166,7 @@ public class ShapefileRecordReader extends AbstractIterator<Record> implements R
         final Resource xbaseResource = this.resource.newResourceChangeExtension("dbf");
         if (xbaseResource != null && xbaseResource.exists()) {
           this.xbaseRecordReader = new XbaseRecordReader(xbaseResource, this.recordFactory,
-            () -> updateRecordDefinition());
+            this::updateRecordDefinition);
           this.xbaseRecordReader.setTypeName(this.typeName);
           this.xbaseRecordReader.setCloseFile(this.closeFile);
         }
@@ -331,7 +332,7 @@ public class ShapefileRecordReader extends AbstractIterator<Record> implements R
   }
 
   public void setTypeName(final PathName typeName) {
-    if (com.revolsys.util.Property.hasValue(typeName)) {
+    if (Property.hasValue(typeName)) {
       this.typeName = typeName;
     }
   }

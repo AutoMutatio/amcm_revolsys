@@ -29,6 +29,7 @@ import com.revolsys.swing.dnd.ClipboardUtil;
 import com.revolsys.swing.layout.GroupLayouts;
 import com.revolsys.swing.parallel.Invoke;
 import com.revolsys.util.CaseConverter;
+import com.revolsys.util.Property;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.spi.ILoggingEvent;
@@ -44,7 +45,7 @@ public class LoggingEventPanel extends JPanel {
 
   private static void addField(final JPanel panel, final String fieldName, final Object value,
     final boolean useScrollPane) {
-    if (com.revolsys.util.Property.hasValue(value)) {
+    if (Property.hasValue(value)) {
       addLabel(panel, fieldName);
 
       String stringValue = DataTypes.toString(value);
@@ -227,7 +228,7 @@ public class LoggingEventPanel extends JPanel {
       this.copyText.append(message);
     }
 
-    if (com.revolsys.util.Property.hasValue(stackTrace)) {
+    if (Property.hasValue(stackTrace)) {
       addField(this, "Stack Trace", stackTrace, true);
       if (this.copyText.length() > 0) {
         this.copyText.append("\n");

@@ -4,6 +4,7 @@ import javax.swing.ListModel;
 import javax.swing.RowFilter;
 
 import com.revolsys.data.type.DataTypes;
+import com.revolsys.util.Property;
 
 public class StringContainsRowFilter extends RowFilter<ListModel, Integer> {
 
@@ -29,8 +30,8 @@ public class StringContainsRowFilter extends RowFilter<ListModel, Integer> {
     final Integer identifier = entry.getIdentifier();
     final Object value = entry.getValue(identifier);
     final String string = DataTypes.toString(value);
-    if (com.revolsys.util.Property.hasValue(this.filterText)) {
-      if (com.revolsys.util.Property.hasValue(string)) {
+    if (Property.hasValue(this.filterText)) {
+      if (Property.hasValue(string)) {
         return string.toUpperCase().contains(this.filterText) == this.match;
       } else {
         return false;

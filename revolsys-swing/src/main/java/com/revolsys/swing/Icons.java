@@ -25,6 +25,7 @@ import com.revolsys.logging.Logs;
 import com.revolsys.raster.BufferedImages;
 import com.revolsys.util.IconNameProxy;
 import com.revolsys.util.OS;
+import com.revolsys.util.Property;
 
 public class Icons {
   public static final String BADGE_FOLDER = "/com/revolsys/famfamfam/silk/badges/";
@@ -202,7 +203,7 @@ public class Icons {
 
   public static Icon getIcon(final IconNameProxy iconNameProxy) {
     final String iconName = iconNameProxy.getIconName();
-    if (com.revolsys.util.Property.hasValue(iconName)) {
+    if (Property.hasValue(iconName)) {
       return getIcon(iconName);
     } else {
       return null;
@@ -210,7 +211,7 @@ public class Icons {
   }
 
   public static Icon getIcon(final String imageName) {
-    if (com.revolsys.util.Property.hasValue(imageName)) {
+    if (Property.hasValue(imageName)) {
       Icon icon = ICON_CACHE.get(imageName);
       if (icon == null) {
         final String[] parts = imageName.split(":");

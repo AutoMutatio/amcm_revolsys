@@ -42,6 +42,7 @@ import com.revolsys.connection.file.FolderConnectionRegistry;
 import com.revolsys.exception.Exceptions;
 import com.revolsys.io.FileNames;
 import com.revolsys.logging.Logs;
+import com.revolsys.util.Property;
 import com.revolsys.util.UrlUtil;
 
 public interface Paths {
@@ -327,7 +328,7 @@ public interface Paths {
   }
 
   static Path getPath(final String name) {
-    if (com.revolsys.util.Property.hasValue(name)) {
+    if (Property.hasValue(name)) {
       final Path path = java.nio.file.Paths.get(name);
       return getPath(path);
     } else {

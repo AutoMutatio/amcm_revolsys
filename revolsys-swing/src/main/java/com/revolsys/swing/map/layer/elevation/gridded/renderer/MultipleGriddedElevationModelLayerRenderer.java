@@ -20,6 +20,7 @@ import com.revolsys.swing.map.layer.elevation.gridded.GriddedElevationModelLayer
 import com.revolsys.swing.map.view.ViewRenderer;
 import com.revolsys.swing.menu.MenuFactory;
 import com.revolsys.util.BaseCloneable;
+import com.revolsys.util.Property;
 
 public class MultipleGriddedElevationModelLayerRenderer
   extends AbstractGriddedElevationModelLayerRenderer
@@ -228,7 +229,7 @@ public class MultipleGriddedElevationModelLayerRenderer
   }
 
   public void setStyles(final List<?> styles) {
-    if (com.revolsys.util.Property.hasValue(styles)) {
+    if (Property.hasValue(styles)) {
       final List<AbstractGriddedElevationModelLayerRenderer> renderers = new ArrayList<>();
       for (final Object childStyle : styles) {
         if (childStyle instanceof AbstractGriddedElevationModelLayerRenderer) {

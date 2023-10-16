@@ -5,6 +5,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import com.revolsys.util.Property;
+
 public interface PathUtil {
   public static String clean(final String path) {
     if (path == null) {
@@ -236,7 +238,7 @@ public interface PathUtil {
         if (part != null) {
           part = part.replaceAll("^/*", "");
           part = part.replaceAll("/*", "");
-          if (com.revolsys.util.Property.hasValue(part)) {
+          if (Property.hasValue(part)) {
             path.append('/');
             path.append(part);
           }

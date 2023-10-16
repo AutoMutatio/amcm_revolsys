@@ -13,6 +13,7 @@ import com.revolsys.geometry.model.vertex.Vertex;
 import com.revolsys.swing.map.layer.record.style.MarkerStyle;
 import com.revolsys.swing.map.view.ViewRenderer;
 import com.revolsys.util.BaseCloseable;
+import com.revolsys.util.Property;
 
 public abstract class AbstractMarkerRenderer implements MarkerRenderer {
 
@@ -98,7 +99,7 @@ public abstract class AbstractMarkerRenderer implements MarkerRenderer {
   @Override
   public void renderMarkerSegments(Geometry geometry) {
     geometry = this.view.getGeometry(geometry);
-    if (com.revolsys.util.Property.hasValue(geometry)) {
+    if (Property.hasValue(geometry)) {
       final String orientationType = this.style.getMarkerOrientationType();
       if ("none".equals(orientationType)) {
         for (final Segment segment : geometry.segments()) {
@@ -120,7 +121,7 @@ public abstract class AbstractMarkerRenderer implements MarkerRenderer {
   @Override
   public void renderMarkerVertices(Geometry geometry) {
     geometry = this.view.getGeometry(geometry);
-    if (com.revolsys.util.Property.hasValue(geometry)) {
+    if (Property.hasValue(geometry)) {
       final String orientationType = this.style.getMarkerOrientationType();
       if ("none".equals(orientationType)) {
         renderMarkers(geometry.vertices());

@@ -2,6 +2,7 @@ package com.revolsys.geometry.index;
 
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.util.RectangleUtil;
+import com.revolsys.util.Property;
 
 public class BoundingBoxNode {
   private double maxX;
@@ -114,7 +115,7 @@ public class BoundingBoxNode {
   }
 
   public boolean intersectsBoundingBox(final BoundingBox boundingBox) {
-    if (com.revolsys.util.Property.isEmpty(boundingBox)) {
+    if (Property.isEmpty(boundingBox)) {
       return false;
     } else {
       final double minX = boundingBox.getMinX();

@@ -31,6 +31,7 @@ import com.revolsys.logging.Logs;
 import com.revolsys.number.Doubles;
 import com.revolsys.record.io.format.wkt.WktParser;
 import com.revolsys.util.Emptyable;
+import com.revolsys.util.Property;
 import com.revolsys.util.QuantityType;
 
 import tech.units.indriya.quantity.Quantities;
@@ -97,7 +98,7 @@ public interface BoundingBox
   }
 
   static BoundingBox bboxNew(final String wkt) {
-    if (com.revolsys.util.Property.hasValue(wkt)) {
+    if (Property.hasValue(wkt)) {
       try {
         int coordinateSystemId = 0;
         final PushbackReader reader = new PushbackReader(new StringReader(wkt), 20);
@@ -898,7 +899,7 @@ public interface BoundingBox
 
   default <Q extends Quantity<Q>> Quantity<Q> getMaximum(final int axisIndex) {
     final Unit<Q> unit = getUnit();
-    final double max = this.getMax(axisIndex);
+    final double max = getMax(axisIndex);
     return Quantities.getQuantity(max, unit);
   }
 
@@ -940,7 +941,7 @@ public interface BoundingBox
 
   default <Q extends Quantity<Q>> Quantity<Q> getMinimum(final int axisIndex) {
     final Unit<Q> unit = getUnit();
-    final double min = this.getMin(axisIndex);
+    final double min = getMin(axisIndex);
     return Quantities.getQuantity(min, unit);
   }
 

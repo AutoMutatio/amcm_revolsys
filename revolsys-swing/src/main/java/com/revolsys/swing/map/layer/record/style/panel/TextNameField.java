@@ -57,7 +57,7 @@ public class TextNameField extends ValueField {
 
   public void addFieldName() {
     final String selectedFieldName = this.fieldNamesField.getSelectedItem();
-    if (com.revolsys.util.Property.hasValue(selectedFieldName)) {
+    if (Property.hasValue(selectedFieldName)) {
       final int position = this.textNameField.getCaretPosition();
       final Document document = this.textNameField.getDocument();
       try {
