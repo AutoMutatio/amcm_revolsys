@@ -282,6 +282,12 @@ public class Json {
     DataTypes.registerDataTypes(Json.class);
   }
 
+  public static final String FILE_EXTENSION = "json";
+
+  public static final String MIME_TYPE = "application/json";
+
+  public static final String MIME_TYPE_UTF8 = "application/json;charset=utf-8";
+
   public static JsonObject clone(final JsonObject object) {
     if (object == null) {
       return null;
@@ -445,11 +451,5 @@ public class Json {
       throw e;
     }
   }
-
-  public static final String FILE_EXTENSION = "json";
-
-  public static final String MIME_TYPE = "application/json";
-
-  public static final String MIME_TYPE_UTF8 = "application/json;charset=utf-8";
 
 }

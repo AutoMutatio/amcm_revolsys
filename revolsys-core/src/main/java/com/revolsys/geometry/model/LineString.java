@@ -2079,8 +2079,7 @@ public interface LineString extends Lineal {
   }
 
   default LineString merge(final Point point, final LineString line2) {
-    if (isEmpty() || Property.isEmpty(line2)
-      || Property.isEmpty(point)) {
+    if (isEmpty() || Property.isEmpty(line2) || Property.isEmpty(point)) {
       return newLineStringEmpty();
     } else {
       final int axisCount = Math.max(getAxisCount(), line2.getAxisCount());

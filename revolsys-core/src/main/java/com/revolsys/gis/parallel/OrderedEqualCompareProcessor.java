@@ -353,8 +353,7 @@ public class OrderedEqualCompareProcessor extends AbstractInProcess<Record> {
         return false;
       }
     } else if (value1 instanceof String && value2 instanceof String) {
-      if (!Property.hasValue((String)value1)
-        && !Property.hasValue((String)value2)) {
+      if (!Property.hasValue((String)value1) && !Property.hasValue((String)value2)) {
         return true;
       }
     }
