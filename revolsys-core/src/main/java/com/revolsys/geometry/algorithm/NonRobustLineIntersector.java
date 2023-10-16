@@ -32,7 +32,7 @@
  */
 package com.revolsys.geometry.algorithm;
 
-import com.revolsys.common.number.Doubles;
+import com.revolsys.number.Doubles;
 
 /**
  * A non-robust version of {@link LineIntersector}.

@@ -29,13 +29,13 @@ import java.util.Map;
 
 import javax.xml.namespace.QName;
 
-import com.revolsys.common.number.Doubles;
-import com.revolsys.common.number.Floats;
-import com.revolsys.common.number.Numbers;
 import com.revolsys.data.type.DataTypes;
 import com.revolsys.exception.Exceptions;
 import com.revolsys.io.FileUtil;
 import com.revolsys.logging.Logs;
+import com.revolsys.number.Doubles;
+import com.revolsys.number.Floats;
+import com.revolsys.number.Numbers;
 import com.revolsys.util.Property;
 
 /**

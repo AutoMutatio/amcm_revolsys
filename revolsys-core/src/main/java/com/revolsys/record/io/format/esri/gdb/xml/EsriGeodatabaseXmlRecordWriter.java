@@ -5,7 +5,6 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.util.UUID;
 
-import com.revolsys.common.number.Doubles;
 import com.revolsys.data.type.DataType;
 import com.revolsys.data.type.DataTypes;
 import com.revolsys.date.Dates;
@@ -20,6 +19,7 @@ import com.revolsys.geometry.model.Punctual;
 import com.revolsys.io.AbstractRecordWriter;
 import com.revolsys.io.PathUtil;
 import com.revolsys.logging.Logs;
+import com.revolsys.number.Doubles;
 import com.revolsys.record.Record;
 import com.revolsys.record.io.format.esri.gdb.xml.type.EsriGeodatabaseXmlFieldType;
 import com.revolsys.record.io.format.esri.gdb.xml.type.EsriGeodatabaseXmlFieldTypeRegistry;

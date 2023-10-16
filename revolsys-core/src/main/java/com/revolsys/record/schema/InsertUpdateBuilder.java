@@ -73,7 +73,6 @@ public abstract class InsertUpdateBuilder {
 
   public abstract Record executeDo(Supplier<Transaction> transactionSupplier);
 
-
   public Query getQuery() {
     return this.query;
   }

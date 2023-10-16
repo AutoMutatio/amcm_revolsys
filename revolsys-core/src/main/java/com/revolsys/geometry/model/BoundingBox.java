@@ -16,7 +16,6 @@ import javax.measure.Quantity;
 import javax.measure.Unit;
 import javax.measure.quantity.Length;
 
-import com.revolsys.common.number.Doubles;
 import com.revolsys.data.type.DataTypes;
 import com.revolsys.exception.Exceptions;
 import com.revolsys.function.Consumer3;
@@ -29,6 +28,7 @@ import com.revolsys.geometry.model.impl.RectangleXY;
 import com.revolsys.geometry.util.OutCode;
 import com.revolsys.geometry.util.Points;
 import com.revolsys.logging.Logs;
+import com.revolsys.number.Doubles;
 import com.revolsys.record.io.format.wkt.WktParser;
 import com.revolsys.util.Emptyable;
 import com.revolsys.util.Property;

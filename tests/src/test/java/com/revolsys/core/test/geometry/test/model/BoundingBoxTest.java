@@ -11,7 +11,6 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.revolsys.collection.list.Lists;
-import com.revolsys.common.number.Doubles;
 import com.revolsys.core.test.geometry.test.TestConstants;
 import com.revolsys.geometry.coordinatesystem.model.CoordinateSystem;
 import com.revolsys.geometry.coordinatesystem.model.systems.EpsgId;
@@ -26,6 +25,7 @@ import com.revolsys.geometry.model.Punctual;
 import com.revolsys.geometry.model.impl.BoundingBoxDoubleXY;
 import com.revolsys.geometry.model.impl.PointDouble;
 import com.revolsys.geometry.util.RectangleUtil;
+import com.revolsys.number.Doubles;
 import com.revolsys.testapi.GeometryAssert;
 import com.revolsys.util.QuantityType;
 

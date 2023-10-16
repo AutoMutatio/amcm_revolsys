@@ -1,9 +1,9 @@
 package com.revolsys.geometry.index.quadtree;
 
-import com.revolsys.common.number.Doubles;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.vertex.Vertex;
 import com.revolsys.geometry.util.RectangleUtil;
+import com.revolsys.number.Doubles;
 import com.revolsys.util.Property;
 
 public class GeometryVertexQuadTree extends IdObjectQuadTree<Vertex> {

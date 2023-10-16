@@ -9,7 +9,7 @@ import java.text.FieldPosition;
 import java.text.NumberFormat;
 import java.util.Locale;
 
-import com.revolsys.common.number.Doubles;
+import com.revolsys.number.Doubles;
 
 /**
    Jama = Java Matrix class.

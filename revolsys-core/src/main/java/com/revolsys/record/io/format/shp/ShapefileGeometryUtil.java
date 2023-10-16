@@ -8,7 +8,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.revolsys.common.number.Doubles;
 import com.revolsys.data.type.DataType;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.Geometry;
@@ -24,6 +23,7 @@ import com.revolsys.geometry.model.impl.LineStringDouble;
 import com.revolsys.geometry.model.vertex.Vertex;
 import com.revolsys.io.endian.EndianInput;
 import com.revolsys.io.endian.EndianOutput;
+import com.revolsys.number.Doubles;
 import com.revolsys.util.JavaBeanUtil;
 
 public final class ShapefileGeometryUtil {

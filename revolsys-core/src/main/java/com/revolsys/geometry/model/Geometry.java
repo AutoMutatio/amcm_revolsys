@@ -46,7 +46,6 @@ import javax.measure.Unit;
 import javax.measure.quantity.Area;
 import javax.measure.quantity.Length;
 
-import com.revolsys.common.number.Doubles;
 import com.revolsys.data.type.DataTypeProxy;
 import com.revolsys.data.type.DataTypes;
 import com.revolsys.function.BiConsumerDouble;
@@ -78,6 +77,7 @@ import com.revolsys.geometry.operation.relate.RelateOp;
 import com.revolsys.geometry.operation.union.UnaryUnionOp;
 import com.revolsys.geometry.operation.valid.GeometryValidationError;
 import com.revolsys.geometry.operation.valid.IsValidOp;
+import com.revolsys.number.Doubles;
 import com.revolsys.record.io.format.wkt.EWktWriter;
 import com.revolsys.util.Emptyable;
 import com.revolsys.util.Pair;

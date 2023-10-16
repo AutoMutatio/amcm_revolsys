@@ -9,9 +9,9 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.UUID;
 
-import com.revolsys.common.number.Numbers;
 import com.revolsys.comparator.CompareUtil;
 import com.revolsys.data.type.DataTypes;
+import com.revolsys.number.Numbers;
 
 public interface Identifier {
   Identifier NULL = new SingleIdentifier(null);

@@ -13,7 +13,6 @@ import jakarta.annotation.PostConstruct;
 
 import com.revolsys.collection.ResultPager;
 import com.revolsys.collection.map.IntHashMap;
-import com.revolsys.common.number.Doubles;
 import com.revolsys.data.identifier.Identifier;
 import com.revolsys.data.type.DataTypes;
 import com.revolsys.geometry.coordinatesystem.io.WktCsParser;
@@ -28,6 +27,7 @@ import com.revolsys.jdbc.field.JdbcFieldDefinition;
 import com.revolsys.jdbc.io.AbstractJdbcRecordStore;
 import com.revolsys.jdbc.io.JdbcRecordDefinition;
 import com.revolsys.logging.Logs;
+import com.revolsys.number.Doubles;
 import com.revolsys.oracle.recordstore.esri.ArcSdeStGeometryFieldDefinition;
 import com.revolsys.oracle.recordstore.esri.ArcSdeStGeometryRecordStoreExtension;
 import com.revolsys.oracle.recordstore.field.OracleBlobFieldAdder;

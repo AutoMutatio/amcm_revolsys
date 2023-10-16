@@ -3,7 +3,7 @@ package com.revolsys.comparator;
 import java.math.BigDecimal;
 import java.util.Comparator;
 
-import com.revolsys.common.number.BigDecimals;
+import com.revolsys.number.BigDecimals;
 
 public class NumericComparator<T> implements Comparator<T> {
 

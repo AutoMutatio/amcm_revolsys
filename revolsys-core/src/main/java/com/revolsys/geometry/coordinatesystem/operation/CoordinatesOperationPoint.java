@@ -1,7 +1,7 @@
 package com.revolsys.geometry.coordinatesystem.operation;
 
-import com.revolsys.common.number.Doubles;
 import com.revolsys.function.BiConsumerDouble;
+import com.revolsys.number.Doubles;
 
 public class CoordinatesOperationPoint {
   public double x;

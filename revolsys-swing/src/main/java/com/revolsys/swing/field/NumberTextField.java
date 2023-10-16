@@ -11,11 +11,11 @@ import javax.swing.event.DocumentListener;
 import org.jdesktop.swingx.JXTextField;
 
 import com.revolsys.awt.WebColors;
-import com.revolsys.common.number.BigDecimals;
-import com.revolsys.common.number.Numbers;
 import com.revolsys.data.type.DataType;
 import com.revolsys.data.type.DataTypes;
 import com.revolsys.exception.Exceptions;
+import com.revolsys.number.BigDecimals;
+import com.revolsys.number.Numbers;
 import com.revolsys.swing.SwingUtil;
 import com.revolsys.swing.listener.WeakFocusListener;
 import com.revolsys.swing.menu.MenuFactory;

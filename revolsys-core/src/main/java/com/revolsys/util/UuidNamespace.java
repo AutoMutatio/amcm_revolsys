@@ -5,8 +5,8 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.UUID;
 
-import com.revolsys.common.number.Longs;
 import com.revolsys.exception.Exceptions;
+import com.revolsys.number.Longs;
 
 public class UuidNamespace {
 

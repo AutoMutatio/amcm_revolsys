@@ -9,11 +9,11 @@ import java.util.Map;
 import java.util.Set;
 
 import com.revolsys.collection.list.Lists;
-import com.revolsys.common.number.Doubles;
-import com.revolsys.common.number.Numbers;
 import com.revolsys.data.type.DataTypes;
 import com.revolsys.exception.Exceptions;
 import com.revolsys.io.StringPrinter;
+import com.revolsys.number.Doubles;
+import com.revolsys.number.Numbers;
 
 public final class JsonWriterUtil {
   public static final String[] CHARACTER_ESCAPE;

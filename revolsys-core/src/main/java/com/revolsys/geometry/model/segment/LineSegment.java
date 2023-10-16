@@ -1,6 +1,5 @@
 package com.revolsys.geometry.model.segment;
 
-import com.revolsys.common.number.Doubles;
 import com.revolsys.function.BiFunctionDouble;
 import com.revolsys.function.Function4Double;
 import com.revolsys.geometry.algorithm.CGAlgorithms;
@@ -22,6 +21,7 @@ import com.revolsys.geometry.model.coordinates.list.CoordinatesListUtil;
 import com.revolsys.geometry.util.Points;
 import com.revolsys.geometry.util.RectangleUtil;
 import com.revolsys.math.Angle;
+import com.revolsys.number.Doubles;
 import com.revolsys.util.Property;
 
 public interface LineSegment extends LineString {

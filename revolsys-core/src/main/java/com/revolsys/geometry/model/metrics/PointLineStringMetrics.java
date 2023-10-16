@@ -1,7 +1,7 @@
 package com.revolsys.geometry.model.metrics;
 
-import com.revolsys.common.number.Doubles;
 import com.revolsys.geometry.model.Side;
+import com.revolsys.number.Doubles;
 
 public class PointLineStringMetrics {
 

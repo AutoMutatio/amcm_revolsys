@@ -23,7 +23,6 @@ import javax.measure.quantity.Length;
 
 import com.revolsys.awt.WebColors;
 import com.revolsys.collection.map.Maps;
-import com.revolsys.common.number.Doubles;
 import com.revolsys.data.type.DataType;
 import com.revolsys.geometry.coordinatesystem.model.unit.CustomUnits;
 import com.revolsys.geometry.model.Geometry;
@@ -36,6 +35,7 @@ import com.revolsys.geometry.model.Polygon;
 import com.revolsys.geometry.model.Punctual;
 import com.revolsys.geometry.model.editor.GeometryEditor;
 import com.revolsys.geometry.model.vertex.Vertex;
+import com.revolsys.number.Doubles;
 import com.revolsys.swing.Icons;
 import com.revolsys.swing.SwingUtil;
 import com.revolsys.swing.action.AbstractAction;

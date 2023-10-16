@@ -3,8 +3,8 @@ package com.revolsys.data.identifier;
 import java.util.Collections;
 import java.util.List;
 
-import com.revolsys.common.number.Integers;
-import com.revolsys.common.number.Longs;
+import com.revolsys.number.Integers;
+import com.revolsys.number.Longs;
 
 public class IntegerIdentifier extends Number implements Identifier, Comparable<Object> {
   private static final long serialVersionUID = 1L;

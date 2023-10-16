@@ -9,8 +9,6 @@ import java.util.zip.GZIPOutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import com.revolsys.common.number.Doubles;
-import com.revolsys.common.number.Integers;
 import com.revolsys.data.type.DataTypes;
 import com.revolsys.elevation.gridded.GriddedElevationModel;
 import com.revolsys.elevation.gridded.GriddedElevationModelWriter;
@@ -19,6 +17,8 @@ import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.io.AbstractWriter;
 import com.revolsys.io.FileUtil;
+import com.revolsys.number.Doubles;
+import com.revolsys.number.Integers;
 import com.revolsys.spring.resource.Resource;
 
 public class EsriAsciiGriddedElevationModelWriter extends AbstractWriter<GriddedElevationModel>

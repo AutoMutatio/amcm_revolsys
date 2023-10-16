@@ -16,11 +16,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
-import com.revolsys.common.number.Doubles;
-import com.revolsys.common.number.Integers;
 import com.revolsys.exception.WrappedException;
 import com.revolsys.io.FileUtil;
 import com.revolsys.logging.Logs;
+import com.revolsys.number.Doubles;
+import com.revolsys.number.Integers;
 import com.revolsys.spring.resource.Resource;
 
 public class JsonParser implements Iterator<JsonParser.EventType>, Closeable {

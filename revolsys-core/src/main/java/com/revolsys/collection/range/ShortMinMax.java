@@ -1,6 +1,6 @@
 package com.revolsys.collection.range;
 
-import com.revolsys.common.number.Shorts;
+import com.revolsys.number.Shorts;
 import com.revolsys.util.Emptyable;
 import com.revolsys.util.Property;
 

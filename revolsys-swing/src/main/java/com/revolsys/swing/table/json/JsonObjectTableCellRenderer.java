@@ -11,7 +11,7 @@ import javax.swing.table.TableCellRenderer;
 
 import org.jdesktop.swingx.JXTable;
 
-import com.revolsys.common.number.Numbers;
+import com.revolsys.number.Numbers;
 import com.revolsys.swing.SwingUtil;
 
 public class JsonObjectTableCellRenderer implements TableCellRenderer {

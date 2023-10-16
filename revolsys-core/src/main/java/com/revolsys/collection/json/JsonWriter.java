@@ -11,13 +11,13 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import com.revolsys.collection.list.Lists;
-import com.revolsys.common.number.Doubles;
-import com.revolsys.common.number.Numbers;
 import com.revolsys.data.type.DataType;
 import com.revolsys.data.type.DataTypes;
 import com.revolsys.exception.Exceptions;
 import com.revolsys.io.FileUtil;
 import com.revolsys.io.map.MapSerializer;
+import com.revolsys.number.Doubles;
+import com.revolsys.number.Numbers;
 import com.revolsys.record.Record;
 import com.revolsys.record.io.format.json.JsonStringEncodingWriter;
 import com.revolsys.record.schema.FieldDefinition;

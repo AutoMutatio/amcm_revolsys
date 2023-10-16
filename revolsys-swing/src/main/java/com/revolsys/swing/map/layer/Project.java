@@ -21,7 +21,6 @@ import javax.swing.JOptionPane;
 
 import com.revolsys.collection.json.Json;
 import com.revolsys.collection.json.JsonObject;
-import com.revolsys.common.number.Integers;
 import com.revolsys.connection.file.FolderConnectionRegistry;
 import com.revolsys.exception.Exceptions;
 import com.revolsys.geometry.model.BoundingBox;
@@ -33,6 +32,7 @@ import com.revolsys.io.FileUtil;
 import com.revolsys.io.file.Paths;
 import com.revolsys.io.filter.FileNameExtensionFilter;
 import com.revolsys.logging.Logs;
+import com.revolsys.number.Integers;
 import com.revolsys.record.io.RecordStoreConnectionRegistry;
 import com.revolsys.spring.resource.PathResource;
 import com.revolsys.spring.resource.Resource;

@@ -37,7 +37,6 @@ import org.jdesktop.swingx.JXBusyLabel;
 
 import com.revolsys.awt.WebColors;
 import com.revolsys.collection.map.Maps;
-import com.revolsys.common.number.Doubles;
 import com.revolsys.data.type.DataType;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.BoundingBoxProxy;
@@ -49,6 +48,7 @@ import com.revolsys.geometry.model.Point;
 import com.revolsys.geometry.model.segment.Segment;
 import com.revolsys.geometry.model.vertex.Vertex;
 import com.revolsys.geometry.util.RectangleUtil;
+import com.revolsys.number.Doubles;
 import com.revolsys.record.Record;
 import com.revolsys.swing.Dialogs;
 import com.revolsys.swing.Icons;

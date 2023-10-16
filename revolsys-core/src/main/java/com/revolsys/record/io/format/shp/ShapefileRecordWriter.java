@@ -3,8 +3,6 @@ package com.revolsys.record.io.format.shp;
 import java.io.IOException;
 import java.lang.reflect.Method;
 
-import com.revolsys.common.number.Integers;
-import com.revolsys.common.number.Shorts;
 import com.revolsys.data.type.DataType;
 import com.revolsys.data.type.DataTypes;
 import com.revolsys.geometry.model.ClockDirection;
@@ -16,6 +14,8 @@ import com.revolsys.io.IoConstants;
 import com.revolsys.io.endian.EndianOutput;
 import com.revolsys.io.endian.ResourceEndianOutput;
 import com.revolsys.logging.Logs;
+import com.revolsys.number.Integers;
+import com.revolsys.number.Shorts;
 import com.revolsys.record.Record;
 import com.revolsys.record.io.format.xbase.XBaseFieldDefinition;
 import com.revolsys.record.io.format.xbase.XbaseRecordWriter;

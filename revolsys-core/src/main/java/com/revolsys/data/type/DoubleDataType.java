@@ -1,6 +1,6 @@
 package com.revolsys.data.type;
 
-import com.revolsys.common.number.Doubles;
+import com.revolsys.number.Doubles;
 
 public class DoubleDataType extends AbstractDataType {
 

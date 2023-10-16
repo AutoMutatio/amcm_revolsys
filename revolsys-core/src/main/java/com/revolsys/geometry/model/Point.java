@@ -38,7 +38,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 
-import com.revolsys.common.number.Doubles;
 import com.revolsys.data.type.DataTypes;
 import com.revolsys.function.BiConsumerDouble;
 import com.revolsys.function.BiFunctionDouble;
@@ -56,6 +55,7 @@ import com.revolsys.geometry.model.vertex.Vertex;
 import com.revolsys.geometry.util.NumberUtil;
 import com.revolsys.geometry.util.Points;
 import com.revolsys.math.Angle;
+import com.revolsys.number.Doubles;
 import com.revolsys.util.Pair;
 import com.revolsys.util.Property;
 

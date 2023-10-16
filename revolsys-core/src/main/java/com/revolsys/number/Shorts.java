@@ -1,4 +1,4 @@
-package com.revolsys.common.number;
+package com.revolsys.number;
 
 public class Shorts {
   public static final int BYTES_IN_SHORT = 2;

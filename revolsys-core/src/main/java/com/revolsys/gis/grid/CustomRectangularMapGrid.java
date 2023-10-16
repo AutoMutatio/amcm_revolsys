@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 import com.revolsys.collection.json.JsonObject;
-import com.revolsys.common.number.Doubles;
 import com.revolsys.function.BiConsumerDouble;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.BoundingBoxProxy;
@@ -14,6 +13,7 @@ import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.geometry.model.Point;
 import com.revolsys.geometry.model.impl.RectangleXY;
+import com.revolsys.number.Doubles;
 import com.revolsys.util.Property;
 
 public class CustomRectangularMapGrid extends AbstractRectangularMapGrid {

@@ -2,9 +2,9 @@ package com.revolsys.geometry.coordinatesystem.model;
 
 import java.security.MessageDigest;
 
-import com.revolsys.common.number.Doubles;
 import com.revolsys.geometry.coordinatesystem.model.unit.UnitOfMeasure;
 import com.revolsys.geometry.coordinatesystem.util.Md5;
+import com.revolsys.number.Doubles;
 
 public class ParameterValueNumber extends Number implements ParameterValue {
   /**

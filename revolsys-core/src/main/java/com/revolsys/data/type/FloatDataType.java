@@ -1,6 +1,6 @@
 package com.revolsys.data.type;
 
-import com.revolsys.common.number.Floats;
+import com.revolsys.number.Floats;
 
 public class FloatDataType extends AbstractDataType {
 

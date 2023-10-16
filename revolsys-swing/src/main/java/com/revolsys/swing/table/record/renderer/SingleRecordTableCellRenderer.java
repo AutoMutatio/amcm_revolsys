@@ -12,7 +12,7 @@ import javax.swing.table.TableCellRenderer;
 
 import org.jdesktop.swingx.JXTable;
 
-import com.revolsys.common.number.Numbers;
+import com.revolsys.number.Numbers;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.swing.SwingUtil;
 import com.revolsys.swing.table.record.model.AbstractSingleRecordTableModel;

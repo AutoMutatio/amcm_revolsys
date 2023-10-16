@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.function.Consumer;
 
-import com.revolsys.common.number.Doubles;
 import com.revolsys.function.BiConsumerDouble;
 import com.revolsys.function.BiFunctionDouble;
 import com.revolsys.function.Consumer3Double;
@@ -20,6 +19,7 @@ import com.revolsys.geometry.model.LinearRing;
 import com.revolsys.geometry.model.Point;
 import com.revolsys.geometry.model.Polygon;
 import com.revolsys.geometry.model.impl.LinearRingDoubleGf;
+import com.revolsys.number.Doubles;
 
 public class LineStringEditor extends AbstractGeometryEditor<LineStringEditor>
   implements LineString, LinealEditor {

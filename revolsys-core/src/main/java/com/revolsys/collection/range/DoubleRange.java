@@ -1,6 +1,6 @@
 package com.revolsys.collection.range;
 
-import com.revolsys.common.number.Doubles;
+import com.revolsys.number.Doubles;
 
 public class DoubleRange extends AbstractRange<Double> {
   private double from;

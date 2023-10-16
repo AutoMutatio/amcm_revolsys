@@ -30,11 +30,11 @@ import com.revolsys.beans.PropertyChangeSupport;
 import com.revolsys.beans.PropertyChangeSupportProxy;
 import com.revolsys.beans.ProxyPropertyChangeListener;
 import com.revolsys.beans.WeakPropertyChangeListener;
-import com.revolsys.common.number.Integers;
 import com.revolsys.data.type.DataType;
 import com.revolsys.data.type.DataTypes;
 import com.revolsys.exception.Exceptions;
 import com.revolsys.logging.Logs;
+import com.revolsys.number.Integers;
 import com.revolsys.properties.ObjectWithProperties;
 import com.revolsys.record.Record;
 

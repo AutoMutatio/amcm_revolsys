@@ -14,13 +14,13 @@ import javax.measure.quantity.Length;
 
 import com.revolsys.beans.PropertyChangeSupport;
 import com.revolsys.beans.PropertyChangeSupportProxy;
-import com.revolsys.common.number.Doubles;
 import com.revolsys.geometry.coordinatesystem.model.Ellipsoid;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.geometry.model.GeometryFactoryProxy;
 import com.revolsys.geometry.model.Point;
+import com.revolsys.number.Doubles;
 import com.revolsys.swing.map.layer.Project;
 import com.revolsys.swing.map.view.ViewRenderer;
 import com.revolsys.swing.map.view.graphics.Graphics2DViewRenderer;

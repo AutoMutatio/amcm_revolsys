@@ -21,7 +21,6 @@ import org.gdal.ogr.ogr;
 import org.gdal.ogr.ogrConstants;
 import org.gdal.osr.SpatialReference;
 
-import com.revolsys.common.number.Doubles;
 import com.revolsys.data.type.DataType;
 import com.revolsys.data.type.DataTypes;
 import com.revolsys.date.Dates;
@@ -33,6 +32,7 @@ import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.io.FileUtil;
 import com.revolsys.io.PathName;
 import com.revolsys.logging.Logs;
+import com.revolsys.number.Doubles;
 import com.revolsys.record.io.RecordIterator;
 import com.revolsys.record.io.RecordWriter;
 import com.revolsys.record.query.AbstractMultiCondition;

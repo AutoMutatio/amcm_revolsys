@@ -1,6 +1,6 @@
 package com.revolsys.collection.range;
 
-import com.revolsys.common.number.Shorts;
+import com.revolsys.number.Shorts;
 
 public class ShortRange extends AbstractNumberRange<Short> {
   private short from;

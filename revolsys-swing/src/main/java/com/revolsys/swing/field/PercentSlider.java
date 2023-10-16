@@ -11,10 +11,10 @@ import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import com.revolsys.common.number.Floats;
-import com.revolsys.common.number.Numbers;
 import com.revolsys.data.type.DataTypes;
 import com.revolsys.exception.Exceptions;
+import com.revolsys.number.Floats;
+import com.revolsys.number.Numbers;
 import com.revolsys.util.CaseConverter;
 import com.revolsys.util.Property;
 

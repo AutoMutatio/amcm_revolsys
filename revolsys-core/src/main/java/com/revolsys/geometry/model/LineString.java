@@ -46,7 +46,6 @@ import javax.measure.Quantity;
 import javax.measure.Unit;
 import javax.measure.quantity.Length;
 
-import com.revolsys.common.number.Doubles;
 import com.revolsys.data.type.DataTypes;
 import com.revolsys.function.BiConsumerDouble;
 import com.revolsys.function.Consumer3Double;
@@ -80,6 +79,7 @@ import com.revolsys.geometry.operation.overlay.OverlayOp;
 import com.revolsys.geometry.operation.overlay.snap.SnapIfNeededOverlayOp;
 import com.revolsys.geometry.util.Points;
 import com.revolsys.math.Angle;
+import com.revolsys.number.Doubles;
 import com.revolsys.util.Pair;
 import com.revolsys.util.Property;
 import com.revolsys.util.QuantityType;

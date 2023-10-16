@@ -1,4 +1,4 @@
-package com.revolsys.common.number;
+package com.revolsys.number;
 
 public class Floats {
   public static float add(final float left, final Number right) {

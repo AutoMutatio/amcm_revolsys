@@ -21,6 +21,7 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpEntityEnclosingRequest;
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
 import org.apache.http.ProtocolVersion;
 import org.apache.http.client.config.RequestConfig;
@@ -48,7 +49,10 @@ import org.apache.http.util.Args;
 
 import com.revolsys.collection.json.JsonList;
 import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.list.ListEx;
+import com.revolsys.collection.value.Single;
 import com.revolsys.net.http.ApacheHttp;
+import com.revolsys.net.http.ApacheHttpException;
 import com.revolsys.util.UriBuilder;
 
 public class HttpRequestBuilder {
@@ -376,6 +380,13 @@ public class HttpRequestBuilder {
     return this.headerGroup != null ? this.headerGroup.getLastHeader(name) : null;
   }
 
+  @SuppressWarnings({
+    "unchecked", "rawtypes"
+  })
+  public <V> ListEx<V> getList() {
+    return (ListEx)getJsonList();
+  }
+
   public String getMethod() {
     return this.method;
   }
@@ -395,6 +406,20 @@ public class HttpRequestBuilder {
 
   public ProtocolVersion getVersion() {
     return this.version;
+  }
+
+  public Single<JsonObject> jsonObject() {
+    try {
+      final JsonObject json = getJson();
+      return Single.ofNullable(json);
+    } catch (final ApacheHttpException e) {
+      final int code = e.getStatusCode();
+      if (code == HttpStatus.SC_NOT_FOUND || code == HttpStatus.SC_GONE) {
+        return Single.empty();
+      } else {
+        throw e;
+      }
+    }
   }
 
   public InputStream newInputStream() {

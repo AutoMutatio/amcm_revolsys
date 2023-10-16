@@ -1,4 +1,4 @@
-package com.revolsys.common.number;
+package com.revolsys.number;
 
 import java.util.List;
 

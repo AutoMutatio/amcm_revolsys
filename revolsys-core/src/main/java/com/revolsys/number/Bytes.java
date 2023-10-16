@@ -1,4 +1,4 @@
-package com.revolsys.common.number;
+package com.revolsys.number;
 
 public class Bytes {
   public static final byte[] EMPTY_ARRAY = new byte[0];
