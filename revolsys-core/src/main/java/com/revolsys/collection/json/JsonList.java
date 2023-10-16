@@ -1,7 +1,6 @@
 package com.revolsys.collection.json;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -14,6 +13,7 @@ import java.util.function.Supplier;
 import com.revolsys.collection.iterator.Iterators;
 import com.revolsys.collection.iterator.Reader;
 import com.revolsys.collection.list.ListEx;
+import com.revolsys.collection.list.Lists;
 import com.revolsys.data.type.DataType;
 import com.revolsys.exception.Exceptions;
 import com.revolsys.util.Property;
@@ -271,8 +271,8 @@ public interface JsonList extends ListEx<Object>, JsonType {
     return (Reader)Reader.wrap(iterator());
   }
 
-  default <T> List<T> mapTo(final Function<JsonObject, T> mapper) {
-    final List<T> objects = new ArrayList<>();
+  default <T> ListEx<T> mapTo(final Function<JsonObject, T> mapper) {
+    final ListEx<T> objects = Lists.newArray();
     forEachType((final JsonObject record) -> {
       final T object = mapper.apply(record);
       objects.add(object);
