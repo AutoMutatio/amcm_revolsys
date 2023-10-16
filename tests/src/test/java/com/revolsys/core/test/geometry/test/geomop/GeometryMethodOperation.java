@@ -131,7 +131,8 @@ public class GeometryMethodOperation implements GeometryOperation {
       }
       return false;
     }
-    if (destClass == Integer.class || destClass == int.class || destClass == Double.class || destClass == double.class) {
+    if (destClass == Integer.class || destClass == int.class || destClass == Double.class
+      || destClass == double.class) {
       // try as an int
       try {
         convArg[0] = srcStr;
