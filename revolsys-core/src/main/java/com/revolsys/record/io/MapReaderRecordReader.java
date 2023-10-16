@@ -3,10 +3,10 @@ package com.revolsys.record.io;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
+import com.revolsys.collection.iterator.AbstractReader;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.data.type.DataType;
 import com.revolsys.geometry.model.Geometry;
-import com.revolsys.io.AbstractReader;
 import com.revolsys.io.map.MapReader;
 import com.revolsys.record.ArrayRecord;
 import com.revolsys.record.FieldValueInvalidException;

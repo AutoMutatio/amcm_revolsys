@@ -3,9 +3,9 @@ package com.revolsys.record.io;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
+import com.revolsys.collection.iterator.AbstractReader;
 import com.revolsys.collection.iterator.Reader;
 import com.revolsys.data.type.DataType;
-import com.revolsys.io.AbstractReader;
 import com.revolsys.record.ArrayRecord;
 import com.revolsys.record.Record;
 import com.revolsys.record.schema.FieldDefinition;

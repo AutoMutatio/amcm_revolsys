@@ -5,7 +5,7 @@ import java.util.function.Supplier;
 import com.revolsys.collection.json.JsonObject;
 import com.revolsys.io.map.ObjectFactoryConfig;
 
-public class AzureTableSasRequestBuilderFactory extends ApacheHttpRequestBuilderFactory {
+public class AzureTableSasRequestBuilderFactory extends HttpRequestBuilderFactory {
   public static AzureTableSasRequestBuilderFactory fromConfig(
     final ObjectFactoryConfig factoryConfig, final JsonObject config) {
     return new AzureTableSasRequestBuilderFactory(() -> {

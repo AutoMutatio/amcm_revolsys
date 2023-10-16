@@ -11,7 +11,7 @@ import javax.crypto.spec.SecretKeySpec;
 import com.revolsys.collection.json.JsonObject;
 import com.revolsys.io.map.ObjectFactoryConfig;
 
-public class AzureSharedKeyLiteRequestBuilderFactory extends ApacheHttpRequestBuilderFactory {
+public class AzureSharedKeyLiteRequestBuilderFactory extends HttpRequestBuilderFactory {
 
   public static AzureSharedKeyLiteRequestBuilderFactory forConnectionString(
     final JsonObject connectionParameters) {
@@ -74,7 +74,7 @@ public class AzureSharedKeyLiteRequestBuilderFactory extends ApacheHttpRequestBu
   }
 
   @Override
-  public ApacheHttpRequestBuilder newRequestBuilder() {
+  public HttpRequestBuilder newRequestBuilder() {
     return new AzureSharedKeyLiteRequestBuilder(this);
   }
 

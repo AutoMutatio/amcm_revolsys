@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
 
-import com.revolsys.io.AbstractReader;
+import com.revolsys.collection.iterator.AbstractReader;
 import com.revolsys.io.FileUtil;
 
 public class JsonObjectReader extends AbstractReader<JsonObject> {
