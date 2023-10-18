@@ -2,6 +2,7 @@ package com.revolsys.net.http;
 
 import java.net.URI;
 
+import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
 import org.apache.http.client.methods.HttpUriRequest;
@@ -21,7 +22,7 @@ public class ApacheHttpException extends RuntimeException {
     } catch (final Exception e) {
       content = null;
     }
-    return new ApacheHttpException(request.getURI(), statusLine, content);
+    return new ApacheHttpException(request.getURI(), statusLine, content, response.getAllHeaders());
   }
 
   private final int statusCode;
@@ -32,17 +33,29 @@ public class ApacheHttpException extends RuntimeException {
 
   private final URI requestUri;
 
+  private final Header[] headers;
+
   public ApacheHttpException(final URI requestUri, final StatusLine statusLine,
-    final String content) {
+    final String content, final Header[] headers) {
     super(requestUri + "\n" + statusLine + "\n" + content);
     this.requestUri = requestUri;
     this.statusCode = statusLine.getStatusCode();
     this.reasonPhrase = statusLine.getReasonPhrase();
     this.content = content;
+    this.headers = headers;
   }
 
   public String getContent() {
     return this.content;
+  }
+
+  public String getHeader(final String name) {
+    for (final Header header : this.headers) {
+      if (header.getName().equalsIgnoreCase(name)) {
+        return header.getValue();
+      }
+    }
+    return null;
   }
 
   public String getReasonPhrase() {
