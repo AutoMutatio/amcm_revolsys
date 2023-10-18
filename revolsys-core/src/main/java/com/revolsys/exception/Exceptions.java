@@ -5,6 +5,7 @@ import java.io.InterruptedIOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
+import java.nio.channels.ClosedByInterruptException;
 import java.util.concurrent.ExecutionException;
 
 public interface Exceptions {
@@ -65,6 +66,11 @@ public interface Exceptions {
       }
     }
     return false;
+  }
+
+  static boolean isInterruptException(final Throwable e) {
+    return hasCause(e, InterruptedException.class) || hasCause(e, InterruptedIOException.class)
+      || hasCause(e, ClosedByInterruptException.class);
   }
 
   static String stackTraceToString(final Throwable e) {
