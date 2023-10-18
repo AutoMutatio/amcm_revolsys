@@ -89,10 +89,10 @@ public class ProcessWindow extends JFrame {
       }
     }));
 
-    this.stopProcessButton = RunnableAction.newButton("Stop Process", () -> this.stopProcess());
+    this.stopProcessButton = RunnableAction.newButton("Stop Process", this::stopProcess);
     buttons.add(this.stopProcessButton);
 
-    this.closeButton = RunnableAction.newButton("Close", () -> this.setVisible(false));
+    this.closeButton = RunnableAction.newButton("Close", () -> setVisible(false));
     this.closeButton.setEnabled(false);
     buttons.add(this.closeButton);
 
@@ -140,7 +140,8 @@ public class ProcessWindow extends JFrame {
               sync.wait(500);
 
             }
-          } catch (final InterruptedException ie) {
+          } catch (final InterruptedException e) {
+            Exceptions.throwUncheckedException(e);
           }
           final int byteCount = in.available();
           if (byteCount != 0) {

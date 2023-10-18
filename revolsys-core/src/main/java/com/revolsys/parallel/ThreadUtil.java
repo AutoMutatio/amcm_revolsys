@@ -1,5 +1,7 @@
 package com.revolsys.parallel;
 
+import com.revolsys.exception.Exceptions;
+
 public class ThreadUtil {
 
   public static boolean isInterrupted() {
@@ -15,7 +17,7 @@ public class ThreadUtil {
       try {
         object.wait();
       } catch (final InterruptedException e) {
-        throw new ThreadInterruptedException(e);
+        Exceptions.throwUncheckedException(e);
       }
     }
   }
@@ -25,7 +27,7 @@ public class ThreadUtil {
       try {
         object.wait(milliSeconds);
       } catch (final InterruptedException e) {
-        throw new ThreadInterruptedException(e);
+        Exceptions.throwUncheckedException(e);
       }
     }
   }
@@ -35,7 +37,7 @@ public class ThreadUtil {
       try {
         object.wait(milliSeconds, nanoSeconds);
       } catch (final InterruptedException e) {
-        throw new ThreadInterruptedException(e);
+        Exceptions.throwUncheckedException(e);
       }
     }
   }

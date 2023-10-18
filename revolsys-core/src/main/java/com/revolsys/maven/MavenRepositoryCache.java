@@ -9,7 +9,7 @@ import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.revolsys.exception.WrappedException;
+import com.revolsys.exception.WrappedRuntimeException;
 import com.revolsys.geometry.coordinatesystem.util.Hex;
 import com.revolsys.logging.Logs;
 import com.revolsys.spring.resource.PathResource;
@@ -71,7 +71,7 @@ public class MavenRepositoryCache extends MavenRepository {
       return true;
     } catch (Throwable e) {
       resource.delete();
-      while (e instanceof WrappedException) {
+      while (e instanceof WrappedRuntimeException) {
         e = e.getCause();
       }
       if (e instanceof FileNotFoundException) {

@@ -9,7 +9,7 @@ import java.util.Map;
 import com.revolsys.collection.json.Json;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.exception.Exceptions;
-import com.revolsys.exception.WrappedException;
+import com.revolsys.exception.WrappedRuntimeException;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.logging.Logs;
@@ -214,7 +214,7 @@ public abstract class ArcGisResponse<V> extends AbstractWebService<V> implements
         refreshDo();
         setCannotFindHost(false);
         this.hasError = false;
-      } catch (final WrappedException e) {
+      } catch (final WrappedRuntimeException e) {
         this.hasError = true;
         final Throwable cause = Exceptions.unwrap(e);
         if (cause instanceof UnknownHostException) {

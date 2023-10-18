@@ -11,7 +11,6 @@ import com.revolsys.logging.Logs;
 
 @FunctionalInterface
 public interface BaseCloseable extends Closeable {
-
   static Consumer<AutoCloseable> CLOSER = resource -> {
     try {
       resource.close();
@@ -22,6 +21,19 @@ public interface BaseCloseable extends Closeable {
 
   static BaseCloseable EMPTY = () -> {
   };
+
+  static void closeValue(final Object v) {
+    if (v instanceof final BaseCloseable closeable) {
+      closeable.close();
+      ;
+    } else if (v instanceof final AutoCloseable closeable) {
+      try {
+        closeable.close();
+      } catch (final Exception e) {
+        Exceptions.throwUncheckedException(e);
+      }
+    }
+  }
 
   static <C extends BaseCloseable> Consumer<? super C> closer() {
     return CLOSER;
@@ -59,6 +71,22 @@ public interface BaseCloseable extends Closeable {
   static void closeSilent(final Collection<? extends AutoCloseable> closeables) {
     for (final AutoCloseable closeable : closeables) {
       closeSilent(closeable);
+    }
+  }
+
+  static BaseCloseable of(final Object v) {
+    if (v instanceof final BaseCloseable closeable) {
+      return closeable;
+    } else if (v instanceof final AutoCloseable closeable) {
+      return () -> {
+        try {
+          closeable.close();
+        } catch (final Exception e) {
+          Exceptions.throwUncheckedException(e);
+        }
+      };
+    } else {
+      return BaseCloseable.EMPTY;
     }
   }
 

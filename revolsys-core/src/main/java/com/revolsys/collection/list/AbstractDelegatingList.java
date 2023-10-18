@@ -6,9 +6,11 @@ import java.util.List;
 import java.util.ListIterator;
 
 import com.revolsys.collection.collection.AbstractDelegatingCollection;
+import com.revolsys.exception.Exceptions;
 
 public abstract class AbstractDelegatingList<V> extends AbstractDelegatingCollection<V>
-  implements List<V> {
+  implements ListEx<V> {
+
   public static <V1> ListIterator<V1> unmodifiableListIterator(final ListIterator<V1> iterator) {
     return new ListIterator<>() {
       @Override
@@ -77,6 +79,16 @@ public abstract class AbstractDelegatingList<V> extends AbstractDelegatingCollec
   public boolean addAll(final int index, final Collection<? extends V> c) {
     final List<V> list = getEditableList();
     return list.addAll(c);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public ListEx<V> clone() {
+    try {
+      return (ListEx<V>)super.clone();
+    } catch (final CloneNotSupportedException e) {
+      throw Exceptions.wrap(e);
+    }
   }
 
   @Override
@@ -153,9 +165,9 @@ public abstract class AbstractDelegatingList<V> extends AbstractDelegatingCollec
   }
 
   @Override
-  public List<V> subList(final int fromIndex, final int toIndex) {
-    final List<V> list = getList();
-    return list.subList(fromIndex, toIndex);
+  public ListEx<V> subList(final int fromIndex, final int toIndex) {
+    final List<V> list = getList().subList(fromIndex, toIndex);
+    return new DelegatingList<>(list);
   }
 
 }

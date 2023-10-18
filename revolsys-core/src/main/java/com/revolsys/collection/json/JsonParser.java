@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
-import com.revolsys.exception.WrappedException;
+import com.revolsys.exception.WrappedRuntimeException;
 import com.revolsys.io.FileUtil;
 import com.revolsys.logging.Logs;
 import com.revolsys.number.Doubles;
@@ -82,7 +82,7 @@ public class JsonParser implements Iterator<JsonParser.EventType>, Closeable {
       try {
         final Resource resource = Resource.getResource(source);
         reader = resource.newBufferedReader();
-      } catch (final WrappedException e) {
+      } catch (final WrappedRuntimeException e) {
         reader = new StringReader(source.toString());
       }
     }

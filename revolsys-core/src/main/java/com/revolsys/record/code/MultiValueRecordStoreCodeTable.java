@@ -13,6 +13,7 @@ import com.revolsys.data.identifier.Identifier;
 import com.revolsys.data.identifier.ListIdentifier;
 import com.revolsys.data.identifier.SingleIdentifier;
 import com.revolsys.date.Dates;
+import com.revolsys.exception.Exceptions;
 import com.revolsys.io.PathName;
 import com.revolsys.record.Record;
 import com.revolsys.record.comparator.RecordFieldComparator;
@@ -256,6 +257,7 @@ public class MultiValueRecordStoreCodeTable extends AbstractMultiValueCodeTable
           try {
             wait(1000);
           } catch (final InterruptedException e) {
+            Exceptions.throwUncheckedException(e);
           }
         }
         return;
@@ -283,7 +285,7 @@ public class MultiValueRecordStoreCodeTable extends AbstractMultiValueCodeTable
           this.loading = false;
           this.loaded = true;
           this.threadLoading.set(null);
-          this.notifyAll();
+          notifyAll();
         }
         Property.firePropertyChange(this, "valuesChanged", false, true);
       }

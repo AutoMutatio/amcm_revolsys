@@ -7,13 +7,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
-import com.revolsys.collection.iterator.Iterators;
 import com.revolsys.collection.iterator.Reader;
 import com.revolsys.collection.list.ListEx;
-import com.revolsys.collection.list.Lists;
 import com.revolsys.data.type.DataType;
 import com.revolsys.exception.Exceptions;
 import com.revolsys.util.Property;
@@ -132,7 +129,7 @@ public interface JsonList extends ListEx<Object>, JsonType {
     }
 
     @Override
-    public List<Object> subList(final int fromIndex, final int toIndex) {
+    public ListEx<Object> subList(final int fromIndex, final int toIndex) {
       return this;
     }
 
@@ -269,20 +266,6 @@ public interface JsonList extends ListEx<Object>, JsonType {
   })
   default Reader<JsonObject> jsonObjects() {
     return (Reader)Reader.wrap(iterator());
-  }
-
-  default <T> ListEx<T> mapTo(final Function<JsonObject, T> mapper) {
-    final ListEx<T> objects = Lists.newArray();
-    forEachType((final JsonObject record) -> {
-      final T object = mapper.apply(record);
-      objects.add(object);
-    });
-    return objects;
-  }
-
-  @SuppressWarnings("unchecked")
-  default <I, O> Iterable<O> mapToIterable(final Function<I, O> mapper) {
-    return Iterators.map((Iterator<I>)iterator(), mapper);
   }
 
   @Override

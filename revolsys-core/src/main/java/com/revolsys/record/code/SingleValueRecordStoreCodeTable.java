@@ -14,6 +14,7 @@ import com.revolsys.data.identifier.Identifier;
 import com.revolsys.data.identifier.ListIdentifier;
 import com.revolsys.data.identifier.SingleIdentifier;
 import com.revolsys.date.Dates;
+import com.revolsys.exception.Exceptions;
 import com.revolsys.io.PathName;
 import com.revolsys.logging.Logs;
 import com.revolsys.record.Record;
@@ -252,6 +253,7 @@ public class SingleValueRecordStoreCodeTable extends AbstractSingleValueCodeTabl
           try {
             wait(1000);
           } catch (final InterruptedException e) {
+            Exceptions.throwUncheckedException(e);
           }
         }
         return;
@@ -267,7 +269,7 @@ public class SingleValueRecordStoreCodeTable extends AbstractSingleValueCodeTabl
           this.loading = false;
           this.loaded = true;
           this.threadLoading.set(null);
-          this.notifyAll();
+          notifyAll();
         }
         Property.firePropertyChange(this, "valuesChanged", false, true);
       }
@@ -375,7 +377,7 @@ public class SingleValueRecordStoreCodeTable extends AbstractSingleValueCodeTabl
 
   @Override
   public synchronized void refresh() {
-    this.clearCaches();
+    clearCaches();
     super.refresh();
     if (isLoadAll()) {
       this.loaded = false;

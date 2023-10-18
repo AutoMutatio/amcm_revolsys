@@ -4,34 +4,63 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.function.Function;
 
-public class MapIterator<I, O> extends AbstractIterator<O> {
+import com.revolsys.util.BaseCloseable;
 
-  private Function<? super I, O> converter;
+public class MapIterator<I, O> implements Iterator<O>, BaseCloseable {
 
-  private Iterator<I> iterator;
+  private final Function<? super I, O> converter;
 
-  public MapIterator(final Iterator<I> iterator, final Function<? super I, O> converter) {
+  private final Iterator<I> iterator;
+
+  private boolean hasNext = true;
+
+  private boolean loadNext = true;
+
+  private O value;
+
+  MapIterator(final Iterator<I> iterator, final Function<? super I, O> converter) {
     this.iterator = iterator;
     this.converter = converter;
   }
 
   @Override
-  protected void closeDo() {
-    super.closeDo();
-    if (this.iterator instanceof AbstractIterator) {
-      final AbstractIterator<?> abstractIterator = (AbstractIterator<?>)this.iterator;
-      abstractIterator.close();
-    }
-    this.converter = null;
-    this.iterator = null;
+  public final void close() {
+    this.hasNext = false;
+    BaseCloseable.closeValue(this.iterator);
   }
 
   @Override
-  protected O getNext() throws NoSuchElementException {
-    while (this.iterator != null && this.iterator.hasNext()) {
-      final I value = this.iterator.next();
-      return this.converter.apply(value);
+  public final boolean hasNext() {
+    if (this.loadNext) {
+      while (this.iterator.hasNext()) {
+        final I inValue = this.iterator.next();
+        this.value = this.converter.apply(inValue);
+        if (this.value != null) {
+          break;
+        }
+      }
+      if (this.value == null) {
+        close();
+      }
+      this.loadNext = false;
     }
-    throw new NoSuchElementException();
+    return this.hasNext;
   }
+
+  @Override
+  public final O next() {
+    if (hasNext()) {
+      final O value = this.value;
+      this.loadNext = true;
+      return value;
+    } else {
+      throw new NoSuchElementException();
+    }
+  }
+
+  @Override
+  public void remove() {
+    throw new UnsupportedOperationException();
+  }
+
 }

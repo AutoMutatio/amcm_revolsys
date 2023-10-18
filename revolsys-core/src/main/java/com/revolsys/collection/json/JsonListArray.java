@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import com.revolsys.collection.list.DelegatingList;
+import com.revolsys.collection.list.ListEx;
 import com.revolsys.data.type.DataType;
 
 public class JsonListArray extends ArrayList<Object> implements JsonList {
@@ -72,6 +74,11 @@ public class JsonListArray extends ArrayList<Object> implements JsonList {
       }
     }
     return false;
+  }
+
+  @Override
+  public ListEx<Object> subList(final int fromIndex, final int toIndex) {
+    return new DelegatingList<>(super.subList(fromIndex, toIndex));
   }
 
   @Override

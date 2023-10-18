@@ -58,7 +58,7 @@ import com.revolsys.collection.json.JsonObjectHash;
 import com.revolsys.collection.map.IntHashMap;
 import com.revolsys.collection.map.Maps;
 import com.revolsys.data.type.DataType;
-import com.revolsys.exception.WrappedException;
+import com.revolsys.exception.WrappedRuntimeException;
 import com.revolsys.function.BiConsumerDouble;
 import com.revolsys.function.BiFunctionDouble;
 import com.revolsys.function.Consumer3Double;
@@ -573,7 +573,7 @@ public abstract class GeometryFactory implements GeometryFactoryProxy, MapSerial
           final CoordinateSystem coordinateSystem = EsriCoordinateSystems.readCoordinateSystem(wkt);
           final GeometryFactories instances = instances(coordinateSystem);
           return instances.floating(axisCount);
-        } catch (final WrappedException e) {
+        } catch (final WrappedRuntimeException e) {
           final Throwable cause = e.getCause();
           if (cause instanceof FileNotFoundException) {
           } else if (cause instanceof FileSystemException) {

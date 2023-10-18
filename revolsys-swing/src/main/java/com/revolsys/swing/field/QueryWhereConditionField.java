@@ -41,7 +41,7 @@ import com.revolsys.data.identifier.Identifier;
 import com.revolsys.data.type.DataType;
 import com.revolsys.data.type.DataTypes;
 import com.revolsys.exception.Exceptions;
-import com.revolsys.exception.WrappedException;
+import com.revolsys.exception.WrappedRuntimeException;
 import com.revolsys.logging.Logs;
 import com.revolsys.record.code.CodeTable;
 import com.revolsys.record.query.Condition;
@@ -665,7 +665,7 @@ public class QueryWhereConditionField extends ValueField
         Condition condition;
         try {
           condition = this.sqlParser.whereToCondition(whereClause);
-        } catch (final WrappedException e) {
+        } catch (final WrappedRuntimeException e) {
           Throwable cause = Exceptions.unwrap(e);
           String message;
           do {

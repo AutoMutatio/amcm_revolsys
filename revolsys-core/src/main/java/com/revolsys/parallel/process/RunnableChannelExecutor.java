@@ -15,9 +15,10 @@ import jakarta.annotation.PreDestroy;
 
 import org.springframework.beans.factory.BeanNameAware;
 
+import com.revolsys.exception.Exceptions;
+import com.revolsys.exception.WrappedInterruptedException;
 import com.revolsys.logging.Logs;
 import com.revolsys.parallel.NamedThreadFactory;
-import com.revolsys.parallel.ThreadInterruptedException;
 import com.revolsys.parallel.channel.Channel;
 import com.revolsys.parallel.channel.ClosedException;
 import com.revolsys.parallel.channel.MultiInputSelector;
@@ -66,7 +67,7 @@ public class RunnableChannelExecutor extends ThreadPoolExecutor implements Proce
             try {
               this.monitor.wait();
             } catch (final InterruptedException e) {
-              throw new ThreadInterruptedException(e);
+              Exceptions.throwUncheckedException(e);
             }
           }
         }
@@ -136,10 +137,6 @@ public class RunnableChannelExecutor extends ThreadPoolExecutor implements Proce
             }
           }
         } catch (final ClosedException e) {
-          final Throwable cause = e.getCause();
-          if (cause instanceof ThreadInterruptedException) {
-            throw (ThreadInterruptedException)cause;
-          }
           synchronized (this.monitor) {
             for (final Iterator<Channel<Runnable>> iterator = channels.iterator(); iterator
               .hasNext();) {
@@ -154,8 +151,8 @@ public class RunnableChannelExecutor extends ThreadPoolExecutor implements Proce
           }
         }
       }
-    } catch (final ThreadInterruptedException e) {
-      throw e;
+    } catch (final WrappedInterruptedException e) {
+      return;
     } catch (final Throwable t) {
       if (!isShutdown()) {
         Logs.error(this, "Unexexpected error ", t);

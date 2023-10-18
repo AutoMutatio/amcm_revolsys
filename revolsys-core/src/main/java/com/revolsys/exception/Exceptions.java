@@ -1,5 +1,7 @@
 package com.revolsys.exception;
 
+import java.io.IOException;
+import java.io.InterruptedIOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
@@ -53,8 +55,8 @@ public interface Exceptions {
 
   static boolean isException(final Throwable e, final Class<? extends Throwable> clazz) {
     while (e != null) {
-      if (e instanceof WrappedException) {
-        final WrappedException wrappedException = (WrappedException)e;
+      if (e instanceof WrappedRuntimeException) {
+        final WrappedRuntimeException wrappedException = (WrappedRuntimeException)e;
         return wrappedException.isException(clazz);
       } else if (clazz.isAssignableFrom(e.getClass())) {
         return true;
@@ -78,6 +80,10 @@ public interface Exceptions {
   static <T> T throwCauseException(final Throwable e) {
     final Throwable cause = e.getCause();
     return (T)throwUncheckedException(cause);
+  }
+
+  static <V> V throwUncheckedException(final InterruptedException e) {
+    throw new WrappedInterruptedException(e);
   }
 
   @SuppressWarnings("unchecked")
@@ -117,13 +123,13 @@ public interface Exceptions {
     return null;
   }
 
-  static Throwable unwrap(WrappedException e) {
+  static Throwable unwrap(WrappedRuntimeException e) {
     Throwable cause = e.getCause();
     do {
       if (cause == null) {
         return e;
-      } else if (cause instanceof WrappedException) {
-        e = (WrappedException)cause;
+      } else if (cause instanceof WrappedRuntimeException) {
+        e = (WrappedRuntimeException)cause;
         cause = e.getCause();
       } else {
         return cause;
@@ -131,11 +137,27 @@ public interface Exceptions {
     } while (true);
   }
 
-  static WrappedException wrap(final String message, final Throwable e) {
-    return new WrappedException(message, e);
+  static WrappedRuntimeException wrap(final String message, final Throwable e) {
+    if (hasCause(e, InterruptedException.class)) {
+      return new WrappedInterruptedException(message, e);
+    } else if (hasCause(e, InterruptedIOException.class)) {
+      return new WrappedInterruptedException(message, e);
+    } else if (hasCause(e, IOException.class)) {
+      return new WrappedIoException(message, e);
+    } else {
+      return new WrappedRuntimeException(message, e);
+    }
   }
 
-  static WrappedException wrap(final Throwable e) {
-    return new WrappedException(e);
+  static WrappedRuntimeException wrap(final Throwable e) {
+    if (hasCause(e, InterruptedException.class)) {
+      return new WrappedInterruptedException(e);
+    } else if (hasCause(e, InterruptedIOException.class)) {
+      return new WrappedInterruptedException(e);
+    } else if (hasCause(e, IOException.class)) {
+      return new WrappedIoException(e);
+    } else {
+      return new WrappedRuntimeException(e);
+    }
   }
 }

@@ -1,13 +1,13 @@
 package com.revolsys.exception;
 
-public final class WrappedException extends RuntimeException {
+public class WrappedRuntimeException extends RuntimeException {
   private static final long serialVersionUID = 1L;
 
-  public WrappedException(final String message, final Throwable cause) {
+  public WrappedRuntimeException(final String message, final Throwable cause) {
     super(message, cause);
   }
 
-  public WrappedException(final Throwable cause) {
+  public WrappedRuntimeException(final Throwable cause) {
     super(cause);
   }
 
@@ -15,8 +15,8 @@ public final class WrappedException extends RuntimeException {
     final Throwable cause = getCause();
     if (cause == null) {
       return false;
-    } else if (cause instanceof WrappedException) {
-      return ((WrappedException)cause).isException(clazz);
+    } else if (cause instanceof WrappedRuntimeException) {
+      return ((WrappedRuntimeException)cause).isException(clazz);
     } else if (clazz.isAssignableFrom(cause.getClass())) {
       return true;
     } else {

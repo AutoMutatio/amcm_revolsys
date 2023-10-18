@@ -11,6 +11,7 @@ import java.util.function.Supplier;
 
 import javax.swing.SwingWorker;
 
+import com.revolsys.exception.Exceptions;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.BoundingBoxProxy;
 import com.revolsys.geometry.model.GeometryFactory;
@@ -198,7 +199,9 @@ public class ViewportCacheBoundingBox implements BoundingBoxProxy, Cancellable {
         if (worker.isDone()) {
           try {
             return worker.get();
-          } catch (InterruptedException | ExecutionException e) {
+          } catch (final InterruptedException e) {
+            Exceptions.throwUncheckedException(e);
+          } catch (final ExecutionException e) {
 
           }
         }

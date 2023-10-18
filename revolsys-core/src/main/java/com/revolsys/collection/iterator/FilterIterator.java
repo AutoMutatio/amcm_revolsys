@@ -4,11 +4,19 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.function.Predicate;
 
-public class FilterIterator<T> extends AbstractIterator<T> {
+import com.revolsys.util.BaseCloseable;
 
-  private Predicate<? super T> filter;
+class FilterIterator<T> implements Iterator<T>, BaseCloseable {
 
-  private Iterator<T> iterator;
+  private final Predicate<? super T> filter;
+
+  private final Iterator<T> iterator;
+
+  private boolean hasNext = true;
+
+  private boolean loadNext = true;
+
+  private T value;
 
   public FilterIterator(final Predicate<? super T> filter, final Iterator<T> iterator) {
     this.filter = filter;
@@ -16,32 +24,44 @@ public class FilterIterator<T> extends AbstractIterator<T> {
   }
 
   @Override
-  protected void closeDo() {
-    super.closeDo();
-    if (this.iterator instanceof AbstractIterator) {
-      final AbstractIterator<T> abstractIterator = (AbstractIterator<T>)this.iterator;
-      abstractIterator.close();
-    }
-    this.filter = null;
-    this.iterator = null;
-  }
-
-  protected Predicate<? super T> getFilter() {
-    return this.filter;
-  }
-
-  protected Iterator<T> getIterator() {
-    return this.iterator;
+  public final void close() {
+    this.hasNext = false;
+    BaseCloseable.closeValue(this.iterator);
   }
 
   @Override
-  protected T getNext() throws NoSuchElementException {
-    while (this.iterator != null && this.iterator.hasNext()) {
-      final T value = this.iterator.next();
-      if (this.filter == null || this.filter.test(value)) {
-        return value;
+  public final boolean hasNext() {
+    if (this.loadNext) {
+      while (this.iterator.hasNext()) {
+        this.value = this.iterator.next();
+        if (this.filter.test(this.value)) {
+          break;
+        } else {
+          this.value = null;
+        }
       }
+      if (this.value == null) {
+        close();
+      }
+      this.loadNext = false;
     }
-    throw new NoSuchElementException();
+    return this.hasNext;
   }
+
+  @Override
+  public final T next() {
+    if (hasNext()) {
+      final T value = this.value;
+      this.loadNext = true;
+      return value;
+    } else {
+      throw new NoSuchElementException();
+    }
+  }
+
+  @Override
+  public void remove() {
+    throw new UnsupportedOperationException();
+  }
+
 }

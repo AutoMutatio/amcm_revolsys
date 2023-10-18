@@ -1,7 +1,7 @@
 package com.revolsys.parallel.process;
 
+import com.revolsys.exception.WrappedInterruptedException;
 import com.revolsys.logging.Logs;
-import com.revolsys.parallel.ThreadInterruptedException;
 import com.revolsys.parallel.channel.Channel;
 import com.revolsys.parallel.channel.ClosedException;
 
@@ -37,12 +37,10 @@ public class ProcessQueueWorker extends Thread {
         } else {
           try {
             this.process.run();
+          } catch (final WrappedInterruptedException e) {
+            return;
           } catch (final Exception e) {
-            if (e instanceof ThreadInterruptedException) {
-              throw (ThreadInterruptedException)e;
-            } else {
-              Logs.error(this.process, e.getMessage(), e);
-            }
+            Logs.error(this.process, e.getMessage(), e);
           }
         }
         this.process = null;

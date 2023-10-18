@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.list.Lists;
+import com.revolsys.exception.Exceptions;
 import com.revolsys.io.FileUtil;
 import com.revolsys.io.IoUtil;
 import com.revolsys.logging.Logs;
@@ -35,6 +36,7 @@ public class AzureCliRequestBuilderFactory extends BearerTokenRequestBuilderFact
         }
       }
     } catch (final InterruptedException e) {
+      Exceptions.throwUncheckedException(e);
     } catch (final Throwable e) {
       Logs.error(AzureCliRequestBuilderFactory.class, "Error getting token", e);
     } finally {

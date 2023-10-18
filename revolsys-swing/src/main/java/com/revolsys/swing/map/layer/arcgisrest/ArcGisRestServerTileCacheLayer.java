@@ -8,7 +8,7 @@ import java.util.Map;
 import com.revolsys.collection.json.JsonObject;
 import com.revolsys.data.type.DataType;
 import com.revolsys.exception.Exceptions;
-import com.revolsys.exception.WrappedException;
+import com.revolsys.exception.WrappedRuntimeException;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.io.PathName;
@@ -218,7 +218,7 @@ public class ArcGisRestServerTileCacheLayer
               return true;
             }
           }
-        } catch (final WrappedException e) {
+        } catch (final WrappedRuntimeException e) {
           final Throwable cause = Exceptions.unwrap(e);
           if (cause instanceof UnknownHostException) {
             // Logs.error(this, getPath() + "Unknown host: " +
