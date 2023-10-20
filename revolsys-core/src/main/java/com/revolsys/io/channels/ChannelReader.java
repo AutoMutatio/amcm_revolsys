@@ -8,12 +8,7 @@ import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.SeekableByteChannel;
 
-<<<<<<< HEAD
 import com.revolsys.exception.Exceptions;
-=======
-import org.jeometry.common.exception.Exceptions;
-
->>>>>>> upstream/main
 import com.revolsys.io.EndOfFileException;
 import com.revolsys.io.SeekableByteChannelInputStream;
 import com.revolsys.util.BaseCloseable;

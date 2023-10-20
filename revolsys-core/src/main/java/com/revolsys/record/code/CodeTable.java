@@ -9,17 +9,10 @@ import java.util.Map;
 
 import javax.swing.JComponent;
 
-<<<<<<< HEAD
 import com.revolsys.collection.json.JsonObject;
 import com.revolsys.comparator.CompareUtil;
 import com.revolsys.data.identifier.Identifier;
 import com.revolsys.data.refresh.Refreshable;
-=======
-import org.jeometry.common.compare.CompareUtil;
-import org.jeometry.common.data.identifier.Identifier;
-import org.jeometry.common.data.refresh.Refreshable;
-
->>>>>>> upstream/main
 import com.revolsys.record.Record;
 import com.revolsys.record.io.RecordReader;
 import com.revolsys.record.schema.FieldDefinition;

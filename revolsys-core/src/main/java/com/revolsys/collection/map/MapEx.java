@@ -12,7 +12,6 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-<<<<<<< HEAD
 import com.revolsys.collection.json.Json;
 import com.revolsys.collection.json.JsonList;
 import com.revolsys.collection.json.JsonObject;
@@ -26,18 +25,6 @@ import com.revolsys.data.type.DataTypeValueFactory;
 import com.revolsys.data.type.DataTypedValue;
 import com.revolsys.data.type.DataTypes;
 import com.revolsys.logging.Logs;
-=======
-import org.jeometry.common.compare.CompareUtil;
-import org.jeometry.common.data.identifier.Identifier;
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.data.type.DataTypeProxy;
-import org.jeometry.common.data.type.DataTypeValueFactory;
-import org.jeometry.common.data.type.DataTypedValue;
-import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.common.logging.Logs;
-
-import com.revolsys.collection.list.ListEx;
->>>>>>> upstream/main
 import com.revolsys.record.Record;
 import com.revolsys.util.Property;
 

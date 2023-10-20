@@ -4,14 +4,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-<<<<<<< HEAD
 import com.revolsys.data.identifier.Identifier;
 import com.revolsys.data.type.DataType;
-=======
-import org.jeometry.common.data.identifier.Identifier;
-import org.jeometry.common.data.type.DataType;
-
->>>>>>> upstream/main
 import com.revolsys.record.ArrayRecord;
 import com.revolsys.record.RecordState;
 import com.revolsys.record.schema.FieldDefinition;

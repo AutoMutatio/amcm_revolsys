@@ -18,16 +18,9 @@ import java.util.stream.Stream;
 import javax.measure.Quantity;
 import javax.measure.Unit;
 
-<<<<<<< HEAD
 import com.revolsys.collection.iterator.BaseIterable;
 import com.revolsys.data.type.DataType;
 import com.revolsys.data.type.DataTypes;
-=======
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.data.type.DataTypes;
-
-import com.revolsys.collection.iterator.BaseIterable;
->>>>>>> upstream/main
 import com.revolsys.util.Property;
 
 import tech.units.indriya.quantity.Quantities;

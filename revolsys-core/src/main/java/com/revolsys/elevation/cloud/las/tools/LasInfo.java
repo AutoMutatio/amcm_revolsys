@@ -7,10 +7,6 @@ import com.revolsys.collection.json.JsonWriter;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.elevation.cloud.PointCloud;
 import com.revolsys.elevation.cloud.las.LasPointCloud;
-<<<<<<< HEAD
-=======
-import com.revolsys.record.io.format.json.JsonWriter;
->>>>>>> upstream/main
 import com.revolsys.spring.resource.PathResource;
 import com.revolsys.util.BaseCloseable;
 

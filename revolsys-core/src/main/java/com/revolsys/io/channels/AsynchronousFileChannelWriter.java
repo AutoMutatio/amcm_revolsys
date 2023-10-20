@@ -5,12 +5,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.AsynchronousFileChannel;
 
-<<<<<<< HEAD
 import com.revolsys.exception.Exceptions;
-=======
-import org.jeometry.common.exception.Exceptions;
-
->>>>>>> upstream/main
 import com.revolsys.io.EndOfFileException;
 import com.revolsys.util.BaseCloseable;
 

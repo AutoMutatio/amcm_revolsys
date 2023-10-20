@@ -6,12 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 
-<<<<<<< HEAD
 import com.revolsys.exception.Exceptions;
-=======
-import org.jeometry.common.exception.Exceptions;
-
->>>>>>> upstream/main
 import com.revolsys.util.BaseCloseable;
 import com.revolsys.util.Cancellable;
 

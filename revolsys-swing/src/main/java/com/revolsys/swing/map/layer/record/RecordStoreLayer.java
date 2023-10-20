@@ -14,24 +14,13 @@ import java.util.function.Predicate;
 
 import javax.swing.SwingWorker;
 
-<<<<<<< HEAD
 import com.revolsys.collection.iterator.Iterables;
 import com.revolsys.collection.json.JsonObject;
-=======
-import org.jeometry.common.data.identifier.Identifier;
-import org.jeometry.common.io.PathName;
-import org.jeometry.common.logging.Logs;
-
-import com.revolsys.collection.iterator.Iterables;
->>>>>>> upstream/main
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.data.identifier.Identifier;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.Geometry;
-<<<<<<< HEAD
 import com.revolsys.io.PathName;
-=======
->>>>>>> upstream/main
 import com.revolsys.io.Writer;
 import com.revolsys.logging.Logs;
 import com.revolsys.predicate.Predicates;
