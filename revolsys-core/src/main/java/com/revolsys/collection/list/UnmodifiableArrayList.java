@@ -100,5 +100,4 @@ public class UnmodifiableArrayList<V> extends ArrayListEx<V> {
   public void sort(final Comparator<? super V> c) {
     throw new UnsupportedOperationException();
   }
-
 }

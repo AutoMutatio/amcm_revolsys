@@ -23,9 +23,12 @@ import org.jdesktop.swingx.JXSearchField;
 
 import com.revolsys.awt.WebColors;
 import com.revolsys.collection.map.MapEx;
+<<<<<<< HEAD
 import com.revolsys.data.type.DataType;
 import com.revolsys.data.type.DataTypes;
 import com.revolsys.logging.Logs;
+=======
+>>>>>>> upstream/main
 import com.revolsys.record.code.CodeTable;
 import com.revolsys.record.query.BinaryCondition;
 import com.revolsys.record.query.ColumnReference;

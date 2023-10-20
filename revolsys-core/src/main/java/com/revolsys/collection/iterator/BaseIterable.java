@@ -15,6 +15,7 @@
  */
 package com.revolsys.collection.iterator;
 
+<<<<<<< HEAD
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -30,6 +31,17 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+=======
+import java.util.Iterator;
+import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
+
+import com.revolsys.collection.Collector;
+>>>>>>> upstream/main
 import com.revolsys.collection.list.ListEx;
 import com.revolsys.collection.list.Lists;
 import com.revolsys.collection.value.Single;
@@ -65,7 +77,11 @@ public interface BaseIterable<T> extends Iterable<T> {
     if (cancellable == null) {
       return this;
     } else {
+<<<<<<< HEAD
       return filter(v -> cancellable.isCancelled());
+=======
+      return filter(v -> cancellable.isActive());
+>>>>>>> upstream/main
     }
   }
 
@@ -73,6 +89,7 @@ public interface BaseIterable<T> extends Iterable<T> {
     return BaseCloseable.of(this);
   }
 
+<<<<<<< HEAD
   default <K> Map<K, T> collectMap(final Function<T, K> keyFunction) {
     final Map<K, T> map = new LinkedHashMap<>();
     forEachCount(value -> {
@@ -107,6 +124,12 @@ public interface BaseIterable<T> extends Iterable<T> {
 
   default <K> Map<K, Set<T>> collectMapTreeSet(final Function<T, K> keyFunction) {
     return collectMapCollection(TreeSet::new, keyFunction);
+=======
+  default <O> O collect(final Collector<T, O> collector) {
+    final var result = collector.newResult();
+    forEach(value -> collector.collect(result, value));
+    return result;
+>>>>>>> upstream/main
   }
 
   default BaseIterable<T> filter(final Predicate<? super T> filter) {
@@ -132,7 +155,26 @@ public interface BaseIterable<T> extends Iterable<T> {
 
   @Override
   default void forEach(final Consumer<? super T> action) {
+<<<<<<< HEAD
     forEachCount(action);
+=======
+    try (
+      var c = closeable()) {
+      final Iterator<T> iterator = iterator();
+      if (iterator != null) {
+        try (
+          var ic = BaseCloseable.of(iterator)) {
+          while (iterator.hasNext()) {
+            final T item = iterator.next();
+            if (item != null) {
+              action.accept(item);
+            }
+          }
+        } catch (final ExitLoopException e) {
+        }
+      }
+    }
+>>>>>>> upstream/main
   }
 
   default int forEachCount(final Consumer<? super T> action) {
@@ -210,4 +252,15 @@ public interface BaseIterable<T> extends Iterable<T> {
     forEach(items::add);
     return items;
   }
+<<<<<<< HEAD
+=======
+
+  default BaseIterable<T> walkTree(final Function<T, Iterable<T>> treeWalk) {
+    if (treeWalk == null) {
+      throw new IllegalArgumentException("Tree walk function must not be null");
+    } else {
+      return () -> new TreeIterator<>(iterator(), treeWalk);
+    }
+  }
+>>>>>>> upstream/main
 }

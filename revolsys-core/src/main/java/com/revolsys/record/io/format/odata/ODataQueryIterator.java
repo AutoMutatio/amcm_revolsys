@@ -26,7 +26,7 @@ public class ODataQueryIterator extends AbstractIterator<Record>
 
   private static Function<JsonObject, Record> recordFactoryConverter(
     final RecordDefinition recordDefinition, final RecordFactory<Record> recordFactory) {
-    return (recordJson) -> {
+    return recordJson -> {
       final Record record = recordFactory.newRecord(recordDefinition);
       if (record != null) {
         record.setState(RecordState.INITIALIZING);

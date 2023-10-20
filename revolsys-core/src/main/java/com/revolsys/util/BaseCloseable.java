@@ -14,26 +14,15 @@ public interface BaseCloseable extends Closeable {
   static Consumer<AutoCloseable> CLOSER = resource -> {
     try {
       resource.close();
-    } catch (final Exception e) {
+    } catch (
+
+    final Exception e) {
       throw Exceptions.wrap(e);
     }
   };
 
   static BaseCloseable EMPTY = () -> {
   };
-
-  static void closeValue(final Object v) {
-    if (v instanceof final BaseCloseable closeable) {
-      closeable.close();
-      ;
-    } else if (v instanceof final AutoCloseable closeable) {
-      try {
-        closeable.close();
-      } catch (final Exception e) {
-        Exceptions.throwUncheckedException(e);
-      }
-    }
-  }
 
   static <C extends BaseCloseable> Consumer<? super C> closer() {
     return CLOSER;
@@ -71,6 +60,19 @@ public interface BaseCloseable extends Closeable {
   static void closeSilent(final Collection<? extends AutoCloseable> closeables) {
     for (final AutoCloseable closeable : closeables) {
       closeSilent(closeable);
+    }
+  }
+
+  static void closeValue(final Object v) {
+    if (v instanceof final BaseCloseable closeable) {
+      closeable.close();
+      ;
+    } else if (v instanceof final AutoCloseable closeable) {
+      try {
+        closeable.close();
+      } catch (final Exception e) {
+        Exceptions.throwUncheckedException(e);
+      }
     }
   }
 

@@ -33,9 +33,9 @@ import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-import com.revolsys.collection.SimpleValueHolder;
 import com.revolsys.collection.list.Lists;
 import com.revolsys.collection.set.Sets;
+import com.revolsys.collection.value.SimpleValueHolder;
 import com.revolsys.connection.file.FileConnectionManager;
 import com.revolsys.connection.file.FolderConnection;
 import com.revolsys.connection.file.FolderConnectionRegistry;

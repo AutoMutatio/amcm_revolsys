@@ -12,7 +12,12 @@ import java.util.zip.GZIPOutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+<<<<<<< HEAD
 import com.revolsys.exception.Exceptions;
+=======
+import org.jeometry.common.exception.Exceptions;
+
+>>>>>>> upstream/main
 import com.revolsys.io.EndOfFileException;
 import com.revolsys.spring.resource.Resource;
 import com.revolsys.util.BaseCloseable;

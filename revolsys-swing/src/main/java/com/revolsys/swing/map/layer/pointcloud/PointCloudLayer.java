@@ -12,8 +12,8 @@ import javax.swing.ScrollPaneConstants;
 
 import org.jdesktop.swingx.VerticalLayout;
 
-import com.revolsys.collection.SimpleValueHolder;
 import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.value.SimpleValueHolder;
 import com.revolsys.elevation.cloud.PointCloud;
 import com.revolsys.elevation.cloud.PointCloudReadFactory;
 import com.revolsys.elevation.cloud.las.LasPointCloudWriterFactory;
@@ -106,7 +106,7 @@ public class PointCloudLayer extends AbstractLayer {
     final EnableCheck enableCheck = RsSwingServiceInitializer
       .enableCheck(PointCloudReadFactory.class);
 
-    PathTreeNode.MENU.addInitializer((menu) -> {
+    PathTreeNode.MENU.addInitializer(menu -> {
       addMenuExportPointCloud(menu, enableCheck);
       addMenuZoomToCloud(menu, enableCheck);
       addMenuPointCloudProperties(menu, enableCheck);

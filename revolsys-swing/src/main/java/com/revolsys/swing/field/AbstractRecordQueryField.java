@@ -45,11 +45,14 @@ import org.jdesktop.swingx.decorator.ComponentAdapter;
 import org.jdesktop.swingx.decorator.HighlightPredicate;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 
+<<<<<<< HEAD
 import com.revolsys.awt.WebColors;
 import com.revolsys.collection.map.LruMap;
 import com.revolsys.data.identifier.Identifier;
 import com.revolsys.data.type.DataType;
 import com.revolsys.io.PathName;
+=======
+>>>>>>> upstream/main
 import com.revolsys.record.Record;
 import com.revolsys.record.code.CodeTable;
 import com.revolsys.record.query.BinaryCondition;

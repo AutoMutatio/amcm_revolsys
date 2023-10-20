@@ -4,7 +4,12 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.Collection;
 
+<<<<<<< HEAD
 import com.revolsys.exception.Exceptions;
+=======
+import org.jeometry.common.exception.Exceptions;
+
+>>>>>>> upstream/main
 import com.revolsys.io.FileUtil;
 import com.revolsys.util.BaseCloseable;
 

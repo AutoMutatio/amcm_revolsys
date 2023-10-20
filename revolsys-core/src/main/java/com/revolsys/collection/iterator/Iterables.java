@@ -5,13 +5,22 @@ import java.util.Iterator;
 import java.util.function.Supplier;
 
 public interface Iterables {
+<<<<<<< HEAD
   static Iterable<?> EMPTY = Collections::emptyIterator;
+=======
+  static BaseIterable<?> EMPTY = Collections::emptyIterator;
+>>>>>>> upstream/main
 
   @SuppressWarnings({
     "unchecked", "rawtypes"
   })
+<<<<<<< HEAD
   static <V> Iterable<V> empty() {
     return (Iterable)EMPTY;
+=======
+  static <V> BaseIterable<V> empty() {
+    return (BaseIterable)EMPTY;
+>>>>>>> upstream/main
   }
 
   /**
@@ -22,7 +31,15 @@ public interface Iterables {
    * @return The iterable.
    */
   static <V> BaseIterable<V> fromIterable(final Iterable<V> iterable) {
+<<<<<<< HEAD
     return () -> iterable.iterator();
+=======
+    if (iterable instanceof final BaseIterable<V> base) {
+      return base;
+    } else {
+      return () -> iterable.iterator();
+    }
+>>>>>>> upstream/main
   }
 
   /**
@@ -77,4 +94,12 @@ public interface Iterables {
       return iterator.next();
     }
   }
+<<<<<<< HEAD
+=======
+
+  static <V> BaseIterable<V> paging(final Supplier<Iterable<V>> supplier) {
+    final PagingIterator<V> iterator = new PagingIterator<>(supplier);
+    return fromIterator(iterator);
+  }
+>>>>>>> upstream/main
 }

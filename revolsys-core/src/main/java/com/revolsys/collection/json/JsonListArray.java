@@ -1,6 +1,5 @@
 package com.revolsys.collection.json;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -8,7 +7,9 @@ import com.revolsys.collection.list.DelegatingList;
 import com.revolsys.collection.list.ListEx;
 import com.revolsys.data.type.DataType;
 
-public class JsonListArray extends ArrayList<Object> implements JsonList {
+import com.revolsys.collection.list.ArrayListEx;
+
+public class JsonListArray extends ArrayListEx<Object> implements JsonList {
   private static final long serialVersionUID = 1L;
 
   JsonListArray() {

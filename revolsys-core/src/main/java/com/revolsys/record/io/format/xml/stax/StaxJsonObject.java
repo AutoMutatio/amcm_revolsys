@@ -7,6 +7,8 @@ import java.util.UUID;
 import com.revolsys.collection.json.JsonList;
 import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.json.Jsonable;
+import com.revolsys.collection.list.ListEx;
+import com.revolsys.data.type.DataTypes;
 import com.revolsys.record.io.format.xml.XmlComplexType;
 import com.revolsys.record.io.format.xml.XmlElement;
 import com.revolsys.record.io.format.xml.XmlSchema;
@@ -84,8 +86,13 @@ public class StaxJsonObject implements Jsonable {
     }
   }
 
+  public <V> ListEx<V> getList(final CharSequence name) {
+    return this.properties.getValue(name, DataTypes.LIST, ListEx.empty());
+  }
+
   public <V> V getValue(final String name) {
     return this.properties.getValue(name);
+
   }
 
   public <V> V getValue(final String name, final V defaultValue) {

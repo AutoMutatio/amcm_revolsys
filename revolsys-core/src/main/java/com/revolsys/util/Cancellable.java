@@ -32,5 +32,9 @@ public interface Cancellable {
     return isCancelled();
   }
 
+  default boolean isActive() {
+    return !isCancelled();
+  }
+
   boolean isCancelled();
 }
