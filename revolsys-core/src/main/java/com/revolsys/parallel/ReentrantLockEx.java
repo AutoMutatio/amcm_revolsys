@@ -3,7 +3,7 @@ package com.revolsys.parallel;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Supplier;
 
-import com.revolsys.io.BaseCloseable;
+import com.revolsys.util.BaseCloseable;
 
 public class ReentrantLockEx extends ReentrantLock {
 

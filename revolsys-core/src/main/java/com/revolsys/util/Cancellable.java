@@ -4,33 +4,29 @@ import java.util.Iterator;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
-import com.revolsys.collection.iterator.CancelIterable;
-import com.revolsys.collection.iterator.Iterators;
+import com.revolsys.collection.iterator.BaseIterable;
+import com.revolsys.collection.iterator.Iterables;
 
 public interface Cancellable {
-  static Cancellable FALSE = () -> {
-    return false;
-  };
+  static Cancellable FALSE = () -> false;
 
   default void cancel() {
   }
 
-  default <V> Iterable<V> cancellable(final Iterable<V> iterable) {
-    return new CancelIterable<>(this, iterable);
+  default <V> BaseIterable<V> cancellable(final Iterable<V> iterable) {
+    return Iterables.fromIterable(iterable).cacellable(this);
   }
 
-  default <V> Iterable<V> cancellable(final Iterable<V> iterable, final Predicate<V> filter) {
-    final Iterable<V> filteredIterator = Iterators.filter(iterable, filter);
-    return new CancelIterable<>(this, filteredIterator);
+  default <V> BaseIterable<V> cancellable(final Iterable<V> iterable, final Predicate<V> filter) {
+    return Iterables.fromIterable(iterable).cacellable(this).filter(filter);
   }
 
   default <V> Iterator<V> cancellable(final Iterator<V> iterator) {
-    return new CancelIterable<>(this, iterator);
+    return Iterables.fromIterator(iterator).cacellable(this).iterator();
   }
 
   default <V> Iterator<V> cancellable(final Iterator<V> iterator, final Predicate<V> filter) {
-    final Iterator<V> filteredIterator = Iterators.filter(iterator, filter);
-    return new CancelIterable<>(this, filteredIterator);
+    return Iterables.fromIterator(iterator).cacellable(this).filter(filter).iterator();
   }
 
   /**
@@ -48,6 +44,10 @@ public interface Cancellable {
       }
     }
     return isCancelled();
+  }
+
+  default boolean isActive() {
+    return !isCancelled();
   }
 
   boolean isCancelled();

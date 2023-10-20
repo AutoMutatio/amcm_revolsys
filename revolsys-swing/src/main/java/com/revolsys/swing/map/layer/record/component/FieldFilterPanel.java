@@ -26,7 +26,6 @@ import org.jeometry.common.data.type.DataTypes;
 import org.jeometry.common.logging.Logs;
 
 import com.revolsys.collection.map.MapEx;
-import com.revolsys.io.BaseCloseable;
 import com.revolsys.record.code.CodeTable;
 import com.revolsys.record.query.BinaryCondition;
 import com.revolsys.record.query.ColumnReference;
@@ -56,6 +55,7 @@ import com.revolsys.swing.map.layer.record.renderer.AbstractRecordLayerRenderer;
 import com.revolsys.swing.map.layer.record.table.model.RecordLayerTableModel;
 import com.revolsys.swing.parallel.Invoke;
 import com.revolsys.swing.table.TablePanel;
+import com.revolsys.util.BaseCloseable;
 import com.revolsys.util.Property;
 import com.revolsys.value.GlobalBooleanValue;
 

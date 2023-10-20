@@ -4,6 +4,9 @@ import java.util.Collection;
 import java.util.Set;
 import java.util.UUID;
 
+import org.jeometry.common.data.type.DataTypes;
+
+import com.revolsys.collection.list.ListEx;
 import com.revolsys.record.io.format.json.JsonList;
 import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.record.io.format.json.Jsonable;
@@ -84,8 +87,13 @@ public class StaxJsonObject implements Jsonable {
     }
   }
 
+  public <V> ListEx<V> getList(final CharSequence name) {
+    return this.properties.getValue(name, DataTypes.LIST, ListEx.empty());
+  }
+
   public <V> V getValue(final String name) {
     return this.properties.getValue(name);
+
   }
 
   public <V> V getValue(final String name, final V defaultValue) {

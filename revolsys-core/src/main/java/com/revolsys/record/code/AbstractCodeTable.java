@@ -10,9 +10,9 @@ import org.jeometry.common.data.identifier.Identifier;
 import org.jeometry.common.data.type.DataTypes;
 import org.jeometry.common.number.Numbers;
 
-import com.revolsys.io.BaseCloseable;
 import com.revolsys.properties.BaseObjectWithPropertiesAndChange;
 import com.revolsys.record.schema.FieldDefinition;
+import com.revolsys.util.BaseCloseable;
 
 public abstract class AbstractCodeTable extends BaseObjectWithPropertiesAndChange
   implements BaseCloseable, CodeTable, Cloneable {

@@ -1,4 +1,4 @@
-package com.revolsys.collection;
+package com.revolsys.collection.value;
 
 import com.revolsys.value.ValueHolder;
 

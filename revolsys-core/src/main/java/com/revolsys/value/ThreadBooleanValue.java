@@ -1,6 +1,6 @@
 package com.revolsys.value;
 
-import com.revolsys.io.BaseCloseable;
+import com.revolsys.util.BaseCloseable;
 
 public final class ThreadBooleanValue implements BooleanValue {
   private final ThreadLocal<Boolean> threadValue = new ThreadLocal<>();

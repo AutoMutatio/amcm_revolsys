@@ -1,4 +1,4 @@
-package com.revolsys.collection;
+package com.revolsys.collection.value;
 
 import java.util.function.Supplier;
 

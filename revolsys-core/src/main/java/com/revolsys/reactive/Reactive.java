@@ -17,8 +17,8 @@ import org.jeometry.common.exception.Exceptions;
 import org.reactivestreams.Publisher;
 
 import com.revolsys.collection.list.Lists;
-import com.revolsys.io.BaseCloseable;
 import com.revolsys.io.file.Paths;
+import com.revolsys.util.BaseCloseable;
 import com.revolsys.util.Pair;
 
 import reactor.core.Disposable;

@@ -13,11 +13,11 @@ import org.jeometry.common.compare.CompareUtil;
 import org.jeometry.common.data.identifier.Identifier;
 import org.jeometry.common.data.refresh.Refreshable;
 
-import com.revolsys.io.BaseCloseable;
 import com.revolsys.record.Record;
 import com.revolsys.record.io.RecordReader;
 import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.record.schema.FieldDefinition;
+import com.revolsys.util.BaseCloseable;
 import com.revolsys.util.Emptyable;
 import com.revolsys.util.Property;
 

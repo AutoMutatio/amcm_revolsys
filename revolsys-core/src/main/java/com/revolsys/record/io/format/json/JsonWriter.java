@@ -17,12 +17,12 @@ import org.jeometry.common.number.Doubles;
 import org.jeometry.common.number.Numbers;
 
 import com.revolsys.collection.list.Lists;
-import com.revolsys.io.BaseCloseable;
 import com.revolsys.io.FileUtil;
 import com.revolsys.io.map.MapSerializer;
 import com.revolsys.record.Record;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
+import com.revolsys.util.BaseCloseable;
 import com.revolsys.util.Property;
 
 enum JsonState {

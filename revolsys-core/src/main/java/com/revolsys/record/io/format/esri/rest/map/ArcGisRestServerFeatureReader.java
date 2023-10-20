@@ -25,7 +25,6 @@ import com.revolsys.geometry.model.LineString;
 import com.revolsys.geometry.model.LinearRing;
 import com.revolsys.geometry.model.Point;
 import com.revolsys.geometry.model.Polygon;
-import com.revolsys.io.BaseCloseable;
 import com.revolsys.io.FileUtil;
 import com.revolsys.net.urlcache.FileResponseCache;
 import com.revolsys.record.ArrayRecord;
@@ -38,6 +37,7 @@ import com.revolsys.record.io.format.json.JsonParser.EventType;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.spring.resource.Resource;
+import com.revolsys.util.BaseCloseable;
 import com.revolsys.util.Property;
 
 public class ArcGisRestServerFeatureReader extends AbstractRecordReader {

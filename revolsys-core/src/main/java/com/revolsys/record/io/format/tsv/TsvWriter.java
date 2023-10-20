@@ -7,8 +7,8 @@ import java.util.Collection;
 import org.jeometry.common.data.type.DataTypes;
 import org.jeometry.common.exception.Exceptions;
 
-import com.revolsys.io.BaseCloseable;
 import com.revolsys.io.FileUtil;
+import com.revolsys.util.BaseCloseable;
 
 public class TsvWriter implements BaseCloseable {
   /** The writer */

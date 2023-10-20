@@ -1,6 +1,6 @@
 package com.revolsys.value;
 
-import com.revolsys.io.BaseCloseable;
+import com.revolsys.util.BaseCloseable;
 
 public class ValueCloseable<T> implements BaseCloseable {
   private final ValueHolder<T> valueHolder;
