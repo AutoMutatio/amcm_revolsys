@@ -12,12 +12,12 @@ import com.revolsys.esri.filegdb.jni.Envelope;
 import com.revolsys.esri.filegdb.jni.Row;
 import com.revolsys.esri.filegdb.jni.Table;
 import com.revolsys.gis.esri.gdb.file.capi.type.AbstractFileGdbFieldDefinition;
-import com.revolsys.io.BaseCloseable;
 import com.revolsys.jdbc.JdbcUtils;
 import com.revolsys.record.Record;
 import com.revolsys.record.RecordState;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
+import com.revolsys.util.BaseCloseable;
 import com.revolsys.util.CloseableValueHolder;
 import com.revolsys.util.SimpleValueWrapper;
 

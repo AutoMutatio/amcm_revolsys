@@ -31,7 +31,6 @@ import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.gis.esri.gdb.file.capi.FileGdbDomainCodeTable;
 import com.revolsys.gis.esri.gdb.file.capi.type.GeometryFieldDefinition;
-import com.revolsys.io.BaseCloseable;
 import com.revolsys.io.FileUtil;
 import com.revolsys.io.Writer;
 import com.revolsys.jdbc.JdbcUtils;
@@ -71,6 +70,7 @@ import com.revolsys.record.schema.RecordDefinitionImpl;
 import com.revolsys.record.schema.RecordDefinitionProxy;
 import com.revolsys.record.schema.RecordStoreSchema;
 import com.revolsys.record.schema.RecordStoreSchemaElement;
+import com.revolsys.util.BaseCloseable;
 
 public class FileGdbRecordStore extends AbstractRecordStore {
 

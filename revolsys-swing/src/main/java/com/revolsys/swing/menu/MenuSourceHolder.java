@@ -3,7 +3,7 @@ package com.revolsys.swing.menu;
 import java.awt.Window;
 import java.awt.event.MouseEvent;
 
-import com.revolsys.io.BaseCloseable;
+import com.revolsys.util.BaseCloseable;
 
 public class MenuSourceHolder implements BaseCloseable {
   private final Object source;

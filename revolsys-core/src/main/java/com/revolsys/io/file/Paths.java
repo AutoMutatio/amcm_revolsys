@@ -36,9 +36,9 @@ import java.util.stream.Stream;
 import org.jeometry.common.exception.Exceptions;
 import org.jeometry.common.logging.Logs;
 
-import com.revolsys.collection.SimpleValueHolder;
 import com.revolsys.collection.list.Lists;
 import com.revolsys.collection.set.Sets;
+import com.revolsys.collection.value.SimpleValueHolder;
 import com.revolsys.connection.file.FileConnectionManager;
 import com.revolsys.connection.file.FolderConnection;
 import com.revolsys.connection.file.FolderConnectionRegistry;

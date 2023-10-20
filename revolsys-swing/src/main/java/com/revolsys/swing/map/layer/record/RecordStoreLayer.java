@@ -18,11 +18,10 @@ import org.jeometry.common.data.identifier.Identifier;
 import org.jeometry.common.io.PathName;
 import org.jeometry.common.logging.Logs;
 
-import com.revolsys.collection.iterator.Iterators;
+import com.revolsys.collection.iterator.Iterables;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.Geometry;
-import com.revolsys.io.BaseCloseable;
 import com.revolsys.io.Writer;
 import com.revolsys.predicate.Predicates;
 import com.revolsys.record.Record;
@@ -52,6 +51,7 @@ import com.revolsys.swing.map.layer.record.table.model.RecordLayerErrors;
 import com.revolsys.swing.parallel.Invoke;
 import com.revolsys.transaction.Propagation;
 import com.revolsys.transaction.Transaction;
+import com.revolsys.util.BaseCloseable;
 import com.revolsys.util.Property;
 import com.revolsys.util.count.LabelCountMap;
 
@@ -151,7 +151,7 @@ public class RecordStoreLayer extends AbstractRecordLayer {
           changedRecords.addAll(getRecordsModified());
           Records.filterAndSort(changedRecords, filter, orderBy);
           final Iterator<LayerRecord> changedIterator = changedRecords.iterator();
-          LayerRecord currentChangedRecord = Iterators.next(changedIterator);
+          LayerRecord currentChangedRecord = Iterables.next(changedIterator);
 
           final RecordDefinition internalRecordDefinition = getInternalRecordDefinition();
           query = query.newQuery(internalRecordDefinition);
@@ -179,14 +179,14 @@ public class RecordStoreLayer extends AbstractRecordLayer {
                 while (currentChangedRecord != null
                   && comparator.compare(currentChangedRecord, record) < 0) {
                   consumer.accept(currentChangedRecord);
-                  currentChangedRecord = Iterators.next(changedIterator);
+                  currentChangedRecord = Iterables.next(changedIterator);
                 }
                 consumer.accept(record);
               }
             }
             while (currentChangedRecord != null) {
               consumer.accept(currentChangedRecord);
-              currentChangedRecord = Iterators.next(changedIterator);
+              currentChangedRecord = Iterables.next(changedIterator);
             }
           }
         }
@@ -269,7 +269,7 @@ public class RecordStoreLayer extends AbstractRecordLayer {
               Transaction transaction = recordStore.newTransaction(Propagation.REQUIRED);
               RecordReader reader = newRecordStoreRecordReader(query)) {
               transaction.setRollbackOnly();
-              record = reader.getFirst();
+              record = (LayerRecord)reader.getFirst();
               if (record != null) {
                 addCachedRecord(identifier, record);
               }

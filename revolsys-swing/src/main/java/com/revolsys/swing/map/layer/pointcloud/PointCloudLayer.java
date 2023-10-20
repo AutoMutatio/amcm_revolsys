@@ -13,7 +13,7 @@ import javax.swing.ScrollPaneConstants;
 import org.jdesktop.swingx.VerticalLayout;
 import org.jeometry.common.logging.Logs;
 
-import com.revolsys.collection.SimpleValueHolder;
+import com.revolsys.collection.value.SimpleValueHolder;
 import com.revolsys.elevation.cloud.PointCloud;
 import com.revolsys.elevation.cloud.PointCloudReadFactory;
 import com.revolsys.elevation.cloud.las.LasPointCloudWriterFactory;

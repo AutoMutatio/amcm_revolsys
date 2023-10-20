@@ -11,12 +11,12 @@ import javax.swing.undo.UndoableEdit;
 import org.jeometry.common.data.identifier.Identifier;
 import org.jeometry.common.data.type.DataType;
 
-import com.revolsys.io.BaseCloseable;
 import com.revolsys.record.Record;
 import com.revolsys.record.RecordState;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.swing.undo.DeleteLayerRecordUndo;
+import com.revolsys.util.BaseCloseable;
 import com.revolsys.util.Property;
 
 public interface LayerRecord extends Record {

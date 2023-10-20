@@ -9,11 +9,11 @@ import com.revolsys.elevation.tin.TriangleConsumer;
 import com.revolsys.elevation.tin.TriangulatedIrregularNetwork;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactory;
-import com.revolsys.io.BaseCloseable;
 import com.revolsys.io.EndOfFileException;
 import com.revolsys.io.channels.DataReader;
 import com.revolsys.properties.BaseObjectWithProperties;
 import com.revolsys.spring.resource.Resource;
+import com.revolsys.util.BaseCloseable;
 
 public class ScaledIntegerTriangulatedIrregularNetworkReader extends BaseObjectWithProperties
   implements BaseCloseable {

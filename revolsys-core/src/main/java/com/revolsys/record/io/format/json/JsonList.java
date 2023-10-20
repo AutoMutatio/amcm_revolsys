@@ -14,7 +14,6 @@ import java.util.function.Supplier;
 import org.jeometry.common.data.type.DataType;
 import org.jeometry.common.exception.Exceptions;
 
-import com.revolsys.collection.iterator.Iterators;
 import com.revolsys.collection.list.ListEx;
 import com.revolsys.io.Reader;
 import com.revolsys.util.Property;
@@ -135,7 +134,7 @@ public interface JsonList extends ListEx<Object>, JsonType {
     }
 
     @Override
-    public List<Object> subList(final int fromIndex, final int toIndex) {
+    public ListEx<Object> subList(final int fromIndex, final int toIndex) {
       return this;
     }
 
@@ -283,16 +282,11 @@ public interface JsonList extends ListEx<Object>, JsonType {
 
   default <T> List<T> mapTo(final Function<JsonObject, T> mapper) {
     final List<T> objects = new ArrayList<>();
-    forEachType((final JsonObject record) -> {
-      final T object = mapper.apply(record);
+    forEach(record -> {
+      final T object = mapper.apply((JsonObject)record);
       objects.add(object);
     });
     return objects;
-  }
-
-  @SuppressWarnings("unchecked")
-  default <I, O> Iterable<O> mapToIterable(final Function<I, O> mapper) {
-    return Iterators.map((Iterator<I>)iterator(), mapper);
   }
 
   @Override

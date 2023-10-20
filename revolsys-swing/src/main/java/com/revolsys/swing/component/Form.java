@@ -24,13 +24,13 @@ import org.jeometry.common.data.type.DataType;
 import org.jeometry.common.logging.Logs;
 
 import com.revolsys.collection.map.Maps;
-import com.revolsys.io.BaseCloseable;
 import com.revolsys.swing.Dialogs;
 import com.revolsys.swing.SwingUtil;
 import com.revolsys.swing.action.RunnableAction;
 import com.revolsys.swing.field.Field;
 import com.revolsys.swing.layout.GroupLayouts;
 import com.revolsys.swing.parallel.Invoke;
+import com.revolsys.util.BaseCloseable;
 import com.revolsys.util.Pair;
 import com.revolsys.util.Property;
 import com.revolsys.value.ThreadBooleanValue;

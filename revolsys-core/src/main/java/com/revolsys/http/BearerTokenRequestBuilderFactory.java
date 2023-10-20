@@ -4,7 +4,7 @@ import java.util.function.Function;
 
 import com.revolsys.net.oauth.BearerToken;
 
-public class BearerTokenRequestBuilderFactory extends ApacheHttpRequestBuilderFactory {
+public class BearerTokenRequestBuilderFactory extends HttpRequestBuilderFactory {
 
   private final Function<BearerToken, BearerToken> tokenRefesh;
 
@@ -35,7 +35,7 @@ public class BearerTokenRequestBuilderFactory extends ApacheHttpRequestBuilderFa
   }
 
   @Override
-  public ApacheHttpRequestBuilder newRequestBuilder() {
+  public HttpRequestBuilder newRequestBuilder() {
     return new BearerTokenRequestBuilder(this);
   }
 
