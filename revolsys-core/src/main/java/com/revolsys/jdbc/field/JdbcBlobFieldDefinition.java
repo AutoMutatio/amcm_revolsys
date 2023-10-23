@@ -7,9 +7,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Map;
 
-import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.common.jdbc.ByteArrayBlob;
-
+import com.revolsys.data.type.DataTypes;
+import com.revolsys.jdbc.ByteArrayBlob;
 import com.revolsys.jdbc.LocalBlob;
 import com.revolsys.record.RecordState;
 import com.revolsys.record.query.ColumnIndexes;

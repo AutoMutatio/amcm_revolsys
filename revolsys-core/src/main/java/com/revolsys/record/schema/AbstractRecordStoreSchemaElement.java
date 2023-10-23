@@ -1,7 +1,6 @@
 package com.revolsys.record.schema;
 
-import org.jeometry.common.io.PathName;
-
+import com.revolsys.io.PathName;
 import com.revolsys.properties.BaseObjectWithProperties;
 import com.revolsys.util.Property;
 

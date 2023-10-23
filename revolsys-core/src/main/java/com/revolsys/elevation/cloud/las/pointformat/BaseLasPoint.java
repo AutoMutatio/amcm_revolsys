@@ -2,17 +2,16 @@ package com.revolsys.elevation.cloud.las.pointformat;
 
 import java.io.Serializable;
 
-import org.jeometry.common.function.BiConsumerDouble;
-import org.jeometry.common.function.BiFunctionDouble;
-import org.jeometry.common.function.Consumer3Double;
-
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.json.JsonObjectHash;
 import com.revolsys.elevation.cloud.las.LasPointCloud;
+import com.revolsys.function.BiConsumerDouble;
+import com.revolsys.function.BiFunctionDouble;
+import com.revolsys.function.Consumer3Double;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.geometry.model.Point;
 import com.revolsys.geometry.model.impl.AbstractPoint;
 import com.revolsys.geometry.util.Points;
-import com.revolsys.record.io.format.json.JsonObject;
-import com.revolsys.record.io.format.json.JsonObjectHash;
 import com.revolsys.util.Property;
 
 public abstract class BaseLasPoint extends AbstractPoint implements LasPoint, Serializable {

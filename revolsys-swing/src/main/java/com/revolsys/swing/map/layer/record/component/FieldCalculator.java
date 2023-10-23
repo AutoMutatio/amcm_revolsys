@@ -22,10 +22,10 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 
 import org.jdesktop.swingx.VerticalLayout;
-import org.jeometry.common.awt.WebColors;
-import org.jeometry.common.data.identifier.Identifier;
-import org.jeometry.common.exception.Exceptions;
 
+import com.revolsys.awt.WebColors;
+import com.revolsys.data.identifier.Identifier;
+import com.revolsys.exception.Exceptions;
 import com.revolsys.record.ArrayRecord;
 import com.revolsys.record.Record;
 import com.revolsys.record.code.CodeTable;

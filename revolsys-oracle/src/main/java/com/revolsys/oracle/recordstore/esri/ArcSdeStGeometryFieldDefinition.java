@@ -13,9 +13,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.exception.Exceptions;
-
+import com.revolsys.data.type.DataType;
+import com.revolsys.exception.Exceptions;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.ClockDirection;
 import com.revolsys.geometry.model.Geometry;

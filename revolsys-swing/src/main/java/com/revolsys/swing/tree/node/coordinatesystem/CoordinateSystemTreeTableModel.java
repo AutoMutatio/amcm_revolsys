@@ -6,13 +6,13 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.jdesktop.swingx.treetable.AbstractTreeTableModel;
-import org.jeometry.coordinatesystem.model.CoordinateOperationMethod;
-import org.jeometry.coordinatesystem.model.CoordinateSystem;
-import org.jeometry.coordinatesystem.model.GeographicCoordinateSystem;
-import org.jeometry.coordinatesystem.model.ProjectedCoordinateSystem;
-import org.jeometry.coordinatesystem.model.systems.EpsgCoordinateSystems;
 
 import com.revolsys.collection.map.Maps;
+import com.revolsys.geometry.coordinatesystem.model.CoordinateOperationMethod;
+import com.revolsys.geometry.coordinatesystem.model.CoordinateSystem;
+import com.revolsys.geometry.coordinatesystem.model.GeographicCoordinateSystem;
+import com.revolsys.geometry.coordinatesystem.model.ProjectedCoordinateSystem;
+import com.revolsys.geometry.coordinatesystem.model.systems.EpsgCoordinateSystems;
 
 public class CoordinateSystemTreeTableModel extends AbstractTreeTableModel {
   private static final Object ROOT = new Object();

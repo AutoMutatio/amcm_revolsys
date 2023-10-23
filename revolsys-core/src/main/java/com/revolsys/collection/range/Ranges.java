@@ -1,7 +1,6 @@
 package com.revolsys.collection.range;
 
-import org.jeometry.common.number.Numbers;
-
+import com.revolsys.number.Numbers;
 import com.revolsys.util.Property;
 
 public class Ranges {

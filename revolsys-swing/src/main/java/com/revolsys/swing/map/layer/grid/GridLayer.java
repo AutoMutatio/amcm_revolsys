@@ -5,15 +5,14 @@ import java.util.Map;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
-import org.jeometry.common.logging.Logs;
-
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.gis.grid.RectangularMapGrid;
 import com.revolsys.gis.grid.RectangularMapGridFactory;
 import com.revolsys.gis.grid.RectangularMapTile;
 import com.revolsys.io.map.MapObjectFactory;
-import com.revolsys.record.io.format.json.JsonObject;
+import com.revolsys.logging.Logs;
 import com.revolsys.swing.Dialogs;
 import com.revolsys.swing.component.TabbedValuePanel;
 import com.revolsys.swing.map.layer.AbstractLayer;

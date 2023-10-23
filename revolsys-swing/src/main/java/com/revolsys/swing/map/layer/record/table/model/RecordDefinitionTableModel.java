@@ -3,8 +3,7 @@ package com.revolsys.swing.map.layer.record.table.model;
 import java.util.Arrays;
 import java.util.List;
 
-import org.jeometry.common.data.type.DataType;
-
+import com.revolsys.data.type.DataType;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.swing.table.AbstractTableModel;

@@ -9,10 +9,10 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.methods.RequestBuilder;
 import org.apache.http.message.BasicHeader;
 
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.net.http.ApacheHttp;
 import com.revolsys.net.http.SimpleNameValuePair;
 import com.revolsys.net.oauth.BearerToken;
-import com.revolsys.record.io.format.json.JsonObject;
 
 public class AzureManagedIdentityRequestBuilderFactory extends BearerTokenRequestBuilderFactory {
   public static final String ENDPOINT_URL;

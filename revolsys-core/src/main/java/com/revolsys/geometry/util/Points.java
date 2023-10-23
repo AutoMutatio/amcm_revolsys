@@ -1,10 +1,9 @@
 package com.revolsys.geometry.util;
 
-import org.jeometry.common.math.Angle;
-
 import com.revolsys.geometry.model.Point;
 import com.revolsys.geometry.model.coordinates.LineSegmentUtil;
 import com.revolsys.geometry.model.impl.PointDoubleXY;
+import com.revolsys.math.Angle;
 
 public class Points {
 

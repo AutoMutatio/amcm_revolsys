@@ -23,8 +23,7 @@ package com.revolsys.record.io.format.shp;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.jeometry.common.data.type.DataType;
-
+import com.revolsys.data.type.DataType;
 import com.revolsys.geometry.model.GeometryDataTypes;
 
 public class ShapefileConstants {

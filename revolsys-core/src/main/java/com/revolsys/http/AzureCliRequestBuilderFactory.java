@@ -3,12 +3,13 @@ package com.revolsys.http;
 import java.io.File;
 import java.util.List;
 
-import org.jeometry.common.logging.Logs;
-
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.list.Lists;
+import com.revolsys.exception.Exceptions;
 import com.revolsys.io.FileUtil;
+import com.revolsys.io.IoUtil;
+import com.revolsys.logging.Logs;
 import com.revolsys.net.oauth.BearerToken;
-import com.revolsys.record.io.format.json.JsonObject;
 
 public class AzureCliRequestBuilderFactory extends BearerTokenRequestBuilderFactory {
 
@@ -22,11 +23,11 @@ public class AzureCliRequestBuilderFactory extends BearerTokenRequestBuilderFact
     try {
       final Process process = builder.start();
       if (process.waitFor() == 0) {
-        final String commandOutput = FileUtil.getString(logFile).strip();
+        final String commandOutput = IoUtil.getString(logFile).strip();
         final JsonObject result = JsonObject.parse(commandOutput);
         return new AzureCliBearerToken(result);
       } else {
-        final String commandOutput = FileUtil.getString(logFile).strip();
+        final String commandOutput = IoUtil.getString(logFile).strip();
         try {
           throw new RuntimeException(commandOutput);
         } catch (final Exception e) {
@@ -35,6 +36,7 @@ public class AzureCliRequestBuilderFactory extends BearerTokenRequestBuilderFact
         }
       }
     } catch (final InterruptedException e) {
+      Exceptions.throwUncheckedException(e);
     } catch (final Throwable e) {
       Logs.error(AzureCliRequestBuilderFactory.class, "Error getting token", e);
     } finally {

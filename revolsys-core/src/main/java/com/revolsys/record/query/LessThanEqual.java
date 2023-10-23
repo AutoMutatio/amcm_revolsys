@@ -1,8 +1,7 @@
 package com.revolsys.record.query;
 
-import org.jeometry.common.compare.CompareUtil;
-
 import com.revolsys.collection.map.MapEx;
+import com.revolsys.comparator.CompareUtil;
 
 public class LessThanEqual extends BinaryCondition {
 

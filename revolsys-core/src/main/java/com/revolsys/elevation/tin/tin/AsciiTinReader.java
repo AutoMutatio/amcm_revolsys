@@ -3,15 +3,14 @@ package com.revolsys.elevation.tin.tin;
 import java.io.BufferedReader;
 import java.io.IOException;
 
-import org.jeometry.common.number.Doubles;
-import org.jeometry.common.number.Integers;
-
 import com.revolsys.elevation.tin.CompactTriangulatedIrregularNetwork;
 import com.revolsys.elevation.tin.TriangulatedIrregularNetwork;
 import com.revolsys.geometry.model.GeometryFactory;
-import com.revolsys.io.BaseCloseable;
 import com.revolsys.io.FileUtil;
+import com.revolsys.number.Doubles;
+import com.revolsys.number.Integers;
 import com.revolsys.spring.resource.Resource;
+import com.revolsys.util.BaseCloseable;
 
 public class AsciiTinReader implements BaseCloseable {
   private final GeometryFactory geometryFactory;

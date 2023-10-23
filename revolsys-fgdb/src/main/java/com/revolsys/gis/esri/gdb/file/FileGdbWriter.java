@@ -5,10 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jeometry.common.io.PathName;
-import org.jeometry.common.io.PathNameProxy;
-
 import com.revolsys.io.AbstractRecordWriter;
+import com.revolsys.io.PathName;
+import com.revolsys.io.PathNameProxy;
 import com.revolsys.record.Record;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordDefinitionProxy;

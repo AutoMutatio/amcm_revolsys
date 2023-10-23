@@ -26,9 +26,10 @@ import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.methods.HttpUriRequest;
-import org.jeometry.common.exception.Exceptions;
 
-public class AzureSharedKeyRequestBuilder extends ApacheHttpRequestBuilder {
+import com.revolsys.exception.Exceptions;
+
+public class AzureSharedKeyRequestBuilder extends HttpRequestBuilder {
 
   public static final DateTimeFormatter DATE_FORMAT;
 

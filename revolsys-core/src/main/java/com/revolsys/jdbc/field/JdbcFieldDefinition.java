@@ -8,8 +8,7 @@ import java.sql.Types;
 import java.util.List;
 import java.util.Map;
 
-import org.jeometry.common.data.type.DataType;
-
+import com.revolsys.data.type.DataType;
 import com.revolsys.jdbc.io.AbstractJdbcRecordStore;
 import com.revolsys.jdbc.io.JdbcRecordDefinition;
 import com.revolsys.record.Record;

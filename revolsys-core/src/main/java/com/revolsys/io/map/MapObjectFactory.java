@@ -7,13 +7,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.BiConsumer;
 
-import org.jeometry.common.logging.Logs;
-
+import com.revolsys.collection.json.Json;
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.collection.map.Maps;
+import com.revolsys.logging.Logs;
 import com.revolsys.properties.ObjectWithProperties;
-import com.revolsys.record.io.format.json.Json;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.spring.resource.Resource;
 import com.revolsys.util.JavaBeanUtil;
 import com.revolsys.util.Property;

@@ -6,14 +6,14 @@ import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import org.jeometry.common.data.refresh.RefreshableValue;
-import org.jeometry.common.logging.Logs;
+import com.revolsys.data.refresh.RefreshableValue;
+import com.revolsys.logging.Logs;
 
 public class BackgroundTaskThreadPool {
 
   private static final RefreshableValue<ThreadPoolExecutor> EXECUTOR = RefreshableValue
-    .supplier(() -> new ThreadPoolExecutor(0, 100, 60, TimeUnit.SECONDS,
-      new SynchronousQueue<Runnable>(), new NamedThreadFactory(Thread.NORM_PRIORITY, "bgtasks")) {
+    .supplier(() -> new ThreadPoolExecutor(0, 100, 60, TimeUnit.SECONDS, new SynchronousQueue<>(),
+      new NamedThreadFactory(Thread.NORM_PRIORITY, "bgtasks")) {
       @Override
       protected <T extends Object> RunnableFuture<T> newTaskFor(final Callable<T> callable) {
         return super.newTaskFor(() -> {

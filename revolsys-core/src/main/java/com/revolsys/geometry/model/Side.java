@@ -63,13 +63,13 @@ public enum Side {
     }
   }
 
-  private char letter;
+  private final char letter;
 
-  private String name;
+  private final String name;
 
-  private String upperName;
+  private final String upperName;
 
-  private String lowerName;
+  private final String lowerName;
 
   private Side(final String name) {
     this.name = name;

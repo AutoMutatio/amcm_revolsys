@@ -1,6 +1,6 @@
 package com.revolsys.math.matrix;
 
-import org.jeometry.common.number.Doubles;
+import com.revolsys.number.Doubles;
 
 /** Singular Value Decomposition.
 <P>

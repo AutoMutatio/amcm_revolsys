@@ -2,14 +2,14 @@ package com.revolsys.util;
 
 import java.sql.Timestamp;
 
-import org.jeometry.common.date.Dates;
-import org.jeometry.common.logging.Logs;
 import org.slf4j.LoggerFactory;
 
+import com.revolsys.date.Dates;
 import com.revolsys.geometry.graph.Edge;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.LineString;
 import com.revolsys.geometry.model.Point;
+import com.revolsys.logging.Logs;
 import com.revolsys.record.Record;
 import com.revolsys.record.RecordState;
 
@@ -92,6 +92,10 @@ public class Debug {
     }
   }
 
+  public static void log(final Object object) {
+    Logs.info(Debug.class, object.toString());
+  }
+
   public static void modified(final Record object) {
     if (object.getState() == RecordState.MODIFIED) {
       noOp();
@@ -105,10 +109,6 @@ public class Debug {
   }
 
   public static void noOp() {
-  }
-
-  public static void log(final Object object) {
-    Logs.info(Debug.class, object.toString());
   }
 
   public static void println(final Object object) {

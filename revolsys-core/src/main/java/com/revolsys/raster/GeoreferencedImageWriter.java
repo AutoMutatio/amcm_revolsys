@@ -2,13 +2,12 @@ package com.revolsys.raster;
 
 import java.io.PrintWriter;
 
-import org.jeometry.common.logging.Logs;
-import org.jeometry.common.number.Doubles;
-
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.io.IoFactory;
 import com.revolsys.io.Writer;
+import com.revolsys.logging.Logs;
+import com.revolsys.number.Doubles;
 import com.revolsys.spring.resource.Resource;
 
 public interface GeoreferencedImageWriter extends Writer<GeoreferencedImage> {

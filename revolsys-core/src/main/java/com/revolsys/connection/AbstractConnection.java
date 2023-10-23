@@ -3,14 +3,13 @@ package com.revolsys.connection;
 import java.nio.file.Path;
 import java.util.Map;
 
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.logging.Logs;
-
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.json.JsonObjectHash;
 import com.revolsys.collection.map.MapEx;
+import com.revolsys.data.type.DataType;
 import com.revolsys.io.FileUtil;
+import com.revolsys.logging.Logs;
 import com.revolsys.properties.BaseObjectWithProperties;
-import com.revolsys.record.io.format.json.JsonObject;
-import com.revolsys.record.io.format.json.JsonObjectHash;
 import com.revolsys.spring.resource.Resource;
 import com.revolsys.util.Property;
 

@@ -7,8 +7,7 @@ import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JTextField;
 
-import org.jeometry.common.awt.WebColors;
-
+import com.revolsys.awt.WebColors;
 import com.revolsys.swing.Icons;
 import com.revolsys.swing.undo.UndoManager;
 import com.revolsys.util.Property;

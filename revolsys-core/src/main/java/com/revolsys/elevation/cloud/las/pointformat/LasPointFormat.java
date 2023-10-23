@@ -3,10 +3,9 @@ package com.revolsys.elevation.cloud.las.pointformat;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-import org.jeometry.common.data.identifier.Code;
-import org.jeometry.common.data.type.DataTypes;
-
 import com.revolsys.collection.map.IntHashMap;
+import com.revolsys.data.identifier.Code;
+import com.revolsys.data.type.DataTypes;
 import com.revolsys.elevation.cloud.las.LasPointCloud;
 import com.revolsys.elevation.cloud.las.LasVersion;
 import com.revolsys.elevation.cloud.las.Version;
@@ -98,15 +97,15 @@ public enum LasPointFormat implements Code {
     }
   }
 
-  private int id;
+  private final int id;
 
-  private int recordLength;
+  private final int recordLength;
 
   private BiFunction<LasPointCloud, ChannelReader, LasPoint> recordReader;
 
-  private Version minVersion;
+  private final Version minVersion;
 
-  private Function<LasPointCloud, LasPoint> constructor;
+  private final Function<LasPointCloud, LasPoint> constructor;
 
   private LasPointFormat(final int id, final int recordLength,
     final Function<LasPointCloud, LasPoint> constructor, final Version minVersion) {

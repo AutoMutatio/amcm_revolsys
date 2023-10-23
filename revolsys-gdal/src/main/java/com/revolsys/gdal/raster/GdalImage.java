@@ -9,8 +9,8 @@ import java.util.List;
 
 import org.gdal.gdal.Band;
 import org.gdal.gdal.Dataset;
-import org.jeometry.common.function.Consumer3;
 
+import com.revolsys.function.Consumer3;
 import com.revolsys.gdal.Gdal;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactory;

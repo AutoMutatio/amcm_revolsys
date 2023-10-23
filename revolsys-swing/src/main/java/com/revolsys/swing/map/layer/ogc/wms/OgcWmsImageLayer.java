@@ -4,17 +4,16 @@ import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.Map;
 
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.exception.Exceptions;
-import org.jeometry.common.exception.WrappedException;
-import org.jeometry.common.logging.Logs;
-
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.data.type.DataType;
+import com.revolsys.exception.Exceptions;
+import com.revolsys.exception.WrappedRuntimeException;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.gis.wms.WmsClient;
 import com.revolsys.gis.wms.capabilities.WmsLayerDefinition;
+import com.revolsys.logging.Logs;
 import com.revolsys.raster.GeoreferencedImage;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.swing.map.layer.AbstractLayer;
 import com.revolsys.swing.map.layer.BaseMapLayer;
 import com.revolsys.swing.map.layer.raster.ViewFunctionImageLayerRenderer;
@@ -121,7 +120,7 @@ public class OgcWmsImageLayer extends AbstractLayer implements BaseMapLayer {
         final WmsLayerDefinition wmsLayerDefinition = wmsClient.getLayer(this.layerName);
         setWmsLayerDefinition(wmsLayerDefinition);
         return wmsLayerDefinition != null;
-      } catch (final WrappedException e) {
+      } catch (final WrappedRuntimeException e) {
         final Throwable cause = Exceptions.unwrap(e);
         if (cause instanceof UnknownHostException) {
           return setNotExists("Unknown host: " + cause.getMessage());

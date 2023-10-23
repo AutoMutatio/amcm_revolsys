@@ -28,7 +28,7 @@ import org.apache.olingo.commons.api.ex.ODataError;
 import org.apache.olingo.commons.api.ex.ODataErrorDetail;
 import org.apache.olingo.server.api.serializer.SerializerException;
 
-import com.revolsys.record.io.format.json.JsonWriter;
+import com.revolsys.collection.json.JsonWriter;
 
 public class ODataErrorSerializer {
 

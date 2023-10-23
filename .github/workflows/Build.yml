@@ -17,7 +17,6 @@ jobs:
       packages: write 
 
     env:
-      JEOMETRY_REPO: 'jeometry-org/jeometry'
       REVOLSYS_REPO: 'revolsys/com.revolsys.open'
 
     steps:
@@ -51,15 +50,6 @@ jobs:
         echo "REF=${REF}" >> $GITHUB_ENV
         echo "OTHER_REF=${OTHER_REF}" >> $GITHUB_ENV
 
-#### Checkout jeometry ####
-    - name: Checkout jeometry
-      uses: actions/checkout@v3
-      with:
-        ref: ${{env.OTHER_REF}}
-        repository: ${{env.JEOMETRY_REPO}}
-        path: jeometry
-        token: ${{secrets.PUSH_TOKEN}}
-
 #### Checkout revolsys ####
     - name: Checkout revolsys
       uses: actions/checkout@v3
@@ -73,7 +63,6 @@ jobs:
       with:
         path: |
           '~/.m2/repository'
-          '!~/.m2/repository/org/jeometry'
           '!~/.m2/repository/com/revolsys/open'
         key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
         restore-keys: |
@@ -91,8 +80,6 @@ jobs:
         BASE_REF=$(echo "$REF" | tr '[:lower:]' '[:upper:]')
         OTHER_VERSION="0.REVOLSYS-${BASE_REF}-SNAPSHOT"
         VERSION="${BASE_REF}-SNAPSHOT"
-        sed -i "s/<org.jeometry.version>.*<\\/org.jeometry.version>/<org.jeometry.version>${OTHER_VERSION}<\\/org.jeometry.version>/g" ./revolsys/pom.xml
-        mvn -f ./jeometry/pom.xml -B -q versions:set "-DnewVersion=${OTHER_VERSION}" -DgenerateBackupPoms=false -DprocessDependencies=false
         
 #### Build ####
     - name: Build

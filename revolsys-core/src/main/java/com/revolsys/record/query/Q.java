@@ -6,10 +6,9 @@ import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-import org.jeometry.common.data.identifier.Identifier;
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.data.type.DataTypes;
-
+import com.revolsys.data.identifier.Identifier;
+import com.revolsys.data.type.DataType;
+import com.revolsys.data.type.DataTypes;
 import com.revolsys.record.query.functions.Exists;
 import com.revolsys.record.query.functions.F;
 import com.revolsys.record.query.functions.JsonRawValue;

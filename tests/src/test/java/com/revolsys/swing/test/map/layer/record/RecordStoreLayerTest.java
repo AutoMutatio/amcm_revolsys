@@ -4,8 +4,6 @@ import java.io.File;
 import java.util.List;
 import java.util.Map;
 
-import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.common.io.PathName;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Assert;
@@ -14,11 +12,13 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.revolsys.collection.map.Maps;
+import com.revolsys.data.type.DataTypes;
 import com.revolsys.geometry.model.GeometryDataTypes;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.geometry.model.Point;
 import com.revolsys.gis.esri.gdb.file.FileGdbRecordStoreFactory;
 import com.revolsys.io.FileUtil;
+import com.revolsys.io.PathName;
 import com.revolsys.record.Record;
 import com.revolsys.record.RecordState;
 import com.revolsys.record.query.Query;

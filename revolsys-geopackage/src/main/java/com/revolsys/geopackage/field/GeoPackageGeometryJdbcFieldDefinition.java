@@ -9,8 +9,7 @@ import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Map;
 
-import org.jeometry.common.data.type.DataType;
-
+import com.revolsys.data.type.DataType;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryFactory;

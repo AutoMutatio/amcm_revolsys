@@ -5,9 +5,8 @@ import java.io.Writer;
 import java.util.Arrays;
 import java.util.Set;
 
-import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.common.io.PathNameProxy;
-
+import com.revolsys.data.type.DataTypes;
+import com.revolsys.io.PathNameProxy;
 import com.revolsys.record.io.RecordWriter;
 import com.revolsys.record.io.format.tsv.Tsv;
 import com.revolsys.record.io.format.tsv.TsvWriter;

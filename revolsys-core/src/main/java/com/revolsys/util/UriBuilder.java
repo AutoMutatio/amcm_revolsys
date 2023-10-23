@@ -296,6 +296,21 @@ public class UriBuilder {
     return this;
   }
 
+  /**
+   * Append the path to the end of the path, segments must be URL encoded
+   * @param string
+   * @return
+   */
+  public UriBuilder appendPathString(String path) {
+    if (Property.hasValue(path)) {
+      if (this.pathSegments != null) {
+        path = getPath() + path;
+      }
+      this.pathSegments = parsePath(path);
+    }
+    return this;
+  }
+
   private void appendUrlEncode(final StringBuilder sb, final String content, final BitSet safechars,
     final boolean blankAsPlus) {
     if (content != null) {
@@ -551,6 +566,15 @@ public class UriBuilder {
       return list;
     }
     return null;
+  }
+
+  public UriBuilder removeLastPathSegment() {
+    if (this.pathSegments == null) {
+      throw new IllegalStateException("Cannot remove last path segment from:" + toString());
+    } else {
+      this.pathSegments.remove(this.pathSegments.size() - 1);
+    }
+    return this;
   }
 
   /**

@@ -8,8 +8,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiFunction;
 
-import org.jeometry.common.data.type.DataType;
-
+import com.revolsys.data.type.DataType;
 import com.revolsys.jdbc.field.JdbcFieldDefinition;
 import com.revolsys.jdbc.field.JdbcFieldDefinitions;
 import com.revolsys.record.schema.FieldDefinition;

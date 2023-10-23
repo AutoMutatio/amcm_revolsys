@@ -2,7 +2,7 @@ package com.revolsys.record.io.format.kml;
 
 import javax.xml.namespace.QName;
 
-import org.jeometry.coordinatesystem.model.systems.EpsgId;
+import com.revolsys.geometry.coordinatesystem.model.systems.EpsgId;
 
 public interface Kml22Constants {
   String KML_NS_URI = "http://www.opengis.net/kml/2.2";

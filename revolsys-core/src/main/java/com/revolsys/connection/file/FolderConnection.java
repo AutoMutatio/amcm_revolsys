@@ -4,12 +4,11 @@ import java.io.File;
 import java.nio.file.Path;
 import java.util.List;
 
-import org.jeometry.common.data.type.DataType;
-
 import com.revolsys.collection.Parent;
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.connection.AbstractConnection;
+import com.revolsys.data.type.DataType;
 import com.revolsys.io.file.Paths;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.util.Property;
 
 public class FolderConnection extends AbstractConnection<FolderConnection, FolderConnectionRegistry>

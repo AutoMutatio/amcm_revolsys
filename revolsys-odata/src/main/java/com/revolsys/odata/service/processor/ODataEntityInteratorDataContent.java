@@ -5,8 +5,8 @@ import java.io.OutputStream;
 import org.apache.olingo.server.api.ODataContent;
 import org.apache.olingo.server.api.serializer.SerializerStreamResult;
 
-import com.revolsys.io.BaseCloseable;
 import com.revolsys.odata.model.ODataEntityIterator;
+import com.revolsys.util.BaseCloseable;
 
 public class ODataEntityInteratorDataContent implements ODataContent {
   private final ODataContent dataContent;

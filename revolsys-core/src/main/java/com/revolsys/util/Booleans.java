@@ -1,6 +1,6 @@
 package com.revolsys.util;
 
-import org.jeometry.common.data.type.DataTypes;
+import com.revolsys.data.type.DataTypes;
 
 public interface Booleans {
   static boolean getBoolean(final Object value) {

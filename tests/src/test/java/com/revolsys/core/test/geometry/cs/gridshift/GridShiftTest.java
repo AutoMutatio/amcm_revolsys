@@ -1,13 +1,13 @@
 package com.revolsys.core.test.geometry.cs.gridshift;
 
-import org.jeometry.coordinatesystem.model.systems.EpsgId;
-import org.jeometry.coordinatesystem.operation.CoordinatesOperationPoint;
-import org.jeometry.coordinatesystem.operation.gridshift.HorizontalShiftOperation;
 import org.junit.Assert;
 import org.junit.Test;
 
 import com.revolsys.csformat.gridshift.gsb.GsbGridShiftFile;
 import com.revolsys.csformat.gridshift.nadcon5.Nadcon5GridShiftOperation;
+import com.revolsys.geometry.coordinatesystem.model.systems.EpsgId;
+import com.revolsys.geometry.coordinatesystem.operation.CoordinatesOperationPoint;
+import com.revolsys.geometry.coordinatesystem.operation.gridshift.HorizontalShiftOperation;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.geometry.model.Point;
 import com.revolsys.record.Record;

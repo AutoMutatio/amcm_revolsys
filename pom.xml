@@ -398,7 +398,6 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <java.version>17</java.version>
-    <org.jeometry.version>MAIN-SNAPSHOT</org.jeometry.version>
     <gpg.skip>true</gpg.skip>
     <github.global.server>github</github.global.server>
     <skipTests>true</skipTests>

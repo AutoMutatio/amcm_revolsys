@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.list.Lists;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.elevation.gridded.GriddedElevationModel;
@@ -24,7 +25,6 @@ import com.revolsys.geometry.model.segment.LineSegmentDoubleGF;
 import com.revolsys.io.IoFactory;
 import com.revolsys.io.IoFactoryRegistry;
 import com.revolsys.predicate.Predicates;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.spring.resource.Resource;
 
 public interface TriangulatedIrregularNetwork extends GeometryFactoryProxy {

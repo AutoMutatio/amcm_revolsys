@@ -10,9 +10,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collections;
 
-import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.common.exception.Exceptions;
-
+import com.revolsys.data.type.DataTypes;
+import com.revolsys.exception.Exceptions;
 import com.revolsys.jdbc.field.JdbcFieldDefinition;
 import com.revolsys.record.query.ColumnIndexes;
 import com.revolsys.record.schema.RecordDefinition;

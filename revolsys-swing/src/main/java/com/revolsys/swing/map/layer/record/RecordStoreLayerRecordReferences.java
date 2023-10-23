@@ -6,9 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jeometry.common.data.identifier.Identifier;
-
 import com.revolsys.collection.map.IntegerCountMap;
+import com.revolsys.data.identifier.Identifier;
 
 public class RecordStoreLayerRecordReferences {
   private Map<Identifier, RecordStoreLayerRecord> recordsByIdentifier = new HashMap<>();

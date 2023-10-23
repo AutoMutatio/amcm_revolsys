@@ -10,9 +10,9 @@ import com.revolsys.geometry.model.Polygon;
 import com.revolsys.geometry.model.impl.PointDoubleXYOrientation;
 import com.revolsys.geometry.model.segment.Segment;
 import com.revolsys.geometry.model.vertex.Vertex;
-import com.revolsys.io.BaseCloseable;
 import com.revolsys.swing.map.layer.record.style.MarkerStyle;
 import com.revolsys.swing.map.view.ViewRenderer;
+import com.revolsys.util.BaseCloseable;
 import com.revolsys.util.Property;
 
 public abstract class AbstractMarkerRenderer implements MarkerRenderer {

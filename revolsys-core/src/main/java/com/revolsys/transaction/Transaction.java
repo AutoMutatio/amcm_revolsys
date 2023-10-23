@@ -3,14 +3,14 @@ package com.revolsys.transaction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import org.jeometry.common.exception.Exceptions;
 import org.springframework.lang.Nullable;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.support.DefaultTransactionStatus;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
-import com.revolsys.io.BaseCloseable;
+import com.revolsys.exception.Exceptions;
+import com.revolsys.util.BaseCloseable;
 
 public class Transaction implements BaseCloseable, TransactionDefinition {
 

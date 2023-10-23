@@ -2,8 +2,8 @@ package com.revolsys.record.query.functions;
 
 import java.util.List;
 
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.map.MapEx;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.record.query.BinaryCondition;
 import com.revolsys.record.query.Query;
 import com.revolsys.record.query.QueryValue;

@@ -30,9 +30,10 @@ import java.util.NoSuchElementException;
 
 import jakarta.annotation.PostConstruct;
 
-import org.jeometry.common.logging.Logs;
-
+import com.revolsys.collection.iterator.AbstractReader;
+import com.revolsys.collection.iterator.Reader;
 import com.revolsys.io.filter.ExtensionFilenameFilter;
+import com.revolsys.logging.Logs;
 import com.revolsys.spring.resource.PathResource;
 import com.revolsys.spring.resource.Resource;
 

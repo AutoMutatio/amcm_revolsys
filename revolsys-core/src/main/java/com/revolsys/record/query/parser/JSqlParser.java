@@ -7,8 +7,7 @@ import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-import org.jeometry.common.exception.Exceptions;
-
+import com.revolsys.exception.Exceptions;
 import com.revolsys.record.code.CodeTable;
 import com.revolsys.record.query.Add;
 import com.revolsys.record.query.And;

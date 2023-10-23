@@ -2,8 +2,7 @@ package com.revolsys.record.query;
 
 import java.util.List;
 
-import org.jeometry.common.io.PathName;
-
+import com.revolsys.io.PathName;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
 

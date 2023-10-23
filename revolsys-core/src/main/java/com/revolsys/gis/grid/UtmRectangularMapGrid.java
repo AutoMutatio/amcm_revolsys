@@ -3,14 +3,13 @@ package com.revolsys.gis.grid;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jeometry.common.number.Doubles;
-import org.jeometry.coordinatesystem.model.CoordinateSystem;
-import org.jeometry.coordinatesystem.model.systems.EpsgCoordinateSystems;
-import org.jeometry.coordinatesystem.model.systems.EpsgId;
-
+import com.revolsys.geometry.coordinatesystem.model.CoordinateSystem;
+import com.revolsys.geometry.coordinatesystem.model.systems.EpsgCoordinateSystems;
+import com.revolsys.geometry.coordinatesystem.model.systems.EpsgId;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryFactory;
+import com.revolsys.number.Doubles;
 
 public class UtmRectangularMapGrid extends AbstractRectangularMapGrid {
 

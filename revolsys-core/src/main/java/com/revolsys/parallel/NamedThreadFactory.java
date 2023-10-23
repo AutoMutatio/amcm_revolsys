@@ -3,7 +3,7 @@ package com.revolsys.parallel;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.jeometry.common.logging.LoggingRunnable;
+import com.revolsys.logging.LoggingRunnable;
 
 public class NamedThreadFactory implements ThreadFactory {
   private static final AtomicInteger poolNumber = new AtomicInteger(1);
@@ -19,6 +19,8 @@ public class NamedThreadFactory implements ThreadFactory {
   private String threadNamePrefix;
 
   private final AtomicInteger threadNumber = new AtomicInteger(1);
+
+  private boolean daemon = false;
 
   public NamedThreadFactory() {
     this(Thread.NORM_PRIORITY, null);
@@ -64,11 +66,16 @@ public class NamedThreadFactory implements ThreadFactory {
     final String threadName = this.threadNamePrefix + this.threadNumber.getAndIncrement();
     final LoggingRunnable loggingRunnable = new LoggingRunnable(runnable);
     final Thread thread = new Thread(this.group, loggingRunnable, threadName, 0);
-    if (thread.isDaemon()) {
-      thread.setDaemon(false);
+    if (thread.isDaemon() != this.daemon) {
+      thread.setDaemon(this.daemon);
     }
     thread.setPriority(this.priority);
     return thread;
+  }
+
+  public NamedThreadFactory setDaemon(final boolean daemon) {
+    this.daemon = daemon;
+    return this;
   }
 
   public NamedThreadFactory setNamePrefix(final String namePrefix) {

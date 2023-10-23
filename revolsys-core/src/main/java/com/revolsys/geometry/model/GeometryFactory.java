@@ -52,31 +52,30 @@ import java.util.zip.ZipFile;
 import javax.measure.Unit;
 import javax.measure.quantity.Length;
 
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.exception.WrappedException;
-import org.jeometry.common.function.BiConsumerDouble;
-import org.jeometry.common.function.BiFunctionDouble;
-import org.jeometry.common.function.Consumer3Double;
-import org.jeometry.common.logging.Logs;
-import org.jeometry.common.number.Doubles;
-import org.jeometry.coordinatesystem.io.EsriCsWktWriter;
-import org.jeometry.coordinatesystem.model.Area;
-import org.jeometry.coordinatesystem.model.CompoundCoordinateSystem;
-import org.jeometry.coordinatesystem.model.CoordinateSystem;
-import org.jeometry.coordinatesystem.model.CoordinateSystemType;
-import org.jeometry.coordinatesystem.model.EpsgAuthority;
-import org.jeometry.coordinatesystem.model.GeographicCoordinateSystem;
-import org.jeometry.coordinatesystem.model.HorizontalCoordinateSystem;
-import org.jeometry.coordinatesystem.model.ProjectedCoordinateSystem;
-import org.jeometry.coordinatesystem.model.VerticalCoordinateSystem;
-import org.jeometry.coordinatesystem.model.systems.EpsgId;
-import org.jeometry.coordinatesystem.model.systems.EsriCoordinateSystems;
-import org.jeometry.coordinatesystem.operation.CoordinatesOperation;
-import org.jeometry.coordinatesystem.operation.CoordinatesOperationPoint;
-
 import com.revolsys.collection.CollectionUtil;
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.json.JsonObjectHash;
 import com.revolsys.collection.map.IntHashMap;
 import com.revolsys.collection.map.Maps;
+import com.revolsys.data.type.DataType;
+import com.revolsys.exception.WrappedRuntimeException;
+import com.revolsys.function.BiConsumerDouble;
+import com.revolsys.function.BiFunctionDouble;
+import com.revolsys.function.Consumer3Double;
+import com.revolsys.geometry.coordinatesystem.io.EsriCsWktWriter;
+import com.revolsys.geometry.coordinatesystem.model.Area;
+import com.revolsys.geometry.coordinatesystem.model.CompoundCoordinateSystem;
+import com.revolsys.geometry.coordinatesystem.model.CoordinateSystem;
+import com.revolsys.geometry.coordinatesystem.model.CoordinateSystemType;
+import com.revolsys.geometry.coordinatesystem.model.EpsgAuthority;
+import com.revolsys.geometry.coordinatesystem.model.GeographicCoordinateSystem;
+import com.revolsys.geometry.coordinatesystem.model.HorizontalCoordinateSystem;
+import com.revolsys.geometry.coordinatesystem.model.ProjectedCoordinateSystem;
+import com.revolsys.geometry.coordinatesystem.model.VerticalCoordinateSystem;
+import com.revolsys.geometry.coordinatesystem.model.systems.EpsgId;
+import com.revolsys.geometry.coordinatesystem.model.systems.EsriCoordinateSystems;
+import com.revolsys.geometry.coordinatesystem.operation.CoordinatesOperation;
+import com.revolsys.geometry.coordinatesystem.operation.CoordinatesOperationPoint;
 import com.revolsys.geometry.graph.linemerge.LineMerger;
 import com.revolsys.geometry.model.editor.BoundingBoxEditor;
 import com.revolsys.geometry.model.editor.LineStringEditor;
@@ -107,8 +106,8 @@ import com.revolsys.io.StringWriter;
 import com.revolsys.io.channels.ChannelWriter;
 import com.revolsys.io.channels.DataReader;
 import com.revolsys.io.map.MapSerializer;
-import com.revolsys.record.io.format.json.JsonObject;
-import com.revolsys.record.io.format.json.JsonObjectHash;
+import com.revolsys.logging.Logs;
+import com.revolsys.number.Doubles;
 import com.revolsys.record.io.format.wkt.WktParser;
 import com.revolsys.spring.resource.Resource;
 import com.revolsys.util.Property;
@@ -574,7 +573,7 @@ public abstract class GeometryFactory implements GeometryFactoryProxy, MapSerial
           final CoordinateSystem coordinateSystem = EsriCoordinateSystems.readCoordinateSystem(wkt);
           final GeometryFactories instances = instances(coordinateSystem);
           return instances.floating(axisCount);
-        } catch (final WrappedException e) {
+        } catch (final WrappedRuntimeException e) {
           final Throwable cause = e.getCause();
           if (cause instanceof FileNotFoundException) {
           } else if (cause instanceof FileSystemException) {

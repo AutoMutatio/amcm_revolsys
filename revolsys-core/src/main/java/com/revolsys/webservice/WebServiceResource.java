@@ -1,8 +1,7 @@
 package com.revolsys.webservice;
 
-import org.jeometry.common.io.PathName;
-
 import com.revolsys.collection.NameProxy;
+import com.revolsys.io.PathName;
 import com.revolsys.spring.resource.UrlResource;
 import com.revolsys.util.IconNameProxy;
 

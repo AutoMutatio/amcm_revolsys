@@ -20,9 +20,9 @@ public enum LineCap {
     }
   }
 
-  private int awtValue;
+  private final int awtValue;
 
-  private int geometryValue;
+  private final int geometryValue;
 
   private LineCap(final int awtValue, final int geometryValue) {
     this.awtValue = awtValue;

@@ -53,11 +53,11 @@ public enum TiffBaselineTag implements TiffTag {
   Copyright(33432, "Copyright notice") //
   ;
 
-  private boolean array;
+  private final boolean array;
 
-  private String description;
+  private final String description;
 
-  private int id;
+  private final int id;
 
   private TiffBaselineTag(final int id, final String description) {
     this(id, description, false);

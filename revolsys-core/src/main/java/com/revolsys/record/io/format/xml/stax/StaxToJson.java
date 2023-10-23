@@ -14,11 +14,11 @@ import javax.xml.stream.XMLStreamConstants;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
-import org.jeometry.common.exception.Exceptions;
 
+import com.revolsys.collection.json.JsonList;
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.set.Sets;
-import com.revolsys.record.io.format.json.JsonList;
-import com.revolsys.record.io.format.json.JsonObject;
+import com.revolsys.exception.Exceptions;
 import com.revolsys.record.io.format.xml.XsiConstants;
 
 public class StaxToJson {

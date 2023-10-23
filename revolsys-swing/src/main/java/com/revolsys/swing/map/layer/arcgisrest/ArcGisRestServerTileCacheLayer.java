@@ -5,18 +5,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.exception.Exceptions;
-import org.jeometry.common.exception.WrappedException;
-import org.jeometry.common.io.PathName;
-import org.jeometry.common.logging.Logs;
-
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.data.type.DataType;
+import com.revolsys.exception.Exceptions;
+import com.revolsys.exception.WrappedRuntimeException;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactory;
+import com.revolsys.io.PathName;
+import com.revolsys.logging.Logs;
 import com.revolsys.record.io.format.esri.rest.ArcGisRestCatalog;
 import com.revolsys.record.io.format.esri.rest.map.MapService;
 import com.revolsys.record.io.format.esri.rest.map.TileInfo;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.spring.resource.UrlResource;
 import com.revolsys.swing.SwingUtil;
 import com.revolsys.swing.component.BasePanel;
@@ -219,7 +218,7 @@ public class ArcGisRestServerTileCacheLayer
               return true;
             }
           }
-        } catch (final WrappedException e) {
+        } catch (final WrappedRuntimeException e) {
           final Throwable cause = Exceptions.unwrap(e);
           if (cause instanceof UnknownHostException) {
             // Logs.error(this, getPath() + "Unknown host: " +

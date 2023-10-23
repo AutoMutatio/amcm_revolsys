@@ -14,9 +14,10 @@ import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.methods.HttpUriRequest;
-import org.jeometry.common.exception.Exceptions;
 
-public class AzureQueueSharedKeyRequestBuilder extends ApacheHttpRequestBuilder {
+import com.revolsys.exception.Exceptions;
+
+public class AzureQueueSharedKeyRequestBuilder extends HttpRequestBuilder {
 
   private static final char NEWLINE = '\n';
 
@@ -28,7 +29,7 @@ public class AzureQueueSharedKeyRequestBuilder extends ApacheHttpRequestBuilder 
 
   private static final List<String> HEADERS = Arrays.asList("Content-MD5", "Content-Type", "Date");
 
-  public AzureQueueSharedKeyRequestBuilder(final ApacheHttpRequestBuilderFactory factory) {
+  public AzureQueueSharedKeyRequestBuilder(final HttpRequestBuilderFactory factory) {
     super(factory);
   }
 

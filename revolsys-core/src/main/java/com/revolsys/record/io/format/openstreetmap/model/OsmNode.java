@@ -5,8 +5,7 @@ import java.util.Map;
 
 import javax.xml.namespace.QName;
 
-import org.jeometry.common.data.identifier.Identifier;
-
+import com.revolsys.data.identifier.Identifier;
 import com.revolsys.record.io.format.xml.stax.StaxReader;
 
 public class OsmNode extends OsmElement {

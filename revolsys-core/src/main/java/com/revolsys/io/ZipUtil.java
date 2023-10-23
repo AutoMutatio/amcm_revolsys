@@ -19,8 +19,7 @@ import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-import org.jeometry.common.exception.Exceptions;
-
+import com.revolsys.exception.Exceptions;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.spring.resource.Resource;
 import com.revolsys.util.Pair;

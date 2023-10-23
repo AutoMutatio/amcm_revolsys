@@ -6,6 +6,8 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.function.Supplier;
 
+import com.revolsys.util.BaseCloseable;
+
 public class CloseableResourceProxy<R extends BaseCloseable> implements BaseCloseable {
 
   private class CloseableResourceHandler implements InvocationHandler {

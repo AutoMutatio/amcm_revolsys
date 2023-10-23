@@ -3,8 +3,7 @@ package com.revolsys.record.query;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
-import org.jeometry.common.io.PathName;
-
+import com.revolsys.io.PathName;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.util.Property;
 

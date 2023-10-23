@@ -3,7 +3,7 @@ package com.revolsys.swing.map.layer.record.style.marker;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.Point;
 import com.revolsys.geometry.model.vertex.Vertex;
-import com.revolsys.io.BaseCloseable;
+import com.revolsys.util.BaseCloseable;
 
 public interface MarkerRenderer extends BaseCloseable {
 

@@ -20,8 +20,8 @@ import javax.swing.border.Border;
 
 import org.apache.commons.io.output.StringBuilderWriter;
 import org.jdesktop.swingx.plaf.basic.core.BasicTransferable;
-import org.jeometry.common.data.type.DataTypes;
 
+import com.revolsys.data.type.DataTypes;
 import com.revolsys.swing.Dialogs;
 import com.revolsys.swing.SwingUtil;
 import com.revolsys.swing.action.RunnableAction;

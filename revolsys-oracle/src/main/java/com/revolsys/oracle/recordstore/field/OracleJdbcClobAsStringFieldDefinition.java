@@ -3,8 +3,7 @@ package com.revolsys.oracle.recordstore.field;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import org.jeometry.common.jdbc.StringClob;
-
+import com.revolsys.jdbc.StringClob;
 import com.revolsys.record.query.ColumnIndexes;
 import com.revolsys.record.schema.RecordDefinition;
 

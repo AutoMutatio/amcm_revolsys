@@ -5,7 +5,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 
-import org.jeometry.common.exception.Exceptions;
+import com.revolsys.exception.Exceptions;
 
 public class HttpChannelReader extends ChannelReader {
 

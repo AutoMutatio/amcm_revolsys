@@ -18,9 +18,8 @@ import javax.swing.JTextField;
 import javax.swing.ListCellRenderer;
 import javax.swing.text.JTextComponent;
 
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.exception.Exceptions;
-
+import com.revolsys.data.type.DataType;
+import com.revolsys.exception.Exceptions;
 import com.revolsys.swing.list.renderer.LambdaListCellRenderer;
 import com.revolsys.util.Strings;
 

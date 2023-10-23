@@ -6,9 +6,9 @@ import java.time.Instant;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.data.type.DataTypes;
-
+import com.revolsys.data.type.DataType;
+import com.revolsys.data.type.DataTypes;
+import com.revolsys.exception.Exceptions;
 import com.revolsys.geometry.model.GeometryDataTypes;
 import com.revolsys.geometry.model.impl.PointDoubleXY;
 import com.revolsys.io.IoFactory;
@@ -138,8 +138,7 @@ public class RecordWriterPerformanceTest {
         try {
           record.wait(1000);
         } catch (final InterruptedException e) {
-          // TODO Auto-generated catch block
-          e.printStackTrace();
+          Exceptions.throwUncheckedException(e);
         }
       }
     }

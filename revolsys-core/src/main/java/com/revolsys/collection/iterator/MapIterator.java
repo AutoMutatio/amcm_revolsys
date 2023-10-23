@@ -1,37 +1,39 @@
 package com.revolsys.collection.iterator;
 
 import java.util.Iterator;
-import java.util.NoSuchElementException;
 import java.util.function.Function;
 
-public class MapIterator<I, O> extends AbstractIterator<O> {
+import com.revolsys.util.BaseCloseable;
 
-  private Function<I, O> converter;
+final class MapIterator<I, O> extends BaseIterator<O> {
 
-  private Iterator<I> iterator;
+  private final Function<? super I, O> converter;
 
-  public MapIterator(final Iterator<I> iterator, final Function<I, O> converter) {
+  private final Iterator<I> iterator;
+
+  MapIterator(final Iterator<I> iterator, final Function<? super I, O> converter) {
     this.iterator = iterator;
     this.converter = converter;
   }
 
   @Override
-  protected void closeDo() {
-    super.closeDo();
-    if (this.iterator instanceof AbstractIterator) {
-      final AbstractIterator<?> abstractIterator = (AbstractIterator<?>)this.iterator;
-      abstractIterator.close();
-    }
-    this.converter = null;
-    this.iterator = null;
+  public final void close() {
+    super.close();
+    BaseCloseable.closeValue(this.iterator);
   }
 
   @Override
-  protected O getNext() throws NoSuchElementException {
-    while (this.iterator != null && this.iterator.hasNext()) {
-      final I value = this.iterator.next();
-      return this.converter.apply(value);
+  protected boolean hasNextDo() {
+    while (this.iterator.hasNext()) {
+      final I inValue = this.iterator.next();
+      if (inValue != null) {
+        this.value = this.converter.apply(inValue);
+        if (this.value != null) {
+          return true;
+        }
+      }
     }
-    throw new NoSuchElementException();
+    return false;
   }
+
 }

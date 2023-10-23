@@ -10,10 +10,9 @@ import java.util.Map;
 
 import javax.swing.Icon;
 
-import org.jeometry.common.logging.Logs;
-
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactory;
+import com.revolsys.logging.Logs;
 import com.revolsys.swing.map.layer.AbstractLayerRenderer;
 import com.revolsys.swing.map.layer.Layer;
 import com.revolsys.swing.map.view.ViewRenderer;

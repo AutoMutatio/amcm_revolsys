@@ -9,7 +9,7 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
-import org.jeometry.common.logging.Logs;
+import com.revolsys.logging.Logs;
 
 public class TrustAllX509TrustManager implements X509TrustManager {
   public static final TrustAllX509TrustManager INSTANCE = new TrustAllX509TrustManager();
@@ -45,4 +45,3 @@ public class TrustAllX509TrustManager implements X509TrustManager {
     return new X509Certificate[0];
   }
 }
-

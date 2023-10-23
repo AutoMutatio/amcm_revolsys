@@ -8,23 +8,22 @@ import java.util.NoSuchElementException;
 import java.util.TreeMap;
 import java.util.function.Function;
 
-import org.jeometry.common.data.identifier.Identifier;
-import org.jeometry.common.io.FileNameProxy;
-
+import com.revolsys.collection.iterator.Reader;
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.map.MapEx;
+import com.revolsys.data.identifier.Identifier;
 import com.revolsys.geometry.model.ClockDirection;
 import com.revolsys.geometry.model.GeometryFactory;
-import com.revolsys.io.BaseCloseable;
+import com.revolsys.io.FileNameProxy;
 import com.revolsys.io.IoFactory;
-import com.revolsys.io.Reader;
 import com.revolsys.record.ArrayRecord;
 import com.revolsys.record.Record;
 import com.revolsys.record.RecordFactory;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.record.io.format.zip.ZipRecordReader;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordDefinitionProxy;
 import com.revolsys.spring.resource.Resource;
+import com.revolsys.util.BaseCloseable;
 
 public interface RecordReader extends Reader<Record>, RecordDefinitionProxy {
   public static class Builder {

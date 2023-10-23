@@ -2,7 +2,7 @@ package com.revolsys.http;
 
 import org.apache.http.client.methods.HttpUriRequest;
 
-public class ConfigurableRequestBuilder extends ApacheHttpRequestBuilder {
+public class ConfigurableRequestBuilder extends HttpRequestBuilder {
 
   public ConfigurableRequestBuilder(final ConfigurableRequestBuilderFactory factory) {
     super(factory);

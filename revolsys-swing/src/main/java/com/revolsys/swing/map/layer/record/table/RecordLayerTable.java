@@ -32,8 +32,8 @@ import org.jdesktop.swingx.decorator.HighlightPredicate;
 import org.jdesktop.swingx.event.TableColumnModelExtListener;
 import org.jdesktop.swingx.table.TableColumnExt;
 import org.jdesktop.swingx.table.TableColumnModelExt;
-import org.jeometry.common.awt.WebColors;
 
+import com.revolsys.awt.WebColors;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.record.query.Condition;
 import com.revolsys.record.query.Query;

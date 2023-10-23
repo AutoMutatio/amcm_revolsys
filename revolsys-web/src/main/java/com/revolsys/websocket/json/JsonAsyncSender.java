@@ -11,10 +11,10 @@ import jakarta.websocket.SendHandler;
 import jakarta.websocket.SendResult;
 import jakarta.websocket.Session;
 
-import org.jeometry.common.logging.Logs;
-
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.collection.map.Maps;
+import com.revolsys.exception.Exceptions;
+import com.revolsys.logging.Logs;
 import com.revolsys.util.Property;
 import com.revolsys.websocket.AsyncResult;
 
@@ -38,7 +38,7 @@ public class JsonAsyncSender implements SendHandler {
     synchronized (this) {
       this.session = null;
       this.async = null;
-      this.notifyAll();
+      notifyAll();
     }
   }
 
@@ -72,6 +72,7 @@ public class JsonAsyncSender implements SendHandler {
           try {
             wait(1000);
           } catch (final InterruptedException e) {
+            Exceptions.throwUncheckedException(e);
           }
           async = this.async;
           if (!this.open) {
@@ -167,7 +168,7 @@ public class JsonAsyncSender implements SendHandler {
           this.async = this.session.getAsyncRemote();
         }
       }
-      this.notifyAll();
+      notifyAll();
     }
   }
 }

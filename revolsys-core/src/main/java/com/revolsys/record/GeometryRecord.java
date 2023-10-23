@@ -3,8 +3,7 @@ package com.revolsys.record;
 import java.util.Collections;
 import java.util.List;
 
-import org.jeometry.common.data.type.DataType;
-
+import com.revolsys.data.type.DataType;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;

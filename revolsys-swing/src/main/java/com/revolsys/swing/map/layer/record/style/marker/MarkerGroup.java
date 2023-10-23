@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.list.Lists;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.util.CaseConverter;
 
 public class MarkerGroup extends AbstractMarkerGroupElement {

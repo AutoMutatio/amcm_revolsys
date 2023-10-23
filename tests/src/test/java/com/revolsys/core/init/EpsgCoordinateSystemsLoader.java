@@ -9,22 +9,21 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
-import org.jeometry.common.io.PathName;
-import org.jeometry.common.logging.Logs;
-import org.jeometry.common.number.Doubles;
-import org.jeometry.coordinatesystem.model.systems.EpsgCoordinateSystems.EpsgCoordinateSystemType;
-import org.jeometry.coordinatesystem.model.unit.UnitOfMeasure;
-
+import com.revolsys.collection.json.Json;
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.map.IntHashMap;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.collection.map.Maps;
+import com.revolsys.geometry.coordinatesystem.model.systems.EpsgCoordinateSystems.EpsgCoordinateSystemType;
+import com.revolsys.geometry.coordinatesystem.model.unit.UnitOfMeasure;
 import com.revolsys.geometry.model.BoundingBox;
+import com.revolsys.io.PathName;
 import com.revolsys.io.channels.ChannelWriter;
+import com.revolsys.logging.Logs;
+import com.revolsys.number.Doubles;
 import com.revolsys.record.Record;
 import com.revolsys.record.io.RecordReader;
 import com.revolsys.record.io.RecordWriter;
-import com.revolsys.record.io.format.json.Json;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.record.query.Query;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordStore;
@@ -51,7 +50,7 @@ public final class EpsgCoordinateSystemsLoader {
   }
 
   private final Resource baseResource = new PathResource(
-    "../../jeometry/jeometry-coordinatesystem/src/main/resources/org/jeometry/coordinatesystem/epsg");
+    "../revolsys-core/src/main/resources/com/revolsys/geometry/coordinatesystem/epsg");
 
   private final RecordStore recordStore;
 
@@ -291,7 +290,7 @@ public final class EpsgCoordinateSystemsLoader {
           .add("id", id) //
           .add("name", record.get("coord_sys_name")) //
           .add("type", type) //
-          .add("axes", new ArrayList<MapEx>());
+          .add("axes", new ArrayList<>());
         this.coordinateSystemById.put(id, coordinateSystem);
       }
     }

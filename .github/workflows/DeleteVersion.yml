@@ -24,7 +24,6 @@ jobs:
     - name: Init Variables
       shell: bash
       run: |
-        echo "JEOMETRY_REPO=${APP_REPO}_jeometry" >> $GITHUB_ENV
         VERSION="${{github.event.inputs.version}}"
         if [ "$VERSION" == "" ]; then
           VERSION=${GITHUB_REF#refs/tags/}

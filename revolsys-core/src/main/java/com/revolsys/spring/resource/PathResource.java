@@ -39,10 +39,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
 
-import org.jeometry.common.exception.Exceptions;
 import org.springframework.core.io.WritableResource;
 import org.springframework.util.Assert;
 
+import com.revolsys.exception.Exceptions;
 import com.revolsys.io.PathUtil;
 import com.revolsys.io.channels.Channels;
 

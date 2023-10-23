@@ -17,11 +17,12 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-import org.jeometry.common.io.PathName;
 import org.springframework.transaction.PlatformTransactionManager;
 
+import com.revolsys.collection.json.Json;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.geometry.model.BoundingBox;
+import com.revolsys.io.PathName;
 import com.revolsys.jdbc.JdbcUtils;
 import com.revolsys.jdbc.field.JdbcFieldDefinition;
 import com.revolsys.jdbc.field.JdbcFieldDefinitions;
@@ -34,7 +35,6 @@ import com.revolsys.record.RecordFactory;
 import com.revolsys.record.Records;
 import com.revolsys.record.io.RecordReader;
 import com.revolsys.record.io.RecordWriter;
-import com.revolsys.record.io.format.json.Json;
 import com.revolsys.record.query.functions.Exists;
 import com.revolsys.record.query.functions.F;
 import com.revolsys.record.schema.FieldDefinition;
@@ -920,6 +920,7 @@ public class Query extends BaseObjectWithProperties
     return join(JoinType.JOIN).table(table);
   }
 
+  @Override
   public Condition newCondition(final CharSequence fieldName,
     final BiFunction<QueryValue, QueryValue, Condition> operator, final Object value) {
     final ColumnReference left = this.table.getColumn(fieldName);
@@ -938,6 +939,7 @@ public class Query extends BaseObjectWithProperties
     return condition;
   }
 
+  @Override
   public Condition newCondition(final CharSequence fieldName,
     final java.util.function.Function<QueryValue, Condition> operator) {
     final ColumnReference column = this.table.getColumn(fieldName);
@@ -945,6 +947,7 @@ public class Query extends BaseObjectWithProperties
     return condition;
   }
 
+  @Override
   public Condition newCondition(final QueryValue left,
     final BiFunction<QueryValue, QueryValue, Condition> operator, final Object value) {
     Condition condition;
@@ -1014,7 +1017,11 @@ public class Query extends BaseObjectWithProperties
       final String name = ((CharSequence)select).toString();
       final int dotIndex = name.indexOf('.');
       if (dotIndex == -1) {
-        selectExpression = this.table.getColumn(name);
+        if (this.table.hasColumn(name)) {
+          selectExpression = this.table.getColumn(name);
+        } else {
+          selectExpression = new Column(name);
+        }
       } else {
         final ColumnReference column = this.table.getColumn(name.substring(0, dotIndex));
         if (column.getDataType() == Json.JSON_TYPE) {

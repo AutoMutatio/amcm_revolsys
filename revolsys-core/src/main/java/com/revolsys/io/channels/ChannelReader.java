@@ -8,11 +8,10 @@ import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.SeekableByteChannel;
 
-import org.jeometry.common.exception.Exceptions;
-
-import com.revolsys.io.BaseCloseable;
+import com.revolsys.exception.Exceptions;
 import com.revolsys.io.EndOfFileException;
 import com.revolsys.io.SeekableByteChannelInputStream;
+import com.revolsys.util.BaseCloseable;
 
 public class ChannelReader extends AbstractDataReader implements BaseCloseable {
 

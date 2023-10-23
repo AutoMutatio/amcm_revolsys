@@ -46,18 +46,17 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.undo.UndoableEdit;
 
 import org.jdesktop.swingx.VerticalLayout;
-import org.jeometry.common.awt.WebColors;
-import org.jeometry.common.data.identifier.Identifier;
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.common.logging.Logs;
 
+import com.revolsys.awt.WebColors;
 import com.revolsys.beans.PropertyChangeSupport;
 import com.revolsys.beans.PropertyChangeSupportProxy;
 import com.revolsys.collection.map.Maps;
+import com.revolsys.data.identifier.Identifier;
+import com.revolsys.data.type.DataType;
+import com.revolsys.data.type.DataTypes;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryDataTypes;
-import com.revolsys.io.BaseCloseable;
+import com.revolsys.logging.Logs;
 import com.revolsys.record.Record;
 import com.revolsys.record.RecordState;
 import com.revolsys.record.code.CodeTable;
@@ -95,6 +94,7 @@ import com.revolsys.swing.undo.ReverseRecordFieldsUndo;
 import com.revolsys.swing.undo.ReverseRecordGeometryUndo;
 import com.revolsys.swing.undo.ReverseRecordUndo;
 import com.revolsys.swing.undo.UndoManager;
+import com.revolsys.util.BaseCloseable;
 import com.revolsys.util.Property;
 import com.revolsys.util.Strings;
 import com.revolsys.value.ThreadBooleanValue;
@@ -1496,7 +1496,7 @@ public class LayerRecordForm extends JPanel implements PropertyChangeListener, C
 
     final JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT));
     dialog.add(buttons, BorderLayout.SOUTH);
-    final JButton addCancelButton = RunnableAction.newButton("Cancel", () -> actionAddCancel());
+    final JButton addCancelButton = RunnableAction.newButton("Cancel", this::actionAddCancel);
     buttons.add(addCancelButton);
     buttons.add(this.addOkButton);
 

@@ -3,6 +3,7 @@ package com.revolsys.record.io.format.json;
 import java.io.IOException;
 import java.io.Writer;
 
+import com.revolsys.collection.json.JsonWriterUtil;
 import com.revolsys.io.FileUtil;
 
 public class JsonStringEncodingWriter extends Writer {

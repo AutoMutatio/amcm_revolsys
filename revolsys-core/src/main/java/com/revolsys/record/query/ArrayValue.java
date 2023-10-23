@@ -4,12 +4,11 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Collection;
 
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.data.type.DataTypes;
-
 import com.revolsys.collection.list.ArrayListEx;
 import com.revolsys.collection.list.ListEx;
 import com.revolsys.collection.map.MapEx;
+import com.revolsys.data.type.DataType;
+import com.revolsys.data.type.DataTypes;
 import com.revolsys.jdbc.field.JdbcFieldDefinition;
 import com.revolsys.jdbc.field.JdbcFieldDefinitions;
 import com.revolsys.record.schema.FieldDefinition;
@@ -154,7 +153,7 @@ public class ArrayValue implements QueryValue {
         this.jdbcField = JdbcFieldDefinitions.newFieldDefinition(this.values.get(0));
       }
       if (!this.dontConvert) {
-        this.values = this.values.map(this.jdbcField::toFieldValue);
+        this.values = this.values.map(this.jdbcField::toFieldValue).toList();
       }
     }
   }

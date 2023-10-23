@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 import java.util.ArrayDeque;
 import java.util.Deque;
 
+import com.revolsys.collection.json.JsonList;
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.reactive.chars.ValueProcessor;
 
 public class ToJsonProcessor<V> implements JsonProcessor {

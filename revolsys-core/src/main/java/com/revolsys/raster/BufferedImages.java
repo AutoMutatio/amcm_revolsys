@@ -7,8 +7,7 @@ import java.net.URL;
 
 import javax.imageio.ImageIO;
 
-import org.jeometry.common.exception.Exceptions;
-
+import com.revolsys.exception.Exceptions;
 import com.revolsys.io.IoFactory;
 import com.revolsys.spring.resource.Resource;
 

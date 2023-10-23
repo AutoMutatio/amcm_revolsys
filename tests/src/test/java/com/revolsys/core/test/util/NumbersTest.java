@@ -3,10 +3,11 @@ package com.revolsys.core.test.util;
 import java.io.IOException;
 import java.io.StringWriter;
 
-import org.jeometry.common.number.Doubles;
-import org.jeometry.common.number.Integers;
 import org.junit.Assert;
 import org.junit.Test;
+
+import com.revolsys.number.Doubles;
+import com.revolsys.number.Integers;
 
 public class NumbersTest {
   private void assertOverlaps(final int min1, final int max1, final int min2, final int max2,

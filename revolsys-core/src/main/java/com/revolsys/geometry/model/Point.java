@@ -38,16 +38,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 
-import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.common.function.BiConsumerDouble;
-import org.jeometry.common.function.BiFunctionDouble;
-import org.jeometry.common.function.Consumer3Double;
-import org.jeometry.common.function.Consumer4Double;
-import org.jeometry.common.math.Angle;
-import org.jeometry.common.number.Doubles;
-import org.jeometry.coordinatesystem.operation.CoordinatesOperation;
-import org.jeometry.coordinatesystem.operation.CoordinatesOperationPoint;
-
+import com.revolsys.data.type.DataTypes;
+import com.revolsys.function.BiConsumerDouble;
+import com.revolsys.function.BiFunctionDouble;
+import com.revolsys.function.Consumer3Double;
+import com.revolsys.function.Consumer4Double;
+import com.revolsys.geometry.coordinatesystem.operation.CoordinatesOperation;
+import com.revolsys.geometry.coordinatesystem.operation.CoordinatesOperationPoint;
 import com.revolsys.geometry.model.editor.AbstractGeometryCollectionEditor;
 import com.revolsys.geometry.model.editor.AbstractGeometryEditor;
 import com.revolsys.geometry.model.editor.PointEditor;
@@ -57,6 +54,8 @@ import com.revolsys.geometry.model.vertex.PointVertex;
 import com.revolsys.geometry.model.vertex.Vertex;
 import com.revolsys.geometry.util.NumberUtil;
 import com.revolsys.geometry.util.Points;
+import com.revolsys.math.Angle;
+import com.revolsys.number.Doubles;
 import com.revolsys.util.Pair;
 import com.revolsys.util.Property;
 
