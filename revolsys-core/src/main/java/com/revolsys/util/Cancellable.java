@@ -12,7 +12,7 @@ public interface Cancellable {
   }
 
   default <V> BaseIterable<V> cancellable(final Iterable<V> iterable) {
-    return Iterables.fromIterable(iterable).cacellable(this);
+    return Iterables.fromIterable(iterable).cancellable(this);
   }
 
   /**
