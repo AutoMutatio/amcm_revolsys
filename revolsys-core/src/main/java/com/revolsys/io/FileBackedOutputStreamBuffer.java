@@ -109,7 +109,7 @@ public class FileBackedOutputStreamBuffer extends OutputStream implements Append
   }
 
   @Override
-  public synchronized void close() throws IOException {
+  public void close() throws IOException {
     if (!this.closed) {
       this.closed = true;
       try {
@@ -140,7 +140,7 @@ public class FileBackedOutputStreamBuffer extends OutputStream implements Append
   }
 
   @Override
-  public synchronized void flush() {
+  public void flush() {
     if (!this.closed) {
       if (this.out != null) {
         try {
