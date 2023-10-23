@@ -1,5 +1,7 @@
 package com.revolsys.record.io.format.xml.stax;
 
+import java.io.BufferedInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.util.LinkedHashMap;
@@ -83,7 +85,9 @@ public class StaxToJson {
   }
 
   public <V> V process(final InputStream in) {
-    return process(StaxReader.newXmlReader(in));
+    BufferedInputStream inputStream = new BufferedInputStream(in);
+    StaxReader xmlReader = StaxReader.newXmlReader(inputStream);
+    return process(xmlReader);
   }
 
   public <V> V process(final Reader in) {

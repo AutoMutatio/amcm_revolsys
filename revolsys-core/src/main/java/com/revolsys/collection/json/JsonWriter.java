@@ -25,36 +25,6 @@ import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.util.BaseCloseable;
 import com.revolsys.util.Property;
 
-enum JsonState {
-  START_DOCUMENT, START_OBJECT('{', '}'), END_OBJECT('}'), START_LIST('[',
-    ']'), END_LIST(']'), VALUE, LABEL, END_ATTRIBUTE;
-
-  private char c;
-
-  private char endChar;
-
-  private JsonState() {
-  }
-
-  private JsonState(final char c) {
-    this.c = c;
-  }
-
-  private JsonState(final char c, final char endChar) {
-    this.c = c;
-    this.endChar = endChar;
-  }
-
-  public char getChar() {
-    return this.c;
-  }
-
-  public char getEndChar() {
-    return this.endChar;
-  }
-
-}
-
 public class JsonWriter implements BaseCloseable {
 
   public static JsonWriter nullWriter() {
@@ -64,13 +34,13 @@ public class JsonWriter implements BaseCloseable {
 
   private int depth = 0;
 
-  private final List<JsonState> depthStack = new ArrayList<>();
+  private final List<JsonWriterState> depthStack = new ArrayList<>();
 
   private boolean indent;
 
   private Writer out;
 
-  private JsonState state = JsonState.START_DOCUMENT;
+  private JsonWriterState state = JsonWriterState.START_DOCUMENT;
 
   private final JsonStringEncodingWriter encodingOut;
 
@@ -93,7 +63,7 @@ public class JsonWriter implements BaseCloseable {
 
   }
 
-  private void blockEnd(final JsonState startState, final JsonState endState) {
+  private void blockEnd(final JsonWriterState startState, final JsonWriterState endState) {
     if (this.depth > 0) {
       this.depth--;
     }
@@ -107,7 +77,7 @@ public class JsonWriter implements BaseCloseable {
     writeState(endState);
   }
 
-  private void blockStart(final JsonState state) {
+  private void blockStart(final JsonWriterState state) {
     writeState(state);
     this.depth++;
     this.depthStack.add(state);
@@ -129,7 +99,7 @@ public class JsonWriter implements BaseCloseable {
       try {
         try {
           for (int i = this.depth; i > 0; i--) {
-            final JsonState state = this.depthStack.remove(i - 1);
+            final JsonWriterState state = this.depthStack.remove(i - 1);
             final char endChar = state.getEndChar();
             out.write(endChar);
           }
@@ -148,10 +118,11 @@ public class JsonWriter implements BaseCloseable {
   }
 
   public void endAttribute() {
-    if (this.state != JsonState.END_ATTRIBUTE && this.state != JsonState.START_DOCUMENT) {
+    if (this.state != JsonWriterState.END_ATTRIBUTE
+      && this.state != JsonWriterState.START_DOCUMENT) {
       try {
         this.out.write(',');
-        setState(JsonState.END_ATTRIBUTE);
+        setState(JsonWriterState.END_ATTRIBUTE);
       } catch (final Exception e) {
         throw Exceptions.wrap(e);
       }
@@ -159,11 +130,11 @@ public class JsonWriter implements BaseCloseable {
   }
 
   public void endList() {
-    blockEnd(JsonState.START_LIST, JsonState.END_LIST);
+    blockEnd(JsonWriterState.START_LIST, JsonWriterState.END_LIST);
   }
 
   public void endObject() {
-    blockEnd(JsonState.START_OBJECT, JsonState.END_OBJECT);
+    blockEnd(JsonWriterState.START_OBJECT, JsonWriterState.END_OBJECT);
   }
 
   public void flush() {
@@ -194,14 +165,14 @@ public class JsonWriter implements BaseCloseable {
   }
 
   public void label(final String key) {
-    if (this.state != JsonState.START_OBJECT && this.state != JsonState.END_ATTRIBUTE) {
+    if (this.state != JsonWriterState.START_OBJECT && this.state != JsonWriterState.END_ATTRIBUTE) {
       endAttribute();
     }
     try {
       indent();
       string(key);
       this.out.write(": ");
-      setState(JsonState.LABEL);
+      setState(JsonWriterState.LABEL);
     } catch (final Exception e) {
       throw Exceptions.wrap(e);
     }
@@ -277,7 +248,7 @@ public class JsonWriter implements BaseCloseable {
     this.indent = indent;
   }
 
-  private void setState(final JsonState state) {
+  private void setState(final JsonWriterState state) {
     this.state = state;
     this.indented = false;
   }
@@ -288,34 +259,35 @@ public class JsonWriter implements BaseCloseable {
   }
 
   public void startList(final boolean indent) {
-    final JsonState state = this.state;
-    if (state == JsonState.START_LIST) {
+    final JsonWriterState state = this.state;
+    if (state == JsonWriterState.START_LIST) {
       if (this.indent) {
         indent();
       }
-    } else if (state == JsonState.START_DOCUMENT || state == JsonState.LABEL) {
+    } else if (state == JsonWriterState.START_DOCUMENT || state == JsonWriterState.LABEL) {
     } else {
       endAttribute();
       if (indent) {
         indent();
       }
     }
-    blockStart(JsonState.START_LIST);
+    blockStart(JsonWriterState.START_LIST);
   }
 
   public void startObject() {
-    if (this.state == JsonState.START_LIST) {
+    if (this.state == JsonWriterState.START_LIST) {
       if (this.indent) {
         indent();
       }
-    } else if (this.state == JsonState.START_DOCUMENT || this.state == JsonState.LABEL) {
+    } else if (this.state == JsonWriterState.START_DOCUMENT
+      || this.state == JsonWriterState.LABEL) {
     } else {
       endAttribute();
       if (this.indent) {
         indent();
       }
     }
-    blockStart(JsonState.START_OBJECT);
+    blockStart(JsonWriterState.START_OBJECT);
   }
 
   public void string(final String string) {
@@ -361,7 +333,7 @@ public class JsonWriter implements BaseCloseable {
       final String string = dataType.toString(value);
       string(string);
     }
-    setState(JsonState.VALUE);
+    setState(JsonWriterState.VALUE);
 
   }
 
@@ -419,18 +391,18 @@ public class JsonWriter implements BaseCloseable {
     } catch (final Exception e) {
       throw Exceptions.wrap(e);
     }
-    setState(JsonState.VALUE);
+    setState(JsonWriterState.VALUE);
   }
 
   private void valuePre() {
-    final JsonState state = this.state;
-    if (state == JsonState.LABEL) {
-    } else if (state == JsonState.START_LIST) {
+    final JsonWriterState state = this.state;
+    if (state == JsonWriterState.LABEL) {
+    } else if (state == JsonWriterState.START_LIST) {
       if (this.indent) {
         indent();
       }
     } else {
-      if (state != JsonState.END_ATTRIBUTE) {
+      if (state != JsonWriterState.END_ATTRIBUTE) {
         endAttribute();
       }
       if (this.indent) {
@@ -493,7 +465,7 @@ public class JsonWriter implements BaseCloseable {
     }
   }
 
-  private void writeState(final JsonState state) {
+  private void writeState(final JsonWriterState state) {
     try {
       setState(state);
       final char c = state.getChar();
@@ -502,4 +474,34 @@ public class JsonWriter implements BaseCloseable {
       throw Exceptions.wrap(e);
     }
   }
+}
+
+enum JsonWriterState {
+  START_DOCUMENT, START_OBJECT('{', '}'), END_OBJECT('}'), START_LIST('[',
+    ']'), END_LIST(']'), VALUE, LABEL, END_ATTRIBUTE;
+
+  private char c;
+
+  private char endChar;
+
+  private JsonWriterState() {
+  }
+
+  private JsonWriterState(final char c) {
+    this.c = c;
+  }
+
+  private JsonWriterState(final char c, final char endChar) {
+    this.c = c;
+    this.endChar = endChar;
+  }
+
+  public char getChar() {
+    return this.c;
+  }
+
+  public char getEndChar() {
+    return this.endChar;
+  }
+
 }

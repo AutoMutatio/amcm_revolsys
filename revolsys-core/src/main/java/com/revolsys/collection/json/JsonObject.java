@@ -105,6 +105,12 @@ public interface JsonObject extends MapEx, JsonType {
   }
 
   @Override
+  default JsonObject addAll(final Map<String, ? extends Object> map) {
+    MapEx.super.addAll(map);
+    return this;
+  }
+
+  @Override
   default JsonObject addFieldValue(final String key, final Map<String, Object> source) {
     final Object value = source.get(key);
     if (value != null || containsKey(key)) {

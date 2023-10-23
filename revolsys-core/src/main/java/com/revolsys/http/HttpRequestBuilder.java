@@ -266,6 +266,15 @@ public class HttpRequestBuilder {
     return addParameter(parameter);
   }
 
+  public HttpRequestBuilder addParameterNotNull(final String name, final Object value) {
+    if (value != null) {
+      final String string = value.toString();
+      final BasicNameValuePair parameter = new BasicNameValuePair(name, string);
+      return addParameter(parameter);
+    }
+    return this;
+  }
+
   public HttpRequestBuilder addParameters(final Iterable<NameValuePair> parameters) {
     for (final NameValuePair parameter : parameters) {
       addParameter(parameter);
@@ -467,6 +476,14 @@ public class HttpRequestBuilder {
   public HttpRequestBuilder setConfig(final RequestConfig config) {
     this.config = config;
     return this;
+  }
+
+  public HttpRequestBuilder setContentLength(final long contentLength) {
+    return setHeader("Content-Length", Long.toString(contentLength));
+  }
+
+  public HttpRequestBuilder setContentType(final String contentType) {
+    return setHeader("Content-Type", contentType);
   }
 
   public HttpRequestBuilder setEmptyEntity() {

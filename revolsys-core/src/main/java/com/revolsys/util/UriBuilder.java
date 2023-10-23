@@ -235,6 +235,13 @@ public class UriBuilder {
     this.fragment = uri.getFragment();
   }
 
+  public UriBuilder addParameter(final String param, final Object value) {
+    if (value != null) {
+      return addParameter(param, value.toString());
+    }
+    return this;
+  }
+
   /**
    * Adds parameter to URI query. The parameter name and value are expected to be unescaped
    * and may contain non ASCII characters.
@@ -268,7 +275,9 @@ public class UriBuilder {
     if (this.queryParams == null) {
       this.queryParams = new ArrayList<>();
     }
-    this.queryParams.addAll(nvps);
+    if (nvps != null) {
+      this.queryParams.addAll(nvps);
+    }
     this.encodedQuery = null;
     this.encodedSchemeSpecificPart = null;
     this.query = null;
