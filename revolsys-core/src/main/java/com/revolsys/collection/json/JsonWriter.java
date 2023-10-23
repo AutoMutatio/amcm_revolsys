@@ -333,27 +333,27 @@ public class JsonWriter implements BaseCloseable {
     }
   }
 
+  @SuppressWarnings("unchecked")
   public void value(final DataType dataType, final Object value) throws IOException {
     valuePre();
     final Writer out = this.out;
     if (value == null) {
       out.write("null");
-    } else if (value instanceof Boolean) {
-      if ((Boolean)value) {
+    } else if (value instanceof final Boolean bool) {
+      if (bool) {
         out.write("true");
       } else {
         out.write("false");
       }
-    } else if (value instanceof Number) {
-      out.write(Numbers.toString((Number)value));
-    } else if (value instanceof List) {
-      final List<? extends Object> list = (List<? extends Object>)value;
+    } else if (value instanceof final Number number) {
+      out.write(Numbers.toString(number));
+    } else if (value instanceof final List list) {
       list(list);
-    } else if (value instanceof Map) {
-      final Map<String, ? extends Object> map = (Map<String, ? extends Object>)value;
+    } else if (value instanceof final Iterable iterable) {
+      list(iterable);
+    } else if (value instanceof final Map map) {
       write(map);
-    } else if (value instanceof CharSequence) {
-      final CharSequence string = (CharSequence)value;
+    } else if (value instanceof final CharSequence string) {
       string(string.toString());
     } else if (dataType == null) {
       string(value.toString());
@@ -371,53 +371,48 @@ public class JsonWriter implements BaseCloseable {
     try {
       if (value == null) {
         this.out.write("null");
-      } else if (value instanceof Boolean) {
-        if ((Boolean)value) {
+      } else if (value instanceof final Boolean bool) {
+        if (bool) {
           this.out.write("true");
         } else {
           this.out.write("false");
         }
-      } else if (value instanceof Number) {
-        final Number number = (Number)value;
+      } else if (value instanceof final Number number) {
         final double doubleValue = number.doubleValue();
         if (Double.isInfinite(doubleValue) || Double.isNaN(doubleValue)) {
           this.out.write("null");
         } else {
           this.out.write(Doubles.toString(doubleValue));
         }
-      } else if (value instanceof MapSerializer) {
-        final JsonObject map = ((MapSerializer)value).toMap();
+      } else if (value instanceof final MapSerializer serialzer) {
+        final JsonObject map = serialzer.toMap();
         write(map);
-      } else if (value instanceof Collection) {
-        final Collection<? extends Object> list = (Collection<? extends Object>)value;
-        write(list);
-      } else if (value instanceof Jsonable) {
-        final JsonType json = ((Jsonable)value).toJson();
-        if (value instanceof JsonObject) {
-          final Map<String, ? extends Object> map = (JsonObject)value;
+      } else if (value instanceof final Collection list) {
+        list(list);
+      } else if (value instanceof final Iterable list) {
+        list(list);
+      } else if (value instanceof final Jsonable jsonable) {
+        final JsonType json = jsonable.toJson();
+        if (value instanceof final JsonObject map) {
           write(map);
-        } else if (value instanceof JsonList) {
-          final List<? extends Object> list = (JsonList)value;
-          write(list);
+        } else if (value instanceof final JsonList list) {
+          list(list);
         } else {
           value(json);
         }
-      } else if (value instanceof Map) {
-        final Map<String, ? extends Object> map = (Map<String, ? extends Object>)value;
+      } else if (value instanceof final Map map) {
         write(map);
-      } else if (value instanceof String) {
-        final String string = (String)value;
+      } else if (value instanceof final String string) {
         this.out.write('"');
         this.encodingOut.write(string);
         this.out.write('"');
-      } else if (value instanceof CharSequence) {
-        final CharSequence string = (CharSequence)value;
+      } else if (value instanceof final CharSequence string) {
         this.out.write('"');
         this.encodingOut.append(string);
         this.out.write('"');
       } else if (value.getClass().isArray()) {
         final List<? extends Object> list = Lists.arrayToList(value);
-        write(list);
+        list(list);
       } else {
         value(DataTypes.toString(value));
       }
@@ -442,14 +437,6 @@ public class JsonWriter implements BaseCloseable {
         indent();
       }
     }
-  }
-
-  public void write(final Collection<? extends Object> values) throws IOException {
-    startList(false);
-    for (final Object value : values) {
-      value(value);
-    }
-    endList();
   }
 
   public <K, V> void write(final Map<K, V> values) {

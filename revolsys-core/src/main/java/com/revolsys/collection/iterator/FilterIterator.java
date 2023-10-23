@@ -28,13 +28,7 @@ final class FilterIterator<T> extends BaseIterator<T> {
       this.value = this.iterator.next();
       if (this.value != null && this.filter.test(this.value)) {
         return true;
-      } else {
-        this.value = null;
       }
-      if (this.value == null) {
-        close();
-      }
-      this.loadNext = false;
     }
     return false;
   }
