@@ -14,10 +14,9 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Predicate;
 
-import org.jeometry.common.awt.WebColors;
-import org.jeometry.common.data.type.DataType;
-
+import com.revolsys.awt.WebColors;
 import com.revolsys.collection.list.Lists;
+import com.revolsys.data.type.DataType;
 import com.revolsys.geometry.graph.Edge;
 import com.revolsys.geometry.graph.Node;
 import com.revolsys.geometry.graph.RecordGraph;

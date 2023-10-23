@@ -3,11 +3,11 @@ package com.revolsys.elevation.gridded.rasterizer;
 import java.awt.Color;
 import java.util.Map;
 
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.elevation.gridded.GriddedElevationModel;
 import com.revolsys.elevation.gridded.rasterizer.gradient.LinearGradient;
 import com.revolsys.elevation.gridded.rasterizer.gradient.MultiStopLinearGradient;
 import com.revolsys.grid.Grid;
-import com.revolsys.record.io.format.json.JsonObject;
 
 public class SlopeColorGradientGriddedElevationModelRasterizer
   extends AbstractGriddedElevationModelRasterizer {

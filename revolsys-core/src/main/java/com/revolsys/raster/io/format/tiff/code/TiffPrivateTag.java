@@ -90,11 +90,11 @@ public enum TiffPrivateTag implements TiffTag {
   GEO_METADATA(50909, "This private id is used in a GEOTIFF standard by DGIWG") //
   ;
 
-  private boolean array;
+  private final boolean array;
 
-  private String description;
+  private final String description;
 
-  private int id;
+  private final int id;
 
   private TiffPrivateTag(final int id, final String description) {
     this(id, description, false);

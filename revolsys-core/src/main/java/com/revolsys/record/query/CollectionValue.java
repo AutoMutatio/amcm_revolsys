@@ -6,10 +6,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.exception.Exceptions;
-
 import com.revolsys.collection.map.MapEx;
+import com.revolsys.data.type.DataType;
+import com.revolsys.exception.Exceptions;
 import com.revolsys.jdbc.field.JdbcFieldDefinition;
 import com.revolsys.jdbc.field.JdbcFieldDefinitions;
 import com.revolsys.record.code.CodeTable;

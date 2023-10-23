@@ -4,10 +4,10 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-import org.jeometry.common.data.identifier.Identifier;
-import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.common.exception.Exceptions;
-import org.jeometry.coordinatesystem.util.Hex;
+import com.revolsys.data.identifier.Identifier;
+import com.revolsys.data.type.DataTypes;
+import com.revolsys.exception.Exceptions;
+import com.revolsys.geometry.coordinatesystem.util.Hex;
 
 public class Sha1Builder {
   private MessageDigest digester;

@@ -16,8 +16,8 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
 import org.jdesktop.swingx.VerticalLayout;
-import org.jeometry.common.awt.WebColors;
 
+import com.revolsys.awt.WebColors;
 import com.revolsys.collection.list.Lists;
 import com.revolsys.collection.map.Maps;
 import com.revolsys.swing.Dialogs;

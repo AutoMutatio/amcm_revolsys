@@ -1,7 +1,6 @@
 package com.revolsys.gis.esri.gdb.file;
 
-import org.jeometry.common.io.PathName;
-
+import com.revolsys.io.PathName;
 import com.revolsys.record.schema.RecordStore;
 import com.revolsys.record.schema.RecordStoreSchema;
 

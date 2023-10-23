@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.function.Function;
 
 import com.revolsys.collection.iterator.AbstractIterator;
+import com.revolsys.collection.iterator.AbstractReader;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.properties.ObjectWithProperties;
 

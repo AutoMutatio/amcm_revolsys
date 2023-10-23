@@ -29,14 +29,13 @@ import java.util.Map;
 
 import javax.xml.namespace.QName;
 
-import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.common.exception.Exceptions;
-import org.jeometry.common.logging.Logs;
-import org.jeometry.common.number.Doubles;
-import org.jeometry.common.number.Floats;
-import org.jeometry.common.number.Numbers;
-
+import com.revolsys.data.type.DataTypes;
+import com.revolsys.exception.Exceptions;
 import com.revolsys.io.FileUtil;
+import com.revolsys.logging.Logs;
+import com.revolsys.number.Doubles;
+import com.revolsys.number.Floats;
+import com.revolsys.number.Numbers;
 import com.revolsys.util.Property;
 
 /**

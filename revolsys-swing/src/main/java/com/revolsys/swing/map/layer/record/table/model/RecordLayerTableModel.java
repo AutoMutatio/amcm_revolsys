@@ -19,15 +19,14 @@ import javax.swing.ListSelectionModel;
 import javax.swing.RowFilter;
 import javax.swing.SortOrder;
 
-import org.jeometry.common.data.type.DataType;
-
 import com.revolsys.beans.PropertyChangeSupportProxy;
 import com.revolsys.collection.CollectionUtil;
+import com.revolsys.collection.json.JsonType;
 import com.revolsys.collection.list.Lists;
+import com.revolsys.data.type.DataType;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.record.Record;
 import com.revolsys.record.Records;
-import com.revolsys.record.io.format.json.JsonType;
 import com.revolsys.record.query.Condition;
 import com.revolsys.record.query.Query;
 import com.revolsys.record.query.TableReference;

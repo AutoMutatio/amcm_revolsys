@@ -16,13 +16,10 @@ import javax.measure.Quantity;
 import javax.measure.Unit;
 import javax.measure.quantity.Length;
 
-import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.common.exception.Exceptions;
-import org.jeometry.common.function.Consumer3;
-import org.jeometry.common.logging.Logs;
-import org.jeometry.common.number.Doubles;
-import org.jeometry.coordinatesystem.model.CoordinateSystem;
-
+import com.revolsys.data.type.DataTypes;
+import com.revolsys.exception.Exceptions;
+import com.revolsys.function.Consumer3;
+import com.revolsys.geometry.coordinatesystem.model.CoordinateSystem;
 import com.revolsys.geometry.model.editor.BoundingBoxEditor;
 import com.revolsys.geometry.model.impl.BoundingBoxDoubleXY;
 import com.revolsys.geometry.model.impl.LineStringDouble;
@@ -30,6 +27,8 @@ import com.revolsys.geometry.model.impl.PointDoubleGf;
 import com.revolsys.geometry.model.impl.RectangleXY;
 import com.revolsys.geometry.util.OutCode;
 import com.revolsys.geometry.util.Points;
+import com.revolsys.logging.Logs;
+import com.revolsys.number.Doubles;
 import com.revolsys.record.io.format.wkt.WktParser;
 import com.revolsys.util.Emptyable;
 import com.revolsys.util.Property;

@@ -46,7 +46,6 @@ import org.jdom.DataConversionException;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.input.SAXBuilder;
-import org.jeometry.common.exception.Exceptions;
 
 import com.revolsys.core.test.geometry.test.function.GeometryFunctionRegistry;
 import com.revolsys.core.test.geometry.test.function.TestCaseGeometryFunctions;
@@ -56,6 +55,7 @@ import com.revolsys.core.test.geometry.test.util.LineNumberElement;
 import com.revolsys.core.test.geometry.test.util.LineNumberSAXBuilder;
 import com.revolsys.core.test.geometry.test.util.TestFileUtil;
 import com.revolsys.core.test.geometry.test.util.WKTOrWKBReader;
+import com.revolsys.exception.Exceptions;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryFactory;
 

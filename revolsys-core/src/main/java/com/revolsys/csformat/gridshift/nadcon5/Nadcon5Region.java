@@ -6,8 +6,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jeometry.coordinatesystem.operation.CoordinatesOperationPoint;
-
+import com.revolsys.geometry.coordinatesystem.operation.CoordinatesOperationPoint;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactory;
 

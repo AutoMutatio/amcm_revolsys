@@ -4,8 +4,7 @@ import java.awt.Window;
 
 import javax.swing.JDialog;
 
-import org.jeometry.common.logging.Logs;
-
+import com.revolsys.logging.Logs;
 import com.revolsys.swing.Dialogs;
 import com.revolsys.swing.WindowManager;
 

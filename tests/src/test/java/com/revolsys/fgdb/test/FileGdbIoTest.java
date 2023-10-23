@@ -3,11 +3,10 @@ package com.revolsys.fgdb.test;
 import java.io.File;
 import java.util.List;
 
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.common.io.PathName;
 import org.junit.Assert;
 
+import com.revolsys.data.type.DataType;
+import com.revolsys.data.type.DataTypes;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.geometry.model.LinearRing;
@@ -16,6 +15,7 @@ import com.revolsys.gis.esri.gdb.file.FileGdbRecordStore;
 import com.revolsys.gis.esri.gdb.file.FileGdbRecordStoreFactory;
 import com.revolsys.io.FileUtil;
 import com.revolsys.io.IoConstants;
+import com.revolsys.io.PathName;
 import com.revolsys.io.Writer;
 import com.revolsys.record.Record;
 import com.revolsys.record.io.RecordReader;

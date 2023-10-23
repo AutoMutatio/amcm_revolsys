@@ -2,8 +2,7 @@ package com.revolsys.parallel;
 
 import java.util.concurrent.Callable;
 
-import org.jeometry.common.exception.Exceptions;
-
+import com.revolsys.exception.Exceptions;
 import com.revolsys.util.BaseCloseable;
 
 public class SingleThreadExecutor implements BaseCloseable {
@@ -111,7 +110,7 @@ public class SingleThreadExecutor implements BaseCloseable {
           }
           return (V)this.result;
         } catch (final InterruptedException e) {
-          // Ignore
+          Exceptions.throwUncheckedException(e);
         } finally {
           this.result = null;
           this.exception = null;
@@ -143,8 +142,8 @@ public class SingleThreadExecutor implements BaseCloseable {
                 synchronized (this.handleSync) {
                   this.handleSync.notifyAll();
                 }
-                return;
               }
+              Exceptions.throwUncheckedException(e);
             }
           }
           try {

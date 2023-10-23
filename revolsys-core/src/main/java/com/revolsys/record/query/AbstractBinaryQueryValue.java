@@ -5,8 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 
-import org.jeometry.common.data.type.DataType;
-
+import com.revolsys.data.type.DataType;
 import com.revolsys.record.schema.RecordStore;
 
 public abstract class AbstractBinaryQueryValue implements QueryValue {

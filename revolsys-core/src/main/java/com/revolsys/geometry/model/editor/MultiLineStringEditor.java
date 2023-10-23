@@ -2,9 +2,8 @@ package com.revolsys.geometry.model.editor;
 
 import java.util.function.Consumer;
 
-import org.jeometry.common.function.BiFunctionDouble;
-import org.jeometry.common.function.Function4Double;
-
+import com.revolsys.function.BiFunctionDouble;
+import com.revolsys.function.Function4Double;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryDataType;
 import com.revolsys.geometry.model.GeometryDataTypes;

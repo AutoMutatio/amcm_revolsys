@@ -14,21 +14,20 @@ import java.util.TreeSet;
 import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 
-import org.jeometry.common.compare.CompareUtil;
-import org.jeometry.common.data.identifier.Identifier;
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.io.PathName;
-import org.jeometry.common.logging.Logs;
-
 import com.revolsys.collection.list.Lists;
 import com.revolsys.collection.map.MapEx;
+import com.revolsys.comparator.CompareUtil;
 import com.revolsys.comparator.StringNumberComparator;
+import com.revolsys.data.identifier.Identifier;
+import com.revolsys.data.type.DataType;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryDataTypes;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.geometry.model.TopologyException;
 import com.revolsys.geometry.model.editor.BoundingBoxEditor;
+import com.revolsys.io.PathName;
+import com.revolsys.logging.Logs;
 import com.revolsys.predicate.Predicates;
 import com.revolsys.record.code.CodeTable;
 import com.revolsys.record.io.RecordReader;

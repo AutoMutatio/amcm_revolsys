@@ -14,15 +14,15 @@ import java.util.function.Predicate;
 
 import javax.swing.SwingWorker;
 
-import org.jeometry.common.data.identifier.Identifier;
-import org.jeometry.common.io.PathName;
-import org.jeometry.common.logging.Logs;
-
 import com.revolsys.collection.iterator.Iterables;
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.map.MapEx;
+import com.revolsys.data.identifier.Identifier;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.Geometry;
+import com.revolsys.io.PathName;
 import com.revolsys.io.Writer;
+import com.revolsys.logging.Logs;
 import com.revolsys.predicate.Predicates;
 import com.revolsys.record.Record;
 import com.revolsys.record.RecordFactory;
@@ -31,7 +31,6 @@ import com.revolsys.record.Records;
 import com.revolsys.record.code.CodeTable;
 import com.revolsys.record.io.RecordReader;
 import com.revolsys.record.io.RecordStoreConnectionManager;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.record.query.Condition;
 import com.revolsys.record.query.In;
 import com.revolsys.record.query.OrderBy;
@@ -269,7 +268,7 @@ public class RecordStoreLayer extends AbstractRecordLayer {
               Transaction transaction = recordStore.newTransaction(Propagation.REQUIRED);
               RecordReader reader = newRecordStoreRecordReader(query)) {
               transaction.setRollbackOnly();
-              record = (LayerRecord)reader.getFirst();
+              record = (R)reader.getFirst();
               if (record != null) {
                 addCachedRecord(identifier, record);
               }

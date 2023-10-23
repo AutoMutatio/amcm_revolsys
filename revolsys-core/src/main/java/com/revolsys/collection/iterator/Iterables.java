@@ -74,6 +74,11 @@ public interface Iterables {
     return () -> new SingleIterator<>(supplier.get());
   }
 
+  static <V> BaseIterable<V> multiple(final Iterable<Iterable<V>> iterables) {
+    final var iterator = new MultipleIterator<>(iterables);
+    return fromIterator(iterator);
+  }
+
   static <V> V next(final Iterator<V> iterator) {
     if (iterator == null || !iterator.hasNext()) {
       return null;
@@ -83,7 +88,7 @@ public interface Iterables {
   }
 
   static <V> BaseIterable<V> paging(final Supplier<Iterable<V>> supplier) {
-    final PagingIterator<V> iterator = new PagingIterator<>(supplier);
+    final var iterator = new PagingIterator<>(supplier);
     return fromIterator(iterator);
   }
 }

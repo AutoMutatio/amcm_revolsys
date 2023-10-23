@@ -1,6 +1,6 @@
 package com.revolsys.collection.range;
 
-import org.jeometry.common.number.Integers;
+import com.revolsys.number.Integers;
 
 public class IntRange extends AbstractNumberRange<Integer> {
   public static boolean contains(int from, int to, final int number) {

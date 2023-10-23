@@ -64,9 +64,9 @@ public enum LasZipItemType {
     return TYPES.get(i);
   }
 
-  private int id;
+  private final int id;
 
-  private int size;
+  private final int size;
 
   private final IntHashMap<BiFunction<ArithmeticCodingCodec, Integer, LasZipItemCodec>> codecByVersion = new IntHashMap<>();
 

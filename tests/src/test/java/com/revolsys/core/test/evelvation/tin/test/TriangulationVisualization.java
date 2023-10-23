@@ -14,8 +14,7 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 
-import org.jeometry.common.awt.WebColors;
-
+import com.revolsys.awt.WebColors;
 import com.revolsys.elevation.cloud.PointCloud;
 import com.revolsys.elevation.cloud.las.LasPointCloud;
 import com.revolsys.elevation.tin.TriangulatedIrregularNetwork;

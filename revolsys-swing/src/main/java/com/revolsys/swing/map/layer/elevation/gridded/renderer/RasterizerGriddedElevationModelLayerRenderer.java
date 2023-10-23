@@ -4,6 +4,7 @@ import java.awt.image.BufferedImage;
 import java.util.Map;
 import java.util.function.BiFunction;
 
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.elevation.gridded.GriddedElevationModel;
 import com.revolsys.elevation.gridded.GriddedElevationModelImage;
 import com.revolsys.elevation.gridded.rasterizer.ColorGradientGriddedElevationModelRasterizer;
@@ -13,7 +14,6 @@ import com.revolsys.elevation.gridded.rasterizer.HillShadeGriddedElevationModelR
 import com.revolsys.elevation.gridded.rasterizer.SlopeColorGradientGriddedElevationModelRasterizer;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.raster.BufferedGeoreferencedImage;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.swing.component.Form;
 import com.revolsys.swing.map.layer.LayerRenderer;
 import com.revolsys.swing.map.layer.MultipleLayerRenderer;

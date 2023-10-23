@@ -11,8 +11,7 @@ import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JMenu;
 import javax.swing.SwingConstants;
 
-import org.jeometry.common.exception.Exceptions;
-
+import com.revolsys.exception.Exceptions;
 import com.revolsys.swing.action.RunnableAction;
 import com.revolsys.swing.component.ComponentFactory;
 import com.revolsys.swing.map.Viewport2D;

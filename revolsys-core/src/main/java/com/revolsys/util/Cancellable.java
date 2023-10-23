@@ -1,8 +1,6 @@
 package com.revolsys.util;
 
-import java.util.Iterator;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
 
 import com.revolsys.collection.iterator.BaseIterable;
 import com.revolsys.collection.iterator.Iterables;
@@ -15,18 +13,6 @@ public interface Cancellable {
 
   default <V> BaseIterable<V> cancellable(final Iterable<V> iterable) {
     return Iterables.fromIterable(iterable).cacellable(this);
-  }
-
-  default <V> BaseIterable<V> cancellable(final Iterable<V> iterable, final Predicate<V> filter) {
-    return Iterables.fromIterable(iterable).cacellable(this).filter(filter);
-  }
-
-  default <V> Iterator<V> cancellable(final Iterator<V> iterator) {
-    return Iterables.fromIterator(iterator).cacellable(this).iterator();
-  }
-
-  default <V> Iterator<V> cancellable(final Iterator<V> iterator, final Predicate<V> filter) {
-    return Iterables.fromIterator(iterator).cacellable(this).filter(filter).iterator();
   }
 
   /**

@@ -1,7 +1,5 @@
 package com.revolsys.collection.value;
 
-import com.revolsys.value.ValueHolder;
-
 public class SimpleValueHolder<T> implements ValueHolder<T> {
   private T value;
 

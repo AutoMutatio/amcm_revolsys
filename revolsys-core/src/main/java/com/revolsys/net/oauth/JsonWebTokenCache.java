@@ -5,10 +5,9 @@ import java.time.Instant;
 import java.util.Iterator;
 import java.util.Map;
 
-import org.jeometry.common.collection.map.LruMap;
-
-import com.revolsys.record.io.format.json.JsonObject;
-import com.revolsys.record.io.format.json.JsonParser;
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.json.JsonParser;
+import com.revolsys.collection.map.LruMap;
 import com.revolsys.util.Pair;
 
 public class JsonWebTokenCache {

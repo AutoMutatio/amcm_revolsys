@@ -2,7 +2,8 @@ package com.revolsys.parallel.channel;
 
 import java.util.Iterator;
 
-import com.revolsys.parallel.ThreadInterruptedException;
+import com.revolsys.exception.Exceptions;
+import com.revolsys.exception.WrappedInterruptedException;
 import com.revolsys.parallel.channel.store.ZeroBuffer;
 
 public class Channel<T> implements SelectableChannelInput<T>, ChannelOutput<T> {
@@ -40,7 +41,7 @@ public class Channel<T> implements SelectableChannelInput<T>, ChannelOutput<T> {
    * Constructs a new Channel<T> with a ZeroBuffer ChannelValueStore.
    */
   public Channel() {
-    this(new ZeroBuffer<T>());
+    this(new ZeroBuffer<>());
   }
 
   /**
@@ -139,15 +140,15 @@ public class Channel<T> implements SelectableChannelInput<T>, ChannelOutput<T> {
             try {
               this.monitor.wait(timeout);
             } catch (final InterruptedException e) {
-              throw new ThreadInterruptedException(e);
+              Exceptions.throwUncheckedException(e);
             }
             if (isClosed()) {
               throw new ClosedException();
             }
-          } catch (final ThreadInterruptedException e) {
+          } catch (final WrappedInterruptedException e) {
             close();
             this.monitor.notifyAll();
-            throw new ClosedException();
+            throw e;
           }
         }
         if (this.data.getState() == ChannelValueStore.EMPTY) {
@@ -222,15 +223,15 @@ public class Channel<T> implements SelectableChannelInput<T>, ChannelOutput<T> {
             try {
               this.monitor.wait();
             } catch (final InterruptedException e) {
-              throw new ThreadInterruptedException(e);
+              Exceptions.throwUncheckedException(e);
             }
             if (this.closed) {
               throw new ClosedException();
             }
-          } catch (final ThreadInterruptedException e) {
+          } catch (final WrappedInterruptedException e) {
             close();
             this.monitor.notifyAll();
-            throw new ClosedException(e);
+            throw e;
           }
         }
       }

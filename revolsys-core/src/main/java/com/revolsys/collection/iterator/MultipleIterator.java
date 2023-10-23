@@ -1,11 +1,11 @@
 package com.revolsys.collection.iterator;
 
+import java.util.Collections;
 import java.util.Iterator;
-import java.util.NoSuchElementException;
 
-public class MultipleIterator<V> extends AbstractIterator<V> {
+public class MultipleIterator<V> extends BaseIterator<V> {
 
-  private Iterator<V> iterator;
+  private Iterator<V> iterator = Collections.emptyIterator();
 
   private final Iterator<Iterable<V>> sourceIterator;
 
@@ -14,15 +14,26 @@ public class MultipleIterator<V> extends AbstractIterator<V> {
   }
 
   @Override
-  protected V getNext() throws NoSuchElementException {
-    while (this.iterator == null || !this.iterator.hasNext()) {
+  protected boolean hasNextDo() {
+    while (true) {
+      while (this.iterator.hasNext()) {
+        this.value = this.iterator.next();
+        if (this.value != null) {
+          return true;
+        }
+      }
       if (this.sourceIterator.hasNext()) {
-        this.iterator = this.sourceIterator.next().iterator();
+        final Iterable<V> iterable = this.sourceIterator.next();
+        if (iterable != null) {
+          this.iterator = iterable.iterator();
+          if (this.iterator == null) {
+            this.iterator = Collections.emptyIterator();
+          }
+        }
       } else {
-        throw new NoSuchElementException();
+        return false;
       }
     }
-    return this.iterator.next();
   }
 
 }

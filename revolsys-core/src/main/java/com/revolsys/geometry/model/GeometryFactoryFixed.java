@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.jeometry.coordinatesystem.model.CoordinateSystem;
+import com.revolsys.geometry.coordinatesystem.model.CoordinateSystem;
 
 public class GeometryFactoryFixed extends GeometryFactory {
 

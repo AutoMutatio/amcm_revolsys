@@ -7,9 +7,9 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.function.Function;
 
-import org.jeometry.common.data.type.DataTypes;
-
 import com.revolsys.collection.iterator.AbstractIterator;
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.data.type.DataTypes;
 import com.revolsys.http.HttpRequestBuilder;
 import com.revolsys.http.HttpRequestBuilderFactory;
 import com.revolsys.record.Record;
@@ -17,7 +17,6 @@ import com.revolsys.record.RecordFactory;
 import com.revolsys.record.RecordState;
 import com.revolsys.record.io.RecordIterator;
 import com.revolsys.record.io.RecordReader;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.record.query.Query;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
@@ -27,7 +26,7 @@ public class ODataQueryIterator extends AbstractIterator<Record>
 
   private static Function<JsonObject, Record> recordFactoryConverter(
     final RecordDefinition recordDefinition, final RecordFactory<Record> recordFactory) {
-    return (recordJson) -> {
+    return recordJson -> {
       final Record record = recordFactory.newRecord(recordDefinition);
       if (record != null) {
         record.setState(RecordState.INITIALIZING);

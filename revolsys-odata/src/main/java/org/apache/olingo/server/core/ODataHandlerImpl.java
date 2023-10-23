@@ -52,7 +52,8 @@ import org.apache.olingo.server.core.uri.parser.UriParserSemanticException;
 import org.apache.olingo.server.core.uri.parser.UriParserSyntaxException;
 import org.apache.olingo.server.core.uri.validator.UriValidationException;
 import org.apache.olingo.server.core.uri.validator.UriValidator;
-import org.jeometry.common.logging.Logs;
+
+import com.revolsys.logging.Logs;
 
 public class ODataHandlerImpl implements ODataHandler {
 

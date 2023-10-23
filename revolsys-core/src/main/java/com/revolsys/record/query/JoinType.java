@@ -6,7 +6,7 @@ public enum JoinType {
 
   public static final JoinType JOIN = INNER_JOIN;
 
-  private String sql;
+  private final String sql;
 
   private JoinType() {
     this.sql = name().replace('_', ' ');

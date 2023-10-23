@@ -19,11 +19,10 @@ import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
-import org.jeometry.common.exception.Exceptions;
-import org.jeometry.common.logging.Logs;
-import org.jeometry.common.number.Integers;
-
+import com.revolsys.collection.json.Json;
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.connection.file.FolderConnectionRegistry;
+import com.revolsys.exception.Exceptions;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryFactory;
@@ -32,9 +31,9 @@ import com.revolsys.geometry.util.RectangleUtil;
 import com.revolsys.io.FileUtil;
 import com.revolsys.io.file.Paths;
 import com.revolsys.io.filter.FileNameExtensionFilter;
+import com.revolsys.logging.Logs;
+import com.revolsys.number.Integers;
 import com.revolsys.record.io.RecordStoreConnectionRegistry;
-import com.revolsys.record.io.format.json.Json;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.spring.resource.PathResource;
 import com.revolsys.spring.resource.Resource;
 import com.revolsys.swing.Dialogs;

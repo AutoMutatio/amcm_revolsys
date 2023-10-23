@@ -21,12 +21,10 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
-import org.jeometry.common.exception.Exceptions;
-import org.jeometry.common.io.FileNameProxy;
-import org.jeometry.coordinatesystem.model.CoordinateSystem;
-
 import com.revolsys.collection.list.Lists;
 import com.revolsys.collection.map.Maps;
+import com.revolsys.exception.Exceptions;
+import com.revolsys.geometry.coordinatesystem.model.CoordinateSystem;
 import com.revolsys.io.channels.ChannelReader;
 import com.revolsys.io.file.Paths;
 import com.revolsys.io.filter.FileNameExtensionFilter;

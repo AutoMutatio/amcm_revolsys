@@ -4,8 +4,7 @@ import java.sql.PreparedStatement;
 import java.util.Collections;
 import java.util.List;
 
-import org.jeometry.common.data.type.DataType;
-
+import com.revolsys.data.type.DataType;
 import com.revolsys.record.query.AbstractUnaryQueryValue;
 import com.revolsys.record.query.Query;
 import com.revolsys.record.query.QueryValue;

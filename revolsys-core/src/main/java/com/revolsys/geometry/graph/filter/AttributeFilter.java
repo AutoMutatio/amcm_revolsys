@@ -2,8 +2,7 @@ package com.revolsys.geometry.graph.filter;
 
 import java.util.function.Predicate;
 
-import org.jeometry.common.data.type.DataType;
-
+import com.revolsys.data.type.DataType;
 import com.revolsys.properties.ObjectWithProperties;
 
 public class AttributeFilter<T extends ObjectWithProperties> implements Predicate<T> {

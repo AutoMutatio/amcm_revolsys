@@ -4,10 +4,9 @@ import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.util.Set;
 
-import org.jeometry.common.data.type.DataType;
-
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.collection.set.Sets;
+import com.revolsys.data.type.DataType;
 import com.revolsys.geometry.model.GeometryDataTypes;
 import com.revolsys.io.FileIoFactory;
 import com.revolsys.spring.resource.Resource;

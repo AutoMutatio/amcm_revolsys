@@ -9,7 +9,8 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.atomic.AtomicLong;
 
-import com.revolsys.parallel.ThreadInterruptedException;
+import com.revolsys.exception.Exceptions;
+import com.revolsys.exception.WrappedInterruptedException;
 
 public class NamedChannelBundle<T> {
 
@@ -183,7 +184,7 @@ public class NamedChannelBundle<T> {
               try {
                 this.monitor.wait();
               } catch (final InterruptedException e) {
-                throw new ThreadInterruptedException(e);
+                Exceptions.throwUncheckedException(e);
               }
               if (isClosed()) {
                 throw new ClosedException();
@@ -198,7 +199,7 @@ public class NamedChannelBundle<T> {
               try {
                 this.monitor.wait(milliSeconds);
               } catch (final InterruptedException e) {
-                throw new ThreadInterruptedException(e);
+                Exceptions.throwUncheckedException(e);
               }
               if (isClosed()) {
                 throw new ClosedException();
@@ -217,10 +218,10 @@ public class NamedChannelBundle<T> {
             this.monitor.notifyAll();
             return value;
           }
-        } catch (final ThreadInterruptedException e) {
+        } catch (final WrappedInterruptedException e) {
           close();
           this.monitor.notifyAll();
-          throw new ClosedException();
+          throw e;
         }
       }
     }

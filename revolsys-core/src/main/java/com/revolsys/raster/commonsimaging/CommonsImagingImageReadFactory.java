@@ -10,13 +10,13 @@ import org.apache.commons.imaging.ImageReadException;
 import org.apache.commons.imaging.common.bytesource.ByteSource;
 import org.apache.commons.imaging.common.bytesource.ByteSourceFile;
 import org.apache.commons.imaging.common.bytesource.ByteSourceInputStream;
-import org.jeometry.common.exception.Exceptions;
 
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.exception.Exceptions;
 import com.revolsys.io.AbstractIoFactory;
 import com.revolsys.raster.BufferedImageReadFactory;
 import com.revolsys.raster.GeoreferencedImage;
 import com.revolsys.raster.GeoreferencedImageReadFactory;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.spring.resource.Resource;
 
 public class CommonsImagingImageReadFactory extends AbstractIoFactory

@@ -56,7 +56,7 @@ public enum GeoTiffKeys implements GeoTiffKey {
     }
   }
 
-  private int id;
+  private final int id;
 
   private GeoTiffKeys(final int id) {
     this.id = id;

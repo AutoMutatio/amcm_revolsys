@@ -5,9 +5,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.Predicate;
 
-import org.jeometry.common.data.type.DataType;
-
 import com.revolsys.collection.map.MapEx;
+import com.revolsys.data.type.DataType;
 import com.revolsys.record.Records;
 
 /**

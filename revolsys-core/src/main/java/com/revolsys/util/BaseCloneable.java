@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.jeometry.common.exception.Exceptions;
+import com.revolsys.exception.Exceptions;
 
 public interface BaseCloneable extends Cloneable {
 

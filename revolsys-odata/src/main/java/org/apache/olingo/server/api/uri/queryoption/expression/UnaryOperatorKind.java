@@ -48,7 +48,7 @@ public enum UnaryOperatorKind {
     return null;
   }
 
-  private String syntax;
+  private final String syntax;
 
   /**
    * Constructor for enumeration value

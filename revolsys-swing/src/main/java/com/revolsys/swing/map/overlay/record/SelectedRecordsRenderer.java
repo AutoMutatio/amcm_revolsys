@@ -4,9 +4,8 @@ import java.awt.Color;
 
 import javax.measure.quantity.Length;
 
-import org.jeometry.common.awt.WebColors;
-import org.jeometry.coordinatesystem.model.unit.CustomUnits;
-
+import com.revolsys.awt.WebColors;
+import com.revolsys.geometry.coordinatesystem.model.unit.CustomUnits;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.geometry.model.Punctual;

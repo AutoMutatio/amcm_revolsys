@@ -18,10 +18,9 @@ import java.util.stream.Stream;
 import javax.measure.Quantity;
 import javax.measure.Unit;
 
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.data.type.DataTypes;
-
 import com.revolsys.collection.iterator.BaseIterable;
+import com.revolsys.data.type.DataType;
+import com.revolsys.data.type.DataTypes;
 import com.revolsys.util.Property;
 
 import tech.units.indriya.quantity.Quantities;
@@ -162,17 +161,6 @@ public interface ListEx<T> extends List<T>, Cloneable, BaseIterable<T> {
   }
 
   ListEx<T> clone();
-
-  @Override
-  default ListEx<T> filter(final Predicate<? super T> filter) {
-    final ListEx<T> newList = new ArrayListEx<>();
-    for (final T value : this) {
-      if (filter.test(value)) {
-        newList.add(value);
-      }
-    }
-    return newList;
-  }
 
   default Double getDouble(final int index) {
     return getValue(index, DataTypes.DOUBLE);

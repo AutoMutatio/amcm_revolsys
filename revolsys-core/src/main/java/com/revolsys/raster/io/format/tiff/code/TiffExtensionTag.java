@@ -98,9 +98,9 @@ public enum TiffExtensionTag implements TiffTag {
 
   private boolean array;
 
-  private int id;
+  private final int id;
 
-  private String description;
+  private final String description;
 
   private TiffExtensionTag(final int id, final String description) {
     this.id = id;

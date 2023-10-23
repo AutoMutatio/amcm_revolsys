@@ -29,7 +29,6 @@ final class MapIterator<I, O> extends BaseIterator<O> {
       if (inValue != null) {
         this.value = this.converter.apply(inValue);
         if (this.value != null) {
-          this.loadNext = false;
           return true;
         }
       }

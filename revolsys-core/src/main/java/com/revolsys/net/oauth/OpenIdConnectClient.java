@@ -6,13 +6,13 @@ import java.util.function.Function;
 
 import org.apache.http.client.methods.RequestBuilder;
 
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.json.JsonParser;
 import com.revolsys.io.map.ObjectFactoryConfig;
 import com.revolsys.net.http.ApacheHttp;
 import com.revolsys.net.http.ApacheHttpException;
 import com.revolsys.net.http.exception.AuthenticationException;
 import com.revolsys.properties.BaseObjectWithProperties;
-import com.revolsys.record.io.format.json.JsonObject;
-import com.revolsys.record.io.format.json.JsonParser;
 import com.revolsys.spring.resource.Resource;
 import com.revolsys.util.Strings;
 

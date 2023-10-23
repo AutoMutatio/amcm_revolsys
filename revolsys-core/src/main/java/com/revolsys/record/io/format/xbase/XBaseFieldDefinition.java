@@ -4,8 +4,8 @@ import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.data.type.DataTypes;
+import com.revolsys.data.type.DataType;
+import com.revolsys.data.type.DataTypes;
 
 public class XBaseFieldDefinition {
   public static final char CHARACTER_TYPE = 'C';

@@ -40,7 +40,7 @@ public enum CompositionOperation {
   value("value"), //
   xor("xor");
 
-  private String label;
+  private final String label;
 
   private CompositionOperation(final String label) {
     this.label = label;

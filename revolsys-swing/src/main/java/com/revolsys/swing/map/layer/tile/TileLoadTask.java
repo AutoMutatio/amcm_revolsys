@@ -1,7 +1,6 @@
 package com.revolsys.swing.map.layer.tile;
 
-import org.jeometry.common.logging.Logs;
-
+import com.revolsys.logging.Logs;
 import com.revolsys.util.AbstractMapTile;
 import com.revolsys.util.Cancellable;
 

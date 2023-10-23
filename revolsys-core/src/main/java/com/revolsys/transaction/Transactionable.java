@@ -4,8 +4,9 @@ import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import org.jeometry.common.exception.Exceptions;
 import org.springframework.transaction.PlatformTransactionManager;
+
+import com.revolsys.exception.Exceptions;
 
 public interface Transactionable {
   PlatformTransactionManager getTransactionManager();

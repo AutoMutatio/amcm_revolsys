@@ -2,11 +2,10 @@ package com.revolsys.record;
 
 import java.nio.file.Path;
 
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.common.io.PathName;
-
+import com.revolsys.data.type.DataType;
+import com.revolsys.data.type.DataTypes;
 import com.revolsys.geometry.model.Geometry;
+import com.revolsys.io.PathName;
 import com.revolsys.io.PathUtil;
 import com.revolsys.io.Writer;
 import com.revolsys.io.file.AtomicPathUpdator;

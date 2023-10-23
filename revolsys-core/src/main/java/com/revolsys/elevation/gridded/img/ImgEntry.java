@@ -4,12 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import org.jeometry.common.exception.Exceptions;
-
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.json.JsonObjectHash;
 import com.revolsys.collection.map.MapEx;
+import com.revolsys.exception.Exceptions;
 import com.revolsys.io.map.MapSerializer;
-import com.revolsys.record.io.format.json.JsonObject;
-import com.revolsys.record.io.format.json.JsonObjectHash;
 
 class ImgEntry implements MapEx, MapSerializer {
 

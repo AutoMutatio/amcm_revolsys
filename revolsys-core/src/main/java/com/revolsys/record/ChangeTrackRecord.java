@@ -1,7 +1,7 @@
 package com.revolsys.record;
 
-import com.revolsys.record.io.format.json.JsonList;
-import com.revolsys.record.io.format.json.JsonObject;
+import com.revolsys.collection.json.JsonList;
+import com.revolsys.collection.json.JsonObject;
 
 public interface ChangeTrackRecord extends Record {
 

@@ -5,9 +5,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.ListIterator;
 
-import org.jeometry.common.exception.Exceptions;
-
 import com.revolsys.collection.collection.AbstractDelegatingCollection;
+import com.revolsys.exception.Exceptions;
 
 public abstract class AbstractDelegatingList<V> extends AbstractDelegatingCollection<V>
   implements ListEx<V> {

@@ -1,7 +1,6 @@
 package com.revolsys.geometry.geoid;
 
-import org.jeometry.coordinatesystem.operation.gridshift.VerticalShiftOperation;
-
+import com.revolsys.geometry.coordinatesystem.operation.gridshift.VerticalShiftOperation;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.grid.Grid;

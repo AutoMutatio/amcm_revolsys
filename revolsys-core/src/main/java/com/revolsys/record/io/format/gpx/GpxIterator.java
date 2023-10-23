@@ -15,19 +15,18 @@ import java.util.Queue;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.common.date.Dates;
-import org.jeometry.common.io.PathName;
-import org.jeometry.common.number.Doubles;
-import org.jeometry.coordinatesystem.model.systems.EpsgId;
-
+import com.revolsys.data.type.DataType;
+import com.revolsys.data.type.DataTypes;
+import com.revolsys.date.Dates;
+import com.revolsys.geometry.coordinatesystem.model.systems.EpsgId;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryDataTypes;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.geometry.model.LineString;
 import com.revolsys.geometry.model.Point;
 import com.revolsys.geometry.model.coordinates.list.CoordinatesListUtil;
+import com.revolsys.io.PathName;
+import com.revolsys.number.Doubles;
 import com.revolsys.properties.BaseObjectWithProperties;
 import com.revolsys.record.Record;
 import com.revolsys.record.RecordFactory;

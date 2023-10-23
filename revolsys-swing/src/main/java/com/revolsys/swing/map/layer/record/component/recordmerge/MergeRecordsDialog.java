@@ -16,8 +16,7 @@ import javax.swing.ScrollPaneConstants;
 import javax.swing.SortOrder;
 import javax.swing.WindowConstants;
 
-import org.jeometry.common.data.type.DataTypes;
-
+import com.revolsys.data.type.DataTypes;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.swing.SwingUtil;
 import com.revolsys.swing.TabbedPane;

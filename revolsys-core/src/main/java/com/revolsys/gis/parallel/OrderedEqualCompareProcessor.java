@@ -6,10 +6,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.logging.Logs;
-
+import com.revolsys.data.type.DataType;
 import com.revolsys.geometry.model.Geometry;
+import com.revolsys.logging.Logs;
 import com.revolsys.parallel.channel.Channel;
 import com.revolsys.parallel.channel.MultiInputSelector;
 import com.revolsys.parallel.channel.store.Buffer;
@@ -107,7 +106,7 @@ public class OrderedEqualCompareProcessor extends AbstractInProcess<Record> {
   public Channel<Record> getOtherIn() {
     if (this.otherIn == null) {
       if (this.otherInBufferSize < 1) {
-        setOtherIn(new Channel<Record>());
+        setOtherIn(new Channel<>());
       } else {
         final Buffer<Record> buffer = new Buffer<>(this.otherInBufferSize);
         setOtherIn(new Channel<>(buffer));

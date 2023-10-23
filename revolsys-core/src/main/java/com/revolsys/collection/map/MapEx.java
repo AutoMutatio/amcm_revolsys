@@ -12,24 +12,23 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import org.jeometry.common.compare.CompareUtil;
-import org.jeometry.common.data.identifier.Identifier;
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.data.type.DataTypeProxy;
-import org.jeometry.common.data.type.DataTypeValueFactory;
-import org.jeometry.common.data.type.DataTypedValue;
-import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.common.logging.Logs;
-
+import com.revolsys.collection.iterator.BaseIterable;
+import com.revolsys.collection.iterator.Iterables;
+import com.revolsys.collection.json.Json;
+import com.revolsys.collection.json.JsonList;
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.json.JsonType;
 import com.revolsys.collection.list.ListEx;
+import com.revolsys.comparator.CompareUtil;
+import com.revolsys.data.identifier.Identifier;
+import com.revolsys.data.type.DataType;
+import com.revolsys.data.type.DataTypeProxy;
+import com.revolsys.data.type.DataTypeValueFactory;
+import com.revolsys.data.type.DataTypedValue;
+import com.revolsys.data.type.DataTypes;
+import com.revolsys.logging.Logs;
 import com.revolsys.record.Record;
-import com.revolsys.record.io.format.json.Json;
-import com.revolsys.record.io.format.json.JsonList;
-import com.revolsys.record.io.format.json.JsonObject;
-import com.revolsys.record.io.format.json.JsonType;
 import com.revolsys.util.Property;
-
-import reactor.core.publisher.Flux;
 
 public interface MapEx extends MapDefault<String, Object>, Cloneable, DataTypedValue {
   static MapEx asEx(final Map<String, ? extends Object> map) {
@@ -224,23 +223,6 @@ public interface MapEx extends MapDefault<String, Object>, Cloneable, DataTypedV
     }
   }
 
-  @SuppressWarnings({
-    "unchecked", "rawtypes"
-  })
-  default <V> Flux<V> getFlux(final CharSequence name) {
-    final Object value = getValue(name);
-    if (value == null) {
-      return Flux.empty();
-    } else if (value instanceof Flux) {
-      return (Flux)value;
-    } else if (value instanceof Iterable) {
-      return Flux.fromIterable((Iterable)value);
-    } else {
-      throw new IllegalArgumentException(
-        "Cannot convert " + value.getClass() + " to Flux \n" + value);
-    }
-  }
-
   default Identifier getIdentifier(final CharSequence fieldName) {
     final Object value = getValue(fieldName);
     return Identifier.newIdentifier(value);
@@ -265,6 +247,22 @@ public interface MapEx extends MapDefault<String, Object>, Cloneable, DataTypedV
       return defaultValue;
     } else {
       return value;
+    }
+  }
+
+  @SuppressWarnings("unchecked")
+  default <V> BaseIterable<V> getIterable(final CharSequence name) {
+    final Object value = getValue(name);
+    if (value == null) {
+      return Iterables.empty();
+    } else if (value instanceof final BaseIterable iterable) {
+      return iterable;
+    } else if (value instanceof final Iterable iterable) {
+      return Iterables.fromIterable(iterable);
+    } else if (value instanceof final Iterator iterator) {
+      return Iterables.fromIterator(iterator);
+    } else {
+      throw new IllegalArgumentException("Cannot convert to iterable:" + value);
     }
   }
 

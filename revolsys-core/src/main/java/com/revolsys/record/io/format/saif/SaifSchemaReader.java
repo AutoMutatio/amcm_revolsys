@@ -29,14 +29,13 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.jeometry.common.data.type.CollectionDataType;
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.common.data.type.EnumerationDataType;
-import org.jeometry.common.data.type.SimpleDataType;
-import org.jeometry.common.io.PathName;
-
+import com.revolsys.data.type.CollectionDataType;
+import com.revolsys.data.type.DataType;
+import com.revolsys.data.type.DataTypes;
+import com.revolsys.data.type.EnumerationDataType;
+import com.revolsys.data.type.SimpleDataType;
 import com.revolsys.geometry.model.GeometryDataTypes;
+import com.revolsys.io.PathName;
 import com.revolsys.record.Record;
 import com.revolsys.record.io.format.saif.util.CsnIterator;
 import com.revolsys.record.property.FieldProperties;

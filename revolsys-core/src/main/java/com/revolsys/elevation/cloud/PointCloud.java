@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.elevation.cloud.las.LasPointCloud;
 import com.revolsys.elevation.gridded.GriddedElevationModel;
@@ -17,7 +18,6 @@ import com.revolsys.geometry.model.GeometryFactoryProxy;
 import com.revolsys.geometry.model.Point;
 import com.revolsys.io.IoFactory;
 import com.revolsys.predicate.Predicates;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.spring.resource.Resource;
 import com.revolsys.util.BaseCloseable;
 

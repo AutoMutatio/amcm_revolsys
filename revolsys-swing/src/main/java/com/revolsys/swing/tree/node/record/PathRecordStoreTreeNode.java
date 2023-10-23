@@ -11,12 +11,12 @@ import java.util.Map;
 import javax.swing.Icon;
 import javax.swing.JLabel;
 
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.io.file.Paths;
 import com.revolsys.record.io.RecordStoreConnectionManager;
 import com.revolsys.record.io.RecordStoreConnectionMapProxy;
 import com.revolsys.record.io.RecordStoreConnectionRegistry;
 import com.revolsys.record.io.RecordStoreProxy;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.record.schema.RecordStore;
 import com.revolsys.record.schema.RecordStoreSchema;
 import com.revolsys.record.schema.RecordStoreSchemaElement;

@@ -7,7 +7,8 @@ import javax.swing.table.TableModel;
 
 import org.jdesktop.swingx.sort.DefaultSortController;
 import org.jdesktop.swingx.sort.TableSortController;
-import org.jeometry.common.compare.NumericComparator;
+
+import com.revolsys.comparator.NumericComparator;
 
 public class BaseRowSorter extends TableSortController<TableModel> {
 

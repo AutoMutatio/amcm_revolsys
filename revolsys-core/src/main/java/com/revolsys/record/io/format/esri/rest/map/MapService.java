@@ -5,19 +5,18 @@ import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.Map;
 
-import org.jeometry.common.exception.Exceptions;
-import org.jeometry.common.exception.WrappedException;
-import org.jeometry.common.io.PathName;
-
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.map.MapEx;
+import com.revolsys.exception.Exceptions;
+import com.revolsys.exception.WrappedRuntimeException;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactory;
+import com.revolsys.io.PathName;
 import com.revolsys.raster.BufferedImages;
 import com.revolsys.record.io.format.esri.rest.ArcGisResponse;
 import com.revolsys.record.io.format.esri.rest.ArcGisRestCatalog;
 import com.revolsys.record.io.format.esri.rest.ArcGisRestServiceContainer;
 import com.revolsys.record.io.format.esri.rest.CatalogElement;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.util.Strings;
 import com.revolsys.util.UrlUtil;
 
@@ -83,7 +82,7 @@ public class MapService extends ArcGisRestAbstractLayerService {
     while (true) {
       try {
         return BufferedImages.readImageIo(url);
-      } catch (final WrappedException e) {
+      } catch (final WrappedRuntimeException e) {
         if (Exceptions.isException(e, FileNotFoundException.class)) {
           return null;
         } else if (!retry) {
@@ -159,7 +158,7 @@ public class MapService extends ArcGisRestAbstractLayerService {
     while (true) {
       try {
         return BufferedImages.readImageIo(url);
-      } catch (final WrappedException e) {
+      } catch (final WrappedRuntimeException e) {
         if (Exceptions.isException(e, FileNotFoundException.class)) {
           return null;
         } else if (!retry) {

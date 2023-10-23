@@ -20,9 +20,9 @@ public enum LineJoin {
     }
   }
 
-  private int awtValue;
+  private final int awtValue;
 
-  private int geometryValue;
+  private final int geometryValue;
 
   private LineJoin(final int awtValue, final int geometryValue) {
     this.awtValue = awtValue;

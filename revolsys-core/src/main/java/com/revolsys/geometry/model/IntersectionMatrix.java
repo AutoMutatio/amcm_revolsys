@@ -102,13 +102,12 @@ public class IntersectionMatrix implements Cloneable {
       || requiredDimension == Dimension.TRUE && actualDimensionValue.isTrue()) {
       return true;
     }
-    if ((requiredDimension == Dimension.FALSE && actualDimensionValue == Dimension.FALSE) || (requiredDimension == Dimension.P && actualDimensionValue == Dimension.P)) {
+    if (requiredDimension == Dimension.FALSE && actualDimensionValue == Dimension.FALSE
+      || requiredDimension == Dimension.P && actualDimensionValue == Dimension.P) {
       return true;
     }
-    if (requiredDimension == Dimension.L && actualDimensionValue == Dimension.L) {
-      return true;
-    }
-    if (requiredDimension == Dimension.A && actualDimensionValue == Dimension.A) {
+    if (requiredDimension == Dimension.L && actualDimensionValue == Dimension.L
+      || requiredDimension == Dimension.A && actualDimensionValue == Dimension.A) {
       return true;
     }
     return false;

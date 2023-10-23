@@ -37,10 +37,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.common.function.Consumer4Double;
-import org.jeometry.common.function.Function4Double;
-
+import com.revolsys.data.type.DataTypes;
+import com.revolsys.function.Consumer4Double;
+import com.revolsys.function.Function4Double;
 import com.revolsys.geometry.model.editor.AbstractGeometryEditor;
 import com.revolsys.geometry.model.editor.MultiPointEditor;
 import com.revolsys.geometry.model.editor.PunctualEditor;

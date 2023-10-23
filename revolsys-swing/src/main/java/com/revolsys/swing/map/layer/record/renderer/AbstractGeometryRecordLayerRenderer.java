@@ -4,10 +4,9 @@ import java.util.List;
 
 import javax.swing.Icon;
 
-import org.jeometry.common.logging.Logs;
-
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.TopologyException;
+import com.revolsys.logging.Logs;
 import com.revolsys.swing.map.layer.record.AbstractRecordLayer;
 import com.revolsys.swing.map.layer.record.LayerRecord;
 import com.revolsys.swing.map.view.ViewRenderer;

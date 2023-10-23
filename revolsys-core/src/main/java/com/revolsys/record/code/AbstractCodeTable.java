@@ -6,10 +6,9 @@ import java.util.Map;
 
 import javax.swing.JComponent;
 
-import org.jeometry.common.data.identifier.Identifier;
-import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.common.number.Numbers;
-
+import com.revolsys.data.identifier.Identifier;
+import com.revolsys.data.type.DataTypes;
+import com.revolsys.number.Numbers;
 import com.revolsys.properties.BaseObjectWithPropertiesAndChange;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.util.BaseCloseable;
