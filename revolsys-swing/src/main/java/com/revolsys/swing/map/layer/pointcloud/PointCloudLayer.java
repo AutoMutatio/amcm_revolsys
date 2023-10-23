@@ -106,7 +106,7 @@ public class PointCloudLayer extends AbstractLayer {
     final EnableCheck enableCheck = RsSwingServiceInitializer
       .enableCheck(PointCloudReadFactory.class);
 
-    PathTreeNode.MENU.addInitializer((menu) -> {
+    PathTreeNode.MENU.addInitializer(menu -> {
       addMenuExportPointCloud(menu, enableCheck);
       addMenuZoomToCloud(menu, enableCheck);
       addMenuPointCloudProperties(menu, enableCheck);

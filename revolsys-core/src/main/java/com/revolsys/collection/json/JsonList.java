@@ -7,11 +7,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
-import com.revolsys.collection.iterator.Iterators;
-import com.revolsys.collection.list.ArrayListEx;
+import com.revolsys.collection.iterator.Reader;
 import com.revolsys.collection.list.ListEx;
 import com.revolsys.data.type.DataType;
 import com.revolsys.exception.Exceptions;
@@ -250,12 +248,6 @@ public interface JsonList extends ListEx<Object>, JsonType {
     return true;
   }
 
-  default void forEachJsonObject(final Consumer<JsonObject> action) {
-    ListEx.super.forEach(value -> {
-      action.accept((JsonObject)value);
-    });
-  }
-
   default <T> void forEachType(final Consumer<T> action) {
     ListEx.super.forEach(value -> {
       action.accept((T)value);
@@ -269,18 +261,11 @@ public interface JsonList extends ListEx<Object>, JsonType {
     return (Iterable)this;
   }
 
-  default <T> ListEx<T> mapTo(final Function<JsonObject, T> mapper) {
-    final ListEx<T> objects = new ArrayListEx<>();
-    forEachType((final JsonObject record) -> {
-      final T object = mapper.apply(record);
-      objects.add(object);
-    });
-    return objects;
-  }
-
-  @SuppressWarnings("unchecked")
-  default <I, O> Iterable<O> mapToIterable(final Function<I, O> mapper) {
-    return Iterators.map((Iterator<I>)iterator(), mapper);
+  @SuppressWarnings({
+    "unchecked", "rawtypes"
+  })
+  default Reader<JsonObject> jsonObjects() {
+    return (Reader)Reader.wrap(iterator());
   }
 
   @Override

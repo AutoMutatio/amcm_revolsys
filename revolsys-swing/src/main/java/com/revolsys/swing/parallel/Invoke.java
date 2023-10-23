@@ -20,7 +20,6 @@ import com.revolsys.beans.PropertyChangeSupport;
 import com.revolsys.collection.list.Lists;
 import com.revolsys.collection.map.Maps;
 import com.revolsys.exception.Exceptions;
-import com.revolsys.parallel.ThreadInterruptedException;
 import com.revolsys.util.Property;
 
 public class Invoke {
@@ -96,7 +95,7 @@ public class Invoke {
       try {
         SwingUtilities.invokeAndWait(runnable);
       } catch (final InterruptedException e) {
-        throw new ThreadInterruptedException(e);
+        Exceptions.throwUncheckedException(e);
       } catch (final InvocationTargetException e) {
         Exceptions.throwCauseException(e);
       }

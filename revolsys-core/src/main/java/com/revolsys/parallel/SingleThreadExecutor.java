@@ -110,7 +110,7 @@ public class SingleThreadExecutor implements BaseCloseable {
           }
           return (V)this.result;
         } catch (final InterruptedException e) {
-          // Ignore
+          Exceptions.throwUncheckedException(e);
         } finally {
           this.result = null;
           this.exception = null;
@@ -142,8 +142,8 @@ public class SingleThreadExecutor implements BaseCloseable {
                 synchronized (this.handleSync) {
                   this.handleSync.notifyAll();
                 }
-                return;
               }
+              Exceptions.throwUncheckedException(e);
             }
           }
           try {

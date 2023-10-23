@@ -3,6 +3,7 @@ package com.revolsys.collection.set;
 import java.util.Collections;
 import java.util.Set;
 
+import com.revolsys.data.refresh.RefreshableValueHolder;
 import com.revolsys.data.refresh.SupplierRefreshableValueHolder;
 
 public abstract class AbstractRefreshableSet<V> extends AbstractDelegatingSet<V>

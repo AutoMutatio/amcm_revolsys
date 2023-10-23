@@ -481,7 +481,7 @@ public abstract class AbstractGeoreferencedImage extends AbstractPropertyChangeS
     try {
       final Resource resource = this.imageResource;
       final Resource rgResource = resource.newResourceAddExtension("rgobject");
-      this.writeToFile(rgResource);
+      writeToFile(rgResource);
       setHasChanges(false);
       return true;
     } catch (final Throwable e) {

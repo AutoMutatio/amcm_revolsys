@@ -13,6 +13,8 @@ public abstract class AbstractRefreshableMap<K, V> extends AbstractDelegatingMap
   private final SupplierRefreshableValueHolder<Map<K, V>> value = new SupplierRefreshableValueHolder<>(
     this::loadValue);
 
+  private boolean valueLoaded;
+
   public AbstractRefreshableMap(final boolean editable) {
     super(editable);
   }

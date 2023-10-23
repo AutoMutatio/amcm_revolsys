@@ -14,7 +14,7 @@ import java.util.function.Predicate;
 
 import javax.swing.SwingWorker;
 
-import com.revolsys.collection.iterator.Iterators;
+import com.revolsys.collection.iterator.Iterables;
 import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.collection.value.Single;
@@ -155,7 +155,7 @@ public class RecordStoreLayer extends AbstractRecordLayer {
           final Query query2 = query.newQuery(internalRecordDefinition);
           final Comparator<Record> comparator = Records.newComparatorOrderBy(orderBy);
           transactionNewRun(() -> {
-            LayerRecord currentChangedRecord = Iterators.next(changedIterator);
+            LayerRecord currentChangedRecord = Iterables.next(changedIterator);
             try (
               final BaseCloseable booleanValueCloseable = eventsDisabled();
               final RecordReader reader = newRecordStoreRecordReader(query2);) {
@@ -178,14 +178,14 @@ public class RecordStoreLayer extends AbstractRecordLayer {
                   while (currentChangedRecord != null
                     && comparator.compare(currentChangedRecord, record) < 0) {
                     consumer.accept(currentChangedRecord);
-                    currentChangedRecord = Iterators.next(changedIterator);
+                    currentChangedRecord = Iterables.next(changedIterator);
                   }
                   consumer.accept(record);
                 }
               }
               while (currentChangedRecord != null) {
                 consumer.accept(currentChangedRecord);
-                currentChangedRecord = Iterators.next(changedIterator);
+                currentChangedRecord = Iterables.next(changedIterator);
               }
             }
           });

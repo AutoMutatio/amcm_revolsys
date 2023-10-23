@@ -13,8 +13,9 @@ import java.util.function.Consumer;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 
+import com.revolsys.exception.Exceptions;
+import com.revolsys.exception.WrappedInterruptedException;
 import com.revolsys.logging.Logs;
-import com.revolsys.parallel.ThreadInterruptedException;
 import com.revolsys.parallel.channel.Channel;
 import com.revolsys.spring.TargetBeanProcess;
 
@@ -352,7 +353,6 @@ public class ProcessNetwork {
     }
   }
 
-  @SuppressWarnings("deprecation")
   @PreDestroy
   public void stop() {
     final List<Thread> threads;
@@ -372,10 +372,9 @@ public class ProcessNetwork {
           } else {
             try {
               thread.interrupt();
+            } catch (final WrappedInterruptedException e) {
+              interrupted = true;
             } catch (final Exception e) {
-              if (e instanceof InterruptedException) {
-                interrupted = true;
-              }
             }
             if (!thread.isAlive()) {
               threadIter.remove();
@@ -388,10 +387,8 @@ public class ProcessNetwork {
         if (thread.isAlive()) {
           try {
             thread.stop();
-          } catch (final Exception e) {
-            if (e instanceof InterruptedException) {
-              interrupted = true;
-            }
+          } catch (final WrappedInterruptedException e) {
+            interrupted = true;
           }
         }
       }
@@ -416,7 +413,7 @@ public class ProcessNetwork {
             try {
               this.sync.wait();
             } catch (final InterruptedException e) {
-              throw new ThreadInterruptedException(e);
+              Exceptions.throwUncheckedException(e);
             }
           }
         } finally {

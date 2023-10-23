@@ -37,7 +37,6 @@
         <artifactId>junit</artifactId>
         <version>4.13.2</version>
       </dependency>
-
       <dependency>
         <groupId>javax.measure</groupId>
         <artifactId>unit-api</artifactId>
@@ -491,6 +490,11 @@
         <optional>true</optional>
       </dependency>
       <dependency>
+        <groupId>junit</groupId>
+        <artifactId>junit</artifactId>
+        <version>4.13.2</version>
+      </dependency>
+      <dependency>
         <groupId>org.xerial</groupId>
         <artifactId>sqlite-jdbc</artifactId>
         <version>3.43.0.0</version>
@@ -592,6 +596,7 @@
     </dependencies>
   </dependencyManagement>
   <properties>
+    <org.slf4j.version>2.0.9</org.slf4j.version>
     <ch.qos.logback.version>1.4.11</ch.qos.logback.version>
     <com.fasterxml.jackson.version>2.15.2</com.fasterxml.jackson.version>
     <org.apache.logging.log4j>2.20.0</org.apache.logging.log4j>

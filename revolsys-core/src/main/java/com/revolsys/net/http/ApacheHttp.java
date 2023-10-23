@@ -24,7 +24,7 @@ import com.revolsys.collection.json.JsonList;
 import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.json.JsonParser;
 import com.revolsys.exception.Exceptions;
-import com.revolsys.exception.WrappedException;
+import com.revolsys.exception.WrappedRuntimeException;
 import com.revolsys.io.IoUtil;
 import com.revolsys.util.BaseCloseable;
 
@@ -40,7 +40,7 @@ public class ApacheHttp {
       action.accept(response);
     } catch (final ApacheHttpException e) {
       throw e;
-    } catch (final WrappedException e) {
+    } catch (final WrappedRuntimeException e) {
       throw e;
     } catch (final Exception e) {
       throw Exceptions.wrap(request.getURI().toString(), e);

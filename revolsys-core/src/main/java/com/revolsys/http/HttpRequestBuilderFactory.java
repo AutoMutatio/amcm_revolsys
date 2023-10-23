@@ -69,7 +69,7 @@ public class HttpRequestBuilderFactory {
       return request(method);
     }
 
-    public HttpRequestBuilder request(final HttpMethod method) {
+    public final HttpRequestBuilder request(final HttpMethod method) {
       return this.factory.create(method, this.uri);
     }
   }
@@ -108,7 +108,7 @@ public class HttpRequestBuilderFactory {
     return new Builder(this, uri);
   }
 
-  public HttpRequestBuilder copy(final HttpRequest request) {
+  public final HttpRequestBuilder copy(final HttpRequest request) {
     return newRequestBuilder().setRequest(request);
   }
 

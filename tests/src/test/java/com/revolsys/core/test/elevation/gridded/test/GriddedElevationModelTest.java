@@ -57,7 +57,7 @@ public abstract class GriddedElevationModelTest {
   Create a new {@link UsgsGriddedElevationModel}.
   The elevation for each cell is set to gridX.gridY (e.g. 10.34).
   Except where gridX == gridY where NaN is used.
-
+  
    * @param coordinateSystemId The coordinate system id.
    * @return The model
    */

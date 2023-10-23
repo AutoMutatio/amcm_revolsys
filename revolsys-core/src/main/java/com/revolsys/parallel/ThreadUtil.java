@@ -2,6 +2,7 @@ package com.revolsys.parallel;
 
 import java.util.concurrent.locks.ReentrantLock;
 
+import com.revolsys.exception.Exceptions;
 import com.revolsys.util.BaseCloseable;
 
 public class ThreadUtil {
@@ -24,7 +25,7 @@ public class ThreadUtil {
       try {
         object.wait();
       } catch (final InterruptedException e) {
-        throw new ThreadInterruptedException(e);
+        Exceptions.throwUncheckedException(e);
       }
     }
   }
@@ -34,7 +35,7 @@ public class ThreadUtil {
       try {
         object.wait(milliSeconds);
       } catch (final InterruptedException e) {
-        throw new ThreadInterruptedException(e);
+        Exceptions.throwUncheckedException(e);
       }
     }
   }
@@ -44,7 +45,7 @@ public class ThreadUtil {
       try {
         object.wait(milliSeconds, nanoSeconds);
       } catch (final InterruptedException e) {
-        throw new ThreadInterruptedException(e);
+        Exceptions.throwUncheckedException(e);
       }
     }
   }

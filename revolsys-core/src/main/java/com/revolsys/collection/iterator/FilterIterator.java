@@ -1,14 +1,15 @@
 package com.revolsys.collection.iterator;
 
 import java.util.Iterator;
-import java.util.NoSuchElementException;
 import java.util.function.Predicate;
 
-public class FilterIterator<T> extends AbstractIterator<T> {
+import com.revolsys.util.BaseCloseable;
 
-  private Predicate<? super T> filter;
+final class FilterIterator<T> extends BaseIterator<T> {
 
-  private Iterator<T> iterator;
+  private final Predicate<? super T> filter;
+
+  private final Iterator<T> iterator;
 
   public FilterIterator(final Predicate<? super T> filter, final Iterator<T> iterator) {
     this.filter = filter;
@@ -16,32 +17,20 @@ public class FilterIterator<T> extends AbstractIterator<T> {
   }
 
   @Override
-  protected void closeDo() {
-    super.closeDo();
-    if (this.iterator instanceof AbstractIterator) {
-      final AbstractIterator<T> abstractIterator = (AbstractIterator<T>)this.iterator;
-      abstractIterator.close();
-    }
-    this.filter = null;
-    this.iterator = null;
-  }
-
-  protected Predicate<? super T> getFilter() {
-    return this.filter;
-  }
-
-  protected Iterator<T> getIterator() {
-    return this.iterator;
+  public void close() {
+    super.close();
+    BaseCloseable.closeValue(this.iterator);
   }
 
   @Override
-  protected T getNext() throws NoSuchElementException {
-    while (this.iterator != null && this.iterator.hasNext()) {
-      final T value = this.iterator.next();
-      if (this.filter == null || this.filter.test(value)) {
-        return value;
+  protected boolean hasNextDo() {
+    while (this.iterator.hasNext()) {
+      this.value = this.iterator.next();
+      if (this.value != null && this.filter.test(this.value)) {
+        return true;
       }
     }
-    throw new NoSuchElementException();
+    return false;
   }
+
 }

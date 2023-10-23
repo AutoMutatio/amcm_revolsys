@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import com.revolsys.collection.map.LruMap;
 import com.revolsys.exception.Exceptions;
-import com.revolsys.exception.WrappedException;
+import com.revolsys.exception.WrappedRuntimeException;
 
 public class Logs {
 
@@ -157,7 +157,7 @@ public class Logs {
     Throwable logException = e;
     final Set<String> messages = new LinkedHashSet<>();
     addMessage(messages, message);
-    while (logException instanceof WrappedException) {
+    while (logException instanceof WrappedRuntimeException) {
       final String wrappedMessage = logException.getMessage();
       addMessage(messages, wrappedMessage);
       final Throwable cause = logException.getCause();

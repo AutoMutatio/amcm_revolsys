@@ -75,6 +75,7 @@ public class ListDataType extends SimpleDataType {
     return this.contentType;
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   protected Object toObjectDo(final Object value) {
     if (value instanceof Collection) {
@@ -82,6 +83,15 @@ public class ListDataType extends SimpleDataType {
         final Collection<?> collection = (Collection<?>)value;
         final ListEx<Object> list = createList();
         list.addAll(collection);
+        return list;
+      } catch (InvocationTargetException | NoSuchMethodException | InstantiationException
+          | IllegalAccessException e) {
+        throw new RuntimeException(e);
+      }
+    } else if (value instanceof final Iterable iterable) {
+      try {
+        final ListEx<Object> list = createList();
+        iterable.forEach(list::add);
         return list;
       } catch (InvocationTargetException | NoSuchMethodException | InstantiationException
           | IllegalAccessException e) {

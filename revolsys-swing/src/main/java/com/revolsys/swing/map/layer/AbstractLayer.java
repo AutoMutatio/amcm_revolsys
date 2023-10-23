@@ -696,7 +696,7 @@ public abstract class AbstractLayer extends BaseObjectWithProperties
       }
     } else {
       final PanelComponentHolder basePanel = new PanelComponentHolder();
-      addPropertyChangeListener("initialized", (event) -> {
+      addPropertyChangeListener("initialized", event -> {
         if (isInitialized() && isExists()) {
           Invoke.later(() -> {
             final Component tableViewComponent = newTableViewComponent(config);

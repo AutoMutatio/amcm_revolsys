@@ -162,17 +162,6 @@ public interface ListEx<T> extends List<T>, Cloneable, BaseIterable<T> {
 
   ListEx<T> clone();
 
-  @Override
-  default ListEx<T> filter(final Predicate<? super T> filter) {
-    final ListEx<T> newList = new ArrayListEx<>();
-    for (final T value : this) {
-      if (filter.test(value)) {
-        newList.add(value);
-      }
-    }
-    return newList;
-  }
-
   default Double getDouble(final int index) {
     return getValue(index, DataTypes.DOUBLE);
   }
@@ -188,7 +177,11 @@ public interface ListEx<T> extends List<T>, Cloneable, BaseIterable<T> {
 
   @Override
   default T getFirst() {
-    return List.super.getFirst();
+    if (isEmpty()) {
+      return null;
+    } else {
+      return get(0);
+    }
   }
 
   default Integer getInteger(final int index) {
@@ -246,8 +239,8 @@ public interface ListEx<T> extends List<T>, Cloneable, BaseIterable<T> {
     return dataType.toObject(value);
   }
 
-  default <lock extends Object> lock getValue(final int index, final lock defaultValue) {
-    final lock value = getValue(index);
+  default <V extends Object> V getValue(final int index, final V defaultValue) {
+    final V value = getValue(index);
     if (value == null) {
       return defaultValue;
     } else {

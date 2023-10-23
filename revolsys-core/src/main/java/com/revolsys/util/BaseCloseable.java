@@ -62,6 +62,35 @@ public interface BaseCloseable extends Closeable {
     }
   }
 
+  static void closeValue(final Object v) {
+    if (v instanceof final BaseCloseable closeable) {
+      closeable.close();
+      ;
+    } else if (v instanceof final AutoCloseable closeable) {
+      try {
+        closeable.close();
+      } catch (final Exception e) {
+        Exceptions.throwUncheckedException(e);
+      }
+    }
+  }
+
+  static BaseCloseable of(final Object v) {
+    if (v instanceof final BaseCloseable closeable) {
+      return closeable;
+    } else if (v instanceof final AutoCloseable closeable) {
+      return () -> {
+        try {
+          closeable.close();
+        } catch (final Exception e) {
+          Exceptions.throwUncheckedException(e);
+        }
+      };
+    } else {
+      return BaseCloseable.EMPTY;
+    }
+  }
+
   @Override
   void close();
 

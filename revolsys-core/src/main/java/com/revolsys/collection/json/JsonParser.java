@@ -9,6 +9,8 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
+import java.sql.Clob;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -16,11 +18,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
+import com.revolsys.exception.WrappedRuntimeException;
+import com.revolsys.io.FileUtil;
 import com.revolsys.io.IoUtil;
 import com.revolsys.io.JavaIo;
 import com.revolsys.logging.Logs;
 import com.revolsys.number.Doubles;
 import com.revolsys.number.Integers;
+import com.revolsys.spring.resource.Resource;
 import com.revolsys.util.BaseCloseable;
 
 public class JsonParser implements Iterator<JsonParser.EventType>, Closeable {
@@ -54,6 +59,46 @@ public class JsonParser implements Iterator<JsonParser.EventType>, Closeable {
     } finally {
       parser.close();
     }
+  }
+
+  public static JsonParser newParser(final Object source) {
+    Runnable closeAction = null;
+    Reader reader;
+    if (source instanceof Clob) {
+      try {
+        final Clob clob = (Clob)source;
+        reader = clob.getCharacterStream();
+
+        closeAction = () -> {
+          try {
+            clob.free();
+          } catch (final SQLException e) {
+            throw new RuntimeException("Unable to free clob resources", e);
+          }
+        };
+      } catch (final SQLException e) {
+        throw new RuntimeException("Unable to read clob", e);
+      }
+    } else if (source instanceof Reader) {
+      reader = (Reader)source;
+    } else if (source instanceof CharSequence) {
+      reader = new StringReader(source.toString());
+    } else {
+      try {
+        final Resource resource = Resource.getResource(source);
+        reader = resource.newBufferedReader();
+      } catch (final WrappedRuntimeException e) {
+        reader = new StringReader(source.toString());
+      }
+    }
+    final JsonParser parser = new JsonParser(reader);
+    parser.closeAction = closeAction;
+    return parser;
+  }
+
+  @SuppressWarnings("unchecked")
+  public static <V> V read(final InputStream in) {
+    return (V)read(FileUtil.newUtf8Reader(in));
   }
 
   @SuppressWarnings("unchecked")

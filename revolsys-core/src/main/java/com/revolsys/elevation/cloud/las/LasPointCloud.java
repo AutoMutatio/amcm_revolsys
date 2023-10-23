@@ -275,7 +275,7 @@ public class LasPointCloud extends BaseObjectWithProperties
   public TriangulatedIrregularNetwork newTriangulatedIrregularNetwork() {
     final GeometryFactory geometryFactory = getGeometryFactory();
     final QuadEdgeDelaunayTinBuilder tinBuilder = new QuadEdgeDelaunayTinBuilder(geometryFactory);
-    forEachPoint((lasPoint) -> {
+    forEachPoint(lasPoint -> {
       tinBuilder.insertVertex(lasPoint);
     });
     final TriangulatedIrregularNetwork tin = tinBuilder.newTriangulatedIrregularNetwork();

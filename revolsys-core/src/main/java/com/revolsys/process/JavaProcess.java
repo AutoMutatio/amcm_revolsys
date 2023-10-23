@@ -10,9 +10,9 @@ import java.util.List;
 import javax.swing.JOptionPane;
 
 import com.revolsys.collection.list.Lists;
+import com.revolsys.exception.Exceptions;
 import com.revolsys.io.FileUtil;
 import com.revolsys.logging.Logs;
-import com.revolsys.parallel.ThreadInterruptedException;
 
 public final class JavaProcess implements Runnable {
   private List<String> javaArguments = new ArrayList<>();
@@ -189,7 +189,7 @@ public final class JavaProcess implements Runnable {
     try {
       process.waitFor();
     } catch (final InterruptedException e) {
-      throw new ThreadInterruptedException(e);
+      Exceptions.throwUncheckedException(e);
     }
     return process.exitValue();
   }

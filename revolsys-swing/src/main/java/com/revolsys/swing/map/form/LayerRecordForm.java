@@ -1496,7 +1496,7 @@ public class LayerRecordForm extends JPanel implements PropertyChangeListener, C
 
     final JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT));
     dialog.add(buttons, BorderLayout.SOUTH);
-    final JButton addCancelButton = RunnableAction.newButton("Cancel", () -> actionAddCancel());
+    final JButton addCancelButton = RunnableAction.newButton("Cancel", this::actionAddCancel);
     buttons.add(addCancelButton);
     buttons.add(this.addOkButton);
 

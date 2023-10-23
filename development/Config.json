@@ -3,7 +3,7 @@
     "main"
   ],
   "repositories":[
-   {
+    {
       "path": "revolsys",
       "remotes": {
         "upstream": "revolsys/com.revolsys.open"

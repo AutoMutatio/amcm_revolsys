@@ -7,7 +7,7 @@ import java.util.Map;
 import com.revolsys.collection.json.JsonObject;
 import com.revolsys.data.type.DataType;
 import com.revolsys.exception.Exceptions;
-import com.revolsys.exception.WrappedException;
+import com.revolsys.exception.WrappedRuntimeException;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.gis.wms.WmsClient;
@@ -120,7 +120,7 @@ public class OgcWmsImageLayer extends AbstractLayer implements BaseMapLayer {
         final WmsLayerDefinition wmsLayerDefinition = wmsClient.getLayer(this.layerName);
         setWmsLayerDefinition(wmsLayerDefinition);
         return wmsLayerDefinition != null;
-      } catch (final WrappedException e) {
+      } catch (final WrappedRuntimeException e) {
         final Throwable cause = Exceptions.unwrap(e);
         if (cause instanceof UnknownHostException) {
           return setNotExists("Unknown host: " + cause.getMessage());

@@ -8,7 +8,7 @@ import java.util.Map;
 import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.exception.Exceptions;
-import com.revolsys.exception.WrappedException;
+import com.revolsys.exception.WrappedRuntimeException;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.io.PathName;
@@ -82,7 +82,7 @@ public class MapService extends ArcGisRestAbstractLayerService {
     while (true) {
       try {
         return BufferedImages.readImageIo(url);
-      } catch (final WrappedException e) {
+      } catch (final WrappedRuntimeException e) {
         if (Exceptions.isException(e, FileNotFoundException.class)) {
           return null;
         } else if (!retry) {
@@ -158,7 +158,7 @@ public class MapService extends ArcGisRestAbstractLayerService {
     while (true) {
       try {
         return BufferedImages.readImageIo(url);
-      } catch (final WrappedException e) {
+      } catch (final WrappedRuntimeException e) {
         if (Exceptions.isException(e, FileNotFoundException.class)) {
           return null;
         } else if (!retry) {

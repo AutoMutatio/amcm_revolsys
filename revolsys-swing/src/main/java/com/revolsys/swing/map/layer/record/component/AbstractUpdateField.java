@@ -19,7 +19,7 @@ import javax.swing.WindowConstants;
 
 import org.jdesktop.swingx.VerticalLayout;
 
-import com.revolsys.exception.WrappedException;
+import com.revolsys.exception.WrappedRuntimeException;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.swing.Dialogs;
 import com.revolsys.swing.SwingUtil;
@@ -39,7 +39,7 @@ public abstract class AbstractUpdateField extends BaseDialog {
   private static final long serialVersionUID = 1L;
 
   protected static EnableCheck newEnableCheck() {
-    final EnableCheck enableCheck = MenuFactory.enableCheck((object) -> {
+    final EnableCheck enableCheck = MenuFactory.enableCheck(object -> {
       if (object instanceof RecordLayerTable) {
         final RecordLayerTable table = (RecordLayerTable)object;
         final int columnIndex = TablePanel.getEventColumn();
@@ -118,7 +118,7 @@ public abstract class AbstractUpdateField extends BaseDialog {
     final Consumer<LayerRecord> action = record -> {
       try {
         updateRecord(record);
-      } catch (final WrappedException e) {
+      } catch (final WrappedRuntimeException e) {
         errors.addRecord(record, e.getCause());
       } catch (final Throwable e) {
         errors.addRecord(record, e);

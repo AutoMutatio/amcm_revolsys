@@ -11,7 +11,7 @@ import java.sql.SQLException;
 
 import com.revolsys.collection.json.Json;
 import com.revolsys.collection.json.JsonParser;
-import com.revolsys.exception.WrappedException;
+import com.revolsys.exception.WrappedRuntimeException;
 import com.revolsys.io.AbstractIoFactory;
 import com.revolsys.io.FileUtil;
 import com.revolsys.io.map.MapReader;
@@ -52,7 +52,7 @@ public class JsonIo extends AbstractIoFactory
       try {
         final Resource resource = Resource.getResource(source);
         reader = resource.newBufferedReader();
-      } catch (final WrappedException e) {
+      } catch (final WrappedRuntimeException e) {
         reader = new StringReader(source.toString());
       }
     }

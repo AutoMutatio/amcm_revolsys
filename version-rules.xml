@@ -17,6 +17,7 @@
     <ignoreVersion type="regex">.*-M.*</ignoreVersion>
    </ignoreVersions>
 	<rules>
+    <!-- Revolsys Specific -->
     <rule groupId="org.apache.maven.plugins" comparisonMethod="maven">
       <ignoreVersions>
         <ignoreVersion type="regex">.*-M.*</ignoreVersion>

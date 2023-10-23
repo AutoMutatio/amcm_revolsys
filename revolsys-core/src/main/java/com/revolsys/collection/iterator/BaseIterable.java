@@ -15,23 +15,15 @@
  */
 package com.revolsys.collection.iterator;
 
-import java.util.Collection;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.function.Supplier;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import com.revolsys.collection.list.ArrayListEx;
+import com.revolsys.collection.Collector;
 import com.revolsys.collection.list.ListEx;
 import com.revolsys.collection.list.Lists;
 import com.revolsys.collection.value.Single;
@@ -63,79 +55,57 @@ import com.revolsys.util.StringBuilders;
  */
 public interface BaseIterable<T> extends Iterable<T> {
 
-  default BaseCloseable closeable() {
-    if (this instanceof final BaseCloseable closeable) {
-      return closeable;
+  default BaseIterable<T> cacellable(final Cancellable cancellable) {
+    if (cancellable == null) {
+      return this;
     } else {
-      return BaseCloseable.EMPTY;
+      return filter(v -> cancellable.isActive());
     }
   }
 
-  default <K> Map<K, T> collectMap(final Function<T, K> keyFunction) {
-    final Map<K, T> map = new LinkedHashMap<>();
-    for (final T value : this) {
-      if (value != null) {
-        final K key = keyFunction.apply(value);
-        map.put(key, value);
-      }
-    }
-    return map;
+  default BaseCloseable closeable() {
+    return BaseCloseable.of(this);
   }
 
-  default <K, C extends Collection<T>> Map<K, C> collectMapCollection(
-    final Supplier<C> collectionSupplier, final Function<T, K> keyFunction) {
-    final Map<K, C> map = new LinkedHashMap<>();
-    for (final T value : this) {
-      if (value != null) {
-        final K key = keyFunction.apply(value);
-        C collection = map.get(key);
-        if (collection == null) {
-          collection = collectionSupplier.get();
-          map.put(key, collection);
-        }
-        collection.add(value);
-      }
-    }
-    return map;
-  }
-
-  default <K> Map<K, ListEx<T>> collectMapList(final Function<T, K> keyFunction) {
-    return collectMapCollection(Lists.factoryArray(), keyFunction);
-  }
-
-  default <K> Map<K, Set<T>> collectMapSet(final Function<T, K> keyFunction) {
-    return collectMapCollection(LinkedHashSet::new, keyFunction);
-  }
-
-  default <K> Map<K, Set<T>> collectMapTreeSet(final Function<T, K> keyFunction) {
-    return collectMapCollection(TreeSet::new, keyFunction);
+  default <O> O collect(final Collector<T, O> collector) {
+    final var result = collector.newResult();
+    forEach(value -> collector.collect(result, value));
+    return result;
   }
 
   default BaseIterable<T> filter(final Predicate<? super T> filter) {
-    final ListEx<T> newList = new ArrayListEx<>();
-    for (final T value : this) {
-      if (filter.test(value)) {
-        newList.add(value);
-      }
+    if (filter == null) {
+      return this;
+    } else {
+      return () -> new FilterIterator<>(filter, iterator());
     }
-    return newList;
   }
 
   default Single<T> first() {
     return Single.ofNullable(getFirst());
   }
 
-  default void forEach(final Cancellable cancellable,
-    final BiConsumer<Cancellable, ? super T> action) {
+  default Single<T> first(final Predicate<T> filter) {
+    for (final T value : this) {
+      if (value != null && filter.test(value)) {
+        return Single.of(value);
+      }
+    }
+    return Single.empty();
+  }
+
+  @Override
+  default void forEach(final Consumer<? super T> action) {
     try (
       var c = closeable()) {
-      if (iterator() != null) {
-        try {
-          for (final T item : this) {
-            if (cancellable.isCancelled()) {
-              return;
-            } else {
-              action.accept(cancellable, item);
+      final Iterator<T> iterator = iterator();
+      if (iterator != null) {
+        try (
+          var ic = BaseCloseable.of(iterator)) {
+          while (iterator.hasNext()) {
+            final T item = iterator.next();
+            if (item != null) {
+              action.accept(item);
             }
           }
         } catch (final ExitLoopException e) {
@@ -144,46 +114,26 @@ public interface BaseIterable<T> extends Iterable<T> {
     }
   }
 
-  default int forEach(final Cancellable cancellable, final Consumer<? super T> action) {
+  default int forEachCount(final Consumer<? super T> action) {
     int i = 0;
     try (
       var c = closeable()) {
-      if (iterator() != null) {
-        try {
-          for (final T item : this) {
-            if (cancellable.isCancelled()) {
-              return -1;
-            } else {
+      final Iterator<T> iterator = iterator();
+      if (iterator != null) {
+        try (
+          var ic = BaseCloseable.of(iterator)) {
+          while (iterator.hasNext()) {
+            final T item = iterator.next();
+            if (item != null) {
               action.accept(item);
+              i++;
             }
-            i++;
           }
         } catch (final ExitLoopException e) {
         }
       }
     }
     return i;
-  }
-
-  /**
-   * Visit each item returned from the reader until all items have been visited
-   * or the visit method returns false.
-   *
-   * @param visitor The visitor.
-   */
-  @Override
-  default void forEach(final Consumer<? super T> action) {
-    try (
-      var c = closeable()) {
-      if (iterator() != null) {
-        try {
-          for (final T item : this) {
-            action.accept(item);
-          }
-        } catch (final ExitLoopException e) {
-        }
-      }
-    }
   }
 
   default T getFirst() {
@@ -202,6 +152,11 @@ public interface BaseIterable<T> extends Iterable<T> {
     return (Iterable<V>)this;
   }
 
+  @SuppressWarnings("unchecked")
+  default <V> BaseIterable<V> instanceOf(final Class<? super V> clazz) {
+    return filter(clazz::isInstance).map(v -> (V)v);
+  }
+
   default String join(final String separator) {
     final StringBuilder string = new StringBuilder();
     StringBuilders.append(string, this, separator);
@@ -209,16 +164,15 @@ public interface BaseIterable<T> extends Iterable<T> {
   }
 
   default <V> BaseIterable<V> map(final Function<? super T, V> converter) {
-    return new MapIterator<>(iterator(), converter);
+    if (converter == null) {
+      throw new IllegalArgumentException("Converter must not be null");
+    } else {
+      return () -> new MapIterator<>(iterator(), converter);
+    }
   }
 
   default Stream<T> parallelStream() {
     return StreamSupport.stream(spliterator(), true);
-  }
-
-  default void skipAll() {
-    for (final Iterator<T> iterator = iterator(); iterator.hasNext();) {
-    }
   }
 
   default Stream<T> stream() {
@@ -232,7 +186,15 @@ public interface BaseIterable<T> extends Iterable<T> {
    */
   default ListEx<T> toList() {
     final ListEx<T> items = Lists.newArray();
-    forEach(i -> items.add(i));
+    forEach(items::add);
     return items;
+  }
+
+  default BaseIterable<T> walkTree(final Function<T, Iterable<T>> treeWalk) {
+    if (treeWalk == null) {
+      throw new IllegalArgumentException("Tree walk function must not be null");
+    } else {
+      return () -> new TreeIterator<>(iterator(), treeWalk);
+    }
   }
 }

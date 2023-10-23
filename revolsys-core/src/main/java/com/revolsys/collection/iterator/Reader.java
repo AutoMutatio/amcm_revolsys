@@ -18,10 +18,7 @@ package com.revolsys.collection.iterator;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Predicate;
 
 import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.map.MapEx;
@@ -71,20 +68,6 @@ public interface Reader<T>
   }
 
   @Override
-  default Reader<T> filter(final Predicate<? super T> filter) {
-    final Iterator<T> iterator = iterator();
-    return new FilterIterator<>(filter, iterator);
-  }
-
-  default <O> Reader<O> filter(final Predicate<T> filter, final Function<T, O> converter) {
-    return filter(filter).map(converter);
-  }
-
-  default void forEach(final BiConsumer<Cancellable, ? super T> action) {
-    forEach(this, action);
-  }
-
-  @Override
   default MapEx getProperties() {
     return JsonObject.EMPTY;
   }
@@ -98,12 +81,6 @@ public interface Reader<T>
   @Override
   default boolean isCancelled() {
     return false;
-  }
-
-  @Override
-  default <O> Reader<O> map(final Function<? super T, O> converter) {
-    final var iterator = iterator();
-    return new IteratorConvertReader<>(iterator, converter);
   }
 
   /**

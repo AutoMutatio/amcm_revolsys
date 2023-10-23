@@ -254,7 +254,6 @@ public final class EpsgCoordinateSystems {
                 }
               }
             }
-
             if (matchedCoordinateSystem == null) {
               if (srid <= 0) {
                 srid = nextSrid++;

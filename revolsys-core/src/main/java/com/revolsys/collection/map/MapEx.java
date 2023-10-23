@@ -12,6 +12,8 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import com.revolsys.collection.iterator.BaseIterable;
+import com.revolsys.collection.iterator.Iterables;
 import com.revolsys.collection.json.Json;
 import com.revolsys.collection.json.JsonList;
 import com.revolsys.collection.json.JsonObject;
@@ -244,6 +246,22 @@ public interface MapEx extends MapDefault<String, Object>, Cloneable, DataTypedV
       return defaultValue;
     } else {
       return value;
+    }
+  }
+
+  @SuppressWarnings("unchecked")
+  default <V> BaseIterable<V> getIterable(final CharSequence name) {
+    final Object value = getValue(name);
+    if (value == null) {
+      return Iterables.empty();
+    } else if (value instanceof final BaseIterable iterable) {
+      return iterable;
+    } else if (value instanceof final Iterable iterable) {
+      return Iterables.fromIterable(iterable);
+    } else if (value instanceof final Iterator iterator) {
+      return Iterables.fromIterator(iterator);
+    } else {
+      throw new IllegalArgumentException("Cannot convert to iterable:" + value);
     }
   }
 

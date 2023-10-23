@@ -30,7 +30,7 @@ public class EsriCoordinateSystemsLoader {
     new EsriCoordinateSystemsLoader().run();
   }
 
-  private final String mainPath = "../../revolsys-core/src/main/";
+  private final String mainPath = "../revolsys-core/src/main/";
 
   private final Map<String, Integer> geographicIdByName = new HashMap<>();
 

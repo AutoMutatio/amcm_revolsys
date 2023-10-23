@@ -1,12 +1,14 @@
 package com.revolsys.collection.iterator;
 
+import java.util.Collections;
 import java.util.Iterator;
-import java.util.NoSuchElementException;
 import java.util.function.Supplier;
 
-public class PagingIterator<V> extends AbstractIterator<V> {
+import com.revolsys.util.BaseCloseable;
 
-  private Iterator<V> iterator;
+final class PagingIterator<V> extends BaseIterator<V> {
+
+  private Iterator<V> iterator = Collections.emptyIterator();
 
   private final Supplier<Iterable<V>> supplier;
 
@@ -15,16 +17,27 @@ public class PagingIterator<V> extends AbstractIterator<V> {
   }
 
   @Override
-  protected V getNext() throws NoSuchElementException {
-    while (this.iterator == null || !this.iterator.hasNext()) {
+  public final void close() {
+    super.close();
+    BaseCloseable.closeValue(this.iterator);
+  }
+
+  @Override
+  protected final boolean hasNextDo() {
+    while (true) {
+      while (this.iterator.hasNext()) {
+        this.value = this.iterator.next();
+        if (this.value != null) {
+          return true;
+        }
+      }
       final Iterable<V> iterable = this.supplier.get();
       if (iterable == null) {
-        throw new NoSuchElementException();
+        return false;
       } else {
         this.iterator = iterable.iterator();
       }
     }
-    return this.iterator.next();
   }
 
 }
