@@ -177,6 +177,10 @@ public interface DataReader extends BaseCloseable {
 
   void skipBytes(int count);
 
+  default void skipComment() {
+    skipWhile(b -> b != '\n' && b != '\r');
+  }
+
   default void skipEol() {
     while (true) {
       final byte b = getByte();
@@ -254,7 +258,21 @@ public interface DataReader extends BaseCloseable {
   }
 
   default void skipWhitespace() {
-    skipWhile(WHITESPACE);
+    byte b;
+    try {
+      do {
+        b = getByte();
+        // TODO comments
+        // if (b == '%') {
+        // skipComment();
+        // b = getByte();
+        // }
+      } while (WHITESPACE.accept(b));
+      if (b != -1) {
+        unreadByte(b);
+      }
+    } catch (final EndOfFileException e) {
+    }
   }
 
   void unreadByte(byte b);
