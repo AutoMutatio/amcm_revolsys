@@ -83,6 +83,10 @@ public abstract class AbstractDataReader extends InputStream implements DataRead
     this.seekable = seekable;
   }
 
+  public AbstractDataReader(final int bufferSize) {
+    this(ByteBuffer.allocate(bufferSize), false);
+  }
+
   protected void afterSeek() {
     clearUnreadBuffer();
     this.buffer.clear();
