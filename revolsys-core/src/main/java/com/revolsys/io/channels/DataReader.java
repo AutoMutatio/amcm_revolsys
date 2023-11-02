@@ -157,6 +157,38 @@ public interface DataReader extends BaseCloseable {
     }
   }
 
+  default boolean isEol() {
+    try {
+      while (true) {
+        final byte b = getByte();
+        switch (b) {
+          case '\r': {
+            try {
+              final byte b2 = getByte();
+              if (b2 != '\n') {
+                unreadByte(b2);
+                unreadByte(b);
+                return false;
+              }
+              break;
+            } catch (final EndOfFileException e) {
+              unreadByte(b);
+              return false;
+            }
+          }
+          case '\n': {
+            return true;
+          }
+          default:
+            unreadByte(b);
+            return false;
+        }
+      }
+    } catch (final EndOfFileException e) {
+      return false;
+    }
+  }
+
   boolean isSeekable();
 
   long position();
@@ -171,7 +203,7 @@ public interface DataReader extends BaseCloseable {
 
   void seekEnd(long distance);
 
-  void setByteOrder(ByteOrder byteOrder);
+  DataReader setByteOrder(ByteOrder byteOrder);
 
   DataReader setUnreadSize(int unreadSize);
 
@@ -182,29 +214,29 @@ public interface DataReader extends BaseCloseable {
   }
 
   default void skipEol() {
-    while (true) {
-      final byte b = getByte();
-      switch (b) {
-        case -1:
-          return;
-        case '\r': {
-          final byte b2 = getByte();
-          if (b2 == -1) {
-            unreadByte(b);
-          } else if (b2 != '\n') {
-            unreadByte(b2);
+    try {
+      while (true) {
+        final byte b = getByte();
+        switch (b) {
+          case '\r': {
+            final byte b2 = getByte();
+            if (b2 != '\n') {
+              unreadByte(b2);
+              unreadByte(b);
+              return;
+            }
+            break;
+          }
+          case '\n': {
+            break;
+          }
+          default:
             unreadByte(b);
             return;
-          }
-          break;
         }
-        case '\n': {
-          break;
-        }
-        default:
-          unreadByte(b);
-          return;
       }
+    } catch (final EndOfFileException e) {
+      return;
     }
   }
 

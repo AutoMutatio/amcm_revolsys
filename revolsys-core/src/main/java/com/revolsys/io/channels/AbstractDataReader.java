@@ -120,7 +120,7 @@ public abstract class AbstractDataReader extends InputStream implements DataRead
   private int ensureRemaining() {
     ByteBuffer buffer = this.buffer;
     int remaining = buffer.remaining();
-    if (remaining <= 0) {
+    if (remaining == 0) {
       if (buffer == this.unreadBuffer) {
         buffer = clearUnreadBuffer();
         buffer = this.buffer;
@@ -137,6 +137,7 @@ public abstract class AbstractDataReader extends InputStream implements DataRead
           if (readCount == -1) {
             return -1;
           } else if (readCount == 0) {
+            buffer.clear();
           } else {
             this.readPosition += readCount;
             remaining = buffer.remaining();
@@ -416,9 +417,10 @@ public abstract class AbstractDataReader extends InputStream implements DataRead
   }
 
   @Override
-  public void setByteOrder(final ByteOrder byteOrder) {
+  public AbstractDataReader setByteOrder(final ByteOrder byteOrder) {
     this.buffer.order(byteOrder);
     this.tempBuffer.order(byteOrder);
+    return this;
   }
 
   @Override
