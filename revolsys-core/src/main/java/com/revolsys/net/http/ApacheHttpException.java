@@ -7,6 +7,8 @@ import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
 import org.apache.http.client.methods.HttpUriRequest;
 
+import com.revolsys.http.HttpRequestBuilder;
+
 public class ApacheHttpException extends RuntimeException {
   /**
    *
@@ -18,7 +20,7 @@ public class ApacheHttpException extends RuntimeException {
     final StatusLine statusLine = response.getStatusLine();
     String content;
     try {
-      content = ApacheHttp.getString(response);
+      content = HttpRequestBuilder.getString(response);
     } catch (final Exception e) {
       content = null;
     }
