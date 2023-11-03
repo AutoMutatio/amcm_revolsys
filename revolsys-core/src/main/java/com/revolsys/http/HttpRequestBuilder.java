@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -11,8 +12,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
+
+import javax.net.ssl.SSLContext;
 
 import org.apache.http.Consts;
 import org.apache.http.Header;
@@ -24,6 +28,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
 import org.apache.http.ProtocolVersion;
+import org.apache.http.StatusLine;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.Configurable;
@@ -39,19 +44,28 @@ import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.methods.HttpTrace;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.utils.URLEncodedUtils;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.message.HeaderGroup;
 import org.apache.http.protocol.HTTP;
+import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.util.Args;
 
 import com.revolsys.collection.json.JsonList;
 import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.json.JsonParser;
 import com.revolsys.collection.list.ListEx;
 import com.revolsys.collection.value.Single;
-import com.revolsys.net.http.ApacheHttp;
+import com.revolsys.exception.Exceptions;
+import com.revolsys.exception.WrappedRuntimeException;
+import com.revolsys.io.FileUtil;
+import com.revolsys.net.http.ApacheEntityInputStream;
 import com.revolsys.net.http.ApacheHttpException;
 import com.revolsys.util.UriBuilder;
 
@@ -91,6 +105,9 @@ public class HttpRequestBuilder {
 
   public static final StringEntity EMPTY_ENTITY = new StringEntity("", ContentType.TEXT_PLAIN);
 
+  public static final ContentType XML = ContentType.create("application/xml",
+    StandardCharsets.UTF_8);
+
   public static HttpRequestBuilder copy(final HttpRequest request) {
     Args.notNull(request, "HTTP request");
     return new HttpRequestBuilder().setRequest(request);
@@ -123,6 +140,36 @@ public class HttpRequestBuilder {
 
   public static HttpRequestBuilder get(final URI uri) {
     return new HttpRequestBuilder().setMethod(HttpGet.METHOD_NAME).setUri(uri);
+  }
+
+  public static JsonObject getJson(final HttpResponse response) {
+    final HttpEntity entity = response.getEntity();
+    try (
+      InputStream in = entity.getContent()) {
+      return JsonParser.read(in);
+    } catch (final Exception e) {
+      throw Exceptions.wrap(e);
+    }
+  }
+
+  public static JsonList getJsonList(final HttpResponse response) {
+    final HttpEntity entity = response.getEntity();
+    try (
+      InputStream in = entity.getContent()) {
+      return JsonParser.read(in);
+    } catch (final Exception e) {
+      throw Exceptions.wrap(e);
+    }
+  }
+
+  public static String getString(final HttpResponse response) {
+    final HttpEntity entity = response.getEntity();
+    try (
+      InputStream in = entity.getContent()) {
+      return FileUtil.getString(in);
+    } catch (final Exception e) {
+      throw Exceptions.wrap(e);
+    }
   }
 
   public static HttpRequestBuilder head() {
@@ -196,6 +243,8 @@ public class HttpRequestBuilder {
   public static HttpRequestBuilder trace(final URI uri) {
     return new HttpRequestBuilder().setMethod(HttpTrace.METHOD_NAME).setUri(uri);
   }
+
+  private boolean logRequests = true;
 
   private String method;
 
@@ -323,7 +372,16 @@ public class HttpRequestBuilder {
       result.setHeaders(this.headerGroup.getAllHeaders());
     }
     result.setConfig(this.config);
+    if (this.logRequests) {
+      System.out.println(result);
+    }
     return result;
+  }
+
+  protected void configureClient(final HttpClientBuilder builder) {
+    if (this.factory != null) {
+      this.factory.configureClient(builder);
+    }
   }
 
   public void execute() {
@@ -332,14 +390,56 @@ public class HttpRequestBuilder {
     execute(noop);
   }
 
+  public void execute(final BiConsumer<HttpUriRequest, HttpResponse> action) {
+    final HttpUriRequest request = build();
+    try (
+      final CloseableHttpClient httpClient = newClient()) {
+      final HttpResponse response = getResponse(httpClient, request);
+      action.accept(request, response);
+    } catch (final ApacheHttpException e) {
+      throw e;
+    } catch (final WrappedRuntimeException e) {
+      throw e;
+    } catch (final Exception e) {
+      throw Exceptions.wrap(request.getURI().toString(), e);
+    }
+  }
+
   public void execute(final Consumer<HttpResponse> action) {
     final HttpUriRequest request = build();
-    ApacheHttp.execute(request, action);
+    try (
+      final CloseableHttpClient httpClient = newClient()) {
+      final HttpResponse response = getResponse(httpClient, request);
+      action.accept(response);
+    } catch (final ApacheHttpException e) {
+      throw e;
+    } catch (final WrappedRuntimeException e) {
+      throw e;
+    } catch (final Exception e) {
+      throw Exceptions.wrap(request.getURI().toString(), e);
+    }
   }
 
   public <V> V execute(final Function<HttpResponse, V> action) {
     final HttpUriRequest request = build();
-    return ApacheHttp.execute(request, action);
+    try (
+      final CloseableHttpClient httpClient = newClient()) {
+      return httpClient.execute(request, response -> {
+        final StatusLine statusLine = response.getStatusLine();
+        final int statusCode = statusLine.getStatusCode();
+        if (statusCode >= 200 && statusCode <= 299) {
+          return action.apply(response);
+        } else {
+          throw ApacheHttpException.create(request, response);
+        }
+      });
+    } catch (final ApacheHttpException e) {
+      throw e;
+    } catch (final WrappedRuntimeException e) {
+      throw e;
+    } catch (final Exception e) {
+      throw Exceptions.wrap(request.getURI().toString(), e);
+    }
   }
 
   /**
@@ -375,13 +475,13 @@ public class HttpRequestBuilder {
 
   public JsonObject getJson() {
     setHeader("Accept", "application/json");
-    final Function<HttpResponse, JsonObject> function = ApacheHttp::getJson;
+    final Function<HttpResponse, JsonObject> function = HttpRequestBuilder::getJson;
     return execute(function);
   }
 
   public JsonList getJsonList() {
     setHeader("Accept", "application/json");
-    final Function<HttpResponse, JsonList> function = ApacheHttp::getJsonList;
+    final Function<HttpResponse, JsonList> function = HttpRequestBuilder::getJsonList;
     return execute(function);
   }
 
@@ -404,8 +504,29 @@ public class HttpRequestBuilder {
     return this.parameters != null ? new ArrayList<>(this.parameters) : new ArrayList<>();
   }
 
+  public HttpResponse getResponse(final CloseableHttpClient httpClient,
+    final HttpUriRequest request) {
+    if (this.logRequests) {
+      System.out.println(request);
+    }
+    try {
+      final HttpResponse response = httpClient.execute(request);
+      final StatusLine statusLine = response.getStatusLine();
+      final int statusCode = statusLine.getStatusCode();
+      if (statusCode >= 200 && statusCode <= 299) {
+        return response;
+      } else {
+        throw ApacheHttpException.create(request, response);
+      }
+    } catch (final ApacheHttpException e) {
+      throw e;
+    } catch (final Exception e) {
+      throw Exceptions.wrap(request.getURI().toString(), e);
+    }
+  }
+
   public String getString() {
-    final Function<HttpResponse, String> function = ApacheHttp::getString;
+    final Function<HttpResponse, String> function = HttpRequestBuilder::getString;
     return execute(function);
   }
 
@@ -415,6 +536,10 @@ public class HttpRequestBuilder {
 
   public ProtocolVersion getVersion() {
     return this.version;
+  }
+
+  public boolean hasHeader(final String name) {
+    return this.headerNames.contains(name);
   }
 
   public Single<JsonObject> jsonObject() {
@@ -431,9 +556,41 @@ public class HttpRequestBuilder {
     }
   }
 
+  public CloseableHttpClient newClient() {
+    try {
+      final SSLContext sslContext = SSLContextBuilder.create()
+        .loadTrustMaterial(new TrustSelfSignedStrategy())
+        .build();
+      final SSLConnectionSocketFactory connectionFactory = new SSLConnectionSocketFactory(
+        sslContext, (hostname, session) -> true);
+      final HttpClientBuilder builder = HttpClientBuilder//
+        .create()
+        .setSSLSocketFactory(connectionFactory);
+      configureClient(builder);
+      return builder.build();
+    } catch (final Exception e) {
+      throw Exceptions.wrap(e);
+    }
+  }
+
   public InputStream newInputStream() {
     final HttpUriRequest request = build();
-    return ApacheHttp.getInputStream(request);
+    final CloseableHttpClient httpClient = newClient();
+    try {
+      final HttpResponse response = getResponse(httpClient, request);
+      final HttpEntity entity = response.getEntity();
+      if (entity == null) {
+        return null;
+      } else {
+        return new ApacheEntityInputStream(httpClient, entity);
+      }
+    } catch (final ApacheHttpException e) {
+      FileUtil.closeSilent(httpClient);
+      throw e;
+    } catch (final Exception e) {
+      FileUtil.closeSilent(httpClient);
+      throw Exceptions.wrap(request.getURI().toString(), e);
+    }
   }
 
   public HttpRequestBuilder removeHeader(final Header header) {
@@ -513,6 +670,11 @@ public class HttpRequestBuilder {
     final String jsonString = value.toJsonString();
     final StringEntity entity = new StringEntity(jsonString, ContentType.APPLICATION_JSON);
     setEntity(entity);
+    return this;
+  }
+
+  public HttpRequestBuilder setLogRequests(final boolean logRequests) {
+    this.logRequests = logRequests;
     return this;
   }
 

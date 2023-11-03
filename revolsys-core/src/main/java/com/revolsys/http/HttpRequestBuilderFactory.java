@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.function.BiFunction;
 
 import org.apache.http.HttpRequest;
+import org.apache.http.impl.client.HttpClientBuilder;
 
 import com.revolsys.collection.json.JsonObject;
 import com.revolsys.io.map.ObjectFactoryConfig;
@@ -106,6 +107,9 @@ public class HttpRequestBuilderFactory {
 
   public Builder builder(final URI uri) {
     return new Builder(this, uri);
+  }
+
+  public void configureClient(final HttpClientBuilder builder) {
   }
 
   public final HttpRequestBuilder copy(final HttpRequest request) {
