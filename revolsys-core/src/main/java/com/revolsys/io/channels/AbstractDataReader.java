@@ -117,6 +117,7 @@ public abstract class AbstractDataReader extends InputStream implements DataRead
     this.tempBuffer = null;
   }
 
+  // todo see if this loops
   private int ensureRemaining() {
     ByteBuffer buffer = this.buffer;
     int remaining = buffer.remaining();
@@ -131,7 +132,7 @@ public abstract class AbstractDataReader extends InputStream implements DataRead
       }
       try {
         buffer.clear();
-        while (remaining <= 0) {
+        while (remaining == 0) {
           final int readCount = readInternal(buffer);
           buffer.flip();
           if (readCount == -1) {
@@ -157,8 +158,10 @@ public abstract class AbstractDataReader extends InputStream implements DataRead
 
   @Override
   public byte getByte() {
-    if (ensureRemaining() == -1) {
-      throw new EndOfFileException();
+    if (this.buffer.remaining() == 0) {
+      if (ensureRemaining() == -1) {
+        throw new EndOfFileException();
+      }
     }
     return this.buffer.get();
   }
@@ -170,9 +173,12 @@ public abstract class AbstractDataReader extends InputStream implements DataRead
 
   @Override
   public int getBytes(final byte[] bytes, final int offset, final int byteCount) {
-    int remaining = ensureRemaining();
-    if (remaining == -1) {
-      return -1;
+    int remaining = this.buffer.remaining();
+    if (remaining == 0) {
+      remaining = ensureRemaining();
+      if (remaining == -1) {
+        return -1;
+      }
     }
     if (remaining < byteCount) {
       int readOffset = remaining;
@@ -309,8 +315,10 @@ public abstract class AbstractDataReader extends InputStream implements DataRead
 
   @Override
   public boolean isByte(final byte expected) {
-    if (ensureRemaining() == -1) {
-      return false;
+    if (this.buffer.remaining() == 0) {
+      if (ensureRemaining() == -1) {
+        return false;
+      }
     }
     final byte b = this.buffer.get();
     unreadByte(b);
@@ -319,8 +327,10 @@ public abstract class AbstractDataReader extends InputStream implements DataRead
 
   @Override
   public boolean isByte(final char expected) {
-    if (ensureRemaining() == -1) {
-      return false;
+    if (this.buffer.remaining() == 0) {
+      if (ensureRemaining() == -1) {
+        return false;
+      }
     }
     final byte b = this.buffer.get();
     unreadByte(b);
@@ -348,8 +358,10 @@ public abstract class AbstractDataReader extends InputStream implements DataRead
 
   @Override
   public int read() {
-    if (ensureRemaining() == -1) {
-      return -1;
+    if (this.buffer.remaining() == 0) {
+      if (ensureRemaining() == -1) {
+        return -1;
+      }
     }
     final byte b = this.buffer.get();
     return b & 0xff;
@@ -357,9 +369,12 @@ public abstract class AbstractDataReader extends InputStream implements DataRead
 
   @Override
   public int read(final byte[] bytes, final int offset, int length) throws IOException {
-    final int remaining = ensureRemaining();
-    if (remaining == -1) {
-      return -1;
+    int remaining = this.buffer.remaining();
+    if (remaining == 0) {
+      remaining = ensureRemaining();
+      if (remaining == -1) {
+        return -1;
+      }
     }
     if (length > remaining) {
       length = remaining;
@@ -370,9 +385,12 @@ public abstract class AbstractDataReader extends InputStream implements DataRead
 
   @Override
   public int read(final ByteBuffer buffer) {
-    final int readRemaining = ensureRemaining();
-    if (readRemaining == -1) {
-      return -1;
+    int readRemaining = this.buffer.remaining();
+    if (readRemaining == 0) {
+      readRemaining = ensureRemaining();
+      if (readRemaining == -1) {
+        return -1;
+      }
     }
     final ByteBuffer readBuffer = this.buffer;
     final int writerRemaining = buffer.remaining();
@@ -448,9 +466,12 @@ public abstract class AbstractDataReader extends InputStream implements DataRead
       while (count > remaining) {
         count -= remaining;
         this.buffer.position(this.buffer.limit());
-        remaining = ensureRemaining();
-        if (remaining == -1) {
-          return;
+        remaining = this.buffer.remaining();
+        if (remaining == 0) {
+          remaining = ensureRemaining();
+          if (remaining == -1) {
+            return;
+          }
         }
       }
     }

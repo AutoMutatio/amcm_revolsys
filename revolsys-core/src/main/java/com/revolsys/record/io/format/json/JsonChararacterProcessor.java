@@ -5,7 +5,6 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 
 import com.revolsys.reactive.chars.CharacterProcessor;
-import com.revolsys.util.Debug;
 
 public class JsonChararacterProcessor implements CharacterProcessor {
 
@@ -393,7 +392,6 @@ public class JsonChararacterProcessor implements CharacterProcessor {
   }
 
   private void processString(final char c) {
-    Debug.noOp();
   }
 
   private void processText(final char c) {

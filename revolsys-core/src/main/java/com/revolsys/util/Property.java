@@ -570,7 +570,7 @@ public interface Property {
       }
     } else if (listener instanceof Consumer) {
       final Consumer<Object> consumer = (Consumer<Object>)listener;
-      return (e) -> {
+      return e -> {
         final Object object = e.getNewValue();
         consumer.accept(object);
       };
@@ -708,7 +708,7 @@ public interface Property {
 
   static boolean hasValue(final String string) {
     if (string != null) {
-      return !string.isBlank();
+      return !string.isEmpty();
     }
     return false;
   }
@@ -827,7 +827,7 @@ public interface Property {
   }
 
   static <V> PropertyChangeListener newListener(final BiConsumer<String, V> consumer) {
-    return (event) -> {
+    return event -> {
       final String propertyName = event.getPropertyName();
       @SuppressWarnings("unchecked")
       final V value = (V)event.getNewValue();
@@ -836,7 +836,7 @@ public interface Property {
   }
 
   static <V> PropertyChangeListener newListener(final BiFunction<String, V, ?> function) {
-    return (event) -> {
+    return event -> {
       final String propertyName = event.getPropertyName();
       @SuppressWarnings("unchecked")
       final V value = (V)event.getNewValue();

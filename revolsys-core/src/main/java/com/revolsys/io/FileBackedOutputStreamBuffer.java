@@ -1,6 +1,7 @@
 package com.revolsys.io;
 
 import java.io.BufferedOutputStream;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -170,8 +171,8 @@ public class FileBackedOutputStreamBuffer extends OutputStream implements Append
   }
 
   public java.io.Writer newWriter() {
-    return new OutputStreamWriter(new IgnoreCloseDelegatingOutputStream(this),
-      StandardCharsets.UTF_8);
+    return new BufferedWriter(
+      new OutputStreamWriter(new IgnoreCloseDelegatingOutputStream(this), StandardCharsets.UTF_8));
   }
 
   private void requireFile() throws IOException {
