@@ -244,7 +244,7 @@ public class HttpRequestBuilder {
     return new HttpRequestBuilder().setMethod(HttpTrace.METHOD_NAME).setUri(uri);
   }
 
-  private boolean logRequests = true;
+  private final boolean logRequests = true;
 
   private String method;
 
@@ -372,9 +372,6 @@ public class HttpRequestBuilder {
       result.setHeaders(this.headerGroup.getAllHeaders());
     }
     result.setConfig(this.config);
-    if (this.logRequests) {
-      System.out.println(result);
-    }
     return result;
   }
 
@@ -506,9 +503,6 @@ public class HttpRequestBuilder {
 
   public HttpResponse getResponse(final CloseableHttpClient httpClient,
     final HttpUriRequest request) {
-    if (this.logRequests) {
-      System.out.println(request);
-    }
     try {
       final HttpResponse response = httpClient.execute(request);
       final StatusLine statusLine = response.getStatusLine();
@@ -670,11 +664,6 @@ public class HttpRequestBuilder {
     final String jsonString = value.toJsonString();
     final StringEntity entity = new StringEntity(jsonString, ContentType.APPLICATION_JSON);
     setEntity(entity);
-    return this;
-  }
-
-  public HttpRequestBuilder setLogRequests(final boolean logRequests) {
-    this.logRequests = logRequests;
     return this;
   }
 

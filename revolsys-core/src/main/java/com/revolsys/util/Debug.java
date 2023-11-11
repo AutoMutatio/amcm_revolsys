@@ -17,9 +17,6 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 
 public class Debug {
-  static {
-    ((Logger)LoggerFactory.getLogger(Debug.class)).setLevel(Level.INFO);
-  }
 
   public static boolean equals(final Geometry geometry, final double x, final double y) {
     final Point firstPoint = geometry.getPoint();
@@ -93,6 +90,7 @@ public class Debug {
   }
 
   public static void log(final Object object) {
+    ((Logger)LoggerFactory.getLogger(Debug.class)).setLevel(Level.INFO);
     Logs.info(Debug.class, object.toString());
   }
 
