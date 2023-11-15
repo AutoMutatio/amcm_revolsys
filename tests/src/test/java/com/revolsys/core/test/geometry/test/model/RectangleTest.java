@@ -41,10 +41,6 @@ public class RectangleTest {
     if (normalize) {
       expected = expected.normalize();
     }
-    // if ("LineString_on top to right".equals(message)) {
-    // Debug.noOp();
-    // }
-
     Geometry actualIntersectsRectangle = geometry.intersectionBbox(rectangle);
     if (normalize) {
       actualIntersectsRectangle = actualIntersectsRectangle.normalize();
