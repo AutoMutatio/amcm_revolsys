@@ -158,34 +158,30 @@ public interface DataReader extends BaseCloseable {
   }
 
   default boolean isEol() {
-    try {
-      while (true) {
-        final byte b = getByte();
-        switch (b) {
-          case '\r': {
-            try {
-              final byte b2 = getByte();
-              if (b2 != '\n') {
-                unreadByte(b2);
-                unreadByte(b);
-                return false;
-              }
-              return true;
-            } catch (final EndOfFileException e) {
+    while (true) {
+      final byte b = getByte();
+      switch (b) {
+        case '\r': {
+          try {
+            final byte b2 = getByte();
+            if (b2 != '\n') {
+              unreadByte(b2);
               unreadByte(b);
               return false;
             }
-          }
-          case '\n': {
+            return true;
+          } catch (final EndOfFileException e) {
+            unreadByte(b);
             return true;
           }
-          default:
-            unreadByte(b);
-            return false;
         }
+        case '\n': {
+          return true;
+        }
+        default:
+          unreadByte(b);
+          return false;
       }
-    } catch (final EndOfFileException e) {
-      return false;
     }
   }
 
