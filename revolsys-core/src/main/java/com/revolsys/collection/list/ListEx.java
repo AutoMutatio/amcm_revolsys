@@ -163,7 +163,14 @@ public interface ListEx<T> extends List<T>, Cloneable, BaseIterable<T> {
   ListEx<T> clone();
 
   default Double getDouble(final int index) {
-    return getValue(index, DataTypes.DOUBLE);
+    final var value = getValue(index);
+    if (value == null) {
+      return null;
+    } else if (value instanceof final Number number) {
+      return number.doubleValue();
+    } else {
+      return DataTypes.DOUBLE.toObject(value);
+    }
   }
 
   default Double getDouble(final int index, final double defaultValue) {
@@ -185,7 +192,14 @@ public interface ListEx<T> extends List<T>, Cloneable, BaseIterable<T> {
   }
 
   default Integer getInteger(final int index) {
-    return getValue(index, DataTypes.INT);
+    final var value = getValue(index);
+    if (value == null) {
+      return null;
+    } else if (value instanceof final Number number) {
+      return number.intValue();
+    } else {
+      return DataTypes.INT.toObject(value);
+    }
   }
 
   default int getInteger(final int index, final int defaultValue) {
@@ -217,7 +231,14 @@ public interface ListEx<T> extends List<T>, Cloneable, BaseIterable<T> {
   }
 
   default String getString(final int index) {
-    return getValue(index, DataTypes.STRING);
+    final var value = getValue(index);
+    if (value == null) {
+      return null;
+    } else if (value instanceof final CharSequence string) {
+      return string.toString();
+    } else {
+      return DataTypes.STRING.toObject(value);
+    }
   }
 
   default String getString(final int index, final String defaultValue) {

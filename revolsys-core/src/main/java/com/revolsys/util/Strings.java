@@ -417,10 +417,15 @@ public interface Strings {
     print(System.out, separator, values);
   }
 
-  static String removeFromEnd(String fullAddress, final int len) {
-    final int endIndex = fullAddress.length() - len;
-    fullAddress = fullAddress.substring(0, endIndex);
-    return fullAddress;
+  static String removeFromEnd(String string, final int len) {
+    final int endIndex = string.length() - len;
+    string = string.substring(0, endIndex);
+    return string;
+  }
+
+  static String removeFromEnd(final String string, final String suffix) {
+    final int length = suffix.length();
+    return removeFromEnd(string, length);
   }
 
   static String replace(final String text, final String from, final String to) {

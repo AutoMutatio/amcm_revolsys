@@ -10,6 +10,10 @@ public interface ValueHolder<T> extends Emptyable {
     return new LazyValueHolder<>(valueSupplier);
   }
 
+  public static <V> ValueHolder<V> of(final V value) {
+    return new SimpleValueHolder<>(value);
+  }
+
   default BaseCloseable closeable(final T value) {
     return new ValueCloseable<>(this, value);
   }

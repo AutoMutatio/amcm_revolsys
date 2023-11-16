@@ -708,7 +708,7 @@ public interface Property {
 
   static boolean hasValue(final String string) {
     if (string != null) {
-      return !string.isBlank();
+      return !string.isEmpty();
     }
     return false;
   }

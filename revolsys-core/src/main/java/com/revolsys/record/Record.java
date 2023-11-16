@@ -199,6 +199,11 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
     return this;
   }
 
+  default Record apply(final Consumer<Record> action) {
+    action.accept(this);
+    return this;
+  }
+
   @Override
   default JsonType asJson() {
     return JsonObject.hash(this);

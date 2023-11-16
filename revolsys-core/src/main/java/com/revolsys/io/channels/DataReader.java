@@ -157,6 +157,34 @@ public interface DataReader extends BaseCloseable {
     }
   }
 
+  default boolean isEol() {
+    while (true) {
+      final byte b = getByte();
+      switch (b) {
+        case '\r': {
+          try {
+            final byte b2 = getByte();
+            if (b2 != '\n') {
+              unreadByte(b2);
+              unreadByte(b);
+              return false;
+            }
+            return true;
+          } catch (final EndOfFileException e) {
+            unreadByte(b);
+            return true;
+          }
+        }
+        case '\n': {
+          return true;
+        }
+        default:
+          unreadByte(b);
+          return false;
+      }
+    }
+  }
+
   boolean isSeekable();
 
   long position();
@@ -171,36 +199,40 @@ public interface DataReader extends BaseCloseable {
 
   void seekEnd(long distance);
 
-  void setByteOrder(ByteOrder byteOrder);
+  DataReader setByteOrder(ByteOrder byteOrder);
 
   DataReader setUnreadSize(int unreadSize);
 
   void skipBytes(int count);
 
+  default void skipComment() {
+    skipWhile(b -> b != '\n' && b != '\r');
+  }
+
   default void skipEol() {
-    while (true) {
-      final byte b = getByte();
-      switch (b) {
-        case -1:
-          return;
-        case '\r': {
-          final byte b2 = getByte();
-          if (b2 == -1) {
-            unreadByte(b);
-          } else if (b2 != '\n') {
-            unreadByte(b2);
+    try {
+      while (true) {
+        final byte b = getByte();
+        switch (b) {
+          case '\r': {
+            final byte b2 = getByte();
+            if (b2 != '\n') {
+              unreadByte(b2);
+              unreadByte(b);
+              return;
+            }
+            break;
+          }
+          case '\n': {
+            break;
+          }
+          default:
             unreadByte(b);
             return;
-          }
-          break;
         }
-        case '\n': {
-          break;
-        }
-        default:
-          unreadByte(b);
-          return;
       }
+    } catch (final EndOfFileException e) {
+      return;
     }
   }
 
@@ -254,7 +286,21 @@ public interface DataReader extends BaseCloseable {
   }
 
   default void skipWhitespace() {
-    skipWhile(WHITESPACE);
+    byte b;
+    try {
+      do {
+        b = getByte();
+        // TODO comments
+        // if (b == '%') {
+        // skipComment();
+        // b = getByte();
+        // }
+      } while (WHITESPACE.accept(b));
+      if (b != -1) {
+        unreadByte(b);
+      }
+    } catch (final EndOfFileException e) {
+    }
   }
 
   void unreadByte(byte b);
