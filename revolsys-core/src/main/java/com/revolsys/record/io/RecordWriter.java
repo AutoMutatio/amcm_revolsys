@@ -14,6 +14,7 @@ import com.revolsys.io.FileUtil;
 import com.revolsys.io.IoFactory;
 import com.revolsys.io.MultiRecordWriter;
 import com.revolsys.io.Writer;
+import com.revolsys.io.file.Paths;
 import com.revolsys.record.ArrayRecord;
 import com.revolsys.record.Record;
 import com.revolsys.record.schema.RecordDefinition;
@@ -37,6 +38,7 @@ public interface RecordWriter extends Writer<Record>, RecordDefinitionProxy {
   public static RecordWriter newMultiFormat(final Path parent, final String baseName,
     final RecordDefinition recordDefinition, final Iterable<String> formats) {
     final ListEx<RecordWriter> writers = Lists.newArray();
+    Paths.createDirectories(parent);
     for (final var format : formats) {
       final var path = parent.resolve(baseName + "." + format);
       final var writer = newRecordWriter(recordDefinition, path);

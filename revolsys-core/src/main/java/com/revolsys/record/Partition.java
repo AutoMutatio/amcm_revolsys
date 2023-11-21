@@ -1,6 +1,9 @@
-package com.revolsys.io;
+package com.revolsys.record;
 
 import java.nio.file.Path;
+
+import com.revolsys.record.io.RecordWriter;
+import com.revolsys.record.schema.RecordDefinition;
 
 public record Partition(Partition parent, Path path, String key, Object value, String fullName) {
 
@@ -24,4 +27,15 @@ public record Partition(Partition parent, Path path, String key, Object value, S
   public Path fullPath(final Path root) {
     return root.resolve(this.path);
   }
+
+  public Path fullPath(final Path root, final String typeName) {
+    return root.resolve(typeName).resolve(this.path);
+  }
+
+  public RecordWriter newMultiWriter(final Path root, final String typeName,
+    final RecordDefinition recordDefinition, final Iterable<String> formats) {
+    final Path dir = fullPath(root, typeName);
+    return RecordWriter.newMultiFormat(dir, "data", recordDefinition, formats);
+  }
+
 }
