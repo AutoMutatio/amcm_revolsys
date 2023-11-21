@@ -81,4 +81,8 @@ public class OpenIdBearerToken extends BearerToken {
   public String toStringDump() {
     return this.jwt.toStringDump();
   }
+
+  public String toStringJwt() {
+    return this.jwt.toString();
+  }
 }
