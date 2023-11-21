@@ -37,8 +37,16 @@ public record ODataResource(HttpRequestBuilderFactory factory, URI uri) {
     return new ODataResource(this.factory, newUri);
   }
 
+  public final String lastSegment() {
+    return new UriBuilder(this.uri).lastPathSegment();
+  }
+
   public InputStream getInputStream() {
     return get().newInputStream();
+  }
+
+  public URI getUri() {
+    return this.uri;
   }
 
   public final ODataRequestBuilder head() {

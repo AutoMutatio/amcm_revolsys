@@ -225,6 +225,10 @@ public class JsonWebToken {
     return this.header + "\n" + this.payload;
   }
 
+  public String toStringDump() {
+    return this.headerText + "\n" + this.payloadText;
+  }
+
   private boolean verifySignature(final String tokenToSign, final PublicKey publicKey)
     throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
     final Signature s = Signature.getInstance("SHA256withRSA");

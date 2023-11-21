@@ -122,6 +122,10 @@ public abstract class AbstractRecordStoreSchemaElement extends BaseObjectWithPro
     setPathName(PathName.newPathName(path));
   }
 
+  protected void setSchema(final RecordStoreSchema schema) {
+    this.schema = schema;
+  }
+
   @Override
   public String toString() {
     return getPath();

@@ -952,7 +952,7 @@ public class FieldDefinition extends BaseObjectWithProperties implements CharSeq
 
   @Override
   public String toString() {
-    return this.name;
+    return this.name + " " + this.type;
   }
 
   @Override

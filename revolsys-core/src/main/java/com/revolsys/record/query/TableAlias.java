@@ -1,7 +1,6 @@
 package com.revolsys.record.query;
 
-import java.util.List;
-
+import com.revolsys.collection.list.ListEx;
 import com.revolsys.io.PathName;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
@@ -44,7 +43,7 @@ public class TableAlias implements TableReference {
   }
 
   @Override
-  public List<FieldDefinition> getFields() {
+  public ListEx<FieldDefinition> getFields() {
     // TODO Auto-generated method stub
     return null;
   }

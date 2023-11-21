@@ -9,6 +9,10 @@ import com.revolsys.collection.list.ListEx;
 
 public class ListDataType extends SimpleDataType {
 
+  public static ListDataType of(final DataType contentType) {
+    return new ListDataType(ListEx.class, contentType);
+  }
+
   private final DataType contentType;
 
   public ListDataType(final Class<?> javaClass, final DataType contentType) {
@@ -185,5 +189,10 @@ public class ListDataType extends SimpleDataType {
     } else {
       return super.toObjectDo(value);
     }
+  }
+
+  @Override
+  public String toString() {
+    return super.toString() + "<" + this.contentType + ">";
   }
 }
