@@ -183,7 +183,7 @@ public class JsonWebToken {
       final String tokenToSign = this.token.substring(0, this.token.lastIndexOf('.'));
 
       final String keyId = this.header.getString("kid");
-      for (final JsonObject key : jsonWebKeySet.getJsonList("keys", JsonList.EMPTY).jsonObjects()) {
+      for (final JsonObject key : jsonWebKeySet.<JsonObject> getList("keys")) {
         if (key.equalValue("kid", keyId)) {
           final String n = key.getString("n");
           final String e = key.getString("e");
@@ -223,6 +223,10 @@ public class JsonWebToken {
   @Override
   public String toString() {
     return this.header + "\n" + this.payload;
+  }
+
+  public String toStringDump() {
+    return this.headerText + "\n" + this.payloadText;
   }
 
   private boolean verifySignature(final String tokenToSign, final PublicKey publicKey)
