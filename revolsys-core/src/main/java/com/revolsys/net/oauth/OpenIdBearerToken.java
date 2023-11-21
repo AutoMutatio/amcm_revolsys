@@ -77,4 +77,8 @@ public class OpenIdBearerToken extends BearerToken {
       return this.client.tokenRefresh(this.refreshToken, scope);
     }
   }
+
+  public String toStringDump() {
+    return this.jwt.toStringDump();
+  }
 }
