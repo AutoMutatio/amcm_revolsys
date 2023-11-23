@@ -285,10 +285,12 @@ public interface DataReader extends BaseCloseable {
 
   }
 
-  default void skipWhitespace() {
+  default boolean skipWhitespace() {
+    int count = 0;
     byte b;
     try {
       do {
+        count++;
         b = getByte();
         // TODO comments
         // if (b == '%') {
@@ -297,10 +299,12 @@ public interface DataReader extends BaseCloseable {
         // }
       } while (WHITESPACE.accept(b));
       if (b != -1) {
+        count--;
         unreadByte(b);
       }
     } catch (final EndOfFileException e) {
     }
+    return count > 0;
   }
 
   void unreadByte(byte b);
