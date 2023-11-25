@@ -171,7 +171,6 @@ public interface DataReader extends BaseCloseable {
             }
             return true;
           } catch (final EndOfFileException e) {
-            unreadByte(b);
             return true;
           }
         }

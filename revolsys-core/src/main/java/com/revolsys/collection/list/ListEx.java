@@ -261,12 +261,13 @@ public interface ListEx<T> extends List<T>, Cloneable, BaseIterable<T> {
   }
 
   default <V extends Object> V getValue(final int index, final V defaultValue) {
-    final V value = getValue(index);
-    if (value == null) {
-      return defaultValue;
-    } else {
-      return value;
+    if (index < size()) {
+      final V value = getValue(index);
+      if (value != null) {
+        return value;
+      }
     }
+    return defaultValue;
   }
 
   @Override

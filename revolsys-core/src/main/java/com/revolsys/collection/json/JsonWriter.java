@@ -185,30 +185,16 @@ public class JsonWriter implements BaseCloseable {
 
   public void list(final Iterable<?> values) throws IOException {
     startList();
-    if (this.indent) {
-      for (final Object value : values) {
-        indent();
-        value(value);
-      }
-    } else {
-      for (final Object value : values) {
-        value(value);
-      }
+    for (final Object value : values) {
+      value(value);
     }
     endList();
   }
 
   public void list(final Object... values) throws IOException {
     startList();
-    if (this.indent) {
-      for (final Object value : values) {
-        indent();
-        value(value);
-      }
-    } else {
-      for (final Object value : values) {
-        value(value);
-      }
+    for (final Object value : values) {
+      value(value);
     }
     endList();
   }
