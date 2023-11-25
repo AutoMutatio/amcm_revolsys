@@ -132,6 +132,17 @@
         </exclusions>
       </dependency>
       <dependency>
+        <groupId>org.apache.pdfbox</groupId>
+        <artifactId>fontbox</artifactId>
+        <version>${org.apache.pdfbox.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
         <groupId>org.docx4j</groupId>
         <artifactId>docx4j-ImportXHTML</artifactId>
         <version>${org.docx4j.version}</version>
