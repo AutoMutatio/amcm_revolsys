@@ -9,8 +9,9 @@ import java.util.NoSuchElementException;
 
 import com.revolsys.exception.Exceptions;
 import com.revolsys.io.FileUtil;
+import com.revolsys.util.BaseCloseable;
 
-public class CsvIterator implements Iterator<List<String>>, Iterable<List<String>> {
+public class CsvIterator implements Iterator<List<String>>, Iterable<List<String>>, BaseCloseable {
   private static final int BUFFER_SIZE = 8192;
 
   private final char fieldSeparator;
@@ -53,6 +54,7 @@ public class CsvIterator implements Iterator<List<String>>, Iterable<List<String
    *
    * @throws IOException if the close fails
    */
+  @Override
   public void close() {
     FileUtil.closeSilent(this.in);
   }
@@ -119,11 +121,11 @@ public class CsvIterator implements Iterator<List<String>>, Iterable<List<String
           } else {
             inQuotes = !inQuotes;
             if (sb.length() > 0 && !(nextChar == this.fieldSeparator || nextChar == '\r'
-              || nextChar == '\n' || nextChar == 0)) {
+                || nextChar == '\n' || nextChar == 0)) {
               sb.append(c);
             }
           }
-        break;
+          break;
         case '\r':
           if (inQuotes) {
             sb.append(c);
@@ -137,7 +139,7 @@ public class CsvIterator implements Iterator<List<String>>, Iterable<List<String
             }
             return fields;
           }
-        break;
+          break;
         case '\n':
           if (previewNextChar() == '\r') {
             this.index++;
@@ -153,9 +155,9 @@ public class CsvIterator implements Iterator<List<String>>, Iterable<List<String
             }
             return fields;
           }
-        break;
+          break;
         case 65279: // Byte Order Mark
-        break;
+          break;
         default:
           if (c == this.fieldSeparator) {
             if (inQuotes) {
@@ -172,7 +174,7 @@ public class CsvIterator implements Iterator<List<String>>, Iterable<List<String
           } else {
             sb.append(c);
           }
-        break;
+          break;
       }
     }
     this.hasNext = false;
