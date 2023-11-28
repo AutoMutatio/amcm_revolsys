@@ -15,34 +15,6 @@ public abstract class AbstractDataReader extends InputStream implements DataRead
 
   public static final int DEFAULT_BUFFER_SIZE = 8192;
 
-  public static String toString(final ByteBuffer buffer) {
-    try {
-      final int i = buffer.position();
-      final int min = Math.max(0, i - 50);
-      final int max = buffer.limit();
-      buffer.position(min);
-      final byte[] before = new byte[i - min];
-      buffer.get(before);
-      char c;
-      byte[] after;
-      try {
-        c = (char) buffer.get();
-        after = new byte[max - i - 1];
-        buffer.get(after);
-        buffer.position(i);
-      } catch (final Exception e) {
-        c = ' ';
-        after = new byte[0];
-      }
-      return new String(before, StandardCharsets.US_ASCII) + "█"
-          + ((Character) c).toString().replaceAll("[\\n\\r]", "\\\\n") + "█"
-          + new String(after, StandardCharsets.US_ASCII);
-    } catch (final Exception e) {
-      e.printStackTrace();
-    }
-    return "sb";
-  }
-
   protected ByteBuffer buffer;
 
   protected ByteBuffer inBuffer;
@@ -64,6 +36,8 @@ public abstract class AbstractDataReader extends InputStream implements DataRead
   private ByteBuffer unreadBuffer;
 
   private InputStream wrapStream;
+
+  private int lastLimit = 0;
 
   public AbstractDataReader() {
     this(null, false);
@@ -131,6 +105,9 @@ public abstract class AbstractDataReader extends InputStream implements DataRead
         }
       }
       try {
+        if (buffer.limit() != 0) {
+          this.lastLimit = buffer.limit();
+        }
         buffer.clear();
         while (remaining == 0) {
           final int readCount = readInternal(buffer);
@@ -334,7 +311,7 @@ public abstract class AbstractDataReader extends InputStream implements DataRead
     }
     final byte b = this.buffer.get();
     unreadByte(b);
-    return expected == ((char) b & 0xFF);
+    return expected == ((char)b & 0xFF);
   }
 
   @Override
@@ -423,7 +400,7 @@ public abstract class AbstractDataReader extends InputStream implements DataRead
     if (position >= currentPosition) {
       final long offset = position - currentPosition;
 
-      skipBytes((int) offset);
+      skipBytes((int)offset);
     } else {
       throw new IllegalArgumentException("Seek no supported");
     }
@@ -446,8 +423,8 @@ public abstract class AbstractDataReader extends InputStream implements DataRead
     if (this.unreadBuffer == null) {
       this.unreadBytes = new byte[unreadSize];
       this.unreadBuffer = ByteBuffer.wrap(this.unreadBytes)
-          .order(this.inBuffer.order())
-          .position(unreadSize);
+        .order(this.inBuffer.order())
+        .position(unreadSize);
     } else {
       throw new IllegalArgumentException("Cannot change unread size");
     }
@@ -482,6 +459,47 @@ public abstract class AbstractDataReader extends InputStream implements DataRead
   @Override
   public String toString() {
     return toString(this.buffer);
+  }
+
+  private String toString(final ByteBuffer buffer) {
+    final int originalPosition = buffer.position();
+    final int originalLimit = buffer.limit();
+    try {
+      int i = originalPosition;
+      final int max = buffer.limit();
+      if (buffer.remaining() == 0) {
+        if (buffer.limit() == 0) {
+          buffer.position(0);
+          i = this.lastLimit;
+          buffer.limit(i);
+        } else {
+          buffer.position(0);
+        }
+      }
+      final int min = Math.max(0, i - 100);
+      buffer.position(min);
+      final byte[] before = new byte[i - min];
+      buffer.get(before);
+      char c;
+      byte[] after;
+      try {
+        c = (char)buffer.get();
+        after = new byte[max - i - 1];
+        buffer.get(after);
+      } catch (final Exception e) {
+        c = ' ';
+        after = new byte[0];
+      }
+      return new String(before, StandardCharsets.US_ASCII) + "█"
+        + ((Character)c).toString().replaceAll("[\\n\\r]", "\\\\n") + "█"
+        + new String(after, StandardCharsets.US_ASCII);
+    } catch (final Exception e) {
+      e.printStackTrace();
+    } finally {
+      buffer.position(originalPosition);
+      buffer.position(originalLimit);
+    }
+    return "sb";
   }
 
   @Override

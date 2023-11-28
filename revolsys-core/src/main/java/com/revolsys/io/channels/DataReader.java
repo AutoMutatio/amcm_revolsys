@@ -102,7 +102,7 @@ public interface DataReader extends BaseCloseable {
 
   default short getUnsignedByte() {
     final byte signedByte = getByte();
-    return (short) Byte.toUnsignedInt(signedByte);
+    return (short)Byte.toUnsignedInt(signedByte);
   }
 
   default long getUnsignedInt() {
@@ -150,9 +150,9 @@ public interface DataReader extends BaseCloseable {
   default boolean isEof() {
     final int b = read();
     if (b < 0) {
-      return false;
+      return true;
     } else {
-      unreadByte((byte) b);
+      unreadByte((byte)b);
       return false;
     }
   }
@@ -207,7 +207,7 @@ public interface DataReader extends BaseCloseable {
       final int b = read();
       switch (b) {
         case -1:
-          break;
+        break;
         case '\r': {
           final int b2 = getByte();
           if (b2 != '\n') {
@@ -240,7 +240,7 @@ public interface DataReader extends BaseCloseable {
     final int b = read();
     switch (b) {
       case -1:
-        break;
+      break;
       case '\r': {
         final int b2 = read();
         if (b2 != '\n') {
@@ -265,7 +265,7 @@ public interface DataReader extends BaseCloseable {
       if (b == -1) {
         return;
       }
-    } while (c.accept((byte) b));
+    } while (c.accept((byte)b));
     unreadByte(b);
   }
 
@@ -283,7 +283,7 @@ public interface DataReader extends BaseCloseable {
       // skipComment();
       // b = getByte();
       // }
-    } while (WHITESPACE.accept((byte) b));
+    } while (WHITESPACE.accept((byte)b));
     if (b != -1) {
       count--;
       unreadByte(b);
@@ -293,9 +293,9 @@ public interface DataReader extends BaseCloseable {
 
   void unreadByte(byte b);
 
-  default void unreadByte(int b) {
+  default void unreadByte(final int b) {
     if (b != -1) {
-      unreadByte((byte) b);
+      unreadByte((byte)b);
     }
   }
 
