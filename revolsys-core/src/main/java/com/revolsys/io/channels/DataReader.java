@@ -8,7 +8,6 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 import com.revolsys.exception.Exceptions;
-import com.revolsys.io.EndOfFileException;
 import com.revolsys.util.BaseCloseable;
 
 interface ByteFilter {
@@ -103,7 +102,7 @@ public interface DataReader extends BaseCloseable {
 
   default short getUnsignedByte() {
     final byte signedByte = getByte();
-    return (short)Byte.toUnsignedInt(signedByte);
+    return (short) Byte.toUnsignedInt(signedByte);
   }
 
   default long getUnsignedInt() {
@@ -113,6 +112,7 @@ public interface DataReader extends BaseCloseable {
 
   /**
    * Unsigned longs don't actually work channel Java
+   *
    * @return
    */
   default long getUnsignedLong() {
@@ -137,7 +137,7 @@ public interface DataReader extends BaseCloseable {
 
   default boolean isBytes(final byte[] bytes) {
     for (final byte e : bytes) {
-      final byte a = getByte();
+      final int a = read();
       if (a != e) {
         return false;
       }
@@ -152,35 +152,29 @@ public interface DataReader extends BaseCloseable {
     if (b < 0) {
       return false;
     } else {
-      unreadByte((byte)b);
+      unreadByte((byte) b);
       return false;
     }
   }
 
   default boolean isEol() {
-    while (true) {
-      final byte b = getByte();
-      switch (b) {
-        case '\r': {
-          try {
-            final byte b2 = getByte();
-            if (b2 != '\n') {
-              unreadByte(b2);
-              unreadByte(b);
-              return false;
-            }
-            return true;
-          } catch (final EndOfFileException e) {
-            return true;
-          }
+    final int b = read();
+    switch (b) {
+      case -1:
+        return false;
+      case '\r': {
+        final int b2 = read();
+        if (b2 != '\n') {
+          unreadByte(b2);
         }
-        case '\n': {
-          return true;
-        }
-        default:
-          unreadByte(b);
-          return false;
+        return true;
       }
+      case '\n': {
+        return true;
+      }
+      default:
+        unreadByte(b);
+        return false;
     }
   }
 
@@ -209,35 +203,32 @@ public interface DataReader extends BaseCloseable {
   }
 
   default void skipEol() {
-    try {
-      while (true) {
-        final byte b = getByte();
-        switch (b) {
-          case '\r': {
-            final byte b2 = getByte();
-            if (b2 != '\n') {
-              unreadByte(b2);
-              unreadByte(b);
-              return;
-            }
-            break;
-          }
-          case '\n': {
-            break;
-          }
-          default:
-            unreadByte(b);
+    while (true) {
+      final int b = read();
+      switch (b) {
+        case -1:
+          break;
+        case '\r': {
+          final int b2 = getByte();
+          if (b2 != '\n') {
+            unreadByte(b2);
             return;
+          }
+          break;
         }
+        case '\n': {
+          break;
+        }
+        default:
+          unreadByte(b);
+          return;
       }
-    } catch (final EndOfFileException e) {
-      return;
     }
   }
 
   default boolean skipIfChar(final char c) {
-    final byte b = getByte();
-    if (c == (b & 0xFF)) {
+    final int b = read();
+    if (c == b) {
       return true;
     } else {
       unreadByte(b);
@@ -246,17 +237,14 @@ public interface DataReader extends BaseCloseable {
   }
 
   default void skipOneEol() {
-    final byte b = getByte();
+    final int b = read();
     switch (b) {
       case -1:
-      break;
+        break;
       case '\r': {
-        final byte b2 = getByte();
-        if (b2 == -1) {
-          unreadByte(b);
-        } else if (b2 != '\n') {
+        final int b2 = read();
+        if (b2 != '\n') {
           unreadByte(b2);
-          unreadByte(b);
         }
         break;
       }
@@ -271,41 +259,44 @@ public interface DataReader extends BaseCloseable {
   }
 
   default void skipWhile(final ByteFilter c) {
-    byte b;
-    try {
-      do {
-        b = getByte();
-      } while (c.accept(b));
-      if (b != -1) {
-        unreadByte(b);
+    int b;
+    do {
+      b = read();
+      if (b == -1) {
+        return;
       }
-    } catch (final EndOfFileException e) {
-    }
-
+    } while (c.accept((byte) b));
+    unreadByte(b);
   }
 
   default boolean skipWhitespace() {
     int count = 0;
-    byte b;
-    try {
-      do {
-        count++;
-        b = getByte();
-        // TODO comments
-        // if (b == '%') {
-        // skipComment();
-        // b = getByte();
-        // }
-      } while (WHITESPACE.accept(b));
-      if (b != -1) {
-        count--;
-        unreadByte(b);
+    int b;
+    do {
+      count++;
+      b = read();
+      if (b == -1) {
+        return count > 0;
       }
-    } catch (final EndOfFileException e) {
+      // TODO comments
+      // if (b == '%') {
+      // skipComment();
+      // b = getByte();
+      // }
+    } while (WHITESPACE.accept((byte) b));
+    if (b != -1) {
+      count--;
+      unreadByte(b);
     }
     return count > 0;
   }
 
   void unreadByte(byte b);
+
+  default void unreadByte(int b) {
+    if (b != -1) {
+      unreadByte((byte) b);
+    }
+  }
 
 }

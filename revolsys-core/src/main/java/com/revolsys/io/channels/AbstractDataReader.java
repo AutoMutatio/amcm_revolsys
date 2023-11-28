@@ -26,7 +26,7 @@ public abstract class AbstractDataReader extends InputStream implements DataRead
       char c;
       byte[] after;
       try {
-        c = (char)buffer.get();
+        c = (char) buffer.get();
         after = new byte[max - i - 1];
         buffer.get(after);
         buffer.position(i);
@@ -34,9 +34,9 @@ public abstract class AbstractDataReader extends InputStream implements DataRead
         c = ' ';
         after = new byte[0];
       }
-      return new String(before, StandardCharsets.US_ASCII) + " |"
-        + ((Character)c).toString().replaceAll("[\\n\\r]", "\\\\n") + "| "
-        + new String(after, StandardCharsets.US_ASCII);
+      return new String(before, StandardCharsets.US_ASCII) + "█"
+          + ((Character) c).toString().replaceAll("[\\n\\r]", "\\\\n") + "█"
+          + new String(after, StandardCharsets.US_ASCII);
     } catch (final Exception e) {
       e.printStackTrace();
     }
@@ -334,7 +334,7 @@ public abstract class AbstractDataReader extends InputStream implements DataRead
     }
     final byte b = this.buffer.get();
     unreadByte(b);
-    return expected == ((char)b & 0xFF);
+    return expected == ((char) b & 0xFF);
   }
 
   @Override
@@ -423,7 +423,7 @@ public abstract class AbstractDataReader extends InputStream implements DataRead
     if (position >= currentPosition) {
       final long offset = position - currentPosition;
 
-      skipBytes((int)offset);
+      skipBytes((int) offset);
     } else {
       throw new IllegalArgumentException("Seek no supported");
     }
@@ -446,8 +446,8 @@ public abstract class AbstractDataReader extends InputStream implements DataRead
     if (this.unreadBuffer == null) {
       this.unreadBytes = new byte[unreadSize];
       this.unreadBuffer = ByteBuffer.wrap(this.unreadBytes)
-        .order(this.inBuffer.order())
-        .position(unreadSize);
+          .order(this.inBuffer.order())
+          .position(unreadSize);
     } else {
       throw new IllegalArgumentException("Cannot change unread size");
     }
