@@ -1,5 +1,6 @@
 package com.revolsys.http;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.LinkedHashMap;
@@ -8,10 +9,11 @@ import java.util.Map;
 import com.revolsys.collection.json.JsonObject;
 import com.revolsys.exception.Exceptions;
 import com.revolsys.parallel.ReentrantLockEx;
+import com.revolsys.util.Pair;
 
 public class HttpThrottle {
 
-  private static Map<String, Instant> URLS = new LinkedHashMap<>();
+  private static Map<String, Pair<Instant, Duration>> URLS = new LinkedHashMap<>();
 
   private static ReentrantLockEx lock = new ReentrantLockEx();
 
@@ -19,7 +21,7 @@ public class HttpThrottle {
     final var now = Instant.now();
     try (
       var l = lock.lockX()) {
-      URLS.put(key, now.plus(retryTime, ChronoUnit.MILLIS));
+      URLS.put(key, Pair.newPair(now, Duration.of(retryTime, ChronoUnit.MILLIS)));
     }
     try {
       Thread.sleep(retryTime);
