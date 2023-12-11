@@ -422,6 +422,7 @@ public class Query extends BaseObjectWithProperties
 
   /**
    * Create an Or from the conditions and and it to this query;
+   *
    * @param conditions
    * @return
    */
@@ -1430,5 +1431,16 @@ public class Query extends BaseObjectWithProperties
       }
     }
     return i;
+  }
+
+  public Query where(final Consumer<WhereConditionBuilder> action) {
+    final WhereConditionBuilder builder = new WhereConditionBuilder(getTableReference());
+    this.whereCondition = builder.build(action);
+    return this;
+  }
+
+  public Query withQuery(final Consumer<Query> queryBuilder) {
+    queryBuilder.accept(this);
+    return this;
   }
 }
