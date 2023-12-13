@@ -297,7 +297,7 @@ public class PostgreSQLRecordStore extends AbstractJdbcRecordStore {
       + "privilege_type IN ('SELECT', 'INSERT','UPDATE','DELETE') ");
     setSchemaTablePermissionsSql(
       "select distinct t.table_schema as \"SCHEMA_NAME\", t.table_name, t.privilege_type as \"PRIVILEGE\", d.description as \"REMARKS\", "
-        + "  CASE WHEN relkind = 'r' THEN 'TABLE' WHEN relkind = 'v' THEN 'VIEW' ELSE relkind || '' END \"TABLE_TYPE\" "
+        + "  CASE WHEN relkind = 'r' THEN 'TABLE' WHEN relkind = 'v' THEN 'VIEW' ELSE relkind::text || '' END \"TABLE_TYPE\" "
         + "from" //
         + "  information_schema.role_table_grants t"//
         + "    join pg_namespace n on t.table_schema = n.nspname"//

@@ -5,7 +5,7 @@ import java.security.MessageDigest;
 import java.util.UUID;
 
 import com.revolsys.data.identifier.Identifier;
-import com.revolsys.data.type.DataTypes;
+import com.revolsys.number.Doubles;
 
 public class UuidBuilder {
 
@@ -35,11 +35,14 @@ public class UuidBuilder {
   public UuidBuilder append(final Object value) {
     if (value == null) {
       append("null");
-    } else if (value instanceof String) {
-      append((String)value);
-    } else if (value != null) {
-      final String string = DataTypes.toString(value);
+    } else if (value instanceof final String string) {
       append(string);
+    } else if (value instanceof final Float number) {
+      append(Doubles.toString(number));
+    } else if (value instanceof final Double number) {
+      append(Doubles.toString(number));
+    } else if (value != null) {
+      append(value.toString());
     }
     return this;
   }

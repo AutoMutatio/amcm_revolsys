@@ -8,7 +8,6 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 import com.revolsys.exception.Exceptions;
-import com.revolsys.io.EndOfFileException;
 import com.revolsys.util.BaseCloseable;
 
 interface ByteFilter {
@@ -113,6 +112,7 @@ public interface DataReader extends BaseCloseable {
 
   /**
    * Unsigned longs don't actually work channel Java
+   *
    * @return
    */
   default long getUnsignedLong() {
@@ -137,7 +137,7 @@ public interface DataReader extends BaseCloseable {
 
   default boolean isBytes(final byte[] bytes) {
     for (final byte e : bytes) {
-      final byte a = getByte();
+      final int a = read();
       if (a != e) {
         return false;
       }
@@ -150,10 +150,31 @@ public interface DataReader extends BaseCloseable {
   default boolean isEof() {
     final int b = read();
     if (b < 0) {
-      return false;
+      return true;
     } else {
       unreadByte((byte)b);
       return false;
+    }
+  }
+
+  default boolean isEol() {
+    final int b = read();
+    switch (b) {
+      case -1:
+        return false;
+      case '\r': {
+        final int b2 = read();
+        if (b2 != '\n') {
+          unreadByte(b2);
+        }
+        return true;
+      }
+      case '\n': {
+        return true;
+      }
+      default:
+        unreadByte(b);
+        return false;
     }
   }
 
@@ -171,25 +192,26 @@ public interface DataReader extends BaseCloseable {
 
   void seekEnd(long distance);
 
-  void setByteOrder(ByteOrder byteOrder);
+  DataReader setByteOrder(ByteOrder byteOrder);
 
   DataReader setUnreadSize(int unreadSize);
 
   void skipBytes(int count);
 
+  default void skipComment() {
+    skipWhile(b -> b != '\n' && b != '\r');
+  }
+
   default void skipEol() {
     while (true) {
-      final byte b = getByte();
+      final int b = read();
       switch (b) {
         case -1:
-          return;
+        break;
         case '\r': {
-          final byte b2 = getByte();
-          if (b2 == -1) {
-            unreadByte(b);
-          } else if (b2 != '\n') {
+          final int b2 = getByte();
+          if (b2 != '\n') {
             unreadByte(b2);
-            unreadByte(b);
             return;
           }
           break;
@@ -205,8 +227,8 @@ public interface DataReader extends BaseCloseable {
   }
 
   default boolean skipIfChar(final char c) {
-    final byte b = getByte();
-    if (c == (b & 0xFF)) {
+    final int b = read();
+    if (c == b) {
       return true;
     } else {
       unreadByte(b);
@@ -215,17 +237,14 @@ public interface DataReader extends BaseCloseable {
   }
 
   default void skipOneEol() {
-    final byte b = getByte();
+    final int b = read();
     switch (b) {
       case -1:
       break;
       case '\r': {
-        final byte b2 = getByte();
-        if (b2 == -1) {
-          unreadByte(b);
-        } else if (b2 != '\n') {
+        final int b2 = read();
+        if (b2 != '\n') {
           unreadByte(b2);
-          unreadByte(b);
         }
         break;
       }
@@ -240,23 +259,44 @@ public interface DataReader extends BaseCloseable {
   }
 
   default void skipWhile(final ByteFilter c) {
-    byte b;
-    try {
-      do {
-        b = getByte();
-      } while (c.accept(b));
-      if (b != -1) {
-        unreadByte(b);
+    int b;
+    do {
+      b = read();
+      if (b == -1) {
+        return;
       }
-    } catch (final EndOfFileException e) {
-    }
-
+    } while (c.accept((byte)b));
+    unreadByte(b);
   }
 
-  default void skipWhitespace() {
-    skipWhile(WHITESPACE);
+  default boolean skipWhitespace() {
+    int count = 0;
+    int b;
+    do {
+      count++;
+      b = read();
+      if (b == -1) {
+        return count > 0;
+      }
+      // TODO comments
+      // if (b == '%') {
+      // skipComment();
+      // b = getByte();
+      // }
+    } while (WHITESPACE.accept((byte)b));
+    if (b != -1) {
+      count--;
+      unreadByte(b);
+    }
+    return count > 0;
   }
 
   void unreadByte(byte b);
+
+  default void unreadByte(final int b) {
+    if (b != -1) {
+      unreadByte((byte)b);
+    }
+  }
 
 }

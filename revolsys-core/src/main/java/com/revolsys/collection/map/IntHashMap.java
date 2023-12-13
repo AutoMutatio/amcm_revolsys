@@ -1065,6 +1065,29 @@ public class IntHashMap<T> implements Map<Integer, T>, Cloneable, Serializable {
     return this.size;
   }
 
+  @Override
+  public String toString() {
+    final var i = entrySet().iterator();
+    if (!i.hasNext()) {
+      return "{}";
+    }
+
+    final StringBuilder sb = new StringBuilder();
+    sb.append('{');
+    for (;;) {
+      final var e = i.next();
+      final var key = e.getKey();
+      final var value = e.getValue();
+      sb.append(key);
+      sb.append('=');
+      sb.append(value);
+      if (!i.hasNext()) {
+        return sb.append('}').toString();
+      }
+      sb.append(',').append(' ');
+    }
+  }
+
   /**
    * Transfer all entries from current table to newTable.
    *

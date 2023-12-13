@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
@@ -16,6 +17,7 @@ import jakarta.annotation.PreDestroy;
 import com.revolsys.exception.Exceptions;
 import com.revolsys.exception.WrappedInterruptedException;
 import com.revolsys.logging.Logs;
+import com.revolsys.parallel.ReentrantLockEx;
 import com.revolsys.parallel.channel.Channel;
 import com.revolsys.spring.TargetBeanProcess;
 
@@ -62,6 +64,28 @@ public class ProcessNetwork {
       }
       processNetwork.startAndWait();
     }
+  }
+
+  public static <V> void forWhile(final int processCount, final Supplier<V> supplier,
+    final Consumer<V> action) {
+    final ReentrantLockEx lock = new ReentrantLockEx();
+    final ProcessNetwork processNetwork = new ProcessNetwork();
+    for (int i = 0; i < processCount; i++) {
+      processNetwork.addProcess(() -> {
+        while (true) {
+          V value = supplier.get();
+          try (
+            var l = lock.lockX()) {
+            value = supplier.get();
+            if (value == null) {
+              return;
+            }
+          }
+          action.accept(value);
+        }
+      });
+    }
+    processNetwork.startAndWait();
   }
 
   public static ProcessNetwork forThread() {

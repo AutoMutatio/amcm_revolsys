@@ -10,7 +10,7 @@ import java.util.NoSuchElementException;
 import com.revolsys.exception.Exceptions;
 import com.revolsys.util.BaseCloseable;
 
-public class CsvIterator implements Iterator<List<String>>, Iterable<List<String>> {
+public class CsvIterator implements Iterator<List<String>>, Iterable<List<String>>, BaseCloseable {
   private static final int BUFFER_SIZE = 8192;
 
   private final char fieldSeparator;
@@ -53,6 +53,7 @@ public class CsvIterator implements Iterator<List<String>>, Iterable<List<String
    *
    * @throws IOException if the close fails
    */
+  @Override
   public void close() {
     BaseCloseable.closeSilent(this.in);
   }
