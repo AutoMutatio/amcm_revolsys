@@ -370,6 +370,11 @@ public class XmlWriter extends Writer {
     return this;
   }
 
+  @Override
+  public XmlWriter append(final CharSequence csq) throws IOException {
+    return text(csq);
+  }
+
   /**
    * Write content for an element to the output, escaping the characters that
    * are used within markup. This method will escape characters ' <', '>' and
@@ -845,7 +850,10 @@ public class XmlWriter extends Writer {
    * @throws IOException If there was a problem writing the element.
    */
   public void endTag() {
-    endTag(getCurrentTag().getElement());
+    final var currentTag = getCurrentTag();
+    if (currentTag != null) {
+      endTag(currentTag.getElement());
+    }
   }
 
   /**
@@ -1293,13 +1301,26 @@ public class XmlWriter extends Writer {
    * Write a portion of the character buffer to the outpu, escaping special
    * characters.
    *
-   * @param buffer The buffer to write.
+   * @param chars The buffer to write.
    * @param offset The starting offset in the buffer.
    * @param length The number of characters to write.
    */
-  public void text(final char[] buffer, final int offset, final int length) {
+  public void text(final char[] chars, final int offset, final int length) {
     closeStartTag();
-    writeElementContent(buffer, offset, length);
+    writeElementContent(chars, offset, length);
+    setElementHasContent();
+  }
+
+  public XmlWriter text(final CharSequence text) {
+    if (text != null) {
+      text(text, 0, text.length());
+    }
+    return this;
+  }
+
+  public void text(final CharSequence chars, final int offset, final int length) {
+    closeStartTag();
+    writeElementContent(chars, offset, length);
     setElementHasContent();
   }
 
@@ -1368,10 +1389,11 @@ public class XmlWriter extends Writer {
    *
    * @param text The text to write
    */
-  public void text(final String text) {
+  public XmlWriter text(final String text) {
     if (text != null) {
-      text(text.toCharArray(), 0, text.length());
+      text(text, 0, text.length());
     }
+    return this;
   }
 
   public void textLn(final String text) {
@@ -1578,6 +1600,64 @@ public class XmlWriter extends Writer {
       }
       if (lastIndex > index) {
         this.out.write(buffer, index, lastIndex - index);
+      }
+    } catch (final IOException e) {
+      throw Exceptions.wrap(e);
+    }
+  }
+
+  /**
+   * Write content for an element to the output, escaping the characters that
+   * are used within markup. This method will escape characters ' <', '>' and
+   * '&'. Note the XML 1.0 standard does allow '>' to be used unless it is part
+   * of "]]>" for simplicity it is allways escaped in this implementation.
+   *
+   * @param chars The character buffer to write
+   * @param offest The offset in the character data to write
+   * @param length The number of characters to write.
+   * @throws IOException If an I/O exception occurs.
+   */
+  protected void writeElementContent(final CharSequence chars, final int offest, final int length) {
+    try {
+      int index = offest;
+      final int lastIndex = index + length;
+      String escapeString = null;
+      for (int i = index; i < lastIndex; i++) {
+        final char ch = chars.charAt(i);
+        switch (ch) {
+          case '&':
+            escapeString = "&amp;";
+          break;
+          case '<':
+            escapeString = "&lt;";
+          break;
+          case '>':
+            escapeString = "&gt;";
+          break;
+          case 9:
+          case 10:
+          case 13:
+          // Accept these control characters
+          break;
+          default:
+            // Reject all other control characters
+            if (ch < 32) {
+              throw new IllegalStateException(
+                "character " + Integer.toString(ch) + " is not allowed in output");
+            }
+          break;
+        }
+        if (escapeString != null) {
+          if (i > index) {
+            this.out.append(chars, index, i - index);
+          }
+          this.out.write(escapeString);
+          escapeString = null;
+          index = i + 1;
+        }
+      }
+      if (lastIndex > index) {
+        this.out.append(chars, index, lastIndex - index);
       }
     } catch (final IOException e) {
       throw Exceptions.wrap(e);
