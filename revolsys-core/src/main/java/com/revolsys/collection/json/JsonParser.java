@@ -21,6 +21,7 @@ import com.revolsys.io.FileUtil;
 import com.revolsys.logging.Logs;
 import com.revolsys.number.Doubles;
 import com.revolsys.number.Integers;
+import com.revolsys.spring.resource.ByteArrayResource;
 import com.revolsys.spring.resource.Resource;
 
 public class JsonParser implements Iterator<JsonParser.EventType>, Closeable {
@@ -59,9 +60,10 @@ public class JsonParser implements Iterator<JsonParser.EventType>, Closeable {
   public static JsonParser newParser(final Object source) {
     Runnable closeAction = null;
     Reader reader;
-    if (source instanceof Clob) {
+    if (source instanceof final byte[] bytes) {
+      reader = new ByteArrayResource(bytes).newReader();
+    } else if (source instanceof final Clob clob) {
       try {
-        final Clob clob = (Clob)source;
         reader = clob.getCharacterStream();
 
         closeAction = () -> {
@@ -76,8 +78,8 @@ public class JsonParser implements Iterator<JsonParser.EventType>, Closeable {
       }
     } else if (source instanceof Reader) {
       reader = (Reader)source;
-    } else if (source instanceof CharSequence) {
-      reader = new StringReader(source.toString());
+    } else if (source instanceof final CharSequence chars) {
+      reader = new StringReader(chars.toString());
     } else {
       try {
         final Resource resource = Resource.getResource(source);

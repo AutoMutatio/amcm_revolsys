@@ -224,7 +224,10 @@ public class FileBackedOutputStreamBuffer extends OutputStream implements Append
   }
 
   public synchronized void write(final String s) throws IOException {
-    write(s.getBytes(StandardCharsets.UTF_8));
+    if (s != null) {
+      final var bytes = s.getBytes(StandardCharsets.UTF_8);
+      write(bytes);
+    }
   }
 
 }
