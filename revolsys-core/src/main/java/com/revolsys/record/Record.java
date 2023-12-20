@@ -26,6 +26,7 @@ import com.revolsys.data.identifier.ListIdentifier;
 import com.revolsys.data.identifier.TypedIdentifier;
 import com.revolsys.data.type.DataType;
 import com.revolsys.data.type.DataTypes;
+import com.revolsys.function.Lambdaable;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.BoundingBoxProxy;
 import com.revolsys.geometry.model.Geometry;
@@ -41,7 +42,7 @@ import com.revolsys.util.Property;
 import com.revolsys.util.Strings;
 
 public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordDefinitionProxy,
-  BoundingBoxProxy, Jsonable {
+  BoundingBoxProxy, Jsonable, Lambdaable<Record> {
   String EVENT_RECORD_CHANGED = "_recordChanged";
 
   String EXCLUDE_GEOMETRY = Record.class.getName() + ".excludeGeometry";
@@ -195,11 +196,6 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
     return this;
   }
 
-  default Record apply(final Consumer<Record> action) {
-    action.accept(this);
-    return this;
-  }
-
   @Override
   default JsonType asJson() {
     return JsonObject.hash(this);
@@ -298,11 +294,6 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
       value2 = record.getValue(fieldName);
     }
     return CompareUtil.compare(value1, value2, nullsFirst);
-  }
-
-  default Record consume(final Consumer<Record> action) {
-    action.accept(this);
-    return this;
   }
 
   default boolean contains(final Iterable<? extends Record> records) {

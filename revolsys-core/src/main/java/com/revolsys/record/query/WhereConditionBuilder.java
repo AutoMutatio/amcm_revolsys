@@ -1,5 +1,6 @@
 package com.revolsys.record.query;
 
+import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
@@ -126,6 +127,11 @@ public class WhereConditionBuilder implements TableReferenceProxy {
 
   public Condition build(final Consumer<WhereConditionBuilder> action) {
     action.accept(this);
+    return this.condition;
+  }
+
+  public Condition build(final Query query, final BiConsumer<Query, WhereConditionBuilder> action) {
+    action.accept(query, this);
     return this.condition;
   }
 

@@ -26,17 +26,11 @@ import com.revolsys.util.BaseCloneable;
 import com.revolsys.util.Property;
 
 public interface Maps {
-  public static final Supplier<Map<?, ?>> FACTORY_TREE = () -> {
-    return new TreeMap<>();
-  };
+  public static final Supplier<Map<?, ?>> FACTORY_TREE = TreeMap::new;
 
-  public static final Supplier<Map<?, ?>> FACTORY_LINKED_HASH = () -> {
-    return new LinkedHashMap<>();
-  };
+  public static final Supplier<Map<?, ?>> FACTORY_LINKED_HASH = LinkedHashMap::new;
 
-  public static final Supplier<Map<?, ?>> FACTORY_HASH = () -> {
-    return new HashMap<>();
-  };
+  public static final Supplier<Map<?, ?>> FACTORY_HASH = HashMap::new;
 
   static <K1, V> boolean addAllToSet(final Map<K1, Set<V>> map, final K1 key1,
     final Collection<? extends V> values) {
@@ -59,9 +53,9 @@ public interface Maps {
     return count;
   }
 
-  static <K, V, C extends Collection<V>> boolean addToCollection(final Supplier<C> supplier,
-    final Map<K, C> map, final K key, final V value) {
-    final C values = get(map, key, supplier);
+  static <K, V, C extends Collection<V>, M extends Map<K, C>> boolean addToCollection(
+    final Supplier<C> supplier, final M map, final K key, final V value) {
+    final var values = get(map, key, supplier);
     return values.add(value);
   }
 

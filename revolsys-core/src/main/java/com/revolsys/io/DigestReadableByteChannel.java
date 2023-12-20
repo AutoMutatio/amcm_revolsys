@@ -1,10 +1,12 @@
-package com.revolsys.geometry.coordinatesystem.util;
+package com.revolsys.io;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.spi.AbstractInterruptibleChannel;
 import java.security.MessageDigest;
+
+import com.revolsys.util.MessageDigestProxy;
 
 public class DigestReadableByteChannel extends AbstractInterruptibleChannel
   implements ReadableByteChannel, MessageDigestProxy {

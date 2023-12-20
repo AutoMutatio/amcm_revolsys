@@ -4,7 +4,7 @@ import java.security.MessageDigest;
 import java.util.Map;
 
 import com.revolsys.geometry.coordinatesystem.model.unit.UnitOfMeasure;
-import com.revolsys.geometry.coordinatesystem.util.Md5;
+import com.revolsys.util.Md5;
 
 public interface ParameterName extends Comparable<ParameterName> {
   @Override

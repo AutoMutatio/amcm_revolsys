@@ -2,7 +2,7 @@ package com.revolsys.geometry.coordinatesystem.model.datum;
 
 import com.revolsys.geometry.coordinatesystem.model.Area;
 import com.revolsys.geometry.coordinatesystem.model.Authority;
-import com.revolsys.geometry.coordinatesystem.util.Equals;
+import com.revolsys.util.Equals;
 
 public class Datum {
   private final Authority authority;
