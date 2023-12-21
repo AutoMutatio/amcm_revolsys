@@ -227,7 +227,11 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
 
   @Override
   public DeleteStatement deleteStatement() {
-    return new DeleteStatement().from(getTable());
+    throw new UnsupportedOperationException("deleteStatement(#TableRecordStoreConnection)");
+  }
+
+  public DeleteStatement deleteStatement(final TableRecordStoreConnection connection) {
+    return new TableRecordStoreDeleteStatement(connection).from(getTable());
   }
 
   protected void executeUpdate(final TableRecordStoreConnection connection, final String sql,

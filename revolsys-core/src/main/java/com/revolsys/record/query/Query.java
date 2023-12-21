@@ -14,6 +14,7 @@ import java.util.Map.Entry;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
@@ -1115,6 +1116,21 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
       addOrderBy(orderByItem);
     }
     return this;
+  }
+
+  public Query readerConsume(final Consumer<RecordReader> action) {
+    try (
+      var reader = getRecordReader()) {
+      action.accept(getRecordReader());
+    }
+    return this;
+  }
+
+  public <O> O readerMap(final Function<RecordReader, O> action) {
+    try (
+      var reader = getRecordReader()) {
+      return action.apply(reader);
+    }
   }
 
   public void removeSelect(final String name) {

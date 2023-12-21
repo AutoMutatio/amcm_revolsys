@@ -81,4 +81,5 @@ public class TableRecordStoreQuery extends Query {
   public int updateRecords(final Consumer<? super ChangeTrackRecord> updateAction) {
     return this.recordStore.updateRecords(this.connection, this, updateAction);
   }
+
 }
