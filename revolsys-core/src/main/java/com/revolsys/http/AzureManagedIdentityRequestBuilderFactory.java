@@ -53,7 +53,7 @@ public class AzureManagedIdentityRequestBuilderFactory extends BearerTokenReques
     return AVAILABLE;
   }
 
-  public static final Function<BearerToken, BearerToken> tokenRefesh(final String resource) {
+  public static final Function<BearerToken, BearerToken> tokenRefresh(final String resource) {
     return token -> {
       if (isAvailable()) {
         final var requestBuilder = createTokenRequestBuilder(resource);
@@ -66,7 +66,7 @@ public class AzureManagedIdentityRequestBuilderFactory extends BearerTokenReques
   }
 
   public AzureManagedIdentityRequestBuilderFactory(final String resource) {
-    super(tokenRefesh(resource));
+    super(tokenRefresh(resource));
   }
 
 }

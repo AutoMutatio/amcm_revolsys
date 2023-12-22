@@ -135,6 +135,10 @@ public class WhereConditionBuilder implements TableReferenceProxy {
     return this.condition;
   }
 
+  public Condition equal(final CharSequence fieldName, final Object value) {
+    return newCondition(fieldName, Q.EQUAL, value);
+  }
+
   private RecordDefinition getRecordDefinition() {
     if (this.table instanceof final RecordDefinition recordDefinition) {
       return recordDefinition;
@@ -265,6 +269,10 @@ public class WhereConditionBuilder implements TableReferenceProxy {
       setWhereCondition(new Or(whereCondition, condition));
     }
     return this;
+  }
+
+  public void or(final Condition... conditions) {
+    and(Q.or(conditions));
   }
 
   public void setTable(final TableReference table) {

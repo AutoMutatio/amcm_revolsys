@@ -11,7 +11,7 @@ import com.revolsys.net.oauth.BearerToken;
 public class AzureCliBearerToken extends BearerToken {
   private static final DateTimeFormatter TIMESTAMP_FORMATTER = DateTimeFormatter
     .ofPattern("yyyy-MM-dd HH:mm:ss.SSSSSS")
-    .withZone(ZoneId.of("UTC"));
+    .withZone(ZoneId.systemDefault());
 
   public AzureCliBearerToken(final JsonObject config) {
     super(config.getString("accessToken"));

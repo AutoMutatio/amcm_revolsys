@@ -18,18 +18,18 @@ public class AzureTableSasRequestBuilderFactory extends HttpRequestBuilderFactor
     });
   }
 
-  private final Supplier<SasToken> tokenRefesh;
+  private final Supplier<SasToken> tokenRefresh;
 
   private SasToken token;
 
-  public AzureTableSasRequestBuilderFactory(final Supplier<SasToken> tokenRefesh) {
+  public AzureTableSasRequestBuilderFactory(final Supplier<SasToken> tokenRefresh) {
     super();
-    this.tokenRefesh = tokenRefesh;
+    this.tokenRefresh = tokenRefresh;
   }
 
   void applyToken(final AzureTableSasRequestBuilder builder) {
     if (this.token == null || this.token.isExpired()) {
-      this.token = this.tokenRefesh.get();
+      this.token = this.tokenRefresh.get();
     }
     if (this.token != null) {
       this.token.applyTo(builder);
