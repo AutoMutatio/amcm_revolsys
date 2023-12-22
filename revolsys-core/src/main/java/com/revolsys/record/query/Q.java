@@ -152,12 +152,12 @@ public class Q {
     return new Divide(left, right);
   }
 
-  public static Equal equal(final FieldDefinition fieldDefinition, final Object value) {
+  public static Equal equal(final ColumnReference fieldDefinition, final Object value) {
     final Value valueCondition = Value.newValue(fieldDefinition, value);
     return new Equal(fieldDefinition, valueCondition);
   }
 
-  public static Equal equal(final FieldDefinition field, final QueryValue right) {
+  public static Equal equal(final ColumnReference field, final QueryValue right) {
     return new Equal(field, right);
   }
 
@@ -186,6 +186,12 @@ public class Q {
   public static Equal equal(final String left, final QueryValue right) {
     final Column leftCondition = new Column(left);
     return new Equal(leftCondition, right);
+  }
+
+  public static Equal equal(final TableReferenceProxy table, final CharSequence fieldName,
+    final Object value) {
+    final var column = table.getColumn(fieldName);
+    return equal(column, value);
   }
 
   public static Condition equalId(final List<?> fields, final Identifier identifier) {
@@ -272,9 +278,9 @@ public class Q {
     return greaterThanEqual(column, right);
   }
 
-  public static ILike iLike(final FieldDefinition fieldDefinition, final Object value) {
-    final String name = fieldDefinition.getName();
-    final Value valueCondition = Value.newValue(fieldDefinition, value);
+  public static ILike iLike(final ColumnReference column, final Object value) {
+    final String name = column.getName();
+    final Value valueCondition = Value.newValue(column, value);
     return iLike(name, valueCondition);
   }
 
@@ -297,6 +303,12 @@ public class Q {
     final Column leftCondition = new Column(left);
     final Value valueCondition = Value.newValue("%" + right + "%");
     return new ILike(leftCondition, valueCondition);
+  }
+
+  public static ILike iLike(final TableReferenceProxy table, final CharSequence fieldName,
+    final Object value) {
+    final var column = table.getColumn(fieldName);
+    return iLike(column, value);
   }
 
   public static In in(final FieldDefinition fieldDefinition,
