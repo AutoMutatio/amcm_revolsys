@@ -13,7 +13,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Consumer;
 
 import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.json.JsonType;
@@ -369,6 +368,15 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
     final CharSequence fieldName) {
     if (map != null) {
       final Object value = map.get(fieldName);
+      return equalValue(fieldName, value);
+    }
+    return false;
+  }
+
+  default boolean equalValue(final String fieldName, final Map<String, ? extends Object> map,
+    final CharSequence otherFieldName) {
+    if (map != null) {
+      final Object value = map.get(otherFieldName);
       return equalValue(fieldName, value);
     }
     return false;
