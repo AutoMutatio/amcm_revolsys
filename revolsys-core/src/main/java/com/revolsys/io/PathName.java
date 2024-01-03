@@ -346,6 +346,14 @@ public final class PathName implements Comparable<PathName>, CharSequence {
     return this.path.subSequence(start, end);
   }
 
+  public String toDotSeparated() {
+    if (this.path.length() <= 1) {
+      return "";
+    } else {
+      return this.path.substring(1).replace('/', '.');
+    }
+  }
+
   @Override
   public String toString() {
     return this.path;
