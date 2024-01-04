@@ -12,7 +12,7 @@ public abstract class AbstractDataType implements DataType {
 
   public AbstractDataType(final String name, final Class<?> javaClass,
     final boolean requiresQuotes) {
-    this.name = name;
+     this.name = name;
     this.javaClass = javaClass;
     this.requiresQuotes = requiresQuotes;
     DataTypes.register(this);
@@ -129,7 +129,11 @@ public abstract class AbstractDataType implements DataType {
 
   @Override
   public String toString() {
-    return this.name.toString();
+    if (this.name == null) {
+      return super.toString();
+    } else {
+      return this.name.toString();
+    }
   }
 
   @Override

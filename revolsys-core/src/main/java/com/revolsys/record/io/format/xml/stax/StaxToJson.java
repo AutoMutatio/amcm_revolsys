@@ -1,7 +1,6 @@
 package com.revolsys.record.io.format.xml.stax;
 
 import java.io.BufferedInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.util.LinkedHashMap;
@@ -85,8 +84,8 @@ public class StaxToJson {
   }
 
   public <V> V process(final InputStream in) {
-    BufferedInputStream inputStream = new BufferedInputStream(in);
-    StaxReader xmlReader = StaxReader.newXmlReader(inputStream);
+    final BufferedInputStream inputStream = new BufferedInputStream(in);
+    final StaxReader xmlReader = StaxReader.newXmlReader(inputStream);
     return process(xmlReader);
   }
 
@@ -133,6 +132,11 @@ public class StaxToJson {
               return s.toString();
             }
             case XMLStreamConstants.END_ELEMENT:
+              if (!this.attributes.isEmpty()) {
+                final JsonObject object = JsonObject.hash();
+                object.addAll(this.attributes);
+                return object;
+              }
               return null;
 
             default:
@@ -161,6 +165,7 @@ public class StaxToJson {
   private JsonObject processObject(final StaxReader in) {
     final JsonObject object = JsonObject.hash();
     object.addAll(this.attributes);
+    this.attributes.clear();
     final int depth = in.getDepth() - 1;
     do {
       final String name = in.getLocalName();
@@ -189,8 +194,9 @@ public class StaxToJson {
 
   }
 
-  public void setIncludeAttributes(final boolean includeAttributes) {
+  public StaxToJson setIncludeAttributes(final boolean includeAttributes) {
     this.includeAttributes = includeAttributes;
+    return this;
   }
 
   public StaxToJson stripValues(final boolean stripValues) {

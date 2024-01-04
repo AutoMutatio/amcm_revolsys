@@ -57,7 +57,7 @@ import com.revolsys.util.StringBuilders;
  */
 public interface BaseIterable<T> extends Iterable<T> {
 
-  default BaseIterable<T> cacellable(final Cancellable cancellable) {
+  default BaseIterable<T> cancellable(final Cancellable cancellable) {
     if (cancellable == null) {
       return this;
     } else {

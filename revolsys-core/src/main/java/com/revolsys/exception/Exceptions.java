@@ -9,6 +9,11 @@ import java.nio.channels.ClosedByInterruptException;
 import java.util.concurrent.ExecutionException;
 
 public interface Exceptions {
+  static RuntimeException causeException(final Throwable e) {
+    final Throwable cause = e.getCause();
+    return uncheckedException(cause);
+  }
+
   @SuppressWarnings("unchecked")
   static <T extends Throwable> T getCause(Throwable e, final Class<T> clazz) {
     while (e != null) {
@@ -114,6 +119,22 @@ public interface Exceptions {
     final PrintWriter out = new PrintWriter(string);
     e.printStackTrace(out);
     return string.toString();
+  }
+
+  static RuntimeException uncheckedException(final Throwable e) {
+    if (e == null) {
+      return null;
+    } else if (e instanceof InvocationTargetException) {
+      return causeException(e);
+    } else if (e instanceof ExecutionException) {
+      return causeException(e);
+    } else if (e instanceof RuntimeException) {
+      throw (RuntimeException)e;
+    } else if (e instanceof Error) {
+      throw (Error)e;
+    } else {
+      throw wrap(e);
+    }
   }
 
   @SuppressWarnings("unchecked")

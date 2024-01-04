@@ -3,7 +3,6 @@ package com.revolsys.record.schema;
 import java.util.Collection;
 import java.util.List;
 
-import com.revolsys.collection.json.JsonList;
 import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.list.Lists;
 import com.revolsys.data.type.DataType;
@@ -143,8 +142,7 @@ public class RecordDefinitionBuilder {
   }
 
   public RecordDefinitionBuilder fromJson(final JsonObject schema) {
-    final JsonList fields = schema.getJsonList("fields", JsonList.EMPTY);
-    for (final JsonObject fieldConfig : fields.jsonObjects()) {
+    for (final JsonObject fieldConfig : schema.<JsonObject> getList("fields")) {
       addField(fieldConfig);
     }
     return this;

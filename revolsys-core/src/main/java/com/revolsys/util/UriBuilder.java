@@ -506,6 +506,14 @@ public class UriBuilder {
     return (this.queryParams == null || this.queryParams.isEmpty()) && this.encodedQuery == null;
   }
 
+  public String lastPathSegment() {
+    if (this.pathSegments == null) {
+      throw new IllegalStateException("Cannot remove last path segment from:" + toString());
+    } else {
+      return this.pathSegments.get(this.pathSegments.size() - 1);
+    }
+  }
+
   private String normalizePath(final String path, final boolean relative) {
     String s = path;
     if (TextUtils.isBlank(s)) {
@@ -573,6 +581,7 @@ public class UriBuilder {
       throw new IllegalStateException("Cannot remove last path segment from:" + toString());
     } else {
       this.pathSegments.remove(this.pathSegments.size() - 1);
+      setPathSegments(this.pathSegments);
     }
     return this;
   }

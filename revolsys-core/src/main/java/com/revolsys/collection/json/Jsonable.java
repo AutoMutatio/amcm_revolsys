@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.Writer;
 
 import com.revolsys.exception.Exceptions;
-import com.revolsys.spring.resource.Resource;
+import com.revolsys.io.JavaIo;
 
 public interface Jsonable {
   default Appendable appendJson(final Appendable appendable) {
@@ -51,7 +51,7 @@ public interface Jsonable {
 
   default void writeTo(final Object target) {
     try (
-      Writer writer = Resource.getResource(target).newWriter()) {
+      Writer writer = JavaIo.createWriter(target)) {
       appendJson(writer);
     } catch (final IOException e) {
       throw Exceptions.wrap(e);

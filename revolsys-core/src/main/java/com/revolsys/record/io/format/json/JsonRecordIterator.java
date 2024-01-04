@@ -13,6 +13,7 @@ import com.revolsys.record.ArrayRecord;
 import com.revolsys.record.Record;
 import com.revolsys.record.io.RecordReader;
 import com.revolsys.record.schema.RecordDefinition;
+import com.revolsys.util.BaseCloseable;
 
 public class JsonRecordIterator extends AbstractIterator<Record> implements RecordReader {
 
@@ -40,7 +41,7 @@ public class JsonRecordIterator extends AbstractIterator<Record> implements Reco
 
   @Override
   protected void closeDo() {
-    FileUtil.closeSilent(this.iterator);
+    BaseCloseable.closeSilent(this.iterator);
     this.iterator = null;
     this.recordDefinition = null;
   }

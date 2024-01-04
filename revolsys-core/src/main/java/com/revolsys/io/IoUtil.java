@@ -21,6 +21,7 @@ import java.nio.charset.StandardCharsets;
 
 import com.revolsys.exception.Exceptions;
 import com.revolsys.util.BaseCloseable;
+import com.revolsys.util.Property;
 
 public class IoUtil {
 
@@ -287,7 +288,7 @@ public class IoUtil {
       return null;
     } else {
       String fileName = file.getName();
-      if (!com.revolsys.util.Property.hasValue(fileName)) {
+      if (!Property.hasValue(fileName)) {
         fileName = file.getPath().replaceAll("\\\\$", "");
       }
       return fileName;

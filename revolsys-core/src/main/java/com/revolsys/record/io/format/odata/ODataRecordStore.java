@@ -1,6 +1,8 @@
 package com.revolsys.record.io.format.odata;
 
+import java.io.IOException;
 import java.net.URI;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -11,9 +13,12 @@ import java.util.function.BiConsumer;
 import org.apache.http.NameValuePair;
 
 import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.list.ListEx;
 import com.revolsys.collection.map.MapEx;
+import com.revolsys.collection.value.ValueHolder;
 import com.revolsys.data.identifier.Identifier;
 import com.revolsys.data.type.DataTypes;
+import com.revolsys.exception.Exceptions;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryFactoryProxy;
@@ -26,6 +31,7 @@ import com.revolsys.net.http.SimpleNameValuePair;
 import com.revolsys.record.Record;
 import com.revolsys.record.io.RecordReader;
 import com.revolsys.record.io.RecordWriter;
+import com.revolsys.record.io.format.xml.stax.StaxToJson;
 import com.revolsys.record.query.AcceptAllCondition;
 import com.revolsys.record.query.Add;
 import com.revolsys.record.query.And;
@@ -51,6 +57,7 @@ import com.revolsys.record.query.Or;
 import com.revolsys.record.query.OrderBy;
 import com.revolsys.record.query.Query;
 import com.revolsys.record.query.QueryValue;
+import com.revolsys.record.query.SqlCondition;
 import com.revolsys.record.query.Subtract;
 import com.revolsys.record.query.Value;
 import com.revolsys.record.query.functions.EnvelopeIntersects;
@@ -62,6 +69,7 @@ import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordStoreSchema;
 import com.revolsys.record.schema.RecordStoreSchemaElement;
+import com.revolsys.util.Debug;
 import com.revolsys.util.UriBuilder;
 import com.revolsys.util.UrlUtil;
 
@@ -92,6 +100,7 @@ public class ODataRecordStore extends AbstractRecordStore {
     addUnaryFunction("tolower", Lower.class);
     addUnaryFunction("toupper", Upper.class);
     HANDLERS.put(Like.class, ODataRecordStore::addLike);
+    HANDLERS.put(SqlCondition.class, (s, c) -> s.append(((SqlCondition)c).getSql()));
     HANDLERS.put(ILike.class, ODataRecordStore::addILike);
     HANDLERS.put(Value.class, ODataRecordStore::addValue);
     HANDLERS.put(CollectionValue.class, ODataRecordStore::addCollectionValue);
@@ -124,6 +133,14 @@ public class ODataRecordStore extends AbstractRecordStore {
       appendQueryValue(filter, wd.getDistanceValue());
     });
   }
+
+  private static final StaxToJson SCHEMA_XML_TO_JSON = new StaxToJson()
+    .dontLogDuplicateElements("FileSize")
+    .listElements("Schema", "EnumType", "EntityType", "Member", "Property", "NavigationProperty",
+      "Parameter", "Action", "Annotations", "Function", "ComplexType", "Annotation", "EntitySet",
+      "Singleton", "PropertyPath", "NavigationPropertyBinding", "PropertyValue", "Term",
+      "PropertyRef")
+    .setIncludeAttributes(true);
 
   public static void addBinaryCondition(final Class<? extends QueryValue> clazz,
     final String operator) {
@@ -279,7 +296,7 @@ public class ODataRecordStore extends AbstractRecordStore {
     }
   }
 
-  private static void appendQueryValue(final StringBuilder filter, final QueryValue value) {
+  protected static void appendQueryValue(final StringBuilder filter, final QueryValue value) {
     final Class<? extends QueryValue> valueClass = value.getClass();
 
     for (Class<?> clazz = valueClass; clazz != Object.class; clazz = clazz.getSuperclass()) {
@@ -305,6 +322,10 @@ public class ODataRecordStore extends AbstractRecordStore {
 
   private final URI uri;
 
+  private final ValueHolder<JsonObject> metadata = ValueHolder.lazy(this::loadMetaData);
+
+  private final Map<String, ODataTypeDefinition> odataTypeByName = new LinkedHashMap<>();
+
   public ODataRecordStore(final HttpRequestBuilderFactory requestFactory, final URI uri) {
     this.requestFactory = requestFactory;
     this.uri = uri;
@@ -324,6 +345,20 @@ public class ODataRecordStore extends AbstractRecordStore {
     } else {
       this.requestFactory = new ConfigurableRequestBuilderFactory().addHeader("ApiKey", apiKey);
     }
+  }
+
+  private ODataRecordStoreSchema createSchema(final String namespace) {
+    ODataRecordStoreSchema schema = getRootSchema();
+    for (final var name : namespace.split("\\.")) {
+      final var childPath = schema.getPathName().newChild(name);
+      ODataRecordStoreSchema childSchema = schema.getSchema(childPath);
+      if (childSchema == null) {
+        childSchema = new ODataRecordStoreSchema(schema, childPath);
+        schema.addElement(childSchema);
+      }
+      schema = childSchema;
+    }
+    return schema;
   }
 
   @Override
@@ -347,6 +382,10 @@ public class ODataRecordStore extends AbstractRecordStore {
 
   JsonObject getJson(final URI uri) {
     return this.requestFactory.get(uri).setParameter(FORMAT_JSON).getJson();
+  }
+
+  public ODataTypeDefinition getODataType(final String type) {
+    return this.odataTypeByName.get(type);
   }
 
   @Override
@@ -399,7 +438,7 @@ public class ODataRecordStore extends AbstractRecordStore {
 
   @Override
   public RecordReader getRecords(final Query query) {
-    return newIterator(query, null);
+    return new ODataRecordQueryIterator(this, this.requestFactory, query, null);
   }
 
   @Override
@@ -424,6 +463,83 @@ public class ODataRecordStore extends AbstractRecordStore {
     final JsonObject result = request.getJson();
     record.setValues(result);
     return record;
+  }
+
+  private void loadEntityTypes(final String namespace, final JsonObject schemaDef,
+    final String type) {
+    final var alias = schemaDef.getString("Alias");
+    final var schema = createSchema(namespace);
+    final ListEx<JsonObject> definitions = schemaDef.removeValue(type);
+    if (definitions != null) {
+      for (final var definition : definitions) {
+        final String name = definition.getString("Name");
+        final var fullName = namespace + "." + name;
+        final var path = schema.getPathName().newChild(name);
+        final var recordDefinition = new ODataRecordDefinition(schema, path, definition, fullName);
+        this.odataTypeByName.put(fullName, recordDefinition);
+
+        if (alias != null) {
+          final String aliasedName = alias + "." + name;
+          this.odataTypeByName.put(aliasedName, recordDefinition);
+        }
+        if ("EntityType".equals(type)) {
+          schema.addElement(recordDefinition);
+        }
+      }
+    }
+  }
+
+  private void loadEnums(final String namespace, final JsonObject schemaDef) {
+    final var alias = schemaDef.getString("Alias");
+    final ListEx<JsonObject> definitions = schemaDef.removeValue("EnumType");
+    if (definitions != null) {
+      for (final var definition : definitions) {
+
+        final String name = definition.getString("Name");
+        final var fullName = namespace + "." + name;
+        final var codeTable = new ODataCodeTable(definition, fullName);
+        for (final var member : definition.<JsonObject> getList("Member")) {
+          final var codeName = member.getString("Name");
+          final var codeValue = member.getString("Value");
+          codeTable.addValue(codeValue, codeName);
+        }
+        this.odataTypeByName.put(fullName, codeTable);
+        if (alias != null) {
+          final String aliasedName = alias + "." + name;
+          this.odataTypeByName.put(aliasedName, codeTable);
+        }
+      }
+    }
+  }
+
+  private JsonObject loadMetaData() {
+    final var uri = UrlUtil.appendPath(this.uri, "$metadata");
+    try (
+      var in = this.requestFactory.get(uri).newInputStream()) {
+      final JsonObject metadata = SCHEMA_XML_TO_JSON.process(in);
+      final var dataServices = metadata.getJsonObject("DataServices");
+      final List<JsonObject> schemaList = dataServices.getList("Schema");
+      for (final var schemaDef : schemaList) {
+        final var namespace = schemaDef.getString("Namespace");
+        loadEnums(namespace, schemaDef);
+        loadEntityTypes(namespace, schemaDef, "EntityType");
+        loadEntityTypes(namespace, schemaDef, "ComplexType");
+        for (final var entry : schemaDef.entrySet()) {
+          final var elementType = entry.getKey();
+          final var value = entry.getValue();
+          if (!Arrays
+            .asList("Namespace", "Annotation", "Annotations", "Action", "Function", "Alias", "Term",
+              "EntityContainer")
+            .contains(elementType)) {
+            Debug.noOp();
+          }
+        }
+      }
+      this.odataTypeByName.values().forEach(ODataTypeDefinition::odataInitialize);
+      return metadata;
+    } catch (final IOException e) {
+      return Exceptions.throwUncheckedException(e);
+    }
   }
 
   @Override
@@ -519,55 +635,25 @@ public class ODataRecordStore extends AbstractRecordStore {
   protected Map<PathName, ? extends RecordStoreSchemaElement> refreshSchemaElements(
     final RecordStoreSchema schema) {
     final Map<PathName, RecordStoreSchemaElement> elements = new LinkedHashMap<>();
-    final PathName pathName = schema.getPathName();
-    final String schemaName = pathName.toString().substring(1).replace('/', '.');
-    final URI uri = UrlUtil.appendPath(this.uri, "$metadata");
-    final JsonObject json = getJson(uri);
-    int startIndex;
-    if (PathName.ROOT.equals(pathName)) {
-      startIndex = 0;
-    } else {
-      startIndex = schemaName.length() + 1;
+    this.metadata.getValue();
+    for (final var element : schema.getElements()) {
+      elements.put(element.getPathName(), element);
     }
-    for (final String name : json.keySet()) {
-      if (name.equals(schemaName)) {
-        refreshSchemaRecordDefinitions((ODataRecordStoreSchema)schema, elements, pathName, json,
-          name);
-      } else if (!name.startsWith("$") && startIndex < name.length()) {
-        String childName = name.substring(startIndex);
-        final int endIndex = childName.indexOf('.');
-        if (endIndex != -1) {
-          childName = childName.substring(0, endIndex);
-        }
-        final PathName childPath = pathName.newChild(name);
-        final ODataRecordStoreSchema childSchema = new ODataRecordStoreSchema(
-          (ODataRecordStoreSchema)schema, childPath);
-        elements.put(childPath, childSchema);
-      }
-    }
-
     return elements;
   }
 
   private void refreshSchemaRecordDefinitions(final ODataRecordStoreSchema schema,
     final Map<PathName, RecordStoreSchemaElement> elements, final PathName pathName,
-    final JsonObject metadata, final String name) {
-    final JsonObject schemaMap = metadata.getJsonObject(name);
-    final JsonObject containerMap = schemaMap.getJsonObject("Container");
-    if (containerMap.equalValue("$Kind", "EntityContainer")) {
+    final JsonObject schemaDef) {
+    final var entityTypes = schemaDef.<JsonObject> getList("EntityType");
 
-      for (final String entitySetName : containerMap.keySet()) {
-        if (!entitySetName.startsWith("$")) {
-          final JsonObject entitySet = containerMap.getJsonObject(entitySetName);
-          if (entitySet.equalValue("$Kind", "EntitySet")) {
-            final String entityType = entitySet.getString("$Type");
-            final PathName childName = pathName.newChild(entitySetName);
-            final ODataRecordDefinition recordDefinition = new ODataRecordDefinition(schema,
-              childName, metadata, entityType);
-            elements.put(childName, recordDefinition);
-          }
-        }
-      }
+    for (final var entityType : entityTypes) {
+      final String name = entityType.getString("$Name");
+      final PathName childName = pathName.newChild(name);
+      // final ODataRecordDefinition recordDefinition = new
+      // ODataRecordDefinition(schema, childName,
+      // this.odataTypeByName, entityType);
+      // elements.put(childName, recordDefinition);
     }
   }
 

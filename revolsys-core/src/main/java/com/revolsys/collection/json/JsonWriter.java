@@ -14,7 +14,6 @@ import com.revolsys.collection.list.Lists;
 import com.revolsys.data.type.DataType;
 import com.revolsys.data.type.DataTypes;
 import com.revolsys.exception.Exceptions;
-import com.revolsys.io.FileUtil;
 import com.revolsys.io.map.MapSerializer;
 import com.revolsys.number.Doubles;
 import com.revolsys.number.Numbers;
@@ -111,7 +110,7 @@ public class JsonWriter implements BaseCloseable {
         this.depth = 0;
       } finally {
         if (this.closeTargetWriter) {
-          FileUtil.closeSilent(out);
+          BaseCloseable.closeSilent(out);
         }
       }
     }

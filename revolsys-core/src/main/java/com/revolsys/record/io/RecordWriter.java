@@ -1,15 +1,20 @@
 package com.revolsys.record.io;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.Map;
 import java.util.function.Function;
 
+import com.revolsys.collection.list.ListEx;
+import com.revolsys.collection.list.Lists;
 import com.revolsys.geometry.model.ClockDirection;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.io.FileUtil;
 import com.revolsys.io.IoFactory;
+import com.revolsys.io.MultiRecordWriter;
 import com.revolsys.io.Writer;
+import com.revolsys.io.file.Paths;
 import com.revolsys.record.ArrayRecord;
 import com.revolsys.record.Record;
 import com.revolsys.record.schema.RecordDefinition;
@@ -28,6 +33,35 @@ public interface RecordWriter extends Writer<Record>, RecordDefinitionProxy {
 
   static boolean isWritable(final String fileNameExtension) {
     return IoFactory.isAvailable(RecordWriterFactory.class, fileNameExtension);
+  }
+
+  public static RecordWriter newMultiFormat(final Path parent, final String baseName,
+    final RecordDefinition recordDefinition, final Iterable<String> formats) {
+    final ListEx<RecordWriter> writers = Lists.newArray();
+    Paths.createDirectories(parent);
+    for (final var format : formats) {
+      final var path = parent.resolve(baseName + "." + format);
+      final var writer = newRecordWriter(recordDefinition, path);
+      if (writer == null) {
+        throw new IllegalArgumentException("Writer not supported: " + format);
+      }
+      writers.add(writer);
+    }
+    return new MultiRecordWriter(recordDefinition, writers);
+  }
+
+  public static RecordWriter newMultiFormat(final Path parent, final String baseName,
+    final RecordDefinition recordDefinition, final String... formats) {
+    final ListEx<RecordWriter> writers = Lists.newArray();
+    for (final var format : formats) {
+      final var path = parent.resolve(baseName + "." + format);
+      final var writer = newRecordWriter(recordDefinition, path);
+      if (writer == null) {
+        throw new IllegalArgumentException("Writer not supported: " + format);
+      }
+      writers.add(writer);
+    }
+    return new MultiRecordWriter(recordDefinition, writers);
   }
 
   static RecordWriter newRecordWriter(final RecordDefinitionProxy recordDefinition,
@@ -63,6 +97,10 @@ public interface RecordWriter extends Writer<Record>, RecordDefinitionProxy {
       }
     }
     return null;
+  }
+
+  default RecordWriter composeWith(final RecordWriter writer) {
+    return new MultiRecordWriter(this, this, writer);
   }
 
   @Override
