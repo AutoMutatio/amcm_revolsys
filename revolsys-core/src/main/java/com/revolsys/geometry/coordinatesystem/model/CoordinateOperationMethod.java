@@ -20,8 +20,8 @@ import com.revolsys.geometry.coordinatesystem.operation.projection.Mercator2SP;
 import com.revolsys.geometry.coordinatesystem.operation.projection.ProjectionFactory;
 import com.revolsys.geometry.coordinatesystem.operation.projection.TransverseMercatorUsgs;
 import com.revolsys.geometry.coordinatesystem.operation.projection.WebMercator;
-import com.revolsys.geometry.coordinatesystem.util.Equals;
-import com.revolsys.geometry.coordinatesystem.util.Md5;
+import com.revolsys.util.Equals;
+import com.revolsys.util.Md5;
 
 public class CoordinateOperationMethod
   implements Serializable, Comparable<CoordinateOperationMethod> {

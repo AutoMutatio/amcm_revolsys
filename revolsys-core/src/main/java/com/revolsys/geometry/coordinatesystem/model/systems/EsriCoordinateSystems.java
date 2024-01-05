@@ -35,8 +35,8 @@ import com.revolsys.geometry.coordinatesystem.model.datum.GeodeticDatum;
 import com.revolsys.geometry.coordinatesystem.model.datum.VerticalDatum;
 import com.revolsys.geometry.coordinatesystem.model.unit.AngularUnit;
 import com.revolsys.geometry.coordinatesystem.model.unit.LinearUnit;
-import com.revolsys.geometry.coordinatesystem.util.ByteArray;
 import com.revolsys.logging.Logs;
+import com.revolsys.util.ByteArray;
 
 public class EsriCoordinateSystems {
   private static Map<Integer, CoordinateSystem> COORDINATE_SYSTEM_BY_ID = new HashMap<>();

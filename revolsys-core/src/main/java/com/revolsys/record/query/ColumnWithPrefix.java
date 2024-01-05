@@ -17,7 +17,7 @@ public class ColumnWithPrefix implements QueryValue, ColumnReference {
 
   private final ColumnReference column;
 
-  public ColumnWithPrefix(final ColumnReference column, final CharSequence columnPrefix) {
+  public ColumnWithPrefix(final CharSequence columnPrefix, final ColumnReference column) {
     this.columnPrefix = columnPrefix.toString();
     this.column = column;
   }
@@ -65,7 +65,7 @@ public class ColumnWithPrefix implements QueryValue, ColumnReference {
   public ColumnWithPrefix clone(final TableReference oldTable, final TableReference newTable) {
     if (oldTable != newTable) {
       final ColumnReference clonedColumn = this.column.clone(oldTable, newTable);
-      return new ColumnWithPrefix(clonedColumn, this.columnPrefix);
+      return new ColumnWithPrefix(this.columnPrefix, clonedColumn);
     }
     return clone();
   }

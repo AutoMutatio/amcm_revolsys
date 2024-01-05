@@ -7,9 +7,9 @@ import java.security.MessageDigest;
 
 import com.revolsys.geometry.coordinatesystem.operation.CoordinatesOperation;
 import com.revolsys.geometry.coordinatesystem.operation.CoordinatesOperationPoint;
-import com.revolsys.geometry.coordinatesystem.util.Equals;
-import com.revolsys.geometry.coordinatesystem.util.Md5;
 import com.revolsys.math.Angle;
+import com.revolsys.util.Equals;
+import com.revolsys.util.Md5;
 
 public class Ellipsoid implements Serializable {
   private static final long serialVersionUID = -8349864136575195872L;

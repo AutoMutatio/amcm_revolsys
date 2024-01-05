@@ -2,7 +2,7 @@ package com.revolsys.geometry.coordinatesystem.model;
 
 import java.security.MessageDigest;
 
-import com.revolsys.geometry.coordinatesystem.util.Md5;
+import com.revolsys.util.Md5;
 
 public class ParameterValueString implements ParameterValue {
   private final String value;

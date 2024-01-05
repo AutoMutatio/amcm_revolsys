@@ -141,6 +141,11 @@ public abstract class InsertUpdateBuilder {
     return this;
   }
 
+  public InsertUpdateBuilder search(final String key, final Object value) {
+    this.searchValues.addValue(key, value);
+    return this;
+  }
+
   /**
    * Callback to be applied for both updated records.
    *

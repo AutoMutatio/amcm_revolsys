@@ -17,6 +17,7 @@ import jakarta.annotation.PreDestroy;
 import com.revolsys.collection.CollectionUtil;
 import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.json.JsonObjectHash;
+import com.revolsys.collection.list.ListEx;
 import com.revolsys.collection.list.Lists;
 import com.revolsys.collection.map.Maps;
 import com.revolsys.collection.set.Sets;
@@ -73,7 +74,7 @@ public class RecordDefinitionImpl extends AbstractRecordStoreSchemaElement
 
   private Set<String> fieldNamesSet = Collections.emptySet();
 
-  private List<FieldDefinition> fields = Collections.emptyList();
+  private ListEx<FieldDefinition> fields = ListEx.empty();
 
   /** The index of the primary geometry field. */
   private int geometryFieldDefinitionIndex = -1;
@@ -108,7 +109,7 @@ public class RecordDefinitionImpl extends AbstractRecordStoreSchemaElement
   private final List<String> idFieldDefinitionNamesUnmod = Collections
     .unmodifiableList(this.idFieldDefinitionNames);
 
-  private final List<FieldDefinition> internalFields = new ArrayList<>();
+  private final ListEx<FieldDefinition> internalFields = Lists.newArray();
 
   private RecordDefinitionFactory recordDefinitionFactory;
 
@@ -602,7 +603,7 @@ public class RecordDefinitionImpl extends AbstractRecordStoreSchemaElement
   }
 
   @Override
-  public List<FieldDefinition> getFields() {
+  public ListEx<FieldDefinition> getFields() {
     return this.fields;
   }
 

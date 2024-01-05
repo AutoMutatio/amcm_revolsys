@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.revolsys.collection.list.ListEx;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.data.identifier.Identifier;
 import com.revolsys.data.identifier.ListIdentifier;
@@ -165,7 +166,7 @@ public interface RecordDefinition extends Cloneable, GeometryFactoryProxy, Recor
   Set<String> getFieldNamesSet();
 
   @Override
-  List<FieldDefinition> getFields();
+  ListEx<FieldDefinition> getFields();
 
   /**
    * Get the maximum number of decimal places of the field
