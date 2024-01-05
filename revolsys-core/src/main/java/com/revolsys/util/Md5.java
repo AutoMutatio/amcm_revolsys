@@ -1,4 +1,4 @@
-package com.revolsys.geometry.coordinatesystem.util;
+package com.revolsys.util;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,6 +9,10 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 import java.util.function.Supplier;
+
+import com.revolsys.io.DigestReadableByteChannel;
+import com.revolsys.io.stream.DigestInputStream;
+import com.revolsys.io.stream.DigestOutputStream;
 
 public class Md5 {
 

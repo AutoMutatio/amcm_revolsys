@@ -227,7 +227,11 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
 
   @Override
   public DeleteStatement deleteStatement() {
-    return new DeleteStatement().from(getTable());
+    throw new UnsupportedOperationException("deleteStatement(#TableRecordStoreConnection)");
+  }
+
+  public DeleteStatement deleteStatement(final TableRecordStoreConnection connection) {
+    return new TableRecordStoreDeleteStatement(connection).from(getTable());
   }
 
   protected void executeUpdate(final TableRecordStoreConnection connection, final String sql,
@@ -677,8 +681,8 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     return i;
   }
 
-  public UpdateStatement updateStatement() {
-    return new UpdateStatement().from(getTable());
+  public UpdateStatement updateStatement(final TableRecordStoreConnection connection) {
+    return new TableRecordStoreUpdateStatement(connection).from(getTable());
   }
 
   public void validateRecord(final MapEx record) {

@@ -634,7 +634,7 @@ public interface Strings {
   }
 
   static String toString(final boolean skipNulls, final String separator,
-    final Collection<? extends Object> values) {
+    final Iterable<? extends Object> values) {
     if (values == null) {
       return null;
     } else {

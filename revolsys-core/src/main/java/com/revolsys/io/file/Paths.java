@@ -462,6 +462,16 @@ public interface Paths {
     }
   }
 
+  static Stream<Path> listFiles(final Path path) {
+    try {
+      return Files.list(path);
+    } catch (final NoSuchFileException e) {
+      return Stream.empty();
+    } catch (final IOException e) {
+      throw Exceptions.wrap(e);
+    }
+  }
+
   static List<Path> listFiles(final Path path, final String regEx) {
     if (exists(path)) {
       final Pattern pattern = Pattern.compile(regEx);

@@ -11,7 +11,7 @@ import javax.measure.quantity.Length;
 import com.revolsys.geometry.coordinatesystem.model.Authority;
 import com.revolsys.geometry.coordinatesystem.operation.CoordinatesOperation;
 import com.revolsys.geometry.coordinatesystem.operation.CoordinatesOperationPoint;
-import com.revolsys.geometry.coordinatesystem.util.Md5;
+import com.revolsys.util.Md5;
 
 import tech.units.indriya.AbstractUnit;
 import tech.units.indriya.unit.AlternateUnit;

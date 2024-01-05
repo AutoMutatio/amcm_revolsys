@@ -10,10 +10,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.revolsys.exception.WrappedRuntimeException;
-import com.revolsys.geometry.coordinatesystem.util.Hex;
 import com.revolsys.logging.Logs;
 import com.revolsys.spring.resource.PathResource;
 import com.revolsys.spring.resource.Resource;
+import com.revolsys.util.Hex;
 import com.revolsys.util.Pair;
 import com.revolsys.util.Property;
 

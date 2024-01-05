@@ -17,9 +17,11 @@ package com.revolsys.collection.iterator;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -55,7 +57,7 @@ import com.revolsys.util.StringBuilders;
  */
 public interface BaseIterable<T> extends Iterable<T> {
 
-  default BaseIterable<T> cacellable(final Cancellable cancellable) {
+  default BaseIterable<T> cancellable(final Cancellable cancellable) {
     if (cancellable == null) {
       return this;
     } else {
@@ -70,6 +72,12 @@ public interface BaseIterable<T> extends Iterable<T> {
   default <O> O collect(final Collector<T, O> collector) {
     final var result = collector.newResult();
     forEach(value -> collector.collect(result, value));
+    return result;
+  }
+
+  default <O> O collect(final Supplier<O> resultSupplier, final BiConsumer<O, T> action) {
+    final var result = resultSupplier.get();
+    forEach(value -> action.accept(result, value));
     return result;
   }
 
@@ -185,9 +193,7 @@ public interface BaseIterable<T> extends Iterable<T> {
    * @return The list of items.
    */
   default ListEx<T> toList() {
-    final ListEx<T> items = Lists.newArray();
-    forEach(items::add);
-    return items;
+    return collect(Lists.factoryArray(), ListEx::add);
   }
 
   default BaseIterable<T> walkTree(final Function<T, Iterable<T>> treeWalk) {

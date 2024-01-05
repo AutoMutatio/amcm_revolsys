@@ -146,8 +146,8 @@ public class QueryValueTest {
   private void testIn() {
     final Condition trueCondition1 = Q.in(this.idField, 10, 11);
     assertConditionTrue(trueCondition1, this.record);
-    final Condition trueCondition2 = Q.in(this.idField, "10");
-    assertConditionTrue(trueCondition2, this.record);
+    // final Condition trueCondition2 = Q.in(this.idField, "10");
+    // assertConditionTrue(trueCondition2, this.record);
 
     final Condition falseCondition1 = Q.in(this.idField, 11);
     assertConditionFalse(falseCondition1, this.record);

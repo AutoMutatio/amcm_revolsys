@@ -3,8 +3,8 @@ package com.revolsys.geometry.coordinatesystem.model;
 import java.io.Serializable;
 import java.security.MessageDigest;
 
-import com.revolsys.geometry.coordinatesystem.util.Equals;
-import com.revolsys.geometry.coordinatesystem.util.Md5;
+import com.revolsys.util.Equals;
+import com.revolsys.util.Md5;
 
 public class PrimeMeridian implements Serializable {
   /**

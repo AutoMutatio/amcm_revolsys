@@ -1,4 +1,4 @@
-package com.revolsys.geometry.coordinatesystem.util;
+package com.revolsys.util;
 
 import java.security.MessageDigest;
 import java.util.Base64;

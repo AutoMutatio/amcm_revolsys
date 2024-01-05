@@ -17,7 +17,7 @@ import com.revolsys.geometry.coordinatesystem.io.EsriCsWktWriter;
 import com.revolsys.geometry.coordinatesystem.model.systems.EsriCoordinateSystems;
 import com.revolsys.geometry.coordinatesystem.model.unit.LinearUnit;
 import com.revolsys.geometry.coordinatesystem.operation.CoordinatesOperation;
-import com.revolsys.geometry.coordinatesystem.util.Md5;
+import com.revolsys.util.Md5;
 
 public interface CoordinateSystem extends HorizontalCoordinateSystemProxy, Code {
 

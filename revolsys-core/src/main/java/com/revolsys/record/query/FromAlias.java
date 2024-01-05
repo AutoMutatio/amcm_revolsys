@@ -26,7 +26,7 @@ public class FromAlias implements From {
 
   @Override
   public ColumnReference getColumn(final CharSequence name) {
-    return new ColumnWithPrefix(this.from.getColumn(name), this.alias);
+    return new ColumnWithPrefix(this.alias, this.from.getColumn(name));
   }
 
   @Override

@@ -10,6 +10,9 @@ import java.util.Map.Entry;
 import com.revolsys.exception.Exceptions;
 
 public interface BaseCloneable extends Cloneable {
+  public static final Class<?>[] ARRAY_CLASS_0 = new Class[0];
+
+  public static final Object[] ARRAY_OBJECT_0 = new Object[0];
 
   /**
    * Clone the value if it has a clone method.
@@ -44,9 +47,9 @@ public interface BaseCloneable extends Cloneable {
     } else if (value instanceof Cloneable) {
       try {
         final Class<? extends Object> valueClass = value.getClass();
-        final Method method = valueClass.getMethod("clone", JavaBeanUtil.ARRAY_CLASS_0);
+        final Method method = valueClass.getMethod("clone", ARRAY_CLASS_0);
         if (method != null) {
-          return (V)method.invoke(value, JavaBeanUtil.ARRAY_OBJECT_0);
+          return (V)method.invoke(value, ARRAY_OBJECT_0);
         }
       } catch (final Throwable e) {
         return Exceptions.throwUncheckedException(e);
