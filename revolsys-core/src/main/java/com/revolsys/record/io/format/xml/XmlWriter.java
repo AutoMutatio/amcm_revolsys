@@ -1649,7 +1649,7 @@ public class XmlWriter extends Writer {
         }
         if (escapeString != null) {
           if (i > index) {
-            this.out.append(chars, index, i - index);
+            this.out.append(chars, index, i);
           }
           this.out.write(escapeString);
           escapeString = null;
@@ -1657,7 +1657,7 @@ public class XmlWriter extends Writer {
         }
       }
       if (lastIndex > index) {
-        this.out.append(chars, index, lastIndex - index);
+        this.out.append(chars, index, lastIndex);
       }
     } catch (final IOException e) {
       throw Exceptions.wrap(e);
