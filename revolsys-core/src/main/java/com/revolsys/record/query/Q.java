@@ -311,12 +311,12 @@ public class Q {
     return iLike(column, value);
   }
 
-  public static In in(final FieldDefinition fieldDefinition,
+  public static In in(final ColumnReference fieldDefinition,
     final Collection<? extends Object> values) {
     return new In(fieldDefinition, values);
   }
 
-  public static In in(final FieldDefinition fieldDefinition, final Object... values) {
+  public static In in(final ColumnReference fieldDefinition, final Object... values) {
     final List<Object> list = Arrays.asList(values);
     return new In(fieldDefinition, list);
   }
@@ -325,6 +325,12 @@ public class Q {
     final Column left = new Column(name);
     final CollectionValue collectionValue = new CollectionValue(values);
     return new In(left, collectionValue);
+  }
+
+  public static In in(final TableReferenceProxy table, final CharSequence fieldName,
+    final Object... values) {
+    final var column = table.getColumn(fieldName);
+    return in(column, values);
   }
 
   public static IsNotNull isNotNull(final FieldDefinition fieldDefinition) {

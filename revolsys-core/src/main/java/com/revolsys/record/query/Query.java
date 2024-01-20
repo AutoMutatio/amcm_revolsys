@@ -206,6 +206,8 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
 
   private Union union;
 
+  private Condition having = Condition.ALL;
+
   public Query() {
     this("/Record");
   }
@@ -483,6 +485,9 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     if (!where.isEmpty()) {
       index = where.appendParameters(index, statement);
     }
+    if (!this.having.isEmpty()) {
+      index = this.having.appendParameters(index, statement);
+    }
     if (this.union != null) {
       index = this.union.appendParameters(index, statement);
     }
@@ -565,6 +570,10 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
         table.getTableReference().appendQueryValue(this, sql, groupByItem);
       }
     }
+    if (!this.having.isEmpty()) {
+      sql.append(" HAVING ");
+      JdbcUtils.appendQueryValue(sql, this, this.having);
+    }
 
     addOrderBy(sql, table, orderBy);
 
@@ -627,6 +636,10 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
 
   public int deleteRecords() {
     return getRecordDefinition().getRecordStore().deleteRecords(this);
+  }
+
+  public boolean exists() {
+    return getRecordCount() != 0;
   }
 
   public void forEachRecord(final Consumer<? super Record> action) {
@@ -878,6 +891,12 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
 
   public boolean hasSelect() {
     return !this.selectExpressions.isEmpty();
+  }
+
+  public Query having(final Consumer<WhereConditionBuilder> action) {
+    final WhereConditionBuilder builder = new WhereConditionBuilder(getTableReference());
+    this.having = builder.build(action);
+    return this;
   }
 
   public Record insertRecord(final Supplier<Record> newRecordSupplier) {
@@ -1476,7 +1495,8 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
   }
 
   public Query where(final BiConsumer<Query, WhereConditionBuilder> action) {
-    final WhereConditionBuilder builder = new WhereConditionBuilder(getTableReference());
+    final WhereConditionBuilder builder = new WhereConditionBuilder(getTableReference(),
+      this.whereCondition);
     this.whereCondition = builder.build(this, action);
     return this;
   }
