@@ -175,7 +175,7 @@ public class ArcGisRestCatalog extends ArcGisResponse<CatalogElement> {
   protected void initialize(final MapEx properties) {
     final List<CatalogElement> children = new ArrayList<>();
     final Map<String, CatalogElement> childByName = new HashMap<>();
-    final List<String> folderNames = properties.getValue("folders", Collections.emptyList());
+    final List<String> folderNames = properties.getList("folders");
     for (final String folderPath : folderNames) {
       final String folderName = PathName.newPathName(folderPath).getName();
       final ArcGisRestCatalog folder = new ArcGisRestCatalog(this, folderName);
@@ -183,8 +183,7 @@ public class ArcGisRestCatalog extends ArcGisResponse<CatalogElement> {
       final String childKey = folderName.toLowerCase();
       childByName.put(childKey, folder);
     }
-    final List<MapEx> serviceDescriptions = properties.getValue("services",
-      Collections.emptyList());
+    final List<MapEx> serviceDescriptions = properties.getList("services");
     for (final MapEx serviceDescription : serviceDescriptions) {
       final String serviceContainerPath = serviceDescription.getString("name");
       final String serviceType = serviceDescription.getString("type");

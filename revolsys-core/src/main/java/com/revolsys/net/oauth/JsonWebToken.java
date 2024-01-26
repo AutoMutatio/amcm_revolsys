@@ -18,7 +18,6 @@ import java.time.Instant;
 import java.util.Base64;
 import java.util.Base64.Decoder;
 
-import com.revolsys.collection.json.JsonList;
 import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.json.JsonParser;
 
@@ -198,10 +197,8 @@ public class JsonWebToken {
               return true;
             }
           }
-          for (final String certBase64 : key.getValue("x5c", JsonList.EMPTY).<String> iterable()) {
-
+          for (final String certBase64 : key.<String> getList("x5c")) {
             final byte[] cert = Base64.getDecoder().decode(certBase64);
-
             final CertificateFactory factory = CertificateFactory.getInstance("X.509");
             final X509Certificate x509 = (X509Certificate)factory
               .generateCertificate(new ByteArrayInputStream(cert));

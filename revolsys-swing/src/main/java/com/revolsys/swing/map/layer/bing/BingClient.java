@@ -77,7 +77,7 @@ public class BingClient {
       imagerySet = ImagerySet.Aerial;
     }
     final MapEx parameters = newParameterMap() //
-      .add("output", "json");
+      .addValue("output", "json");
     return UrlUtil.getUrl("http://dev.virtualearth.net/REST/V1/Imagery/Metadata/" + imagerySet,
       parameters);
   }
@@ -175,8 +175,8 @@ public class BingClient {
     }
 
     final MapEx parameters = newParameterMap() //
-      .add("mapSize", width + "," + height) //
-      .add("mapLayer", mapLayer) //
+      .addValue("mapSize", width + "," + height) //
+      .addValue("mapLayer", mapLayer) //
     ;
 
     final Point centrePoint = WORLD_MERCATOR //
@@ -246,10 +246,10 @@ public class BingClient {
       + Doubles.toString(maxY) + "," + Doubles.toString(maxX);
     final String mapSize = width + "," + height;
     final MapEx parameters = newParameterMap() //
-      .add("mapArea", mapArea) //
-      .add("mapSize", mapSize) //
-      .add("mapLayer", mapLayer) //
-      .add("format", format) //
+      .addValue("mapArea", mapArea) //
+      .addValue("mapSize", mapSize) //
+      .addValue("mapLayer", mapLayer) //
+      .addValue("format", format) //
     ;
 
     return UrlUtil.getUrl("https://dev.virtualearth.net/REST/v1/Imagery/Map/" + imagerySet,
