@@ -116,7 +116,7 @@ public abstract class ArcGisRestAbstractLayerService extends ArcGisRestService
     final Map<String, LayerDescription> rootLayersByName) {
     final Map<String, GroupLayer> groups = new TreeMap<>();
     final Map<String, LayerDescription> layers = new TreeMap<>();
-    final List<MapEx> layerDefinitions = properties.getValue("layers", Collections.emptyList());
+    final List<MapEx> layerDefinitions = properties.getList("layers");
     for (final MapEx layerProperties : layerDefinitions) {
       final Integer parentLayerId = layerProperties.getInteger("parentLayerId");
       if (parentLayerId == null || parentLayerId == -1) {
@@ -133,7 +133,7 @@ public abstract class ArcGisRestAbstractLayerService extends ArcGisRestService
       }
     }
 
-    final List<MapEx> tableDefinitions = properties.getValue("tables", Collections.emptyList());
+    final List<MapEx> tableDefinitions = properties.getList("tables");
     for (final MapEx layerProperties : tableDefinitions) {
       final LayerDescription layer = addLayer(this, rootLayersByName, layerProperties);
       if (layer != null) {

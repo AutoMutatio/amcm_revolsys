@@ -109,6 +109,22 @@ public interface Exceptions {
     }
   }
 
+  static RuntimeException toRuntimeException(final Throwable e) {
+    if (e == null) {
+      return null;
+    } else if (e instanceof RuntimeException) {
+      throw (RuntimeException)e;
+    } else if (e instanceof InvocationTargetException) {
+      final Throwable cause = e.getCause();
+      return toRuntimeException(cause);
+    } else if (e instanceof ExecutionException) {
+      final Throwable cause = e.getCause();
+      return toRuntimeException(cause);
+    } else {
+      throw wrap(e);
+    }
+  }
+
   static String toString(final Throwable e) {
     final StringWriter string = new StringWriter();
     final PrintWriter out = new PrintWriter(string);

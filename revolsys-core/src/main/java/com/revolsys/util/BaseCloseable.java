@@ -64,7 +64,6 @@ public interface BaseCloseable extends Closeable {
   static void closeValue(final Object v) {
     if (v instanceof final BaseCloseable closeable) {
       closeable.close();
-      ;
     } else if (v instanceof final AutoCloseable closeable) {
       try {
         closeable.close();

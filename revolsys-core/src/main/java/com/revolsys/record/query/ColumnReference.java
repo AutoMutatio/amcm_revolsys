@@ -55,9 +55,9 @@ public interface ColumnReference extends QueryValue {
     if (record == null) {
       return null;
     } else {
-      final String name = getName();
+      final CharSequence name = getName();
       final DataType dataType = getDataType();
-      return (V)record.getValue(name, dataType);
+      return (V)record.getTypedValue(name, dataType);
     }
   }
 

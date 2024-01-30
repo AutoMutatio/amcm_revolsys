@@ -50,6 +50,12 @@ public class ChangeTrackRecordImpl extends BaseRecord implements ChangeTrackReco
     return getOriginalValue(fieldIndex);
   }
 
+  @Override
+  public <T> T getValue(final CharSequence name) {
+    final int fieldIndex = getFieldIndex(name);
+    return getValue(fieldIndex);
+  }
+
   @SuppressWarnings("unchecked")
   @Override
   public synchronized <T> T getValue(final int fieldIndex) {
@@ -61,12 +67,6 @@ public class ChangeTrackRecordImpl extends BaseRecord implements ChangeTrackReco
     } else {
       return null;
     }
-  }
-
-  @Override
-  public <T> T getValue(final String name) {
-    final int fieldIndex = getFieldIndex(name);
-    return getValue(fieldIndex);
   }
 
   public boolean isHasChangedValue() {
