@@ -81,7 +81,7 @@ public interface EndianInput extends Closeable {
     return (byte)ch;
   }
 
-  default byte[] readBytes(final int length) throws IOException {
+  default byte[] readNBytes(final int length) throws IOException {
     final byte[] buffer = new byte[length];
     if (read(buffer, 0, length) == length) {
       return buffer;
@@ -409,7 +409,7 @@ public interface EndianInput extends Closeable {
     return readString(byteCount, StandardCharsets.US_ASCII);
   }
 
-  default int skipBytes(final int byteCount) throws IOException {
+  default int skipNBytes(final int byteCount) throws IOException {
     int i = 0;
     for (; i < byteCount; i++) {
       if (read() == -1) {
