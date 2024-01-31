@@ -435,6 +435,21 @@ public interface MapDefault<K, KA, V, M extends MapDefault<K, KA, V, M>>
     }
   }
 
+  default <T extends Object> T getTypedValue(final KA name, final DataType dataType) {
+    final Object value = getValue(name);
+    return dataType.toObject(value);
+  }
+
+  default <T extends Object> T getTypeValue(final KA name, final DataType dataType,
+    final T defaultValue) {
+    final T value = getTypedValue(name, dataType);
+    if (value == null) {
+      return defaultValue;
+    } else {
+      return value;
+    }
+  }
+
   default String getUpperString(final KA fieldName) {
     final String string = getString(fieldName);
     if (string == null) {
@@ -465,21 +480,6 @@ public interface MapDefault<K, KA, V, M extends MapDefault<K, KA, V, M>>
     } else {
       final var k = toK(key);
       return (T)get(k);
-    }
-  }
-
-  default <T extends Object> T getTypedValue(final KA name, final DataType dataType) {
-    final Object value = getValue(name);
-    return dataType.toObject(value);
-  }
-
-  default <T extends Object> T getTypeValue(final KA name, final DataType dataType,
-    final T defaultValue) {
-    final T value = getTypedValue(name, dataType);
-    if (value == null) {
-      return defaultValue;
-    } else {
-      return value;
     }
   }
 
@@ -523,7 +523,7 @@ public interface MapDefault<K, KA, V, M extends MapDefault<K, KA, V, M>>
 
   default boolean hasValue(final KA name) {
     final Object value = getValue(name);
-    return value != null;
+    return Property.hasValue(value);
   }
 
   default boolean hasValuesAll(@SuppressWarnings("unchecked") final KA... names) {

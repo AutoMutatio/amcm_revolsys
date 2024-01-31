@@ -161,7 +161,7 @@ public class EndianMappedByteBuffer implements EndianInputOutput {
   }
 
   @Override
-  public int skipBytes(final int i) throws IOException {
+  public int skipNBytes(final int i) throws IOException {
     this.buffer.position(this.buffer.position() + i);
     return this.buffer.position();
   }

@@ -104,7 +104,7 @@ public class LittleEndianRandomAccessFile implements EndianInputOutput {
   }
 
   @Override
-  public int skipBytes(final int i) throws IOException {
+  public int skipNBytes(final int i) throws IOException {
     return this.randomFile.skipBytes(i);
   }
 

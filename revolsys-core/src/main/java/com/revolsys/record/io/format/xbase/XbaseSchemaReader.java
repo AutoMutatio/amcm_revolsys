@@ -43,9 +43,9 @@ public class XbaseSchemaReader {
           }
         }
         final char fieldType = (char)this.in.read();
-        this.in.skipBytes(4);
+        this.in.skipNBytes(4);
         final int length = this.in.read();
-        this.in.skipBytes(15);
+        this.in.skipNBytes(15);
         b = this.in.read();
         final XBaseFieldDefinition field = new XBaseFieldDefinition(fieldName.toString(),
           fieldName.toString(), fieldType, length);
