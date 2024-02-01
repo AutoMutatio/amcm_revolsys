@@ -32,13 +32,9 @@
  */
 package com.revolsys.core.test.geometry.test.testrunner;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.LineNumberReader;
-import java.io.PrintStream;
-import java.io.PrintWriter;
 import java.io.StringReader;
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
@@ -88,9 +84,7 @@ public class StringUtil {
   // Based on code from
   // http://developer.java.sun.com/developer/qow/archive/104/index.html
   public static String currentMethodName() {
-    final StringWriter sw = new StringWriter();
-    new Throwable().printStackTrace(new PrintWriter(sw));
-    final String callStack = sw.toString();
+    final String callStack = Exceptions.toString(new Throwable());
     int atPos = callStack.indexOf("at");
     atPos = callStack.indexOf("at", atPos + 1);
     final int parenthesisPos = callStack.indexOf("(", atPos);
@@ -190,19 +184,9 @@ public class StringUtil {
     return result;
   }
 
-  /**
-   *  Returns an throwable's stack trace
-   */
-  public static String getStackTrace(final Throwable t) {
-    final ByteArrayOutputStream os = new ByteArrayOutputStream();
-    final PrintStream ps = new PrintStream(os);
-    t.printStackTrace(ps);
-    return os.toString();
-  }
-
   public static String getStackTrace(final Throwable t, final int depth) {
     String stackTrace = "";
-    final StringReader stringReader = new StringReader(getStackTrace(t));
+    final StringReader stringReader = new StringReader(Exceptions.toString(t));
     final LineNumberReader lineNumberReader = new LineNumberReader(stringReader);
     for (int i = 0; i < depth; i++) {
       try {
