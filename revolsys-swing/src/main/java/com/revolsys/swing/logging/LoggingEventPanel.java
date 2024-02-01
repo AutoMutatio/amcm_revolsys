@@ -3,7 +3,6 @@ package com.revolsys.swing.logging;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.Font;
-import java.io.PrintWriter;
 import java.time.Instant;
 import java.util.List;
 
@@ -18,10 +17,10 @@ import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 
-import org.apache.commons.io.output.StringBuilderWriter;
 import org.jdesktop.swingx.plaf.basic.core.BasicTransferable;
 
 import com.revolsys.data.type.DataTypes;
+import com.revolsys.exception.Exceptions;
 import com.revolsys.swing.Dialogs;
 import com.revolsys.swing.SwingUtil;
 import com.revolsys.swing.action.RunnableAction;
@@ -155,14 +154,8 @@ public class LoggingEventPanel extends JPanel {
 
   public static void showDialog(final String title, final String message, final Throwable e) {
     Invoke.later(() -> {
-      final StringBuilderWriter stackTrace = new StringBuilderWriter();
-      try (
-        PrintWriter printWriter = new PrintWriter(stackTrace)) {
-        e.printStackTrace(printWriter);
-      }
-
       final LoggingEventPanel panel = new LoggingEventPanel(null, null, null, null, message,
-        stackTrace);
+        Exceptions.toString(e));
 
       panel.showDialog(title);
     });

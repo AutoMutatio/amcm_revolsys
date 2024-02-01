@@ -73,15 +73,6 @@ public interface Exceptions {
       || hasCause(e, ClosedByInterruptException.class);
   }
 
-  static String stackTraceToString(final Throwable e) {
-    final StringWriter stackTrace = new StringWriter();
-    try (
-      PrintWriter w = new PrintWriter(stackTrace)) {
-      e.printStackTrace(w);
-    }
-    return stackTrace.toString();
-  }
-
   @SuppressWarnings("unchecked")
   static <T> T throwCauseException(final Throwable e) {
     final Throwable cause = e.getCause();
@@ -126,10 +117,12 @@ public interface Exceptions {
   }
 
   static String toString(final Throwable e) {
-    final StringWriter string = new StringWriter();
-    final PrintWriter out = new PrintWriter(string);
-    e.printStackTrace(out);
-    return string.toString();
+    final StringWriter stackTrace = new StringWriter();
+    try (
+      PrintWriter w = new PrintWriter(stackTrace)) {
+      e.printStackTrace(w);
+    }
+    return stackTrace.toString().replaceAll("\\u0000", "");
   }
 
   @SuppressWarnings("unchecked")
