@@ -16,8 +16,11 @@ public class Hex {
 
   public static String toHex(final byte[] bytes) {
     final StringBuilder hexString = new StringBuilder();
-    for (final byte c : bytes) {
-      final String hexChar = Integer.toString((c & 0xff) + 0x100, 16).substring(1);
+    for (final byte b : bytes) {
+      final String hexChar = Integer.toHexString(b & 0xff);
+      if (hexChar.length() == 1) {
+        hexString.append("0");
+      }
       hexString.append(hexChar);
     }
     return hexString.toString();
