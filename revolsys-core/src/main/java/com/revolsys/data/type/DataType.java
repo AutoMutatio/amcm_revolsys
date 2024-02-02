@@ -20,8 +20,7 @@ public interface DataType {
       return object2 == null;
     } else if (object2 == null) {
       return false;
-    } else if (object1 instanceof DataTypedValue) {
-      final DataTypedValue value1 = (DataTypedValue)object1;
+    } else if (object1 instanceof final DataTypedValue value1) {
       return value1.equals(object2, excludeFieldNames);
     } else {
       final DataType dataType = DataTypes.getDataType(object1);

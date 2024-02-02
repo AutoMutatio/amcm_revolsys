@@ -81,15 +81,6 @@ public interface EndianInput extends Closeable {
     return (byte)ch;
   }
 
-  default byte[] readBytes(final int length) throws IOException {
-    final byte[] buffer = new byte[length];
-    if (read(buffer, 0, length) == length) {
-      return buffer;
-    } else {
-      throw new EndOfFileException();
-    }
-  }
-
   /**
    * See the general contract of the <code>readChar</code>
    * method of <code>DataInput</code>.
@@ -360,6 +351,15 @@ public interface EndianInput extends Closeable {
       + ((read() & 255) << 8) + ((read() & 255) << 0);
   }
 
+  default byte[] readNBytes(final int length) throws IOException {
+    final byte[] buffer = new byte[length];
+    if (read(buffer, 0, length) == length) {
+      return buffer;
+    } else {
+      throw new EndOfFileException();
+    }
+  }
+
   /**
   * Read a big endian short.
   *
@@ -409,13 +409,12 @@ public interface EndianInput extends Closeable {
     return readString(byteCount, StandardCharsets.US_ASCII);
   }
 
-  default int skipBytes(final int byteCount) throws IOException {
+  default void skipNBytes(final long byteCount) throws IOException {
     int i = 0;
     for (; i < byteCount; i++) {
       if (read() == -1) {
-        return i;
+        return;
       }
     }
-    return i;
   }
 }

@@ -2,7 +2,6 @@ package com.revolsys.util;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.util.Collection;
 import java.util.function.Consumer;
 
 import com.revolsys.exception.Exceptions;
@@ -56,7 +55,7 @@ public interface BaseCloseable extends Closeable {
    *
    * @param closeables The closables to close.
    */
-  static void closeSilent(final Collection<? extends AutoCloseable> closeables) {
+  static void closeSilent(final Iterable<? extends AutoCloseable> closeables) {
     for (final AutoCloseable closeable : closeables) {
       closeSilent(closeable);
     }
@@ -65,7 +64,6 @@ public interface BaseCloseable extends Closeable {
   static void closeValue(final Object v) {
     if (v instanceof final BaseCloseable closeable) {
       closeable.close();
-      ;
     } else if (v instanceof final AutoCloseable closeable) {
       try {
         closeable.close();

@@ -160,6 +160,11 @@ public abstract class InsertUpdateBuilder<R extends Record> {
     return this;
   }
 
+  public InsertUpdateBuilder<R> search(final String key, final Object value) {
+    this.searchValues.addValue(key, value);
+    return this;
+  }
+
   public InsertUpdateBuilder<R> setInsert(final boolean insert) {
     this.insert = insert;
     return this;

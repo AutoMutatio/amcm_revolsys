@@ -14,6 +14,7 @@ import java.util.Map.Entry;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
@@ -21,6 +22,7 @@ import com.revolsys.collection.json.Json;
 import com.revolsys.collection.list.ListEx;
 import com.revolsys.collection.list.Lists;
 import com.revolsys.collection.map.MapEx;
+import com.revolsys.function.Lambdaable;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.io.PathName;
 import com.revolsys.jdbc.JdbcUtils;
@@ -48,8 +50,8 @@ import com.revolsys.util.CancellableProxy;
 import com.revolsys.util.Property;
 import com.revolsys.util.count.LabelCounters;
 
-public class Query extends BaseObjectWithProperties
-  implements Cloneable, CancellableProxy, Transactionable, QueryValue, TableReferenceProxy {
+public class Query extends BaseObjectWithProperties implements Cloneable, CancellableProxy,
+  Transactionable, QueryValue, TableReferenceProxy, Lambdaable<Query> {
 
   private static void addFilter(final Query query, final RecordDefinition recordDefinition,
     final Map<String, ?> filter, final AbstractMultiCondition multipleCondition) {
@@ -199,6 +201,10 @@ public class Query extends BaseObjectWithProperties
   private Condition whereCondition = Condition.ALL;
 
   private final List<WithQuery> withQueries = new ArrayList<>();
+
+  private Union union;
+
+  private Condition having = Condition.ALL;
 
   public Query() {
     this("/Record");
@@ -456,6 +462,11 @@ public class Query extends BaseObjectWithProperties
 
   @Override
   public int appendParameters(int index, final PreparedStatement statement) {
+    if (!this.withQueries.isEmpty()) {
+      for (final var with : this.withQueries) {
+        index = with.appendParameters(index, statement);
+      }
+    }
     for (final Object parameter : getParameters()) {
       final JdbcFieldDefinition field = JdbcFieldDefinitions.newFieldDefinition(parameter);
       try {
@@ -471,6 +482,12 @@ public class Query extends BaseObjectWithProperties
     final Condition where = getWhereCondition();
     if (!where.isEmpty()) {
       index = where.appendParameters(index, statement);
+    }
+    if (!this.having.isEmpty()) {
+      index = this.having.appendParameters(index, statement);
+    }
+    if (this.union != null) {
+      index = this.union.appendParameters(index, statement);
     }
     return index;
   }
@@ -522,9 +539,10 @@ public class Query extends BaseObjectWithProperties
           first = false;
         } else {
           sql.append("\n");
-          withQuery.appendSql(sql);
         }
+        withQuery.appendSql(sql);
       }
+      sql.append(" ");
     }
     sql.append("SELECT ");
     if (distinct) {
@@ -550,10 +568,18 @@ public class Query extends BaseObjectWithProperties
         table.getTableReference().appendQueryValue(this, sql, groupByItem);
       }
     }
+    if (!this.having.isEmpty()) {
+      sql.append(" HAVING ");
+      JdbcUtils.appendQueryValue(sql, this, this.having);
+    }
 
     addOrderBy(sql, table, orderBy);
 
     lockMode.append(sql);
+
+    if (this.union != null) {
+      this.union.appendSql(sql);
+    }
   }
 
   public Exists asExists() {
@@ -608,6 +634,10 @@ public class Query extends BaseObjectWithProperties
 
   public int deleteRecords() {
     return getRecordDefinition().getRecordStore().deleteRecords(this);
+  }
+
+  public boolean exists() {
+    return getRecordCount() != 0;
   }
 
   /**
@@ -857,6 +887,12 @@ public class Query extends BaseObjectWithProperties
     return !this.selectExpressions.isEmpty();
   }
 
+  public Query having(final Consumer<WhereConditionBuilder> action) {
+    final WhereConditionBuilder builder = new WhereConditionBuilder(getTableReference());
+    this.having = builder.build(action);
+    return this;
+  }
+
   public Record insertRecord(final Supplier<Record> newRecordSupplier) {
     final ChangeTrackRecord changeTrackRecord = getRecord();
     if (changeTrackRecord == null) {
@@ -1093,6 +1129,21 @@ public class Query extends BaseObjectWithProperties
       addOrderBy(orderByItem);
     }
     return this;
+  }
+
+  public Query readerConsume(final Consumer<RecordReader> action) {
+    try (
+      var reader = getRecordReader()) {
+      action.accept(getRecordReader());
+    }
+    return this;
+  }
+
+  public <O> O readerMap(final Function<RecordReader, O> action) {
+    try (
+      var reader = getRecordReader()) {
+      return action.apply(reader);
+    }
   }
 
   public void removeSelect(final String name) {
@@ -1395,6 +1446,16 @@ public class Query extends BaseObjectWithProperties
     return string.toString();
   }
 
+  public Query union(final Query query, final boolean distinct) {
+    this.union = new Union(query, distinct);
+    return this;
+  }
+
+  public Query unionAll(final Query query) {
+    this.union = new Union(query, false);
+    return this;
+  }
+
   public Record updateRecord(final Consumer<Record> updateAction) {
     final Record record = getRecord();
     if (record == null) {
@@ -1413,8 +1474,8 @@ public class Query extends BaseObjectWithProperties
       int i = 0;
       setRecordFactory(ArrayChangeTrackRecord.FACTORY);
       try (
-        RecordReader reader = getRecordReader();
-        RecordWriter writer = recordStore.newRecordWriter(recordDefinition)) {
+        final RecordReader reader = getRecordReader();
+        final RecordWriter writer = recordStore.newRecordWriter(recordDefinition)) {
         for (final Record record : reader) {
           final ChangeTrackRecord changeTrackRecord = (ChangeTrackRecord)record;
           updateAction.accept(changeTrackRecord);
@@ -1428,14 +1489,23 @@ public class Query extends BaseObjectWithProperties
     });
   }
 
+  public Query where(final BiConsumer<Query, WhereConditionBuilder> action) {
+    final WhereConditionBuilder builder = new WhereConditionBuilder(getTableReference(),
+      this.whereCondition);
+    this.whereCondition = builder.build(this, action);
+    return this;
+  }
+
   public Query where(final Consumer<WhereConditionBuilder> action) {
     final WhereConditionBuilder builder = new WhereConditionBuilder(getTableReference());
     this.whereCondition = builder.build(action);
     return this;
   }
 
-  public Query withQuery(final Consumer<Query> queryBuilder) {
-    queryBuilder.accept(this);
+  public Query with(final BiConsumer<Query, WithQuery> queryBuilder) {
+    final var with = new WithQuery();
+    this.withQueries.add(with);
+    queryBuilder.accept(this, with);
     return this;
   }
 }

@@ -44,7 +44,7 @@ public interface JsonList extends ListEx<Object>, JsonType {
 
     @Override
     public JsonList clone() {
-      return this;
+      return JsonList.array();
     }
 
     @Override

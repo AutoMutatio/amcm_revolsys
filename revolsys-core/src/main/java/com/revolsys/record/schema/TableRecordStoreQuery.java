@@ -69,4 +69,5 @@ public class TableRecordStoreQuery extends Query {
     return transactionCall(
       () -> this.recordStore.updateRecords(this.connection, this, updateAction));
   }
+
 }

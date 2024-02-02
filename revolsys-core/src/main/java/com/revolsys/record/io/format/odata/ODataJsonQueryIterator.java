@@ -8,7 +8,6 @@ import java.util.function.Function;
 
 import com.revolsys.collection.iterator.AbstractIterator;
 import com.revolsys.collection.json.JsonObject;
-import com.revolsys.data.type.DataTypes;
 import com.revolsys.http.HttpRequestBuilder;
 import com.revolsys.http.HttpRequestBuilderFactory;
 
@@ -56,7 +55,7 @@ public class ODataJsonQueryIterator<V> extends AbstractIterator<V> {
         this.count = json.getInteger("@odata.count", -1);
 
       }
-      this.nextURI = json.getValue("@odata.nextLink", DataTypes.ANY_URI);
+      this.nextURI = json.getURI("@odata.nextLink");
 
       this.results = json.<JsonObject> getList("value").iterator();
     }

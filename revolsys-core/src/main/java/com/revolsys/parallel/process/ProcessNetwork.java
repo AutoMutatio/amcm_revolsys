@@ -19,6 +19,7 @@ import com.revolsys.exception.WrappedInterruptedException;
 import com.revolsys.logging.Logs;
 import com.revolsys.parallel.ReentrantLockEx;
 import com.revolsys.parallel.channel.Channel;
+import com.revolsys.parallel.channel.ClosedException;
 import com.revolsys.spring.TargetBeanProcess;
 
 public class ProcessNetwork {
@@ -66,6 +67,10 @@ public class ProcessNetwork {
     }
   }
 
+  public static ProcessNetwork forThread() {
+    return PROCESS_NETWORK.get();
+  }
+
   public static <V> void forWhile(final int processCount, final Supplier<V> supplier,
     final Consumer<V> action) {
     final ReentrantLockEx lock = new ReentrantLockEx();
@@ -86,10 +91,6 @@ public class ProcessNetwork {
       });
     }
     processNetwork.startAndWait();
-  }
-
-  public static ProcessNetwork forThread() {
-    return PROCESS_NETWORK.get();
   }
 
   public static void processTasks(final int processCount, final Channel<Runnable> tasks) {
@@ -225,6 +226,26 @@ public class ProcessNetwork {
     return this;
   }
 
+  public <V> ProcessNetwork addTasks(final int processCount, final Channel<V> channel,
+    final Consumer<V> action) {
+    for (int i = 0; i < processCount; i++) {
+      addProcess(() -> {
+        try {
+          while (true) {
+            final var value = channel.read();
+            try {
+              action.accept(value);
+            } catch (final Throwable e) {
+              Logs.error(ProcessNetwork.class, "Error procesing task", e);
+            }
+          }
+        } catch (final ClosedException e) {
+        }
+      });
+    }
+    return this;
+  }
+
   private void finishRunning() {
     synchronized (this.sync) {
       this.running = false;
@@ -314,7 +335,7 @@ public class ProcessNetwork {
     }
   }
 
-  public void start() {
+  public ProcessNetwork start() {
     if (this.parent == null) {
       synchronized (this.sync) {
         this.running = true;
@@ -326,6 +347,7 @@ public class ProcessNetwork {
         }
       }
     }
+    return this;
   }
 
   private synchronized void start(final Process process) {

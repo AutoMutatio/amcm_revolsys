@@ -96,7 +96,7 @@ public final class EpsgCoordinateSystemsLoader {
     MapEx coordinateReferenceSystem = this.coordinateReferenceSystemById.get(id);
     if (coordinateReferenceSystem == null) {
       coordinateReferenceSystem = JsonObject.hash() //
-        .add("id", id);
+        .addValue("id", id);
       this.coordinateReferenceSystemById.put(id, coordinateReferenceSystem);
     }
     return coordinateReferenceSystem;
@@ -166,9 +166,9 @@ public final class EpsgCoordinateSystemsLoader {
         writeDeprecated(writer, record);
         final String bbox = BoundingBox.bboxToWkt(minX, minY, maxX, maxY);
         this.areaById.put(id, JsonObject.hash() //
-          .add("id", id) //
-          .add("name", name) //
-          .add("bbox", bbox) //
+          .addValue("id", id) //
+          .addValue("name", name) //
+          .addValue("bbox", bbox) //
         );
       }
     }
@@ -189,10 +189,10 @@ public final class EpsgCoordinateSystemsLoader {
         writer.putByte((byte)abbreviation.charAt(0));
         final int uomId = writeInt(writer, record, "uom_code");
         final MapEx axis = JsonObject.hash() //
-          .add("name", this.axisNameById.get(axisNameId))//
-          .add("abbreviation", abbreviation)//
-          .add("orientation", orientation)//
-          .add("units", this.unitOfMeasureNameById.get(uomId))//
+          .addValue("name", this.axisNameById.get(axisNameId))//
+          .addValue("abbreviation", abbreviation)//
+          .addValue("orientation", orientation)//
+          .addValue("units", this.unitOfMeasureNameById.get(uomId))//
         ;
         final MapEx coordinateSystem = this.coordinateSystemById.get(coordinateSystemId);
         final List<MapEx> axes = coordinateSystem.getValue("axes");
@@ -248,24 +248,24 @@ public final class EpsgCoordinateSystemsLoader {
           writeDeprecated(writer, record);
 
           final MapEx coordinateReferenceSystem = getCoordinateReferenceSystemById(id) //
-            .add("name", name) //
-            .add("type", type) //
-            .add("area", this.areaById.get(areaId)) //
-            .add("coordinateSystem", this.coordinateSystemById.get(coordinateSystemId)) //
+            .addValue("name", name) //
+            .addValue("type", type) //
+            .addValue("area", this.areaById.get(areaId)) //
+            .addValue("coordinateSystem", this.coordinateSystemById.get(coordinateSystemId)) //
           ;
           if (datumId > 0) {
-            coordinateReferenceSystem.add("datum", this.datumById.get(datumId));
+            coordinateReferenceSystem.addValue("datum", this.datumById.get(datumId));
           }
           if (horizId > 0) {
-            coordinateReferenceSystem.add("horizontalCoordinateSystem",
+            coordinateReferenceSystem.addValue("horizontalCoordinateSystem",
               this.coordinateReferenceSystemById.get(horizId));
           }
           if (verticalId > 0) {
-            coordinateReferenceSystem.add("verticalCoordinateSystem",
+            coordinateReferenceSystem.addValue("verticalCoordinateSystem",
               this.coordinateReferenceSystemById.get(verticalId));
           }
           if (coordinateOperationId > 0) {
-            coordinateReferenceSystem.add("coordinateOperation",
+            coordinateReferenceSystem.addValue("coordinateOperation",
               this.coordinateOperationById.get(coordinateOperationId));
           }
 
@@ -287,10 +287,10 @@ public final class EpsgCoordinateSystemsLoader {
         writeDeprecated(writer, record);
 
         final MapEx coordinateSystem = JsonObject.hash() //
-          .add("id", id) //
-          .add("name", record.get("coord_sys_name")) //
-          .add("type", type) //
-          .add("axes", new ArrayList<>());
+          .addValue("id", id) //
+          .addValue("name", record.get("coord_sys_name")) //
+          .addValue("type", type) //
+          .addValue("axes", new ArrayList<>());
         this.coordinateSystemById.put(id, coordinateSystem);
       }
     }
@@ -323,21 +323,22 @@ public final class EpsgCoordinateSystemsLoader {
           }
         }
         final MapEx coordinateOperation = JsonObject.hash() //
-          .add("id", id) //
-          .add("name", name) //
-          .add("type", type);
+          .addValue("id", id) //
+          .addValue("name", name) //
+          .addValue("type", type);
 
         if (sourceCoordinateSystemId > 0) {
-          coordinateOperation.add("sourceCoordinateSystemId", sourceCoordinateSystemId);
+          coordinateOperation.addValue("sourceCoordinateSystemId", sourceCoordinateSystemId);
         }
         if (targetCoordinateSystemId > 0) {
-          coordinateOperation.add("targetCoordinateSystemId", targetCoordinateSystemId);
+          coordinateOperation.addValue("targetCoordinateSystemId", targetCoordinateSystemId);
         }
         if (methodId > 0) {
-          coordinateOperation.add("method", this.coordinateOperationMethodNameById.get(methodId));
+          coordinateOperation.addValue("method",
+            this.coordinateOperationMethodNameById.get(methodId));
         }
         if (!parameters.isEmpty()) {
-          coordinateOperation.add("parameters", parameters);
+          coordinateOperation.addValue("parameters", parameters);
         }
         this.coordinateOperationById.put(id, coordinateOperation);
       }
@@ -486,17 +487,17 @@ public final class EpsgCoordinateSystemsLoader {
         writeDeprecated(writer, record);
 
         final MapEx datum = JsonObject.hash() //
-          .add("id", id) //
-          .add("name", name) //
-          .add("type", type) //
+          .addValue("id", id) //
+          .addValue("name", name) //
+          .addValue("type", type) //
         ;
         if (ellipsoidId > 0) {
-          datum.add("ellipsoid", this.ellipsoidById.get(ellipsoidId));
+          datum.addValue("ellipsoid", this.ellipsoidById.get(ellipsoidId));
         }
         if (primeMeridianId > 0) {
-          datum.add("primeMeridian", this.primeMeridianById.get(primeMeridianId));
+          datum.addValue("primeMeridian", this.primeMeridianById.get(primeMeridianId));
         }
-        datum.add("area", this.areaById.get(areaId));
+        datum.addValue("area", this.areaById.get(areaId));
         this.datumById.put(id, datum);
       }
     }
@@ -517,18 +518,18 @@ public final class EpsgCoordinateSystemsLoader {
         final double inverseFlattening = writeDouble(writer, record, "inv_flattening");
         writeByte(writer, record, "ellipsoid_shape");
         writeDeprecated(writer, record);
-        final MapEx ellipsoid = JsonObject.hash() //
-          .add("id", id) //
-          .add("name", name) //
-          .add("units", this.unitOfMeasureNameById.get(uomId))//
-          .add("semiMajorAxis", semiMajorAxis)//
+        final var ellipsoid = JsonObject.hash() //
+          .addValue("id", id) //
+          .addValue("name", name) //
+          .addValue("units", this.unitOfMeasureNameById.get(uomId))//
+          .addValue("semiMajorAxis", semiMajorAxis)//
         ;
 
         if (Double.isFinite(semiMinorAxis)) {
-          ellipsoid.add("semiMinorAxis", semiMinorAxis);
+          ellipsoid.addValue("semiMinorAxis", semiMinorAxis);
         }
         if (Double.isFinite(inverseFlattening)) {
-          ellipsoid.add("inverseFlattening", inverseFlattening);
+          ellipsoid.addValue("inverseFlattening", inverseFlattening);
         }
 
         this.ellipsoidById.put(id, ellipsoid);
@@ -549,10 +550,10 @@ public final class EpsgCoordinateSystemsLoader {
         final double longitude = writeDouble(writer, record, "greenwich_longitude");
 
         final MapEx primeMeridan = JsonObject.hash() //
-          .add("id", id) //
-          .add("name", name) //
-          .add("units", this.unitOfMeasureNameById.get(uomId))//
-          .add("longitude", longitude)//
+          .addValue("id", id) //
+          .addValue("name", name) //
+          .addValue("units", this.unitOfMeasureNameById.get(uomId))//
+          .addValue("longitude", longitude)//
         ;
 
         this.primeMeridianById.put(id, primeMeridan);

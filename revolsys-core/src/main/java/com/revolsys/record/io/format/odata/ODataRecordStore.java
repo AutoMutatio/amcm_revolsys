@@ -17,7 +17,6 @@ import com.revolsys.collection.list.ListEx;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.collection.value.ValueHolder;
 import com.revolsys.data.identifier.Identifier;
-import com.revolsys.data.type.DataTypes;
 import com.revolsys.exception.Exceptions;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.Geometry;
@@ -330,7 +329,7 @@ public class ODataRecordStore extends AbstractRecordStore {
   }
 
   ODataRecordStore(final OData databaseFactory, final MapEx connectionProperties) {
-    final URI uri = connectionProperties.getValue("url", DataTypes.ANY_URI);
+    final URI uri = connectionProperties.getURI("url");
     if (uri.getScheme().equals("odata")) {
       final String serviceUrl = uri.getSchemeSpecificPart();
       this.uri = URI.create(serviceUrl);

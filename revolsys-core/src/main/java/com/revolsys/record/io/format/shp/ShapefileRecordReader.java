@@ -232,7 +232,7 @@ public class ShapefileRecordReader extends AbstractIterator<Record> implements R
   @SuppressWarnings("unused")
   private void loadHeader() throws IOException {
     this.in.readInt();
-    this.in.skipBytes(20);
+    this.in.skipNBytes(20);
     final int fileLength = this.in.readInt();
     final int version = this.in.readLEInt();
     this.shapeType = this.in.readLEInt();

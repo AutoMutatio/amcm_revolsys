@@ -20,10 +20,10 @@ import com.revolsys.geometry.coordinatesystem.model.datum.GeodeticDatum;
 import com.revolsys.geometry.coordinatesystem.model.datum.VerticalDatum;
 import com.revolsys.geometry.coordinatesystem.model.unit.AngularUnit;
 import com.revolsys.geometry.coordinatesystem.model.unit.LinearUnit;
-import com.revolsys.geometry.coordinatesystem.util.ByteArray;
 import com.revolsys.io.channels.ChannelWriter;
 import com.revolsys.record.Record;
 import com.revolsys.record.io.RecordReader;
+import com.revolsys.util.ByteArray;
 
 public class EsriCoordinateSystemsLoader {
   public static void main(final String[] args) {

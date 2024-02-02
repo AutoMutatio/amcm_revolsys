@@ -3,7 +3,7 @@ package com.revolsys.geometry.coordinatesystem.model;
 import java.math.BigDecimal;
 import java.security.MessageDigest;
 
-import com.revolsys.geometry.coordinatesystem.util.Md5;
+import com.revolsys.util.Md5;
 
 public class ParameterValueBigDecimal extends Number implements ParameterValue {
   /**

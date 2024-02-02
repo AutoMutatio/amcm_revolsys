@@ -7,7 +7,6 @@ import java.security.NoSuchAlgorithmException;
 import com.revolsys.data.identifier.Identifier;
 import com.revolsys.data.type.DataTypes;
 import com.revolsys.exception.Exceptions;
-import com.revolsys.geometry.coordinatesystem.util.Hex;
 
 public class Sha1Builder {
   private MessageDigest digester;

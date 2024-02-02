@@ -3,6 +3,7 @@ package com.revolsys.record.query.functions;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.List;
 
 import com.revolsys.collection.json.Json;
@@ -42,6 +43,10 @@ public class JsonValue extends SimpleFunction {
       throw new IllegalArgumentException(
         "JSON_VALUE path parameter is not a string: " + pathParameter);
     }
+  }
+
+  public JsonValue(final QueryValue... parameters) {
+    this(Arrays.asList(parameters));
   }
 
   @Override

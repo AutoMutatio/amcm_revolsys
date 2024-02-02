@@ -145,21 +145,24 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
   }
 
   @Override
-  default Record add(final String key, final Object value) {
+  default Record add(final CharSequence key, final Object value) {
     return (Record)MapEx.super.add(key, value);
   }
 
   @Override
-  default Record addFieldValue(final String key, final Map<String, Object> source) {
+  default Record addFieldValue(final CharSequence key,
+    final Map<? extends CharSequence, ? extends Object> source) {
     final Object value = source.get(key);
-    return addValue(key, value);
+    addValue(key, value);
+    return this;
   }
 
   @Override
-  default Record addFieldValue(final String key, final Map<String, Object> source,
-    final String sourceKey) {
+  default <SK> Record addFieldValue(final CharSequence key, final Map<SK, ? extends Object> source,
+    final SK sourceKey) {
     final Object value = source.get(sourceKey);
-    return addValue(key, value);
+    addValue(key, value);
+    return this;
   }
 
   @SuppressWarnings("unchecked")
@@ -173,7 +176,7 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
   }
 
   @Override
-  default Record addValue(final String key, final Object value) {
+  default Record addValue(final CharSequence key, final Object value) {
     return (Record)MapEx.super.addValue(key, value);
   }
 
@@ -729,7 +732,7 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
 
   @Override
   default Identifier getIdentifier(final CharSequence fieldName, final DataType dataType) {
-    final Object value = getValue(fieldName, dataType);
+    final Object value = getTypedValue(fieldName, dataType);
     return Identifier.newIdentifier(value);
   }
 
@@ -871,6 +874,30 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
   }
 
   /**
+   * Get the value of the field with the specified name.
+   *
+   * @param name The name of the field.
+   * @return The field value.
+   */
+
+  @Override
+  @SuppressWarnings("unchecked")
+  default <T extends Object> T getValue(final CharSequence name) {
+    final RecordDefinition recordDefinition = getRecordDefinition();
+    try {
+      final int index = recordDefinition.getFieldIndex(name);
+      return (T)getValue(index);
+    } catch (final NullPointerException e) {
+      if (recordDefinition == null) {
+        Logs.warn(this, "record defintion not specified", e);
+      } else {
+        Logs.warn(this, "Field " + recordDefinition.getPath() + "." + name + " does not exist", e);
+      }
+      return null;
+    }
+  }
+
+  /**
    * Get the value of the field with the specified index.
    *
    * @param index The index of the field.
@@ -884,30 +911,6 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
   default <T extends Object> T getValue(final int index, final DataType dataType) {
     final Object value = getValue(index);
     return dataType.toObject(value);
-  }
-
-  /**
-   * Get the value of the field with the specified name.
-   *
-   * @param name The name of the field.
-   * @return The field value.
-   */
-
-  @Override
-  @SuppressWarnings("unchecked")
-  default <T extends Object> T getValue(final String name) {
-    final RecordDefinition recordDefinition = getRecordDefinition();
-    try {
-      final int index = recordDefinition.getFieldIndex(name);
-      return (T)getValue(index);
-    } catch (final NullPointerException e) {
-      if (recordDefinition == null) {
-        Logs.warn(this, "record defintion not specified", e);
-      } else {
-        Logs.warn(this, "Field " + recordDefinition.getPath() + "." + name + " does not exist", e);
-      }
-      return null;
-    }
   }
 
   @Override

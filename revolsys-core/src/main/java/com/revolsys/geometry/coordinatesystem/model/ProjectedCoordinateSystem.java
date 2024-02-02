@@ -20,7 +20,7 @@ import com.revolsys.geometry.coordinatesystem.model.unit.LinearUnit;
 import com.revolsys.geometry.coordinatesystem.model.unit.Radian;
 import com.revolsys.geometry.coordinatesystem.operation.CoordinatesOperation;
 import com.revolsys.geometry.coordinatesystem.operation.projection.CoordinatesProjection;
-import com.revolsys.geometry.coordinatesystem.util.Equals;
+import com.revolsys.util.Equals;
 
 public class ProjectedCoordinateSystem extends AbstractHorizontalCoordinateSystem {
 
