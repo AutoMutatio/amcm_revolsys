@@ -32,6 +32,15 @@ public class BaseTableRecordRestController extends AbstractTableRecordRestContro
     return super.getTableRecordStore(connection, this.tablePath);
   }
 
+  protected void handleDeleteRecord(final TableRecordStoreConnection connection,
+    final HttpServletRequest request, final HttpServletResponse response, final String fieldName,
+    final Object value) throws IOException {
+    getTableRecordStore(connection, this.typeName).deleteStatement(connection)//
+      .where(where -> where.and(fieldName, value))
+      .deleteRecords();
+    responseJson(response, JsonObject.hash("status", "ok"));
+  }
+
   protected void handleGetRecord(final TableRecordStoreConnection connection,
     final HttpServletRequest request, final HttpServletResponse response, final String fieldName,
     final Object value) throws IOException {

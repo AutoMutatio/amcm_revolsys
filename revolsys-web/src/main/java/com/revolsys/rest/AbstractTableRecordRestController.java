@@ -79,21 +79,7 @@ public class AbstractTableRecordRestController extends AbstractWebController {
     responseRecordJson(response, record);
   }
 
-  protected Record handleUpdateRecordDo(final TableRecordStoreConnection connection,
-    final HttpServletResponse response, final CharSequence tablePath, final Identifier id,
-    final Consumer<Record> updateAction) throws IOException {
-    return handleUpdateRecordDo(connection, response,
-      () -> connection.updateRecord(tablePath, id, updateAction));
-  }
-
-  protected Record handleUpdateRecordDo(final TableRecordStoreConnection connection,
-    final HttpServletResponse response, final CharSequence tablePath, final Identifier id,
-    final JsonObject values) throws IOException {
-    return handleUpdateRecordDo(connection, response,
-      () -> connection.updateRecord(tablePath, id, values));
-  }
-
-  protected Record handleUpdateRecordDo(final TableRecordStoreConnection connection,
+  protected Record handleTransaction(final TableRecordStoreConnection connection,
     final HttpServletResponse response, final Supplier<Record> action) throws IOException {
     final Record record;
     try (
@@ -101,12 +87,25 @@ public class AbstractTableRecordRestController extends AbstractWebController {
       try {
         record = action.get();
       } catch (final Exception e) {
-        // TODO display error
         throw transaction.setRollbackOnly(e);
       }
     }
     responseRecordJson(response, record);
     return record;
+  }
+
+  protected Record handleUpdateRecordDo(final TableRecordStoreConnection connection,
+    final HttpServletResponse response, final CharSequence tablePath, final Identifier id,
+    final Consumer<Record> updateAction) throws IOException {
+    return handleTransaction(connection, response,
+      () -> connection.updateRecord(tablePath, id, updateAction));
+  }
+
+  protected Record handleUpdateRecordDo(final TableRecordStoreConnection connection,
+    final HttpServletResponse response, final CharSequence tablePath, final Identifier id,
+    final JsonObject values) throws IOException {
+    return handleTransaction(connection, response,
+      () -> connection.updateRecord(tablePath, id, values));
   }
 
   protected Record insertRecord(final TableRecordStoreConnection connection,

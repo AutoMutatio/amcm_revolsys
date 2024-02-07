@@ -91,6 +91,21 @@ public class JdbcRecordWriterTypeData {
     }
   }
 
+  protected void executeUpdate(final Record record) throws SQLException {
+    if (this.batchSize > 1) {
+      this.statement.addBatch();
+      addCount();
+    } else {
+      this.recordStore.executeUpdate(this.statement);
+      try (
+        final ResultSet generatedKeyResultSet = this.statement.getGeneratedKeys()) {
+        if (generatedKeyResultSet.next()) {
+          setGeneratedValues(generatedKeyResultSet, record);
+        }
+      }
+    }
+  }
+
   public void flush() {
     processCurrentBatch();
   }

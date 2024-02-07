@@ -590,7 +590,7 @@ public class JdbcRecordWriter extends AbstractRecordWriter {
       }
     }
     parameterIndex = setIdEqualsValues(statement, parameterIndex, recordDefinition, record);
-    data.executeUpdate();
+    data.executeUpdate(record);
     this.recordStore.addStatistic("Update", record);
   }
 
