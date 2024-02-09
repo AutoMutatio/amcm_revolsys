@@ -244,10 +244,10 @@ public class JSqlParser extends AbstractSqlParser {
   private QueryValue convertFunction(final Expression expression) {
     final net.sf.jsqlparser.expression.Function function = (net.sf.jsqlparser.expression.Function)expression;
     final String name = function.getName();
-    final ExpressionList<Expression> expressions = function.getParameters();
+    final var expressions = function.getParameters();
     final List<QueryValue> parameters = new ArrayList<>();
     if (expressions != null) {
-      for (final Expression parameter : expressions) {
+      for (final var parameter : expressions) {
         final QueryValue parameterVaue = convertExpression(parameter);
         parameters.add(parameterVaue);
       }
