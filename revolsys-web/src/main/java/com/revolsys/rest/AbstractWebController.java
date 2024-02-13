@@ -32,15 +32,29 @@ public class AbstractWebController {
 
   private static final String UTF_8 = StandardCharsets.UTF_8.toString();
 
-  public static void responseJson(final HttpServletResponse response, final JsonObject jsonObject)
-    throws IOException {
+  public static JsonObject readJsonBody(final HttpServletRequest request) throws IOException {
+    final JsonObject json;
+    try (
+      Reader reader = request.getReader()) {
+      json = JsonParser.read(reader);
+    }
+    return json;
+  }
+
+  public static void responseJson(final HttpServletResponse response, final int statusCode,
+    final JsonObject jsonObject) throws IOException {
     setContentTypeJson(response);
-    response.setStatus(200);
+    response.setStatus(statusCode);
     try (
       PrintWriter writer = response.getWriter();
       JsonWriter jsonWriter = new JsonWriter(writer);) {
       jsonWriter.write(jsonObject);
     }
+  }
+
+  public static void responseJson(final HttpServletResponse response, final JsonObject jsonObject)
+    throws IOException {
+    responseJson(response, 200, jsonObject);
   }
 
   public static void responseRecordJson(final HttpServletResponse response, final Record record)
@@ -68,15 +82,6 @@ public class AbstractWebController {
     final String contentType) {
     response.setCharacterEncoding(UTF_8);
     response.setContentType(contentType);
-  }
-
-  public JsonObject readJsonBody(final HttpServletRequest request) throws IOException {
-    final JsonObject json;
-    try (
-      Reader reader = request.getReader()) {
-      json = JsonParser.read(reader);
-    }
-    return json;
   }
 
   protected void responseRecords(final HttpServletResponse response, final RecordReader reader,

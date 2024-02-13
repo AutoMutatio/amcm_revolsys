@@ -49,6 +49,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 import com.revolsys.collection.EmptyReference;
 import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.list.ListEx;
 import com.revolsys.collection.list.Lists;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.collection.map.Maps;
@@ -312,19 +313,19 @@ public abstract class AbstractRecordLayer extends AbstractLayer implements
 
   public static PreferenceKey PREFERENCE_NEW_RECORD_SHOWS_FORM = new PreferenceKey(PREFERENCE_PATH,
     "showFormOnAddRecord", DataTypes.BOOLEAN, false)//
-      .setCategoryTitle("Layers");
+    .setCategoryTitle("Layers");
 
   public static final PreferenceKey PREFERENCE_CONFIRM_DELETE_RECORDS = new PreferenceKey(
     PREFERENCE_PATH, "confirmDeleteRecords", DataTypes.BOOLEAN, false)//
-      .setCategoryTitle("Layers");
+    .setCategoryTitle("Layers");
 
   public static final PreferenceKey PREFERENCE_SHOW_ALL_RECORDS_ON_FILTER = new PreferenceKey(
     PREFERENCE_PATH, "showAllRecordViewOnFilter", DataTypes.BOOLEAN, true)//
-      .setCategoryTitle("Layers");
+    .setCategoryTitle("Layers");
 
   public static final PreferenceKey PREFERENCE_GENERALIZE_GEOMETRY_TOLERANCE = new PreferenceKey(
     PREFERENCE_PATH, "generalizeGeometryTolerance", DataTypes.DOUBLE, 0.2)//
-      .setCategoryTitle("Layers");
+    .setCategoryTitle("Layers");
 
   public static final String RECORD_CACHE_MODIFIED = "recordCacheModified";
 
@@ -341,7 +342,7 @@ public abstract class AbstractRecordLayer extends AbstractLayer implements
   public static final String RECORDS_SELECTED = "recordsSelected";
 
   static {
-    MenuFactory.addMenuInitializer(AbstractRecordLayer.class, (menu) -> {
+    MenuFactory.addMenuInitializer(AbstractRecordLayer.class, menu -> {
       menu.setName("Layer");
       menu.addGroup(0, "table");
       menu.addGroup(2, "edit");
@@ -736,7 +737,7 @@ public abstract class AbstractRecordLayer extends AbstractLayer implements
 
   public void cancelChanges() {
     try {
-      synchronized (this.getSync()) {
+      synchronized (getSync()) {
         boolean cancelled = true;
         try (
           BaseCloseable eventsEnabled = eventsDisabled()) {
@@ -1048,7 +1049,7 @@ public abstract class AbstractRecordLayer extends AbstractLayer implements
   }
 
   public void forEachRecord(final Query query, final Consumer<? super LayerRecord> consumer) {
-    forEachRecordInternal(query, (record) -> {
+    forEachRecordInternal(query, record -> {
       final LayerRecord proxyRecord = record.getRecordProxy();
       consumer.accept(proxyRecord);
     });
@@ -1132,8 +1133,8 @@ public abstract class AbstractRecordLayer extends AbstractLayer implements
   }
 
   @Override
-  public List<String> getFieldNames() {
-    return new ArrayList<>(this.fieldNames);
+  public ListEx<String> getFieldNames() {
+    return Lists.toArray(this.fieldNames);
   }
 
   public List<String> getFieldNamesSet() {
@@ -1712,8 +1713,8 @@ public abstract class AbstractRecordLayer extends AbstractLayer implements
     final List<LayerRecord> records = getRecordsVisibleDo(boundingBox);
     for (final Iterator<LayerRecord> iterator = records.iterator(); iterator.hasNext();) {
       final LayerRecord layerRecord = iterator.next();
-      if (!isVisible(layerRecord) || isDeleted(layerRecord)
-        || !layerRecord.getGeometry().intersectsBbox(boundingBox)) {
+      if (!isVisible(layerRecord) || isDeleted(layerRecord) || !layerRecord.getGeometry()
+        .intersectsBbox(boundingBox)) {
         iterator.remove();
       }
     }
@@ -1809,7 +1810,8 @@ public abstract class AbstractRecordLayer extends AbstractLayer implements
       final EnableCheck editableEnableCheck = this::isEditable;
 
       initFlipMenu(editMenu, editableEnableCheck);
-      final DataType geometryDataType = recordDefinition.getGeometryField().getDataType();
+      final DataType geometryDataType = recordDefinition.getGeometryField()
+        .getDataType();
       if (!(geometryDataType == GeometryDataTypes.POINT
         || geometryDataType == GeometryDataTypes.MULTI_POINT)) {
         editMenu
@@ -1823,11 +1825,13 @@ public abstract class AbstractRecordLayer extends AbstractLayer implements
   protected void initFlipMenu(final EditRecordMenu editMenu,
     final EnableCheck editableEnableCheck) {
     final RecordDefinition recordDefinition = getRecordDefinition();
-    final DataType geometryDataType = recordDefinition.getGeometryField().getDataType();
+    final DataType geometryDataType = recordDefinition.getGeometryField()
+      .getDataType();
     if (geometryDataType == GeometryDataTypes.LINE_STRING
       || geometryDataType == GeometryDataTypes.MULTI_LINE_STRING) {
       final Consumer<Record> reverseGeometryConsumer = DirectionalFields::reverseGeometryRecord;
-      if (DirectionalFields.getProperty(recordDefinition).hasDirectionalFields()) {
+      if (DirectionalFields.getProperty(recordDefinition)
+        .hasDirectionalFields()) {
         editMenu.addMenuItemRecord("geometry", LayerRecordForm.FLIP_RECORD_NAME,
           LayerRecordForm.FLIP_RECORD_ICON, editableEnableCheck, DirectionalFields::reverseRecord);
 
@@ -1895,7 +1899,7 @@ public abstract class AbstractRecordLayer extends AbstractLayer implements
       if (hasGeometry) {
         menu.addMenuItem("record", "Zoom to Record", "magnifier_zoom_selected", notDeleted,
           this::zoomToRecord);
-        menu.addMenuItem("record", "Pan to Record", "pan_selected", notDeleted, (record) -> {
+        menu.addMenuItem("record", "Pan to Record", "pan_selected", notDeleted, record -> {
           final MapPanel mapPanel = getMapPanel();
           if (mapPanel != null) {
             mapPanel.panToRecord(record);
@@ -2054,7 +2058,8 @@ public abstract class AbstractRecordLayer extends AbstractLayer implements
               lineIndex = string.indexOf('\r');
             }
             if (lineIndex != -1) {
-              final String line = string.substring(0, lineIndex).strip();
+              final String line = string.substring(0, lineIndex)
+                .strip();
               String fieldName;
               final int tabIndex = line.indexOf('\t');
               if (tabIndex != -1) {
@@ -2535,7 +2540,7 @@ public abstract class AbstractRecordLayer extends AbstractLayer implements
       LoggingEventPanel.showDialog("Unexpected error pasting records", e);
       return;
     }
-    RecordValidationDialog.validateRecords("Pasting Records", this, newRecords, (validator) -> {
+    RecordValidationDialog.validateRecords("Pasting Records", this, newRecords, validator -> {
       // Success
       // Save the valid records
       final List<LayerRecord> validRecords = validator.getValidRecords();
@@ -2551,7 +2556,7 @@ public abstract class AbstractRecordLayer extends AbstractLayer implements
       if (!invalidRecords.isEmpty()) {
         deleteRecords(invalidRecords);
       }
-    }, (validator) -> {
+    }, validator -> {
       // Cancel, delete all the records
       deleteRecords(newRecords);
     });
@@ -2851,7 +2856,7 @@ public abstract class AbstractRecordLayer extends AbstractLayer implements
         final Set<Boolean> allSaved = new HashSet<>();
         RecordValidationDialog.validateRecords("Save Changes", //
           this, //
-          records, (validator) -> {
+          records, validator -> {
             // Success
             // Save the valid records
             final List<LayerRecord> validRecords = validator.getValidRecords();
@@ -2871,7 +2876,7 @@ public abstract class AbstractRecordLayer extends AbstractLayer implements
             if (!invalidRecords.isEmpty()) {
               allSaved.add(false);
             }
-          }, (validator) -> {
+          }, validator -> {
             allSaved.add(false);
           });
         return allSaved.isEmpty();
@@ -2895,7 +2900,7 @@ public abstract class AbstractRecordLayer extends AbstractLayer implements
     final Set<Boolean> allSaved = new HashSet<>();
     RecordValidationDialog.validateRecords("Save Changes", //
       this, //
-      record, (validator) -> {
+      record, validator -> {
         // Success
         // Save the valid records
         final List<LayerRecord> validRecords = validator.getValidRecords();
@@ -2925,7 +2930,7 @@ public abstract class AbstractRecordLayer extends AbstractLayer implements
         if (!invalidRecords.isEmpty()) {
           allSaved.add(false);
         }
-      }, (validator) -> {
+      }, validator -> {
         allSaved.add(false);
       });
     return allSaved.isEmpty();
@@ -2991,11 +2996,9 @@ public abstract class AbstractRecordLayer extends AbstractLayer implements
         firePropertyChange("preEditable", false, true);
         final boolean hasChanges = isHasChanges();
         if (hasChanges) {
-          final Integer result = Invoke.andWait(() -> {
-            return Dialogs.showConfirmDialog(
-              "The layer has unsaved changes. Click Yes to save changes. Click No to discard changes. Click Cancel to continue editing.",
-              "Save Changes", JOptionPane.YES_NO_CANCEL_OPTION);
-          });
+          final Integer result = Invoke.andWait(() -> Dialogs.showConfirmDialog(
+            "The layer has unsaved changes. Click Yes to save changes. Click No to discard changes. Click Cancel to continue editing.",
+            "Save Changes", JOptionPane.YES_NO_CANCEL_OPTION));
           synchronized (getSync()) {
             if (result == JOptionPane.YES_OPTION) {
               if (!saveChanges()) {
@@ -3010,7 +3013,7 @@ public abstract class AbstractRecordLayer extends AbstractLayer implements
           }
         }
       }
-      synchronized (this.getSync()) {
+      synchronized (getSync()) {
         super.setEditable(editable);
         setCanAddRecords(this.canAddRecords);
         setCanDeleteRecords(this.canDeleteRecords);
@@ -3112,7 +3115,8 @@ public abstract class AbstractRecordLayer extends AbstractLayer implements
         this.recordCacheIndex.setRecords(records);
         final List<LayerRecord> newRecords = getRecordsNew();
         for (final LayerRecord newRecord : newRecords) {
-          if (newRecord.getState().isNew()) {
+          if (newRecord.getState()
+            .isNew()) {
             this.recordCacheIndex.addRecord(newRecord);
           }
         }
@@ -3238,7 +3242,8 @@ public abstract class AbstractRecordLayer extends AbstractLayer implements
       if (idField == null) {
         clearSelectedRecords();
       } else {
-        final Query query = recordDefinition.newQuery().and(idField, id);
+        final Query query = recordDefinition.newQuery()
+          .and(idField, id);
         setSelectedRecords(query);
       }
     }

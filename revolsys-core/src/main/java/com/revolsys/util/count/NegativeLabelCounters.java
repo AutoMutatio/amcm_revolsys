@@ -56,4 +56,5 @@ public class NegativeLabelCounters extends AbstractLabelCounters {
   public boolean isEmpty() {
     return this.labelCounters.isEmpty();
   }
+
 }

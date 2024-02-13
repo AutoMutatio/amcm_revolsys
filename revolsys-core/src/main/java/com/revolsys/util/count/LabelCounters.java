@@ -5,6 +5,7 @@ import java.io.Writer;
 import java.util.Arrays;
 import java.util.Set;
 
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.data.type.DataTypes;
 import com.revolsys.io.PathNameProxy;
 import com.revolsys.record.io.RecordWriter;
@@ -87,6 +88,19 @@ public interface LabelCounters {
   void setLogCounts(boolean logCounts);
 
   void setMessage(String message);
+
+  default JsonObject toJson() {
+    if (isEmpty()) {
+      return JsonObject.EMPTY;
+    } else {
+      final JsonObject json = JsonObject.tree();
+      for (final var label : getLabels()) {
+        final var count = getCount(label);
+        json.add(label, count);
+      }
+      return json;
+    }
+  }
 
   default String toTsv() {
     return toTsv("LABEL", "COUNT");

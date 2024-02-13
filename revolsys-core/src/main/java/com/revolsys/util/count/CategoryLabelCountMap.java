@@ -14,6 +14,7 @@ import java.util.TreeSet;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.data.type.DataTypes;
 import com.revolsys.io.PathNameProxy;
 import com.revolsys.record.io.RecordWriter;
@@ -190,6 +191,20 @@ public class CategoryLabelCountMap implements Emptyable {
 
   public void setPrefix(final String prefix) {
     this.prefix = prefix;
+  }
+
+  public JsonObject toJson() {
+    if (isEmpty()) {
+      return JsonObject.EMPTY;
+    } else {
+      final JsonObject json = JsonObject.tree();
+      for (final var entry : this.labelCountMapByCategory.entrySet()) {
+        final var category = entry.getKey();
+        final var labelCountMap = entry.getValue();
+        json.addValue(category, labelCountMap.toJson());
+      }
+      return json;
+    }
   }
 
   public String toTsv() {

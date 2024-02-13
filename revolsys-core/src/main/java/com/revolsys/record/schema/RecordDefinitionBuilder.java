@@ -11,7 +11,7 @@ import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.io.PathName;
 import com.revolsys.record.code.CodeTable;
 
-public class RecordDefinitionBuilder {
+public class RecordDefinitionBuilder implements RecordDefinitionProxy {
 
   private final RecordDefinitionImpl recordDefinition;
 
@@ -32,14 +32,14 @@ public class RecordDefinitionBuilder {
   }
 
   public RecordDefinitionBuilder(final RecordDefinitionProxy recordDefinition,
-      final Collection<String> fieldNames) {
+    final Collection<String> fieldNames) {
     this(recordDefinition.getPathName());
     for (final String fieldName : fieldNames) {
       final FieldDefinition fieldDefinition = recordDefinition.getFieldDefinition(fieldName);
       addField(fieldDefinition);
     }
     this.recordDefinition.setIdFieldNames(
-        Lists.filter(recordDefinition.getIdFieldNames(), name -> fieldNames.contains(name)));
+      Lists.filter(recordDefinition.getIdFieldNames(), name -> fieldNames.contains(name)));
     this.recordDefinition.setGeometryFieldName(recordDefinition.getGeometryFieldName());
     this.recordDefinition.setGeometryFactory(recordDefinition.getGeometryFactory());
   }
@@ -68,7 +68,7 @@ public class RecordDefinitionBuilder {
     this.addField(field);
   }
 
-  public RecordDefinitionBuilder addField(String name) {
+  public RecordDefinitionBuilder addField(final String name) {
     return addField(name, DataTypes.STRING);
   }
 
@@ -78,31 +78,31 @@ public class RecordDefinitionBuilder {
   }
 
   public RecordDefinitionBuilder addField(final String fieldName, final DataType type,
-      final boolean required) {
+    final boolean required) {
     this.recordDefinition.addField(fieldName, type, required);
     return this;
   }
 
   public RecordDefinitionBuilder addField(final String fieldName, final DataType type,
-      final int length) {
+    final int length) {
     this.recordDefinition.addField(fieldName, type, length, false);
     return this;
   }
 
   public RecordDefinitionBuilder addField(final String fieldName, final DataType type,
-      final int length, final boolean required) {
+    final int length, final boolean required) {
     this.recordDefinition.addField(fieldName, type, length, required);
     return this;
   }
 
   public RecordDefinitionBuilder addField(final String fieldName, final DataType type,
-      final int length, final int scale) {
+    final int length, final int scale) {
     this.recordDefinition.addField(fieldName, type, length, scale);
     return this;
   }
 
   public RecordDefinitionBuilder addField(final String fieldName, final DataType type,
-      final int length, final int scale, final boolean required) {
+    final int length, final int scale, final boolean required) {
     this.recordDefinition.addField(fieldName, type, length, scale, required);
     return this;
   }
@@ -114,8 +114,8 @@ public class RecordDefinitionBuilder {
     return this;
   }
 
-  public RecordDefinitionBuilder addFields(String... names) {
-    for (String name : names) {
+  public RecordDefinitionBuilder addFields(final String... names) {
+    for (final String name : names) {
       addField(name, DataTypes.STRING);
     }
     return this;
@@ -134,7 +134,7 @@ public class RecordDefinitionBuilder {
         final int length = codeTable.getValueFieldLength();
         final boolean required = field.isRequired();
         final FieldDefinition newField = new FieldDefinition(fieldName, DataTypes.STRING, length,
-            required);
+          required);
         this.recordDefinition.replaceField(field, newField);
       }
     }
@@ -148,10 +148,12 @@ public class RecordDefinitionBuilder {
     return this;
   }
 
+  @Override
   public PathName getPathName() {
     return this.recordDefinition.getPathName();
   }
 
+  @Override
   public RecordDefinition getRecordDefinition() {
     return this.recordDefinition;
   }

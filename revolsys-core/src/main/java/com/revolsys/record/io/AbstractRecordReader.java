@@ -39,6 +39,8 @@ public abstract class AbstractRecordReader extends AbstractIterator<Record>
 
   private RecordFactory<? extends Record> recordFactory;
 
+  private boolean loadGeometryFactory;
+
   public AbstractRecordReader(final RecordFactory<? extends Record> recordFactory) {
     this.recordFactory = recordFactory;
   }
@@ -101,6 +103,10 @@ public abstract class AbstractRecordReader extends AbstractIterator<Record>
 
   public boolean isHasPointFields() {
     return this.hasPointFields;
+  }
+
+  public boolean isLoadGeometryFactory() {
+    return this.loadGeometryFactory;
   }
 
   protected GeometryFactory loadGeometryFactory() {
@@ -252,6 +258,10 @@ public abstract class AbstractRecordReader extends AbstractIterator<Record>
 
   public void setGeometryType(final DataType geometryType) {
     this.geometryType = geometryType;
+  }
+
+  public void setLoadGeometryFactory(final boolean loadGeometryFactory) {
+    this.loadGeometryFactory = loadGeometryFactory;
   }
 
   public void setPointXFieldName(final String pointXFieldName) {

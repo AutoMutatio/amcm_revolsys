@@ -70,7 +70,7 @@ public class RecordDefinitionImpl extends AbstractRecordStoreSchemaElement
 
   private final Map<String, FieldDefinition> fieldMap = new HashMap<>();
 
-  private List<String> fieldNames = Collections.emptyList();
+  private ListEx<String> fieldNames = ListEx.empty();
 
   private Set<String> fieldNamesSet = Collections.emptySet();
 
@@ -182,8 +182,10 @@ public class RecordDefinitionImpl extends AbstractRecordStoreSchemaElement
   }
 
   public RecordDefinitionImpl(final RecordDefinition recordDefinition) {
-    this(recordDefinition.getPathName(), recordDefinition.getProperties(),
-      recordDefinition.getFields());
+    this(
+      recordDefinition.getPathName(),
+        recordDefinition.getProperties(),
+        recordDefinition.getFields());
     setPolygonRingDirection(recordDefinition.getPolygonRingDirection());
     setIdFieldIndex(recordDefinition.getIdFieldIndex());
     this.codeTable = recordDefinition.getCodeTable();
@@ -446,7 +448,8 @@ public class RecordDefinitionImpl extends AbstractRecordStoreSchemaElement
           return codeTable;
         }
       }
-      codeTable = this.codeTableByFieldNameMap.get(fieldName.toString().toUpperCase());
+      codeTable = this.codeTableByFieldNameMap.get(fieldName.toString()
+        .toUpperCase());
       if (codeTable == null && recordStore != null) {
         codeTable = recordStore.getCodeTableByFieldName(fieldName);
       }
@@ -593,7 +596,7 @@ public class RecordDefinitionImpl extends AbstractRecordStoreSchemaElement
   }
 
   @Override
-  public List<String> getFieldNames() {
+  public ListEx<String> getFieldNames() {
     return this.fieldNames;
   }
 
@@ -692,7 +695,8 @@ public class RecordDefinitionImpl extends AbstractRecordStoreSchemaElement
       if (dataType.equals(GeometryDataTypes.GEOMETRY_COLLECTION)) {
         return "table_geometry";
       } else {
-        return "table_" + dataType.toString().toLowerCase();
+        return "table_" + dataType.toString()
+          .toLowerCase();
       }
     }
   }

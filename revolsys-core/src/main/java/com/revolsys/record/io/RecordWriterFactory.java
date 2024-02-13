@@ -34,6 +34,13 @@ public interface RecordWriterFactory extends FileIoFactory, GeometryWriterFactor
     return new RecordWriterGeometryWriter(recordWriter);
   }
 
+  default RecordWriter newRecordWriter(final RecordDefinitionProxy recordDefinition,
+    final OutputStream outputStream) {
+    final String baseName = recordDefinition.getRecordDefinition()
+      .getName();
+    return newRecordWriter(baseName, recordDefinition, outputStream, StandardCharsets.UTF_8);
+  }
+
   /**
    * Construct a new writer to write to the specified resource.
    *

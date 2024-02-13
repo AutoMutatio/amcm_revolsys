@@ -5,7 +5,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 
-import com.revolsys.collection.json.JsonObject;
 import com.revolsys.util.Counter;
 import com.revolsys.util.LongCounter;
 
@@ -131,18 +130,4 @@ public class LabelCountMap extends AbstractLabelCounters {
     return this.counterByLabel.size();
   }
 
-  public JsonObject toJson() {
-    if (isEmpty()) {
-      return JsonObject.EMPTY;
-    } else {
-      final JsonObject json = JsonObject.tree();
-      for (final Entry<String, Counter> entry : entrySet()) {
-        final String label = entry.getKey();
-        final Counter counter = entry.getValue();
-        final long count = counter.get();
-        json.add(label, count);
-      }
-      return json;
-    }
-  }
 }

@@ -103,7 +103,11 @@ public class CsvRecordReader extends AbstractRecordReader {
 
   @Override
   protected GeometryFactory loadGeometryFactory() {
-    return GeometryFactory.floating2d(this.resource);
+    if (isLoadGeometryFactory()) {
+      return GeometryFactory.floating2d(this.resource);
+    } else {
+      return null;
+    }
   }
 
   /**
