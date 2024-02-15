@@ -33,7 +33,7 @@ public class Tsv extends AbstractRecordIoFactory implements RecordWriterFactory,
 
   public static final String FILE_EXTENSION = "tsv";
 
-  public static final String MIME_TYPE = "text/tab-separated-values";
+  public static final String MEDIA_TYPE = "text/tab-separated-values";
 
   public static final char QUOTE_CHARACTER = '"';
 
@@ -73,7 +73,7 @@ public class Tsv extends AbstractRecordIoFactory implements RecordWriterFactory,
 
   public Tsv() {
     super(Tsv.DESCRIPTION);
-    addMediaTypeAndFileExtension(Tsv.MIME_TYPE, Tsv.FILE_EXTENSION);
+    addMediaTypeAndFileExtension(Tsv.MEDIA_TYPE, Tsv.FILE_EXTENSION);
   }
 
   @Override

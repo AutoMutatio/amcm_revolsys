@@ -276,7 +276,8 @@ public interface IoFactory extends Available {
         final String baseName = resource.getBaseName();
         for (ZipEntry zipEntry = in.getNextEntry(); zipEntry != null; zipEntry = in
           .getNextEntry()) {
-          if (zipEntry.getName().equals(baseName)) {
+          if (zipEntry.getName()
+            .equals(baseName)) {
             return Channels.newChannel(in);
           }
         }
@@ -298,7 +299,8 @@ public interface IoFactory extends Available {
       @Override
       public int compare(final FileNameExtensionFilter filter1,
         final FileNameExtensionFilter filter2) {
-        return filter1.getDescription().compareTo(filter2.getDescription());
+        return filter1.getDescription()
+          .compareTo(filter2.getDescription());
       }
     });
   }
@@ -313,12 +315,22 @@ public interface IoFactory extends Available {
     }
   }
 
+  default String getFileExtension() {
+    return getFileExtensions().iterator()
+      .next();
+  }
+
   default String getFileExtension(final String mediaType) {
     return null;
   }
 
   default List<String> getFileExtensions() {
     return Collections.emptyList();
+  }
+
+  default String getMediaType() {
+    return getMediaTypes().iterator()
+      .next();
   }
 
   default String getMediaType(final String fileExtension) {

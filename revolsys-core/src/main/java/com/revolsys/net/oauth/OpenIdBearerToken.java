@@ -1,8 +1,10 @@
 package com.revolsys.net.oauth;
 
+import java.security.Principal;
+
 import com.revolsys.collection.json.JsonObject;
 
-public class OpenIdBearerToken extends BearerToken {
+public class OpenIdBearerToken extends BearerToken implements Principal {
 
   private JsonWebToken jwt;
 
@@ -53,6 +55,11 @@ public class OpenIdBearerToken extends BearerToken {
     return this.jwt;
   }
 
+  @Override
+  public String getName() {
+    return this.jwt.getName();
+  }
+
   public String getRefreshToken() {
     return this.refreshToken;
   }
@@ -67,6 +74,11 @@ public class OpenIdBearerToken extends BearerToken {
     } else {
       return this;
     }
+  }
+
+  @Override
+  public int hashCode() {
+    return this.jwt.hashCode();
   }
 
   public OpenIdBearerToken refreshToken() {

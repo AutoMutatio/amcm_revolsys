@@ -67,4 +67,5 @@ public interface RecordWriterFactory extends FileIoFactory, GeometryWriterFactor
 
   RecordWriter newRecordWriter(String baseName, RecordDefinitionProxy recordDefinition,
     OutputStream outputStream, Charset charset);
+
 }

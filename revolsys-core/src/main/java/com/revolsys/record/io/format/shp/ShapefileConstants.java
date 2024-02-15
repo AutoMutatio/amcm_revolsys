@@ -37,7 +37,7 @@ public class ShapefileConstants {
 
   public static final int INNER_RING = 3;
 
-  public static final String MIME_TYPE = "application/x-shp";
+  public static final String MEDIA_TYPE = "application/x-shp";
 
   public static final int MULTI_PATCH_SHAPE = 31;
 

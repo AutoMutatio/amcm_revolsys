@@ -1,30 +1,21 @@
 package com.revolsys.net.oauth;
 
-import java.io.ByteArrayInputStream;
-import java.math.BigInteger;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
-import java.security.InvalidKeyException;
-import java.security.KeyFactory;
-import java.security.NoSuchAlgorithmException;
-import java.security.PublicKey;
-import java.security.Signature;
-import java.security.SignatureException;
-import java.security.cert.CertificateFactory;
-import java.security.cert.X509Certificate;
-import java.security.interfaces.RSAPublicKey;
-import java.security.spec.RSAPublicKeySpec;
+import java.security.Principal;
 import java.time.Instant;
 import java.util.Base64;
 import java.util.Base64.Decoder;
+import java.util.regex.Pattern;
 
 import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.json.JsonParser;
 
-public class JsonWebToken {
+public class JsonWebToken implements Principal {
 
   public static JsonObject decodeJson(final String base64) {
-    final byte[] decoded = Base64.getDecoder().decode(base64);
+    final byte[] decoded = Base64.getDecoder()
+      .decode(base64);
     final String string = new String(decoded, StandardCharsets.UTF_8);
     return JsonParser.read(string);
   }
@@ -99,6 +90,15 @@ public class JsonWebToken {
     return getString("iss");
   }
 
+  @Override
+  public String getName() {
+    var name = getString("oid");
+    if (name == null) {
+      name = getString("sub");
+    }
+    return name;
+  }
+
   public Instant getNotBefore() {
     return getTime("nbf");
   }
@@ -132,20 +132,15 @@ public class JsonWebToken {
     return this.token;
   }
 
-  public boolean isValid(final Iterable<String> issuers) {
-    for (final String issuer : issuers) {
-      if (isValid(issuer)) {
-        return true;
-      }
-    }
-    return false;
+  @Override
+  public int hashCode() {
+    return getName().hashCode();
   }
 
-  public boolean isValid(final String issuer) {
+  public boolean isValid() {
+    final String issuer = getIssuer();
     try {
-      final String iss = getIssuer();
-      if (!issuer.equals(iss)
-        || !this.header.equalValue("typ", "JWT") && this.header.hasValue("typ")
+      if (!this.header.equalValue("typ", "JWT") && this.header.hasValue("typ")
         || !this.header.equalValue("alg", "RS256")) {
         return false;
       }
@@ -166,55 +161,51 @@ public class JsonWebToken {
           return false;
         }
       }
+      var issuerConfigUrl = issuer;
+      if (!issuer.endsWith("/")) {
+        issuerConfigUrl += "/";
+      }
+      issuerConfigUrl += ".well-known/openid-configuration";
 
-      final URI openidConfigUri = URI.create(issuer + "/.well-known/openid-configuration");
-      final JsonObject openIdConfig = JsonWebTokenCache.getJson(openidConfigUri);
+      final URI openidConfigUri = URI.create(issuerConfigUrl);
+      final var openIdConfig = OpenIdConfiguration.getConfiguration(openidConfigUri);
       if (openIdConfig == null) {
         return false;
       }
-
-      final URI jsonWebKeySetUri = URI.create(openIdConfig.getString("jwks_uri"));
-      final JsonObject jsonWebKeySet = JsonWebTokenCache.getJson(jsonWebKeySetUri);
-      if (jsonWebKeySet == null) {
-        return false;
-      }
-
       final String tokenToSign = this.token.substring(0, this.token.lastIndexOf('.'));
-
       final String keyId = this.header.getString("kid");
-      for (final JsonObject key : jsonWebKeySet.<JsonObject> getList("keys")) {
-        if (key.equalValue("kid", keyId)) {
-          final String n = key.getString("n");
-          final String e = key.getString("e");
-          if (n != null && e != null) {
-            final byte exponentB[] = Base64.getUrlDecoder().decode(e);
-            final byte modulusB[] = Base64.getUrlDecoder().decode(n);
-            final BigInteger bigExponent = new BigInteger(1, exponentB);
-            final BigInteger bigModulus = new BigInteger(1, modulusB);
-            final PublicKey publicKey = KeyFactory.getInstance("RSA")
-              .generatePublic(new RSAPublicKeySpec(bigModulus, bigExponent));
-            if (verifySignature(tokenToSign, publicKey)) {
-              return true;
-            }
-          }
-          for (final String certBase64 : key.<String> getList("x5c")) {
-            final byte[] cert = Base64.getDecoder().decode(certBase64);
-            final CertificateFactory factory = CertificateFactory.getInstance("X.509");
-            final X509Certificate x509 = (X509Certificate)factory
-              .generateCertificate(new ByteArrayInputStream(cert));
-            final RSAPublicKey publicKey = (RSAPublicKey)x509.getPublicKey();
-            if (verifySignature(tokenToSign, publicKey)) {
-              return true;
-            }
-          }
-          return false;
-        }
-      }
+      return openIdConfig.getJwtKeySet()
+        .getKey(keyId)
+        .isValid(tokenToSign, this.signatureBytes);
     } catch (final Exception e) {
       return false;
     }
+  }
 
+  public boolean isValid(final Iterable<String> issuers) {
+    for (final String issuer : issuers) {
+      if (isValid(issuer)) {
+        return true;
+      }
+    }
     return false;
+  }
+
+  public boolean isValid(final Pattern pattern) {
+    final String issuer = getIssuer();
+    if (!pattern.matcher(issuer)
+      .matches()) {
+      return false;
+    }
+    return isValid();
+  }
+
+  public boolean isValid(final String issuer) {
+    final String iss = getIssuer();
+    if (!issuer.equals(iss)) {
+      return false;
+    }
+    return isValid();
   }
 
   @Override
@@ -225,14 +216,4 @@ public class JsonWebToken {
   public String toStringDump() {
     return this.headerText + "\n" + this.payloadText;
   }
-
-  private boolean verifySignature(final String tokenToSign, final PublicKey publicKey)
-    throws NoSuchAlgorithmException, InvalidKeyException, SignatureException {
-    final Signature s = Signature.getInstance("SHA256withRSA");
-    s.initVerify(publicKey);
-    s.update(tokenToSign.getBytes(StandardCharsets.UTF_8));
-    final boolean verify = s.verify(this.signatureBytes);
-    return verify;
-  }
-
 }

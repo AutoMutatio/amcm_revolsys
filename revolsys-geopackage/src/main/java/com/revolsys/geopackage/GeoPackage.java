@@ -64,7 +64,7 @@ public class GeoPackage extends AbstractJdbcDatabaseFactory
 
   public static final String JDBC_PREFIX = "jdbc:sqlite:";
 
-  public static final String MIME_TYPE = "application/geopackage+vnd.sqlite3";
+  public static final String MEDIA_TYPE = "application/geopackage+vnd.sqlite3";
 
   private static final List<Pattern> URL_PATTERNS = Arrays.asList(Pattern.compile("jdbc:sqlite:.+"),
     Pattern.compile("[^(file:)].+\\.gpkg"), Pattern.compile("file:(/(//)?)?.+\\.gpkg"),
@@ -149,7 +149,7 @@ public class GeoPackage extends AbstractJdbcDatabaseFactory
 
   @Override
   public String getFileExtension(final String mediaType) {
-    if (MIME_TYPE.equals(mediaType) || FILE_EXTENSION.equals(mediaType)) {
+    if (MEDIA_TYPE.equals(mediaType) || FILE_EXTENSION.equals(mediaType)) {
       return FILE_EXTENSION;
     } else {
       return null;
@@ -164,7 +164,7 @@ public class GeoPackage extends AbstractJdbcDatabaseFactory
   @Override
   public String getMediaType(final String fileExtension) {
     if (fileExtension.equals(fileExtension)) {
-      return MIME_TYPE;
+      return MEDIA_TYPE;
     } else {
       return null;
     }
@@ -172,7 +172,7 @@ public class GeoPackage extends AbstractJdbcDatabaseFactory
 
   @Override
   public Set<String> getMediaTypes() {
-    return Collections.singleton(MIME_TYPE);
+    return Collections.singleton(MEDIA_TYPE);
   }
 
   @Override

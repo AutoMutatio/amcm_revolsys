@@ -237,7 +237,7 @@ public class ImageInfo {
    * The FORMAT_xyz int constants can be used as index values for
    * this array.
    */
-  private static final String[] MIME_TYPE_STRINGS = {
+  private static final String[] MEDIA_TYPE_STRINGS = {
     "image/jpeg", "image/gif", "image/png", "image/bmp", "image/pcx", "image/iff", "image/ras",
     "image/x-portable-bitmap", "image/x-portable-graymap", "image/x-portable-pixmap", "image/psd"
   };
@@ -958,11 +958,11 @@ public class ImageInfo {
    * @return MIME type, e.g. <code>image/jpeg</code>
    */
   public String getMimeType() {
-    if (this.format >= 0 && this.format < MIME_TYPE_STRINGS.length) {
+    if (this.format >= 0 && this.format < MEDIA_TYPE_STRINGS.length) {
       if (this.format == FORMAT_JPEG && this.progressive) {
         return "image/pjpeg";
       }
-      return MIME_TYPE_STRINGS[this.format];
+      return MEDIA_TYPE_STRINGS[this.format];
     } else {
       return null;
     }

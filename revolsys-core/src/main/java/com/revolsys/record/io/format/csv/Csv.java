@@ -28,9 +28,11 @@ import com.revolsys.record.schema.RecordDefinitionProxy;
 import com.revolsys.spring.resource.Resource;
 
 public class Csv extends AbstractRecordIoFactory implements RecordWriterFactory, MapWriterFactory {
+  private static final String FILE_EXTENSION = "csv";
+
   public static final char FIELD_SEPARATOR = ',';
 
-  public static final String MIME_TYPE = "text/csv";
+  public static final String MEDIA_TYPE = "text/csv";
 
   public static CsvWriter plainWriter(final File file) {
     if (file == null) {
@@ -85,7 +87,7 @@ public class Csv extends AbstractRecordIoFactory implements RecordWriterFactory,
 
   public Csv() {
     super("Comma-Separated Values");
-    addMediaTypeAndFileExtension(MIME_TYPE, "csv");
+    addMediaTypeAndFileExtension(MEDIA_TYPE, FILE_EXTENSION);
   }
 
   @Override

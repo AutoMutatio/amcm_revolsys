@@ -18,7 +18,7 @@ import com.revolsys.spring.resource.Resource;
 public class Shapefile extends AbstractRecordIoFactory implements RecordWriterFactory {
   public Shapefile() {
     super(ShapefileConstants.DESCRIPTION);
-    addMediaTypeAndFileExtension(ShapefileConstants.MIME_TYPE, ShapefileConstants.FILE_EXTENSION);
+    addMediaTypeAndFileExtension(ShapefileConstants.MEDIA_TYPE, ShapefileConstants.FILE_EXTENSION);
   }
 
   @Override

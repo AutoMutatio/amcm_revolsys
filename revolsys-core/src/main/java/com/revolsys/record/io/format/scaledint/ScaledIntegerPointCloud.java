@@ -28,7 +28,7 @@ public class ScaledIntegerPointCloud extends GeometryRecordReaderFactory
 
   public static final int HEADER_SIZE = 60;
 
-  public static final String MIME_TYPE = "application/x-revolsys-sipc";
+  public static final String MEDIA_TYPE = "application/x-revolsys-sipc";
 
   public static final int RECORD_SIZE = 12;
 
@@ -36,7 +36,7 @@ public class ScaledIntegerPointCloud extends GeometryRecordReaderFactory
 
   public ScaledIntegerPointCloud() {
     super("Scaled Integer Point Cloud");
-    addMediaTypeAndFileExtension(MIME_TYPE, FILE_EXTENSION);
+    addMediaTypeAndFileExtension(MEDIA_TYPE, FILE_EXTENSION);
     addFileExtension(FILE_EXTENSION_ZIP);
     addFileExtension(FILE_EXTENSION_GZ);
   }

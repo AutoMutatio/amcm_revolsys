@@ -116,7 +116,8 @@ public class OpenIdConnectClient extends BaseObjectWithProperties {
     final String nonce, final String prompt) {
     final RequestBuilder builder = authorizationUrlBuilder(scope, redirectUri, state, nonce,
       prompt);
-    return builder.build().getURI();
+    return builder.build()
+      .getURI();
   }
 
   public RequestBuilder authorizationUrlBuilder(final String scope, final String redirectUri,
@@ -157,7 +158,8 @@ public class OpenIdConnectClient extends BaseObjectWithProperties {
     final RequestBuilder builder = RequestBuilder//
       .get(this.endSessionEndpoint)
       .addParameter("post_logout_redirect_uri", redirectUrl);
-    return builder.build().getURI();
+    return builder.build()
+      .getURI();
   }
 
   public OpenIdConnectClient forTenant(final String tenantKey) {
@@ -184,11 +186,9 @@ public class OpenIdConnectClient extends BaseObjectWithProperties {
     return this.issuer;
   }
 
-  private OpenIdBearerToken getOpenIdBearerToken(final HttpRequestBuilder requestBuilder,
-    final String scope) {
+  private JsonObject getJson(final HttpRequestBuilder requestBuilder, final String scope) {
     try {
-      final JsonObject response = requestBuilder.getJson();
-      return new OpenIdBearerToken(this, response, scope);
+      return requestBuilder.getJson();
     } catch (final ApacheHttpException e) {
       if (e.getStatusCode() == 400) {
         JsonObject error = null;
@@ -202,7 +202,8 @@ public class OpenIdConnectClient extends BaseObjectWithProperties {
           if (errorDescription != null) {
             final int index = errorDescription.indexOf("Trace ID:");
             if (index != -1) {
-              errorDescription = errorDescription.substring(0, index).strip();
+              errorDescription = errorDescription.substring(0, index)
+                .strip();
             }
             throw new AuthenticationException(errorDescription);
           }
@@ -210,6 +211,12 @@ public class OpenIdConnectClient extends BaseObjectWithProperties {
       }
       throw e;
     }
+  }
+
+  private OpenIdBearerToken getOpenIdBearerToken(final HttpRequestBuilder requestBuilder,
+    final String scope) {
+    final JsonObject response = getJson(requestBuilder, scope);
+    return new OpenIdBearerToken(this, response, scope);
   }
 
   public String getRevocationEndpoint() {
@@ -244,6 +251,12 @@ public class OpenIdConnectClient extends BaseObjectWithProperties {
 
   public OpenIdBearerToken tokenAuthorizationCode(final String code, final String redirectUri,
     final String scope) {
+    final var response = tokenAuthorizationCodeJson(code, redirectUri, scope);
+    return new OpenIdBearerToken(this, response, scope);
+  }
+
+  public JsonObject tokenAuthorizationCodeJson(final String code, final String redirectUri,
+    final String scope) {
     final var builder = HttpRequestBuilder//
       .post(this.tokenEndpoint)
       .addParameter("grant_type", "authorization_code")
@@ -251,7 +264,7 @@ public class OpenIdConnectClient extends BaseObjectWithProperties {
       .addParameter("client_secret", this.clientSecret)
       .addParameter("redirect_uri", redirectUri)
       .addParameter("code", code);
-    return getOpenIdBearerToken(builder, scope);
+    return getJson(builder, scope);
   }
 
   protected HttpRequestBuilder tokenBuilder(final String grantType, final boolean useClientSecret) {

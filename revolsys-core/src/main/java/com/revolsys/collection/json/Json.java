@@ -300,9 +300,9 @@ public class Json extends AbstractIoFactory
 
   public static final String FILE_EXTENSION = "json";
 
-  public static final String MIME_TYPE = "application/json";
+  public static final String MEDIA_TYPE = "application/json";
 
-  public static final String MIME_TYPE_UTF8 = "application/json;charset=utf-8";
+  public static final String MEDIA_TYPE_UTF8 = "application/json;charset=utf-8";
 
   public static final DataType JSON_OBJECT = new JsonObjectDataType("JsonObject", JsonObject.class);
 
@@ -577,7 +577,7 @@ public class Json extends AbstractIoFactory
 
   public Json() {
     super("JSON");
-    addMediaTypeAndFileExtension(MIME_TYPE, FILE_EXTENSION);
+    addMediaTypeAndFileExtension(MEDIA_TYPE, FILE_EXTENSION);
   }
 
   @Override

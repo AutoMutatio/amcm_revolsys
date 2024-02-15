@@ -8,9 +8,10 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 import com.revolsys.logging.Logs;
+import com.revolsys.util.BaseCloseable;
 import com.revolsys.util.Property;
 
-public class InputStreamResource extends AbstractResource {
+public class InputStreamResource extends AbstractResource implements BaseCloseable {
 
   private final String description;
 
@@ -66,6 +67,11 @@ public class InputStreamResource extends AbstractResource {
     final String description) {
     this(inputStream, description);
     this.filename = filename;
+  }
+
+  @Override
+  public void close() {
+    BaseCloseable.closeSilent(this.inputStream);
   }
 
   @Override

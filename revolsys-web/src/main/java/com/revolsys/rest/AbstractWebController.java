@@ -75,7 +75,7 @@ public class AbstractWebController {
   }
 
   public static void setContentTypeJson(final HttpServletResponse response) {
-    setContentTypeText(response, Json.MIME_TYPE_UTF8);
+    setContentTypeText(response, Json.MEDIA_TYPE_UTF8);
   }
 
   public static void setContentTypeText(final HttpServletResponse response,
@@ -116,7 +116,7 @@ public class AbstractWebController {
     throws IOException {
     reader.open();
     response.setHeader("Content-Disposition", "attachment; filename=Export.csv");
-    setContentTypeText(response, Csv.MIME_TYPE);
+    setContentTypeText(response, Csv.MEDIA_TYPE);
     response.setStatus(200);
     final Csv csv = (Csv)IoFactory.factoryByFileExtension(RecordWriterFactory.class, "csv");
     try (
