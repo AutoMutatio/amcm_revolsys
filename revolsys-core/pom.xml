@@ -98,7 +98,7 @@
     <dependency>
       <groupId>com.fasterxml.woodstox</groupId>
       <artifactId>woodstox-core</artifactId>
-      <version>6.5.1</version>
+      <version>6.6.0</version>
     </dependency>
     <dependency>
       <groupId>jakarta.servlet</groupId>
@@ -127,7 +127,7 @@
     <dependency>
       <groupId>com.github.jsqlparser</groupId>
       <artifactId>jsqlparser</artifactId>
-      <version>4.7</version>
+      <version>4.8</version>
     </dependency>
     <dependency>
       <groupId>commons-io</groupId>
