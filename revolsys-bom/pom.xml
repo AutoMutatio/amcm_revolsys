@@ -55,7 +55,6 @@
         <artifactId>junit</artifactId>
         <version>4.13.2</version>
       </dependency>
-
       <dependency>
         <groupId>javax.measure</groupId>
         <artifactId>unit-api</artifactId>
@@ -389,6 +388,16 @@
         <version>${com.fasterxml.jackson.version}</version>
       </dependency>
       <dependency>
+        <groupId>org.junit.jupiter</groupId>
+        <artifactId>junit-jupiter-api</artifactId>
+        <version>5.10.0</version>
+      </dependency>
+      <dependency>
+        <groupId>org.junit.jupiter</groupId>
+        <artifactId>junit-jupiter</artifactId>
+        <version>5.10.0</version>
+      </dependency>
+      <dependency>
         <groupId>io.netty</groupId>
         <artifactId>netty-codec-http</artifactId>
         <version>${io.netty.version}</version>
@@ -515,7 +524,6 @@
     </dependencies>
   </dependencyManagement>
   <properties>
-    <org.slf4j.version>2.0.12</org.slf4j.version>
     <ch.qos.logback.version>1.4.14</ch.qos.logback.version>
     <com.fasterxml.jackson.version>2.16.1</com.fasterxml.jackson.version>
     <org.apache.logging.log4j>2.22.1</org.apache.logging.log4j>
@@ -524,6 +532,8 @@
     <org.apache.xmlgraphics.commons.version>2.9</org.apache.xmlgraphics.commons.version>
     <org.docx4j.version>11.4.9</org.docx4j.version>
     <org.gdal.version>2.4.0</org.gdal.version>
+    <org.graalvm.version>23.1.0</org.graalvm.version>
+    <org.slf4j.version>2.0.12</org.slf4j.version>
     <org.springframework.version>6.1.3</org.springframework.version>
     <org.springframework.boot.version>3.2.2</org.springframework.boot.version>
     <org.springboot.version>${org.springframework.boot.version}</org.springboot.version>

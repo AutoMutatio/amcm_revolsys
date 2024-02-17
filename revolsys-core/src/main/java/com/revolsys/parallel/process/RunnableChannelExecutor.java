@@ -46,6 +46,11 @@ public class RunnableChannelExecutor extends ThreadPoolExecutor implements Proce
     }
   }
 
+  @Override
+  public void close() {
+    super.close();
+  }
+
   public void closeChannels() {
     synchronized (this.monitor) {
       final List<Channel<Runnable>> channels = this.channels;
