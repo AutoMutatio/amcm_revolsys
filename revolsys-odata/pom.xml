@@ -11,7 +11,7 @@
   <parent>
     <artifactId>revolsys-parent</artifactId>
     <groupId>com.revolsys.open</groupId>
-    <version>MAIN-SNAPSHOT</version>
+    <!-- VERSION --><version>MAIN-SNAPSHOT</version>
   </parent>
 
   <dependencyManagement>
@@ -35,7 +35,6 @@
     <dependency>
       <groupId>commons-codec</groupId>
       <artifactId>commons-codec</artifactId>
-      <version>1.16.0</version>
     </dependency>
     <dependency>
       <groupId>jakarta.servlet</groupId>
