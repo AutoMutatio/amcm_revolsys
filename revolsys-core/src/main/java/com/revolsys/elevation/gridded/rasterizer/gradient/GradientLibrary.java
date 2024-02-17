@@ -1,7 +1,6 @@
 package com.revolsys.elevation.gridded.rasterizer.gradient;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,7 +34,7 @@ public class GradientLibrary {
   public GradientLibrary(final Resource baseResource) {
     final Resource configResource = baseResource.newChildResource("gradient.json");
     final MapEx config = Json.toMap(configResource);
-    final List<String> gradientIds = config.getValue("gradients", Collections.emptyList());
+    final List<String> gradientIds = config.getList("gradients");
     for (final String gradientId : gradientIds) {
       final Resource gradientResource = baseResource.newChildResource(gradientId + ".pg");
       final MultiStopLinearGradient gradient = new MultiStopLinearGradient(gradientResource);

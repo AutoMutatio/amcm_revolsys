@@ -9,7 +9,6 @@ import java.util.function.Function;
 
 import com.revolsys.collection.iterator.AbstractIterator;
 import com.revolsys.collection.json.JsonObject;
-import com.revolsys.data.type.DataTypes;
 import com.revolsys.http.HttpRequestBuilder;
 import com.revolsys.http.HttpRequestBuilderFactory;
 import com.revolsys.record.Record;
@@ -101,7 +100,7 @@ public class ODataQueryIterator extends AbstractIterator<Record>
       this.nextURI = null;
       this.results = Collections.emptyIterator();
     } else {
-      this.nextURI = json.getValue("@odata.nextLink", DataTypes.ANY_URI);
+      this.nextURI = json.getURI("@odata.nextLink");
       this.results = json.getJsonList("value").jsonObjects().iterator();
     }
   }

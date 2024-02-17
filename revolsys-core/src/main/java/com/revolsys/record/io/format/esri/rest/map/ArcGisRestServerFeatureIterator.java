@@ -1,7 +1,6 @@
 package com.revolsys.record.io.format.esri.rest.map;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -12,6 +11,7 @@ import java.util.function.BiFunction;
 import com.revolsys.collection.iterator.AbstractIterator;
 import com.revolsys.collection.json.JsonParser;
 import com.revolsys.collection.json.JsonParser.EventType;
+import com.revolsys.collection.list.ListEx;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.collection.map.Maps;
 import com.revolsys.data.type.DataType;
@@ -52,7 +52,7 @@ public class ArcGisRestServerFeatureIterator extends AbstractIterator<Record>
   public static Geometry parseMultiLineString(final GeometryFactory geometryFactory,
     final MapEx properties) {
     final List<LineString> lines = new ArrayList<>();
-    final List<List<List<Number>>> paths = properties.getValue("paths", Collections.emptyList());
+    final ListEx<List<List<Number>>> paths = properties.getList("paths");
     for (final List<List<Number>> points : paths) {
       final LineString lineString = geometryFactory.lineString(points);
       lines.add(lineString);
@@ -63,7 +63,7 @@ public class ArcGisRestServerFeatureIterator extends AbstractIterator<Record>
   public static Geometry parseMultiPoint(final GeometryFactory geometryFactory,
     final MapEx properties) {
     final List<Point> lines = new ArrayList<>();
-    final List<List<Number>> paths = properties.getValue("paths", Collections.emptyList());
+    final ListEx<List<Number>> paths = properties.getList("paths");
     for (final List<Number> pointCoordinates : paths) {
       final Point point = geometryFactory.point(pointCoordinates);
       lines.add(point);
@@ -75,7 +75,7 @@ public class ArcGisRestServerFeatureIterator extends AbstractIterator<Record>
     final MapEx properties) {
     final List<Polygon> polygons = new ArrayList<>();
     final List<LinearRing> rings = new ArrayList<>();
-    final List<List<List<Number>>> paths = properties.getValue("rings", Collections.emptyList());
+    final ListEx<List<List<Number>>> paths = properties.getValue("rings");
     for (final List<List<Number>> points : paths) {
       final LinearRing ring = geometryFactory.linearRing(points);
       if (ring.isClockwise()) {

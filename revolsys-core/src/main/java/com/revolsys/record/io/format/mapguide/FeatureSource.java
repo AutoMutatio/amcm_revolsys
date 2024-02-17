@@ -220,8 +220,7 @@ public class FeatureSource extends ResourceDocument implements Parent<MapGuideFe
       final String targetNamespace = getString(schema, "@targetNamespace");
       final String prefix = prefixByUri.get(targetNamespace);
       final Map<String, MapEx> complexTypeDefinitions = new HashMap<>();
-      for (final MapEx complexType : schema.getValue("xs:complexType",
-        Collections.<MapEx> emptyList())) {
+      for (final MapEx complexType : schema.<MapEx> getList("xs:complexType")) {
         String name = getString(complexType, "@name");
         if (prefix != null) {
           name = prefix + ":" + name;
@@ -230,7 +229,7 @@ public class FeatureSource extends ResourceDocument implements Parent<MapGuideFe
       }
       final List<MapGuideFeatureLayer> layers = new ArrayList<>();
       final Map<String, MapGuideFeatureLayer> layerByName = new HashMap<>();
-      for (final MapEx element : schema.getValue("xs:element", Collections.<MapEx> emptyList())) {
+      for (final MapEx element : schema.<MapEx> getList("xs:element")) {
         final String name = getString(element, "@name");
         final String type = getString(element, "@type");
         final MapEx complexType = complexTypeDefinitions.get(type);

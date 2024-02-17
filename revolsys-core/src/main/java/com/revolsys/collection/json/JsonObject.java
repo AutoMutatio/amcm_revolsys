@@ -18,7 +18,7 @@ public interface JsonObject extends MapEx, JsonType {
   JsonObject EMPTY = new JsonObject() {
     @Override
     public JsonObject clone() {
-      return this;
+      return JsonObject.hash();
     }
 
     @Override
@@ -99,19 +99,20 @@ public interface JsonObject extends MapEx, JsonType {
   }
 
   @Override
-  default JsonObject add(final String key, final Object value) {
+  default JsonObject add(final CharSequence key, final Object value) {
     MapEx.super.add(key, value);
     return this;
   }
 
   @Override
-  default JsonObject addAll(final Map<String, ? extends Object> map) {
+  default JsonObject addAll(final Map<? extends CharSequence, ? extends Object> map) {
     MapEx.super.addAll(map);
     return this;
   }
 
   @Override
-  default JsonObject addFieldValue(final String key, final Map<String, Object> source) {
+  default JsonObject addFieldValue(final CharSequence key,
+    final Map<? extends CharSequence, ? extends Object> source) {
     final Object value = source.get(key);
     if (value != null || containsKey(key)) {
       addValue(key, value);
@@ -120,26 +121,11 @@ public interface JsonObject extends MapEx, JsonType {
   }
 
   @Override
-  default JsonObject addFieldValue(final String key, final Map<String, Object> source,
-    final String sourceKey) {
+  default <SK> JsonObject addFieldValue(final CharSequence key,
+    final Map<SK, ? extends Object> source, final SK sourceKey) {
     final Object value = source.get(sourceKey);
     if (value != null || containsKey(key)) {
       addValue(key, value);
-    }
-    return this;
-  }
-
-  default JsonObject addFieldValues(final JsonObject source, final DataType dataType,
-    final String... fieldNames) {
-    for (final String fieldName : fieldNames) {
-      final Object value = source.getValue(fieldName, dataType);
-      if (value == null) {
-        if (source.containsKey(fieldName)) {
-          removeValue(fieldName);
-        }
-      } else {
-        addValue(fieldName, value);
-      }
     }
     return this;
   }
@@ -173,13 +159,13 @@ public interface JsonObject extends MapEx, JsonType {
   }
 
   @Override
-  default JsonObject addValue(final String key, final Object value) {
+  default JsonObject addValue(final CharSequence key, final Object value) {
     MapEx.super.addValue(key, value);
     return this;
   }
 
   @Override
-  default JsonObject addValue(final String key, final Object value, final DataType dataType) {
+  default JsonObject addValue(final CharSequence key, final Object value, final DataType dataType) {
     MapEx.super.addValue(key, value, dataType);
     return this;
   }
@@ -284,25 +270,15 @@ public interface JsonObject extends MapEx, JsonType {
   }
 
   @Override
-  default JsonObject removeValues(final String... names) {
+  default JsonObject removeValues(final CharSequence... names) {
     MapEx.super.removeValues(names);
     return this;
   }
 
-  default JsonObject renameProperty(final String oldName, final String newName) {
-    if (hasValue(oldName) && !oldName.equals(newName)) {
-      final Object value = removeValue(oldName);
-      addValue(newName, value);
-    }
-    return this;
-  }
-
-  default JsonObject renameProperty(final String oldName, final String newName,
+  @Override
+  default JsonObject renameProperty(final CharSequence oldName, final CharSequence newName,
     final DataType dataType) {
-    if (hasValue(oldName) && !oldName.equals(newName)) {
-      final Object value = removeValue(oldName, dataType);
-      addValue(newName, value);
-    }
+    MapEx.super.renameProperty(oldName, newName, dataType);
     return this;
   }
 

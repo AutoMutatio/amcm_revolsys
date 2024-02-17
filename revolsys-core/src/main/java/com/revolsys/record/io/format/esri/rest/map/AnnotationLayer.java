@@ -65,7 +65,7 @@ public class AnnotationLayer extends FeatureLayer implements Parent<LayerDescrip
     super.initialize(properties);
     final ArcGisRestAbstractLayerService service = getService();
     final Map<String, LayerDescription> layersByName = new TreeMap<>();
-    final List<MapEx> layerDefinitions = properties.getValue("subLayers", Collections.emptyList());
+    final List<MapEx> layerDefinitions = properties.getList("subLayers");
     for (final MapEx layerProperties : layerDefinitions) {
       service.addLayer(this, layersByName, layerProperties);
     }

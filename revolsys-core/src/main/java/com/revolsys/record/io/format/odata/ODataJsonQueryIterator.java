@@ -42,7 +42,9 @@ public class ODataJsonQueryIterator<V> extends AbstractIterator<V> {
     this.requestFactory = requestFactory;
     this.converter = converter;
     this.request = request;
-    this.queryLabel = queryLabel != null ? queryLabel : request.getUri().toString();
+    this.queryLabel = queryLabel != null ? queryLabel
+      : request.getUri()
+        .toString();
     this.pageLimit = pageLimit;
   }
 
@@ -56,9 +58,10 @@ public class ODataJsonQueryIterator<V> extends AbstractIterator<V> {
         this.count = json.getInteger("@odata.count", -1);
 
       }
-      this.nextURI = json.getValue("@odata.nextLink", DataTypes.ANY_URI);
+      this.nextURI = json.getTypedValue("@odata.nextLink", DataTypes.ANY_URI);
 
-      this.results = json.<JsonObject> getList("value").iterator();
+      this.results = json.<JsonObject> getList("value")
+        .iterator();
     }
   }
 
