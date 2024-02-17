@@ -98,10 +98,8 @@
             <arg>-parameters</arg>
             <arg>--enable-preview</arg>
           </compilerArgs>
-         <testCompilerArguments>
-            <arg>-parameters</arg>
-            <arg>--enable-preview</arg>
-          </testCompilerArguments>
+          <testCompilerArgument>-parameters</testCompilerArgument>
+          <testCompilerArgument>--enable-preview</testCompilerArgument>
         </configuration>
       </plugin>
       <plugin>
