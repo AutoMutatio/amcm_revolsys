@@ -71,7 +71,7 @@
             <configuration>
               <rules>
                 <requireMavenVersion>
-                  <version>3.8.1</version>
+                  <version>3.9.5</version>
                 </requireMavenVersion>
                 <requireJavaVersion>
                   <version>${java.version}</version>
@@ -94,8 +94,14 @@
           <debug>true</debug>
           <debuglevel>lines,source,vars</debuglevel>
           <parameters>true</parameters>
-          <compilerArgument>-parameters</compilerArgument>
-          <testCompilerArgument>-parameters</testCompilerArgument>
+          <compilerArgs>
+            <arg>-parameters</arg>
+            <arg>--enable-preview</arg>
+          </compilerArgs>
+         <testCompilerArguments>
+            <arg>-parameters</arg>
+            <arg>--enable-preview</arg>
+          </testCompilerArguments>
         </configuration>
       </plugin>
       <plugin>
@@ -290,6 +296,11 @@
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-project-info-reports-plugin</artifactId>
+          <version>3.4.5</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-resources-plugin</artifactId>
           <version>3.3.1</version>
         </plugin>
@@ -397,7 +408,7 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <java.version>17</java.version>
+    <java.version>21</java.version>
     <gpg.skip>true</gpg.skip>
     <github.global.server>github</github.global.server>
     <skipTests>true</skipTests>
