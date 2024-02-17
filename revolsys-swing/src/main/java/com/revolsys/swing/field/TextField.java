@@ -6,11 +6,10 @@ import java.awt.event.FocusListener;
 
 import javax.swing.JTextField;
 
-import org.jeometry.common.awt.WebColors;
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.common.exception.Exceptions;
-
+import com.revolsys.awt.WebColors;
+import com.revolsys.data.type.DataType;
+import com.revolsys.data.type.DataTypes;
+import com.revolsys.exception.Exceptions;
 import com.revolsys.swing.EventQueue;
 import com.revolsys.swing.SwingUtil;
 import com.revolsys.swing.listener.WeakFocusListener;

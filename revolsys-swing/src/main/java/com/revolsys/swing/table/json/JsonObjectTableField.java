@@ -9,8 +9,8 @@ import javax.swing.event.TableModelEvent;
 
 import org.jdesktop.swingx.VerticalLayout;
 
-import com.revolsys.record.io.format.json.Json;
-import com.revolsys.record.io.format.json.JsonObject;
+import com.revolsys.collection.json.Json;
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.swing.component.ValueField;
 import com.revolsys.swing.field.ArrayListComboBoxModel;

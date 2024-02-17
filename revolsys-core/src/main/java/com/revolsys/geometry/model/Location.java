@@ -75,7 +75,7 @@ public enum Location {
     return locationValue.toString().charAt(0);
   }
 
-  private int index;
+  private final int index;
 
   private Location(final int index) {
     this.index = index;

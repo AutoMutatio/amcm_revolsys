@@ -5,11 +5,13 @@ import java.io.IOException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestAttribute;
 
-import com.revolsys.record.io.format.json.JsonObject;
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.record.query.Query;
 import com.revolsys.record.schema.AbstractTableRecordStore;
 import com.revolsys.record.schema.TableRecordStoreConnection;
@@ -47,13 +49,23 @@ public class BaseTableRest extends AbstractTableRecordRestController {
     responseSchema(response, recordStore);
   }
 
-  @GetMapping("/app/api/{tableName:[A-Za-z0-9_\\.]+}")
+  @GetMapping(path = "/app/api/{tableName:[A-Za-z0-9_\\\\.]+}")
   public void listRecords(
     @RequestAttribute("tableConnection") final TableRecordStoreConnection connection,
     final HttpServletRequest request, final HttpServletResponse response,
     @PathVariable final String tableName) throws IOException {
     final Query query = newQuery(connection, request, tableName);
     handleGetRecords(connection, request, response, query);
+  }
+
+  @PostMapping(path = "/app/api/{tableName:[A-Za-z0-9_\\\\.]+}", consumes = {
+    MediaType.APPLICATION_FORM_URLENCODED_VALUE
+  })
+  public void listRecordsPost(
+    @RequestAttribute("tableConnection") final TableRecordStoreConnection connection,
+    final HttpServletRequest request, final HttpServletResponse response,
+    @PathVariable final String tableName) throws IOException {
+    listRecords(connection, request, response, tableName);
   }
 
   public void responseSchema(final HttpServletResponse response,

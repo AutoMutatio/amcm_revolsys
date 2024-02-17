@@ -98,17 +98,17 @@ public enum OutCode {
     }
   }
 
-  private boolean left;
+  private final boolean left;
 
-  private boolean right;
+  private final boolean right;
 
-  private boolean top;
+  private final boolean top;
 
-  private boolean bottom;
+  private final boolean bottom;
 
-  private boolean inside;
+  private final boolean inside;
 
-  private int code;
+  private final int code;
 
   private OutCode(final Side side, final AboveBelow aboveBelow) {
     this.left = side.isLeft();

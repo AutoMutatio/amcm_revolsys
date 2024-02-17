@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.jeometry.common.logging.Logs;
-
 import com.akiban.sql.StandardException;
 import com.akiban.sql.parser.BetweenOperatorNode;
 import com.akiban.sql.parser.BinaryArithmeticOperatorNode;
@@ -35,6 +33,7 @@ import com.akiban.sql.parser.StaticMethodCallNode;
 import com.akiban.sql.parser.UserTypeConstantNode;
 import com.akiban.sql.parser.ValueNode;
 import com.akiban.sql.parser.ValueNodeList;
+import com.revolsys.logging.Logs;
 import com.revolsys.record.code.CodeTable;
 import com.revolsys.record.query.And;
 import com.revolsys.record.query.Between;

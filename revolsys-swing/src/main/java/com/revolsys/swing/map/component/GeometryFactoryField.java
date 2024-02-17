@@ -11,9 +11,9 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import org.jdesktop.swingx.VerticalLayout;
-import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.coordinatesystem.model.systems.EpsgId;
 
+import com.revolsys.data.type.DataTypes;
+import com.revolsys.geometry.coordinatesystem.model.systems.EpsgId;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.geometry.model.GeometryFactoryProxy;
 import com.revolsys.swing.component.BasePanel;

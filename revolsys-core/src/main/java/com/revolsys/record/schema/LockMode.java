@@ -10,7 +10,7 @@ public enum LockMode {
   LOCK_IN_SHARE_MODE(" LOCK IN SHARE MODE"), //
   LOCK_IN_SHARE_MODE_NOWAIT(" LOCK IN SHARE MODE NOWAIT");
 
-  private String clause;
+  private final String clause;
 
   private LockMode(final String clause) {
     this.clause = clause;

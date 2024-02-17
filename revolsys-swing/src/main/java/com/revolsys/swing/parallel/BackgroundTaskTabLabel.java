@@ -12,8 +12,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 
-import org.jeometry.common.awt.WebColors;
-
+import com.revolsys.awt.WebColors;
 import com.revolsys.swing.Icons;
 import com.revolsys.swing.SwingUtil;
 import com.revolsys.swing.layout.GroupLayouts;

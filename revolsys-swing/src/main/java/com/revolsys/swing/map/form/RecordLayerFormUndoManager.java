@@ -3,8 +3,8 @@ package com.revolsys.swing.map.form;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 
-import com.revolsys.io.BaseCloseable;
 import com.revolsys.swing.undo.UndoManager;
+import com.revolsys.util.BaseCloseable;
 
 public class RecordLayerFormUndoManager extends UndoManager {
   private static final long serialVersionUID = 1L;

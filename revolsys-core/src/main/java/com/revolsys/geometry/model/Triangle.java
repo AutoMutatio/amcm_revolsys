@@ -7,12 +7,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 
-import org.jeometry.common.function.Consumer4Double;
-import org.jeometry.common.function.Function4Double;
-import org.jeometry.coordinatesystem.operation.CoordinatesOperation;
-import org.jeometry.coordinatesystem.operation.CoordinatesOperationPoint;
-
+import com.revolsys.function.Consumer4Double;
+import com.revolsys.function.Function4Double;
 import com.revolsys.geometry.algorithm.NotRepresentableException;
+import com.revolsys.geometry.coordinatesystem.operation.CoordinatesOperation;
+import com.revolsys.geometry.coordinatesystem.operation.CoordinatesOperationPoint;
 import com.revolsys.geometry.model.coordinates.LineSegmentUtil;
 import com.revolsys.geometry.model.impl.Circle;
 import com.revolsys.geometry.model.impl.PointDoubleXY;

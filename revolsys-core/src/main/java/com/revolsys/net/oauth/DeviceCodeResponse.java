@@ -1,8 +1,9 @@
 package com.revolsys.net.oauth;
 
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.json.JsonParser;
+import com.revolsys.exception.Exceptions;
 import com.revolsys.net.http.ApacheHttpException;
-import com.revolsys.record.io.format.json.JsonObject;
-import com.revolsys.record.io.format.json.JsonParser;
 
 public class DeviceCodeResponse {
 
@@ -56,7 +57,7 @@ public class DeviceCodeResponse {
         try {
           this.wait(this.interval * 1000);
         } catch (final InterruptedException e) {
-          return null;
+          Exceptions.throwUncheckedException(e);
         }
       }
       try {

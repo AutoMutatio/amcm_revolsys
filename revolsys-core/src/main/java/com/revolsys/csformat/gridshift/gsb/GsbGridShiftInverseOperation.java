@@ -1,7 +1,7 @@
 package com.revolsys.csformat.gridshift.gsb;
 
-import org.jeometry.coordinatesystem.operation.CoordinatesOperationPoint;
-import org.jeometry.coordinatesystem.operation.gridshift.HorizontalShiftOperation;
+import com.revolsys.geometry.coordinatesystem.operation.CoordinatesOperationPoint;
+import com.revolsys.geometry.coordinatesystem.operation.gridshift.HorizontalShiftOperation;
 
 public class GsbGridShiftInverseOperation implements HorizontalShiftOperation {
 

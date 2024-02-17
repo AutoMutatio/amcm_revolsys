@@ -5,16 +5,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
-import org.jeometry.common.function.BiConsumerDouble;
-import org.jeometry.common.number.Doubles;
-
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.function.BiConsumerDouble;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.BoundingBoxProxy;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.geometry.model.Point;
 import com.revolsys.geometry.model.impl.RectangleXY;
-import com.revolsys.record.io.format.json.JsonObject;
+import com.revolsys.number.Doubles;
 import com.revolsys.util.Property;
 
 public class CustomRectangularMapGrid extends AbstractRectangularMapGrid {

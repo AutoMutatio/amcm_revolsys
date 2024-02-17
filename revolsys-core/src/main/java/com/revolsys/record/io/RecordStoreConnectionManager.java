@@ -11,11 +11,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.connection.AbstractConnectionRegistryManager;
 import com.revolsys.io.FileUtil;
 import com.revolsys.io.file.Paths;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.record.schema.RecordStore;
 import com.revolsys.spring.resource.PathResource;
 import com.revolsys.spring.resource.Resource;

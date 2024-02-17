@@ -3,11 +3,10 @@ package com.revolsys.webservice;
 import java.util.List;
 import java.util.Map;
 
-import org.jeometry.common.exception.Exceptions;
-
 import com.revolsys.collection.Parent;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.connection.AbstractConnection;
+import com.revolsys.exception.Exceptions;
 import com.revolsys.io.map.MapObjectFactory;
 
 public class WebServiceConnection extends

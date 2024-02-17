@@ -9,15 +9,18 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 
-import org.jeometry.common.logging.Logs;
-
 import com.revolsys.collection.map.ThreadSharedProperties;
-import com.revolsys.parallel.ThreadInterruptedException;
+import com.revolsys.exception.Exceptions;
+import com.revolsys.exception.WrappedInterruptedException;
+import com.revolsys.logging.Logs;
+import com.revolsys.parallel.ReentrantLockEx;
 import com.revolsys.parallel.channel.Channel;
+import com.revolsys.parallel.channel.ClosedException;
 import com.revolsys.spring.TargetBeanProcess;
 
 public class ProcessNetwork {
@@ -67,6 +70,28 @@ public class ProcessNetwork {
 
   public static ProcessNetwork forThread() {
     return PROCESS_NETWORK.get();
+  }
+
+  public static <V> void forWhile(final int processCount, final Supplier<V> supplier,
+    final Consumer<V> action) {
+    final ReentrantLockEx lock = new ReentrantLockEx();
+    final ProcessNetwork processNetwork = new ProcessNetwork();
+    for (int i = 0; i < processCount; i++) {
+      processNetwork.addProcess(() -> {
+        while (true) {
+          V value = supplier.get();
+          try (
+            var l = lock.lockX()) {
+            value = supplier.get();
+            if (value == null) {
+              return;
+            }
+          }
+          action.accept(value);
+        }
+      });
+    }
+    processNetwork.startAndWait();
   }
 
   public static void processTasks(final int processCount, final Channel<Runnable> tasks) {
@@ -202,6 +227,26 @@ public class ProcessNetwork {
     return this;
   }
 
+  public <V> ProcessNetwork addTasks(final int processCount, final Channel<V> channel,
+    final Consumer<V> action) {
+    for (int i = 0; i < processCount; i++) {
+      addProcess(() -> {
+        try {
+          while (true) {
+            final var value = channel.read();
+            try {
+              action.accept(value);
+            } catch (final Throwable e) {
+              Logs.error(ProcessNetwork.class, "Error procesing task", e);
+            }
+          }
+        } catch (final ClosedException e) {
+        }
+      });
+    }
+    return this;
+  }
+
   private void finishRunning() {
     synchronized (this.sync) {
       this.running = false;
@@ -292,7 +337,7 @@ public class ProcessNetwork {
     }
   }
 
-  public void start() {
+  public ProcessNetwork start() {
     if (this.parent == null) {
       synchronized (this.sync) {
         this.running = true;
@@ -304,6 +349,7 @@ public class ProcessNetwork {
         }
       }
     }
+    return this;
   }
 
   private synchronized void start(final Process process) {
@@ -375,10 +421,9 @@ public class ProcessNetwork {
           } else {
             try {
               thread.interrupt();
+            } catch (final WrappedInterruptedException e) {
+              interrupted = true;
             } catch (final Exception e) {
-              if (e instanceof InterruptedException) {
-                interrupted = true;
-              }
             }
             if (!thread.isAlive()) {
               threadIter.remove();
@@ -391,10 +436,8 @@ public class ProcessNetwork {
         if (thread.isAlive()) {
           try {
             thread.stop();
-          } catch (final Exception e) {
-            if (e instanceof InterruptedException) {
-              interrupted = true;
-            }
+          } catch (final WrappedInterruptedException e) {
+            interrupted = true;
           }
         }
       }
@@ -419,7 +462,7 @@ public class ProcessNetwork {
             try {
               this.sync.wait();
             } catch (final InterruptedException e) {
-              throw new ThreadInterruptedException(e);
+              Exceptions.throwUncheckedException(e);
             }
           }
         } finally {

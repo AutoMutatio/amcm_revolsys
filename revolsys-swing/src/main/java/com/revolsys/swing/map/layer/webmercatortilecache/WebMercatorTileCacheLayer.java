@@ -4,12 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.coordinatesystem.model.systems.EpsgId;
-
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.data.type.DataType;
+import com.revolsys.geometry.coordinatesystem.model.systems.EpsgId;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactory;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.swing.SwingUtil;
 import com.revolsys.swing.component.BasePanel;
 import com.revolsys.swing.component.ValueField;

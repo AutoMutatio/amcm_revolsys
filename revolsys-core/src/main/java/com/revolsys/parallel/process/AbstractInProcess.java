@@ -1,7 +1,6 @@
 package com.revolsys.parallel.process;
 
-import org.jeometry.common.logging.Logs;
-
+import com.revolsys.logging.Logs;
 import com.revolsys.parallel.channel.Channel;
 import com.revolsys.parallel.channel.ClosedException;
 import com.revolsys.parallel.channel.store.Buffer;
@@ -38,9 +37,9 @@ public abstract class AbstractInProcess<T> extends AbstractProcess implements In
     if (this.in == null) {
       final String channelName = getBeanName() + ".in";
       if (this.inBufferSize == 0) {
-        setIn(new Channel<T>(channelName));
+        setIn(new Channel<>(channelName));
       } else {
-        setIn(new Channel<>(channelName, new Buffer<T>(this.inBufferSize)));
+        setIn(new Channel<>(channelName, new Buffer<>(this.inBufferSize)));
       }
     }
     return this.in;

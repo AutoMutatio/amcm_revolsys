@@ -8,10 +8,9 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.jeometry.coordinatesystem.model.CoordinateSystem;
-import org.jeometry.coordinatesystem.model.systems.EpsgCoordinateSystems;
-
 import com.revolsys.collection.map.MapEx;
+import com.revolsys.geometry.coordinatesystem.model.CoordinateSystem;
+import com.revolsys.geometry.coordinatesystem.model.systems.EpsgCoordinateSystems;
 import com.revolsys.geometry.io.GeometryReader;
 import com.revolsys.io.FileUtil;
 import com.revolsys.record.io.GeometryRecordReaderFactory;

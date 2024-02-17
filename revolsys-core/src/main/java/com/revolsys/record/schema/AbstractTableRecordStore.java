@@ -12,17 +12,18 @@ import java.util.function.Supplier;
 
 import jakarta.servlet.http.HttpServletRequest;
 
-import org.jeometry.common.data.identifier.Identifier;
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.common.io.PathName;
-import org.jeometry.common.logging.Logs;
-
+import com.revolsys.collection.json.JsonList;
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.map.MapEx;
+import com.revolsys.data.identifier.Identifier;
+import com.revolsys.data.type.DataType;
+import com.revolsys.data.type.DataTypes;
 import com.revolsys.geometry.model.GeometryFactory;
+import com.revolsys.io.PathName;
 import com.revolsys.jdbc.JdbcConnection;
 import com.revolsys.jdbc.field.JdbcFieldDefinition;
 import com.revolsys.jdbc.io.JdbcRecordStore;
+import com.revolsys.logging.Logs;
 import com.revolsys.record.ArrayChangeTrackRecord;
 import com.revolsys.record.ChangeTrackRecord;
 import com.revolsys.record.ODataParser;
@@ -30,8 +31,6 @@ import com.revolsys.record.Record;
 import com.revolsys.record.code.CodeTable;
 import com.revolsys.record.io.RecordReader;
 import com.revolsys.record.io.RecordWriter;
-import com.revolsys.record.io.format.json.JsonList;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.record.query.Cast;
 import com.revolsys.record.query.ColumnReference;
 import com.revolsys.record.query.Condition;
@@ -228,7 +227,11 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
 
   @Override
   public DeleteStatement deleteStatement() {
-    return new DeleteStatement().from(getTable());
+    throw new UnsupportedOperationException("deleteStatement(#TableRecordStoreConnection)");
+  }
+
+  public DeleteStatement deleteStatement(final TableRecordStoreConnection connection) {
+    return new TableRecordStoreDeleteStatement(connection).from(getTable());
   }
 
   protected void executeUpdate(final TableRecordStoreConnection connection, final String sql,
@@ -678,8 +681,8 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     return i;
   }
 
-  public UpdateStatement updateStatement() {
-    return new UpdateStatement().from(getTable());
+  public UpdateStatement updateStatement(final TableRecordStoreConnection connection) {
+    return new TableRecordStoreUpdateStatement(connection).from(getTable());
   }
 
   public void validateRecord(final MapEx record) {

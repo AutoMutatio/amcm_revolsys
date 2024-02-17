@@ -5,11 +5,10 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.common.io.PathName;
-
+import com.revolsys.data.type.DataTypes;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryDataTypes;
+import com.revolsys.io.PathName;
 import com.revolsys.record.AbstractRecord;
 import com.revolsys.record.Record;
 import com.revolsys.record.RecordState;

@@ -17,10 +17,10 @@ import org.apache.commons.imaging.formats.tiff.TiffImageMetadata;
 import org.apache.commons.imaging.formats.tiff.TiffImageMetadata.TiffMetadataItem;
 import org.apache.commons.imaging.formats.tiff.TiffImageParser;
 import org.apache.commons.imaging.formats.tiff.constants.GeoTiffTagConstants;
-import org.jeometry.common.exception.Exceptions;
-import org.jeometry.common.logging.Logs;
 
+import com.revolsys.exception.Exceptions;
 import com.revolsys.geometry.model.GeometryFactory;
+import com.revolsys.logging.Logs;
 import com.revolsys.raster.AbstractGeoreferencedImage;
 import com.revolsys.raster.io.format.tiff.TiffImageFactory;
 import com.revolsys.raster.io.format.tiff.code.GeoTiffConstants;

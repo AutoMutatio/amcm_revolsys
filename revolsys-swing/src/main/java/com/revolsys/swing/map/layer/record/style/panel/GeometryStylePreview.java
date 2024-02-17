@@ -8,8 +8,7 @@ import java.awt.Graphics2D;
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 
-import org.jeometry.common.data.type.DataType;
-
+import com.revolsys.data.type.DataType;
 import com.revolsys.geometry.model.GeometryDataTypes;
 import com.revolsys.geometry.model.LineString;
 import com.revolsys.geometry.model.LinearRing;

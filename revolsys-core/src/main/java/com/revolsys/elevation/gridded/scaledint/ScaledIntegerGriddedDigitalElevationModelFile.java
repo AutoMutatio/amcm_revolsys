@@ -12,10 +12,9 @@ import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.FileAttribute;
 import java.util.Set;
 
-import org.jeometry.common.exception.Exceptions;
-
 import com.revolsys.collection.set.Sets;
 import com.revolsys.elevation.gridded.DirectFileElevationModel;
+import com.revolsys.exception.Exceptions;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.gis.grid.RectangularMapGrid;

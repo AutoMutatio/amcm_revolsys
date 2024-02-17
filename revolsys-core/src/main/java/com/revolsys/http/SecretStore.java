@@ -1,8 +1,8 @@
 package com.revolsys.http;
 
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.json.JsonParser;
 import com.revolsys.io.map.ObjectFactoryConfig;
-import com.revolsys.record.io.format.json.JsonObject;
-import com.revolsys.record.io.format.json.JsonParser;
 
 public interface SecretStore {
 

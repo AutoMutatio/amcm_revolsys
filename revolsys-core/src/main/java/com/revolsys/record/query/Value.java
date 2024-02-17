@@ -8,13 +8,12 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
 
-import org.jeometry.common.data.identifier.Identifier;
-import org.jeometry.common.data.identifier.TypedIdentifier;
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.common.date.Dates;
-
 import com.revolsys.collection.map.MapEx;
+import com.revolsys.data.identifier.Identifier;
+import com.revolsys.data.identifier.TypedIdentifier;
+import com.revolsys.data.type.DataType;
+import com.revolsys.data.type.DataTypes;
+import com.revolsys.date.Dates;
 import com.revolsys.jdbc.field.JdbcFieldDefinition;
 import com.revolsys.jdbc.field.JdbcFieldDefinitions;
 import com.revolsys.record.code.CodeTable;

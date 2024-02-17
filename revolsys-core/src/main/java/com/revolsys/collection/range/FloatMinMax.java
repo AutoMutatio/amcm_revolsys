@@ -1,7 +1,6 @@
 package com.revolsys.collection.range;
 
-import org.jeometry.common.number.Floats;
-
+import com.revolsys.number.Floats;
 import com.revolsys.util.Emptyable;
 import com.revolsys.util.Property;
 

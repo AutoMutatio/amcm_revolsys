@@ -23,11 +23,6 @@ import java.util.function.Consumer;
 import javax.swing.JComponent;
 
 import org.apache.commons.beanutils.MethodUtils;
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.common.exception.Exceptions;
-import org.jeometry.common.logging.Logs;
-import org.jeometry.common.number.Integers;
 import org.springframework.core.annotation.AnnotationUtils;
 
 import com.revolsys.beans.NonWeakListener;
@@ -35,6 +30,11 @@ import com.revolsys.beans.PropertyChangeSupport;
 import com.revolsys.beans.PropertyChangeSupportProxy;
 import com.revolsys.beans.ProxyPropertyChangeListener;
 import com.revolsys.beans.WeakPropertyChangeListener;
+import com.revolsys.data.type.DataType;
+import com.revolsys.data.type.DataTypes;
+import com.revolsys.exception.Exceptions;
+import com.revolsys.logging.Logs;
+import com.revolsys.number.Integers;
 import com.revolsys.properties.ObjectWithProperties;
 import com.revolsys.record.Record;
 
@@ -570,7 +570,7 @@ public interface Property {
       }
     } else if (listener instanceof Consumer) {
       final Consumer<Object> consumer = (Consumer<Object>)listener;
-      return (e) -> {
+      return e -> {
         final Object object = e.getNewValue();
         consumer.accept(object);
       };
@@ -708,7 +708,7 @@ public interface Property {
 
   static boolean hasValue(final String string) {
     if (string != null) {
-      return !string.isBlank();
+      return !string.isEmpty();
     }
     return false;
   }
@@ -827,7 +827,7 @@ public interface Property {
   }
 
   static <V> PropertyChangeListener newListener(final BiConsumer<String, V> consumer) {
-    return (event) -> {
+    return event -> {
       final String propertyName = event.getPropertyName();
       @SuppressWarnings("unchecked")
       final V value = (V)event.getNewValue();
@@ -836,7 +836,7 @@ public interface Property {
   }
 
   static <V> PropertyChangeListener newListener(final BiFunction<String, V, ?> function) {
-    return (event) -> {
+    return event -> {
       final String propertyName = event.getPropertyName();
       @SuppressWarnings("unchecked")
       final V value = (V)event.getNewValue();

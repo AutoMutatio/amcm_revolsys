@@ -8,8 +8,7 @@ import javax.swing.JComponent;
 import javax.swing.JList;
 import javax.swing.TransferHandler;
 
-import org.jeometry.common.logging.Logs;
-
+import com.revolsys.logging.Logs;
 import com.revolsys.swing.dnd.transferable.ObjectTransferable;
 
 @SuppressWarnings("serial")

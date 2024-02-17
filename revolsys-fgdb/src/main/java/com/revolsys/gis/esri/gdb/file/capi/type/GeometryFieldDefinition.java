@@ -8,11 +8,10 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.exception.Exceptions;
-import org.jeometry.common.function.Function3;
-
+import com.revolsys.data.type.DataType;
 import com.revolsys.esri.filegdb.jni.Row;
+import com.revolsys.exception.Exceptions;
+import com.revolsys.function.Function3;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryDataTypes;
 import com.revolsys.geometry.model.GeometryFactory;

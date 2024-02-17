@@ -5,12 +5,11 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.jeometry.common.logging.Logs;
-import org.jeometry.common.number.Doubles;
-import org.jeometry.coordinatesystem.model.systems.EpsgId;
-
+import com.revolsys.geometry.coordinatesystem.model.systems.EpsgId;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactory;
+import com.revolsys.logging.Logs;
+import com.revolsys.number.Doubles;
 import com.revolsys.util.Property;
 
 public class Nts1000000RectangularMapGrid extends AbstractRectangularMapGrid {

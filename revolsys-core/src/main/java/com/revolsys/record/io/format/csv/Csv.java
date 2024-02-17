@@ -10,10 +10,9 @@ import java.nio.charset.Charset;
 import java.util.Collection;
 import java.util.Map;
 
-import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.common.exception.Exceptions;
-
 import com.revolsys.collection.map.MapEx;
+import com.revolsys.data.type.DataTypes;
+import com.revolsys.exception.Exceptions;
 import com.revolsys.io.FileUtil;
 import com.revolsys.io.map.IteratorMapReader;
 import com.revolsys.io.map.MapReader;

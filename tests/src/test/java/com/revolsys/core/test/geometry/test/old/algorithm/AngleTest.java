@@ -32,11 +32,11 @@
  */
 package com.revolsys.core.test.geometry.test.old.algorithm;
 
-import org.jeometry.common.math.Angle;
 import org.junit.Test;
 
 import com.revolsys.geometry.model.Point;
 import com.revolsys.geometry.model.impl.PointDoubleXY;
+import com.revolsys.math.Angle;
 
 import junit.framework.TestCase;
 import junit.textui.TestRunner;

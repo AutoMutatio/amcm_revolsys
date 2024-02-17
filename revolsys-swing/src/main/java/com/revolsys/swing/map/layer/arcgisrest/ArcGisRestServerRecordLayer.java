@@ -10,19 +10,18 @@ import java.util.function.Consumer;
 import javax.measure.Quantity;
 import javax.measure.quantity.Length;
 
-import org.jeometry.common.io.PathName;
-import org.jeometry.common.logging.Logs;
-import org.jeometry.coordinatesystem.model.unit.CustomUnits;
-
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.collection.map.Maps;
+import com.revolsys.geometry.coordinatesystem.model.unit.CustomUnits;
 import com.revolsys.geometry.model.BoundingBox;
+import com.revolsys.io.PathName;
+import com.revolsys.logging.Logs;
 import com.revolsys.record.Record;
 import com.revolsys.record.RecordFactory;
 import com.revolsys.record.io.RecordReader;
 import com.revolsys.record.io.format.esri.rest.ArcGisRestCatalog;
 import com.revolsys.record.io.format.esri.rest.map.FeatureLayer;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.record.query.Query;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;

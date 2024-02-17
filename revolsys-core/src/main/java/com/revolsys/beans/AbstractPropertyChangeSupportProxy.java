@@ -1,6 +1,6 @@
 package com.revolsys.beans;
 
-import org.jeometry.common.exception.Exceptions;
+import com.revolsys.exception.Exceptions;
 
 public abstract class AbstractPropertyChangeSupportProxy
   implements PropertyChangeSupportProxy, Cloneable {

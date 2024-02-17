@@ -1,6 +1,6 @@
 package com.revolsys.record.query;
 
-import org.jeometry.common.exception.Exceptions;
+import com.revolsys.exception.Exceptions;
 
 public class OrderBy implements Cloneable {
   private QueryValue field;

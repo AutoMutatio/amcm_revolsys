@@ -18,6 +18,16 @@ public class ArrayListEx<V> extends ArrayList<V> implements ListEx<V> {
   public ArrayListEx(final int initialCapacity) {
     super(initialCapacity);
   }
+
+  @Override
+  public ListEx<V> clone() {
+    return Lists.toArray(this);
+  }
+
+  @Override
+  public ListEx<V> subList(final int fromIndex, final int toIndex) {
+    return new DelegatingList<>(super.subList(fromIndex, toIndex));
+  }
   //
   // @Override
   // public ListEx<V> subList(final int fromIndex, final int toIndex) {
@@ -38,9 +48,4 @@ public class ArrayListEx<V> extends ArrayList<V> implements ListEx<V> {
   // }
   // return list;
   // }
-
-  @Override
-  public ListEx<V> clone() {
-    return Lists.toArray(this);
-  }
 }

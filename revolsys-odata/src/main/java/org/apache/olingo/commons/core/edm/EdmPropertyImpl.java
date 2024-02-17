@@ -35,16 +35,16 @@ import org.apache.olingo.commons.api.edm.provider.CsdlMapping;
 import org.apache.olingo.commons.api.edm.provider.CsdlProperty;
 import org.apache.olingo.commons.api.edm.provider.annotation.CsdlConstantExpression;
 import org.apache.olingo.commons.api.edm.provider.annotation.CsdlConstantExpression.ConstantExpressionType;
-import org.jeometry.common.data.type.CollectionDataType;
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.coordinatesystem.model.HorizontalCoordinateSystemProxy;
 
+import com.revolsys.collection.json.Json;
 import com.revolsys.collection.map.IntHashMap;
+import com.revolsys.data.type.CollectionDataType;
+import com.revolsys.data.type.DataType;
+import com.revolsys.data.type.DataTypes;
+import com.revolsys.geometry.coordinatesystem.model.HorizontalCoordinateSystemProxy;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryDataTypes;
 import com.revolsys.geometry.model.GeometryFactory;
-import com.revolsys.record.io.format.json.Json;
 import com.revolsys.record.schema.FieldDefinition;
 
 public class EdmPropertyImpl extends AbstractEdmNamed implements EdmProperty {

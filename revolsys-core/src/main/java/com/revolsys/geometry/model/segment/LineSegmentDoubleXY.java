@@ -32,8 +32,7 @@
  */
 package com.revolsys.geometry.model.segment;
 
-import org.jeometry.common.function.BiConsumerDouble;
-
+import com.revolsys.function.BiConsumerDouble;
 import com.revolsys.geometry.model.Point;
 import com.revolsys.geometry.model.impl.PointDouble;
 

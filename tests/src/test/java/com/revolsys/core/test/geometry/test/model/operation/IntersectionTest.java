@@ -1,9 +1,8 @@
 package com.revolsys.core.test.geometry.test.model.operation;
 
-import org.jeometry.common.exception.Exceptions;
-
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.core.test.geometry.test.util.WKTOrWKBReader;
+import com.revolsys.exception.Exceptions;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.geometry.wkb.ParseException;

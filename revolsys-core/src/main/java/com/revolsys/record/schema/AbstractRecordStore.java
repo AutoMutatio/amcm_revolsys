@@ -12,13 +12,12 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.function.Consumer;
 
-import org.jeometry.common.function.Consumer3;
-import org.jeometry.common.io.PathName;
-import org.jeometry.common.logging.Logs;
-
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.collection.map.Maps;
+import com.revolsys.function.Consumer3;
 import com.revolsys.geometry.model.GeometryFactory;
+import com.revolsys.io.PathName;
+import com.revolsys.logging.Logs;
 import com.revolsys.properties.BaseObjectWithProperties;
 import com.revolsys.record.ArrayRecord;
 import com.revolsys.record.Record;

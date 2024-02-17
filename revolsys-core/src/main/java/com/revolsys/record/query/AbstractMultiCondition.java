@@ -3,8 +3,7 @@ package com.revolsys.record.query;
 import java.sql.PreparedStatement;
 import java.util.List;
 
-import org.jeometry.common.data.type.DataType;
-
+import com.revolsys.data.type.DataType;
 import com.revolsys.record.schema.RecordStore;
 
 public abstract class AbstractMultiCondition extends AbstractMultiQueryValue

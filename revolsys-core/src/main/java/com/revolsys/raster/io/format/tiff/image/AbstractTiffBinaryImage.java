@@ -5,8 +5,7 @@ import java.awt.image.WritableRaster;
 import java.io.EOFException;
 import java.io.IOException;
 
-import org.jeometry.common.exception.Exceptions;
-
+import com.revolsys.exception.Exceptions;
 import com.revolsys.raster.io.format.tiff.TiffDirectory;
 import com.revolsys.raster.io.format.tiff.compression.TiffDecompressor;
 

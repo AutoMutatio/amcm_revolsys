@@ -9,9 +9,8 @@ import javax.swing.ListModel;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 
-import org.jeometry.common.data.type.DataType;
-
 import com.revolsys.collection.list.Lists;
+import com.revolsys.data.type.DataType;
 import com.revolsys.swing.parallel.Invoke;
 import com.revolsys.util.Property;
 import com.revolsys.util.Reorderable;

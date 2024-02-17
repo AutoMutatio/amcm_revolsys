@@ -1,11 +1,12 @@
 package com.revolsys.core.test.geometry.cs;
 
-import org.jeometry.coordinatesystem.model.Ellipsoid;
-import org.jeometry.coordinatesystem.model.GeographicCoordinateSystem;
-import org.jeometry.coordinatesystem.model.systems.EpsgCoordinateSystems;
-import org.jeometry.coordinatesystem.model.systems.EpsgId;
-import org.jeometry.coordinatesystem.operation.CoordinatesOperationPoint;
 import org.junit.Test;
+
+import com.revolsys.geometry.coordinatesystem.model.Ellipsoid;
+import com.revolsys.geometry.coordinatesystem.model.GeographicCoordinateSystem;
+import com.revolsys.geometry.coordinatesystem.model.systems.EpsgCoordinateSystems;
+import com.revolsys.geometry.coordinatesystem.model.systems.EpsgId;
+import com.revolsys.geometry.coordinatesystem.operation.CoordinatesOperationPoint;
 
 public class EllipsoidTest {
   private static final GeographicCoordinateSystem NAD83 = EpsgCoordinateSystems

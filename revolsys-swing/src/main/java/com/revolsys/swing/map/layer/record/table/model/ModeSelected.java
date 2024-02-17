@@ -6,8 +6,7 @@ import java.util.List;
 import javax.swing.Icon;
 import javax.swing.ListSelectionModel;
 
-import org.jeometry.common.awt.WebColors;
-
+import com.revolsys.awt.WebColors;
 import com.revolsys.swing.Icons;
 import com.revolsys.swing.map.layer.record.AbstractRecordLayer;
 import com.revolsys.swing.map.layer.record.LayerRecord;

@@ -11,10 +11,9 @@ import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.border.BevelBorder;
 
-import org.jeometry.common.logging.Logs;
-import org.jeometry.common.number.Doubles;
-
 import com.revolsys.geometry.model.Point;
+import com.revolsys.logging.Logs;
+import com.revolsys.number.Doubles;
 import com.revolsys.parallel.channel.Channel;
 import com.revolsys.parallel.channel.store.Overwrite;
 import com.revolsys.swing.map.MapPanel;

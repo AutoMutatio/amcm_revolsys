@@ -10,9 +10,8 @@ import java.sql.Statement;
 import java.util.Arrays;
 import java.util.Collection;
 
-import org.jeometry.common.io.PathName;
-
 import com.revolsys.collection.map.MapEx;
+import com.revolsys.io.PathName;
 import com.revolsys.jdbc.JdbcConnection;
 import com.revolsys.jdbc.JdbcUtils;
 import com.revolsys.jdbc.field.JdbcFieldDefinition;

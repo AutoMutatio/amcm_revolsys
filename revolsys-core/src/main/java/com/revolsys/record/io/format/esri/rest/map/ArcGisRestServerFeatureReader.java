@@ -1,7 +1,6 @@
 package com.revolsys.record.io.format.esri.rest.map;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -10,13 +9,14 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.function.BiFunction;
 
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.common.exception.Exceptions;
-import org.jeometry.common.logging.Logs;
-
+import com.revolsys.collection.json.JsonParser;
+import com.revolsys.collection.json.JsonParser.EventType;
+import com.revolsys.collection.list.ListEx;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.collection.map.Maps;
+import com.revolsys.data.type.DataType;
+import com.revolsys.data.type.DataTypes;
+import com.revolsys.exception.Exceptions;
 import com.revolsys.geometry.model.ClockDirection;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryDataTypes;
@@ -25,19 +25,18 @@ import com.revolsys.geometry.model.LineString;
 import com.revolsys.geometry.model.LinearRing;
 import com.revolsys.geometry.model.Point;
 import com.revolsys.geometry.model.Polygon;
-import com.revolsys.io.BaseCloseable;
 import com.revolsys.io.FileUtil;
+import com.revolsys.logging.Logs;
 import com.revolsys.net.urlcache.FileResponseCache;
 import com.revolsys.record.ArrayRecord;
 import com.revolsys.record.Record;
 import com.revolsys.record.RecordFactory;
 import com.revolsys.record.RecordState;
 import com.revolsys.record.io.AbstractRecordReader;
-import com.revolsys.record.io.format.json.JsonParser;
-import com.revolsys.record.io.format.json.JsonParser.EventType;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.spring.resource.Resource;
+import com.revolsys.util.BaseCloseable;
 import com.revolsys.util.Property;
 
 public class ArcGisRestServerFeatureReader extends AbstractRecordReader {
@@ -57,7 +56,7 @@ public class ArcGisRestServerFeatureReader extends AbstractRecordReader {
   public static Geometry parseMultiLineString(final GeometryFactory geometryFactory,
     final MapEx properties) {
     final List<LineString> lines = new ArrayList<>();
-    final List<List<List<Number>>> paths = properties.getValue("paths", Collections.emptyList());
+    final ListEx<List<List<Number>>> paths = properties.getList("paths");
     for (final List<List<Number>> points : paths) {
       final LineString lineString = geometryFactory.lineString(points);
       lines.add(lineString);
@@ -68,7 +67,7 @@ public class ArcGisRestServerFeatureReader extends AbstractRecordReader {
   public static Geometry parseMultiPoint(final GeometryFactory geometryFactory,
     final MapEx properties) {
     final List<Point> lines = new ArrayList<>();
-    final List<List<Number>> paths = properties.getValue("paths", Collections.emptyList());
+    final ListEx<List<Number>> paths = properties.getValue("paths");
     for (final List<Number> pointCoordinates : paths) {
       final Point point = geometryFactory.point(pointCoordinates);
       lines.add(point);
@@ -80,7 +79,7 @@ public class ArcGisRestServerFeatureReader extends AbstractRecordReader {
     final MapEx properties) {
     final List<Polygon> polygons = new ArrayList<>();
     final List<LinearRing> rings = new ArrayList<>();
-    final List<List<List<Number>>> paths = properties.getValue("rings", Collections.emptyList());
+    final ListEx<List<List<Number>>> paths = properties.getValue("rings");
     for (final List<List<Number>> points : paths) {
       final LinearRing ring = geometryFactory.linearRing(points);
       if (ring.isClockwise()) {

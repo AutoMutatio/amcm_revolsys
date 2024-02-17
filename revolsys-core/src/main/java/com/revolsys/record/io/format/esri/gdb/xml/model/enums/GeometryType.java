@@ -1,7 +1,6 @@
 package com.revolsys.record.io.format.esri.gdb.xml.model.enums;
 
-import org.jeometry.common.data.type.DataType;
-
+import com.revolsys.data.type.DataType;
 import com.revolsys.geometry.model.GeometryDataTypes;
 
 public enum GeometryType {
@@ -26,7 +25,7 @@ public enum GeometryType {
   esriGeometryTriangles(null), //
   esriGeometryTriangleStrip(null);
 
-  private DataType dataType;
+  private final DataType dataType;
 
   private GeometryType(final DataType dataType) {
     this.dataType = dataType;

@@ -2,9 +2,9 @@ package com.revolsys.swing.map.layer.raster;
 
 import java.awt.RenderingHints;
 
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.raster.GeoreferencedImage;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.swing.map.layer.AbstractLayerRenderer;
 import com.revolsys.swing.map.view.ViewRenderer;
 

@@ -2,9 +2,8 @@ package com.revolsys.swing.map.layer.raster;
 
 import java.io.File;
 
-import org.jeometry.common.logging.Logs;
-
 import com.revolsys.geometry.model.BoundingBox;
+import com.revolsys.logging.Logs;
 import com.revolsys.raster.GeoreferencedImage;
 import com.revolsys.swing.map.ImageViewport;
 import com.revolsys.swing.map.Viewport2D;

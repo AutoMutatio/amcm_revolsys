@@ -8,8 +8,6 @@ import java.lang.reflect.Proxy;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-import com.revolsys.io.BaseCloseable;
-
 public class CleanableProxy<R> implements BaseCloseable {
 
   public static <RI extends BaseCloseable> CleanableProxy<RI> newProxy(

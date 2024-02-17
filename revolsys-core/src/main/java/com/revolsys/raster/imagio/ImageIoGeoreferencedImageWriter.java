@@ -11,9 +11,8 @@ import javax.imageio.ImageTypeSpecifier;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.ImageOutputStream;
 
-import org.jeometry.common.awt.WebColors;
-import org.jeometry.common.exception.Exceptions;
-
+import com.revolsys.awt.WebColors;
+import com.revolsys.exception.Exceptions;
 import com.revolsys.raster.GeoreferencedImage;
 import com.revolsys.raster.GeoreferencedImageWriter;
 import com.revolsys.spring.resource.Resource;

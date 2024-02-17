@@ -50,7 +50,7 @@ public enum CompassDirection {
     return direction;
   }
 
-  private String description;
+  private final String description;
 
   private CompassDirection(final String description) {
     this.description = description;

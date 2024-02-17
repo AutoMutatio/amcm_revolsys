@@ -3,8 +3,7 @@ package com.revolsys.record.filter;
 import java.util.Collection;
 import java.util.function.Predicate;
 
-import org.jeometry.common.io.PathName;
-
+import com.revolsys.io.PathName;
 import com.revolsys.record.Record;
 
 public interface RecordFilters {

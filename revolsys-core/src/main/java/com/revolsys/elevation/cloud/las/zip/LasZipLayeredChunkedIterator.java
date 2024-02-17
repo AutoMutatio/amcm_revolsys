@@ -2,11 +2,10 @@ package com.revolsys.elevation.cloud.las.zip;
 
 import java.util.Iterator;
 
-import org.jeometry.common.exception.Exceptions;
-
 import com.revolsys.elevation.cloud.las.LasPointCloud;
 import com.revolsys.elevation.cloud.las.LasPointCloudIterator;
 import com.revolsys.elevation.cloud.las.pointformat.LasPoint;
+import com.revolsys.exception.Exceptions;
 import com.revolsys.io.channels.DataReader;
 import com.revolsys.math.arithmeticcoding.ArithmeticCodingInteger;
 import com.revolsys.math.arithmeticcoding.ArithmeticDecoder;

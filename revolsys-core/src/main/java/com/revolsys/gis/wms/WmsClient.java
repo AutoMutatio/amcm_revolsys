@@ -10,10 +10,10 @@ import java.util.Map;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import org.jeometry.common.exception.Exceptions;
-import org.jeometry.coordinatesystem.model.systems.EpsgId;
 import org.w3c.dom.Document;
 
+import com.revolsys.exception.Exceptions;
+import com.revolsys.geometry.coordinatesystem.model.systems.EpsgId;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.gis.wms.capabilities.WmsCapabilities;

@@ -11,14 +11,14 @@ import java.util.regex.Pattern;
 
 import javax.sql.DataSource;
 
-import org.jeometry.common.logging.Logs;
 import org.springframework.dao.DataAccessException;
 
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.io.IoFactory;
 import com.revolsys.jdbc.JdbcUtils;
+import com.revolsys.logging.Logs;
 import com.revolsys.record.io.RecordStoreFactory;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordStore;
 import com.revolsys.util.PasswordUtil;

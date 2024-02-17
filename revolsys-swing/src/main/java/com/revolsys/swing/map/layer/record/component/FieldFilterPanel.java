@@ -20,13 +20,12 @@ import javax.swing.event.DocumentListener;
 import javax.swing.text.JTextComponent;
 
 import org.jdesktop.swingx.JXSearchField;
-import org.jeometry.common.awt.WebColors;
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.common.logging.Logs;
 
+import com.revolsys.awt.WebColors;
 import com.revolsys.collection.map.MapEx;
-import com.revolsys.io.BaseCloseable;
+import com.revolsys.data.type.DataType;
+import com.revolsys.data.type.DataTypes;
+import com.revolsys.logging.Logs;
 import com.revolsys.record.code.CodeTable;
 import com.revolsys.record.query.BinaryCondition;
 import com.revolsys.record.query.ColumnReference;
@@ -56,6 +55,7 @@ import com.revolsys.swing.map.layer.record.renderer.AbstractRecordLayerRenderer;
 import com.revolsys.swing.map.layer.record.table.model.RecordLayerTableModel;
 import com.revolsys.swing.parallel.Invoke;
 import com.revolsys.swing.table.TablePanel;
+import com.revolsys.util.BaseCloseable;
 import com.revolsys.util.Property;
 import com.revolsys.value.GlobalBooleanValue;
 
@@ -107,7 +107,7 @@ public class FieldFilterPanel extends JComponent implements PropertyChangeListen
 
   private final TextField whereField = new TextField(20).setFieldEditable(false);
 
-  private final ItemListener itemListener = (e) -> {
+  private final ItemListener itemListener = e -> {
     if (this.settingFilter.isFalse()) {
       if (e.getStateChange() == ItemEvent.SELECTED) {
         final Object source = e.getSource();
@@ -175,9 +175,7 @@ public class FieldFilterPanel extends JComponent implements PropertyChangeListen
       add(this.whereField);
 
       this.nameField = ComboBox.newComboBox("fieldNames", this.fieldNames,
-        (final Object fieldName) -> {
-          return this.layer.getFieldTitle((String)fieldName);
-        });
+        (final Object fieldName) -> this.layer.getFieldTitle((String)fieldName));
       this.nameField.addActionListener(this.actionListener);
       add(this.nameField);
 

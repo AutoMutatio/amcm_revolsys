@@ -33,9 +33,8 @@
 
 package com.revolsys.geometry.operation.distance;
 
-import org.jeometry.common.function.BiConsumerDouble;
-import org.jeometry.common.function.Consumer3Double;
-
+import com.revolsys.function.BiConsumerDouble;
+import com.revolsys.function.Consumer3Double;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.LineString;
 import com.revolsys.geometry.model.Point;

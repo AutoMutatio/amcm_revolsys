@@ -5,8 +5,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
-import org.jeometry.common.exception.Exceptions;
-
+import com.revolsys.exception.Exceptions;
 import com.revolsys.io.EndOfFileException;
 
 public interface EndianInput extends Closeable {
@@ -80,15 +79,6 @@ public interface EndianInput extends Closeable {
       throw new EndOfFileException();
     }
     return (byte)ch;
-  }
-
-  default byte[] readBytes(final int length) throws IOException {
-    final byte[] buffer = new byte[length];
-    if (read(buffer, 0, length) == length) {
-      return buffer;
-    } else {
-      throw new EndOfFileException();
-    }
   }
 
   /**
@@ -361,6 +351,15 @@ public interface EndianInput extends Closeable {
       + ((read() & 255) << 8) + ((read() & 255) << 0);
   }
 
+  default byte[] readNBytes(final int length) throws IOException {
+    final byte[] buffer = new byte[length];
+    if (read(buffer, 0, length) == length) {
+      return buffer;
+    } else {
+      throw new EndOfFileException();
+    }
+  }
+
   /**
   * Read a big endian short.
   *
@@ -410,13 +409,12 @@ public interface EndianInput extends Closeable {
     return readString(byteCount, StandardCharsets.US_ASCII);
   }
 
-  default int skipBytes(final int byteCount) throws IOException {
+  default void skipNBytes(final long byteCount) throws IOException {
     int i = 0;
     for (; i < byteCount; i++) {
       if (read() == -1) {
-        return i;
+        return;
       }
     }
-    return i;
   }
 }

@@ -1,6 +1,6 @@
 package com.revolsys.record.schema;
 
-import org.jeometry.common.io.PathNameProxy;
+import com.revolsys.io.PathNameProxy;
 
 public interface TableRecordStoreFactory extends RecordDefinitionFactory {
 

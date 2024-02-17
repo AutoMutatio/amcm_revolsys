@@ -7,8 +7,8 @@ import java.util.Map;
 
 import org.postgresql.util.PGobject;
 
+import com.revolsys.collection.json.Json;
 import com.revolsys.jdbc.field.JdbcFieldDefinition;
-import com.revolsys.record.io.format.json.Json;
 import com.revolsys.record.query.ColumnIndexes;
 import com.revolsys.record.schema.RecordDefinition;
 

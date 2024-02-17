@@ -1,6 +1,6 @@
 package com.revolsys.record.io.format.openstreetmap.model;
 
-import org.jeometry.common.data.identifier.SingleIdentifier;
+import com.revolsys.data.identifier.SingleIdentifier;
 
 public class OsmRelationIdentifier extends SingleIdentifier {
 

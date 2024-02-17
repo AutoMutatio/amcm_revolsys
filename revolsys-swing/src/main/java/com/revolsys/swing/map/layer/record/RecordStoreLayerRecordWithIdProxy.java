@@ -1,6 +1,6 @@
 package com.revolsys.swing.map.layer.record;
 
-import org.jeometry.common.data.identifier.Identifier;
+import com.revolsys.data.identifier.Identifier;
 
 public class RecordStoreLayerRecordWithIdProxy extends AbstractProxyLayerRecord {
 

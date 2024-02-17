@@ -4,11 +4,10 @@ import java.sql.PreparedStatement;
 import java.util.Arrays;
 import java.util.List;
 
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.common.exception.Exceptions;
-
 import com.revolsys.collection.map.MapEx;
+import com.revolsys.data.type.DataType;
+import com.revolsys.data.type.DataTypes;
+import com.revolsys.exception.Exceptions;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.record.query.Query;
 import com.revolsys.record.query.QueryValue;

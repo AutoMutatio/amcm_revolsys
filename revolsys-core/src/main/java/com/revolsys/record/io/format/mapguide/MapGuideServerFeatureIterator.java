@@ -5,11 +5,10 @@ import java.util.NoSuchElementException;
 
 import javax.xml.namespace.QName;
 
-import org.jeometry.common.logging.Logs;
-
 import com.revolsys.collection.iterator.AbstractIterator;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.io.FileUtil;
+import com.revolsys.logging.Logs;
 import com.revolsys.record.ArrayRecord;
 import com.revolsys.record.Record;
 import com.revolsys.record.RecordFactory;

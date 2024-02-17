@@ -28,15 +28,14 @@ import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 import javax.swing.table.TableCellEditor;
 
-import org.jeometry.common.data.type.DataTypes;
-
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.json.JsonObjectHash;
 import com.revolsys.collection.list.Lists;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.collection.map.Maps;
 import com.revolsys.comparator.StringNumberComparator;
+import com.revolsys.data.type.DataTypes;
 import com.revolsys.io.map.MapSerializer;
-import com.revolsys.record.io.format.json.JsonObject;
-import com.revolsys.record.io.format.json.JsonObjectHash;
 import com.revolsys.record.query.Condition;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.swing.Icons;

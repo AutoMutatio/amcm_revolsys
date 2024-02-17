@@ -34,8 +34,7 @@ package com.revolsys.geometry.model.segment;
 
 import java.util.Arrays;
 
-import org.jeometry.common.function.BiConsumerDouble;
-
+import com.revolsys.function.BiConsumerDouble;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.geometry.model.LineString;
 import com.revolsys.geometry.model.Point;

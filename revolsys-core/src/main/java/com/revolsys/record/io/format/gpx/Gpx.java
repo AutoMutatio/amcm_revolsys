@@ -5,9 +5,8 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 
-import org.jeometry.coordinatesystem.model.systems.EpsgId;
-
 import com.revolsys.collection.map.MapEx;
+import com.revolsys.geometry.coordinatesystem.model.systems.EpsgId;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.io.FileUtil;
 import com.revolsys.record.Record;

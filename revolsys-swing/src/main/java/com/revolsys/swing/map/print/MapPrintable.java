@@ -12,8 +12,7 @@ import java.awt.print.PageFormat;
 import java.awt.print.Printable;
 import java.awt.print.PrinterException;
 
-import org.jeometry.coordinatesystem.model.unit.CustomUnits;
-
+import com.revolsys.geometry.coordinatesystem.model.unit.CustomUnits;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.swing.map.layer.LayerGroup;
 import com.revolsys.swing.map.layer.Project;

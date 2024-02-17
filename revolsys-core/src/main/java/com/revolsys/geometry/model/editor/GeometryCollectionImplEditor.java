@@ -3,10 +3,9 @@ package com.revolsys.geometry.model.editor;
 import java.util.List;
 import java.util.function.Consumer;
 
-import org.jeometry.common.function.BiConsumerDouble;
-import org.jeometry.common.function.BiFunctionDouble;
-import org.jeometry.common.function.Consumer3Double;
-
+import com.revolsys.function.BiConsumerDouble;
+import com.revolsys.function.BiFunctionDouble;
+import com.revolsys.function.Consumer3Double;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryDataType;
 import com.revolsys.geometry.model.GeometryFactory;

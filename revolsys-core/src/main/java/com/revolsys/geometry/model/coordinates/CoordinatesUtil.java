@@ -1,14 +1,13 @@
 package com.revolsys.geometry.model.coordinates;
 
-import org.jeometry.common.math.Angle;
-import org.jeometry.common.number.Doubles;
-
 import com.revolsys.geometry.model.LineString;
 import com.revolsys.geometry.model.Point;
 import com.revolsys.geometry.model.coordinates.list.CoordinatesListUtil;
 import com.revolsys.geometry.model.impl.PointDouble;
 import com.revolsys.geometry.model.impl.PointDoubleXY;
 import com.revolsys.geometry.util.Points;
+import com.revolsys.math.Angle;
+import com.revolsys.number.Doubles;
 import com.revolsys.util.Trig;
 
 public interface CoordinatesUtil {

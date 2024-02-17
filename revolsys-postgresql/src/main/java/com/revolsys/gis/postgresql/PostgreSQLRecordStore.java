@@ -13,15 +13,14 @@ import java.util.Set;
 
 import javax.sql.DataSource;
 
-import org.jeometry.common.data.identifier.Identifier;
-import org.jeometry.common.data.type.CollectionDataType;
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.common.exception.Exceptions;
-import org.jeometry.common.io.PathName;
 import org.postgresql.jdbc.PgConnection;
 
 import com.revolsys.collection.ResultPager;
+import com.revolsys.data.identifier.Identifier;
+import com.revolsys.data.type.CollectionDataType;
+import com.revolsys.data.type.DataType;
+import com.revolsys.data.type.DataTypes;
+import com.revolsys.exception.Exceptions;
 import com.revolsys.gis.postgresql.type.PostgreSQLArrayFieldDefinition;
 import com.revolsys.gis.postgresql.type.PostgreSQLBoundingBoxWrapper;
 import com.revolsys.gis.postgresql.type.PostgreSQLGeometryFieldAdder;
@@ -30,6 +29,7 @@ import com.revolsys.gis.postgresql.type.PostgreSQLJdbcBlobFieldDefinition;
 import com.revolsys.gis.postgresql.type.PostgreSQLJsonbFieldDefinition;
 import com.revolsys.gis.postgresql.type.PostgreSQLOidFieldDefinition;
 import com.revolsys.gis.postgresql.type.PostgreSQLTidWrapper;
+import com.revolsys.io.PathName;
 import com.revolsys.jdbc.JdbcConnection;
 import com.revolsys.jdbc.JdbcUtils;
 import com.revolsys.jdbc.field.JdbcFieldAdder;
@@ -304,7 +304,7 @@ public class PostgreSQLRecordStore extends AbstractJdbcRecordStore {
       + "privilege_type IN ('SELECT', 'INSERT','UPDATE','DELETE') ");
     setSchemaTablePermissionsSql(
       "select distinct t.table_schema as \"SCHEMA_NAME\", t.table_name, t.privilege_type as \"PRIVILEGE\", d.description as \"REMARKS\", "
-        + "  CASE WHEN relkind = 'r' THEN 'TABLE' WHEN relkind = 'v' THEN 'VIEW' ELSE relkind || '' END \"TABLE_TYPE\" "
+        + "  CASE WHEN relkind = 'r' THEN 'TABLE' WHEN relkind = 'v' THEN 'VIEW' ELSE relkind::text || '' END \"TABLE_TYPE\" "
         + "from" //
         + "  information_schema.role_table_grants t"//
         + "    join pg_namespace n on t.table_schema = n.nspname"//

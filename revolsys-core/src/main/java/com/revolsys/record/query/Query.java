@@ -14,14 +14,17 @@ import java.util.Map.Entry;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-import org.jeometry.common.io.PathName;
 import org.springframework.transaction.PlatformTransactionManager;
 
+import com.revolsys.collection.json.Json;
 import com.revolsys.collection.map.MapEx;
+import com.revolsys.function.Lambdaable;
 import com.revolsys.geometry.model.BoundingBox;
+import com.revolsys.io.PathName;
 import com.revolsys.jdbc.JdbcUtils;
 import com.revolsys.jdbc.field.JdbcFieldDefinition;
 import com.revolsys.jdbc.field.JdbcFieldDefinitions;
@@ -34,7 +37,6 @@ import com.revolsys.record.RecordFactory;
 import com.revolsys.record.Records;
 import com.revolsys.record.io.RecordReader;
 import com.revolsys.record.io.RecordWriter;
-import com.revolsys.record.io.format.json.Json;
 import com.revolsys.record.query.functions.Exists;
 import com.revolsys.record.query.functions.F;
 import com.revolsys.record.schema.FieldDefinition;
@@ -50,11 +52,11 @@ import com.revolsys.util.CancellableProxy;
 import com.revolsys.util.Property;
 import com.revolsys.util.count.LabelCounters;
 
-public class Query extends BaseObjectWithProperties
-  implements Cloneable, CancellableProxy, Transactionable, QueryValue, TableReferenceProxy {
+public class Query extends BaseObjectWithProperties implements Cloneable, CancellableProxy,
+    Transactionable, QueryValue, TableReferenceProxy, Lambdaable<Query> {
 
   private static void addFilter(final Query query, final RecordDefinition recordDefinition,
-    final Map<String, ?> filter, final AbstractMultiCondition multipleCondition) {
+      final Map<String, ?> filter, final AbstractMultiCondition multipleCondition) {
     if (filter != null && !filter.isEmpty()) {
       for (final Entry<String, ?> entry : filter.entrySet()) {
         final String name = entry.getKey();
@@ -64,7 +66,7 @@ public class Query extends BaseObjectWithProperties
           if (value == null) {
             multipleCondition.addCondition(Q.isNull(name));
           } else if (value instanceof Collection) {
-            final Collection<?> values = (Collection<?>)value;
+            final Collection<?> values = (Collection<?>) value;
             multipleCondition.addCondition(new In(name, values));
           } else {
             multipleCondition.addCondition(Q.equal(name, value));
@@ -74,7 +76,7 @@ public class Query extends BaseObjectWithProperties
           if (value == null) {
             multipleCondition.addCondition(Q.isNull(name));
           } else if (value instanceof Collection) {
-            final Collection<?> values = (Collection<?>)value;
+            final Collection<?> values = (Collection<?>) value;
             multipleCondition.addCondition(new In(fieldDefinition, values));
           } else {
             multipleCondition.addCondition(Q.equal(fieldDefinition, value));
@@ -102,7 +104,7 @@ public class Query extends BaseObjectWithProperties
   }
 
   public static Query equal(final RecordDefinitionProxy recordDefinition, final String name,
-    final Object value) {
+      final Object value) {
     final FieldDefinition fieldDefinition = recordDefinition.getFieldDefinition(name);
     if (fieldDefinition == null) {
       return null;
@@ -116,7 +118,7 @@ public class Query extends BaseObjectWithProperties
   }
 
   public static Query intersects(final RecordDefinition recordDefinition,
-    final BoundingBox boundingBox) {
+      final BoundingBox boundingBox) {
     final FieldDefinition geometryField = recordDefinition.getGeometryField();
     if (geometryField == null) {
       return null;
@@ -129,7 +131,7 @@ public class Query extends BaseObjectWithProperties
   }
 
   public static Query intersects(final RecordStore recordStore, final PathName path,
-    final BoundingBox boundingBox) {
+      final BoundingBox boundingBox) {
     final RecordDefinition recordDefinition = recordStore.getRecordDefinition(path);
     return intersects(recordDefinition, boundingBox);
   }
@@ -139,7 +141,7 @@ public class Query extends BaseObjectWithProperties
   }
 
   public static Query newQuery(final RecordDefinitionProxy recordDefinition,
-    final Condition whereCondition) {
+      final Condition whereCondition) {
     final TableReference table = TableReference.getTableReference(recordDefinition);
     return new Query(table, whereCondition);
   }
@@ -158,8 +160,8 @@ public class Query extends BaseObjectWithProperties
   }
 
   public static Query where(
-    final BiFunction<FieldDefinition, Object, BinaryCondition> whereFunction,
-    final FieldDefinition field, final Object value) {
+      final BiFunction<FieldDefinition, Object, BinaryCondition> whereFunction,
+      final FieldDefinition field, final Object value) {
     final RecordDefinition recordDefinition = field.getRecordDefinition();
     final Query query = new Query(recordDefinition);
     final Value valueCondition = Value.newValue(field, value);
@@ -202,6 +204,10 @@ public class Query extends BaseObjectWithProperties
 
   private final List<WithQuery> withQueries = new ArrayList<>();
 
+  private Union union;
+
+  private Condition having = Condition.ALL;
+
   public Query() {
     this("/Record");
   }
@@ -233,14 +239,14 @@ public class Query extends BaseObjectWithProperties
 
   public Query addGroupBy(final Object groupByItem) {
     if (groupByItem instanceof QueryValue) {
-      final QueryValue queryValue = (QueryValue)groupByItem;
+      final QueryValue queryValue = (QueryValue) groupByItem;
       this.groupBy.add(queryValue);
     } else if (groupByItem instanceof CharSequence) {
-      final CharSequence fieldName = (CharSequence)groupByItem;
+      final CharSequence fieldName = (CharSequence) groupByItem;
       final ColumnReference column = this.table.getColumn(fieldName);
       this.groupBy.add(column);
     } else if (groupByItem instanceof Integer) {
-      final Integer index = (Integer)groupByItem;
+      final Integer index = (Integer) groupByItem;
       final ColumnIndex columnIndex = new ColumnIndex(index);
       this.groupBy.add(columnIndex);
     } else {
@@ -274,16 +280,16 @@ public class Query extends BaseObjectWithProperties
   public Query addOrderBy(final Object field, final boolean ascending) {
     QueryValue queryValue;
     if (field instanceof QueryValue) {
-      queryValue = (QueryValue)field;
+      queryValue = (QueryValue) field;
     } else if (field instanceof CharSequence) {
-      final CharSequence name = (CharSequence)field;
+      final CharSequence name = (CharSequence) field;
       try {
         queryValue = this.table.getColumn(name);
       } catch (final IllegalArgumentException e) {
         queryValue = new Column(name);
       }
     } else if (field instanceof Integer) {
-      final Integer index = (Integer)field;
+      final Integer index = (Integer) field;
       queryValue = new ColumnIndex(index);
     } else {
       throw new IllegalArgumentException("Not a field name: " + field);
@@ -306,7 +312,7 @@ public class Query extends BaseObjectWithProperties
   }
 
   public void addOrderBy(final SqlAppendable sql, final TableReferenceProxy table,
-    final List<OrderBy> orderBy) {
+      final List<OrderBy> orderBy) {
     if (!orderBy.isEmpty()) {
       sql.append(" ORDER BY ");
       appendOrderByFields(sql, table, orderBy);
@@ -336,7 +342,7 @@ public class Query extends BaseObjectWithProperties
     } else {
       QueryValue right;
       if (value instanceof QueryValue) {
-        right = (QueryValue)value;
+        right = (QueryValue) value;
       } else {
         right = new Value(left, value);
       }
@@ -381,13 +387,13 @@ public class Query extends BaseObjectWithProperties
   }
 
   public Query and(final String fieldName,
-    final BiFunction<QueryValue, QueryValue, Condition> operator, final Object value) {
+      final BiFunction<QueryValue, QueryValue, Condition> operator, final Object value) {
     final Condition condition = newCondition(fieldName, operator, value);
     return and(condition);
   }
 
   public Query and(final String fieldName,
-    final java.util.function.Function<QueryValue, Condition> operator) {
+      final java.util.function.Function<QueryValue, Condition> operator) {
     final Condition condition = newCondition(fieldName, operator);
     return and(condition);
   }
@@ -400,7 +406,7 @@ public class Query extends BaseObjectWithProperties
     } else {
       QueryValue right;
       if (value instanceof QueryValue) {
-        right = (QueryValue)value;
+        right = (QueryValue) value;
       } else {
         right = new Value(left, value);
       }
@@ -422,6 +428,7 @@ public class Query extends BaseObjectWithProperties
 
   /**
    * Create an Or from the conditions and and it to this query;
+   *
    * @param conditions
    * @return
    */
@@ -437,12 +444,12 @@ public class Query extends BaseObjectWithProperties
 
   @Override
   public void appendDefaultSql(final Query query, final RecordStore recordStore,
-    final SqlAppendable sql) {
+      final SqlAppendable sql) {
     appendSql(sql);
   }
 
   public SqlAppendable appendOrderByFields(final SqlAppendable sql, final TableReferenceProxy table,
-    final List<OrderBy> orderBy) {
+      final List<OrderBy> orderBy) {
     boolean first = true;
     for (final OrderBy order : orderBy) {
       if (first) {
@@ -457,6 +464,11 @@ public class Query extends BaseObjectWithProperties
 
   @Override
   public int appendParameters(int index, final PreparedStatement statement) {
+    if (!this.withQueries.isEmpty()) {
+      for (final var with : this.withQueries) {
+        index = with.appendParameters(index, statement);
+      }
+    }
     for (final Object parameter : getParameters()) {
       final JdbcFieldDefinition field = JdbcFieldDefinitions.newFieldDefinition(parameter);
       try {
@@ -472,6 +484,12 @@ public class Query extends BaseObjectWithProperties
     final Condition where = getWhereCondition();
     if (!where.isEmpty()) {
       index = where.appendParameters(index, statement);
+    }
+    if (!this.having.isEmpty()) {
+      index = this.having.appendParameters(index, statement);
+    }
+    if (this.union != null) {
+      index = this.union.appendParameters(index, statement);
     }
     return index;
   }
@@ -506,7 +524,7 @@ public class Query extends BaseObjectWithProperties
   }
 
   protected void appendSql(final SqlAppendable sql, final TableReferenceProxy table,
-    final List<OrderBy> orderBy) {
+      final List<OrderBy> orderBy) {
     From from = getFrom();
     if (from == null) {
       from = table.getTableReference();
@@ -523,9 +541,10 @@ public class Query extends BaseObjectWithProperties
           first = false;
         } else {
           sql.append("\n");
-          withQuery.appendSql(sql);
         }
+        withQuery.appendSql(sql);
       }
+      sql.append(" ");
     }
     sql.append("SELECT ");
     if (distinct) {
@@ -551,10 +570,18 @@ public class Query extends BaseObjectWithProperties
         table.getTableReference().appendQueryValue(this, sql, groupByItem);
       }
     }
+    if (!this.having.isEmpty()) {
+      sql.append(" HAVING ");
+      JdbcUtils.appendQueryValue(sql, this, this.having);
+    }
 
     addOrderBy(sql, table, orderBy);
 
     lockMode.append(sql);
+
+    if (this.union != null) {
+      this.union.appendSql(sql);
+    }
   }
 
   public Exists asExists() {
@@ -573,7 +600,7 @@ public class Query extends BaseObjectWithProperties
 
   @Override
   public Query clone() {
-    final Query clone = (Query)super.clone();
+    final Query clone = (Query) super.clone();
     clone.table = this.table;
     clone.selectExpressions = new ArrayList<>(clone.selectExpressions);
     clone.joins = new ArrayList<>(clone.joins);
@@ -591,10 +618,10 @@ public class Query extends BaseObjectWithProperties
 
   @Override
   public Query clone(final TableReference oldTable, final TableReference newTable) {
-    final Query clone = (Query)super.clone();
+    final Query clone = (Query) super.clone();
     clone.table = this.table;
     clone.selectExpressions = QueryValue.cloneQueryValues(oldTable, newTable,
-      clone.selectExpressions);
+        clone.selectExpressions);
     clone.joins = QueryValue.cloneQueryValues(oldTable, newTable, this.joins);
     clone.parameters = new ArrayList<>(this.parameters);
     clone.orderBy = new ArrayList<>(this.orderBy);
@@ -611,18 +638,22 @@ public class Query extends BaseObjectWithProperties
     return getRecordDefinition().getRecordStore().deleteRecords(this);
   }
 
+  public boolean exists() {
+    return getRecordCount() != 0;
+  }
+
   public void forEachRecord(final Consumer<? super Record> action) {
     try (
-      RecordReader reader = getRecordReader()) {
+        RecordReader reader = getRecordReader()) {
       reader.forEach(action);
     }
   }
 
   @SuppressWarnings("unchecked")
   public <R extends MapEx> void forEachRecord(final Iterable<R> records,
-    final Consumer<? super R> consumer) {
+      final Consumer<? super R> consumer) {
     final List<OrderBy> orderBy = getOrderBy();
-    final Predicate<R> filter = (Predicate<R>)getWhereCondition();
+    final Predicate<R> filter = (Predicate<R>) getWhereCondition();
     if (orderBy.isEmpty()) {
       if (filter == null) {
         records.forEach(consumer);
@@ -692,7 +723,7 @@ public class Query extends BaseObjectWithProperties
 
   @SuppressWarnings("unchecked")
   public <R extends Record> R getRecord() {
-    return (R)getRecordDefinition().getRecord(this);
+    return (R) getRecordDefinition().getRecord(this);
   }
 
   public long getRecordCount() {
@@ -709,7 +740,7 @@ public class Query extends BaseObjectWithProperties
 
   @SuppressWarnings("unchecked")
   public <V extends Record> RecordFactory<V> getRecordFactory() {
-    return (RecordFactory<V>)this.recordFactory;
+    return (RecordFactory<V>) this.recordFactory;
   }
 
   public RecordReader getRecordReader() {
@@ -722,7 +753,7 @@ public class Query extends BaseObjectWithProperties
 
   public List<Record> getRecords() {
     try (
-      RecordReader records = getRecordReader()) {
+        RecordReader records = getRecordReader()) {
       return records.toList();
     }
   }
@@ -740,13 +771,13 @@ public class Query extends BaseObjectWithProperties
   }
 
   @SuppressWarnings({
-    "unchecked", "rawtypes"
+      "unchecked", "rawtypes"
   })
   public List<QueryValue> getSelectExpressions() {
     if (this.selectExpressions.isEmpty() && this.table != null) {
       final RecordDefinition recordDefinition = this.table.getRecordDefinition();
       if (recordDefinition != null) {
-        return (List)recordDefinition.getFieldDefinitions();
+        return (List) recordDefinition.getFieldDefinitions();
       }
     }
     return this.selectExpressions;
@@ -862,6 +893,12 @@ public class Query extends BaseObjectWithProperties
     return !this.selectExpressions.isEmpty();
   }
 
+  public Query having(final Consumer<WhereConditionBuilder> action) {
+    final WhereConditionBuilder builder = new WhereConditionBuilder(getTableReference());
+    this.having = builder.build(action);
+    return this;
+  }
+
   public Record insertRecord(final Supplier<Record> newRecordSupplier) {
     final ChangeTrackRecord changeTrackRecord = getRecord();
     if (changeTrackRecord == null) {
@@ -885,7 +922,7 @@ public class Query extends BaseObjectWithProperties
     } else if (this.selectExpressions.isEmpty()) {
       return false;
     } else if (this.selectExpressions.size() == 1
-      && this.selectExpressions.get(0) instanceof AllColumns) {
+        && this.selectExpressions.get(0) instanceof AllColumns) {
       return false;
     } else {
       return true;
@@ -920,8 +957,9 @@ public class Query extends BaseObjectWithProperties
     return join(JoinType.JOIN).table(table);
   }
 
+  @Override
   public Condition newCondition(final CharSequence fieldName,
-    final BiFunction<QueryValue, QueryValue, Condition> operator, final Object value) {
+      final BiFunction<QueryValue, QueryValue, Condition> operator, final Object value) {
     final ColumnReference left = this.table.getColumn(fieldName);
     Condition condition;
     if (value == null) {
@@ -929,7 +967,7 @@ public class Query extends BaseObjectWithProperties
     } else {
       QueryValue right;
       if (value instanceof QueryValue) {
-        right = (QueryValue)value;
+        right = (QueryValue) value;
       } else {
         right = new Value(left, value);
       }
@@ -938,25 +976,27 @@ public class Query extends BaseObjectWithProperties
     return condition;
   }
 
+  @Override
   public Condition newCondition(final CharSequence fieldName,
-    final java.util.function.Function<QueryValue, Condition> operator) {
+      final java.util.function.Function<QueryValue, Condition> operator) {
     final ColumnReference column = this.table.getColumn(fieldName);
     final Condition condition = operator.apply(column);
     return condition;
   }
 
+  @Override
   public Condition newCondition(final QueryValue left,
-    final BiFunction<QueryValue, QueryValue, Condition> operator, final Object value) {
+      final BiFunction<QueryValue, QueryValue, Condition> operator, final Object value) {
     Condition condition;
     if (value == null) {
       condition = new IsNull(left);
     } else {
       QueryValue right;
       if (value instanceof QueryValue) {
-        right = (QueryValue)value;
+        right = (QueryValue) value;
       } else {
         if (left instanceof ColumnReference) {
-          right = new Value((ColumnReference)left, value);
+          right = new Value((ColumnReference) left, value);
         } else {
           right = Value.newValue(value);
         }
@@ -985,11 +1025,11 @@ public class Query extends BaseObjectWithProperties
   }
 
   public <QV extends QueryValue> QV newQueryValue(final CharSequence fieldName,
-    final BiFunction<QueryValue, QueryValue, QV> operator, final Object value) {
+      final BiFunction<QueryValue, QueryValue, QV> operator, final Object value) {
     final ColumnReference left = this.table.getColumn(fieldName);
     QueryValue right;
     if (value instanceof QueryValue) {
-      right = (QueryValue)value;
+      right = (QueryValue) value;
     } else {
       right = new Value(left, value);
     }
@@ -997,7 +1037,7 @@ public class Query extends BaseObjectWithProperties
   }
 
   public <QV extends QueryValue> QV newQueryValue(final CharSequence fieldName,
-    final java.util.function.Function<QueryValue, QV> operator) {
+      final java.util.function.Function<QueryValue, QV> operator) {
     final ColumnReference column = this.table.getColumn(fieldName);
     return operator.apply(column);
   }
@@ -1009,12 +1049,16 @@ public class Query extends BaseObjectWithProperties
   public QueryValue newSelectClause(final Object select) {
     QueryValue selectExpression;
     if (select instanceof QueryValue) {
-      selectExpression = (QueryValue)select;
+      selectExpression = (QueryValue) select;
     } else if (select instanceof CharSequence) {
-      final String name = ((CharSequence)select).toString();
+      final String name = ((CharSequence) select).toString();
       final int dotIndex = name.indexOf('.');
       if (dotIndex == -1) {
-        selectExpression = this.table.getColumn(name);
+        if (this.table.hasColumn(name)) {
+          selectExpression = this.table.getColumn(name);
+        } else {
+          selectExpression = new Column(name);
+        }
       } else {
         final ColumnReference column = this.table.getColumn(name.substring(0, dotIndex));
         if (column.getDataType() == Json.JSON_TYPE) {
@@ -1032,7 +1076,7 @@ public class Query extends BaseObjectWithProperties
   }
 
   public String newSelectSql(final List<OrderBy> orderBy, final TableReferenceProxy table,
-    final boolean usePlaceholders) {
+      final boolean usePlaceholders) {
     final StringBuilderSqlAppendable sql = newSqlAppendable();
     sql.setUsePlaceholders(usePlaceholders);
     appendSql(sql, table, orderBy);
@@ -1049,7 +1093,7 @@ public class Query extends BaseObjectWithProperties
   }
 
   public Query or(final CharSequence fieldName,
-    final BiFunction<QueryValue, QueryValue, Condition> operator, final Object value) {
+      final BiFunction<QueryValue, QueryValue, Condition> operator, final Object value) {
     final ColumnReference left = this.table.getColumn(fieldName);
     Condition condition;
     if (value == null) {
@@ -1057,7 +1101,7 @@ public class Query extends BaseObjectWithProperties
     } else {
       QueryValue right;
       if (value instanceof QueryValue) {
-        right = (QueryValue)value;
+        right = (QueryValue) value;
       } else {
         right = Value.newValue(value);
       }
@@ -1067,7 +1111,7 @@ public class Query extends BaseObjectWithProperties
   }
 
   public Query or(final CharSequence fieldName,
-    final java.util.function.Function<QueryValue, Condition> operator) {
+      final java.util.function.Function<QueryValue, Condition> operator) {
     final Condition condition = newCondition(fieldName, operator);
     return or(condition);
   }
@@ -1077,7 +1121,7 @@ public class Query extends BaseObjectWithProperties
     if (whereCondition.isEmpty()) {
       setWhereCondition(condition);
     } else if (whereCondition instanceof Or) {
-      final Or or = (Or)whereCondition;
+      final Or or = (Or) whereCondition;
       or.or(condition);
     } else {
       setWhereCondition(new Or(whereCondition, condition));
@@ -1093,12 +1137,27 @@ public class Query extends BaseObjectWithProperties
     return this;
   }
 
+  public Query readerConsume(final Consumer<RecordReader> action) {
+    try (
+        var reader = getRecordReader()) {
+      action.accept(getRecordReader());
+    }
+    return this;
+  }
+
+  public <O> O readerMap(final Function<RecordReader, O> action) {
+    try (
+        var reader = getRecordReader()) {
+      return action.apply(reader);
+    }
+  }
+
   public void removeSelect(final String name) {
     for (final Iterator<QueryValue> iterator = this.selectExpressions.iterator(); iterator
-      .hasNext();) {
+        .hasNext();) {
       final QueryValue queryValue = iterator.next();
       if (queryValue instanceof Column) {
-        final Column column = (Column)queryValue;
+        final Column column = (Column) queryValue;
         if (column.getName().equals(name)) {
           iterator.remove();
         }
@@ -1167,7 +1226,7 @@ public class Query extends BaseObjectWithProperties
   }
 
   public Query selectAlias(final TableReferenceProxy table, final String fieldName,
-    final String alias) {
+      final String alias) {
     final ColumnReference column = table.getColumn(fieldName);
     return selectAlias(column, alias);
   }
@@ -1303,7 +1362,7 @@ public class Query extends BaseObjectWithProperties
 
   @SuppressWarnings("unchecked")
   public Query setRecordFactory(final RecordFactory<?> recordFactory) {
-    this.recordFactory = (RecordFactory<Record>)recordFactory;
+    this.recordFactory = (RecordFactory<Record>) recordFactory;
     return this;
   }
 
@@ -1393,6 +1452,16 @@ public class Query extends BaseObjectWithProperties
     return string.toString();
   }
 
+  public Query union(final Query query, final boolean distinct) {
+    this.union = new Union(query, distinct);
+    return this;
+  }
+
+  public Query unionAll(final Query query) {
+    this.union = new Union(query, false);
+    return this;
+  }
+
   public Record updateRecord(final Consumer<Record> updateAction) {
     final Record record = getRecord();
     if (record == null) {
@@ -1410,11 +1479,11 @@ public class Query extends BaseObjectWithProperties
     final RecordStore recordStore = recordDefinition.getRecordStore();
     setRecordFactory(ArrayChangeTrackRecord.FACTORY);
     try (
-      Transaction transaction = recordStore.newTransaction(TransactionOptions.REQUIRED);
-      RecordReader reader = getRecordReader();
-      RecordWriter writer = recordStore.newRecordWriter(recordDefinition)) {
+        Transaction transaction = recordStore.newTransaction(TransactionOptions.REQUIRED);
+        RecordReader reader = getRecordReader();
+        RecordWriter writer = recordStore.newRecordWriter(recordDefinition)) {
       for (final Record record : reader) {
-        final ChangeTrackRecord changeTrackRecord = (ChangeTrackRecord)record;
+        final ChangeTrackRecord changeTrackRecord = (ChangeTrackRecord) record;
         updateAction.accept(changeTrackRecord);
         if (changeTrackRecord.isModified()) {
           writer.write(changeTrackRecord);
@@ -1423,5 +1492,24 @@ public class Query extends BaseObjectWithProperties
       }
     }
     return i;
+  }
+
+  public Query where(final BiConsumer<Query, WhereConditionBuilder> action) {
+    final WhereConditionBuilder builder = new WhereConditionBuilder(getTableReference(), this.whereCondition);
+    this.whereCondition = builder.build(this, action);
+    return this;
+  }
+
+  public Query where(final Consumer<WhereConditionBuilder> action) {
+    final WhereConditionBuilder builder = new WhereConditionBuilder(getTableReference());
+    this.whereCondition = builder.build(action);
+    return this;
+  }
+
+  public Query with(final BiConsumer<Query, WithQuery> queryBuilder) {
+    final var with = new WithQuery();
+    this.withQueries.add(with);
+    queryBuilder.accept(this, with);
+    return this;
   }
 }

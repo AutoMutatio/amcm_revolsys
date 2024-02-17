@@ -1,7 +1,6 @@
 package com.revolsys.jdbc.io;
 
-import org.jeometry.common.io.PathName;
-
+import com.revolsys.io.PathName;
 import com.revolsys.record.schema.RecordStoreSchema;
 
 public class JdbcRecordStoreSchema extends RecordStoreSchema {

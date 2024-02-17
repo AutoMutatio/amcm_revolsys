@@ -9,11 +9,10 @@ import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.common.exception.Exceptions;
-import org.jeometry.common.number.Integers;
-import org.jeometry.common.number.Numbers;
-
+import com.revolsys.data.type.DataTypes;
+import com.revolsys.exception.Exceptions;
+import com.revolsys.number.Integers;
+import com.revolsys.number.Numbers;
 import com.revolsys.util.CaseConverter;
 import com.revolsys.util.Property;
 

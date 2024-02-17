@@ -4,8 +4,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Consumer;
 
-import org.jeometry.common.data.identifier.Identifier;
-
+import com.revolsys.data.identifier.Identifier;
 import com.revolsys.record.Record;
 
 public class RecordCacheRecordStoreLayer extends AbstractRecordCache<RecordStoreLayer> {

@@ -39,10 +39,10 @@ import java.util.List;
 
 import org.springframework.util.StringUtils;
 
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.io.map.MapSerializer;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.util.Property;
 
 import junit.framework.Test;

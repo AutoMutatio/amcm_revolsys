@@ -6,12 +6,11 @@ import java.sql.SQLException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.jeometry.common.collection.map.RefreshableMap;
-import org.jeometry.common.io.PathName;
-import org.jeometry.common.logging.Logs;
-
+import com.revolsys.collection.map.RefreshableMap;
+import com.revolsys.io.PathName;
 import com.revolsys.jdbc.JdbcConnection;
 import com.revolsys.jdbc.io.JdbcRecordStoreSchema;
+import com.revolsys.logging.Logs;
 import com.revolsys.record.schema.RecordDefinitionImpl;
 import com.revolsys.transaction.Transaction;
 import com.revolsys.transaction.TransactionOptions;

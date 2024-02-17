@@ -1,16 +1,14 @@
 package com.revolsys.util;
 
-import java.util.Collection;
-
-import org.jeometry.common.data.type.DataTypes;
+import com.revolsys.data.type.DataTypes;
 
 public interface StringBuilders {
 
-  static void append(final StringBuilder string, final Collection<? extends Object> values) {
+  static void append(final StringBuilder string, final Iterable<? extends Object> values) {
     append(string, values, ",");
   }
 
-  static void append(final StringBuilder buffer, final Collection<? extends Object> values,
+  static void append(final StringBuilder buffer, final Iterable<? extends Object> values,
     final boolean skipNulls, final String separator) {
     boolean first = true;
     for (final Object value : values) {
@@ -28,7 +26,7 @@ public interface StringBuilders {
     }
   }
 
-  static void append(final StringBuilder buffer, final Collection<? extends Object> values,
+  static void append(final StringBuilder buffer, final Iterable<? extends Object> values,
     final String separator) {
     boolean first = true;
     for (final Object value : values) {

@@ -3,12 +3,12 @@ package com.revolsys.elevation.cloud.las.tools;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 
+import com.revolsys.collection.json.JsonWriter;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.elevation.cloud.PointCloud;
 import com.revolsys.elevation.cloud.las.LasPointCloud;
-import com.revolsys.io.BaseCloseable;
-import com.revolsys.record.io.format.json.JsonWriter;
 import com.revolsys.spring.resource.PathResource;
+import com.revolsys.util.BaseCloseable;
 
 public class LasInfo implements Runnable, BaseCloseable {
 

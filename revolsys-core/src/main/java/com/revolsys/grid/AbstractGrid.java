@@ -1,7 +1,6 @@
 package com.revolsys.grid;
 
-import org.jeometry.common.awt.WebColors;
-
+import com.revolsys.awt.WebColors;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.geometry.util.RectangleUtil;

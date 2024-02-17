@@ -4,8 +4,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
-import org.jeometry.common.compare.CompareUtil;
-
+import com.revolsys.comparator.CompareUtil;
 import com.revolsys.record.Record;
 import com.revolsys.record.Records;
 

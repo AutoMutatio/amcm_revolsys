@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 
 import com.revolsys.collection.iterator.AbstractIterator;
+import com.revolsys.collection.json.JsonMapIterator;
 import com.revolsys.io.FileUtil;
 import com.revolsys.record.ArrayRecord;
 import com.revolsys.record.Record;

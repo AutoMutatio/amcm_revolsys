@@ -1,6 +1,7 @@
 package com.revolsys.io;
 
 import java.io.BufferedOutputStream;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -16,9 +17,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 
-import org.jeometry.common.exception.Exceptions;
+import com.revolsys.exception.Exceptions;
 
-public class FileBackedOutputStreamBuffer extends OutputStream {
+public class FileBackedOutputStreamBuffer extends OutputStream implements Appendable {
 
   private final class ReadChannel extends AbstractInterruptibleChannel
     implements ReadableByteChannel {
@@ -85,7 +86,31 @@ public class FileBackedOutputStreamBuffer extends OutputStream {
   }
 
   @Override
-  public synchronized void close() throws IOException {
+  public Appendable append(final char c) {
+    return append(Character.toString(c));
+  }
+
+  @Override
+  public Appendable append(final CharSequence s) {
+    return append(s.toString());
+  }
+
+  @Override
+  public Appendable append(final CharSequence s, final int start, final int end) {
+    return append(s.subSequence(start, end).toString());
+  }
+
+  public Appendable append(final String s) {
+    try {
+      write(s);
+    } catch (final IOException e) {
+      throw Exceptions.wrap(e);
+    }
+    return this;
+  }
+
+  @Override
+  public void close() throws IOException {
     if (!this.closed) {
       this.closed = true;
       try {
@@ -116,10 +141,14 @@ public class FileBackedOutputStreamBuffer extends OutputStream {
   }
 
   @Override
-  public synchronized void flush() throws IOException {
+  public void flush() {
     if (!this.closed) {
       if (this.out != null) {
-        this.out.flush();
+        try {
+          this.out.flush();
+        } catch (final IOException e) {
+          throw Exceptions.wrap(e);
+        }
       }
     }
   }
@@ -142,8 +171,8 @@ public class FileBackedOutputStreamBuffer extends OutputStream {
   }
 
   public java.io.Writer newWriter() {
-    return new OutputStreamWriter(new IgnoreCloseDelegatingOutputStream(this),
-      StandardCharsets.UTF_8);
+    return new BufferedWriter(
+      new OutputStreamWriter(new IgnoreCloseDelegatingOutputStream(this), StandardCharsets.UTF_8));
   }
 
   private void requireFile() throws IOException {
@@ -191,6 +220,13 @@ public class FileBackedOutputStreamBuffer extends OutputStream {
 
       }
       this.size += 1;
+    }
+  }
+
+  public synchronized void write(final String s) throws IOException {
+    if (s != null) {
+      final var bytes = s.getBytes(StandardCharsets.UTF_8);
+      write(bytes);
     }
   }
 

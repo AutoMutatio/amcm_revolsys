@@ -2,10 +2,8 @@ package com.revolsys.record.query;
 
 import java.sql.PreparedStatement;
 
-import org.jeometry.common.exception.Exceptions;
-import org.jeometry.common.io.PathName;
-
 import com.revolsys.collection.map.MapEx;
+import com.revolsys.exception.Exceptions;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinitionProxy;
 import com.revolsys.record.schema.RecordStore;
@@ -16,7 +14,7 @@ public class Join implements QueryValue, TableReferenceProxy {
 
   private final JoinType joinType;
 
-  private PathName tablePath;
+  private String tableName;
 
   private TableReference table;
 
@@ -47,6 +45,8 @@ public class Join implements QueryValue, TableReferenceProxy {
       } else {
         this.table.appendFromWithAlias(sql, this.alias);
       }
+    } else if (this.tableName != null) {
+      sql.append(this.tableName);
     }
     if (this.statement != null) {
       this.statement.appendDefaultSelect(query, recordStore, sql);
@@ -113,7 +113,9 @@ public class Join implements QueryValue, TableReferenceProxy {
 
   @Override
   public ColumnReference getColumn(final CharSequence name) {
-    if (this.table.hasColumn(name)) {
+    if (this.table == null) {
+      return new ColumnWithPrefix(this.tableName, new Column(this, name));
+    } else if (this.table.hasColumn(name)) {
       return new Column(this, name);
     }
     throw new IllegalArgumentException(
@@ -126,7 +128,11 @@ public class Join implements QueryValue, TableReferenceProxy {
 
   @Override
   public FieldDefinition getField(final CharSequence name) {
-    return this.table.getField(name);
+    if (this.table == null) {
+      return null;
+    } else {
+      return this.table.getField(name);
+    }
   }
 
   public TableReference getTable() {
@@ -140,10 +146,6 @@ public class Join implements QueryValue, TableReferenceProxy {
     } else {
       return this.alias;
     }
-  }
-
-  public PathName getTableName() {
-    return this.tablePath;
   }
 
   @Override
@@ -196,7 +198,6 @@ public class Join implements QueryValue, TableReferenceProxy {
 
   public Join recordDefinition(final RecordDefinitionProxy recordDefinition) {
     this.table = recordDefinition.getRecordDefinition();
-    this.tablePath = this.table.getTablePath();
     return this;
   }
 
@@ -220,8 +221,8 @@ public class Join implements QueryValue, TableReferenceProxy {
     return this;
   }
 
-  public Join tablePath(final PathName tableName) {
-    this.tablePath = tableName;
+  public Join tableName(final String tableName) {
+    this.tableName = tableName;
     return this;
   }
 

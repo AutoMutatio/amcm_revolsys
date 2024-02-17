@@ -9,8 +9,8 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.Arrays;
 
-import org.jeometry.coordinatesystem.operation.CoordinatesOperation;
-import org.jeometry.coordinatesystem.operation.CoordinatesOperationPoint;
+import com.revolsys.geometry.coordinatesystem.operation.CoordinatesOperation;
+import com.revolsys.geometry.coordinatesystem.operation.CoordinatesOperationPoint;
 
 class ImageProjectorTriangle implements Shape {
 

@@ -1,6 +1,6 @@
 package com.revolsys.net.oauth;
 
-import com.revolsys.record.io.format.json.JsonObject;
+import com.revolsys.collection.json.JsonObject;
 
 public class OpenIdBearerToken extends BearerToken {
 
@@ -76,5 +76,13 @@ public class OpenIdBearerToken extends BearerToken {
       final String scope = getScope();
       return this.client.tokenRefresh(this.refreshToken, scope);
     }
+  }
+
+  public String toStringDump() {
+    return this.jwt.toStringDump();
+  }
+
+  public String toStringJwt() {
+    return this.jwt.toString();
   }
 }

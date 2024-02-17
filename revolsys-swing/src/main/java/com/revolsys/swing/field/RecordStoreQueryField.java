@@ -3,9 +3,8 @@ package com.revolsys.swing.field;
 import java.util.List;
 import java.util.function.Supplier;
 
-import org.jeometry.common.data.identifier.Identifier;
-import org.jeometry.common.io.PathName;
-
+import com.revolsys.data.identifier.Identifier;
+import com.revolsys.io.PathName;
 import com.revolsys.record.Record;
 import com.revolsys.record.io.RecordReader;
 import com.revolsys.record.query.Query;

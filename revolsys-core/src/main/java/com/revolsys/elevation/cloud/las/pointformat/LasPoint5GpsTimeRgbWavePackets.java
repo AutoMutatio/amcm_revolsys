@@ -1,9 +1,9 @@
 package com.revolsys.elevation.cloud.las.pointformat;
 
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.elevation.cloud.las.LasPointCloud;
 import com.revolsys.io.channels.ChannelWriter;
 import com.revolsys.io.channels.DataReader;
-import com.revolsys.record.io.format.json.JsonObject;
 
 public class LasPoint5GpsTimeRgbWavePackets extends LasPoint3GpsTimeRgb
   implements LasPointWavePackets {

@@ -33,7 +33,7 @@ public enum TransactionOptions implements TransactionOption {
     transaction.setRollbackOnly();
   }
 
-  private Consumer<Transaction> initializer;
+  private final Consumer<Transaction> initializer;
 
   private TransactionOptions(final Consumer<Transaction> initializer) {
     this.initializer = initializer;

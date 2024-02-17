@@ -1,31 +1,48 @@
 package com.revolsys.record.query.functions;
 
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.List;
 
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.map.MapEx;
-import com.revolsys.record.io.format.json.JsonObject;
-import com.revolsys.record.query.BinaryCondition;
+import com.revolsys.exception.Exceptions;
+import com.revolsys.record.query.AbstractUnaryQueryValue;
+import com.revolsys.record.query.Condition;
 import com.revolsys.record.query.Query;
 import com.revolsys.record.query.QueryValue;
-import com.revolsys.record.query.Value;
+import com.revolsys.record.query.SqlAppendable;
+import com.revolsys.record.query.TableReference;
+import com.revolsys.record.schema.RecordStore;
 
-public class JsonContainsKey extends BinaryCondition {
+public class JsonContainsKey extends AbstractUnaryQueryValue implements Condition {
 
-  public static Query and(final Query query, final CharSequence fieldName, final String key,
-    final Object value) {
-    final Value queryValue = Value.newValue(value);
-    final QueryValue json = query.newQueryValue(fieldName, JsonByKey::new, key);
-    final JsonContainsKey condition = new JsonContainsKey(json, queryValue);
-    query.and(condition);
-    return query;
+  private final String key;
+
+  public JsonContainsKey(final QueryValue left, final String key) {
+    super(left);
+    this.key = key;
   }
 
-  public JsonContainsKey(final QueryValue left, final QueryValue right) {
-    super(left, "??", right);
-    if (!Value.isString(right)) {
-      throw new IllegalArgumentException(
-        "JsonContainsKey path parameter is not a string: " + right);
+  @Override
+  public void appendDefaultSql(final Query query, final RecordStore recordStore,
+    final SqlAppendable sql) {
+    getValue().appendSql(query, recordStore, sql);
+    sql.append(" ?? ?");
+  }
+
+  @Override
+  public int appendParameters(int index, final PreparedStatement statement) {
+    final var left = getValue();
+    if (left != null) {
+      index = left.appendParameters(index, statement);
     }
+    try {
+      statement.setString(index++, this.key);
+    } catch (final SQLException e) {
+      Exceptions.throwUncheckedException(e);
+    }
+    return index;
   }
 
   @Override
@@ -34,25 +51,22 @@ public class JsonContainsKey extends BinaryCondition {
   }
 
   @Override
-  public JsonContainsKey newCondition(final QueryValue left, final QueryValue right) {
-    return new JsonContainsKey(left, right);
+  public JsonContainsKey clone(final TableReference oldTable, final TableReference newTable) {
+    return (JsonContainsKey)super.clone(oldTable, newTable);
   }
 
   @Override
   public boolean test(final MapEx record) {
-    final QueryValue left = getLeft();
+    final QueryValue left = getValue();
     final Object value1 = left.getValue(record);
-
-    final QueryValue right = getRight();
-    final String value2 = right.getValue(record);
 
     if (value1 instanceof JsonObject) {
       final JsonObject jsonObject = (JsonObject)value1;
-      return jsonObject.containsKey(value2);
+      return jsonObject.containsKey(this.key);
     }
     if (value1 instanceof List) {
       final List<?> jsonObject = (List<?>)value1;
-      return jsonObject.contains(value2);
+      return jsonObject.contains(this.key);
     } else {
       return false;
     }

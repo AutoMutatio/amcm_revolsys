@@ -10,7 +10,8 @@ import org.jdesktop.swingx.renderer.ComponentProvider;
 import org.jdesktop.swingx.renderer.DefaultTableRenderer;
 import org.jdesktop.swingx.renderer.IconValue;
 import org.jdesktop.swingx.renderer.StringValue;
-import org.jeometry.common.data.type.DataTypes;
+
+import com.revolsys.data.type.DataTypes;
 
 public class BaseTableCellRenderer extends DefaultTableRenderer {
 

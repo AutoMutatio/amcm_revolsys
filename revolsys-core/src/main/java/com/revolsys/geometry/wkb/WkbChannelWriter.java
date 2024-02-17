@@ -2,10 +2,9 @@ package com.revolsys.geometry.wkb;
 
 import java.io.ByteArrayOutputStream;
 
-import org.jeometry.common.function.BiConsumerDouble;
-import org.jeometry.common.function.Consumer3Double;
-import org.jeometry.common.function.Consumer4Double;
-
+import com.revolsys.function.BiConsumerDouble;
+import com.revolsys.function.Consumer3Double;
+import com.revolsys.function.Consumer4Double;
 import com.revolsys.geometry.model.ClockDirection;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryCollection;

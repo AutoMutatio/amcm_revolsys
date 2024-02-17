@@ -18,9 +18,8 @@ import java.time.Instant;
 import java.util.Base64;
 import java.util.Base64.Decoder;
 
-import com.revolsys.record.io.format.json.JsonList;
-import com.revolsys.record.io.format.json.JsonObject;
-import com.revolsys.record.io.format.json.JsonParser;
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.json.JsonParser;
 
 public class JsonWebToken {
 
@@ -183,7 +182,7 @@ public class JsonWebToken {
       final String tokenToSign = this.token.substring(0, this.token.lastIndexOf('.'));
 
       final String keyId = this.header.getString("kid");
-      for (final JsonObject key : jsonWebKeySet.getJsonList("keys", JsonList.EMPTY).jsonObjects()) {
+      for (final JsonObject key : jsonWebKeySet.<JsonObject> getList("keys")) {
         if (key.equalValue("kid", keyId)) {
           final String n = key.getString("n");
           final String e = key.getString("e");
@@ -198,10 +197,8 @@ public class JsonWebToken {
               return true;
             }
           }
-          for (final String certBase64 : key.getValue("x5c", JsonList.EMPTY).<String> iterable()) {
-
+          for (final String certBase64 : key.<String> getList("x5c")) {
             final byte[] cert = Base64.getDecoder().decode(certBase64);
-
             final CertificateFactory factory = CertificateFactory.getInstance("X.509");
             final X509Certificate x509 = (X509Certificate)factory
               .generateCertificate(new ByteArrayInputStream(cert));
@@ -223,6 +220,10 @@ public class JsonWebToken {
   @Override
   public String toString() {
     return this.header + "\n" + this.payload;
+  }
+
+  public String toStringDump() {
+    return this.headerText + "\n" + this.payloadText;
   }
 
   private boolean verifySignature(final String tokenToSign, final PublicKey publicKey)

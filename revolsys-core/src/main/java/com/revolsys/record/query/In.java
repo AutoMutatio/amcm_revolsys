@@ -3,15 +3,13 @@ package com.revolsys.record.query;
 import java.util.Arrays;
 import java.util.Collection;
 
-import org.jeometry.common.data.type.DataTypes;
-
 import com.revolsys.collection.map.MapEx;
-import com.revolsys.record.schema.FieldDefinition;
+import com.revolsys.data.type.DataTypes;
 import com.revolsys.record.schema.RecordStore;
 
 public class In extends AbstractBinaryQueryValue implements Condition {
 
-  public In(final FieldDefinition field, final Collection<? extends Object> values) {
+  public In(final ColumnReference field, final Collection<? extends Object> values) {
     this(field, new CollectionValue(field, values));
   }
 

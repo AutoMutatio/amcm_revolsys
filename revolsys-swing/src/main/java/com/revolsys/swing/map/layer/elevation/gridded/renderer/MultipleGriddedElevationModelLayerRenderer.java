@@ -6,13 +6,12 @@ import java.util.Map;
 
 import javax.swing.Icon;
 
-import org.jeometry.common.logging.Logs;
-
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.list.Lists;
 import com.revolsys.elevation.gridded.GriddedElevationModel;
 import com.revolsys.elevation.gridded.rasterizer.HillShadeGriddedElevationModelRasterizer;
+import com.revolsys.logging.Logs;
 import com.revolsys.raster.BufferedGeoreferencedImage;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.swing.Icons;
 import com.revolsys.swing.map.layer.Layer;
 import com.revolsys.swing.map.layer.LayerRenderer;

@@ -3,9 +3,8 @@ package com.revolsys.swing.map.layer.record.component.recordmerge;
 import java.util.Collection;
 import java.util.Collections;
 
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.data.type.DataTypes;
-
+import com.revolsys.data.type.DataType;
+import com.revolsys.data.type.DataTypes;
 import com.revolsys.record.FieldValueInvalidException;
 import com.revolsys.record.property.DirectionalFields;
 import com.revolsys.swing.map.layer.record.AbstractRecordLayer;

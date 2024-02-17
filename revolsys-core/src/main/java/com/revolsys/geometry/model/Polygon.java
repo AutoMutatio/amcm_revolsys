@@ -42,8 +42,7 @@ import javax.measure.Unit;
 import javax.measure.quantity.Area;
 import javax.measure.quantity.Length;
 
-import org.jeometry.common.data.type.DataTypes;
-
+import com.revolsys.data.type.DataTypes;
 import com.revolsys.geometry.algorithm.RayCrossingCounter;
 import com.revolsys.geometry.model.editor.AbstractGeometryCollectionEditor;
 import com.revolsys.geometry.model.editor.AbstractGeometryEditor;

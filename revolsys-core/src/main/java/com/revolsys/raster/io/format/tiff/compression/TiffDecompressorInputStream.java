@@ -3,8 +3,7 @@ package com.revolsys.raster.io.format.tiff.compression;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.jeometry.common.exception.Exceptions;
-
+import com.revolsys.exception.Exceptions;
 import com.revolsys.io.EndOfFileException;
 
 public abstract class TiffDecompressorInputStream implements TiffDecompressor {

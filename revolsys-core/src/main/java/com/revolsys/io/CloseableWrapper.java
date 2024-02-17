@@ -1,5 +1,7 @@
 package com.revolsys.io;
 
+import com.revolsys.util.BaseCloseable;
+
 public class CloseableWrapper implements BaseCloseable {
 
   private BaseCloseable closeable;

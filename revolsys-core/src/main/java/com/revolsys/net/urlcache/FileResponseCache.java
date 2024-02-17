@@ -12,8 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.zip.CRC32;
 
-import com.revolsys.io.BaseCloseable;
 import com.revolsys.io.FileUtil;
+import com.revolsys.util.BaseCloseable;
 import com.revolsys.value.ThreadBooleanValue;
 
 public class FileResponseCache extends ResponseCache {

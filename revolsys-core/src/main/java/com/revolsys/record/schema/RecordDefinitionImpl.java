@@ -14,26 +14,26 @@ import java.util.Set;
 
 import jakarta.annotation.PreDestroy;
 
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.io.PathName;
-import org.jeometry.common.logging.Logs;
-
 import com.revolsys.collection.CollectionUtil;
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.json.JsonObjectHash;
+import com.revolsys.collection.list.ListEx;
 import com.revolsys.collection.list.Lists;
 import com.revolsys.collection.map.Maps;
 import com.revolsys.collection.set.Sets;
+import com.revolsys.data.type.DataType;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.ClockDirection;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryDataTypes;
 import com.revolsys.geometry.model.GeometryFactory;
+import com.revolsys.io.PathName;
 import com.revolsys.io.map.MapObjectFactory;
+import com.revolsys.logging.Logs;
 import com.revolsys.record.ArrayRecord;
 import com.revolsys.record.Record;
 import com.revolsys.record.RecordFactory;
 import com.revolsys.record.code.CodeTable;
-import com.revolsys.record.io.format.json.JsonObject;
-import com.revolsys.record.io.format.json.JsonObjectHash;
 import com.revolsys.record.property.RecordDefinitionProperty;
 import com.revolsys.record.property.ValueRecordDefinitionProperty;
 import com.revolsys.record.query.ColumnReference;
@@ -74,7 +74,7 @@ public class RecordDefinitionImpl extends AbstractRecordStoreSchemaElement
 
   private Set<String> fieldNamesSet = Collections.emptySet();
 
-  private List<FieldDefinition> fields = Collections.emptyList();
+  private ListEx<FieldDefinition> fields = ListEx.empty();
 
   /** The index of the primary geometry field. */
   private int geometryFieldDefinitionIndex = -1;
@@ -109,7 +109,7 @@ public class RecordDefinitionImpl extends AbstractRecordStoreSchemaElement
   private final List<String> idFieldDefinitionNamesUnmod = Collections
     .unmodifiableList(this.idFieldDefinitionNames);
 
-  private final List<FieldDefinition> internalFields = new ArrayList<>();
+  private final ListEx<FieldDefinition> internalFields = Lists.newArray();
 
   private RecordDefinitionFactory recordDefinitionFactory;
 
@@ -603,7 +603,7 @@ public class RecordDefinitionImpl extends AbstractRecordStoreSchemaElement
   }
 
   @Override
-  public List<FieldDefinition> getFields() {
+  public ListEx<FieldDefinition> getFields() {
     return this.fields;
   }
 

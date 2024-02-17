@@ -10,8 +10,7 @@ import javax.swing.JTree;
 import javax.swing.TransferHandler;
 import javax.swing.tree.TreePath;
 
-import org.jeometry.common.logging.Logs;
-
+import com.revolsys.logging.Logs;
 import com.revolsys.swing.tree.BaseTreeNode;
 
 public class TreeTransferHandler extends TransferHandler {

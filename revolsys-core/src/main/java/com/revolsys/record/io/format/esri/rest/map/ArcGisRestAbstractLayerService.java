@@ -6,18 +6,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.jeometry.common.function.Function3;
-import org.jeometry.common.io.PathName;
-import org.jeometry.common.logging.Logs;
-
 import com.revolsys.collection.Parent;
+import com.revolsys.collection.json.Json;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.collection.map.Maps;
+import com.revolsys.function.Function3;
+import com.revolsys.io.PathName;
+import com.revolsys.logging.Logs;
 import com.revolsys.record.io.format.esri.rest.ArcGisResponse;
 import com.revolsys.record.io.format.esri.rest.ArcGisRestService;
 import com.revolsys.record.io.format.esri.rest.ArcGisRestServiceContainer;
 import com.revolsys.record.io.format.esri.rest.CatalogElement;
-import com.revolsys.record.io.format.json.Json;
 import com.revolsys.spring.resource.Resource;
 import com.revolsys.util.Property;
 import com.revolsys.webservice.WebServiceResource;
@@ -117,7 +116,7 @@ public abstract class ArcGisRestAbstractLayerService extends ArcGisRestService
     final Map<String, LayerDescription> rootLayersByName) {
     final Map<String, GroupLayer> groups = new TreeMap<>();
     final Map<String, LayerDescription> layers = new TreeMap<>();
-    final List<MapEx> layerDefinitions = properties.getValue("layers", Collections.emptyList());
+    final List<MapEx> layerDefinitions = properties.getList("layers");
     for (final MapEx layerProperties : layerDefinitions) {
       final Integer parentLayerId = layerProperties.getInteger("parentLayerId");
       if (parentLayerId == null || parentLayerId == -1) {
@@ -134,7 +133,7 @@ public abstract class ArcGisRestAbstractLayerService extends ArcGisRestService
       }
     }
 
-    final List<MapEx> tableDefinitions = properties.getValue("tables", Collections.emptyList());
+    final List<MapEx> tableDefinitions = properties.getList("tables");
     for (final MapEx layerProperties : tableDefinitions) {
       final LayerDescription layer = addLayer(this, rootLayersByName, layerProperties);
       if (layer != null) {

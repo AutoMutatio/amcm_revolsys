@@ -1,8 +1,7 @@
 package com.revolsys.record.query;
 
-import org.jeometry.common.data.type.DataType;
-
 import com.revolsys.collection.map.MapEx;
+import com.revolsys.data.type.DataType;
 
 public class NotEqual extends BinaryCondition {
 

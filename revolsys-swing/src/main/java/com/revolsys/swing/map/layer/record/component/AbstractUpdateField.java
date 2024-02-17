@@ -18,8 +18,8 @@ import javax.swing.JPanel;
 import javax.swing.WindowConstants;
 
 import org.jdesktop.swingx.VerticalLayout;
-import org.jeometry.common.exception.WrappedException;
 
+import com.revolsys.exception.WrappedRuntimeException;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.swing.Dialogs;
 import com.revolsys.swing.SwingUtil;
@@ -118,7 +118,7 @@ public abstract class AbstractUpdateField extends BaseDialog {
     final Consumer<LayerRecord> action = record -> {
       try {
         updateRecord(record);
-      } catch (final WrappedException e) {
+      } catch (final WrappedRuntimeException e) {
         errors.addRecord(record, e.getCause());
       } catch (final Throwable e) {
         errors.addRecord(record, e);

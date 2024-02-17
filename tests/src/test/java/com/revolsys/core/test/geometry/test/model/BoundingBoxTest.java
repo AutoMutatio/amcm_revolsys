@@ -7,14 +7,13 @@ import java.util.List;
 
 import javax.measure.Unit;
 
-import org.jeometry.common.number.Doubles;
-import org.jeometry.coordinatesystem.model.CoordinateSystem;
-import org.jeometry.coordinatesystem.model.systems.EpsgId;
 import org.junit.Assert;
 import org.junit.Test;
 
 import com.revolsys.collection.list.Lists;
 import com.revolsys.core.test.geometry.test.TestConstants;
+import com.revolsys.geometry.coordinatesystem.model.CoordinateSystem;
+import com.revolsys.geometry.coordinatesystem.model.systems.EpsgId;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryFactory;
@@ -26,6 +25,7 @@ import com.revolsys.geometry.model.Punctual;
 import com.revolsys.geometry.model.impl.BoundingBoxDoubleXY;
 import com.revolsys.geometry.model.impl.PointDouble;
 import com.revolsys.geometry.util.RectangleUtil;
+import com.revolsys.number.Doubles;
 import com.revolsys.testapi.GeometryAssert;
 import com.revolsys.util.QuantityType;
 
@@ -353,7 +353,7 @@ public class BoundingBoxTest implements TestConstants {
     final BoundingBox emptyNull = BoundingBox.bboxNew((Iterable<Point>)null);
     assertBoundingBox(null, emptyNull, GeometryFactory.DEFAULT_2D, true, 2, NULL_BOUNDS);
 
-    final BoundingBox emptyList = BoundingBox.bboxNew(new ArrayList<Point>());
+    final BoundingBox emptyList = BoundingBox.bboxNew(new ArrayList<>());
     assertBoundingBox(null, emptyList, GeometryFactory.DEFAULT_2D, true, 2, NULL_BOUNDS);
 
     final BoundingBox emptyListWithNulls = BoundingBox.bboxNew(Collections.<Point> singleton(null));
@@ -363,7 +363,7 @@ public class BoundingBoxTest implements TestConstants {
     assertBoundingBox(null, emptyNullCoordinatesList, GeometryFactory.DEFAULT_2D, true, 2,
       NULL_BOUNDS);
 
-    final BoundingBox emptyCoordinatesList = BoundingBox.bboxNew(new ArrayList<Point>());
+    final BoundingBox emptyCoordinatesList = BoundingBox.bboxNew(new ArrayList<>());
     assertBoundingBox(null, emptyCoordinatesList, GeometryFactory.DEFAULT_2D, true, 2, NULL_BOUNDS);
 
     // Different number of axis and values

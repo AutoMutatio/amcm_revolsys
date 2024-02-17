@@ -5,9 +5,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 
-import org.jeometry.common.data.type.DataType;
-
 import com.revolsys.collection.map.MapEx;
+import com.revolsys.data.type.DataType;
 import com.revolsys.record.schema.RecordStore;
 
 public abstract class AbstractUnaryQueryValue implements QueryValue {

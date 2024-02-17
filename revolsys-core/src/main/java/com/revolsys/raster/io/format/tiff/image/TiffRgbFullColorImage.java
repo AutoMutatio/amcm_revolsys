@@ -5,10 +5,9 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.function.Consumer;
 
-import org.jeometry.common.exception.Exceptions;
-import org.jeometry.common.number.Integers;
-
+import com.revolsys.exception.Exceptions;
 import com.revolsys.io.channels.DataReader;
+import com.revolsys.number.Integers;
 import com.revolsys.raster.io.format.tiff.TiffDirectory;
 import com.revolsys.raster.io.format.tiff.TiffDirectoryBuilder;
 import com.revolsys.raster.io.format.tiff.code.TiffBaselineTag;

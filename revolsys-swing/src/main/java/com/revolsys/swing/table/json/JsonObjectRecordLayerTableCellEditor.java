@@ -16,7 +16,7 @@ import javax.swing.JTable;
 
 import org.jdesktop.swingx.VerticalLayout;
 
-import com.revolsys.record.io.format.json.JsonObject;
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.swing.SwingUtil;
 import com.revolsys.swing.component.BasePanel;

@@ -11,8 +11,6 @@ import java.util.function.Predicate;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 
-import org.jeometry.common.logging.Logs;
-
 import com.revolsys.geometry.filter.EqualFilter;
 import com.revolsys.geometry.filter.LinearIntersectionFilter;
 import com.revolsys.geometry.graph.Edge;
@@ -23,6 +21,7 @@ import com.revolsys.geometry.graph.comparator.EdgeLengthComparator;
 import com.revolsys.geometry.graph.filter.EdgeObjectFilter;
 import com.revolsys.geometry.graph.filter.EdgeTypeNameFilter;
 import com.revolsys.geometry.model.LineString;
+import com.revolsys.logging.Logs;
 import com.revolsys.record.Record;
 import com.revolsys.record.filter.RecordGeometryFilter;
 import com.revolsys.util.ObjectProcessor;
@@ -41,7 +40,7 @@ public class LinearIntersectionNotEqualLineEdgeCleanupVisitor extends AbstractVi
   private Comparator<Record> newerComparator;
 
   public LinearIntersectionNotEqualLineEdgeCleanupVisitor() {
-    super.setComparator(new EdgeLengthComparator<Record>(true));
+    super.setComparator(new EdgeLengthComparator<>(true));
   }
 
   @Override

@@ -6,9 +6,9 @@ import java.sql.Date;
 import java.sql.Types;
 import java.time.Instant;
 
-import org.jeometry.common.data.identifier.Identifier;
-import org.jeometry.common.data.identifier.TypedIdentifier;
-import org.jeometry.common.data.type.DataTypes;
+import com.revolsys.data.identifier.Identifier;
+import com.revolsys.data.identifier.TypedIdentifier;
+import com.revolsys.data.type.DataTypes;
 
 public class JdbcFieldDefinitions {
 

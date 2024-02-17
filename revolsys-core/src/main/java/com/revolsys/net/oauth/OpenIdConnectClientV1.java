@@ -2,11 +2,9 @@ package com.revolsys.net.oauth;
 
 import java.util.function.Function;
 
-import org.apache.http.client.methods.RequestBuilder;
-
-import com.revolsys.net.http.ApacheHttp;
-import com.revolsys.record.io.format.json.JsonObject;
-import com.revolsys.record.io.format.json.JsonParser;
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.json.JsonParser;
+import com.revolsys.http.HttpRequestBuilder;
 import com.revolsys.spring.resource.Resource;
 
 public class OpenIdConnectClientV1 extends OpenIdConnectClient {
@@ -42,14 +40,14 @@ public class OpenIdConnectClientV1 extends OpenIdConnectClient {
     return bearerToken -> tokenClientCredentials(resource);
   }
 
-  private OpenIdBearerToken getOpenIdBearerToken(final RequestBuilder requestBuilder,
+  private OpenIdBearerToken getOpenIdBearerToken(final HttpRequestBuilder requestBuilder,
     final OpenIdResource resource) {
-    final JsonObject response = ApacheHttp.getJson(requestBuilder);
+    final var response = requestBuilder.getJson();
     return new OpenIdBearerToken(this, response, resource);
   }
 
   public OpenIdBearerToken tokenClientCredentials(final OpenIdResource resource) {
-    final RequestBuilder requestBuilder = tokenBuilder("client_credentials", true);
+    final var requestBuilder = tokenBuilder("client_credentials", true);
     if (resource != null) {
       requestBuilder.addParameter("resource", resource.getResource());
     }
@@ -57,7 +55,7 @@ public class OpenIdConnectClientV1 extends OpenIdConnectClient {
   }
 
   public OpenIdBearerToken tokenRefresh(final String refreshToken, final OpenIdResource resource) {
-    final RequestBuilder requestBuilder = tokenBuilder("refresh_token", true);
+    final var requestBuilder = tokenBuilder("refresh_token", true);
     requestBuilder.addParameter("refresh_token", refreshToken);
     if (resource != null) {
       requestBuilder.addParameter("resource", resource.getResource());

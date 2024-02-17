@@ -5,8 +5,8 @@ import java.util.NoSuchElementException;
 
 import com.revolsys.elevation.cloud.las.pointformat.LasPoint;
 import com.revolsys.elevation.cloud.las.pointformat.LasPointFormat;
-import com.revolsys.io.BaseCloseable;
 import com.revolsys.io.channels.DataReader;
+import com.revolsys.util.BaseCloseable;
 
 public class LasPointCloudIterator
   implements BaseCloseable, Iterator<LasPoint>, Iterable<LasPoint> {

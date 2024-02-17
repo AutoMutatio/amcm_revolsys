@@ -36,13 +36,13 @@ import java.util.Map.Entry;
 import java.util.StringTokenizer;
 import java.util.regex.Pattern;
 
-import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.common.exception.Exceptions;
-import org.jeometry.common.net.UrlProxy;
-
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.map.MapEx;
+import com.revolsys.data.type.DataTypes;
+import com.revolsys.exception.Exceptions;
 import com.revolsys.io.FileUtil;
-import com.revolsys.record.io.format.json.JsonObject;
+import com.revolsys.io.IoUtil;
+import com.revolsys.net.UrlProxy;
 import com.revolsys.spring.resource.Resource;
 
 /**
@@ -250,7 +250,7 @@ public final class UrlUtil {
     try {
       final URL url = UrlUtil.getUrl(urlString);
       final InputStream in = url.openStream();
-      return FileUtil.getString(in);
+      return IoUtil.getString(in);
     } catch (final IOException e) {
       throw new RuntimeException("Unable to read " + urlString, e);
     }

@@ -2,9 +2,8 @@ package com.revolsys.record.query;
 
 import java.math.BigDecimal;
 
-import org.jeometry.common.data.type.DataTypes;
-
 import com.revolsys.collection.map.MapEx;
+import com.revolsys.data.type.DataTypes;
 
 public class Subtract extends BinaryArithmatic {
 

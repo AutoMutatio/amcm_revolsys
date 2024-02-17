@@ -3,11 +3,10 @@ package com.revolsys.elevation.gridded.rasterizer.gradient;
 import java.awt.Color;
 import java.util.Map;
 
-import org.jeometry.common.awt.WebColors;
-
+import com.revolsys.awt.WebColors;
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.io.map.MapSerializer;
 import com.revolsys.properties.BaseObjectWithProperties;
-import com.revolsys.record.io.format.json.JsonObject;
 
 public class GradientStop extends BaseObjectWithProperties
   implements Cloneable, MapSerializer, Comparable<GradientStop> {

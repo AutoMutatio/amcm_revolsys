@@ -67,7 +67,7 @@ import org.apache.olingo.server.core.serializer.utils.ContentTypeHelper;
 import org.apache.olingo.server.core.serializer.utils.ExpandSelectHelper;
 import org.apache.olingo.server.core.uri.UriHelperImpl;
 
-import com.revolsys.record.io.format.json.JsonWriter;
+import com.revolsys.collection.json.JsonWriter;
 
 public class JsonDeltaSerializerWithNavigations implements EdmDeltaSerializer {
   private static final String IO_EXCEPTION_TEXT = "An I/O exception occurred.";

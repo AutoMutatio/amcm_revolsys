@@ -3,8 +3,7 @@ package com.revolsys.gis.esri.gdb.file.capi.type;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 
-import org.jeometry.common.data.type.DataType;
-
+import com.revolsys.data.type.DataType;
 import com.revolsys.esri.filegdb.jni.Row;
 import com.revolsys.gis.esri.gdb.file.FileGdbRecordStore;
 import com.revolsys.record.Record;

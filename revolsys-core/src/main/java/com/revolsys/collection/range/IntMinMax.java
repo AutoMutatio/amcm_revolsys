@@ -1,8 +1,7 @@
 package com.revolsys.collection.range;
 
-import org.jeometry.common.number.Integers;
-import org.jeometry.common.number.Numbers;
-
+import com.revolsys.number.Integers;
+import com.revolsys.number.Numbers;
 import com.revolsys.util.Emptyable;
 import com.revolsys.util.Parity;
 import com.revolsys.util.Property;

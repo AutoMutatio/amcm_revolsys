@@ -5,16 +5,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.jeometry.common.data.identifier.Identifier;
-import org.jeometry.common.data.identifier.ListIdentifier;
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.io.PathName;
-
+import com.revolsys.collection.list.ListEx;
 import com.revolsys.collection.map.MapEx;
+import com.revolsys.data.identifier.Identifier;
+import com.revolsys.data.identifier.ListIdentifier;
+import com.revolsys.data.type.DataType;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.ClockDirection;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.geometry.model.GeometryFactoryProxy;
+import com.revolsys.io.PathName;
 import com.revolsys.io.map.MapSerializer;
 import com.revolsys.jdbc.JdbcUtils;
 import com.revolsys.record.Record;
@@ -166,7 +166,7 @@ public interface RecordDefinition extends Cloneable, GeometryFactoryProxy, Recor
   Set<String> getFieldNamesSet();
 
   @Override
-  List<FieldDefinition> getFields();
+  ListEx<FieldDefinition> getFields();
 
   /**
    * Get the maximum number of decimal places of the field

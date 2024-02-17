@@ -8,14 +8,14 @@ import org.gdal.ogr.FieldDefn;
 import org.gdal.ogr.GeomFieldDefn;
 import org.gdal.ogr.Layer;
 import org.gdal.osr.SpatialReference;
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.common.io.PathName;
-import org.jeometry.common.logging.Logs;
 
+import com.revolsys.data.type.DataType;
+import com.revolsys.data.type.DataTypes;
 import com.revolsys.gdal.Gdal;
 import com.revolsys.geometry.model.GeometryDataTypes;
 import com.revolsys.geometry.model.GeometryFactory;
+import com.revolsys.io.PathName;
+import com.revolsys.logging.Logs;
 import com.revolsys.record.query.Query;
 import com.revolsys.record.query.SqlAppendable;
 import com.revolsys.record.schema.FieldDefinition;

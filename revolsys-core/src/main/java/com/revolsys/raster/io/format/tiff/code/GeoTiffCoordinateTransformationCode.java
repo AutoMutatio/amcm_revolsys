@@ -3,10 +3,9 @@ package com.revolsys.raster.io.format.tiff.code;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.jeometry.coordinatesystem.model.CoordinateOperationMethod;
-import org.jeometry.coordinatesystem.model.ProjectedCoordinateSystem;
-
 import com.revolsys.collection.map.IntHashMap;
+import com.revolsys.geometry.coordinatesystem.model.CoordinateOperationMethod;
+import com.revolsys.geometry.coordinatesystem.model.ProjectedCoordinateSystem;
 
 public enum GeoTiffCoordinateTransformationCode {
   undefined(0), //
@@ -69,7 +68,7 @@ public enum GeoTiffCoordinateTransformationCode {
     return getById(code).getCoordinateOperationMethod();
   }
 
-  private int code;
+  private final int code;
 
   private CoordinateOperationMethod coordinateOperationMethod;
 

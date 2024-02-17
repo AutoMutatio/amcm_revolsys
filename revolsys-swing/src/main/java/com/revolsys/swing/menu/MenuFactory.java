@@ -20,9 +20,8 @@ import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JPopupMenu.Separator;
 
-import org.jeometry.common.logging.Logs;
-
 import com.revolsys.beans.ClassRegistry;
+import com.revolsys.logging.Logs;
 import com.revolsys.properties.BaseObjectWithProperties;
 import com.revolsys.swing.Icons;
 import com.revolsys.swing.action.AbstractAction;

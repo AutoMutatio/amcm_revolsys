@@ -3,8 +3,7 @@ package com.revolsys.record.io.format.xbase;
 import java.io.IOException;
 import java.util.List;
 
-import org.jeometry.common.io.PathName;
-
+import com.revolsys.io.PathName;
 import com.revolsys.io.endian.EndianInput;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordDefinitionImpl;
@@ -44,9 +43,9 @@ public class XbaseSchemaReader {
           }
         }
         final char fieldType = (char)this.in.read();
-        this.in.skipBytes(4);
+        this.in.skipNBytes(4);
         final int length = this.in.read();
-        this.in.skipBytes(15);
+        this.in.skipNBytes(15);
         b = this.in.read();
         final XBaseFieldDefinition field = new XBaseFieldDefinition(fieldName.toString(),
           fieldName.toString(), fieldType, length);

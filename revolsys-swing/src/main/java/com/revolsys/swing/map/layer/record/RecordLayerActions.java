@@ -8,8 +8,7 @@ import javax.measure.Unit;
 import javax.measure.quantity.Length;
 import javax.swing.JLabel;
 
-import org.jeometry.common.data.type.DataTypes;
-
+import com.revolsys.data.type.DataTypes;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.simplify.DouglasPeuckerSimplifier;
 import com.revolsys.record.Record;

@@ -8,10 +8,10 @@ import java.util.Base64;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.io.map.ObjectFactoryConfig;
-import com.revolsys.record.io.format.json.JsonObject;
 
-public class AzureSharedKeyRequestBuilderFactory extends ApacheHttpRequestBuilderFactory {
+public class AzureSharedKeyRequestBuilderFactory extends HttpRequestBuilderFactory {
 
   public static AzureSharedKeyRequestBuilderFactory forConnectionString(
     final JsonObject connectionParameters) {
@@ -70,7 +70,7 @@ public class AzureSharedKeyRequestBuilderFactory extends ApacheHttpRequestBuilde
   }
 
   @Override
-  public ApacheHttpRequestBuilder newRequestBuilder() {
+  public HttpRequestBuilder newRequestBuilder() {
     return new AzureSharedKeyRequestBuilder(this);
   }
 

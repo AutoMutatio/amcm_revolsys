@@ -27,7 +27,7 @@ public class SasToken {
     }
   }
 
-  public void applyTo(final ApacheHttpRequestBuilder requestBuilder) {
+  public void applyTo(final HttpRequestBuilder requestBuilder) {
     for (final NameValuePair param : this.params) {
       requestBuilder.setParameter(param);
     }

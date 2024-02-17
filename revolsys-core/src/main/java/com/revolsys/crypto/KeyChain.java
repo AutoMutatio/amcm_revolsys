@@ -13,7 +13,7 @@ import java.security.KeyStoreException;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
-import org.jeometry.common.logging.Logs;
+import com.revolsys.logging.Logs;
 
 public class KeyChain {
   private static final String SECRET_KEY_ALGORITHM = "JCEKS";

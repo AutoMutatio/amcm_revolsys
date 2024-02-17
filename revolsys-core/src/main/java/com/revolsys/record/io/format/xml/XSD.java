@@ -2,7 +2,7 @@ package com.revolsys.record.io.format.xml;
 
 import java.util.Base64;
 
-import org.jeometry.common.data.type.DataTypes;
+import com.revolsys.data.type.DataTypes;
 
 public interface XSD {
 

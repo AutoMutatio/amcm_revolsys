@@ -14,9 +14,8 @@ import javax.swing.ToolTipManager;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 
-import org.jeometry.common.logging.Logs;
-
 import com.revolsys.log.LogbackUtil;
+import com.revolsys.logging.Logs;
 import com.revolsys.swing.desktop.DesktopInitializer;
 import com.revolsys.swing.logging.ListLoggingAppender;
 import com.revolsys.swing.logging.LoggingEventPanel;

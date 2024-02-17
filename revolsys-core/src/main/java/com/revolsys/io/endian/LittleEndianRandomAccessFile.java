@@ -5,7 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
-import org.jeometry.common.exception.Exceptions;
+import com.revolsys.exception.Exceptions;
 
 public class LittleEndianRandomAccessFile implements EndianInputOutput {
 
@@ -104,8 +104,11 @@ public class LittleEndianRandomAccessFile implements EndianInputOutput {
   }
 
   @Override
-  public int skipBytes(final int i) throws IOException {
-    return this.randomFile.skipBytes(i);
+  public void skipNBytes(final long totalCount) throws IOException {
+    if (totalCount < 0 || totalCount > Integer.MAX_VALUE) {
+      throw new IllegalArgumentException();
+    }
+    this.randomFile.skipBytes((int)totalCount);
   }
 
   @Override

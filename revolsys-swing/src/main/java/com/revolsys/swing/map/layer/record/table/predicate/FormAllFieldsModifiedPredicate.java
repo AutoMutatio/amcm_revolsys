@@ -8,10 +8,10 @@ import java.lang.ref.WeakReference;
 import org.jdesktop.swingx.decorator.ColorHighlighter;
 import org.jdesktop.swingx.decorator.ComponentAdapter;
 import org.jdesktop.swingx.decorator.HighlightPredicate;
-import org.jeometry.common.awt.WebColors;
-import org.jeometry.common.data.identifier.SingleIdentifier;
-import org.jeometry.common.data.type.DataType;
 
+import com.revolsys.awt.WebColors;
+import com.revolsys.data.identifier.SingleIdentifier;
+import com.revolsys.data.type.DataType;
 import com.revolsys.swing.map.form.LayerRecordForm;
 import com.revolsys.swing.map.layer.record.table.model.LayerRecordTableModel;
 import com.revolsys.swing.table.BaseJTable;

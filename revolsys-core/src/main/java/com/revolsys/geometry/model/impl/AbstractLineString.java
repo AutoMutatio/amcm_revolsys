@@ -32,8 +32,7 @@
  */
 package com.revolsys.geometry.model.impl;
 
-import org.jeometry.common.exception.Exceptions;
-
+import com.revolsys.exception.Exceptions;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.LineString;
 

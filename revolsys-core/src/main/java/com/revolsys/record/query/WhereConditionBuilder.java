@@ -1,10 +1,10 @@
 package com.revolsys.record.query;
 
+import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 
-import org.jeometry.common.io.PathName;
-
+import com.revolsys.io.PathName;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.util.Property;
 
@@ -12,10 +12,15 @@ public class WhereConditionBuilder implements TableReferenceProxy {
 
   private TableReference table;
 
-  private Condition condition = Condition.ALL;
+  private Condition condition;
 
   public WhereConditionBuilder(final TableReference table) {
+    this(table, Condition.ALL);
+  }
+
+  public WhereConditionBuilder(final TableReference table, final Condition condition) {
     this.table = table;
+    this.condition = condition;
   }
 
   public WhereConditionBuilder and(final ColumnReference left, final Object value) {
@@ -25,7 +30,7 @@ public class WhereConditionBuilder implements TableReferenceProxy {
     } else {
       QueryValue right;
       if (value instanceof QueryValue) {
-        right = (QueryValue)value;
+        right = (QueryValue) value;
       } else {
         right = new Value(left, value);
       }
@@ -70,13 +75,13 @@ public class WhereConditionBuilder implements TableReferenceProxy {
   }
 
   public WhereConditionBuilder and(final String fieldName,
-    final BiFunction<QueryValue, QueryValue, Condition> operator, final Object value) {
+      final BiFunction<QueryValue, QueryValue, Condition> operator, final Object value) {
     final Condition condition = newCondition(fieldName, operator, value);
     return and(condition);
   }
 
   public WhereConditionBuilder and(final String fieldName,
-    final java.util.function.Function<QueryValue, Condition> operator) {
+      final java.util.function.Function<QueryValue, Condition> operator) {
     final Condition condition = newCondition(fieldName, operator);
     return and(condition);
   }
@@ -89,7 +94,7 @@ public class WhereConditionBuilder implements TableReferenceProxy {
     } else {
       QueryValue right;
       if (value instanceof QueryValue) {
-        right = (QueryValue)value;
+        right = (QueryValue) value;
       } else {
         right = new Value(left, value);
       }
@@ -99,7 +104,7 @@ public class WhereConditionBuilder implements TableReferenceProxy {
   }
 
   public WhereConditionBuilder and(final TableReferenceProxy table, final String columnName,
-    final Object value) {
+      final Object value) {
     final ColumnReference column = table.getColumn(columnName);
     return and(column, value);
   }
@@ -112,6 +117,7 @@ public class WhereConditionBuilder implements TableReferenceProxy {
 
   /**
    * Create an Or from the conditions and and it to this query;
+   *
    * @param conditions
    * @return
    */
@@ -128,6 +134,15 @@ public class WhereConditionBuilder implements TableReferenceProxy {
   public Condition build(final Consumer<WhereConditionBuilder> action) {
     action.accept(this);
     return this.condition;
+  }
+
+  public Condition build(final Query query, final BiConsumer<Query, WhereConditionBuilder> action) {
+    action.accept(query, this);
+    return this.condition;
+  }
+
+  public Condition equal(final CharSequence fieldName, final Object value) {
+    return newCondition(fieldName, Q.EQUAL, value);
   }
 
   private RecordDefinition getRecordDefinition() {
@@ -160,7 +175,7 @@ public class WhereConditionBuilder implements TableReferenceProxy {
 
   @Override
   public Condition newCondition(final CharSequence fieldName,
-    final BiFunction<QueryValue, QueryValue, Condition> operator, final Object value) {
+      final BiFunction<QueryValue, QueryValue, Condition> operator, final Object value) {
     final ColumnReference left = this.table.getColumn(fieldName);
     Condition condition;
     if (value == null) {
@@ -168,7 +183,7 @@ public class WhereConditionBuilder implements TableReferenceProxy {
     } else {
       QueryValue right;
       if (value instanceof QueryValue) {
-        right = (QueryValue)value;
+        right = (QueryValue) value;
       } else {
         right = new Value(left, value);
       }
@@ -179,7 +194,7 @@ public class WhereConditionBuilder implements TableReferenceProxy {
 
   @Override
   public Condition newCondition(final CharSequence fieldName,
-    final java.util.function.Function<QueryValue, Condition> operator) {
+      final java.util.function.Function<QueryValue, Condition> operator) {
     final ColumnReference column = this.table.getColumn(fieldName);
     final Condition condition = operator.apply(column);
     return condition;
@@ -187,17 +202,17 @@ public class WhereConditionBuilder implements TableReferenceProxy {
 
   @Override
   public Condition newCondition(final QueryValue left,
-    final BiFunction<QueryValue, QueryValue, Condition> operator, final Object value) {
+      final BiFunction<QueryValue, QueryValue, Condition> operator, final Object value) {
     Condition condition;
     if (value == null) {
       condition = new IsNull(left);
     } else {
       QueryValue right;
       if (value instanceof QueryValue) {
-        right = (QueryValue)value;
+        right = (QueryValue) value;
       } else {
         if (left instanceof ColumnReference) {
-          right = new Value((ColumnReference)left, value);
+          right = new Value((ColumnReference) left, value);
         } else {
           right = Value.newValue(value);
         }
@@ -208,11 +223,11 @@ public class WhereConditionBuilder implements TableReferenceProxy {
   }
 
   public <QV extends QueryValue> QV newQueryValue(final CharSequence fieldName,
-    final BiFunction<QueryValue, QueryValue, QV> operator, final Object value) {
+      final BiFunction<QueryValue, QueryValue, QV> operator, final Object value) {
     final ColumnReference left = this.table.getColumn(fieldName);
     QueryValue right;
     if (value instanceof QueryValue) {
-      right = (QueryValue)value;
+      right = (QueryValue) value;
     } else {
       right = new Value(left, value);
     }
@@ -220,13 +235,13 @@ public class WhereConditionBuilder implements TableReferenceProxy {
   }
 
   public <QV extends QueryValue> QV newQueryValue(final CharSequence fieldName,
-    final java.util.function.Function<QueryValue, QV> operator) {
+      final java.util.function.Function<QueryValue, QV> operator) {
     final ColumnReference column = this.table.getColumn(fieldName);
     return operator.apply(column);
   }
 
   public WhereConditionBuilder or(final CharSequence fieldName,
-    final BiFunction<QueryValue, QueryValue, Condition> operator, final Object value) {
+      final BiFunction<QueryValue, QueryValue, Condition> operator, final Object value) {
     final ColumnReference left = this.table.getColumn(fieldName);
     Condition condition;
     if (value == null) {
@@ -234,7 +249,7 @@ public class WhereConditionBuilder implements TableReferenceProxy {
     } else {
       QueryValue right;
       if (value instanceof QueryValue) {
-        right = (QueryValue)value;
+        right = (QueryValue) value;
       } else {
         right = Value.newValue(value);
       }
@@ -244,7 +259,7 @@ public class WhereConditionBuilder implements TableReferenceProxy {
   }
 
   public WhereConditionBuilder or(final CharSequence fieldName,
-    final java.util.function.Function<QueryValue, Condition> operator) {
+      final java.util.function.Function<QueryValue, Condition> operator) {
     final Condition condition = newCondition(fieldName, operator);
     return or(condition);
   }
@@ -254,12 +269,16 @@ public class WhereConditionBuilder implements TableReferenceProxy {
     if (whereCondition.isEmpty()) {
       setWhereCondition(condition);
     } else if (whereCondition instanceof Or) {
-      final Or or = (Or)whereCondition;
+      final Or or = (Or) whereCondition;
       or.or(condition);
     } else {
       setWhereCondition(new Or(whereCondition, condition));
     }
     return this;
+  }
+
+  public void or(final Condition... conditions) {
+    and(Q.or(conditions));
   }
 
   public void setTable(final TableReference table) {

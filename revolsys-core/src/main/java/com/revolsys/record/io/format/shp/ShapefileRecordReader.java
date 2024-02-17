@@ -4,11 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.NoSuchElementException;
 
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.io.PathName;
-import org.jeometry.common.logging.Logs;
-
 import com.revolsys.collection.iterator.AbstractIterator;
+import com.revolsys.data.type.DataType;
 import com.revolsys.geometry.model.ClockDirection;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryDataTypes;
@@ -16,10 +13,12 @@ import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.io.EndOfFileException;
 import com.revolsys.io.FileUtil;
 import com.revolsys.io.IoConstants;
+import com.revolsys.io.PathName;
 import com.revolsys.io.endian.EndianInput;
 import com.revolsys.io.endian.EndianInputStream;
 import com.revolsys.io.endian.EndianMappedByteBuffer;
 import com.revolsys.io.endian.LittleEndianRandomAccessFile;
+import com.revolsys.logging.Logs;
 import com.revolsys.record.Record;
 import com.revolsys.record.RecordFactory;
 import com.revolsys.record.Records;
@@ -233,7 +232,7 @@ public class ShapefileRecordReader extends AbstractIterator<Record> implements R
   @SuppressWarnings("unused")
   private void loadHeader() throws IOException {
     this.in.readInt();
-    this.in.skipBytes(20);
+    this.in.skipNBytes(20);
     final int fileLength = this.in.readInt();
     final int version = this.in.readLEInt();
     this.shapeType = this.in.readLEInt();

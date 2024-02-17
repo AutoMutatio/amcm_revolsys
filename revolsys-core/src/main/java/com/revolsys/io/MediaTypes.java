@@ -12,10 +12,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.jeometry.common.logging.Logs;
-
 import com.revolsys.collection.map.Maps;
 import com.revolsys.io.file.Paths;
+import com.revolsys.logging.Logs;
 import com.revolsys.util.Property;
 
 public class MediaTypes {

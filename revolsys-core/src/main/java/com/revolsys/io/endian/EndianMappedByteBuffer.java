@@ -28,7 +28,7 @@ import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
 
-import org.jeometry.common.exception.Exceptions;
+import com.revolsys.exception.Exceptions;
 
 public class EndianMappedByteBuffer implements EndianInputOutput {
   private final MappedByteBuffer buffer;
@@ -161,9 +161,11 @@ public class EndianMappedByteBuffer implements EndianInputOutput {
   }
 
   @Override
-  public int skipBytes(final int i) throws IOException {
-    this.buffer.position(this.buffer.position() + i);
-    return this.buffer.position();
+  public void skipNBytes(final long totalCount) throws IOException {
+    if (totalCount < 0 || totalCount > Integer.MAX_VALUE) {
+      throw new IllegalArgumentException();
+    }
+    this.buffer.position(this.buffer.position() + (int)totalCount);
   }
 
   @Override

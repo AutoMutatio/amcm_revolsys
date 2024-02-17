@@ -3,8 +3,6 @@ package com.revolsys.geometry.graph.visitor;
 import java.util.LinkedHashSet;
 import java.util.function.Consumer;
 
-import org.jeometry.common.math.Angle;
-
 import com.revolsys.geometry.event.CoordinateEventListenerList;
 import com.revolsys.geometry.graph.Edge;
 import com.revolsys.geometry.graph.Graph;
@@ -15,6 +13,7 @@ import com.revolsys.geometry.model.LineString;
 import com.revolsys.geometry.model.coordinates.list.CoordinatesListUtil;
 import com.revolsys.geometry.model.impl.PointDoubleXY;
 import com.revolsys.geometry.util.Points;
+import com.revolsys.math.Angle;
 
 public class EdgeCleanCloseVerticesVisitor<T> implements Consumer<Edge<T>> {
 

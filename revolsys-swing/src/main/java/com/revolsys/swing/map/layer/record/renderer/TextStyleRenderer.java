@@ -9,8 +9,8 @@ import java.util.Map;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.geometry.model.Geometry;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.swing.Icons;
 import com.revolsys.swing.component.Form;
 import com.revolsys.swing.map.layer.LayerRenderer;

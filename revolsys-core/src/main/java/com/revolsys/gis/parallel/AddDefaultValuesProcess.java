@@ -21,10 +21,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.logging.Logs;
-
+import com.revolsys.data.type.DataType;
 import com.revolsys.io.PathUtil;
+import com.revolsys.logging.Logs;
 import com.revolsys.parallel.channel.Channel;
 import com.revolsys.parallel.process.AbstractInOutProcess;
 import com.revolsys.record.Record;

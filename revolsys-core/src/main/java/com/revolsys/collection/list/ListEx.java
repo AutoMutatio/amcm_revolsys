@@ -11,22 +11,22 @@ import java.util.RandomAccess;
 import java.util.Spliterator;
 import java.util.Spliterators;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.UnaryOperator;
+import java.util.stream.Stream;
 
 import javax.measure.Quantity;
 import javax.measure.Unit;
 
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.data.type.DataTypes;
-
+import com.revolsys.collection.iterator.BaseIterable;
+import com.revolsys.data.type.DataType;
+import com.revolsys.data.type.DataTypes;
 import com.revolsys.util.Property;
-import com.revolsys.util.StringBuilders;
 
 import tech.units.indriya.quantity.Quantities;
 
-public interface ListEx<V> extends List<V>, Cloneable {
+public interface ListEx<T> extends List<T>, Cloneable, BaseIterable<T> {
+
   static class EmptyList<E> extends AbstractList<E> implements RandomAccess, ListEx<E> {
 
     @Override
@@ -134,39 +134,43 @@ public interface ListEx<V> extends List<V>, Cloneable {
   }
 
   @SuppressWarnings("unchecked")
-  default ListEx<V> addAll(final V... values) {
-    for (final V v : values) {
+  default ListEx<T> addAll(final T... values) {
+    for (final T v : values) {
       addValue(v);
     }
     return this;
   }
 
-  default ListEx<V> addNotEmpty(final V value) {
+  default ListEx<T> addAllIterable(final Iterable<? extends T> values) {
+    for (final T v : values) {
+      addValue(v);
+    }
+    return this;
+  }
+
+  default ListEx<T> addNotEmpty(final T value) {
     if (!Property.isEmpty(value)) {
       add(value);
     }
     return this;
   }
 
-  default ListEx<V> addValue(final V value) {
+  default ListEx<T> addValue(final T value) {
     add(value);
     return this;
   }
 
-  ListEx<V> clone();
-
-  default ListEx<V> filter(final Predicate<? super V> filter) {
-    final ListEx<V> newList = new ArrayListEx<>();
-    for (final V value : this) {
-      if (filter.test(value)) {
-        newList.add(value);
-      }
-    }
-    return newList;
-  }
+  ListEx<T> clone();
 
   default Double getDouble(final int index) {
-    return getValue(index, DataTypes.DOUBLE);
+    final var value = getValue(index);
+    if (value == null) {
+      return null;
+    } else if (value instanceof final Number number) {
+      return number.doubleValue();
+    } else {
+      return DataTypes.DOUBLE.toObject(value);
+    }
   }
 
   default Double getDouble(final int index, final double defaultValue) {
@@ -178,8 +182,24 @@ public interface ListEx<V> extends List<V>, Cloneable {
     }
   }
 
+  @Override
+  default T getFirst() {
+    if (isEmpty()) {
+      return null;
+    } else {
+      return get(0);
+    }
+  }
+
   default Integer getInteger(final int index) {
-    return getValue(index, DataTypes.INT);
+    final var value = getValue(index);
+    if (value == null) {
+      return null;
+    } else if (value instanceof final Number number) {
+      return number.intValue();
+    } else {
+      return DataTypes.INT.toObject(value);
+    }
   }
 
   default int getInteger(final int index, final int defaultValue) {
@@ -211,7 +231,14 @@ public interface ListEx<V> extends List<V>, Cloneable {
   }
 
   default String getString(final int index) {
-    return getValue(index, DataTypes.STRING);
+    final var value = getValue(index);
+    if (value == null) {
+      return null;
+    } else if (value instanceof final CharSequence string) {
+      return string.toString();
+    } else {
+      return DataTypes.STRING.toObject(value);
+    }
   }
 
   default String getString(final int index, final String defaultValue) {
@@ -224,40 +251,31 @@ public interface ListEx<V> extends List<V>, Cloneable {
   }
 
   @SuppressWarnings("unchecked")
-  default <T> T getValue(final int index) {
-    return (T)get(index);
+  default <V> V getValue(final int index) {
+    return (V)get(index);
   }
 
-  default <T extends Object> T getValue(final int index, final DataType dataType) {
+  default <V extends Object> V getValue(final int index, final DataType dataType) {
     final Object value = get(index);
     return dataType.toObject(value);
   }
 
-  default <T extends Object> T getValue(final int index, final T defaultValue) {
-    final T value = getValue(index);
-    if (value == null) {
-      return defaultValue;
-    } else {
-      return value;
+  default <V extends Object> V getValue(final int index, final V defaultValue) {
+    if (index < size()) {
+      final V value = getValue(index);
+      if (value != null) {
+        return value;
+      }
     }
+    return defaultValue;
   }
 
-  default String join(final String separator) {
-    final StringBuilder string = new StringBuilder();
-    StringBuilders.append(string, this, separator);
-    return string.toString();
+  @Override
+  default Stream<T> parallelStream() {
+    return List.super.parallelStream();
   }
 
-  default <OUT> ListEx<OUT> map(final Function<? super V, OUT> converter) {
-    final ListEx<OUT> newList = new ArrayListEx<>();
-    for (final V value : this) {
-      final OUT newValue = converter.apply(value);
-      newList.add(newValue);
-    }
-    return newList;
-  }
-
-  default V removeLast() {
+  default T removeLast() {
     if (size() > 0) {
       return remove(size() - 1);
     } else {
@@ -265,10 +283,30 @@ public interface ListEx<V> extends List<V>, Cloneable {
     }
   }
 
-  default ListEx<V> sortThis(final Comparator<? super V> converter) {
+  default ListEx<T> sortThis(final Comparator<? super T> converter) {
     sort(converter);
     return this;
   }
+
+  @Override
+  default Stream<T> stream() {
+    return List.super.stream();
+  }
+
+  default ListEx<T> subList(final int fromIndex) {
+    if (fromIndex < 0) {
+      throw new IllegalArgumentException("Index must be >=0");
+    } else if (fromIndex == 0) {
+      return this;
+    } else if (fromIndex < size()) {
+      return subList(fromIndex, size());
+    } else {
+      return empty();
+    }
+  }
+
+  @Override
+  ListEx<T> subList(final int fromIndex, final int toIndex);
 
   default int[] toIntArray() {
     final int[] array = new int[size()];

@@ -3,11 +3,10 @@ package com.revolsys.process;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.jeometry.common.compare.CompareUtil;
-import org.jeometry.common.data.identifier.Identifier;
-import org.jeometry.common.io.PathName;
-import org.jeometry.common.logging.Logs;
-
+import com.revolsys.comparator.CompareUtil;
+import com.revolsys.data.identifier.Identifier;
+import com.revolsys.io.PathName;
+import com.revolsys.logging.Logs;
 import com.revolsys.parallel.process.AbstractProcess;
 import com.revolsys.record.Record;
 import com.revolsys.record.io.RecordReader;
@@ -43,8 +42,7 @@ public class CopyRecords extends AbstractProcess {
 
   public CopyRecords(final RecordStore sourceRecordStore, final PathName typePath,
     final RecordStore targetRecordStore, final boolean hasSequence) {
-    this(sourceRecordStore, typePath, new HashMap<String, Boolean>(), targetRecordStore,
-      hasSequence);
+    this(sourceRecordStore, typePath, new HashMap<>(), targetRecordStore, hasSequence);
   }
 
   public Map<String, Boolean> getOrderBy() {

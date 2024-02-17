@@ -28,7 +28,7 @@ import org.apache.olingo.commons.api.edm.EdmSingleton;
 import org.apache.olingo.server.api.ServiceMetadata;
 import org.apache.olingo.server.api.serializer.SerializerException;
 
-import com.revolsys.record.io.format.json.JsonWriter;
+import com.revolsys.collection.json.JsonWriter;
 
 public class ServiceDocumentJsonSerializer {
   public static final String KIND = "kind";

@@ -4,12 +4,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import org.jeometry.common.data.identifier.Identifier;
-import org.jeometry.common.io.PathName;
-import org.jeometry.common.io.PathNameProxy;
-
+import com.revolsys.data.identifier.Identifier;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.geometry.model.GeometryFactoryProxy;
+import com.revolsys.io.PathName;
+import com.revolsys.io.PathNameProxy;
 import com.revolsys.record.Record;
 import com.revolsys.record.RecordFactory;
 import com.revolsys.record.query.Condition;

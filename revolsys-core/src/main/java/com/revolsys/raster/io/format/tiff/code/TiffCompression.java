@@ -46,7 +46,7 @@ public enum TiffCompression {
     return ENUM_BY_ID.get(id);
   }
 
-  private int id;
+  private final int id;
 
   private TiffCompression(final int id) {
     this.id = id;

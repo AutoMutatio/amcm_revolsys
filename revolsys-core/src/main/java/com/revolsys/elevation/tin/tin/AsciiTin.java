@@ -1,13 +1,12 @@
 package com.revolsys.elevation.tin.tin;
 
-import org.jeometry.common.exception.Exceptions;
-
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.collection.map.Maps;
 import com.revolsys.elevation.tin.TriangulatedIrregularNetwork;
 import com.revolsys.elevation.tin.TriangulatedIrregularNetworkReaderFactory;
 import com.revolsys.elevation.tin.TriangulatedIrregularNetworkWriter;
 import com.revolsys.elevation.tin.TriangulatedIrregularNetworkWriterFactory;
+import com.revolsys.exception.Exceptions;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.io.AbstractIoFactory;
 import com.revolsys.spring.resource.Resource;

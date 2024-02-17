@@ -2,8 +2,7 @@ package com.revolsys.swing.map.layer.record.style.marker;
 
 import java.util.List;
 
-import org.jeometry.common.function.BiFunctionDouble;
-
+import com.revolsys.function.BiFunctionDouble;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.swing.map.layer.record.style.MarkerStyle;

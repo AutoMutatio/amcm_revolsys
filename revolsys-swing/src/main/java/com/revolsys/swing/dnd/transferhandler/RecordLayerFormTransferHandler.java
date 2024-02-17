@@ -10,8 +10,7 @@ import java.util.Map;
 import javax.swing.JComponent;
 import javax.swing.TransferHandler;
 
-import org.jeometry.common.logging.Logs;
-
+import com.revolsys.logging.Logs;
 import com.revolsys.swing.dnd.transferable.MapTransferable;
 import com.revolsys.swing.dnd.transferable.RecordTransferable;
 import com.revolsys.swing.map.form.LayerRecordForm;

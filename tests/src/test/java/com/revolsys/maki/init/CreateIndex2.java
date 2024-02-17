@@ -3,10 +3,10 @@ package com.revolsys.maki.init;
 import java.io.File;
 import java.util.List;
 
+import com.revolsys.collection.json.Json;
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.io.map.MapObjectFactory;
-import com.revolsys.record.io.format.json.Json;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.spring.resource.Resource;
 import com.revolsys.spring.resource.UrlResource;
 import com.revolsys.swing.map.layer.record.style.marker.MarkerLibrary;

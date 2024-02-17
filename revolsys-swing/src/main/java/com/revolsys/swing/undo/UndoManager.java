@@ -15,8 +15,8 @@ import javax.swing.undo.UndoableEdit;
 
 import com.revolsys.beans.PropertyChangeSupport;
 import com.revolsys.beans.PropertyChangeSupportProxy;
-import com.revolsys.io.BaseCloseable;
 import com.revolsys.swing.action.RunnableAction;
+import com.revolsys.util.BaseCloseable;
 import com.revolsys.util.OS;
 import com.revolsys.value.GlobalBooleanValue;
 

@@ -7,7 +7,8 @@ import java.util.UUID;
 import org.springframework.jmx.export.annotation.ManagedAttribute;
 import org.springframework.jmx.export.annotation.ManagedOperation;
 
-import com.revolsys.parallel.ThreadInterruptedException;
+import com.revolsys.exception.Exceptions;
+import com.revolsys.exception.WrappedInterruptedException;
 
 public abstract class AbstractResetableProcess extends AbstractProcess {
   private final Set<UUID> executions = new LinkedHashSet<>();
@@ -107,7 +108,7 @@ public abstract class AbstractResetableProcess extends AbstractProcess {
               try {
                 this.wait(milliSeconds);
               } catch (final InterruptedException e) {
-                throw new ThreadInterruptedException(e);
+                Exceptions.throwUncheckedException(e);
               }
             }
           }
@@ -119,7 +120,7 @@ public abstract class AbstractResetableProcess extends AbstractProcess {
           }
         }
       }
-    } catch (final ThreadInterruptedException e) {
+    } catch (final WrappedInterruptedException e) {
     } finally {
       try {
         postRun();
@@ -166,7 +167,7 @@ public abstract class AbstractResetableProcess extends AbstractProcess {
       try {
         this.executions.wait(milliSeconds);
       } catch (final InterruptedException e) {
-        throw new ThreadInterruptedException(e);
+        Exceptions.throwUncheckedException(e);
       }
     }
   }

@@ -13,12 +13,13 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
 import org.jdesktop.swingx.VerticalLayout;
-import org.jeometry.common.awt.WebColors;
-import org.jeometry.common.data.type.DataTypes;
 
+import com.revolsys.awt.WebColors;
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.list.Lists;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.collection.map.Maps;
+import com.revolsys.data.type.DataTypes;
 import com.revolsys.io.IoFactory;
 import com.revolsys.jdbc.exception.DatabaseNotFoundException;
 import com.revolsys.jdbc.io.JdbcDatabaseFactory;
@@ -28,7 +29,6 @@ import com.revolsys.record.io.RecordStoreConnection;
 import com.revolsys.record.io.RecordStoreConnectionManager;
 import com.revolsys.record.io.RecordStoreConnectionRegistry;
 import com.revolsys.record.io.RecordStoreFactory;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.swing.component.Form;
 import com.revolsys.swing.field.CheckBox;
 import com.revolsys.swing.field.ComboBox;

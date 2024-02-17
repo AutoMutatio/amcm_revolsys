@@ -16,9 +16,8 @@ import javax.swing.UIManager.LookAndFeelInfo;
 
 import jakarta.annotation.PostConstruct;
 
-import org.jeometry.common.logging.Logs;
-
 import com.revolsys.log.LogbackUtil;
+import com.revolsys.logging.Logs;
 import com.revolsys.swing.desktop.DesktopInitializer;
 import com.revolsys.swing.logging.ListLoggingAppender;
 import com.revolsys.swing.logging.LoggingEventPanel;

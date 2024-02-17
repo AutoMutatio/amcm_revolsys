@@ -4,6 +4,8 @@ import java.awt.geom.AffineTransform;
 import java.util.Map;
 
 import com.revolsys.beans.AbstractPropertyChangeSupportProxy;
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.json.JsonObjectHash;
 import com.revolsys.collection.map.Maps;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactory;
@@ -12,8 +14,6 @@ import com.revolsys.geometry.model.LineString;
 import com.revolsys.geometry.model.Point;
 import com.revolsys.geometry.model.impl.PointDoubleXY;
 import com.revolsys.io.map.MapSerializer;
-import com.revolsys.record.io.format.json.JsonObject;
-import com.revolsys.record.io.format.json.JsonObjectHash;
 
 public class MappedLocation extends AbstractPropertyChangeSupportProxy
   implements GeometryFactoryProxy, MapSerializer {

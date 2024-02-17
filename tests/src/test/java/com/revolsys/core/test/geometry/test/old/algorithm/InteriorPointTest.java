@@ -34,10 +34,10 @@ package com.revolsys.core.test.geometry.test.old.algorithm;
 
 import java.util.List;
 
+import com.revolsys.collection.iterator.Reader;
 import com.revolsys.geometry.io.GeometryReader;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.Point;
-import com.revolsys.io.Reader;
 import com.revolsys.spring.resource.ClassPathResource;
 
 import junit.framework.TestCase;

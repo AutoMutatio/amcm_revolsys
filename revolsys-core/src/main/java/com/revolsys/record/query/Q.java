@@ -6,10 +6,9 @@ import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
-import org.jeometry.common.data.identifier.Identifier;
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.data.type.DataTypes;
-
+import com.revolsys.data.identifier.Identifier;
+import com.revolsys.data.type.DataType;
+import com.revolsys.data.type.DataTypes;
 import com.revolsys.record.query.functions.Exists;
 import com.revolsys.record.query.functions.F;
 import com.revolsys.record.query.functions.JsonRawValue;
@@ -153,12 +152,12 @@ public class Q {
     return new Divide(left, right);
   }
 
-  public static Equal equal(final FieldDefinition fieldDefinition, final Object value) {
+  public static Equal equal(final ColumnReference fieldDefinition, final Object value) {
     final Value valueCondition = Value.newValue(fieldDefinition, value);
     return new Equal(fieldDefinition, valueCondition);
   }
 
-  public static Equal equal(final FieldDefinition field, final QueryValue right) {
+  public static Equal equal(final ColumnReference field, final QueryValue right) {
     return new Equal(field, right);
   }
 
@@ -187,6 +186,12 @@ public class Q {
   public static Equal equal(final String left, final QueryValue right) {
     final Column leftCondition = new Column(left);
     return new Equal(leftCondition, right);
+  }
+
+  public static Equal equal(final TableReferenceProxy table, final CharSequence fieldName,
+    final Object value) {
+    final var column = table.getColumn(fieldName);
+    return equal(column, value);
   }
 
   public static Condition equalId(final List<?> fields, final Identifier identifier) {
@@ -273,9 +278,9 @@ public class Q {
     return greaterThanEqual(column, right);
   }
 
-  public static ILike iLike(final FieldDefinition fieldDefinition, final Object value) {
-    final String name = fieldDefinition.getName();
-    final Value valueCondition = Value.newValue(fieldDefinition, value);
+  public static ILike iLike(final ColumnReference column, final Object value) {
+    final String name = column.getName();
+    final Value valueCondition = Value.newValue(column, value);
     return iLike(name, valueCondition);
   }
 
@@ -300,12 +305,18 @@ public class Q {
     return new ILike(leftCondition, valueCondition);
   }
 
-  public static In in(final FieldDefinition fieldDefinition,
+  public static ILike iLike(final TableReferenceProxy table, final CharSequence fieldName,
+    final Object value) {
+    final var column = table.getColumn(fieldName);
+    return iLike(column, value);
+  }
+
+  public static In in(final ColumnReference fieldDefinition,
     final Collection<? extends Object> values) {
     return new In(fieldDefinition, values);
   }
 
-  public static In in(final FieldDefinition fieldDefinition, final Object... values) {
+  public static In in(final ColumnReference fieldDefinition, final Object... values) {
     final List<Object> list = Arrays.asList(values);
     return new In(fieldDefinition, list);
   }
@@ -314,6 +325,12 @@ public class Q {
     final Column left = new Column(name);
     final CollectionValue collectionValue = new CollectionValue(values);
     return new In(left, collectionValue);
+  }
+
+  public static In in(final TableReferenceProxy table, final CharSequence fieldName,
+    final Object... values) {
+    final var column = table.getColumn(fieldName);
+    return in(column, values);
   }
 
   public static IsNotNull isNotNull(final FieldDefinition fieldDefinition) {

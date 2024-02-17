@@ -33,16 +33,15 @@ import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-import org.jeometry.common.exception.Exceptions;
-import org.jeometry.common.logging.Logs;
-
-import com.revolsys.collection.SimpleValueHolder;
 import com.revolsys.collection.list.Lists;
 import com.revolsys.collection.set.Sets;
+import com.revolsys.collection.value.SimpleValueHolder;
 import com.revolsys.connection.file.FileConnectionManager;
 import com.revolsys.connection.file.FolderConnection;
 import com.revolsys.connection.file.FolderConnectionRegistry;
+import com.revolsys.exception.Exceptions;
 import com.revolsys.io.FileNames;
+import com.revolsys.logging.Logs;
 import com.revolsys.util.Property;
 import com.revolsys.util.UrlUtil;
 
@@ -460,6 +459,16 @@ public interface Paths {
       return Files.getLastModifiedTime(path).toInstant();
     } catch (final IOException e) {
       return Instant.EPOCH;
+    }
+  }
+
+  static Stream<Path> listFiles(final Path path) {
+    try {
+      return Files.list(path);
+    } catch (final NoSuchFileException e) {
+      return Stream.empty();
+    } catch (final IOException e) {
+      throw Exceptions.wrap(e);
     }
   }
 

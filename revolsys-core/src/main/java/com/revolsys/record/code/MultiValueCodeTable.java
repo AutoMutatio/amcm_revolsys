@@ -3,8 +3,7 @@ package com.revolsys.record.code;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.jeometry.common.data.identifier.Identifier;
-
+import com.revolsys.data.identifier.Identifier;
 import com.revolsys.record.Record;
 import com.revolsys.record.io.RecordReader;
 

@@ -12,15 +12,15 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.table.JTableHeader;
 
 import org.jdesktop.swingx.table.TableColumnExt;
-import org.jeometry.common.compare.NumericComparator;
-import org.jeometry.common.data.identifier.Code;
-import org.jeometry.common.data.identifier.Identifier;
-import org.jeometry.common.data.type.DataTypes;
 
 import com.revolsys.beans.PropertyChangeSupportProxy;
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.comparator.NumericComparator;
+import com.revolsys.data.identifier.Code;
+import com.revolsys.data.identifier.Identifier;
+import com.revolsys.data.type.DataTypes;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.record.code.CodeTable;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.swing.SwingUtil;
 import com.revolsys.swing.parallel.Invoke;
@@ -180,7 +180,7 @@ public class JsonObjectTableModel extends AbstractTableModel
         column.setMinWidth(40);
         column.setPreferredWidth(40);
         column.setMaxWidth(40);
-        column.setComparator(new NumericComparator<Integer>());
+        column.setComparator(new NumericComparator<>());
       } else if (i == 1) {
         column.setPreferredWidth(150);
       } else {

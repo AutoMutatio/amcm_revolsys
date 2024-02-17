@@ -3,13 +3,12 @@ package com.revolsys.record.io.format.esri.gdb.xml.type;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.data.type.DataTypes;
-
+import com.revolsys.collection.json.Json;
+import com.revolsys.data.type.DataType;
+import com.revolsys.data.type.DataTypes;
 import com.revolsys.geometry.model.GeometryDataTypes;
 import com.revolsys.record.io.format.esri.gdb.xml.EsriGeodatabaseXmlConstants;
 import com.revolsys.record.io.format.esri.gdb.xml.model.enums.FieldType;
-import com.revolsys.record.io.format.json.Json;
 
 public class EsriGeodatabaseXmlFieldTypeRegistry implements EsriGeodatabaseXmlConstants {
 

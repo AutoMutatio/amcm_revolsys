@@ -1,6 +1,6 @@
 package com.revolsys.record.io.format.xml;
 
-import org.jeometry.common.data.type.DataType;
+import com.revolsys.data.type.DataType;
 
 public class XmlSimpleTypeDataType extends XmlSimpleType {
 

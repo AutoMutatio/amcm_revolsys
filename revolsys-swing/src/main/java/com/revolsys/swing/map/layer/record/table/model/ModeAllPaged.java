@@ -12,12 +12,12 @@ import java.util.function.Consumer;
 import javax.swing.Icon;
 import javax.swing.SwingWorker;
 
-import org.jeometry.common.awt.WebColors;
-import org.jeometry.common.collection.map.LruMap;
-import org.jeometry.common.exception.Exceptions;
-import org.jeometry.common.logging.Logs;
 import org.springframework.jdbc.BadSqlGrammarException;
 
+import com.revolsys.awt.WebColors;
+import com.revolsys.collection.map.LruMap;
+import com.revolsys.exception.Exceptions;
+import com.revolsys.logging.Logs;
 import com.revolsys.predicate.Predicates;
 import com.revolsys.record.Record;
 import com.revolsys.record.query.Condition;

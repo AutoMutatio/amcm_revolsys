@@ -1,8 +1,7 @@
 package com.revolsys.record.io.format.esri.gdb.xml.model.enums;
 
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.data.type.DataTypes;
-
+import com.revolsys.data.type.DataType;
+import com.revolsys.data.type.DataTypes;
 import com.revolsys.geometry.model.GeometryDataTypes;
 
 public enum FieldType {
@@ -45,7 +44,7 @@ public enum FieldType {
   /** XML Document. */
   esriFieldTypeXML(DataTypes.XML);
 
-  private DataType dataType;
+  private final DataType dataType;
 
   private FieldType(final DataType dataType) {
     this.dataType = dataType;

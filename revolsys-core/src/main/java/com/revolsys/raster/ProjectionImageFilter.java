@@ -3,9 +3,8 @@ package com.revolsys.raster;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 
-import org.jeometry.coordinatesystem.operation.CoordinatesOperation;
-import org.jeometry.coordinatesystem.operation.CoordinatesOperationPoint;
-
+import com.revolsys.geometry.coordinatesystem.operation.CoordinatesOperation;
+import com.revolsys.geometry.coordinatesystem.operation.CoordinatesOperationPoint;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.geometry.model.GeometryFactoryProxy;

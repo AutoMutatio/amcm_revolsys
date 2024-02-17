@@ -2,8 +2,7 @@ package com.revolsys.gis.grid.filter;
 
 import java.util.function.Predicate;
 
-import org.jeometry.coordinatesystem.model.systems.EpsgId;
-
+import com.revolsys.geometry.coordinatesystem.model.systems.EpsgId;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.geometry.model.Point;

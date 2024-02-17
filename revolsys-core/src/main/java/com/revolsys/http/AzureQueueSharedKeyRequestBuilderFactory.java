@@ -8,9 +8,9 @@ import java.util.Base64;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
-import com.revolsys.record.io.format.json.JsonObject;
+import com.revolsys.collection.json.JsonObject;
 
-public class AzureQueueSharedKeyRequestBuilderFactory extends ApacheHttpRequestBuilderFactory {
+public class AzureQueueSharedKeyRequestBuilderFactory extends HttpRequestBuilderFactory {
 
   public static AzureQueueSharedKeyRequestBuilderFactory forConnectionString(
     final JsonObject connectionParameters) {

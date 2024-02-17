@@ -6,19 +6,18 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.jeometry.common.exception.Exceptions;
-import org.jeometry.common.exception.WrappedException;
-import org.jeometry.common.logging.Logs;
-
+import com.revolsys.collection.json.Json;
 import com.revolsys.collection.map.MapEx;
+import com.revolsys.exception.Exceptions;
+import com.revolsys.exception.WrappedRuntimeException;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactory;
-import com.revolsys.io.BaseCloseable;
+import com.revolsys.logging.Logs;
 import com.revolsys.net.urlcache.FileResponseCache;
 import com.revolsys.properties.ObjectWithProperties;
-import com.revolsys.record.io.format.json.Json;
 import com.revolsys.spring.resource.Resource;
 import com.revolsys.spring.resource.UrlResource;
+import com.revolsys.util.BaseCloseable;
 import com.revolsys.util.Property;
 import com.revolsys.util.UrlUtil;
 import com.revolsys.webservice.AbstractWebService;
@@ -215,7 +214,7 @@ public abstract class ArcGisResponse<V> extends AbstractWebService<V> implements
         refreshDo();
         setCannotFindHost(false);
         this.hasError = false;
-      } catch (final WrappedException e) {
+      } catch (final WrappedRuntimeException e) {
         this.hasError = true;
         final Throwable cause = Exceptions.unwrap(e);
         if (cause instanceof UnknownHostException) {

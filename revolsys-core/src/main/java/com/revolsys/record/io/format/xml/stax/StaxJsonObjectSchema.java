@@ -7,7 +7,7 @@ import java.util.function.Supplier;
 
 import javax.xml.namespace.QName;
 
-import com.revolsys.record.io.format.json.JsonList;
+import com.revolsys.collection.json.JsonList;
 import com.revolsys.record.io.format.xml.XmlAttribute;
 import com.revolsys.record.io.format.xml.XmlComplexType;
 import com.revolsys.record.io.format.xml.XmlElement;

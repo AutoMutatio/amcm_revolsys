@@ -7,17 +7,15 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.function.Function;
 
-import org.jeometry.common.data.type.DataTypes;
-
 import com.revolsys.collection.iterator.AbstractIterator;
-import com.revolsys.http.ApacheHttpRequestBuilder;
-import com.revolsys.http.ApacheHttpRequestBuilderFactory;
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.http.HttpRequestBuilder;
+import com.revolsys.http.HttpRequestBuilderFactory;
 import com.revolsys.record.Record;
 import com.revolsys.record.RecordFactory;
 import com.revolsys.record.RecordState;
 import com.revolsys.record.io.RecordIterator;
 import com.revolsys.record.io.RecordReader;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.record.query.Query;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
@@ -27,7 +25,7 @@ public class ODataQueryIterator extends AbstractIterator<Record>
 
   private static Function<JsonObject, Record> recordFactoryConverter(
     final RecordDefinition recordDefinition, final RecordFactory<Record> recordFactory) {
-    return (recordJson) -> {
+    return recordJson -> {
       final Record record = recordFactory.newRecord(recordDefinition);
       if (record != null) {
         record.setState(RecordState.INITIALIZING);
@@ -48,20 +46,20 @@ public class ODataQueryIterator extends AbstractIterator<Record>
 
   private URI nextURI;
 
-  private final ApacheHttpRequestBuilderFactory requestFactory;
+  private final HttpRequestBuilderFactory requestFactory;
 
   private final Function<JsonObject, Record> recordConverter;
 
   private int readCount;
 
-  private ApacheHttpRequestBuilder request;
+  private HttpRequestBuilder request;
 
   private final RecordDefinition recordDefinition;
 
   private int limit = Integer.MAX_VALUE;
 
-  public ODataQueryIterator(final ApacheHttpRequestBuilderFactory requestFactory,
-    final ApacheHttpRequestBuilder request, final Function<JsonObject, Record> recordConverter,
+  public ODataQueryIterator(final HttpRequestBuilderFactory requestFactory,
+    final HttpRequestBuilder request, final Function<JsonObject, Record> recordConverter,
     final RecordDefinition recordDefinition) {
     this.requestFactory = requestFactory;
     this.recordConverter = recordConverter;
@@ -70,8 +68,8 @@ public class ODataQueryIterator extends AbstractIterator<Record>
     this.queryLabel = request.getUri().toString();
   }
 
-  public ODataQueryIterator(final ApacheHttpRequestBuilderFactory requestFactory,
-    final ApacheHttpRequestBuilder request, final RecordFactory<Record> recordFactory,
+  public ODataQueryIterator(final HttpRequestBuilderFactory requestFactory,
+    final HttpRequestBuilder request, final RecordFactory<Record> recordFactory,
     final RecordDefinition recordDefinition) {
     this.requestFactory = requestFactory;
     this.recordConverter = recordFactoryConverter(recordDefinition, recordFactory);
@@ -81,7 +79,7 @@ public class ODataQueryIterator extends AbstractIterator<Record>
   }
 
   public ODataQueryIterator(final ODataRecordStore recordStore,
-    final ApacheHttpRequestBuilderFactory requestFactory, final Query query,
+    final HttpRequestBuilderFactory requestFactory, final Query query,
     final Map<String, Object> properties) {
     RecordFactory<Record> recordFactory = query.getRecordFactory();
     if (recordFactory == null) {
@@ -102,7 +100,7 @@ public class ODataQueryIterator extends AbstractIterator<Record>
       this.nextURI = null;
       this.results = Collections.emptyIterator();
     } else {
-      this.nextURI = json.getValue("@odata.nextLink", DataTypes.ANY_URI);
+      this.nextURI = json.getURI("@odata.nextLink");
       this.results = json.getJsonList("value").jsonObjects().iterator();
     }
   }

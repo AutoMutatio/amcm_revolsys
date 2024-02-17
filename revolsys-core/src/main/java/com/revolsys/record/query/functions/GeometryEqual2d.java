@@ -3,9 +3,8 @@ package com.revolsys.record.query.functions;
 import java.util.Arrays;
 import java.util.List;
 
-import org.jeometry.common.data.type.DataTypes;
-
 import com.revolsys.collection.map.MapEx;
+import com.revolsys.data.type.DataTypes;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.record.query.AbstractBinaryQueryValue;
 import com.revolsys.record.query.Condition;

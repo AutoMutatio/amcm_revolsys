@@ -1,7 +1,6 @@
 package com.revolsys.swing.map.overlay.record.geometryeditor;
 
-import org.jeometry.common.data.type.DataType;
-
+import com.revolsys.data.type.DataType;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.simplify.DouglasPeuckerSimplifier;
 import com.revolsys.record.Record;

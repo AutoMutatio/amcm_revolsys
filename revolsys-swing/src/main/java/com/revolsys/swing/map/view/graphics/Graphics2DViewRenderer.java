@@ -30,10 +30,10 @@ import javax.measure.Quantity;
 import javax.measure.Unit;
 import javax.measure.quantity.Length;
 
-import org.jeometry.common.function.BiFunctionDouble;
 import org.w3c.dom.Document;
 
 import com.revolsys.awt.ResetAffineTransform;
+import com.revolsys.function.BiFunctionDouble;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryFactory;
@@ -42,7 +42,6 @@ import com.revolsys.geometry.model.Point;
 import com.revolsys.geometry.model.Polygon;
 import com.revolsys.geometry.model.TopologyException;
 import com.revolsys.geometry.model.impl.PointDoubleXYOrientation;
-import com.revolsys.io.BaseCloseable;
 import com.revolsys.raster.GeoreferencedImage;
 import com.revolsys.record.Record;
 import com.revolsys.swing.Fonts;
@@ -64,6 +63,7 @@ import com.revolsys.swing.map.layer.record.style.marker.SvgMarker;
 import com.revolsys.swing.map.layer.record.style.marker.TextMarker;
 import com.revolsys.swing.map.view.TextStyleViewRenderer;
 import com.revolsys.swing.map.view.ViewRenderer;
+import com.revolsys.util.BaseCloseable;
 import com.revolsys.util.Property;
 
 import tech.units.indriya.quantity.Quantities;

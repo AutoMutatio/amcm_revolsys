@@ -5,9 +5,8 @@ import java.util.List;
 
 import javax.swing.Icon;
 
-import org.jeometry.common.data.type.DataType;
-
 import com.revolsys.beans.PropertyChangeSupportProxy;
+import com.revolsys.data.type.DataType;
 import com.revolsys.io.map.MapSerializer;
 import com.revolsys.properties.ObjectWithProperties;
 import com.revolsys.swing.component.Form;

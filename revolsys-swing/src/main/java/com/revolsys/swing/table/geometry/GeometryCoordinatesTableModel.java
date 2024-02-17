@@ -12,14 +12,13 @@ import java.util.Map;
 import javax.swing.JComponent;
 import javax.swing.undo.UndoableEdit;
 
-import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.common.math.MathUtil;
-
+import com.revolsys.data.type.DataTypes;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.geometry.model.Point;
 import com.revolsys.geometry.model.Polygonal;
 import com.revolsys.geometry.model.vertex.Vertex;
+import com.revolsys.math.MathUtil;
 import com.revolsys.swing.field.NumberTextField;
 import com.revolsys.swing.map.form.GeometryCoordinatesPanel;
 import com.revolsys.swing.map.form.LayerRecordForm;

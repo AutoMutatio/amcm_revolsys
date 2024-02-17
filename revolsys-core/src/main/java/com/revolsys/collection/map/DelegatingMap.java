@@ -3,8 +3,6 @@ package com.revolsys.collection.map;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.jeometry.common.collection.map.AbstractDelegatingMap;
-
 import com.revolsys.util.BaseCloneable;
 
 public class DelegatingMap<K, V> extends AbstractDelegatingMap<K, V> implements Cloneable {
@@ -16,7 +14,7 @@ public class DelegatingMap<K, V> extends AbstractDelegatingMap<K, V> implements 
   private Map<K, V> map;
 
   public DelegatingMap() {
-    this(new LinkedHashMap<K, V>());
+    this(new LinkedHashMap<>());
   }
 
   public DelegatingMap(final Map<K, V> map) {

@@ -31,11 +31,11 @@ public enum AboveBelow {
     }
   }
 
-  private char letter;
+  private final char letter;
 
-  private String name;
+  private final String name;
 
-  private String upperName;
+  private final String upperName;
 
   private AboveBelow(final String name) {
     this.name = name;

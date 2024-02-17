@@ -3,13 +3,11 @@ package com.revolsys.record.schema;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.record.Record;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.record.query.Query;
 import com.revolsys.transaction.Transaction;
-
-import reactor.core.publisher.Mono;
 
 public abstract class InsertUpdateBuilder {
 
@@ -74,15 +72,6 @@ public abstract class InsertUpdateBuilder {
   }
 
   public abstract Record executeDo(Supplier<Transaction> transactionSupplier);
-
-  public final Mono<Record> executeMono() {
-    return executeMono(this::newTransaction);
-  }
-
-  public Mono<Record> executeMono(final Supplier<Transaction> transactionSupplier) {
-    // TODO this is a placeholder until full reactive is implemented
-    return Mono.defer(() -> Mono.just(execute(transactionSupplier)));
-  }
 
   public Query getQuery() {
     return this.query;
@@ -149,6 +138,11 @@ public abstract class InsertUpdateBuilder {
    */
   public InsertUpdateBuilder search(final Consumer<JsonObject> configurer) {
     configurer.accept(this.searchValues);
+    return this;
+  }
+
+  public InsertUpdateBuilder search(final String key, final Object value) {
+    this.searchValues.addValue(key, value);
     return this;
   }
 

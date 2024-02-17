@@ -31,12 +31,11 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 
-import org.jeometry.common.logging.Logs;
-
 import com.revolsys.io.AbstractRecordWriter;
 import com.revolsys.io.FileUtil;
 import com.revolsys.io.PathUtil;
 import com.revolsys.io.ZipUtil;
+import com.revolsys.logging.Logs;
 import com.revolsys.record.Record;
 import com.revolsys.record.io.format.saif.util.ObjectSetUtil;
 import com.revolsys.record.io.format.saif.util.OsnConverterRegistry;

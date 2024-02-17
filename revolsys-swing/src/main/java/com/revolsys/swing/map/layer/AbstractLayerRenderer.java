@@ -8,8 +8,8 @@ import java.util.Map;
 
 import javax.swing.Icon;
 
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.properties.BaseObjectWithPropertiesAndChange;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.swing.Icons;
 import com.revolsys.swing.component.Form;
 import com.revolsys.swing.map.layer.record.style.panel.BaseStylePanel;

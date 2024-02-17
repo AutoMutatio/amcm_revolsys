@@ -8,16 +8,16 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.function.Consumer;
 
-import org.jeometry.common.data.identifier.Identifier;
-import org.jeometry.common.data.identifier.ListIdentifier;
-import org.jeometry.common.data.identifier.SingleIdentifier;
-import org.jeometry.common.date.Dates;
-import org.jeometry.common.io.PathName;
-import org.jeometry.common.logging.Logs;
-
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.list.Lists;
+import com.revolsys.data.identifier.Identifier;
+import com.revolsys.data.identifier.ListIdentifier;
+import com.revolsys.data.identifier.SingleIdentifier;
+import com.revolsys.date.Dates;
+import com.revolsys.exception.Exceptions;
+import com.revolsys.io.PathName;
+import com.revolsys.logging.Logs;
 import com.revolsys.record.Record;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.record.query.And;
 import com.revolsys.record.query.Q;
 import com.revolsys.record.query.Query;
@@ -253,6 +253,7 @@ public class SingleValueRecordStoreCodeTable extends AbstractSingleValueCodeTabl
           try {
             wait(1000);
           } catch (final InterruptedException e) {
+            Exceptions.throwUncheckedException(e);
           }
         }
         return;
@@ -268,7 +269,7 @@ public class SingleValueRecordStoreCodeTable extends AbstractSingleValueCodeTabl
           this.loading = false;
           this.loaded = true;
           this.threadLoading.set(null);
-          this.notifyAll();
+          notifyAll();
         }
         Property.firePropertyChange(this, "valuesChanged", false, true);
       }
@@ -376,7 +377,7 @@ public class SingleValueRecordStoreCodeTable extends AbstractSingleValueCodeTabl
 
   @Override
   public synchronized void refresh() {
-    this.clearCaches();
+    clearCaches();
     super.refresh();
     if (isLoadAll()) {
       this.loaded = false;

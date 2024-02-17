@@ -16,15 +16,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.zip.InflaterInputStream;
 
-import org.jeometry.common.exception.Exceptions;
-import org.jeometry.common.logging.Logs;
-import org.jeometry.common.number.Doubles;
-import org.jeometry.common.number.Integers;
-import org.jeometry.common.number.Longs;
-
+import com.revolsys.exception.Exceptions;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.io.channels.DataReader;
+import com.revolsys.logging.Logs;
+import com.revolsys.number.Doubles;
+import com.revolsys.number.Integers;
+import com.revolsys.number.Longs;
 import com.revolsys.raster.AbstractGeoreferencedImage;
 import com.revolsys.raster.GeoreferencedImageMapTile;
 import com.revolsys.raster.io.format.tiff.TiffDirectory;

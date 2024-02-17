@@ -2,10 +2,9 @@ package com.revolsys.util;
 
 import java.util.Map;
 
-import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.common.data.type.ObjectDataType;
-
 import com.revolsys.collection.map.MapEx;
+import com.revolsys.data.type.DataTypes;
+import com.revolsys.data.type.ObjectDataType;
 import com.revolsys.elevation.gridded.GriddedElevationModel;
 import com.revolsys.elevation.tin.TriangulatedIrregularNetwork;
 import com.revolsys.geometry.model.GeometryDataTypes;

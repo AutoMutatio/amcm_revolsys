@@ -13,10 +13,9 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.data.type.DataTypes;
-
-import com.revolsys.record.io.format.json.JsonParser;
+import com.revolsys.collection.json.JsonParser;
+import com.revolsys.data.type.DataType;
+import com.revolsys.data.type.DataTypes;
 import com.revolsys.util.Cancellable;
 import com.revolsys.util.Property;
 
@@ -338,14 +337,14 @@ public interface Lists {
     }
   }
 
-  static <IN, OUT> List<OUT> map(final Iterable<IN> list,
+  static <IN, OUT> ListEx<OUT> map(final Iterable<IN> list,
     final Function<? super IN, OUT> converter) {
     if (list == null) {
-      return new ArrayListEx<>();
+      return Lists.newArray();
     } else {
-      final List<OUT> newList = new ArrayListEx<>();
-      for (final IN value : list) {
-        final OUT newValue = converter.apply(value);
+      final ListEx<OUT> newList = Lists.newArray();
+      for (final var value : list) {
+        final var newValue = converter.apply(value);
         newList.add(newValue);
       }
       return newList;

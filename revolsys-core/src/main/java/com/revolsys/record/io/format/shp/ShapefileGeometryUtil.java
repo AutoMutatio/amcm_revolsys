@@ -8,9 +8,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.number.Doubles;
-
+import com.revolsys.data.type.DataType;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryDataTypes;
@@ -25,6 +23,7 @@ import com.revolsys.geometry.model.impl.LineStringDouble;
 import com.revolsys.geometry.model.vertex.Vertex;
 import com.revolsys.io.endian.EndianInput;
 import com.revolsys.io.endian.EndianOutput;
+import com.revolsys.number.Doubles;
 import com.revolsys.util.JavaBeanUtil;
 
 public final class ShapefileGeometryUtil {
@@ -264,7 +263,7 @@ public final class ShapefileGeometryUtil {
   public void readCoordinates(final EndianInput in, final int[] partIndex,
     final List<double[]> coordinateLists, final int axisIndex, final int axisCount)
     throws IOException {
-    in.skipBytes(2 * Doubles.BYTES_IN_DOUBLE);
+    in.skipNBytes(2 * Doubles.BYTES_IN_DOUBLE);
     for (int i = 0; i < partIndex.length; i++) {
       final double[] coordinates = coordinateLists.get(i);
       final int vertexCount = coordinates.length / axisCount;
@@ -283,7 +282,7 @@ public final class ShapefileGeometryUtil {
 
   public Punctual readMultipoint(final GeometryFactory geometryFactory, final EndianInput in,
     final int recordLength) throws IOException {
-    in.skipBytes(4 * Doubles.BYTES_IN_DOUBLE);
+    in.skipNBytes(4 * Doubles.BYTES_IN_DOUBLE);
     final int vertexCount = in.readLEInt();
     final double[] coordinates = readXYCoordinates(in, vertexCount, 2);
     return geometryFactory.punctual(new LineStringDouble(2, coordinates));
@@ -291,11 +290,11 @@ public final class ShapefileGeometryUtil {
 
   public Punctual readMultipointM(final GeometryFactory geometryFactory, final EndianInput in,
     final int recordLength) throws IOException {
-    in.skipBytes(4 * Doubles.BYTES_IN_DOUBLE);
+    in.skipNBytes(4 * Doubles.BYTES_IN_DOUBLE);
     final int vertexCount = in.readLEInt();
     final int axisCount = 4;
     final double[] coordinates = readXYCoordinates(in, vertexCount, axisCount);
-    in.skipBytes(2 * Doubles.BYTES_IN_DOUBLE);
+    in.skipNBytes(2 * Doubles.BYTES_IN_DOUBLE);
     setCoordinatesNaN(coordinates, vertexCount, axisCount, 2);
     readCoordinates(in, vertexCount, axisCount, coordinates, 3);
     return geometryFactory.punctual(new LineStringDouble(axisCount, coordinates));
@@ -303,17 +302,17 @@ public final class ShapefileGeometryUtil {
 
   public Punctual readMultipointZ(final GeometryFactory geometryFactory, final EndianInput in,
     final int recordLength) throws IOException {
-    in.skipBytes(4 * Doubles.BYTES_IN_DOUBLE);
+    in.skipNBytes(4 * Doubles.BYTES_IN_DOUBLE);
     final int vertexCount = in.readLEInt();
     final double[] coordinates = readXYCoordinates(in, vertexCount, 3);
-    in.skipBytes(2 * Doubles.BYTES_IN_DOUBLE);
+    in.skipNBytes(2 * Doubles.BYTES_IN_DOUBLE);
     readCoordinates(in, vertexCount, 3, coordinates, 2);
     return geometryFactory.punctual(new LineStringDouble(3, coordinates));
   }
 
   public Punctual readMultipointZM(GeometryFactory geometryFactory, final EndianInput in,
     final int recordLength) throws IOException {
-    in.skipBytes(4 * Doubles.BYTES_IN_DOUBLE);
+    in.skipNBytes(4 * Doubles.BYTES_IN_DOUBLE);
     final int vertexCount = in.readLEInt();
     int axisCount;
     if (40 + 24 * vertexCount == recordLength * 2) {
@@ -323,10 +322,10 @@ public final class ShapefileGeometryUtil {
       axisCount = 4;
     }
     final double[] coordinates = readXYCoordinates(in, vertexCount, axisCount);
-    in.skipBytes(2 * Doubles.BYTES_IN_DOUBLE);
+    in.skipNBytes(2 * Doubles.BYTES_IN_DOUBLE);
     readCoordinates(in, vertexCount, axisCount, coordinates, 2);
     if (axisCount == 4) {
-      in.skipBytes(2 * Doubles.BYTES_IN_DOUBLE);
+      in.skipNBytes(2 * Doubles.BYTES_IN_DOUBLE);
       readCoordinates(in, vertexCount, axisCount, coordinates, 3);
     }
     return geometryFactory.punctual(axisCount, coordinates);
@@ -394,7 +393,7 @@ public final class ShapefileGeometryUtil {
 
   public Geometry readPolygon(final GeometryFactory geometryFactory, final EndianInput in,
     final int recordLength) throws IOException {
-    in.skipBytes(4 * Doubles.BYTES_IN_DOUBLE);
+    in.skipNBytes(4 * Doubles.BYTES_IN_DOUBLE);
     final int numParts = in.readLEInt();
     final int vertexCount = in.readLEInt();
     final int[] partIndex = readPartIndex(in, numParts, vertexCount);
@@ -409,7 +408,7 @@ public final class ShapefileGeometryUtil {
 
   public Geometry readPolygonM(final GeometryFactory geometryFactory, final EndianInput in,
     final int recordLength) throws IOException {
-    in.skipBytes(4 * Doubles.BYTES_IN_DOUBLE);
+    in.skipNBytes(4 * Doubles.BYTES_IN_DOUBLE);
     final int partCount = in.readLEInt();
     final int vertexCount = in.readLEInt();
     final int axisCount = 4;
@@ -424,7 +423,7 @@ public final class ShapefileGeometryUtil {
 
   public Geometry readPolygonZ(final GeometryFactory geometryFactory, final EndianInput in,
     final int recordLength) throws IOException {
-    in.skipBytes(4 * Doubles.BYTES_IN_DOUBLE);
+    in.skipNBytes(4 * Doubles.BYTES_IN_DOUBLE);
     final int numParts = in.readLEInt();
     final int vertexCount = in.readLEInt();
     final int axisCount = 3;
@@ -438,7 +437,7 @@ public final class ShapefileGeometryUtil {
 
   public Geometry readPolygonZM(GeometryFactory geometryFactory, final EndianInput in,
     final int recordLength) throws IOException {
-    in.skipBytes(4 * Doubles.BYTES_IN_DOUBLE);
+    in.skipNBytes(4 * Doubles.BYTES_IN_DOUBLE);
     final int numParts = in.readLEInt();
     final int vertexCount = in.readLEInt();
     final int[] partIndex = readPartIndex(in, numParts, vertexCount);
@@ -460,7 +459,7 @@ public final class ShapefileGeometryUtil {
 
   public Geometry readPolyline(final GeometryFactory geometryFactory, final EndianInput in,
     final int recordLength) throws IOException {
-    in.skipBytes(4 * Doubles.BYTES_IN_DOUBLE);
+    in.skipNBytes(4 * Doubles.BYTES_IN_DOUBLE);
     final int numParts = in.readLEInt();
     final int vertexCount = in.readLEInt();
     final int axisCount = 2;
@@ -490,14 +489,14 @@ public final class ShapefileGeometryUtil {
 
   public Geometry readPolylineM(final GeometryFactory geometryFactory, final EndianInput in,
     final int recordLength) throws IOException {
-    in.skipBytes(4 * Doubles.BYTES_IN_DOUBLE);
+    in.skipNBytes(4 * Doubles.BYTES_IN_DOUBLE);
     final int partCount = in.readLEInt();
     final int allVertexCount = in.readLEInt();
     final int axisCount = 4;
     if (partCount == 1) {
       in.readLEInt();
       final double[] coordinates = readXYCoordinates(in, allVertexCount, axisCount);
-      in.skipBytes(2 * Doubles.BYTES_IN_DOUBLE);
+      in.skipNBytes(2 * Doubles.BYTES_IN_DOUBLE);
       setCoordinatesNaN(coordinates, allVertexCount, axisCount, 2);
       readCoordinates(in, allVertexCount, axisCount, coordinates, 3);
       return geometryFactory.lineString(axisCount, coordinates);
@@ -515,7 +514,7 @@ public final class ShapefileGeometryUtil {
         final double[] coordinates = readXYCoordinates(in, vertexCount, axisCount);
         coordinatesList.add(coordinates);
       }
-      in.skipBytes(2 * Doubles.BYTES_IN_DOUBLE);
+      in.skipNBytes(2 * Doubles.BYTES_IN_DOUBLE);
       for (int i = 0; i < partIndex.length - 1; i++) {
         final double[] coordinates = coordinatesList.get(i);
         final int vertexCount = coordinates.length / axisCount;
@@ -529,7 +528,7 @@ public final class ShapefileGeometryUtil {
 
   public Geometry readPolylineZ(final GeometryFactory geometryFactory, final EndianInput in,
     final int recordLength) throws IOException {
-    in.skipBytes(4 * Doubles.BYTES_IN_DOUBLE);
+    in.skipNBytes(4 * Doubles.BYTES_IN_DOUBLE);
     final int numParts = in.readLEInt();
     final int vertexCount = in.readLEInt();
     final int axisCount = 3;
@@ -541,7 +540,7 @@ public final class ShapefileGeometryUtil {
     if (partCount == 1) {
       in.readLEInt();
       final double[] coordinates = readXYCoordinates(in, allVertexCount, axisCount);
-      in.skipBytes(2 * Doubles.BYTES_IN_DOUBLE);
+      in.skipNBytes(2 * Doubles.BYTES_IN_DOUBLE);
       readCoordinates(in, allVertexCount, axisCount, coordinates, 2);
       return geometryFactory.lineString(axisCount, coordinates);
     } else {
@@ -557,7 +556,7 @@ public final class ShapefileGeometryUtil {
         final int vertexCount = endIndex - startIndex;
         linesCoordinates[i] = readXYCoordinates(in, vertexCount, axisCount);
       }
-      in.skipBytes(2 * Doubles.BYTES_IN_DOUBLE);
+      in.skipNBytes(2 * Doubles.BYTES_IN_DOUBLE);
       for (int i = 0; i < partCount; i++) {
         final double[] coordinates = linesCoordinates[i];
         final int vertexCount = coordinates.length / axisCount;
@@ -569,7 +568,7 @@ public final class ShapefileGeometryUtil {
 
   public Geometry readPolylineZM(GeometryFactory geometryFactory, final EndianInput in,
     final int recordLength) throws IOException {
-    in.skipBytes(4 * Doubles.BYTES_IN_DOUBLE);
+    in.skipNBytes(4 * Doubles.BYTES_IN_DOUBLE);
     final int geometryCount = in.readLEInt();
     final int vertexCount = in.readLEInt();
     if (44 + 16 + 4 * geometryCount + 24 * vertexCount == recordLength * 2) {
@@ -580,9 +579,9 @@ public final class ShapefileGeometryUtil {
       if (geometryCount == 1) {
         in.readLEInt();
         final double[] coordinates = readXYCoordinates(in, vertexCount, axisCount);
-        in.skipBytes(2 * Doubles.BYTES_IN_DOUBLE);
+        in.skipNBytes(2 * Doubles.BYTES_IN_DOUBLE);
         readCoordinates(in, vertexCount, axisCount, coordinates, 2);
-        in.skipBytes(2 * Doubles.BYTES_IN_DOUBLE);
+        in.skipNBytes(2 * Doubles.BYTES_IN_DOUBLE);
         readCoordinates(in, vertexCount, axisCount, coordinates, 3);
         return geometryFactory.lineString(axisCount, coordinates);
       } else {
@@ -599,12 +598,12 @@ public final class ShapefileGeometryUtil {
           final double[] coordinates = readXYCoordinates(in, numCoords, axisCount);
           coordinatesList.add(coordinates);
         }
-        in.skipBytes(2 * Doubles.BYTES_IN_DOUBLE);
+        in.skipNBytes(2 * Doubles.BYTES_IN_DOUBLE);
         for (int i = 0; i < partIndex.length - 1; i++) {
           final double[] coordinates = coordinatesList.get(i);
           readCoordinates(in, coordinates.length / 4, axisCount, coordinates, 2);
         }
-        in.skipBytes(2 * Doubles.BYTES_IN_DOUBLE);
+        in.skipNBytes(2 * Doubles.BYTES_IN_DOUBLE);
         for (int i = 0; i < partIndex.length - 1; i++) {
           final double[] coordinates = coordinatesList.get(i);
           readCoordinates(in, coordinates.length / 4, axisCount, coordinates, 3);
@@ -645,7 +644,7 @@ public final class ShapefileGeometryUtil {
   public void setCoordinatesNaN(final EndianInput in, final int[] partIndex,
     final List<double[]> coordinateLists, final int axisIndex, final int axisCount)
     throws IOException {
-    in.skipBytes(2 * Doubles.BYTES_IN_DOUBLE);
+    in.skipNBytes(2 * Doubles.BYTES_IN_DOUBLE);
     for (int i = 0; i < partIndex.length; i++) {
       final double[] coordinates = coordinateLists.get(i);
       final int vertexCount = coordinates.length / axisCount;

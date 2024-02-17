@@ -10,8 +10,8 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.table.TableCellRenderer;
 
 import org.jdesktop.swingx.JXTable;
-import org.jeometry.common.number.Numbers;
 
+import com.revolsys.number.Numbers;
 import com.revolsys.swing.SwingUtil;
 
 public class JsonObjectTableCellRenderer implements TableCellRenderer {

@@ -1,6 +1,6 @@
 package com.revolsys.record;
 
-import com.revolsys.record.io.format.json.JsonObject;
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.record.schema.FieldDefinition;
 
 public class ChangeTrackRecordImpl extends BaseRecord implements ChangeTrackRecord {
@@ -50,6 +50,12 @@ public class ChangeTrackRecordImpl extends BaseRecord implements ChangeTrackReco
     return getOriginalValue(fieldIndex);
   }
 
+  @Override
+  public <T> T getValue(final CharSequence name) {
+    final int fieldIndex = getFieldIndex(name);
+    return getValue(fieldIndex);
+  }
+
   @SuppressWarnings("unchecked")
   @Override
   public synchronized <T> T getValue(final int fieldIndex) {
@@ -61,12 +67,6 @@ public class ChangeTrackRecordImpl extends BaseRecord implements ChangeTrackReco
     } else {
       return null;
     }
-  }
-
-  @Override
-  public <T> T getValue(final String name) {
-    final int fieldIndex = getFieldIndex(name);
-    return getValue(fieldIndex);
   }
 
   public boolean isHasChangedValue() {

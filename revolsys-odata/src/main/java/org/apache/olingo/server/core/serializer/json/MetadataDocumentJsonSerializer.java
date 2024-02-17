@@ -82,7 +82,7 @@ import org.apache.olingo.server.api.ServiceMetadata;
 import org.apache.olingo.server.api.serializer.Kind;
 import org.apache.olingo.server.api.serializer.SerializerException;
 
-import com.revolsys.record.io.format.json.JsonWriter;
+import com.revolsys.collection.json.JsonWriter;
 
 public class MetadataDocumentJsonSerializer {
 

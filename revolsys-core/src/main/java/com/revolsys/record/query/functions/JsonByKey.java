@@ -3,9 +3,9 @@ package com.revolsys.record.query.functions;
 import java.sql.PreparedStatement;
 import java.util.List;
 
+import com.revolsys.collection.json.Json;
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.map.MapEx;
-import com.revolsys.record.io.format.json.Json;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.record.query.Query;
 import com.revolsys.record.query.QueryValue;
 import com.revolsys.record.query.SqlAppendable;

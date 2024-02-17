@@ -87,11 +87,11 @@ public enum Dimension {
     }
   }
 
-  private int code;
+  private final int code;
 
-  private char symbol;
+  private final char symbol;
 
-  private boolean isTrue;
+  private final boolean isTrue;
 
   private Dimension(final int code, final char symbol) {
     this.code = code;

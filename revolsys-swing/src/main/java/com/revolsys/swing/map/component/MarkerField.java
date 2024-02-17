@@ -10,8 +10,8 @@ import javax.swing.JList;
 import javax.swing.ListCellRenderer;
 
 import org.jdesktop.swingx.VerticalLayout;
-import org.jeometry.common.awt.WebColors;
 
+import com.revolsys.awt.WebColors;
 import com.revolsys.swing.component.ValueField;
 import com.revolsys.swing.field.ComboBox;
 import com.revolsys.swing.map.layer.record.style.MarkerStyle;

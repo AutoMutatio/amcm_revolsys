@@ -2,13 +2,13 @@ package com.revolsys.geometry.model;
 
 import java.util.function.Consumer;
 
-import org.jeometry.common.function.BiConsumerDouble;
-import org.jeometry.common.function.BiFunctionDouble;
-import org.jeometry.common.function.Consumer3Double;
-import org.jeometry.common.function.Consumer4Double;
-import org.jeometry.common.function.Function4Double;
-import org.jeometry.coordinatesystem.operation.CoordinatesOperation;
-import org.jeometry.coordinatesystem.operation.CoordinatesOperationPoint;
+import com.revolsys.function.BiConsumerDouble;
+import com.revolsys.function.BiFunctionDouble;
+import com.revolsys.function.Consumer3Double;
+import com.revolsys.function.Consumer4Double;
+import com.revolsys.function.Function4Double;
+import com.revolsys.geometry.coordinatesystem.operation.CoordinatesOperation;
+import com.revolsys.geometry.coordinatesystem.operation.CoordinatesOperationPoint;
 
 public interface DelegatingLineString extends LineString {
   @Override

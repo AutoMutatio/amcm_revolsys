@@ -235,6 +235,13 @@ public class UriBuilder {
     this.fragment = uri.getFragment();
   }
 
+  public UriBuilder addParameter(final String param, final Object value) {
+    if (value != null) {
+      return addParameter(param, value.toString());
+    }
+    return this;
+  }
+
   /**
    * Adds parameter to URI query. The parameter name and value are expected to be unescaped
    * and may contain non ASCII characters.
@@ -268,7 +275,9 @@ public class UriBuilder {
     if (this.queryParams == null) {
       this.queryParams = new ArrayList<>();
     }
-    this.queryParams.addAll(nvps);
+    if (nvps != null) {
+      this.queryParams.addAll(nvps);
+    }
     this.encodedQuery = null;
     this.encodedSchemeSpecificPart = null;
     this.query = null;
@@ -284,6 +293,21 @@ public class UriBuilder {
     }
     this.encodedSchemeSpecificPart = null;
     this.encodedPath = null;
+    return this;
+  }
+
+  /**
+   * Append the path to the end of the path, segments must be URL encoded
+   * @param string
+   * @return
+   */
+  public UriBuilder appendPathString(String path) {
+    if (Property.hasValue(path)) {
+      if (this.pathSegments != null) {
+        path = getPath() + path;
+      }
+      this.pathSegments = parsePath(path);
+    }
     return this;
   }
 
@@ -482,6 +506,14 @@ public class UriBuilder {
     return (this.queryParams == null || this.queryParams.isEmpty()) && this.encodedQuery == null;
   }
 
+  public String lastPathSegment() {
+    if (this.pathSegments == null) {
+      throw new IllegalStateException("Cannot remove last path segment from:" + toString());
+    } else {
+      return this.pathSegments.get(this.pathSegments.size() - 1);
+    }
+  }
+
   private String normalizePath(final String path, final boolean relative) {
     String s = path;
     if (TextUtils.isBlank(s)) {
@@ -542,6 +574,16 @@ public class UriBuilder {
       return list;
     }
     return null;
+  }
+
+  public UriBuilder removeLastPathSegment() {
+    if (this.pathSegments == null) {
+      throw new IllegalStateException("Cannot remove last path segment from:" + toString());
+    } else {
+      this.pathSegments.remove(this.pathSegments.size() - 1);
+      setPathSegments(this.pathSegments);
+    }
+    return this;
   }
 
   /**

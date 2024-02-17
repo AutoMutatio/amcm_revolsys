@@ -8,15 +8,15 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 
-import org.jeometry.common.date.Dates;
-import org.jeometry.common.exception.Exceptions;
-import org.jeometry.common.exception.WrappedException;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.revolsys.date.Dates;
 import com.revolsys.elevation.gridded.GriddedElevationModel;
 import com.revolsys.elevation.gridded.scaledint.ScaledIntegerGriddedDigitalElevation;
 import com.revolsys.elevation.gridded.scaledint.ScaledIntegerGriddedDigitalElevationModelFile;
+import com.revolsys.exception.Exceptions;
+import com.revolsys.exception.WrappedRuntimeException;
 import com.revolsys.geometry.model.GeometryFactory;
 
 public class ScaledIntegerGriddedDigitalElevationModelTest extends GriddedElevationModelTest {
@@ -51,7 +51,7 @@ public class ScaledIntegerGriddedDigitalElevationModelTest extends GriddedElevat
       final ScaledIntegerGriddedDigitalElevationModelFile actualModel = new ScaledIntegerGriddedDigitalElevationModelFile(
         Paths.get(filePath))) {
       Assert.fail("Missing file should throw an exception");
-    } catch (final WrappedException e) {
+    } catch (final WrappedRuntimeException e) {
       final Throwable cause = Exceptions.unwrap(e);
       if (cause instanceof NoSuchFileException) {
         // Expected result

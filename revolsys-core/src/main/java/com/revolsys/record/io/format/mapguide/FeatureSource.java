@@ -6,16 +6,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.common.io.PathName;
-
 import com.revolsys.collection.Parent;
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.collection.map.Maps;
+import com.revolsys.data.type.DataType;
+import com.revolsys.data.type.DataTypes;
 import com.revolsys.geometry.model.GeometryDataTypes;
 import com.revolsys.geometry.model.GeometryFactory;
-import com.revolsys.record.io.format.json.JsonObject;
+import com.revolsys.io.PathName;
 import com.revolsys.record.schema.RecordDefinitionImpl;
 import com.revolsys.spring.resource.Resource;
 import com.revolsys.util.Property;
@@ -221,8 +220,7 @@ public class FeatureSource extends ResourceDocument implements Parent<MapGuideFe
       final String targetNamespace = getString(schema, "@targetNamespace");
       final String prefix = prefixByUri.get(targetNamespace);
       final Map<String, MapEx> complexTypeDefinitions = new HashMap<>();
-      for (final MapEx complexType : schema.getValue("xs:complexType",
-        Collections.<MapEx> emptyList())) {
+      for (final MapEx complexType : schema.<MapEx> getList("xs:complexType")) {
         String name = getString(complexType, "@name");
         if (prefix != null) {
           name = prefix + ":" + name;
@@ -231,7 +229,7 @@ public class FeatureSource extends ResourceDocument implements Parent<MapGuideFe
       }
       final List<MapGuideFeatureLayer> layers = new ArrayList<>();
       final Map<String, MapGuideFeatureLayer> layerByName = new HashMap<>();
-      for (final MapEx element : schema.getValue("xs:element", Collections.<MapEx> emptyList())) {
+      for (final MapEx element : schema.<MapEx> getList("xs:element")) {
         final String name = getString(element, "@name");
         final String type = getString(element, "@type");
         final MapEx complexType = complexTypeDefinitions.get(type);

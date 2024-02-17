@@ -3,7 +3,7 @@ package com.revolsys.awt;
 import java.awt.Graphics2D;
 import java.awt.geom.AffineTransform;
 
-import com.revolsys.io.BaseCloseable;
+import com.revolsys.util.BaseCloseable;
 
 public class ResetAffineTransform implements BaseCloseable {
   private final AffineTransform originalTransform;

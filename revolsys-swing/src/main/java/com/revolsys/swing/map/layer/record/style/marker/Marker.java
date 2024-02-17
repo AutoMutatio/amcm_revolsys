@@ -6,8 +6,7 @@ import javax.measure.quantity.Length;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 
-import org.jeometry.coordinatesystem.model.unit.CustomUnits;
-
+import com.revolsys.geometry.coordinatesystem.model.unit.CustomUnits;
 import com.revolsys.geometry.model.Point;
 import com.revolsys.geometry.model.impl.PointDoubleXY;
 import com.revolsys.io.map.MapSerializer;

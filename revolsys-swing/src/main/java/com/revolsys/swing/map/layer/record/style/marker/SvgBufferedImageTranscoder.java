@@ -9,8 +9,9 @@ import org.apache.batik.transcoder.TranscoderException;
 import org.apache.batik.transcoder.TranscoderInput;
 import org.apache.batik.transcoder.TranscoderOutput;
 import org.apache.batik.transcoder.image.ImageTranscoder;
-import org.jeometry.common.exception.Exceptions;
 import org.w3c.dom.Document;
+
+import com.revolsys.exception.Exceptions;
 
 public class SvgBufferedImageTranscoder extends ImageTranscoder {
 

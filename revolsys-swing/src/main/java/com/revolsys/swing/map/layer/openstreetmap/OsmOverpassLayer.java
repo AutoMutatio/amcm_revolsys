@@ -6,11 +6,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jeometry.common.data.identifier.Identifier;
-import org.jeometry.common.number.Doubles;
-
+import com.revolsys.data.identifier.Identifier;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.Geometry;
+import com.revolsys.number.Doubles;
 import com.revolsys.record.io.format.openstreetmap.model.OsmConstants;
 import com.revolsys.record.io.format.openstreetmap.model.OsmDocument;
 import com.revolsys.record.io.format.openstreetmap.model.OsmElement;

@@ -21,8 +21,8 @@
 */
 package com.revolsys.math.arithmeticcoding;
 
-import com.revolsys.io.BaseCloseable;
 import com.revolsys.io.channels.ChannelWriter;
+import com.revolsys.util.BaseCloseable;
 
 public class ArithmeticEncoder implements ArithmeticCodingCodec, BaseCloseable {
 

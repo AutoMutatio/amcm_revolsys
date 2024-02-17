@@ -9,8 +9,7 @@ import java.util.function.Supplier;
 import javax.swing.Icon;
 import javax.swing.JMenu;
 
-import org.jeometry.common.function.Consumer3;
-
+import com.revolsys.function.Consumer3;
 import com.revolsys.record.Record;
 import com.revolsys.swing.Icons;
 import com.revolsys.swing.action.RunnableAction;

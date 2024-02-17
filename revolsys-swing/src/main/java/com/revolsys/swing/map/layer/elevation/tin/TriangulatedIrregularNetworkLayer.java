@@ -3,16 +3,15 @@ package com.revolsys.swing.map.layer.elevation.tin;
 import java.beans.PropertyChangeEvent;
 import java.util.Map;
 
-import org.jeometry.common.logging.Logs;
-
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.elevation.tin.TriangulatedIrregularNetwork;
 import com.revolsys.elevation.tin.TriangulatedIrregularNetworkReaderFactory;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.io.FileUtil;
 import com.revolsys.io.IoFactory;
+import com.revolsys.logging.Logs;
 import com.revolsys.raster.BufferedGeoreferencedImage;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.spring.resource.Resource;
 import com.revolsys.swing.Icons;
 import com.revolsys.swing.SwingUtil;

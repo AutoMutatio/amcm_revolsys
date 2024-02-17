@@ -1,9 +1,12 @@
 package com.revolsys.transaction;
 
+import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
 import org.springframework.transaction.PlatformTransactionManager;
+
+import com.revolsys.exception.Exceptions;
 
 public interface Transactionable {
   PlatformTransactionManager getTransactionManager();
@@ -53,6 +56,22 @@ public interface Transactionable {
     try (
       Transaction transaction = newTransaction(options)) {
       return transaction.execute(action);
+    }
+  }
+
+  default <V> V transactionNewCall(final Callable<V> action) {
+    try (
+      var t = newTransaction()) {
+      return action.call();
+    } catch (final Exception e) {
+      return Exceptions.throwUncheckedException(e);
+    }
+  }
+
+  default void transactionNewRun(final Runnable action) {
+    try (
+      var t = newTransaction()) {
+      action.run();
     }
   }
 }

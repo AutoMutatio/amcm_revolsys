@@ -34,12 +34,10 @@ import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
 import javax.swing.undo.UndoableEdit;
 
-import org.jeometry.common.awt.WebColors;
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.number.Doubles;
-
+import com.revolsys.awt.WebColors;
 import com.revolsys.collection.CollectionUtil;
 import com.revolsys.collection.map.Maps;
+import com.revolsys.data.type.DataType;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryFactory;
@@ -48,6 +46,7 @@ import com.revolsys.geometry.model.LineString;
 import com.revolsys.geometry.model.Point;
 import com.revolsys.geometry.model.editor.BoundingBoxEditor;
 import com.revolsys.geometry.model.segment.LineSegment;
+import com.revolsys.number.Doubles;
 import com.revolsys.swing.Icons;
 import com.revolsys.swing.listener.BaseMouseListener;
 import com.revolsys.swing.listener.BaseMouseMotionListener;

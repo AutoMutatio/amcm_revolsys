@@ -2,10 +2,9 @@ package com.revolsys.swing.map.overlay.record;
 
 import java.awt.Color;
 
-import org.jeometry.common.awt.WebColors;
-import org.jeometry.common.function.BiFunctionDouble;
-import org.jeometry.coordinatesystem.model.unit.CustomUnits;
-
+import com.revolsys.awt.WebColors;
+import com.revolsys.function.BiFunctionDouble;
+import com.revolsys.geometry.coordinatesystem.model.unit.CustomUnits;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.LineString;
 import com.revolsys.geometry.model.vertex.AbstractVertex;

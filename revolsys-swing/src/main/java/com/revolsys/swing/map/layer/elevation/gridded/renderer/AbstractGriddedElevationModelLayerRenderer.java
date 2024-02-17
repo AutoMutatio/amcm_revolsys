@@ -4,9 +4,9 @@ import java.util.function.Predicate;
 
 import javax.swing.Icon;
 
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.elevation.gridded.GriddedElevationModel;
 import com.revolsys.raster.BufferedGeoreferencedImage;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.swing.map.layer.AbstractLayerRenderer;
 import com.revolsys.swing.map.layer.MultipleLayerRenderer;
 import com.revolsys.swing.map.layer.elevation.ElevationModelLayer;

@@ -10,10 +10,9 @@ import java.util.Map;
 
 import jakarta.annotation.PreDestroy;
 
-import org.jeometry.common.io.PathName;
-
 import com.revolsys.collection.ResultPager;
 import com.revolsys.io.FileUtil;
+import com.revolsys.io.PathName;
 import com.revolsys.jdbc.JdbcConnection;
 import com.revolsys.jdbc.JdbcUtils;
 import com.revolsys.record.Record;

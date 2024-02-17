@@ -12,11 +12,10 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.data.type.DataTypes;
-
 import com.revolsys.collection.list.ListEx;
 import com.revolsys.collection.list.Lists;
+import com.revolsys.data.type.DataType;
+import com.revolsys.data.type.DataTypes;
 
 public interface Strings {
 
@@ -418,10 +417,15 @@ public interface Strings {
     print(System.out, separator, values);
   }
 
-  static String removeFromEnd(String fullAddress, final int len) {
-    final int endIndex = fullAddress.length() - len;
-    fullAddress = fullAddress.substring(0, endIndex);
-    return fullAddress;
+  static String removeFromEnd(String string, final int len) {
+    final int endIndex = string.length() - len;
+    string = string.substring(0, endIndex);
+    return string;
+  }
+
+  static String removeFromEnd(final String string, final String suffix) {
+    final int length = suffix.length();
+    return removeFromEnd(string, length);
   }
 
   static String replace(final String text, final String from, final String to) {
@@ -630,7 +634,7 @@ public interface Strings {
   }
 
   static String toString(final boolean skipNulls, final String separator,
-    final Collection<? extends Object> values) {
+    final Iterable<? extends Object> values) {
     if (values == null) {
       return null;
     } else {

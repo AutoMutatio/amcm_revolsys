@@ -28,8 +28,9 @@ import java.util.Comparator;
 import java.util.List;
 
 import org.apache.commons.beanutils.MethodUtils;
-import org.jeometry.common.exception.Exceptions;
-import org.jeometry.common.logging.Logs;
+
+import com.revolsys.exception.Exceptions;
+import com.revolsys.logging.Logs;
 
 /**
  * The JavaBeanUtil is a utility class that provides methods to set/get

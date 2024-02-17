@@ -7,18 +7,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jeometry.common.number.Doubles;
-import org.jeometry.coordinatesystem.model.systems.EpsgId;
-
+import com.revolsys.collection.json.Json;
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.map.MapEx;
+import com.revolsys.geometry.coordinatesystem.model.systems.EpsgId;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.geometry.model.Point;
+import com.revolsys.number.Doubles;
 import com.revolsys.raster.BufferedGeoreferencedImage;
 import com.revolsys.raster.BufferedImages;
 import com.revolsys.raster.GeoreferencedImage;
-import com.revolsys.record.io.format.json.Json;
-import com.revolsys.record.io.format.json.JsonObject;
 import com.revolsys.spring.resource.UrlResource;
 import com.revolsys.util.Property;
 import com.revolsys.util.UriTemplate;
@@ -78,7 +77,7 @@ public class BingClient {
       imagerySet = ImagerySet.Aerial;
     }
     final MapEx parameters = newParameterMap() //
-      .add("output", "json");
+      .addValue("output", "json");
     return UrlUtil.getUrl("http://dev.virtualearth.net/REST/V1/Imagery/Metadata/" + imagerySet,
       parameters);
   }
@@ -176,8 +175,8 @@ public class BingClient {
     }
 
     final MapEx parameters = newParameterMap() //
-      .add("mapSize", width + "," + height) //
-      .add("mapLayer", mapLayer) //
+      .addValue("mapSize", width + "," + height) //
+      .addValue("mapLayer", mapLayer) //
     ;
 
     final Point centrePoint = WORLD_MERCATOR //
@@ -247,10 +246,10 @@ public class BingClient {
       + Doubles.toString(maxY) + "," + Doubles.toString(maxX);
     final String mapSize = width + "," + height;
     final MapEx parameters = newParameterMap() //
-      .add("mapArea", mapArea) //
-      .add("mapSize", mapSize) //
-      .add("mapLayer", mapLayer) //
-      .add("format", format) //
+      .addValue("mapArea", mapArea) //
+      .addValue("mapSize", mapSize) //
+      .addValue("mapLayer", mapLayer) //
+      .addValue("format", format) //
     ;
 
     return UrlUtil.getUrl("https://dev.virtualearth.net/REST/v1/Imagery/Map/" + imagerySet,

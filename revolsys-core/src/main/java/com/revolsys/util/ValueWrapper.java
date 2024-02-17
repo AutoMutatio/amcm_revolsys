@@ -3,8 +3,6 @@ package com.revolsys.util;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import com.revolsys.io.BaseCloseable;
-
 public interface ValueWrapper<R> extends BaseCloseable {
 
   default ValueWrapper<R> connect() {

@@ -1,8 +1,8 @@
 package com.revolsys.geometry.model;
 
-import org.jeometry.coordinatesystem.model.CoordinateSystem;
-import org.jeometry.coordinatesystem.model.HorizontalCoordinateSystemProxy;
-import org.jeometry.coordinatesystem.operation.CoordinatesOperation;
+import com.revolsys.geometry.coordinatesystem.model.CoordinateSystem;
+import com.revolsys.geometry.coordinatesystem.model.HorizontalCoordinateSystemProxy;
+import com.revolsys.geometry.coordinatesystem.operation.CoordinatesOperation;
 
 public interface GeometryFactoryProxy extends HorizontalCoordinateSystemProxy {
 

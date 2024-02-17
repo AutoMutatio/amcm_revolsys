@@ -6,6 +6,7 @@ import java.util.NoSuchElementException;
 import jakarta.annotation.PreDestroy;
 
 import com.revolsys.collection.iterator.AbstractIterator;
+import com.revolsys.collection.iterator.AbstractReader;
 
 public abstract class AbstractMultipleIteratorReader<T> extends AbstractReader<T>
   implements Iterator<T> {

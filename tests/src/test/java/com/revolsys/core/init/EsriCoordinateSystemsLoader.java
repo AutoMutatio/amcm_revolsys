@@ -5,33 +5,32 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.jeometry.common.data.type.DataTypes;
-import org.jeometry.coordinatesystem.io.WktCsParser;
-import org.jeometry.coordinatesystem.model.CoordinateSystem;
-import org.jeometry.coordinatesystem.model.Ellipsoid;
-import org.jeometry.coordinatesystem.model.GeographicCoordinateSystem;
-import org.jeometry.coordinatesystem.model.ParameterName;
-import org.jeometry.coordinatesystem.model.ParameterValue;
-import org.jeometry.coordinatesystem.model.PrimeMeridian;
-import org.jeometry.coordinatesystem.model.ProjectedCoordinateSystem;
-import org.jeometry.coordinatesystem.model.VerticalCoordinateSystem;
-import org.jeometry.coordinatesystem.model.datum.GeodeticDatum;
-import org.jeometry.coordinatesystem.model.datum.VerticalDatum;
-import org.jeometry.coordinatesystem.model.unit.AngularUnit;
-import org.jeometry.coordinatesystem.model.unit.LinearUnit;
-import org.jeometry.coordinatesystem.util.ByteArray;
-
 import com.revolsys.collection.map.Maps;
+import com.revolsys.data.type.DataTypes;
+import com.revolsys.geometry.coordinatesystem.io.WktCsParser;
+import com.revolsys.geometry.coordinatesystem.model.CoordinateSystem;
+import com.revolsys.geometry.coordinatesystem.model.Ellipsoid;
+import com.revolsys.geometry.coordinatesystem.model.GeographicCoordinateSystem;
+import com.revolsys.geometry.coordinatesystem.model.ParameterName;
+import com.revolsys.geometry.coordinatesystem.model.ParameterValue;
+import com.revolsys.geometry.coordinatesystem.model.PrimeMeridian;
+import com.revolsys.geometry.coordinatesystem.model.ProjectedCoordinateSystem;
+import com.revolsys.geometry.coordinatesystem.model.VerticalCoordinateSystem;
+import com.revolsys.geometry.coordinatesystem.model.datum.GeodeticDatum;
+import com.revolsys.geometry.coordinatesystem.model.datum.VerticalDatum;
+import com.revolsys.geometry.coordinatesystem.model.unit.AngularUnit;
+import com.revolsys.geometry.coordinatesystem.model.unit.LinearUnit;
 import com.revolsys.io.channels.ChannelWriter;
 import com.revolsys.record.Record;
 import com.revolsys.record.io.RecordReader;
+import com.revolsys.util.ByteArray;
 
 public class EsriCoordinateSystemsLoader {
   public static void main(final String[] args) {
     new EsriCoordinateSystemsLoader().run();
   }
 
-  private final String mainPath = "../../jeometry/jeometry-coordinatesystem/src/main/";
+  private final String mainPath = "../revolsys-core/src/main/";
 
   private final Map<String, Integer> geographicIdByName = new HashMap<>();
 
@@ -41,7 +40,7 @@ public class EsriCoordinateSystemsLoader {
       RecordReader reader = RecordReader
         .newRecordReader(this.mainPath + "data/esri/esriGeographicCs.tsv");
       final ChannelWriter writer = ChannelWriter.newChannelWriter(
-        this.mainPath + "resources/org/jeometry/coordinatesystem/esri/Geographic.cs")) {
+        this.mainPath + "resources/com/revolsys/geometry/coordinatesystem/esri/Geographic.cs")) {
 
       for (final Record record : reader) {
         final int id = record.getInteger("ID");

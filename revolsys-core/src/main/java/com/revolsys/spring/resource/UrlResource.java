@@ -18,11 +18,11 @@ import java.nio.file.Path;
 import java.util.Base64;
 import java.util.Map;
 
-import org.jeometry.common.exception.Exceptions;
 import org.springframework.util.Assert;
 import org.springframework.util.ResourceUtils;
 import org.springframework.util.StringUtils;
 
+import com.revolsys.exception.Exceptions;
 import com.revolsys.io.FileUtil;
 import com.revolsys.io.channels.ChannelReader;
 import com.revolsys.io.channels.HttpChannelReader;

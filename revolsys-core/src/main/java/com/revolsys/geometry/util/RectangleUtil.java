@@ -1,8 +1,7 @@
 package com.revolsys.geometry.util;
 
-import org.jeometry.common.function.Consumer4Double;
-import org.jeometry.common.function.Consumer6Double;
-
+import com.revolsys.function.Consumer4Double;
+import com.revolsys.function.Consumer6Double;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryFactory;

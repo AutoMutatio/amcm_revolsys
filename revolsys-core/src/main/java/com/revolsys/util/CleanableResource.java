@@ -9,8 +9,6 @@ import java.util.function.Supplier;
 
 import org.springframework.aop.framework.ProxyFactory;
 
-import com.revolsys.io.BaseCloseable;
-
 public class CleanableResource<R> implements BaseCloseable {
 
   public static <RI extends BaseCloseable> CleanableResource<RI> newResource(

@@ -7,7 +7,7 @@ import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import org.jeometry.common.exception.Exceptions;
+import com.revolsys.exception.Exceptions;
 
 public abstract class AbstractResource extends org.springframework.core.io.AbstractResource
   implements Resource {

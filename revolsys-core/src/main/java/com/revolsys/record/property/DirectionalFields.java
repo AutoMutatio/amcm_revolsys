@@ -13,10 +13,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.jeometry.common.data.type.DataType;
-
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.collection.map.Maps;
+import com.revolsys.data.type.DataType;
 import com.revolsys.geometry.graph.Edge;
 import com.revolsys.geometry.model.End;
 import com.revolsys.geometry.model.Geometry;

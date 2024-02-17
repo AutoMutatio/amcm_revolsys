@@ -30,7 +30,7 @@ public enum TiffPhotogrametricInterpretation {
     return ENUM_BY_ID.get(id);
   }
 
-  private int id;
+  private final int id;
 
   private TiffPhotogrametricInterpretation(final int id) {
     this.id = id;

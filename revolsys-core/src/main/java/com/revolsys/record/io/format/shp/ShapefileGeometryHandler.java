@@ -8,9 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.BiConsumer;
 
-import org.jeometry.common.data.type.DataType;
-import org.jeometry.common.function.Function3;
-
+import com.revolsys.data.type.DataType;
+import com.revolsys.function.Function3;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryDataTypes;

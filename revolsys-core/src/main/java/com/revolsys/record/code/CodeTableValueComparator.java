@@ -2,8 +2,8 @@ package com.revolsys.record.code;
 
 import java.util.Comparator;
 
-import org.jeometry.common.compare.CompareUtil;
-import org.jeometry.common.data.identifier.Identifier;
+import com.revolsys.comparator.CompareUtil;
+import com.revolsys.data.identifier.Identifier;
 
 public class CodeTableValueComparator implements Comparator<Object> {
   private final CodeTable codeTable;
