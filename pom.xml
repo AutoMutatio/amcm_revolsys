@@ -71,7 +71,7 @@
             <configuration>
               <rules>
                 <requireMavenVersion>
-                  <version>3.9.4</version>
+                  <version>3.9.5</version>
                 </requireMavenVersion>
                 <requireJavaVersion>
                   <version>${java.version}</version>
@@ -98,10 +98,8 @@
             <arg>-parameters</arg>
             <arg>--enable-preview</arg>
           </compilerArgs>
-         <testCompilerArguments>
-            <arg>-parameters</arg>
-            <arg>--enable-preview</arg>
-          </testCompilerArguments>
+          <testCompilerArgument>-parameters</testCompilerArgument>
+          <testCompilerArgument>--enable-preview</testCompilerArgument>
         </configuration>
       </plugin>
       <plugin>
@@ -222,11 +220,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <configuration>
-          <argLine>
-            --illegal-access=permit
-          </argLine>
-        </configuration>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
