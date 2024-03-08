@@ -46,7 +46,8 @@ public interface Exceptions {
   static boolean hasMessagePart(Throwable e, final String expected) {
     do {
       final String message = e.getMessage();
-      if (message != null && message.toLowerCase().contains(expected)) {
+      if (message != null && message.toLowerCase()
+        .contains(expected)) {
         return true;
       }
       e = e.getCause();
@@ -105,6 +106,8 @@ public interface Exceptions {
       return null;
     } else if (e instanceof RuntimeException) {
       throw (RuntimeException)e;
+    } else if (e instanceof InterruptedException) {
+      throw new WrappedInterruptedException(e);
     } else if (e instanceof InvocationTargetException) {
       final Throwable cause = e.getCause();
       return toRuntimeException(cause);
@@ -122,7 +125,8 @@ public interface Exceptions {
       PrintWriter w = new PrintWriter(stackTrace)) {
       e.printStackTrace(w);
     }
-    return stackTrace.toString().replaceAll("\\u0000", "");
+    return stackTrace.toString()
+      .replaceAll("\\u0000", "");
   }
 
   @SuppressWarnings("unchecked")
