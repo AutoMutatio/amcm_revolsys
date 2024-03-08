@@ -515,7 +515,8 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
       query.setSql(null);
       query.clearOrderBy();
       final String sql;
-      if (query.isDistinct() || !query.getGroupBy().isEmpty()) {
+      if (query.isDistinct() || !query.getGroupBy()
+        .isEmpty()) {
         sql = "select count(mainquery.*) from (" + query.getSelectSql() + ") mainquery";
       } else {
         query.setSelect(Q.sql("count(*)"));
@@ -914,7 +915,8 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
         return null;
       }
     } else {
-      return Identifier.newIdentifier(UUID.randomUUID().toString());
+      return Identifier.newIdentifier(UUID.randomUUID()
+        .toString());
     }
   }
 
@@ -1114,11 +1116,13 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
               if (columnsRs.wasNull()) {
                 scale = -1;
               }
-              final boolean required = !columnsRs.getString("IS_NULLABLE").equals("YES");
+              final boolean required = !columnsRs.getString("IS_NULLABLE")
+                .equals("YES");
               final String description = columnsRs.getString("REMARKS");
               final JdbcFieldDefinition field = addField(recordDefinition, dbColumnName, name,
                 sqlType, dataType, length, scale, required, description);
-              final boolean generated = columnsRs.getString("IS_GENERATEDCOLUMN").equals("YES");
+              final boolean generated = columnsRs.getString("IS_GENERATEDCOLUMN")
+                .equals("YES");
               field.setGenerated(generated);
             }
           }
@@ -1263,12 +1267,13 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
 
   @Override
   public void updateRecord(final Record record) {
+    final JdbcRecordDefinition recordDefinition = getRecordDefinition(record);
+    final String sql = getUpdateSql(recordDefinition);
     transactionRun(() -> {
       try (
-        JdbcConnection connection = getJdbcConnection()) {
-        final JdbcRecordDefinition recordDefinition = getRecordDefinition(record);
-        final String sql = getUpdateSql(recordDefinition);
-        final PreparedStatement statement = connection.prepareStatement(sql);
+        JdbcConnection connection = getJdbcConnection();
+        final PreparedStatement statement = connection.prepareStatement(sql);) {
+
         int parameterIndex = 1;
         for (final FieldDefinition fieldDefinition : recordDefinition.getFields()) {
           if (!fieldDefinition.isIdField()) {

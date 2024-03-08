@@ -509,7 +509,8 @@ public class FieldDefinition extends BaseObjectWithProperties implements CharSeq
     } else if (CharSequence.class.isAssignableFrom(getTypeClass())) {
       typeName = "CHARACTER";
     } else {
-      typeName = this.type.getName().toUpperCase();
+      typeName = this.type.getName()
+        .toUpperCase();
     }
     string.append(typeName);
     if (this.length > 0) {
@@ -952,7 +953,7 @@ public class FieldDefinition extends BaseObjectWithProperties implements CharSeq
 
   @Override
   public String toString() {
-    return this.name + " " + this.type;
+    return this.name;
   }
 
   @Override

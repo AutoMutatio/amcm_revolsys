@@ -132,12 +132,16 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
   static String toString(final Record record) {
     final RecordDefinition recordDefinition = record.getRecordDefinition();
     final StringBuilder s = new StringBuilder();
-    s.append(recordDefinition.getPath()).append("(\n");
+    s.append(recordDefinition.getPath())
+      .append("(\n");
     for (int i = 0; i < recordDefinition.getFieldCount(); i++) {
       final Object value = record.getValue(i);
       if (value != null) {
         final String fieldName = recordDefinition.getFieldName(i);
-        s.append(fieldName).append('=').append(value).append('\n');
+        s.append(fieldName)
+          .append('=')
+          .append(value)
+          .append('\n');
       }
     }
     s.append(')');
@@ -485,7 +489,8 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
     } else {
       if (map instanceof Record) {
         final Record record = (Record)map;
-        if (!record.getPathName().equals(getPathName())) {
+        if (!record.getPathName()
+          .equals(getPathName())) {
           return false;
         }
       }
@@ -919,7 +924,8 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
     final int fieldIndex = getFieldIndex(path);
     if (fieldIndex == -1) {
       final RecordDefinition recordDefinition = getRecordDefinition();
-      final String[] propertyPath = path.toString().split("\\.");
+      final String[] propertyPath = path.toString()
+        .split("\\.");
       Object propertyValue = this;
       for (int i = 0; i < propertyPath.length && propertyValue != null; i++) {
         final String propertyName = propertyPath[i];
@@ -1103,8 +1109,9 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
     } else if (excludeFieldNames.contains(Record.EXCLUDE_ID)
       && ("OBJECTID".equals(fieldName) || recordDefinition.isIdField(fieldName))) {
       return true;
-    } else if (excludeFieldNames.contains(Record.EXCLUDE_GEOMETRY) && ("OBJECTID".equals(fieldName)
-      || recordDefinition.getGeometryFieldNames().contains(fieldName))) {
+    } else if (excludeFieldNames.contains(Record.EXCLUDE_GEOMETRY)
+      && ("OBJECTID".equals(fieldName) || recordDefinition.getGeometryFieldNames()
+        .contains(fieldName))) {
       return true;
     } else {
       return false;
@@ -1129,20 +1136,18 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
       if (this == record) {
         return true;
       } else {
-        synchronized (this) {
-          if (record.getRecordDefinition() == getRecordDefinition()) {
-            final Identifier id = getIdentifier();
-            final Identifier otherId = record.getIdentifier();
-            if (id == null || otherId == null) {
-              return false;
-            } else if (DataType.equal(id, otherId)) {
-              return true;
-            } else {
-              return false;
-            }
+        if (record.getRecordDefinition() == getRecordDefinition()) {
+          final Identifier id = getIdentifier();
+          final Identifier otherId = record.getIdentifier();
+          if (id == null || otherId == null) {
+            return false;
+          } else if (DataType.equal(id, otherId)) {
+            return true;
           } else {
             return false;
           }
+        } else {
+          return false;
         }
       }
     }

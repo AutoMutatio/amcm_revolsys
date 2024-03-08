@@ -24,7 +24,8 @@ public class TableRecordStoreQuery extends Query {
 
   @Override
   public int deleteRecords() {
-    return transactionCall(() -> this.recordStore.getRecordStore().deleteRecords(this));
+    return transactionCall(() -> this.recordStore.getRecordStore()
+      .deleteRecords(this));
   }
 
   @Override
@@ -60,8 +61,7 @@ public class TableRecordStoreQuery extends Query {
 
   @Override
   public Record updateRecord(final Consumer<Record> updateAction) {
-    return transactionCall(
-      () -> this.recordStore.updateRecord(this.connection, this, updateAction));
+    return this.recordStore.updateRecord(this.connection, this, updateAction);
   }
 
   @Override

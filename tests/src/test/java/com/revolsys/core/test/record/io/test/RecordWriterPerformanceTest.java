@@ -134,14 +134,12 @@ public class RecordWriterPerformanceTest {
     }
     for (int i = 0; i < 10; i++) {
       System.gc();
-      synchronized (record) {
         try {
-          record.wait(1000);
+          Thread.sleep(1000);
         } catch (final InterruptedException e) {
           Exceptions.throwUncheckedException(e);
         }
-      }
-    }
+     }
   }
 
   private static void writeRecords(final RecordWriterFactory writerFactory,
