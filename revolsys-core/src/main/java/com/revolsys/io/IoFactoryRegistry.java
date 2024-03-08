@@ -8,6 +8,7 @@ import java.util.Set;
 
 import com.revolsys.collection.map.Maps;
 import com.revolsys.logging.Logs;
+import com.revolsys.parallel.ReentrantLockEx;
 import com.revolsys.util.ServiceInitializer;
 
 public class IoFactoryRegistry {
@@ -47,8 +48,11 @@ public class IoFactoryRegistry {
     }
   }
 
+  private static final ReentrantLockEx FACTORY_LOCK = new ReentrantLockEx();
+
   public static void addFactory(final IoFactory factory) {
-    synchronized (factories) {
+    try (
+      var l = FACTORY_LOCK.lockX()) {
       if (factories.add(factory)) {
         factory.init();
         final Class<? extends IoFactory> factoryClass = factory.getClass();
@@ -91,7 +95,8 @@ public class IoFactoryRegistry {
   }
 
   public static void clearInstance() {
-    synchronized (IoFactoryRegistry.class) {
+    try (
+      var l = FACTORY_LOCK.lockX()) {
       factoriesByClass.clear();
       factoryByClassAndFileExtension.clear();
       mediaTypeByFileExtension.clear();
