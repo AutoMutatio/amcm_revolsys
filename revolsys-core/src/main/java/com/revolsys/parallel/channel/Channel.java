@@ -1,10 +1,14 @@
 package com.revolsys.parallel.channel;
 
 import java.util.Iterator;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Condition;
 
 import com.revolsys.exception.Exceptions;
 import com.revolsys.exception.WrappedInterruptedException;
+import com.revolsys.parallel.ReentrantLockEx;
 import com.revolsys.parallel.channel.store.ZeroBuffer;
+import com.revolsys.util.BaseCloseable;
 
 public class Channel<T> implements SelectableChannelInput<T>, ChannelOutput<T> {
   /** The Alternative class which will control the selection */
@@ -17,7 +21,9 @@ public class Channel<T> implements SelectableChannelInput<T>, ChannelOutput<T> {
   protected ChannelValueStore<T> data;
 
   /** The monitor reads must synchronize on */
-  protected Object monitor = new Object();
+  protected ReentrantLockEx lock = new ReentrantLockEx();
+
+  private final Condition lockCondition = this.lock.newCondition();
 
   /** The name of the channel. */
   private String name;
@@ -29,13 +35,13 @@ public class Channel<T> implements SelectableChannelInput<T>, ChannelOutput<T> {
   private int numWriters = 0;
 
   /** The monitor reads must synchronize on */
-  protected Object readMonitor = new Object();
+  private final ReentrantLockEx readLock = new ReentrantLockEx();
 
   /** Flag indicating if the channel is closed for writing. */
   private boolean writeClosed;
 
   /** The monitor writes must synchronize on */
-  protected Object writeMonitor = new Object();
+  private final ReentrantLockEx writeLock = new ReentrantLockEx();
 
   /**
    * Constructs a new Channel<T> with a ZeroBuffer ChannelValueStore.
@@ -75,7 +81,8 @@ public class Channel<T> implements SelectableChannelInput<T>, ChannelOutput<T> {
 
   @Override
   public boolean enable(final MultiInputSelector alt) {
-    synchronized (this.monitor) {
+    try (
+      var l = this.lock.lockX()) {
       if (this.data.getState() == ChannelValueStore.EMPTY) {
         this.alt = alt;
         return false;
@@ -130,24 +137,30 @@ public class Channel<T> implements SelectableChannelInput<T>, ChannelOutput<T> {
    */
   @Override
   public T read(final long timeout) {
-    synchronized (this.readMonitor) {
-      synchronized (this.monitor) {
+    try (
+      var rl = this.readLock.lockX()) {
+      try (
+        var l = this.lock.lockX()) {
         if (isClosed()) {
           throw new ClosedException();
         }
         if (this.data.getState() == ChannelValueStore.EMPTY) {
           try {
             try {
-              this.monitor.wait(timeout);
+              if (timeout == 0) {
+                this.lockCondition.await();
+              } else {
+                this.lockCondition.await(timeout, TimeUnit.MILLISECONDS);
+              }
             } catch (final InterruptedException e) {
-              Exceptions.throwUncheckedException(e);
+              throw Exceptions.toRuntimeException(e);
             }
             if (isClosed()) {
               throw new ClosedException();
             }
           } catch (final WrappedInterruptedException e) {
             close();
-            this.monitor.notifyAll();
+            this.lockCondition.signalAll();
             throw e;
           }
         }
@@ -155,7 +168,7 @@ public class Channel<T> implements SelectableChannelInput<T>, ChannelOutput<T> {
           return null;
         } else {
           final T value = this.data.get();
-          this.monitor.notifyAll();
+          this.lockCondition.signalAll();
           return value;
         }
       }
@@ -163,25 +176,27 @@ public class Channel<T> implements SelectableChannelInput<T>, ChannelOutput<T> {
   }
 
   @Override
-  public void readConnect() {
-    synchronized (this.monitor) {
+  public BaseCloseable readConnect() {
+    try (
+      var l = this.lock.lockX()) {
       if (isClosed()) {
         throw new IllegalStateException("Cannot connect to a closed channel");
       } else {
         this.numReaders++;
       }
-
     }
+    return this::readDisconnect;
   }
 
   @Override
   public void readDisconnect() {
-    synchronized (this.monitor) {
+    try (
+      var l = this.lock.lockX()) {
       if (!this.closed) {
         this.numReaders--;
         if (this.numReaders <= 0) {
           close();
-          this.monitor.notifyAll();
+          this.lockCondition.signalAll();
         }
       }
 
@@ -206,8 +221,10 @@ public class Channel<T> implements SelectableChannelInput<T>, ChannelOutput<T> {
    */
   @Override
   public void write(final T value) {
-    synchronized (this.writeMonitor) {
-      synchronized (this.monitor) {
+    try (
+      var wl = this.writeLock.lockX()) {
+      try (
+        var l = this.lock.lockX()) {
         if (this.closed) {
           throw new ClosedException();
         }
@@ -216,21 +233,21 @@ public class Channel<T> implements SelectableChannelInput<T>, ChannelOutput<T> {
         if (tempAlt != null) {
           tempAlt.schedule();
         } else {
-          this.monitor.notifyAll();
+          this.lockCondition.signalAll();
         }
         if (this.data.getState() == ChannelValueStore.FULL) {
           try {
             try {
-              this.monitor.wait();
+              this.lockCondition.await();
             } catch (final InterruptedException e) {
-              Exceptions.throwUncheckedException(e);
+              throw Exceptions.toRuntimeException(e);
             }
             if (this.closed) {
               throw new ClosedException();
             }
           } catch (final WrappedInterruptedException e) {
             close();
-            this.monitor.notifyAll();
+            this.lockCondition.signalAll();
             throw e;
           }
         }
@@ -239,8 +256,9 @@ public class Channel<T> implements SelectableChannelInput<T>, ChannelOutput<T> {
   }
 
   @Override
-  public void writeConnect() {
-    synchronized (this.monitor) {
+  public BaseCloseable writeConnect() {
+    try (
+      var l = this.lock.lockX()) {
       if (this.writeClosed) {
         throw new IllegalStateException("Cannot connect to a closed channel");
       } else {
@@ -248,11 +266,13 @@ public class Channel<T> implements SelectableChannelInput<T>, ChannelOutput<T> {
       }
 
     }
+    return this::writeDisconnect;
   }
 
   @Override
   public void writeDisconnect() {
-    synchronized (this.monitor) {
+    try (
+      var l = this.lock.lockX()) {
       if (!this.writeClosed) {
         this.numWriters--;
         if (this.numWriters <= 0) {
@@ -261,7 +281,7 @@ public class Channel<T> implements SelectableChannelInput<T>, ChannelOutput<T> {
           if (tempAlt != null) {
             tempAlt.closeChannel();
           } else {
-            this.monitor.notifyAll();
+            this.lockCondition.signalAll();
           }
         }
       }

@@ -131,7 +131,7 @@ public class LasZipHeader implements MapSerializer {
         this.versions[i] = Buffers.getLEUnsignedShort(buffer);
       }
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 

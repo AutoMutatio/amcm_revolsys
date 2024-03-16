@@ -237,7 +237,7 @@ public class OgrRecordStore extends AbstractRecordStore {
         condition.appendDefaultSql(query, this, sql);
       }
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 

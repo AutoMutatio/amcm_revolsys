@@ -105,7 +105,7 @@ public class ZipUtil {
       try {
         return new ZipFile(file);
       } catch (final IOException e) {
-        throw Exceptions.wrap(e);
+        throw Exceptions.toRuntimeException(e);
       }
     });
     ZipEntry zipEntry = zipFile.getEntry(fileName);

@@ -50,7 +50,7 @@ public class PropertyDescriptorCacheForClass {
     try {
       this.latch.await();
     } catch (final InterruptedException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
     return this.propertyDescriptorByName.get(propertyName);
   }
@@ -59,7 +59,7 @@ public class PropertyDescriptorCacheForClass {
     try {
       this.latch.await();
     } catch (final InterruptedException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
     return this.propertyWriteMethodByName;
   }

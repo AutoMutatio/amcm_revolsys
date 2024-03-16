@@ -125,7 +125,7 @@ public class CsvMapWriter extends AbstractMapWriter {
       }
       this.out.write(this.newLine);
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 }

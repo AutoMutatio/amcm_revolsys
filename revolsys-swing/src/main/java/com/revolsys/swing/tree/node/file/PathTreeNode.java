@@ -203,7 +203,7 @@ public class PathTreeNode extends LazyLoadTreeNode implements UrlProxy {
         final URL url = path.toUri().toURL();
         return url;
       } catch (final MalformedURLException e) {
-        throw Exceptions.wrap(e);
+        throw Exceptions.toRuntimeException(e);
       }
     }
   }

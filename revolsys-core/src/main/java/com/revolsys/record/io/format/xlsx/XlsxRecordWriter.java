@@ -140,7 +140,7 @@ public class XlsxRecordWriter extends AbstractRecordWriter {
       this.sheetRows = this.sheetData.getRow();
 
     } catch (final Docx4JException | JAXBException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 
@@ -246,7 +246,7 @@ public class XlsxRecordWriter extends AbstractRecordWriter {
         } catch (final IOException e) {
         }
       } catch (final Docx4JException e) {
-        throw Exceptions.wrap(e);
+        throw Exceptions.toRuntimeException(e);
       } finally {
         BaseCloseable.closeSilent(this.out);
         this.out = null;

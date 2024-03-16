@@ -105,7 +105,7 @@ public class FileBackedOutputStreamBuffer extends OutputStream implements Append
     try {
       write(s);
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
     return this;
   }
@@ -137,7 +137,7 @@ public class FileBackedOutputStreamBuffer extends OutputStream implements Append
         this.out = null;
       }
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 
@@ -148,7 +148,7 @@ public class FileBackedOutputStreamBuffer extends OutputStream implements Append
         try {
           this.out.flush();
         } catch (final IOException e) {
-          throw Exceptions.wrap(e);
+          throw Exceptions.toRuntimeException(e);
         }
       }
     }

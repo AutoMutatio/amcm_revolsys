@@ -254,7 +254,7 @@ public class JsonRecordWriter extends AbstractRecordWriter {
       }
       endObject();
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 
@@ -298,7 +298,7 @@ public class JsonRecordWriter extends AbstractRecordWriter {
       }
       endObject();
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 

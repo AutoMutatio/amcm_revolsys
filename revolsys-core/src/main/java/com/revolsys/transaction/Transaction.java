@@ -78,12 +78,14 @@ public class Transaction {
   }
 
   static class NotSupportedBuilder implements Builder {
+    private static final Carrier EMPTY_CARRIER = ScopedValue.where(CONTEXT, EMPTY);
+
     @Override
     public <V> V call(final Callable<V> action) {
       try (
         var s = suspend()) {
         try {
-          return ScopedValue.where(CONTEXT, EMPTY).call(action);
+          return EMPTY_CARRIER.call(action);
         } catch (final Throwable t) {
           return EMPTY.setRollbackOnly(t);
         }
@@ -95,7 +97,7 @@ public class Transaction {
       try (
         var s = suspend()) {
         final Runnable runnable = runnable(EMPTY, action);
-        ScopedValue.where(CONTEXT, EMPTY).run(runnable);
+        EMPTY_CARRIER.run(runnable);
       }
     }
   }

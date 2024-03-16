@@ -3,8 +3,14 @@ package com.revolsys.http;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpClient.Redirect;
+import java.net.http.HttpClient.Version;
+import java.net.http.HttpRequest.BodyPublisher;
+import java.net.http.HttpRequest.BodyPublishers;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -12,6 +18,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.Executors;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -61,7 +68,9 @@ import com.revolsys.collection.json.JsonList;
 import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.json.JsonParser;
 import com.revolsys.collection.list.ListEx;
+import com.revolsys.collection.value.LazyValueHolder;
 import com.revolsys.collection.value.Single;
+import com.revolsys.collection.value.ValueHolder;
 import com.revolsys.exception.Exceptions;
 import com.revolsys.exception.WrappedRuntimeException;
 import com.revolsys.io.IoUtil;
@@ -109,38 +118,53 @@ public class HttpRequestBuilder {
   public static final ContentType XML = ContentType.create("application/xml",
     StandardCharsets.UTF_8);
 
+  public static final ScopedValue<LazyValueHolder<HttpClient>> JDK_CLIENT = ScopedValue
+    .newInstance();
+
   public static HttpRequestBuilder copy(final HttpRequest request) {
     Args.notNull(request, "HTTP request");
-    return new HttpRequestBuilder().setRequest(request);
+    return HttpRequestBuilderFactory.FACTORY.newRequestBuilder()
+      .setRequest(request);
   }
 
   public static HttpRequestBuilder create(final String method) {
     Args.notBlank(method, "HTTP method");
-    return new HttpRequestBuilder().setMethod(method);
+    return HttpRequestBuilderFactory.FACTORY.newRequestBuilder()
+      .setMethod(method);
   }
 
   public static HttpRequestBuilder delete() {
-    return new HttpRequestBuilder().setMethod(HttpDelete.METHOD_NAME);
+    return HttpRequestBuilderFactory.FACTORY.newRequestBuilder()
+      .setMethod(HttpDelete.METHOD_NAME);
   }
 
   public static HttpRequestBuilder delete(final String uri) {
-    return new HttpRequestBuilder().setMethod(HttpDelete.METHOD_NAME).setUri(uri);
+    return HttpRequestBuilderFactory.FACTORY.newRequestBuilder()
+      .setMethod(HttpDelete.METHOD_NAME)
+      .setUri(uri);
   }
 
   public static HttpRequestBuilder delete(final URI uri) {
-    return new HttpRequestBuilder().setMethod(HttpDelete.METHOD_NAME).setUri(uri);
+    return HttpRequestBuilderFactory.FACTORY.newRequestBuilder()
+      .setMethod(HttpDelete.METHOD_NAME)
+      .setUri(uri);
   }
 
   public static HttpRequestBuilder get() {
-    return new HttpRequestBuilder().setMethod(HttpGet.METHOD_NAME);
+    return HttpRequestBuilderFactory.FACTORY.newRequestBuilder()
+      .setMethod(HttpGet.METHOD_NAME);
   }
 
   public static HttpRequestBuilder get(final String uri) {
-    return new HttpRequestBuilder().setMethod(HttpGet.METHOD_NAME).setUri(uri);
+    return HttpRequestBuilderFactory.FACTORY.newRequestBuilder()
+      .setMethod(HttpGet.METHOD_NAME)
+      .setUri(uri);
   }
 
   public static HttpRequestBuilder get(final URI uri) {
-    return new HttpRequestBuilder().setMethod(HttpGet.METHOD_NAME).setUri(uri);
+    return HttpRequestBuilderFactory.FACTORY.newRequestBuilder()
+      .setMethod(HttpGet.METHOD_NAME)
+      .setUri(uri);
   }
 
   public static JsonObject getJson(final HttpResponse response) {
@@ -149,7 +173,7 @@ public class HttpRequestBuilder {
       InputStream in = entity.getContent()) {
       return JsonParser.read(in);
     } catch (final Exception e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 
@@ -159,7 +183,7 @@ public class HttpRequestBuilder {
       InputStream in = entity.getContent()) {
       return JsonParser.read(in);
     } catch (final Exception e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 
@@ -169,80 +193,131 @@ public class HttpRequestBuilder {
       InputStream in = entity.getContent()) {
       return IoUtil.getString(in);
     } catch (final Exception e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 
   public static HttpRequestBuilder head() {
-    return new HttpRequestBuilder().setMethod(HttpHead.METHOD_NAME);
+    return HttpRequestBuilderFactory.FACTORY.newRequestBuilder()
+      .setMethod(HttpHead.METHOD_NAME);
   }
 
   public static HttpRequestBuilder head(final String uri) {
-    return new HttpRequestBuilder().setMethod(HttpHead.METHOD_NAME).setUri(uri);
+    return HttpRequestBuilderFactory.FACTORY.newRequestBuilder()
+      .setMethod(HttpHead.METHOD_NAME)
+      .setUri(uri);
   }
 
   public static HttpRequestBuilder head(final URI uri) {
-    return new HttpRequestBuilder().setMethod(HttpHead.METHOD_NAME).setUri(uri);
+    return HttpRequestBuilderFactory.FACTORY.newRequestBuilder()
+      .setMethod(HttpHead.METHOD_NAME)
+      .setUri(uri);
+  }
+
+  public static HttpClient jdkClient() {
+    return JDK_CLIENT.get()
+      .getValue();
+  }
+
+  public static void jdkClient(final Runnable action) {
+    try (
+      var client = ValueHolder.lazy(HttpRequestBuilder::newHttpClient)) {
+      ScopedValue.where(JDK_CLIENT, client)
+        .run(action);
+    }
+  }
+
+  public static HttpClient newHttpClient() {
+    return HttpClient.newBuilder()
+      .connectTimeout(Duration.ofMinutes(1))
+      .followRedirects(Redirect.NORMAL)
+      .executor(Executors.newVirtualThreadPerTaskExecutor())
+      .build();
   }
 
   public static HttpRequestBuilder options() {
-    return new HttpRequestBuilder().setMethod(HttpOptions.METHOD_NAME);
+    return HttpRequestBuilderFactory.FACTORY.newRequestBuilder()
+      .setMethod(HttpOptions.METHOD_NAME);
   }
 
   public static HttpRequestBuilder options(final String uri) {
-    return new HttpRequestBuilder().setMethod(HttpOptions.METHOD_NAME).setUri(uri);
+    return HttpRequestBuilderFactory.FACTORY.newRequestBuilder()
+      .setMethod(HttpOptions.METHOD_NAME)
+      .setUri(uri);
   }
 
   public static HttpRequestBuilder options(final URI uri) {
-    return new HttpRequestBuilder().setMethod(HttpOptions.METHOD_NAME).setUri(uri);
+    return HttpRequestBuilderFactory.FACTORY.newRequestBuilder()
+      .setMethod(HttpOptions.METHOD_NAME)
+      .setUri(uri);
   }
 
   public static HttpRequestBuilder patch() {
-    return new HttpRequestBuilder().setMethod(HttpPatch.METHOD_NAME);
+    return HttpRequestBuilderFactory.FACTORY.newRequestBuilder()
+      .setMethod(HttpPatch.METHOD_NAME);
   }
 
   public static HttpRequestBuilder patch(final String uri) {
-    return new HttpRequestBuilder().setMethod(HttpPatch.METHOD_NAME).setUri(uri);
+    return HttpRequestBuilderFactory.FACTORY.newRequestBuilder()
+      .setMethod(HttpPatch.METHOD_NAME)
+      .setUri(uri);
   }
 
   public static HttpRequestBuilder patch(final URI uri) {
-    return new HttpRequestBuilder().setMethod(HttpPatch.METHOD_NAME).setUri(uri);
+    return HttpRequestBuilderFactory.FACTORY.newRequestBuilder()
+      .setMethod(HttpPatch.METHOD_NAME)
+      .setUri(uri);
   }
 
   public static HttpRequestBuilder post() {
-    return new HttpRequestBuilder().setMethod(HttpPost.METHOD_NAME);
+    return HttpRequestBuilderFactory.FACTORY.newRequestBuilder()
+      .setMethod(HttpPost.METHOD_NAME);
   }
 
   public static HttpRequestBuilder post(final String uri) {
-    return new HttpRequestBuilder().setMethod(HttpPost.METHOD_NAME).setUri(uri);
+    return HttpRequestBuilderFactory.FACTORY.newRequestBuilder()
+      .setMethod(HttpPost.METHOD_NAME)
+      .setUri(uri);
   }
 
   public static HttpRequestBuilder post(final URI uri) {
-    return new HttpRequestBuilder().setMethod(HttpPost.METHOD_NAME).setUri(uri);
+    return HttpRequestBuilderFactory.FACTORY.newRequestBuilder()
+      .setMethod(HttpPost.METHOD_NAME)
+      .setUri(uri);
   }
 
   public static HttpRequestBuilder put() {
-    return new HttpRequestBuilder().setMethod(HttpPut.METHOD_NAME);
+    return HttpRequestBuilderFactory.FACTORY.newRequestBuilder()
+      .setMethod(HttpPut.METHOD_NAME);
   }
 
   public static HttpRequestBuilder put(final String uri) {
-    return new HttpRequestBuilder().setMethod(HttpPut.METHOD_NAME).setUri(uri);
+    return HttpRequestBuilderFactory.FACTORY.newRequestBuilder()
+      .setMethod(HttpPut.METHOD_NAME)
+      .setUri(uri);
   }
 
   public static HttpRequestBuilder put(final URI uri) {
-    return new HttpRequestBuilder().setMethod(HttpPut.METHOD_NAME).setUri(uri);
+    return HttpRequestBuilderFactory.FACTORY.newRequestBuilder()
+      .setMethod(HttpPut.METHOD_NAME)
+      .setUri(uri);
   }
 
   public static HttpRequestBuilder trace() {
-    return new HttpRequestBuilder().setMethod(HttpTrace.METHOD_NAME);
+    return HttpRequestBuilderFactory.FACTORY.newRequestBuilder()
+      .setMethod(HttpTrace.METHOD_NAME);
   }
 
   public static HttpRequestBuilder trace(final String uri) {
-    return new HttpRequestBuilder().setMethod(HttpTrace.METHOD_NAME).setUri(uri);
+    return HttpRequestBuilderFactory.FACTORY.newRequestBuilder()
+      .setMethod(HttpTrace.METHOD_NAME)
+      .setUri(uri);
   }
 
   public static HttpRequestBuilder trace(final URI uri) {
-    return new HttpRequestBuilder().setMethod(HttpTrace.METHOD_NAME).setUri(uri);
+    return HttpRequestBuilderFactory.FACTORY.newRequestBuilder()
+      .setMethod(HttpTrace.METHOD_NAME)
+      .setUri(uri);
   }
 
   private final boolean logRequests = true;
@@ -265,10 +340,9 @@ public class HttpRequestBuilder {
 
   private final Set<String> headerNames = new TreeSet<>();
 
-  private HttpRequestBuilderFactory factory;
+  private final HttpRequestBuilderFactory factory;
 
-  HttpRequestBuilder() {
-  }
+  private BodyPublisher body;
 
   public HttpRequestBuilder(final HttpRequestBuilderFactory factory) {
     this.factory = factory;
@@ -345,6 +419,10 @@ public class HttpRequestBuilder {
   }
 
   public HttpUriRequest build() {
+    getFactory().preBuild(this);
+    setConfig(RequestConfig.custom()
+      .setConnectTimeout(30000)
+      .build());
     final HttpRequestBase result;
     URI uri = this.uri;
     if (uri == null) {
@@ -357,7 +435,9 @@ public class HttpRequestBuilder {
         entityCopy = new UrlEncodedFormEntity(this.parameters,
           this.charset != null ? this.charset : HTTP.DEF_CONTENT_CHARSET);
       } else {
-        uri = new UriBuilder(uri).setCharset(this.charset).addParameters(this.parameters).build();
+        uri = new UriBuilder(uri).setCharset(this.charset)
+          .addParameters(this.parameters)
+          .build();
       }
     }
     if (entityCopy == null) {
@@ -374,6 +454,61 @@ public class HttpRequestBuilder {
     }
     result.setConfig(this.config);
     return result;
+  }
+
+  public java.net.http.HttpRequest buildJdk() {
+    getFactory().preBuild(this);
+    setConfig(RequestConfig.custom()
+      .setConnectTimeout(60000)
+      .build());
+    URI uri = this.uri;
+    if (uri == null) {
+      uri = URI.create("/");
+    }
+    var body = this.body;
+    if (this.parameters != null && !this.parameters.isEmpty()) {
+      if (body == null
+        && ("POST".equalsIgnoreCase(this.method) || "PUT".equalsIgnoreCase(this.method))) {
+        final var paramString = URLEncodedUtils.format(this.parameters,
+          this.charset != null ? this.charset : HTTP.DEF_CONTENT_CHARSET);
+        body = BodyPublishers.ofString(paramString, this.charset);
+      } else {
+        uri = new UriBuilder(uri).setCharset(this.charset)
+          .addParameters(this.parameters)
+          .build();
+      }
+    }
+    final var request = java.net.http.HttpRequest.newBuilder(uri);
+    if (this.version != null) {
+      request.version(this.version.getMajor() == 2 ? Version.HTTP_2 : Version.HTTP_1_1);
+    }
+
+    if ("GET".equalsIgnoreCase(this.method)) {
+      request.GET();
+    } else if ("HEAD".equalsIgnoreCase(this.method)) {
+      request.HEAD();
+    } else if ("POST".equalsIgnoreCase(this.method)) {
+      request.POST(body);
+    } else if ("PUT".equalsIgnoreCase(this.method)) {
+      request.PUT(body);
+    } else if ("DELETE".equalsIgnoreCase(this.method)) {
+      request.DELETE();
+    } else if ("PACTH".equalsIgnoreCase(this.method)) {
+      request.method("PATCH", body);
+    } else {
+      throw new UnsupportedOperationException(this.method);
+      // CONNECT
+      // OPTIONS
+      // TRACE
+    }
+    if (this.headerGroup != null) {
+      for (final var header : this.headerGroup.getAllHeaders()) {
+        final String name = header.getName();
+        final String value = header.getValue();
+        request.header(name, value);
+      }
+    }
+    return request.build();
   }
 
   protected void configureClient(final HttpClientBuilder builder) {
@@ -399,7 +534,8 @@ public class HttpRequestBuilder {
     } catch (final WrappedRuntimeException e) {
       throw e;
     } catch (final Exception e) {
-      throw Exceptions.wrap(request.getURI().toString(), e);
+      throw Exceptions.wrap(request.getURI()
+        .toString(), e);
     }
   }
 
@@ -414,7 +550,8 @@ public class HttpRequestBuilder {
     } catch (final WrappedRuntimeException e) {
       throw e;
     } catch (final Exception e) {
-      throw Exceptions.wrap(request.getURI().toString(), e);
+      throw Exceptions.wrap(request.getURI()
+        .toString(), e);
     }
   }
 
@@ -436,7 +573,8 @@ public class HttpRequestBuilder {
     } catch (final WrappedRuntimeException e) {
       throw e;
     } catch (final Exception e) {
-      throw Exceptions.wrap(request.getURI().toString(), e);
+      throw Exceptions.wrap(request.getURI()
+        .toString(), e);
     }
   }
 
@@ -516,7 +654,8 @@ public class HttpRequestBuilder {
     } catch (final ApacheHttpException e) {
       throw e;
     } catch (final Exception e) {
-      throw Exceptions.wrap(request.getURI().toString(), e);
+      throw Exceptions.wrap(request.getURI()
+        .toString(), e);
     }
   }
 
@@ -564,11 +703,29 @@ public class HttpRequestBuilder {
       configureClient(builder);
       return builder.build();
     } catch (final Exception e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 
   public InputStream newInputStream() {
+    // try (
+    // var client = newHttpClient()) {
+    // final var request = buildJdk();
+    // try {
+    // final var response = client.send(request, BodyHandlers.ofInputStream());
+    // return switch (response.statusCode()) {
+    // case 200 -> response.body();
+    //
+    // case 404 -> null;
+    //
+    // // TODO get reasonPhrase
+    // default -> throw new HttpResponseException(response.statusCode(), "",
+    // request);
+    // };
+    // } catch (final InterruptedException | IOException e) {
+    // throw Exceptions.toRuntimeException(e);
+    // }
+    // }
     final HttpUriRequest request = build();
     final CloseableHttpClient httpClient = newClient();
     try {
@@ -584,7 +741,8 @@ public class HttpRequestBuilder {
       throw e;
     } catch (final Exception e) {
       BaseCloseable.closeSilent(httpClient);
-      throw Exceptions.wrap(request.getURI().toString(), e);
+      throw Exceptions.wrap(request.getURI()
+        .toString(), e);
     }
   }
 
@@ -617,6 +775,11 @@ public class HttpRequestBuilder {
         }
       }
     }
+    return this;
+  }
+
+  public HttpRequestBuilder setBody(final BodyPublisher body) {
+    this.body = body;
     return this;
   }
 
@@ -689,8 +852,10 @@ public class HttpRequestBuilder {
   }
 
   HttpRequestBuilder setRequest(final HttpRequest request) {
-    this.method = request.getRequestLine().getMethod();
-    this.version = request.getRequestLine().getProtocolVersion();
+    this.method = request.getRequestLine()
+      .getMethod();
+    this.version = request.getRequestLine()
+      .getProtocolVersion();
 
     if (this.headerGroup == null) {
       this.headerGroup = new HeaderGroup();
@@ -721,7 +886,8 @@ public class HttpRequestBuilder {
     if (request instanceof HttpUriRequest) {
       this.uri = ((HttpUriRequest)request).getURI();
     } else {
-      this.uri = URI.create(request.getRequestLine().getUri());
+      this.uri = URI.create(request.getRequestLine()
+        .getUri());
     }
 
     if (request instanceof Configurable) {

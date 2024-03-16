@@ -23,11 +23,13 @@ public class AzureCliRequestBuilderFactory extends BearerTokenRequestBuilderFact
     try {
       final Process process = builder.start();
       if (process.waitFor() == 0) {
-        final String commandOutput = IoUtil.getString(logFile).strip();
+        final String commandOutput = IoUtil.getString(logFile)
+          .strip();
         final JsonObject result = JsonObject.parse(commandOutput);
         return new AzureCliBearerToken(result);
       } else {
-        final String commandOutput = IoUtil.getString(logFile).strip();
+        final String commandOutput = IoUtil.getString(logFile)
+          .strip();
         try {
           throw new RuntimeException(commandOutput);
         } catch (final Exception e) {
@@ -36,7 +38,7 @@ public class AzureCliRequestBuilderFactory extends BearerTokenRequestBuilderFact
         }
       }
     } catch (final InterruptedException e) {
-      Exceptions.throwUncheckedException(e);
+      throw Exceptions.toRuntimeException(e);
     } catch (final Throwable e) {
       Logs.error(AzureCliRequestBuilderFactory.class, "Error getting token", e);
     } finally {

@@ -218,7 +218,7 @@ public interface JsonObject extends MapEx, JsonType {
       appendable.append('}');
       return appendable;
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 

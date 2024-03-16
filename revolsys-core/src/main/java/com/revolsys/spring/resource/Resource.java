@@ -137,7 +137,7 @@ public interface Resource extends org.springframework.core.io.Resource, FileProx
         try {
           return new UrlResource(springResource.getURL());
         } catch (final Exception e) {
-          throw Exceptions.wrap(e);
+          throw Exceptions.toRuntimeException(e);
         }
       }
     }
@@ -200,7 +200,7 @@ public interface Resource extends org.springframework.core.io.Resource, FileProx
           return true;
         }
       } catch (final IOException e) {
-        throw Exceptions.wrap(e);
+        throw Exceptions.toRuntimeException(e);
       }
     }
   }
@@ -223,7 +223,7 @@ public interface Resource extends org.springframework.core.io.Resource, FileProx
           return copyFrom(in);
         }
       } catch (final IOException e) {
-        throw Exceptions.wrap(e);
+        throw Exceptions.toRuntimeException(e);
       }
     }
   }
@@ -234,7 +234,7 @@ public interface Resource extends org.springframework.core.io.Resource, FileProx
       final InputStream in = newBufferedInputStream();) {
       IoUtil.copy(in, out2);
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 
@@ -438,7 +438,7 @@ public interface Resource extends org.springframework.core.io.Resource, FileProx
     try {
       return getURI();
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 
@@ -564,7 +564,7 @@ public interface Resource extends org.springframework.core.io.Resource, FileProx
         return connection.getOutputStream();
       }
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 

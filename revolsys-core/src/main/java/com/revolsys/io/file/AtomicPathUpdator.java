@@ -46,7 +46,7 @@ public class AtomicPathUpdator implements BaseCloseable {
       }
       this.path = this.tempDirectory.resolve(fileName);
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 
@@ -70,7 +70,7 @@ public class AtomicPathUpdator implements BaseCloseable {
             Paths.deleteDirectories(oldPath);
           });
         } catch (final IOException e) {
-          throw Exceptions.wrap(e);
+          throw Exceptions.toRuntimeException(e);
         }
       }
     } finally {
@@ -89,7 +89,7 @@ public class AtomicPathUpdator implements BaseCloseable {
             Paths.deleteDirectories(targetPath);
           });
         } catch (final IOException e) {
-          throw Exceptions.wrap(e);
+          throw Exceptions.toRuntimeException(e);
         }
       }
     } finally {

@@ -95,7 +95,7 @@ public class JdbcQueryIterator extends AbstractIterator<Record>
         throw new NoSuchElementException();
       } else {
         if (e2 == null) {
-          throw Exceptions.wrap(e);
+          throw Exceptions.toRuntimeException(e);
         } else {
           throw e2;
         }

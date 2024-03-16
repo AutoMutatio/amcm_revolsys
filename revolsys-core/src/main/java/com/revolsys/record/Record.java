@@ -1555,7 +1555,7 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
       }
       writer.endObject();
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 }

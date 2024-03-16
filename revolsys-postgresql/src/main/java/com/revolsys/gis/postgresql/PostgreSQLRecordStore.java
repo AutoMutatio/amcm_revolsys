@@ -367,7 +367,7 @@ public class PostgreSQLRecordStore extends AbstractJdbcRecordStore {
     try {
       return connection.unwrap(PgConnection.class).createArrayOf(typeName, array);
     } catch (final SQLException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 

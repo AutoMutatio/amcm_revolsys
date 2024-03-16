@@ -65,7 +65,7 @@ public final class DataTypes {
         }
       }
     } catch (final Throwable e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   });
 

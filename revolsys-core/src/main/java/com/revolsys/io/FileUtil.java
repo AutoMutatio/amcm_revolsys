@@ -759,7 +759,7 @@ public final class FileUtil {
     try {
       return new FileOutputStream(file);
     } catch (final FileNotFoundException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 

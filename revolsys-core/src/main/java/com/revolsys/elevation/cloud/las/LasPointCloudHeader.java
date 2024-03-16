@@ -259,7 +259,7 @@ public class LasPointCloudHeader
       }
       return clone;
     } catch (final CloneNotSupportedException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 

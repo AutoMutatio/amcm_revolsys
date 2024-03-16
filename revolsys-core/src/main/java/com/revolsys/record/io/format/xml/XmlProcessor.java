@@ -376,7 +376,7 @@ public abstract class XmlProcessor {
         } else if (t instanceof IOException) {
           throw (IOException)t;
         } else {
-          throw Exceptions.wrap(e);
+          throw Exceptions.toRuntimeException(e);
         }
       }
     }
@@ -436,7 +436,7 @@ public abstract class XmlProcessor {
         } else if (t instanceof IOException) {
           throw (IOException)t;
         } else {
-          throw Exceptions.wrap(e);
+          throw Exceptions.toRuntimeException(e);
         }
       }
     }

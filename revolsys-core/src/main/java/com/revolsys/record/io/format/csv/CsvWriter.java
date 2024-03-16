@@ -91,7 +91,7 @@ public class CsvWriter implements BaseCloseable {
       }
       out.write(this.newLine);
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 }

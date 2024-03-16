@@ -61,7 +61,7 @@ public class JavaIo {
           return reader;
         }
       } catch (final IOException e) {
-        throw Exceptions.wrap(e);
+        throw Exceptions.toRuntimeException(e);
       }
     }
     throw new IllegalArgumentException("Cannot create reader for class: " + source.getClass());

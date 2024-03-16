@@ -1,11 +1,14 @@
 package com.revolsys.parallel.channel;
 
+import com.revolsys.parallel.ReentrantLockEx;
+import com.revolsys.util.BaseCloseable;
+
 public abstract class AbstractChannelOutput<T> implements ChannelOutput<T> {
   /** Flag indicating if the channel has been closed. */
   private boolean closed = false;
 
   /** The monitor reads must synchronize on */
-  private final Object monitor = new Object();
+  private final ReentrantLockEx lock = new ReentrantLockEx();
 
   /** The name of the channel. */
   private String name;
@@ -17,7 +20,7 @@ public abstract class AbstractChannelOutput<T> implements ChannelOutput<T> {
   private boolean writeClosed;
 
   /** The monitor writes must synchronize on */
-  private final Object writeMonitor = new Object();
+  private final ReentrantLockEx writeLock = new ReentrantLockEx();
 
   /**
    * Constructs a new Channel<T> with a ZeroBuffer ChannelValueStore.
@@ -59,8 +62,10 @@ public abstract class AbstractChannelOutput<T> implements ChannelOutput<T> {
    */
   @Override
   public void write(final T value) {
-    synchronized (this.writeMonitor) {
-      synchronized (this.monitor) {
+    try (
+      var wl = this.writeLock.lockX()) {
+      try (
+        var l = this.lock.lockX()) {
         if (this.closed) {
           throw new ClosedException();
         }
@@ -70,20 +75,22 @@ public abstract class AbstractChannelOutput<T> implements ChannelOutput<T> {
   }
 
   @Override
-  public void writeConnect() {
-    synchronized (this.monitor) {
+  public BaseCloseable writeConnect() {
+    try (
+      var l = this.lock.lockX()) {
       if (this.writeClosed) {
         throw new IllegalStateException("Cannot connect to a closed channel");
       } else {
         this.numWriters++;
       }
-
     }
+    return this::writeDisconnect;
   }
 
   @Override
   public void writeDisconnect() {
-    synchronized (this.monitor) {
+    try (
+      var l = this.lock.lockX()) {
       if (!this.writeClosed) {
         this.numWriters--;
         if (this.numWriters <= 0) {

@@ -108,7 +108,7 @@ public class JsonMapWriter extends AbstractMapWriter {
       JsonWriterUtil.write(this.out, values, indentString, isWriteNulls());
       newLine();
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 

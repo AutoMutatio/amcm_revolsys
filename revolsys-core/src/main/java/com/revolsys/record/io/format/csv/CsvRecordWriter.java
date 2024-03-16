@@ -58,7 +58,7 @@ public class CsvRecordWriter extends AbstractRecordWriter {
       }
       this.out.write(this.newLine);
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 
@@ -87,7 +87,7 @@ public class CsvRecordWriter extends AbstractRecordWriter {
       try {
         this.out.flush();
       } catch (final IOException e) {
-        throw Exceptions.wrap(e);
+        throw Exceptions.toRuntimeException(e);
       }
     }
 
@@ -210,7 +210,7 @@ public class CsvRecordWriter extends AbstractRecordWriter {
         }
         out.write(this.newLine);
       } catch (final IOException e) {
-        throw Exceptions.wrap(e);
+        throw Exceptions.toRuntimeException(e);
       }
     }
   }

@@ -189,7 +189,7 @@ public class EWktWriter {
           writer.write(';');
         }
       } catch (final IOException e) {
-        throw Exceptions.wrap(e);
+        throw Exceptions.toRuntimeException(e);
       }
 
       write(writer, geometry);
@@ -235,7 +235,7 @@ public class EWktWriter {
     try {
       write(out, lineal, axisCount);
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 
@@ -264,7 +264,7 @@ public class EWktWriter {
     try {
       write(out, line, axisCount);
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 
@@ -284,7 +284,7 @@ public class EWktWriter {
     try {
       write(out, line, axisCount);
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 
@@ -313,7 +313,7 @@ public class EWktWriter {
     try {
       write(out, point, axisCount);
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 
@@ -334,7 +334,7 @@ public class EWktWriter {
     try {
       write(out, polygon, axisCount);
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 
@@ -353,7 +353,7 @@ public class EWktWriter {
     try {
       write(out, polygonal, axisCount);
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 
@@ -381,7 +381,7 @@ public class EWktWriter {
     try {
       write(out, punctual, axisCount);
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 
@@ -479,7 +479,7 @@ public class EWktWriter {
     try {
       writeCCWGeometryCollection(out, multiGeometry, axisCount);
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 
@@ -506,7 +506,7 @@ public class EWktWriter {
     try {
       writeCCWPolygon(out, polygon, axisCount);
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 
@@ -525,7 +525,7 @@ public class EWktWriter {
     try {
       writeCCWPolygonal(out, polygonal, axisCount);
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 
@@ -607,7 +607,7 @@ public class EWktWriter {
     try {
       writeGeometryCollection(out, multiGeometry, axisCount);
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 

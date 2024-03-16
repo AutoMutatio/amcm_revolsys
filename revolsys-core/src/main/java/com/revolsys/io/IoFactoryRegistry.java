@@ -28,6 +28,8 @@ public class IoFactoryRegistry {
 
   static final Set<IoFactory> factories = new HashSet<>();
 
+  private static final ReentrantLockEx FACTORY_LOCK = new ReentrantLockEx();
+
   static {
     ServiceInitializer.initializeServices();
     try {
@@ -47,8 +49,6 @@ public class IoFactoryRegistry {
       Logs.error(IoFactoryRegistry.class, "Unable to read resources", e);
     }
   }
-
-  private static final ReentrantLockEx FACTORY_LOCK = new ReentrantLockEx();
 
   public static void addFactory(final IoFactory factory) {
     try (

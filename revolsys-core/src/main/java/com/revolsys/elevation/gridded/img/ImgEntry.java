@@ -68,7 +68,7 @@ class ImgEntry implements MapEx, MapSerializer {
     try {
       return (MapEx)super.clone();
     } catch (final CloneNotSupportedException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 

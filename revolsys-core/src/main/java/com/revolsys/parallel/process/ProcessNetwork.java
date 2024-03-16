@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.locks.Condition;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -52,12 +53,10 @@ public class ProcessNetwork {
         processNetwork.addProcess(() -> {
           while (true) {
             V value;
-            synchronized (values) {
-              if (iterator.hasNext()) {
-                value = iterator.next();
-              } else {
-                return;
-              }
+            if (iterator.hasNext()) {
+              value = iterator.next();
+            } else {
+              return;
             }
             action.accept(value);
           }
@@ -145,7 +144,9 @@ public class ProcessNetwork {
 
   private boolean stopping = false;
 
-  private final Object sync = new Object();
+  private final ReentrantLockEx lock = new ReentrantLockEx();
+
+  private final Condition lockCondition = this.lock.newCondition();
 
   private ThreadGroup threadGroup;
 
@@ -188,7 +189,8 @@ public class ProcessNetwork {
   }
 
   public ProcessNetwork addProcess(final Process process) {
-    synchronized (this.sync) {
+    try (
+      var l = this.lock.lockX()) {
       if (this.stopping) {
         return this;
       } else {
@@ -247,7 +249,8 @@ public class ProcessNetwork {
   }
 
   private void finishRunning() {
-    synchronized (this.sync) {
+    try (
+      var l = this.lock.lockX()) {
       this.running = false;
       this.processes.clear();
     }
@@ -274,7 +277,7 @@ public class ProcessNetwork {
   }
 
   protected Object getSync() {
-    return this.sync;
+    return this.lock;
   }
 
   public ThreadGroup getThreadGroup() {
@@ -297,7 +300,8 @@ public class ProcessNetwork {
   }
 
   void removeProcess(final Process process) {
-    synchronized (this.sync) {
+    try (
+      var l = this.lock.lockX()) {
       if (this.processes != null) {
         this.processes.remove(process);
         this.count--;
@@ -309,7 +313,7 @@ public class ProcessNetwork {
         }
         if (this.count == 0) {
           finishRunning();
-          this.sync.notifyAll();
+          this.lockCondition.signalAll();
         }
       } else {
         this.parent.removeProcess(process);
@@ -337,7 +341,8 @@ public class ProcessNetwork {
 
   public ProcessNetwork start() {
     if (this.parent == null) {
-      synchronized (this.sync) {
+      try (
+        var l = this.lock.lockX()) {
         this.running = true;
         if (this.processes != null) {
           for (final Process process : new ArrayList<>(this.processes.keySet())) {
@@ -393,7 +398,8 @@ public class ProcessNetwork {
   }
 
   public void startAndWait() {
-    synchronized (this.sync) {
+    try (
+      var l = this.lock.lockX()) {
       start();
       waitTillFinished();
     }
@@ -402,9 +408,10 @@ public class ProcessNetwork {
   @PreDestroy
   public void stop() {
     final List<Thread> threads;
-    synchronized (this.sync) {
+    try (
+      var l = this.lock.lockX()) {
       this.stopping = true;
-      this.sync.notifyAll();
+      this.lockCondition.signalAll();
       threads = new ArrayList<>(this.processes.values());
     }
     boolean interrupted = false;
@@ -439,7 +446,8 @@ public class ProcessNetwork {
         }
       }
       if (interrupted) {
-        Thread.currentThread().interrupt();
+        Thread.currentThread()
+          .interrupt();
       }
     } finally {
       finishRunning();
@@ -453,13 +461,14 @@ public class ProcessNetwork {
 
   public void waitTillFinished() {
     if (this.parent == null) {
-      synchronized (this.sync) {
+      try (
+        var l = this.lock.lockX()) {
         try {
           while (!this.stopping && this.count > 0) {
             try {
-              this.sync.wait();
+              this.lockCondition.await();
             } catch (final InterruptedException e) {
-              Exceptions.throwUncheckedException(e);
+              throw Exceptions.toRuntimeException(e);
             }
           }
         } finally {

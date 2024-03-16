@@ -54,7 +54,7 @@ public interface Jsonable {
       Writer writer = JavaIo.createWriter(target)) {
       appendJson(writer);
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
 
   }

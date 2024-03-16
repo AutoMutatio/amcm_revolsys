@@ -80,7 +80,7 @@ public class TsvWriter implements BaseCloseable {
       }
       this.out.write(this.newLine);
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 }

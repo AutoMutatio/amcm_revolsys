@@ -64,7 +64,7 @@ public abstract class AbstractLineString implements LineString {
     try {
       return (LineString)super.clone();
     } catch (final CloneNotSupportedException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 

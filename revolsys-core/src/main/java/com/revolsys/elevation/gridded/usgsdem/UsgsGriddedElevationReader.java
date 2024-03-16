@@ -83,7 +83,7 @@ public class UsgsGriddedElevationReader extends BaseObjectWithProperties
     try {
       this.channel.close();
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 
@@ -359,7 +359,7 @@ public class UsgsGriddedElevationReader extends BaseObjectWithProperties
 
       return elevationModel;
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 
@@ -563,7 +563,7 @@ public class UsgsGriddedElevationReader extends BaseObjectWithProperties
         close();
       } catch (final Exception e1) {
       }
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 

@@ -37,14 +37,14 @@ public class ResourceEndianOutput implements EndianOutput {
     try {
       this.out.close();
     } catch (final Throwable e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     } finally {
       if (!(this.resource instanceof PathResource)) {
         try {
           IoUtil.copy(this.file, this.resourceOut);
           this.resourceOut.flush();
         } catch (final Throwable e) {
-          throw Exceptions.wrap(e);
+          throw Exceptions.toRuntimeException(e);
         } finally {
           BaseCloseable.closeSilent(this.resourceOut);
           if (!(this.resource instanceof PathResource)) {

@@ -23,7 +23,9 @@ public class ApacheEntityInputStream extends DelegatingInputStream {
     try {
       super.close();
     } finally {
-      BaseCloseable.closeSilent(this.client);
+      if (this.client != null) {
+        BaseCloseable.closeSilent(this.client);
+      }
     }
   }
 }

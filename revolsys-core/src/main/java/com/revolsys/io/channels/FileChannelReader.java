@@ -34,7 +34,7 @@ public class FileChannelReader extends AbstractDataReader implements BaseCloseab
       try {
         this.channel.close();
       } catch (final IOException e) {
-        throw Exceptions.wrap(e);
+        throw Exceptions.toRuntimeException(e);
       } finally {
         super.close();
       }
@@ -55,7 +55,7 @@ public class FileChannelReader extends AbstractDataReader implements BaseCloseab
         return Arrays.copyOf(bytes, count);
       }
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 
@@ -87,7 +87,7 @@ public class FileChannelReader extends AbstractDataReader implements BaseCloseab
           offset += count;
         }
       } catch (final IOException e) {
-        throw Exceptions.wrap(e);
+        throw Exceptions.toRuntimeException(e);
       }
     } while (buffer.hasRemaining());
     buffer.flip();
@@ -122,7 +122,7 @@ public class FileChannelReader extends AbstractDataReader implements BaseCloseab
     try {
       this.position = this.channel.size() - distance;
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 

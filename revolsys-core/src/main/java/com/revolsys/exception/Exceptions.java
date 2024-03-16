@@ -5,8 +5,13 @@ import java.io.InterruptedIOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
+import java.net.SocketTimeoutException;
+import java.net.http.HttpConnectTimeoutException;
+import java.net.http.HttpTimeoutException;
 import java.nio.channels.ClosedByInterruptException;
+import java.sql.SQLTimeoutException;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 
 public interface Exceptions {
   @SuppressWarnings("unchecked")
@@ -70,8 +75,30 @@ public interface Exceptions {
   }
 
   static boolean isInterruptException(final Throwable e) {
-    return hasCause(e, InterruptedException.class) || hasCause(e, InterruptedIOException.class)
-      || hasCause(e, ClosedByInterruptException.class);
+    if (hasCause(e, InterruptedException.class) || hasCause(e, InterruptedIOException.class)
+      || hasCause(e, ClosedByInterruptException.class)
+      || hasCause(e, WrappedInterruptedException.class)) {
+      return true;
+    } else {
+      final var ioe = getCause(e, IOException.class);
+      if (ioe != null) {
+        if ("Closed by interrupt".equals(ioe.getMessage())) {
+          return true;
+        }
+      }
+      return false;
+    }
+  }
+
+  static boolean isTimeoutException(final Throwable e) {
+    if (hasCause(e, WrappedTimeoutException.class) || hasCause(e, SocketTimeoutException.class)
+      || hasCause(e, HttpConnectTimeoutException.class) || hasCause(e, HttpTimeoutException.class)
+      || hasCause(e, SQLTimeoutException.class) || hasCause(e, SQLTimeoutException.class)
+      || hasCause(e, TimeoutException.class)) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   @SuppressWarnings("unchecked")
@@ -80,34 +107,27 @@ public interface Exceptions {
     return (T)throwUncheckedException(cause);
   }
 
-  static <V> V throwUncheckedException(final InterruptedException e) {
-    throw new WrappedInterruptedException(e);
-  }
-
-  @SuppressWarnings("unchecked")
   static <T> T throwUncheckedException(final Throwable e) {
     if (e == null) {
       return null;
-    } else if (e instanceof InvocationTargetException) {
-      return (T)throwCauseException(e);
-    } else if (e instanceof ExecutionException) {
-      return (T)throwCauseException(e);
-    } else if (e instanceof RuntimeException) {
-      throw (RuntimeException)e;
     } else if (e instanceof Error) {
       throw (Error)e;
     } else {
-      throw wrap(e);
+      throw toRuntimeException(e);
     }
   }
 
   static RuntimeException toRuntimeException(final Throwable e) {
     if (e == null) {
       return null;
+    } else if (isTimeoutException(e)) {
+      return new WrappedTimeoutException(e);
+    } else if (isInterruptException(e)) {
+      return new WrappedInterruptedException(e);
+    } else if (hasCause(e, IOException.class)) {
+      return new WrappedIoException(e);
     } else if (e instanceof RuntimeException) {
       throw (RuntimeException)e;
-    } else if (e instanceof InterruptedException) {
-      throw new WrappedInterruptedException(e);
     } else if (e instanceof InvocationTargetException) {
       final Throwable cause = e.getCause();
       return toRuntimeException(cause);
@@ -115,7 +135,7 @@ public interface Exceptions {
       final Throwable cause = e.getCause();
       return toRuntimeException(cause);
     } else {
-      throw wrap(e);
+      throw new WrappedRuntimeException(e);
     }
   }
 
@@ -157,26 +177,14 @@ public interface Exceptions {
   }
 
   static WrappedRuntimeException wrap(final String message, final Throwable e) {
-    if (hasCause(e, InterruptedException.class)) {
-      return new WrappedInterruptedException(message, e);
-    } else if (hasCause(e, InterruptedIOException.class)) {
+    if (isTimeoutException(e)) {
+      return new WrappedTimeoutException(message, e);
+    } else if (isInterruptException(e)) {
       return new WrappedInterruptedException(message, e);
     } else if (hasCause(e, IOException.class)) {
       return new WrappedIoException(message, e);
     } else {
       return new WrappedRuntimeException(message, e);
-    }
-  }
-
-  static WrappedRuntimeException wrap(final Throwable e) {
-    if (hasCause(e, InterruptedException.class)) {
-      return new WrappedInterruptedException(e);
-    } else if (hasCause(e, InterruptedIOException.class)) {
-      return new WrappedInterruptedException(e);
-    } else if (hasCause(e, IOException.class)) {
-      return new WrappedIoException(e);
-    } else {
-      return new WrappedRuntimeException(e);
     }
   }
 }
