@@ -356,41 +356,44 @@ public class ProcessNetwork {
   }
 
   private synchronized void start(final Process process) {
-    if (this.parent == null) {
-      if (this.processes != null) {
-        Thread thread = this.processes.get(process);
-        if (thread == null) {
-          final Process runProcess;
-          if (process instanceof TargetBeanProcess) {
-            final TargetBeanProcess targetBeanProcess = (TargetBeanProcess)process;
-            runProcess = targetBeanProcess.getProcess();
-            this.processes.remove(process);
-          } else {
-            runProcess = process;
-          }
-          final String name = runProcess.toString();
-          final Runnable runnable = () -> {
-            try {
-              runProcess.run();
-            } catch (final Throwable e) {
-              Logs.error(this, e);
-            } finally {
-              try {
-                removeProcess(runProcess);
-              } finally {
-                runProcess.close();
-              }
+    try (
+      var l = this.lock.lockX()) {
+      if (this.parent == null) {
+        if (this.processes != null) {
+          Thread thread = this.processes.get(process);
+          if (thread == null) {
+            final Process runProcess;
+            if (process instanceof TargetBeanProcess) {
+              final TargetBeanProcess targetBeanProcess = (TargetBeanProcess)process;
+              runProcess = targetBeanProcess.getProcess();
+              this.processes.remove(process);
+            } else {
+              runProcess = process;
             }
-          };
-          if (name == null) {
-            thread = new Thread(this.threadGroup, runnable);
-          } else {
-            thread = new Thread(this.threadGroup, runnable, name);
-          }
-          this.processes.put(runProcess, thread);
-          if (!thread.isAlive()) {
-            thread.start();
-            this.count++;
+            final String name = runProcess.toString();
+            final Runnable runnable = () -> {
+              try {
+                runProcess.run();
+              } catch (final Throwable e) {
+                Logs.error(this, e);
+              } finally {
+                try {
+                  removeProcess(runProcess);
+                } finally {
+                  runProcess.close();
+                }
+              }
+            };
+            if (name == null) {
+              thread = new Thread(this.threadGroup, runnable);
+            } else {
+              thread = new Thread(this.threadGroup, runnable, name);
+            }
+            this.processes.put(runProcess, thread);
+            if (!thread.isAlive()) {
+              thread.start();
+              this.count++;
+            }
           }
         }
       }

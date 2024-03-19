@@ -3,14 +3,24 @@ package com.revolsys.parallel.channel;
 import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
+import java.util.function.Consumer;
 
 import com.revolsys.exception.Exceptions;
 import com.revolsys.exception.WrappedInterruptedException;
 import com.revolsys.parallel.ReentrantLockEx;
+import com.revolsys.parallel.channel.store.IterableStore;
 import com.revolsys.parallel.channel.store.ZeroBuffer;
 import com.revolsys.util.BaseCloseable;
+import com.revolsys.util.ExitLoopException;
 
-public class Channel<T> implements SelectableChannelInput<T>, ChannelOutput<T> {
+public class Channel<T> implements SelectableChannelInput<T>, ChannelOutput<T>, Iterable<T> {
+  public static <V> Channel<V> fromIterable(final Iterable<V> data) {
+    final var store = new IterableStore<>(data);
+    final var channel = new Channel<>(store);
+    channel.writeClosed = true;
+    return channel;
+  }
+
   /** The Alternative class which will control the selection */
   protected MultiInputSelector alt;
 
@@ -89,6 +99,17 @@ public class Channel<T> implements SelectableChannelInput<T>, ChannelOutput<T> {
       } else {
         return true;
       }
+    }
+  }
+
+  @Override
+  public void forEach(final Consumer<? super T> action) {
+    try {
+      while (!isClosed()) {
+        final var url = read();
+        action.accept(url);
+      }
+    } catch (final ExitLoopException | ClosedException e) {
     }
   }
 
