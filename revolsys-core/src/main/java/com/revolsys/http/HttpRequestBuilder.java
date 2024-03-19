@@ -121,6 +121,9 @@ public class HttpRequestBuilder {
   public static final ScopedValue<LazyValueHolder<HttpClient>> JDK_CLIENT = ScopedValue
     .newInstance();
 
+  public static final long CONNECT_TIMEOUT = Duration.ofMinutes(5)
+    .toMillis();
+
   public static HttpRequestBuilder copy(final HttpRequest request) {
     Args.notNull(request, "HTTP request");
     return HttpRequestBuilderFactory.FACTORY.newRequestBuilder()
@@ -229,7 +232,7 @@ public class HttpRequestBuilder {
 
   public static HttpClient newHttpClient() {
     return HttpClient.newBuilder()
-      .connectTimeout(Duration.ofMinutes(1))
+      .connectTimeout(Duration.ofMillis(CONNECT_TIMEOUT))
       .followRedirects(Redirect.NORMAL)
       .executor(Executors.newVirtualThreadPerTaskExecutor())
       .build();
@@ -421,7 +424,7 @@ public class HttpRequestBuilder {
   public HttpUriRequest build() {
     getFactory().preBuild(this);
     setConfig(RequestConfig.custom()
-      .setConnectTimeout(30000)
+      .setConnectTimeout((int)CONNECT_TIMEOUT)
       .build());
     final HttpRequestBase result;
     URI uri = this.uri;
@@ -459,7 +462,7 @@ public class HttpRequestBuilder {
   public java.net.http.HttpRequest buildJdk() {
     getFactory().preBuild(this);
     setConfig(RequestConfig.custom()
-      .setConnectTimeout(60000)
+      .setConnectTimeout((int)CONNECT_TIMEOUT)
       .build());
     URI uri = this.uri;
     if (uri == null) {
