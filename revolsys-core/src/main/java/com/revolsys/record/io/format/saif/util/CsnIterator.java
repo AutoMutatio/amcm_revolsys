@@ -35,6 +35,7 @@ import java.util.Set;
 import java.util.Stack;
 
 import com.revolsys.io.FileUtil;
+import com.revolsys.io.IoUtil;
 
 public class CsnIterator {
   public static final int ATTRIBUTE_NAME = 7;
@@ -125,7 +126,7 @@ public class CsnIterator {
   private Object value;
 
   public CsnIterator(final File file) throws IOException {
-    this(FileUtil.getFileName(file), new FileReader(file));
+    this(IoUtil.getFileName(file), new FileReader(file));
   }
 
   public CsnIterator(final String fileName, final InputStream in) throws IOException {

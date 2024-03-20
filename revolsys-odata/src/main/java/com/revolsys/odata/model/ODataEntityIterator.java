@@ -18,15 +18,11 @@ import com.revolsys.record.Record;
 import com.revolsys.record.io.RecordReader;
 import com.revolsys.record.query.Query;
 import com.revolsys.record.schema.RecordStore;
-import com.revolsys.record.schema.TableRecordStoreConnection;
-import com.revolsys.transaction.Transaction;
 import com.revolsys.util.BaseCloseable;
 import com.revolsys.util.UriBuilder;
 
 public class ODataEntityIterator extends AbstractEntityCollection
   implements BaseCloseable, Iterator<Entity> {
-
-  private Transaction transaction;
 
   private RecordReader reader;
 
@@ -48,20 +44,17 @@ public class ODataEntityIterator extends AbstractEntityCollection
 
   private Query countQuery;
 
-  private final TableRecordStoreConnection connection;
-
   private boolean countLoaded;
 
   private Integer count;
 
   public ODataEntityIterator(final ODataRequest request, final UriInfo uriInfo,
-    final EdmEntitySet edmEntitySet, final ODataEntityType entityType,
-    final TableRecordStoreConnection connection) throws ODataApplicationException {
+    final EdmEntitySet edmEntitySet, final ODataEntityType entityType)
+    throws ODataApplicationException {
     this.request = request;
     this.uriInfo = uriInfo;
     this.entityType = entityType;
-    this.connection = connection;
-    final Query query = entityType.newQuery(uriInfo);
+    final Query query = entityType.newQuery(request, uriInfo);
 
     final CountOption countOption = this.uriInfo.getCountOption();
     if (countOption == null) {
@@ -79,11 +72,7 @@ public class ODataEntityIterator extends AbstractEntityCollection
   @Override
   public void close() {
     if (this.reader != null) {
-      try {
-        this.reader.close();
-      } finally {
-        this.transaction.close();
-      }
+      this.reader.close();
     }
   }
 
@@ -91,12 +80,11 @@ public class ODataEntityIterator extends AbstractEntityCollection
   public Integer getCount() {
     if (!this.countLoaded) {
       this.countLoaded = true;
-      try (
-        Transaction transaction = this.connection.newTransaction()) {
+      this.request.getConnection().transactionRun(() -> {
         final RecordStore recordStore = this.entityType.getRecordStore();
         final Integer count = recordStore.getRecordCount(this.countQuery);
         this.count = count;
-      }
+      });
     }
     return this.count;
   }
@@ -113,9 +101,8 @@ public class ODataEntityIterator extends AbstractEntityCollection
 
   private Iterator<Record> getIterator() {
     if (this.reader == null) {
-      this.transaction = this.connection.newTransaction();
-      final RecordStore recordStore = this.entityType.getRecordStore();
-      this.reader = recordStore.getRecords(this.query);
+      this.reader = this.request.getConnection()
+        .transactionCall(() -> this.entityType.getRecordStore().getRecords(this.query));
       this.iterator = this.reader.iterator();
     }
     return this.iterator;

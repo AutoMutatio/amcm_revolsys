@@ -25,7 +25,6 @@ import com.revolsys.geometry.model.LineString;
 import com.revolsys.geometry.model.LinearRing;
 import com.revolsys.geometry.model.Point;
 import com.revolsys.geometry.model.Polygon;
-import com.revolsys.io.FileUtil;
 import com.revolsys.logging.Logs;
 import com.revolsys.net.urlcache.FileResponseCache;
 import com.revolsys.record.ArrayRecord;
@@ -199,7 +198,7 @@ public class ArcGisRestServerFeatureReader extends AbstractRecordReader {
 
   @Override
   protected void closeDo() {
-    FileUtil.closeSilent(this.parser);
+    BaseCloseable.closeSilent(this.parser);
     this.parser = null;
     this.geometryConverter = null;
     this.geometryFactory = null;
@@ -363,7 +362,7 @@ public class ArcGisRestServerFeatureReader extends AbstractRecordReader {
       this.resource = this.layer.getResource("query", this.queryParameters);
       try (
         BaseCloseable noCache = FileResponseCache.disable()) {
-        this.parser = new JsonParser(this.resource);
+        this.parser = new JsonParser(this.resource.newReader());
       }
       if (!this.parser.skipToAttribute("features")) {
         throw new NoSuchElementException();

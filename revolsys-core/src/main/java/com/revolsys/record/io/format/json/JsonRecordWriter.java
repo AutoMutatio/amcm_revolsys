@@ -13,13 +13,13 @@ import com.revolsys.data.type.DataType;
 import com.revolsys.data.type.DataTypes;
 import com.revolsys.exception.Exceptions;
 import com.revolsys.io.AbstractRecordWriter;
-import com.revolsys.io.FileUtil;
 import com.revolsys.io.IoConstants;
 import com.revolsys.number.Numbers;
 import com.revolsys.record.Record;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordDefinitionProxy;
+import com.revolsys.util.BaseCloseable;
 
 public class JsonRecordWriter extends AbstractRecordWriter {
 
@@ -80,7 +80,7 @@ public class JsonRecordWriter extends AbstractRecordWriter {
       }
     } catch (final IOException e) {
     } finally {
-      FileUtil.closeSilent(this.out);
+      BaseCloseable.closeSilent(this.out);
       this.out = null;
     }
   }
@@ -254,7 +254,7 @@ public class JsonRecordWriter extends AbstractRecordWriter {
       }
       endObject();
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 
@@ -298,7 +298,7 @@ public class JsonRecordWriter extends AbstractRecordWriter {
       }
       endObject();
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 

@@ -48,16 +48,15 @@ public final class RecordStoreConnectionForm extends Form {
   private static final long serialVersionUID = 2750736040832727823L;
 
   public static void addHandlers() {
-    RecordStoreConnectionManager.setInvalidRecordStoreFunction((connection, exception) -> {
-      return Invoke.andWait(() -> {
+    RecordStoreConnectionManager
+      .setInvalidRecordStoreFunction((connection, exception) -> Invoke.andWait(() -> {
         final RecordStoreConnectionRegistry registry = connection.getRegistry();
         final RecordStoreConnectionForm form = new RecordStoreConnectionForm(registry, connection,
           exception);
         return form.showDialog();
-      });
-    });
+      }));
 
-    RecordStoreConnectionManager.setMissingRecordStoreFunction((name) -> {
+    RecordStoreConnectionManager.setMissingRecordStoreFunction(name -> {
       final RecordStoreConnectionRegistry registry = RecordStoreConnectionManager.get()
         .getUserConnectionRegistry();
       Invoke.andWait(() -> {
@@ -138,9 +137,7 @@ public final class RecordStoreConnectionForm extends Form {
 
       final ComboBox<String> connectionNamesField = ComboBox.newComboBox("namedConnection",
         connectionNames);
-      connectionNamesField.addItemListener((e) ->
-
-      {
+      connectionNamesField.addItemListener(e -> {
         if (e.getStateChange() == ItemEvent.SELECTED) {
           final String connectionName = (String)e.getItem();
           if (connectionName != null) {

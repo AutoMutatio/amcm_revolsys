@@ -39,7 +39,7 @@ public abstract class AbstractUpdateField extends BaseDialog {
   private static final long serialVersionUID = 1L;
 
   protected static EnableCheck newEnableCheck() {
-    final EnableCheck enableCheck = MenuFactory.enableCheck((object) -> {
+    final EnableCheck enableCheck = MenuFactory.enableCheck(object -> {
       if (object instanceof RecordLayerTable) {
         final RecordLayerTable table = (RecordLayerTable)object;
         final int columnIndex = TablePanel.getEventColumn();

@@ -18,9 +18,9 @@ import com.revolsys.geometry.model.LineString;
 import com.revolsys.geometry.model.Point;
 import com.revolsys.geometry.model.Polygon;
 import com.revolsys.geometry.model.impl.LineStringDouble;
-import com.revolsys.io.FileUtil;
 import com.revolsys.io.IoConstants;
 import com.revolsys.spring.resource.Resource;
+import com.revolsys.util.BaseCloseable;
 
 public class GeoJsonGeometryReader extends AbstractIterator<Geometry> implements GeometryReader {
 
@@ -29,13 +29,13 @@ public class GeoJsonGeometryReader extends AbstractIterator<Geometry> implements
   private JsonParser in;
 
   public GeoJsonGeometryReader(final Resource resource, final MapEx properties) {
-    this.in = new JsonParser(resource);
+    this.in = new JsonParser(resource.newReader());
     setProperties(properties);
   }
 
   @Override
   protected void closeDo() {
-    FileUtil.closeSilent(this.in);
+    BaseCloseable.closeSilent(this.in);
     this.geometryFactory = null;
     this.in = null;
   }

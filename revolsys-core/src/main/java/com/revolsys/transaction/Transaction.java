@@ -1,210 +1,276 @@
 package com.revolsys.transaction;
 
+import java.lang.ScopedValue.Carrier;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.function.Consumer;
-import java.util.function.Function;
-
-import org.springframework.lang.Nullable;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionDefinition;
-import org.springframework.transaction.support.DefaultTransactionStatus;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import com.revolsys.exception.Exceptions;
 import com.revolsys.util.BaseCloseable;
 
-public class Transaction implements BaseCloseable, TransactionDefinition {
+public class Transaction {
+  public interface Builder {
 
-  private static ThreadLocal<Transaction> currentTransaction = new ThreadLocal<>();
+    <V> V call(Callable<V> action);
 
-  public static void afterCommit(final Runnable runnable) {
-    if (runnable != null) {
-      if (TransactionSynchronizationManager.isSynchronizationActive()) {
-        final RunnableAfterCommit synchronization = new RunnableAfterCommit(runnable);
-        TransactionSynchronizationManager.registerSynchronization(synchronization);
+    void run(RunAction action);
+  }
+
+  static class MandatoryBuilder implements Builder {
+    @Override
+    public <V> V call(final Callable<V> action) {
+      if (hasContext()) {
+        try {
+          return action.call();
+        } catch (final Exception e) {
+          return Exceptions.throwUncheckedException(e);
+        }
       } else {
-        runnable.run();
+        throw new IllegalStateException(
+          "Propagation Mandatory must run inside an existing transaction");
+      }
+    }
+
+    @Override
+    public void run(final RunAction action) {
+      if (hasContext()) {
+        try {
+          action.run();
+        } catch (final Exception e) {
+          Exceptions.throwUncheckedException(e);
+        }
+      } else {
+        throw new IllegalStateException(
+          "Propagation Mandatory must run inside an existing transaction");
       }
     }
   }
 
-  public static void assertInTransaction() {
-    assert currentTransaction.get() != null : "Must be called in a transaction";
-  }
-
-  public static Transaction getCurrentTransaction() {
-    return currentTransaction.get();
-  }
-
-  public static boolean isHasCurrentTransaction() {
-    return getCurrentTransaction() != null;
-  }
-
-  public static void setCurrentRollbackOnly() {
-    final Transaction transaction = currentTransaction.get();
-    if (transaction != null) {
-      transaction.setRollbackOnly();
-    }
-  }
-
-  private Transaction previousTransaction;
-
-  private PlatformTransactionManager transactionManager;
-
-  private DefaultTransactionStatus transactionStatus;
-
-  private Propagation propagation = Propagation.REQUIRES_NEW;
-
-  private Isolation isolation = Isolation.DEFAULT;
-
-  private int timeout = TIMEOUT_DEFAULT;
-
-  private boolean readOnly;
-
-  private boolean rollbackOnly = false;
-
-  @Nullable
-  private String name;
-
-  public Transaction(final PlatformTransactionManager transactionManager,
-    final TransactionOption... options) {
-    for (final TransactionOption option : options) {
-      option.initialize(this);
-    }
-    this.transactionManager = transactionManager;
-    if (transactionManager == null) {
-      this.transactionStatus = null;
-    } else {
-      this.transactionStatus = (DefaultTransactionStatus)transactionManager.getTransaction(this);
-      if (this.rollbackOnly) {
-        this.transactionStatus.setRollbackOnly();
+  static class NeverBuilder implements Builder {
+    @Override
+    public <V> V call(final Callable<V> action) {
+      if (hasContext()) {
+        throw new IllegalStateException(
+          "Propagation Mandatory must run inside an existing transaction");
+      } else {
+        try {
+          return action.call();
+        } catch (final Exception e) {
+          return Exceptions.throwUncheckedException(e);
+        }
       }
     }
-    this.previousTransaction = getCurrentTransaction();
-    currentTransaction.set(this);
-  }
 
-  @Override
-  public void close() throws RuntimeException {
-    commit();
-    currentTransaction.set(this.previousTransaction);
-    this.transactionManager = null;
-    this.previousTransaction = null;
-    this.transactionStatus = null;
-  }
-
-  protected void commit() {
-    final DefaultTransactionStatus transactionStatus = this.transactionStatus;
-    if (this.transactionManager != null && transactionStatus != null) {
-      if (!transactionStatus.isCompleted()) {
-        if (transactionStatus.isRollbackOnly()) {
-          rollback();
-        } else {
-          try {
-            this.transactionManager.commit(transactionStatus);
-          } catch (final Throwable e) {
-            Exceptions.throwUncheckedException(e);
-          }
+    @Override
+    public void run(final RunAction action) {
+      if (hasContext()) {
+        throw new IllegalStateException(
+          "Propagation Mandatory must run inside an existing transaction");
+      } else {
+        try {
+          action.run();
+        } catch (final Exception e) {
+          Exceptions.throwUncheckedException(e);
         }
       }
     }
   }
 
-  public void execute(final Consumer<Transaction> action) {
-    try {
-      action.accept(this);
-    } catch (final Throwable e) {
-      setRollbackOnly(e);
+  static class NotSupportedBuilder implements Builder {
+    private static final Carrier EMPTY_CARRIER = ScopedValue.where(CONTEXT, EMPTY);
+
+    @Override
+    public <V> V call(final Callable<V> action) {
+      try (
+        var s = suspend()) {
+        try {
+          return EMPTY_CARRIER.call(action);
+        } catch (final Throwable t) {
+          return EMPTY.setRollbackOnly(t);
+        }
+      }
+    }
+
+    @Override
+    public void run(final RunAction action) {
+      try (
+        var s = suspend()) {
+        final Runnable runnable = runnable(EMPTY, action);
+        EMPTY_CARRIER.run(runnable);
+      }
     }
   }
 
-  public <V> V execute(final Function<Transaction, V> action) {
-    try {
-      return action.apply(this);
-    } catch (final Throwable e) {
-      throw setRollbackOnly(e);
+  public static class RequiredBuilder implements Builder {
+    private final List<Consumer<ActiveTransactionContext>> initializers = new ArrayList<>();
+
+    public RequiredBuilder addInit(final Consumer<ActiveTransactionContext> initializer) {
+      this.initializers.add(initializer);
+      return this;
+    }
+
+    @Override
+    public <V> V call(final Callable<V> action) {
+      if (hasContext()) {
+        try {
+          return action.call();
+        } catch (final Exception e) {
+          return Exceptions.throwUncheckedException(e);
+        }
+      } else {
+        try (
+          var context = new ActiveTransactionContext(this.initializers)) {
+          try {
+            return ScopedValue.where(CONTEXT, context).call(action);
+          } catch (final Throwable t) {
+            return context.setRollbackOnly(t);
+          }
+        }
+      }
+    }
+
+    @Override
+    public void run(final RunAction action) {
+      if (hasContext()) {
+        try {
+          action.run();
+        } catch (final Exception e) {
+          Exceptions.throwUncheckedException(e);
+        }
+      } else {
+        try (
+          var context = new ActiveTransactionContext(this.initializers)) {
+          final Runnable runnable = runnable(context, action);
+          ScopedValue.where(CONTEXT, context).run(runnable);
+        }
+      }
+    }
+
+  }
+
+  public static class RequiresNewBuilder extends TransactionDefinition<RequiresNewBuilder>
+    implements Builder {
+    private final List<Consumer<ActiveTransactionContext>> initializers = new ArrayList<>();
+
+    public RequiresNewBuilder addInit(final Consumer<ActiveTransactionContext> initializer) {
+      this.initializers.add(initializer);
+      return this;
+    }
+
+    @Override
+    public <V> V call(final Callable<V> action) {
+      try (
+        var s = suspend();
+        ActiveTransactionContext context = new ActiveTransactionContext(this, this.initializers)) {
+        try {
+          return ScopedValue.where(CONTEXT, context).call(action);
+        } catch (final Throwable t) {
+          return context.setRollbackOnly(t);
+        }
+      }
+    }
+
+    @Override
+    public void run(final RunAction action) {
+      try (
+        var s = suspend();
+        ActiveTransactionContext context = new ActiveTransactionContext(this, this.initializers)) {
+        final Runnable runnable = runnable(context, action);
+        ScopedValue.where(CONTEXT, context).run(runnable);
+      }
     }
   }
 
-  @Override
-  public int getIsolationLevel() {
-    return this.isolation.value();
+  public interface RunAction {
+    void run() throws Exception;
   }
 
-  @Override
-  public int getPropagationBehavior() {
-    return this.propagation.value();
+  static class SupportsBuilder implements Builder {
+
+    @Override
+    public <V> V call(final Callable<V> action) {
+      try {
+        return action.call();
+      } catch (final Exception e) {
+        return Exceptions.throwUncheckedException(e);
+      }
+    }
+
+    @Override
+    public void run(final RunAction action) {
+      try {
+        action.run();
+      } catch (final Exception e) {
+        Exceptions.throwUncheckedException(e);
+      }
+    }
   }
 
-  @Override
-  public int getTimeout() {
-    return this.timeout;
-  }
+  private static final TransactionContext EMPTY = new EmptyTransactionContext();
 
-  public PlatformTransactionManager getTransactionManager() {
-    return this.transactionManager;
-  }
+  static final ScopedValue<TransactionContext> CONTEXT = ScopedValue.newInstance();
 
-  public DefaultTransactionStatus getTransactionStatus() {
-    return this.transactionStatus;
-  }
-
-  public boolean isCompleted() {
-    if (this.transactionStatus == null) {
-      return true;
+  public static void afterCommit(final Runnable action) {
+    final TransactionContext context = getContext();
+    if (context instanceof final ActiveTransactionContext activeContext) {
+      activeContext.addAfterCommit(action);
     } else {
-      return this.transactionStatus.isCompleted();
+      action.run();
     }
   }
 
-  public boolean isPropagation(final Propagation propagation) {
-    return propagation == this.propagation;
+  public static void assertInTransaction() {
+    assert !isActive() : "Must be called in a transaction";
   }
 
-  @Override
-  public boolean isReadOnly() {
-    return this.readOnly;
+  public static TransactionContext getContext() {
+    return CONTEXT.orElse(EMPTY);
   }
 
-  public boolean isRollbackOnly() {
-    if (this.transactionStatus == null) {
-      return isReadOnly();
+  public static boolean hasContext() {
+    return CONTEXT.isBound();
+  }
+
+  public static boolean isActive() {
+    return hasContext() && CONTEXT.get().isActive();
+  }
+
+  public static void rollback() {
+    getContext().setRollbackOnly();
+  }
+
+  public static <V> V rollback(final Throwable e) {
+    getContext().setRollbackOnly(e);
+    return null;
+  }
+
+  protected static <C extends TransactionContext> Runnable runnable(final C context,
+    final RunAction action) {
+    return () -> {
+      try {
+        action.run();
+      } catch (final Throwable t) {
+        context.setRollbackOnly(t);
+      }
+    };
+  }
+
+  private static BaseCloseable suspend() {
+    final TransactionContext context = getContext();
+    if (context instanceof final ActiveTransactionContext mapContext) {
+      return mapContext.suspend();
     } else {
-      return this.transactionStatus.isRollbackOnly();
+      return BaseCloseable.EMPTY;
     }
   }
 
-  protected void rollback() {
-    if (this.transactionManager != null && this.transactionStatus != null) {
-      this.transactionManager.rollback(this.transactionStatus);
-    }
+  public static TransactionBuilder transaction() {
+    return TransactionBuilder.BUILDER;
   }
 
-  public void setIsolation(final Isolation isolation) {
-    this.isolation = isolation;
+  static Carrier where(final TransactionContext context) {
+    return ScopedValue.where(CONTEXT, context);
   }
 
-  void setPropagation(final Propagation propagation) {
-    this.propagation = propagation;
-  }
-
-  void setReadOnly(final boolean readOnly) {
-    this.readOnly = readOnly;
-  }
-
-  public Transaction setRollbackOnly() {
-    this.rollbackOnly = true;
-    if (this.transactionStatus != null) {
-      this.transactionStatus.setRollbackOnly();
-    }
-    return this;
-  }
-
-  public RuntimeException setRollbackOnly(final Throwable e) {
-    setRollbackOnly();
-    return Exceptions.throwUncheckedException(e);
-  }
-
-  void setTimeout(final int timeout) {
-    this.timeout = timeout;
-  }
 }

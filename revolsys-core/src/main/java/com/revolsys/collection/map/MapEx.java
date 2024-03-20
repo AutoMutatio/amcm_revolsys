@@ -9,7 +9,6 @@ import com.revolsys.collection.json.JsonObject;
 import com.revolsys.data.type.DataType;
 import com.revolsys.data.type.DataTypedValue;
 import com.revolsys.logging.Logs;
-import com.revolsys.record.Record;
 import com.revolsys.util.Property;
 
 public interface MapEx extends MapDefault<String, CharSequence, Object, MapEx>, DataTypedValue {
@@ -47,18 +46,7 @@ public interface MapEx extends MapDefault<String, CharSequence, Object, MapEx>, 
     Object propertyValue = this;
     for (int i = 0; i < propertyPath.length && propertyValue != null; i++) {
       final String propertyName = propertyPath[i];
-      if (propertyValue instanceof Record) {
-        final Record record = (Record)propertyValue;
-
-        if (record.hasField(propertyName)) {
-          propertyValue = record.getValue(propertyName);
-          if (propertyValue == null) {
-            return null;
-          }
-        } else {
-          return null;
-        }
-      } else if (propertyValue instanceof Map) {
+      if (propertyValue instanceof Map) {
         final Map<String, Object> map = (Map<String, Object>)propertyValue;
         propertyValue = map.get(propertyName);
         if (propertyValue == null) {

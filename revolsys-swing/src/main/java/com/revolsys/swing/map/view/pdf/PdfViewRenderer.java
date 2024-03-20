@@ -104,7 +104,7 @@ public class PdfViewRenderer extends ViewRenderer {
 
         contentStream.restoreGraphicsState();
       } catch (final IOException e) {
-        throw Exceptions.wrap(e);
+        throw Exceptions.toRuntimeException(e);
       }
     }
 
@@ -216,7 +216,7 @@ public class PdfViewRenderer extends ViewRenderer {
           this.pdfImage = LosslessFactory.createFromImage(PdfViewRenderer.this.document,
             bufferedImage);
         } catch (final IOException e) {
-          throw Exceptions.wrap(e);
+          throw Exceptions.toRuntimeException(e);
         }
       }
     }
@@ -227,7 +227,7 @@ public class PdfViewRenderer extends ViewRenderer {
         try {
           PdfViewRenderer.this.contentStream.drawImage(this.pdfImage, 0f, 0f);
         } catch (final IOException e) {
-          throw Exceptions.wrap(e);
+          throw Exceptions.toRuntimeException(e);
         }
       }
     }
@@ -317,7 +317,7 @@ public class PdfViewRenderer extends ViewRenderer {
       try {
         PdfViewRenderer.this.contentStream.restoreGraphicsState();
       } catch (final IOException e) {
-        throw Exceptions.wrap(e);
+        throw Exceptions.toRuntimeException(e);
       }
     }
 
@@ -350,7 +350,7 @@ public class PdfViewRenderer extends ViewRenderer {
         contentStream.setNonStrokingColor(style.getMarkerFill());
         return this;
       } catch (final IOException e) {
-        throw Exceptions.wrap(e);
+        throw Exceptions.toRuntimeException(e);
       }
     }
   }
@@ -481,7 +481,7 @@ public class PdfViewRenderer extends ViewRenderer {
 
         contentStream.restoreGraphicsState();
       } catch (final IOException e) {
-        throw Exceptions.wrap(e);
+        throw Exceptions.toRuntimeException(e);
       }
     }
 
@@ -538,7 +538,7 @@ public class PdfViewRenderer extends ViewRenderer {
             }
 
           } catch (final IOException e) {
-            throw Exceptions.wrap(e);
+            throw Exceptions.toRuntimeException(e);
           }
         }, viewBoundingBox, viewWidth, viewHeight, useTransform);
       }
@@ -593,7 +593,7 @@ public class PdfViewRenderer extends ViewRenderer {
         }
         contentStream.restoreGraphicsState();
       } catch (final IOException e) {
-        throw Exceptions.wrap(e);
+        throw Exceptions.toRuntimeException(e);
       }
     }
   }
@@ -873,7 +873,7 @@ public class PdfViewRenderer extends ViewRenderer {
         this.contentStream.endMarkedContent();
       }
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 

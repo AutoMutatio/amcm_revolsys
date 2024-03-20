@@ -1069,7 +1069,7 @@ public interface Point extends Punctual, Serializable, BoundingBox {
   default Point newGeometry(GeometryFactory geometryFactory) {
     final GeometryFactory sourceGeometryFactory = getGeometryFactory();
     if (geometryFactory == null) {
-      return this.clone();
+      return clone();
     } else if (isEmpty()) {
       return geometryFactory.point();
     } else {

@@ -11,6 +11,6 @@ public class TableRecordStoreUpdateStatement extends UpdateStatement {
 
   @Override
   public int updateRecords() {
-    return this.connection.transactionExecute(t -> (Integer)super.updateRecords());
+    return this.connection.transactionCall(super::updateRecords);
   }
 }

@@ -10,6 +10,7 @@ import javax.measure.UnitConverter;
 import javax.measure.quantity.Angle;
 import javax.measure.quantity.Length;
 
+import com.revolsys.collection.map.LazyValueMap;
 import com.revolsys.geometry.coordinatesystem.model.datum.GeodeticDatum;
 import com.revolsys.geometry.coordinatesystem.model.systems.EpsgCoordinateSystems;
 import com.revolsys.geometry.coordinatesystem.model.unit.AngularUnit;
@@ -29,7 +30,8 @@ public class GeographicCoordinateSystem extends AbstractHorizontalCoordinateSyst
     }
   }
 
-  private Map<GeographicCoordinateSystem, GeographicCoordinateSystemGridShiftOperation> gridShiftOperationsByCoordinateSystem;
+  private Map<GeographicCoordinateSystem, GeographicCoordinateSystemGridShiftOperation> gridShiftOperationsByCoordinateSystem = new LazyValueMap<>(
+    this::newGridShiftOperations);
 
   private final AngularUnit angularUnit;
 
@@ -78,7 +80,8 @@ public class GeographicCoordinateSystem extends AbstractHorizontalCoordinateSyst
   protected void addConversionOperation(final List<CoordinatesOperation> operations,
     final GeographicCoordinateSystem targetGeoCs, final AngularUnit sourceAngularUnit,
     final AngularUnit targetAngularUnit) {
-    if (this != targetGeoCs && this.gridShiftOperationsByCoordinateSystem != null) {
+    if (this != targetGeoCs
+      && this.gridShiftOperationsByCoordinateSystem.containsKey(targetGeoCs)) {
       final GeographicCoordinateSystemGridShiftOperation gridShiftOperation = this.gridShiftOperationsByCoordinateSystem
         .get(targetGeoCs);
       if (gridShiftOperation != null) {
@@ -115,17 +118,13 @@ public class GeographicCoordinateSystem extends AbstractHorizontalCoordinateSyst
     targetProjCs.addProjectionOperations(operations);
   }
 
-  public synchronized void addGridShiftOperation(final GeographicCoordinateSystem coordinateSystem,
+  public void addGridShiftOperation(final GeographicCoordinateSystem coordinateSystem,
     final HorizontalShiftOperation operation) {
     if (this.gridShiftOperationsByCoordinateSystem == null) {
       this.gridShiftOperationsByCoordinateSystem = new HashMap<>();
     }
-    GeographicCoordinateSystemGridShiftOperation operations = this.gridShiftOperationsByCoordinateSystem
+    final GeographicCoordinateSystemGridShiftOperation operations = this.gridShiftOperationsByCoordinateSystem
       .get(coordinateSystem);
-    if (operations == null) {
-      operations = new GeographicCoordinateSystemGridShiftOperation(this, coordinateSystem);
-      this.gridShiftOperationsByCoordinateSystem.put(coordinateSystem, operations);
-    }
     operations.addOperation(operation);
   }
 
@@ -287,14 +286,17 @@ public class GeographicCoordinateSystem extends AbstractHorizontalCoordinateSyst
     return false;
   }
 
-  public synchronized void removeGridShiftOperation(
-    final GeographicCoordinateSystem coordinateSystem, final HorizontalShiftOperation operation) {
-    if (this.gridShiftOperationsByCoordinateSystem != null) {
-      final GeographicCoordinateSystemGridShiftOperation operations = this.gridShiftOperationsByCoordinateSystem
-        .get(coordinateSystem);
-      if (operations != null) {
-        operations.removeOperation(operation);
-      }
+  private GeographicCoordinateSystemGridShiftOperation newGridShiftOperations(
+    final GeographicCoordinateSystem coordinateSystem) {
+    return new GeographicCoordinateSystemGridShiftOperation(this, coordinateSystem);
+  }
+
+  public void removeGridShiftOperation(final GeographicCoordinateSystem coordinateSystem,
+    final HorizontalShiftOperation operation) {
+    final GeographicCoordinateSystemGridShiftOperation operations = this.gridShiftOperationsByCoordinateSystem
+      .get(coordinateSystem);
+    if (operations != null) {
+      operations.removeOperation(operation);
     }
   }
 

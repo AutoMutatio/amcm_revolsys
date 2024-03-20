@@ -167,6 +167,11 @@ public abstract class AbstractCodeTable extends BaseObjectWithPropertiesAndChang
     this.valueFieldDefinition = valueFieldDefinition;
   }
 
+  @Override
+  public String toString() {
+    return this.name;
+  }
+
   protected void updateMaxId(final Number id) {
     final long longValue = id.longValue();
     if (longValue > this.maxId) {

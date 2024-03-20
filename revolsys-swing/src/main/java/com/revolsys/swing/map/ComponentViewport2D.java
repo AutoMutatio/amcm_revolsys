@@ -10,6 +10,7 @@ import javax.measure.Unit;
 import javax.measure.quantity.Length;
 import javax.swing.JComponent;
 
+import com.revolsys.collection.value.GlobalBooleanValue;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.swing.map.layer.Layer;
@@ -19,7 +20,6 @@ import com.revolsys.swing.map.view.graphics.Graphics2DViewRenderer;
 import com.revolsys.swing.parallel.Invoke;
 import com.revolsys.util.BaseCloseable;
 import com.revolsys.util.Property;
-import com.revolsys.value.GlobalBooleanValue;
 
 public class ComponentViewport2D extends Viewport2D implements PropertyChangeListener {
 

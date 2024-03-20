@@ -68,7 +68,7 @@ public interface RecordLayerFieldUiFactory extends RecordLayerProxy {
         bindings.put("fieldName", fieldName);
         factory = (Function<O, F>)engine.eval(script, bindings);
       } catch (final ScriptException e) {
-        throw Exceptions.wrap(e);
+        throw Exceptions.toRuntimeException(e);
       }
     }
     return factory.apply(owner);
@@ -113,7 +113,7 @@ public interface RecordLayerFieldUiFactory extends RecordLayerProxy {
         bindings.put("fieldName", fieldName);
         factory = (Supplier<F>)engine.eval(script, bindings);
       } catch (final ScriptException e) {
-        throw Exceptions.wrap(e);
+        throw Exceptions.toRuntimeException(e);
       }
     }
     return factory.get();

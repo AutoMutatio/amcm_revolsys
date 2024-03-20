@@ -1,5 +1,6 @@
 package com.revolsys.record;
 
+import java.io.IOException;
 import java.sql.Clob;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -17,6 +18,8 @@ import java.util.function.Consumer;
 
 import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.json.JsonType;
+import com.revolsys.collection.json.JsonWritable;
+import com.revolsys.collection.json.JsonWriter;
 import com.revolsys.collection.json.Jsonable;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.comparator.CompareUtil;
@@ -26,6 +29,7 @@ import com.revolsys.data.identifier.ListIdentifier;
 import com.revolsys.data.identifier.TypedIdentifier;
 import com.revolsys.data.type.DataType;
 import com.revolsys.data.type.DataTypes;
+import com.revolsys.exception.Exceptions;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.BoundingBoxProxy;
 import com.revolsys.geometry.model.Geometry;
@@ -41,7 +45,7 @@ import com.revolsys.util.Property;
 import com.revolsys.util.Strings;
 
 public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordDefinitionProxy,
-  BoundingBoxProxy, Jsonable {
+  BoundingBoxProxy, Jsonable, JsonWritable {
   String EVENT_RECORD_CHANGED = "_recordChanged";
 
   String EXCLUDE_GEOMETRY = Record.class.getName() + ".excludeGeometry";
@@ -128,12 +132,16 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
   static String toString(final Record record) {
     final RecordDefinition recordDefinition = record.getRecordDefinition();
     final StringBuilder s = new StringBuilder();
-    s.append(recordDefinition.getPath()).append("(\n");
+    s.append(recordDefinition.getPath())
+      .append("(\n");
     for (int i = 0; i < recordDefinition.getFieldCount(); i++) {
       final Object value = record.getValue(i);
       if (value != null) {
         final String fieldName = recordDefinition.getFieldName(i);
-        s.append(fieldName).append('=').append(value).append('\n');
+        s.append(fieldName)
+          .append('=')
+          .append(value)
+          .append('\n');
       }
     }
     s.append(')');
@@ -481,7 +489,8 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
     } else {
       if (map instanceof Record) {
         final Record record = (Record)map;
-        if (!record.getPathName().equals(getPathName())) {
+        if (!record.getPathName()
+          .equals(getPathName())) {
           return false;
         }
       }
@@ -915,7 +924,8 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
     final int fieldIndex = getFieldIndex(path);
     if (fieldIndex == -1) {
       final RecordDefinition recordDefinition = getRecordDefinition();
-      final String[] propertyPath = path.toString().split("\\.");
+      final String[] propertyPath = path.toString()
+        .split("\\.");
       Object propertyValue = this;
       for (int i = 0; i < propertyPath.length && propertyValue != null; i++) {
         final String propertyName = propertyPath[i];
@@ -1099,8 +1109,9 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
     } else if (excludeFieldNames.contains(Record.EXCLUDE_ID)
       && ("OBJECTID".equals(fieldName) || recordDefinition.isIdField(fieldName))) {
       return true;
-    } else if (excludeFieldNames.contains(Record.EXCLUDE_GEOMETRY) && ("OBJECTID".equals(fieldName)
-      || recordDefinition.getGeometryFieldNames().contains(fieldName))) {
+    } else if (excludeFieldNames.contains(Record.EXCLUDE_GEOMETRY)
+      && ("OBJECTID".equals(fieldName) || recordDefinition.getGeometryFieldNames()
+        .contains(fieldName))) {
       return true;
     } else {
       return false;
@@ -1125,20 +1136,18 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
       if (this == record) {
         return true;
       } else {
-        synchronized (this) {
-          if (record.getRecordDefinition() == getRecordDefinition()) {
-            final Identifier id = getIdentifier();
-            final Identifier otherId = record.getIdentifier();
-            if (id == null || otherId == null) {
-              return false;
-            } else if (DataType.equal(id, otherId)) {
-              return true;
-            } else {
-              return false;
-            }
+        if (record.getRecordDefinition() == getRecordDefinition()) {
+          final Identifier id = getIdentifier();
+          final Identifier otherId = record.getIdentifier();
+          if (id == null || otherId == null) {
+            return false;
+          } else if (DataType.equal(id, otherId)) {
+            return true;
           } else {
             return false;
           }
+        } else {
+          return false;
         }
       }
     }
@@ -1523,6 +1532,30 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
     if (field != null) {
       final Object value = getValue(fieldIndex);
       field.validate(this, value);
+    }
+  }
+
+  @Override
+  default void write(final JsonWriter writer) {
+    try {
+      writer.startObject();
+      final RecordDefinition recordDefinition = getRecordDefinition();
+      final List<FieldDefinition> fieldDefinitions = recordDefinition.getFieldDefinitions();
+
+      for (final FieldDefinition field : fieldDefinitions) {
+        final int fieldIndex = field.getIndex();
+        final Object value = getValue(fieldIndex);
+        if (Property.hasValue(value)) {
+          final String name = field.getName();
+          writer.label(name);
+
+          final DataType dataType = field.getDataType();
+          writer.value(dataType, value);
+        }
+      }
+      writer.endObject();
+    } catch (final IOException e) {
+      throw Exceptions.toRuntimeException(e);
     }
   }
 }

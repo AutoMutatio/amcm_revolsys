@@ -21,6 +21,7 @@ import javax.swing.JPanel;
 import javax.swing.WindowConstants;
 
 import com.revolsys.collection.map.Maps;
+import com.revolsys.collection.value.ThreadBooleanValue;
 import com.revolsys.data.type.DataType;
 import com.revolsys.logging.Logs;
 import com.revolsys.swing.Dialogs;
@@ -32,7 +33,6 @@ import com.revolsys.swing.parallel.Invoke;
 import com.revolsys.util.BaseCloseable;
 import com.revolsys.util.Pair;
 import com.revolsys.util.Property;
-import com.revolsys.value.ThreadBooleanValue;
 
 public class Form extends BasePanel {
   private static final long serialVersionUID = 1L;

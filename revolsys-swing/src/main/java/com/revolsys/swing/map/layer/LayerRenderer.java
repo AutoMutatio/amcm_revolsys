@@ -7,7 +7,7 @@ import javax.swing.Icon;
 
 import com.revolsys.beans.PropertyChangeSupportProxy;
 import com.revolsys.data.type.DataType;
-import com.revolsys.io.map.MapSerializer;
+import com.revolsys.io.MapSerializer;
 import com.revolsys.properties.ObjectWithProperties;
 import com.revolsys.swing.component.Form;
 import com.revolsys.swing.map.view.ViewRenderer;

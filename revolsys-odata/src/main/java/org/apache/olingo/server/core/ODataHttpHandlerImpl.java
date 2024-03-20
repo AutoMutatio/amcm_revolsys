@@ -225,6 +225,7 @@ public class ODataHttpHandlerImpl implements ODataHttpHandler {
   private ODataRequest fillODataRequest(final ODataRequest odRequest,
     final HttpServletRequest httpRequest, final int split) throws ODataLibraryException {
     try {
+      odRequest.setAttributes(httpRequest::getAttribute);
       odRequest.setBody(httpRequest.getInputStream());
       odRequest.setProtocol(httpRequest.getProtocol());
       odRequest.setMethod(extractMethod(httpRequest));

@@ -14,8 +14,7 @@ import com.revolsys.collection.list.Lists;
 import com.revolsys.data.type.DataType;
 import com.revolsys.data.type.DataTypes;
 import com.revolsys.exception.Exceptions;
-import com.revolsys.io.FileUtil;
-import com.revolsys.io.map.MapSerializer;
+import com.revolsys.io.MapSerializer;
 import com.revolsys.number.Doubles;
 import com.revolsys.number.Numbers;
 import com.revolsys.record.Record;
@@ -87,7 +86,7 @@ public class JsonWriter implements BaseCloseable {
     try {
       this.encodingOut.append(string);
     } catch (final Exception e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 
@@ -105,13 +104,13 @@ public class JsonWriter implements BaseCloseable {
           }
           out.flush();
         } catch (final Exception e) {
-          throw Exceptions.wrap(e);
+          throw Exceptions.toRuntimeException(e);
         }
         this.depthStack.clear();
         this.depth = 0;
       } finally {
         if (this.closeTargetWriter) {
-          FileUtil.closeSilent(out);
+          BaseCloseable.closeSilent(out);
         }
       }
     }
@@ -124,7 +123,7 @@ public class JsonWriter implements BaseCloseable {
         this.out.write(',');
         setState(JsonWriterState.END_ATTRIBUTE);
       } catch (final Exception e) {
-        throw Exceptions.wrap(e);
+        throw Exceptions.toRuntimeException(e);
       }
     }
   }
@@ -155,7 +154,7 @@ public class JsonWriter implements BaseCloseable {
           out.write("  ");
         }
       } catch (final Exception e) {
-        throw Exceptions.wrap(e);
+        throw Exceptions.toRuntimeException(e);
       }
     }
   }
@@ -174,7 +173,7 @@ public class JsonWriter implements BaseCloseable {
       this.out.write(": ");
       setState(JsonWriterState.LABEL);
     } catch (final Exception e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 
@@ -203,7 +202,7 @@ public class JsonWriter implements BaseCloseable {
     try {
       this.out.write('\n');
     } catch (final Exception e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 
@@ -211,7 +210,7 @@ public class JsonWriter implements BaseCloseable {
     try {
       this.out.write(value);
     } catch (final Exception e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 
@@ -220,7 +219,7 @@ public class JsonWriter implements BaseCloseable {
       try {
         this.out.write(value.toString());
       } catch (final Exception e) {
-        throw Exceptions.wrap(e);
+        throw Exceptions.toRuntimeException(e);
       }
     }
   }
@@ -287,7 +286,7 @@ public class JsonWriter implements BaseCloseable {
         out.write('"');
       }
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 
@@ -375,7 +374,7 @@ public class JsonWriter implements BaseCloseable {
         value(DataTypes.toString(value));
       }
     } catch (final Exception e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
     setState(JsonWriterState.VALUE);
   }
@@ -447,7 +446,7 @@ public class JsonWriter implements BaseCloseable {
       }
       endObject();
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 
@@ -457,7 +456,7 @@ public class JsonWriter implements BaseCloseable {
       final char c = state.getChar();
       this.out.write(c);
     } catch (final Exception e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 }

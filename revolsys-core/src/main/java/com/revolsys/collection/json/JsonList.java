@@ -206,7 +206,7 @@ public interface JsonList extends ListEx<Object>, JsonType {
       appendable.append(']');
       return appendable;
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 

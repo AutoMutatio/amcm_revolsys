@@ -57,7 +57,7 @@ public class UuidNamespace {
       digester.update(this.namespaceBytes);
       return new UuidBuilder(this.type, digester);
     } catch (final NoSuchAlgorithmException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 
@@ -74,7 +74,7 @@ public class UuidNamespace {
       final byte[] digest = digester.digest();
       return UuidNamespace.toUuid(this.type, digest);
     } catch (final NoSuchAlgorithmException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 

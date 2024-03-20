@@ -30,6 +30,7 @@ import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.io.PathName;
 import com.revolsys.io.map.MapObjectFactory;
 import com.revolsys.logging.Logs;
+import com.revolsys.parallel.ReentrantLockEx;
 import com.revolsys.record.ArrayRecord;
 import com.revolsys.record.Record;
 import com.revolsys.record.RecordFactory;
@@ -124,6 +125,8 @@ public class RecordDefinitionImpl extends AbstractRecordStoreSchemaElement
 
   private GeometryFactory geometryFactory;
 
+  private final ReentrantLockEx lock = new ReentrantLockEx();
+
   public RecordDefinitionImpl() {
     super(null, (PathName)null);
   }
@@ -182,8 +185,10 @@ public class RecordDefinitionImpl extends AbstractRecordStoreSchemaElement
   }
 
   public RecordDefinitionImpl(final RecordDefinition recordDefinition) {
-    this(recordDefinition.getPathName(), recordDefinition.getProperties(),
-      recordDefinition.getFields());
+    this(
+      recordDefinition.getPathName(),
+        recordDefinition.getProperties(),
+        recordDefinition.getFields());
     setPolygonRingDirection(recordDefinition.getPolygonRingDirection());
     setIdFieldIndex(recordDefinition.getIdFieldIndex());
     this.codeTable = recordDefinition.getCodeTable();
@@ -237,52 +242,55 @@ public class RecordDefinitionImpl extends AbstractRecordStoreSchemaElement
     return this;
   }
 
-  public synchronized void addField(final FieldDefinition field) {
-    final int index = this.fieldNames.size();
-    final String name = field.getName();
-    String lowerName;
-    if (name == null) {
-      lowerName = null;
-    } else {
-      lowerName = name.toLowerCase();
-    }
+  public void addField(final FieldDefinition field) {
+    try (
+      var l = this.lock.lockX()) {
+      final int index = this.fieldNames.size();
+      final String name = field.getName();
+      String lowerName;
+      if (name == null) {
+        lowerName = null;
+      } else {
+        lowerName = name.toLowerCase();
+      }
 
-    final int fieldIndex = this.internalFields.size();
-    this.internalFieldNames.add(name);
-    this.fieldNames = Lists.unmodifiable(this.internalFieldNames);
-    this.fieldNamesSet = Sets.unmodifiableLinked(this.internalFieldNames);
-    this.internalFields.add(field);
-    this.fields = Lists.unmodifiable(this.internalFields);
-    this.fieldMap.put(name, field);
-    this.fieldMap.put(lowerName, field);
-    this.fieldIdMap.put(name, fieldIndex);
-    this.fieldIdMap.put(lowerName, fieldIndex);
-    final DataType dataType = field.getDataType();
-    if (dataType == null) {
-      Logs.debug(this, field.toString());
-    } else {
-      final Class<?> dataClass = dataType.getJavaClass();
-      if (Geometry.class.isAssignableFrom(dataClass)) {
-        this.geometryFieldDefinitionIndexes.add(index);
-        this.geometryFieldDefinitionNames.add(name);
-        GeometryFactory geometryFactory = field.getGeometryFactory();
-        if (geometryFactory == null && this.geometryFactory != null) {
-          geometryFactory = this.geometryFactory;
-          field.setGeometryFactory(geometryFactory);
-        }
-        if (this.geometryFieldDefinitionIndex == -1) {
-          this.geometryFieldDefinitionIndex = index;
-          if (this.geometryFactory == null) {
-            this.geometryFactory = geometryFactory;
+      final int fieldIndex = this.internalFields.size();
+      this.internalFieldNames.add(name);
+      this.fieldNames = Lists.unmodifiable(this.internalFieldNames);
+      this.fieldNamesSet = Sets.unmodifiableLinked(this.internalFieldNames);
+      this.internalFields.add(field);
+      this.fields = Lists.unmodifiable(this.internalFields);
+      this.fieldMap.put(name, field);
+      this.fieldMap.put(lowerName, field);
+      this.fieldIdMap.put(name, fieldIndex);
+      this.fieldIdMap.put(lowerName, fieldIndex);
+      final DataType dataType = field.getDataType();
+      if (dataType == null) {
+        Logs.debug(this, field.toString());
+      } else {
+        final Class<?> dataClass = dataType.getJavaClass();
+        if (Geometry.class.isAssignableFrom(dataClass)) {
+          this.geometryFieldDefinitionIndexes.add(index);
+          this.geometryFieldDefinitionNames.add(name);
+          GeometryFactory geometryFactory = field.getGeometryFactory();
+          if (geometryFactory == null && this.geometryFactory != null) {
+            geometryFactory = this.geometryFactory;
+            field.setGeometryFactory(geometryFactory);
           }
+          if (this.geometryFieldDefinitionIndex == -1) {
+            this.geometryFieldDefinitionIndex = index;
+            if (this.geometryFactory == null) {
+              this.geometryFactory = geometryFactory;
+            }
 
+          }
         }
       }
+      field.setIndex(index);
+      field.setRecordDefinition(this);
+      final CodeTable codeTable = field.getCodeTable();
+      addFieldCodeTable(name, codeTable);
     }
-    field.setIndex(index);
-    field.setRecordDefinition(this);
-    final CodeTable codeTable = field.getCodeTable();
-    addFieldCodeTable(name, codeTable);
   }
 
   /**
@@ -446,7 +454,8 @@ public class RecordDefinitionImpl extends AbstractRecordStoreSchemaElement
           return codeTable;
         }
       }
-      codeTable = this.codeTableByFieldNameMap.get(fieldName.toString().toUpperCase());
+      codeTable = this.codeTableByFieldNameMap.get(fieldName.toString()
+        .toUpperCase());
       if (codeTable == null && recordStore != null) {
         codeTable = recordStore.getCodeTableByFieldName(fieldName);
       }
@@ -692,7 +701,8 @@ public class RecordDefinitionImpl extends AbstractRecordStoreSchemaElement
       if (dataType.equals(GeometryDataTypes.GEOMETRY_COLLECTION)) {
         return "table_geometry";
       } else {
-        return "table_" + dataType.toString().toLowerCase();
+        return "table_" + dataType.toString()
+          .toLowerCase();
       }
     }
   }

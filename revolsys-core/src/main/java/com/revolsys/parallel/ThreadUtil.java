@@ -1,44 +1,42 @@
 package com.revolsys.parallel;
 
-import com.revolsys.exception.Exceptions;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Supplier;
+
+import com.revolsys.util.BaseCloseable;
 
 public class ThreadUtil {
 
   public static boolean isInterrupted() {
-    return Thread.currentThread().isInterrupted();
+    return Thread.currentThread()
+      .isInterrupted();
   }
 
-  public static void pause(final long milliSeconds) {
-    pause(new Object(), milliSeconds);
+  public static BaseCloseable lock(final ReentrantLock lock) {
+    lock.lock();
+    return lock::unlock;
   }
 
-  public static void pause(final Object object) {
-    synchronized (object) {
-      try {
-        object.wait();
-      } catch (final InterruptedException e) {
-        Exceptions.throwUncheckedException(e);
-      }
-    }
+  public static ExecutorService newVirtualThreadPerTaskExecutor(final String name) {
+    final ThreadFactory factory = Thread.ofVirtual()
+      .name(name)
+      .factory();
+    return Executors.newThreadPerTaskExecutor(factory);
   }
 
-  public static void pause(final Object object, final long milliSeconds) {
-    synchronized (object) {
-      try {
-        object.wait(milliSeconds);
-      } catch (final InterruptedException e) {
-        Exceptions.throwUncheckedException(e);
-      }
-    }
+  public static ExecutorService newVirtualThreadPerTaskExecutor(final String prefix,
+    final long start) {
+    final ThreadFactory factory = Thread.ofVirtual()
+      .name(prefix, start)
+      .factory();
+    return Executors.newThreadPerTaskExecutor(factory);
   }
 
-  public static void pause(final Object object, final long milliSeconds, final int nanoSeconds) {
-    synchronized (object) {
-      try {
-        object.wait(milliSeconds, nanoSeconds);
-      } catch (final InterruptedException e) {
-        Exceptions.throwUncheckedException(e);
-      }
-    }
+  public static Supplier<ExecutorService> supplyVirtualThreadPerTaskExecutor(final String prefix,
+    final long start) {
+    return () -> newVirtualThreadPerTaskExecutor(prefix, start);
   }
 }

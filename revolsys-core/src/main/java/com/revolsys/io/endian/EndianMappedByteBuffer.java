@@ -55,7 +55,7 @@ public class EndianMappedByteBuffer implements EndianInputOutput {
     try {
       this.randomAccessFile.close();
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 

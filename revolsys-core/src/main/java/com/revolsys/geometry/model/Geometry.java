@@ -921,7 +921,7 @@ public interface Geometry extends BoundingBoxProxy, Cloneable, Comparable<Object
 
   default Geometry difference(final Geometry other) {
     // special case: if A.isEmpty ==> empty; if B.isEmpty ==> A
-    if (this.isEmpty()) {
+    if (isEmpty()) {
       return OverlayOp.newEmptyResult(OverlayOp.DIFFERENCE, this, other, getGeometryFactory());
     } else if (other.isEmpty()) {
       return clone();
@@ -1897,7 +1897,7 @@ public interface Geometry extends BoundingBoxProxy, Cloneable, Comparable<Object
      * TODO: MD - add optimization for P-A case using Point-In-Polygon
      */
     final GeometryFactory geometryFactory = getGeometryFactory();
-    if (this.isEmpty() || geometry.isEmpty()) {
+    if (isEmpty() || geometry.isEmpty()) {
       // special case: if one input is empty ==> empty
       return OverlayOp.newEmptyResult(OverlayOp.INTERSECTION, this, geometry, geometryFactory);
     } else if (isHeterogeneousGeometryCollection()) {
@@ -2007,7 +2007,7 @@ public interface Geometry extends BoundingBoxProxy, Cloneable, Comparable<Object
    *      s are considered to be equal by the <code>equalsExact</code> method.
    */
   default boolean isEquivalentClass(final Geometry other) {
-    return this.getClass().getName().equals(other.getClass().getName());
+    return getClass().getName().equals(other.getClass().getName());
   }
 
   default boolean isGeometryCollection() {
@@ -2342,14 +2342,14 @@ public interface Geometry extends BoundingBoxProxy, Cloneable, Comparable<Object
 
   default Geometry symDifference(final Geometry other) {
     // handle empty geometry cases
-    if (this.isEmpty() || other.isEmpty()) {
+    if (isEmpty() || other.isEmpty()) {
       // both empty - check dimensions
-      if (this.isEmpty() && other.isEmpty()) {
+      if (isEmpty() && other.isEmpty()) {
         return OverlayOp.newEmptyResult(OverlayOp.SYMDIFFERENCE, this, other, getGeometryFactory());
       }
 
       // special case: if either input is empty ==> result = other arg
-      if (this.isEmpty()) {
+      if (isEmpty()) {
         return other.clone();
       }
       if (other.isEmpty()) {

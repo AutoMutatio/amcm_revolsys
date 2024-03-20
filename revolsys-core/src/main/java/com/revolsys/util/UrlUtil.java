@@ -636,7 +636,7 @@ public final class UrlUtil {
       final Path path = Paths.get(uri);
       return path.toFile();
     } catch (final URISyntaxException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 
@@ -661,7 +661,7 @@ public final class UrlUtil {
         return URI.create(string);
       }
     } catch (final Throwable e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 

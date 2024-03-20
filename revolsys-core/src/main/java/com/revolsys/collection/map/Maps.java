@@ -26,17 +26,11 @@ import com.revolsys.util.BaseCloneable;
 import com.revolsys.util.Property;
 
 public interface Maps {
-  public static final Supplier<Map<?, ?>> FACTORY_TREE = () -> {
-    return new TreeMap<>();
-  };
+  public static final Supplier<Map<?, ?>> FACTORY_TREE = TreeMap::new;
 
-  public static final Supplier<Map<?, ?>> FACTORY_LINKED_HASH = () -> {
-    return new LinkedHashMap<>();
-  };
+  public static final Supplier<Map<?, ?>> FACTORY_LINKED_HASH = LinkedHashMap::new;
 
-  public static final Supplier<Map<?, ?>> FACTORY_HASH = () -> {
-    return new HashMap<>();
-  };
+  public static final Supplier<Map<?, ?>> FACTORY_HASH = HashMap::new;
 
   static <K1, V> boolean addAllToSet(final Map<K1, Set<V>> map, final K1 key1,
     final Collection<? extends V> values) {
@@ -835,11 +829,9 @@ public interface Maps {
 
   static <K, V extends Comparable<V>> void putIfGreaterThan(final Map<K, V> map, final K key,
     final V value) {
-    synchronized (map) {
-      final V lastValue = map.get(key);
-      if (lastValue == null || value.compareTo(lastValue) > 1) {
-        map.put(key, value);
-      }
+    final V lastValue = map.get(key);
+    if (lastValue == null || value.compareTo(lastValue) > 1) {
+      map.put(key, value);
     }
   }
 
@@ -885,21 +877,17 @@ public interface Maps {
 
   static <K, V extends Comparable<V>> void removeIfGreaterThanEqual(final Map<K, V> map,
     final K key, final V value) {
-    synchronized (map) {
-      final V lastValue = map.get(key);
-      if (lastValue == null || value.compareTo(lastValue) >= 0) {
-        map.remove(key);
-      }
+    final V lastValue = map.get(key);
+    if (lastValue == null || value.compareTo(lastValue) >= 0) {
+      map.remove(key);
     }
   }
 
   static <K, V extends Comparable<V>> void removeIfLessThanEqual(final Map<K, V> map, final K key,
     final V value) {
-    synchronized (map) {
-      final V lastValue = map.get(key);
-      if (lastValue == null || value.compareTo(lastValue) <= 0) {
-        map.remove(key);
-      }
+    final V lastValue = map.get(key);
+    if (lastValue == null || value.compareTo(lastValue) <= 0) {
+      map.remove(key);
     }
   }
 

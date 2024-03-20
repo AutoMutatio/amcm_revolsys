@@ -51,10 +51,10 @@ public class ODataEntityProcessor extends AbstractProcessor implements EntityPro
 
   }
 
-  private Entity readEntity(final EdmEntitySet entitySet, final List<UriParameter> keyPredicates)
-    throws ODataApplicationException {
+  private Entity readEntity(final ODataRequest request, final EdmEntitySet entitySet,
+    final List<UriParameter> keyPredicates) throws ODataApplicationException {
     final ODataEntityType entityType = getEntityType(entitySet);
-    return entityType.readEntity(entitySet, keyPredicates, null);
+    return entityType.readEntity(request, entitySet, keyPredicates, null);
   }
 
   @Override
@@ -81,7 +81,7 @@ public class ODataEntityProcessor extends AbstractProcessor implements EntityPro
       responseEdmEntityType = startEdmEntitySet.getEntityType();
       responseEdmEntitySet = startEdmEntitySet;
       final List<UriParameter> keyPredicates = uriResourceEntitySet.getKeyPredicates();
-      responseEntity = readEntity(startEdmEntitySet, keyPredicates);
+      responseEntity = readEntity(request, startEdmEntitySet, keyPredicates);
     } else if (segmentCount == 2) { // navigation
       final UriResource navSegment = resourceParts.get(1);
       if (navSegment instanceof UriResourceNavigation) {
@@ -93,14 +93,15 @@ public class ODataEntityProcessor extends AbstractProcessor implements EntityPro
         final ODataEntityType targetEntityType = getEntityType(responseEdmEntitySet);
 
         final List<UriParameter> keyPredicates = uriResourceEntitySet.getKeyPredicates();
-        final Entity sourceEntity = readEntity(startEdmEntitySet, keyPredicates);
+        final Entity sourceEntity = readEntity(request, startEdmEntitySet, keyPredicates);
         final List<UriParameter> navKeyPredicates = uriResourceNavigation.getKeyPredicates();
         final String navigationPropertyName = edmNavigationProperty.getName();
         final ODataEntityType sourceEntityType = getEntityType(startEdmEntitySet);
         final ODataNavigationProperty navigationProperty = sourceEntityType
           .getNavigationProperty(navigationPropertyName);
         if (navKeyPredicates.isEmpty()) { // /Products(1)/Category
-          responseEntity = targetEntityType.getRelatedEntity(sourceEntity, navigationProperty);
+          responseEntity = targetEntityType.getRelatedEntity(request, sourceEntity,
+            navigationProperty);
         } else { // e.g. /Categories(3)/Products(5)
           // responseEntity = targetEntityType.getRelatedEntity(sourceEntity,
           // responseEdmEntityType,

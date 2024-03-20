@@ -13,7 +13,7 @@ public interface CharacterProcessor {
       try {
         string.append(c);
       } catch (final IOException e) {
-        throw Exceptions.wrap(e);
+        throw Exceptions.toRuntimeException(e);
       }
       return true;
     };
@@ -28,7 +28,7 @@ public interface CharacterProcessor {
         writer.write(c);
         return true;
       } catch (final IOException e) {
-        throw Exceptions.wrap(e);
+        throw Exceptions.toRuntimeException(e);
       }
     });
   }

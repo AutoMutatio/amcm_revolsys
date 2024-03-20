@@ -29,7 +29,7 @@ import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.json.JsonObjectHash;
 import com.revolsys.data.type.DataType;
 import com.revolsys.data.type.DataTypes;
-import com.revolsys.io.map.MapSerializer;
+import com.revolsys.io.MapSerializer;
 import com.revolsys.logging.Logs;
 import com.revolsys.properties.BaseObjectWithPropertiesAndChange;
 import com.revolsys.record.Record;

@@ -36,12 +36,10 @@ public interface WebMercatorTileCache {
 
   public static void factoryInit() {
     MapObjectFactoryRegistry.newFactory("webMercatorTileCacheLayer", "Web Mercator Tile Cache",
-      (config) -> {
-        return new WebMercatorTileCacheLayer(config);
-      });
+      WebMercatorTileCacheLayer::new);
 
     MenuFactory.addMenuInitializer(() -> {
-      MenuFactory.addMenuInitializer(BaseMapLayerGroup.class, (menu) -> {
+      MenuFactory.addMenuInitializer(BaseMapLayerGroup.class, menu -> {
         menu.addMenuItem("group", "Add Web Mercator Tile Cache Layer",
           Icons.getIconWithBadge("map", "add"), WebMercatorTileCache::actionAddLayer, false);
       });

@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.Writer;
 
 import com.revolsys.collection.json.JsonWriterUtil;
-import com.revolsys.io.FileUtil;
+import com.revolsys.util.BaseCloseable;
 
 public class JsonStringEncodingWriter extends Writer {
 
@@ -61,7 +61,7 @@ public class JsonStringEncodingWriter extends Writer {
 
   @Override
   public void close() {
-    FileUtil.closeSilent(this.out);
+    BaseCloseable.closeSilent(this.out);
     this.out = null;
   }
 

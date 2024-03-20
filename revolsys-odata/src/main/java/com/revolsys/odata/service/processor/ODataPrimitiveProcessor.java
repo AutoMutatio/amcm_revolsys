@@ -58,7 +58,7 @@ public class ODataPrimitiveProcessor extends AbstractProcessor implements Primit
     final EdmPrimitiveType edmPropertyType = (EdmPrimitiveType)edmProperty.getType();
 
     final ODataEntityType entityType = getEntityType(edmEntitySet);
-    final Property property = entityType.readPrimitive(edmEntitySet, keyPredicates,
+    final Property property = entityType.readPrimitive(request, edmEntitySet, keyPredicates,
       edmPropertyName);
 
     if (property == null) {

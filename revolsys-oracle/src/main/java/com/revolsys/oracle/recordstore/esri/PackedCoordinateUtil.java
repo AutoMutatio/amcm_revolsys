@@ -17,8 +17,8 @@ import com.revolsys.geometry.model.Polygonal;
 import com.revolsys.geometry.model.Punctual;
 import com.revolsys.geometry.model.impl.LineStringDouble;
 import com.revolsys.geometry.model.vertex.Vertex;
-import com.revolsys.io.FileUtil;
 import com.revolsys.logging.Logs;
+import com.revolsys.util.BaseCloseable;
 
 /**
  * NOTE -1 and 0 are before applying the scale factor
@@ -256,7 +256,7 @@ public class PackedCoordinateUtil {
     } catch (final IOException e) {
       throw new RuntimeException("Error reading coordinates", e);
     } finally {
-      FileUtil.closeSilent(inputStream);
+      BaseCloseable.closeSilent(inputStream);
     }
   }
 
@@ -471,7 +471,7 @@ public class PackedCoordinateUtil {
     } catch (final IOException e) {
       throw new RuntimeException("Error reading coordinates", e);
     } finally {
-      FileUtil.closeSilent(inputStream);
+      BaseCloseable.closeSilent(inputStream);
     }
   }
 
@@ -611,7 +611,7 @@ public class PackedCoordinateUtil {
     } catch (final IOException e) {
       throw new RuntimeException("Error reading coordinates", e);
     } finally {
-      FileUtil.closeSilent(inputStream);
+      BaseCloseable.closeSilent(inputStream);
     }
   }
 

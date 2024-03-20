@@ -35,8 +35,9 @@ public class BearerTokenRequestBuilderFactory extends HttpRequestBuilderFactory 
   }
 
   @Override
-  public HttpRequestBuilder newRequestBuilder() {
-    return new BearerTokenRequestBuilder(this);
+  public void preBuild(final HttpRequestBuilder requestBuilder) {
+    final String authorization = getAuthorizationHeader();
+    requestBuilder.addHeader("Authorization", authorization);
   }
 
   protected BearerToken refreshTokenDo(final BearerToken token) {

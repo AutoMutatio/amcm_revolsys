@@ -97,7 +97,7 @@ public class TiffYCbCrImage extends AbstractTiffImage {
         }
       }
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 }

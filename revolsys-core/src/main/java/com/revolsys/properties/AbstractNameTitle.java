@@ -2,7 +2,7 @@ package com.revolsys.properties;
 
 import java.util.Map;
 
-import com.revolsys.io.map.MapSerializer;
+import com.revolsys.io.MapSerializer;
 import com.revolsys.util.CaseConverter;
 
 public abstract class AbstractNameTitle extends BaseObjectWithPropertiesAndChange

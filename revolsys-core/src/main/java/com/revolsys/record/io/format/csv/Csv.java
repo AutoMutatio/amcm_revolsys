@@ -94,7 +94,7 @@ public class Csv extends AbstractRecordIoFactory implements RecordWriterFactory,
       final CsvMapIterator iterator = new CsvMapIterator(resource, FIELD_SEPARATOR);
       return new IteratorMapReader(iterator);
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 

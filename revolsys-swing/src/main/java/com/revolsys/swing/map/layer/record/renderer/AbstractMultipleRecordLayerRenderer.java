@@ -62,9 +62,7 @@ public abstract class AbstractMultipleRecordLayerRenderer extends AbstractRecord
     final Class<?> rendererClass, final Consumer<AbstractMultipleRecordLayerRenderer> consumer) {
     final String iconName = ("style_" + type + "_go").toLowerCase();
     final Predicate<AbstractMultipleRecordLayerRenderer> enabledFilter = (
-      final AbstractMultipleRecordLayerRenderer renderer) -> {
-      return renderer.getClass() != rendererClass;
-    };
+      final AbstractMultipleRecordLayerRenderer renderer) -> (renderer.getClass() != rendererClass);
     final String name = "Convert to " + type + " Style";
     menu.addMenuItem("convert", -1, name, iconName, enabledFilter, consumer, false);
   }

@@ -26,7 +26,7 @@ public class HttpThrottle {
     try {
       Thread.sleep(retryTime);
     } catch (final InterruptedException e1) {
-      Exceptions.throwUncheckedException(e1);
+      throw Exceptions.toRuntimeException(e1);
     } finally {
       try (
         var l = lock.lockX()) {
@@ -36,6 +36,7 @@ public class HttpThrottle {
   }
 
   public static JsonObject toJson() {
-    return JsonObject.hash("count", URLS.size()).addAll(URLS);
+    return JsonObject.hash("count", URLS.size())
+      .addAll(URLS);
   }
 }

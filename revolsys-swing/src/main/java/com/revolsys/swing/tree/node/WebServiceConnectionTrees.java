@@ -31,7 +31,7 @@ import com.revolsys.webservice.WebServiceResource;
 public class WebServiceConnectionTrees extends ConnectionManagerTrees {
 
   static {
-    MenuFactory.addMenuInitializer(WebServiceConnectionRegistry.class, (menu) -> {
+    MenuFactory.addMenuInitializer(WebServiceConnectionRegistry.class, menu -> {
 
       TreeNodes.addMenuItemNodeValue(menu, "default", 0, "Add ArcGIS REST Connection", "world:add",
         ConnectionRegistry::isEditable, WebServiceConnectionTrees::addArcGISRestConnection);
@@ -47,7 +47,7 @@ public class WebServiceConnectionTrees extends ConnectionManagerTrees {
     });
 
     // WebServiceConnection
-    MenuFactory.addMenuInitializer(WebServiceConnection.class, (menu) -> {
+    MenuFactory.addMenuInitializer(WebServiceConnection.class, menu -> {
       TreeNodes.addMenuItemNodeValue(menu, "default", 0, "Edit Connection", "world:edit",
         WebServiceConnection::isEditable, WebServiceConnectionTrees::editConnection);
       TreeNodes.<WebServiceConnection> addMenuItemNodeValue(menu, "default", 1, "Export Connection",

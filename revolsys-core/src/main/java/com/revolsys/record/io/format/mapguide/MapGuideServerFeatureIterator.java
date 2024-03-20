@@ -7,7 +7,6 @@ import javax.xml.namespace.QName;
 
 import com.revolsys.collection.iterator.AbstractIterator;
 import com.revolsys.geometry.model.GeometryFactory;
-import com.revolsys.io.FileUtil;
 import com.revolsys.logging.Logs;
 import com.revolsys.record.ArrayRecord;
 import com.revolsys.record.Record;
@@ -17,6 +16,7 @@ import com.revolsys.record.io.RecordReader;
 import com.revolsys.record.io.format.xml.stax.StaxReader;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.spring.resource.Resource;
+import com.revolsys.util.BaseCloseable;
 
 public class MapGuideServerFeatureIterator extends AbstractIterator<Record>
   implements RecordReader {
@@ -80,7 +80,7 @@ public class MapGuideServerFeatureIterator extends AbstractIterator<Record>
 
   @Override
   protected void closeDo() {
-    FileUtil.closeSilent(this.reader);
+    BaseCloseable.closeSilent(this.reader);
     this.reader = null;
     this.geometryFactory = null;
     this.queryParameters = null;

@@ -132,16 +132,12 @@ public class ProcessWindow extends JFrame {
     StyleConstants.setFontSize(style, 12);
     StyleConstants.setForeground(style, color);
     new Thread(() -> {
-      final Object sync = new Object();
       try {
         while (this.process.isAlive() || in.available() > 0) {
           try {
-            synchronized (sync) {
-              sync.wait(500);
-
-            }
+            Thread.sleep(500);
           } catch (final InterruptedException e) {
-            Exceptions.throwUncheckedException(e);
+            throw Exceptions.toRuntimeException(e);
           }
           final int byteCount = in.available();
           if (byteCount != 0) {
@@ -151,7 +147,8 @@ public class ProcessWindow extends JFrame {
             Invoke.later(() -> {
               try {
                 doc.insertString(doc.getLength(), input, style);
-                textArea.setCaretPosition(textArea.getDocument().getLength());
+                textArea.setCaretPosition(textArea.getDocument()
+                  .getLength());
               } catch (final Exception e) {
                 textArea.setText("\nConsole reports an Internal error.");
                 textArea.setText("The error is: " + e);
@@ -174,15 +171,16 @@ public class ProcessWindow extends JFrame {
     final InputStream errorStream = this.process.getErrorStream();
     newStreamThread(errorStream, "Error", Color.RED);
 
-    process.onExit().thenRun(() -> {
-      Invoke.later(() -> {
-        this.closeButton.setEnabled(true);
-        this.stopProcessButton.setEnabled(false);
-        this.statusLabel.setForeground(Color.red);
-        this.statusLabel.setText("Terminated");
-        setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+    process.onExit()
+      .thenRun(() -> {
+        Invoke.later(() -> {
+          this.closeButton.setEnabled(true);
+          this.stopProcessButton.setEnabled(false);
+          this.statusLabel.setForeground(Color.red);
+          this.statusLabel.setText("Terminated");
+          setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+        });
       });
-    });
   }
 
   public Process stopProcess() {

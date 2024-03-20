@@ -80,8 +80,6 @@ import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordDefinitionBuilder;
 import com.revolsys.record.schema.RecordStore;
-import com.revolsys.record.schema.TableRecordStoreConnection;
-import com.revolsys.transaction.Transaction;
 
 public class ODataEntityType extends CsdlEntityType {
 
@@ -140,8 +138,6 @@ public class ODataEntityType extends CsdlEntityType {
 
   private final ODataSchema schema;
 
-  private final TableRecordStoreConnection connection;
-
   private int maxLimit = 10000;
 
   private final AbstractODataEntitySet entitySet;
@@ -150,7 +146,6 @@ public class ODataEntityType extends CsdlEntityType {
     final String typeName, final PathName pathName) {
     setName(typeName);
     this.entitySet = entitySet;
-    this.connection = schema.getProvider().getTableRecordStoreConnection();
     this.schema = schema;
     this.pathName = pathName;
     final RecordDefinition recordDefinition = getRecordStore().getRecordDefinition(this.pathName);
@@ -321,10 +316,10 @@ public class ODataEntityType extends CsdlEntityType {
     return this.schema.getRecordStore();
   }
 
-  public Entity getRelatedEntity(final Entity entity,
+  public Entity getRelatedEntity(final ODataRequest request, final Entity entity,
     final ODataNavigationProperty navigationProperty) throws ODataApplicationException {
     final Condition where = navigationProperty.whereCondition(entity);
-    return readEntity(null, where);
+    return readEntity(request, null, where);
   }
 
   public Entity newEntity(final Record record) {
@@ -352,14 +347,14 @@ public class ODataEntityType extends CsdlEntityType {
     return entity;
   }
 
-  protected Query newQuery() {
-    return this.entitySet.newQuery();
+  protected Query newQuery(final ODataRequest request) {
+    return this.entitySet.newQuery(request);
   }
 
-  public Query newQuery(final UriInfo uriInfo) {
+  public Query newQuery(final ODataRequest request, final UriInfo uriInfo) {
     final RecordDefinition recordDefinition = this.recordDefinition;
 
-    final Query query = newQuery();
+    final Query query = newQuery(request);
     if (recordDefinition != null) {
       final SelectOption selectOption = uriInfo.getSelectOption();
       if (selectOption != null && !isAll(selectOption)) {
@@ -416,8 +411,9 @@ public class ODataEntityType extends CsdlEntityType {
     return this;
   }
 
-  public Entity readEntity(final EdmEntitySet edmEntitySet, final List<UriParameter> keyParams,
-    final List<String> propertyNames) throws ODataApplicationException {
+  public Entity readEntity(final ODataRequest request, final EdmEntitySet edmEntitySet,
+    final List<UriParameter> keyParams, final List<String> propertyNames)
+    throws ODataApplicationException {
     final RecordDefinition recordDefinition = this.recordDefinition;
     if (recordDefinition == null) {
       return new Entity();
@@ -428,37 +424,42 @@ public class ODataEntityType extends CsdlEntityType {
       final String keyText = key.getText().replaceAll("(^'|'$)", "");
       and.addCondition(recordDefinition.equal(keyName, keyText));
     }
-    return readEntity(propertyNames, and);
+    return readEntity(request, propertyNames, and);
   }
 
-  public Entity readEntity(final List<String> propertyNames, final Condition where)
-    throws ODataApplicationException {
-    final Query query = newQuery().and(where);
+  public Entity readEntity(final ODataRequest request, final List<String> propertyNames,
+    final Condition where) throws ODataApplicationException {
+    final Query query = newQuery(request).and(where);
     if (propertyNames != null) {
       query.select(propertyNames);
     }
 
     final RecordStore recordStore = getRecordStore();
-    try (
-      Transaction transaction = this.connection.newTransaction();
-      RecordReader reader = recordStore.getRecords(query)) {
+    final Entity entity = request.getConnection().transactionCall(() -> {
+      try (
+        RecordReader reader = recordStore.getRecords(query)) {
 
-      for (final Record record : reader) {
-        return newEntity(record);
+        for (final Record record : reader) {
+          return newEntity(record);
+        }
       }
+      return null;
+    });
+    if (entity != null) {
+      return entity;
+    } else {
+      throw new ODataApplicationException("Entity for requested key doesn't exist",
+        HttpStatusCode.NOT_FOUND.getStatusCode(), Locale.ENGLISH);
     }
-    throw new ODataApplicationException("Entity for requested key doesn't exist",
-      HttpStatusCode.NOT_FOUND.getStatusCode(), Locale.ENGLISH);
   }
 
-  public EntityCollection readEntityCollection(final UriInfo uriInfo,
+  public EntityCollection readEntityCollection(final ODataRequest request, final UriInfo uriInfo,
     final EdmEntitySet edmEntitySet) throws ODataApplicationException {
-    final Query query = newQuery(uriInfo);
+    return request.getConnection().transactionCall(() -> {
+      final Query query = newQuery(request, uriInfo);
 
-    final EntityCollection entityCollection = new EntityCollection();
-    final RecordStore recordStore = getRecordStore();
-    try (
-      Transaction transaction = this.connection.newTransaction()) {
+      final EntityCollection entityCollection = new EntityCollection();
+      final RecordStore recordStore = getRecordStore();
       final CountOption countOption = uriInfo.getCountOption();
       if (countOption != null) {
         if (countOption.getValue()) {
@@ -475,18 +476,19 @@ public class ODataEntityType extends CsdlEntityType {
           entityList.add(entity);
         }
       }
-    }
-    return entityCollection;
+      return entityCollection;
+    });
   }
 
   public ODataEntityIterator readEntityIterator(final ODataRequest request, final UriInfo uriInfo,
     final EdmEntitySet edmEntitySet) throws ODataApplicationException {
-    return new ODataEntityIterator(request, uriInfo, edmEntitySet, this, this.connection);
+    return new ODataEntityIterator(request, uriInfo, edmEntitySet, this);
   }
 
-  public Property readPrimitive(final EdmEntitySet edmEntitySet, final List<UriParameter> keyParams,
-    final String propertyName) throws ODataApplicationException {
-    final Entity entity = readEntity(edmEntitySet, keyParams, Arrays.asList(propertyName));
+  public Property readPrimitive(final ODataRequest request, final EdmEntitySet edmEntitySet,
+    final List<UriParameter> keyParams, final String propertyName)
+    throws ODataApplicationException {
+    final Entity entity = readEntity(request, edmEntitySet, keyParams, Arrays.asList(propertyName));
     return entity.getProperty(propertyName);
   }
 

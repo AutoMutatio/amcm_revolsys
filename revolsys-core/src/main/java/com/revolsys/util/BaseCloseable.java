@@ -15,7 +15,7 @@ public interface BaseCloseable extends Closeable {
     try {
       resource.close();
     } catch (final Exception e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   };
 

@@ -2,6 +2,8 @@ package com.revolsys.data.type;
 
 import java.util.Collection;
 
+import com.revolsys.util.Debug;
+
 public abstract class AbstractDataType implements DataType {
 
   private final Class<?> javaClass;
@@ -12,6 +14,9 @@ public abstract class AbstractDataType implements DataType {
 
   public AbstractDataType(final String name, final Class<?> javaClass,
     final boolean requiresQuotes) {
+    if (name == null) {
+      Debug.noOp();
+    }
     this.name = name;
     this.javaClass = javaClass;
     this.requiresQuotes = requiresQuotes;
@@ -129,7 +134,11 @@ public abstract class AbstractDataType implements DataType {
 
   @Override
   public String toString() {
-    return this.name.toString();
+    if (this.name == null) {
+      return super.toString();
+    } else {
+      return this.name.toString();
+    }
   }
 
   @Override

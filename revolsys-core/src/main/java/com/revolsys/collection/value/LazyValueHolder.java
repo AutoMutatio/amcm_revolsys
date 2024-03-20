@@ -1,9 +1,13 @@
 package com.revolsys.collection.value;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Supplier;
 
-public class LazyValueHolder<T> extends SimpleValueHolder<T> {
+import com.revolsys.util.BaseCloseable;
+
+public class LazyValueHolder<T> extends SimpleValueHolder<T> implements BaseCloseable {
   private Supplier<T> valueSupplier;
 
   private final ReentrantLock lock = new ReentrantLock();
@@ -22,6 +26,23 @@ public class LazyValueHolder<T> extends SimpleValueHolder<T> {
     try {
       this.initialized = false;
       setValue(null);
+    } finally {
+      this.lock.unlock();
+    }
+  }
+
+  @Override
+  public void close() {
+    this.lock.lock();
+    try {
+      if (this.initialized) {
+        final var value = getValue();
+        clear();
+        if (value instanceof final Closeable close) {
+          close.close();
+        }
+      }
+    } catch (final IOException e) {
     } finally {
       this.lock.unlock();
     }

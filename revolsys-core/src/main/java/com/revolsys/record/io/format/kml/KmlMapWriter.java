@@ -6,7 +6,7 @@ import java.util.Map.Entry;
 
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.io.AbstractMapWriter;
-import com.revolsys.io.FileUtil;
+import com.revolsys.util.BaseCloseable;
 
 public class KmlMapWriter extends AbstractMapWriter {
 
@@ -30,7 +30,7 @@ public class KmlMapWriter extends AbstractMapWriter {
         this.out.endTag();
         this.out.endDocument();
       } finally {
-        FileUtil.closeSilent(this.out);
+        BaseCloseable.closeSilent(this.out);
         this.out = null;
       }
     }

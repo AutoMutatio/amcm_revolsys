@@ -6,13 +6,16 @@ import java.util.List;
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntitySet;
 import org.apache.olingo.commons.api.edm.provider.CsdlNavigationPropertyBinding;
+import org.apache.olingo.server.api.ODataRequest;
 
 import com.revolsys.io.PathName;
+import com.revolsys.record.query.Query;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordDefinitionProxy;
 import com.revolsys.util.CaseConverter;
 
-public class AbstractODataEntitySet extends CsdlEntitySet implements RecordDefinitionProxy {
+public abstract class AbstractODataEntitySet extends CsdlEntitySet
+  implements RecordDefinitionProxy {
 
   protected ODataEntityType entityType;
 
@@ -87,5 +90,7 @@ public class AbstractODataEntitySet extends CsdlEntitySet implements RecordDefin
   public FullQualifiedName getTypeName() {
     return this.typeName;
   }
+
+  public abstract Query newQuery(ODataRequest request);
 
 }

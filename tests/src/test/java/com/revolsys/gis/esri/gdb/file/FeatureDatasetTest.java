@@ -46,9 +46,9 @@ public class FeatureDatasetTest {
       object.setValue("name", "Paul Austin");
       object.setGeometryValue(geometryFactory.point(-122, 150));
       recordStore.insertRecord(object);
-      for (final Record object2 : recordStore.getRecords(typePath)) {
+      recordStore.newQuery(typePath).forEachRecord(object2 -> {
         System.out.println(object2);
-      }
+      });
       recordStore.close();
 
       recordStore = FileGdbRecordStoreFactory.newRecordStore(new File(datasetName));

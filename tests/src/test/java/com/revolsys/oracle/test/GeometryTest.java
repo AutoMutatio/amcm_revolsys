@@ -17,8 +17,6 @@ import com.revolsys.io.Writer;
 import com.revolsys.record.Record;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordStore;
-import com.revolsys.transaction.Propagation;
-import com.revolsys.transaction.Transaction;
 
 public class GeometryTest {
 
@@ -31,17 +29,16 @@ public class GeometryTest {
 
   private void doWriteTest(final DataType geometryType, final int axisCount, final int partCount,
     final int ringCount) {
-    final GeometryFactory sourceGeometryFactory = GeometryFactory.floating(3857, axisCount);
-    String typeName = geometryType.getName().toUpperCase();
-    typeName = typeName.replace("MULTI", "MULTI_");
-    final PathName typePath = PathName.newPathName("/ORACLE_TEST/" + typeName + axisCount);
-    Geometry geometry = GeometryTestUtil.geometry(sourceGeometryFactory, geometryType, axisCount,
-      partCount, ringCount);
-    if (geometry instanceof Polygonal) {
-      geometry = geometry.toCounterClockwise();
-    }
-    try (
-      Transaction transaction = this.recordStore.newTransaction(Propagation.REQUIRES_NEW)) {
+    this.recordStore.transaction().requiresNew().run(() -> {
+      final GeometryFactory sourceGeometryFactory = GeometryFactory.floating(3857, axisCount);
+      String typeName = geometryType.getName().toUpperCase();
+      typeName = typeName.replace("MULTI", "MULTI_");
+      final PathName typePath = PathName.newPathName("/ORACLE_TEST/" + typeName + axisCount);
+      Geometry geometry = GeometryTestUtil.geometry(sourceGeometryFactory, geometryType, axisCount,
+        partCount, ringCount);
+      if (geometry instanceof Polygonal) {
+        geometry = geometry.toCounterClockwise();
+      }
       final RecordDefinition recordDefinition = this.recordStore.getRecordDefinition(typePath);
       final Record record = this.recordStore.newRecord(typePath,
         Collections.singletonMap("GEOMETRY", geometry));
@@ -57,8 +54,8 @@ public class GeometryTest {
       final Geometry expectedGeometry = geometry.convertGeometry(tableGeometryFactory);
       com.revolsys.geometry.util.Assert.equals("Saved geometry",
         savedGeometry.equalsExact(expectedGeometry), expectedGeometry, savedGeometry);
-      transaction.setRollbackOnly();
-    }
+      com.revolsys.transaction.Transaction.rollback();
+    });
   }
 
   @Test

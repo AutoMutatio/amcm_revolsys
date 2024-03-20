@@ -22,7 +22,7 @@ package com.revolsys.record.io.format.saif.util;
 
 import java.io.File;
 
-import com.revolsys.io.FileUtil;
+import com.revolsys.io.IoUtil;
 
 public final class ObjectSetUtil {
   public static final String[] OBJECT_SUBSET_NUMBERS = {
@@ -41,7 +41,7 @@ public final class ObjectSetUtil {
   }
 
   public static String getObjectSubsetPrefix(final File file) {
-    final String fileName = FileUtil.getFileName(file);
+    final String fileName = IoUtil.getFileName(file);
     return getObjectSubsetPrefix(fileName);
   }
 

@@ -41,6 +41,7 @@ import com.revolsys.exception.Exceptions;
 import com.revolsys.io.FileNames;
 import com.revolsys.io.FileProxy;
 import com.revolsys.io.FileUtil;
+import com.revolsys.io.IoUtil;
 import com.revolsys.io.channels.ChannelReader;
 import com.revolsys.io.channels.ChannelWriter;
 import com.revolsys.io.channels.DataReader;
@@ -136,7 +137,7 @@ public interface Resource extends org.springframework.core.io.Resource, FileProx
         try {
           return new UrlResource(springResource.getURL());
         } catch (final Exception e) {
-          throw Exceptions.wrap(e);
+          throw Exceptions.toRuntimeException(e);
         }
       }
     }
@@ -182,7 +183,7 @@ public interface Resource extends org.springframework.core.io.Resource, FileProx
 
   default String contentsAsString() {
     final Reader reader = newReader();
-    return FileUtil.getString(reader);
+    return IoUtil.getString(reader);
   }
 
   default boolean copyFrom(final InputStream in) {
@@ -195,11 +196,11 @@ public interface Resource extends org.springframework.core.io.Resource, FileProx
         if (out == null) {
           return false;
         } else {
-          FileUtil.copy(in2, out);
+          IoUtil.copy(in2, out);
           return true;
         }
       } catch (final IOException e) {
-        throw Exceptions.wrap(e);
+        throw Exceptions.toRuntimeException(e);
       }
     }
   }
@@ -222,7 +223,7 @@ public interface Resource extends org.springframework.core.io.Resource, FileProx
           return copyFrom(in);
         }
       } catch (final IOException e) {
-        throw Exceptions.wrap(e);
+        throw Exceptions.toRuntimeException(e);
       }
     }
   }
@@ -231,9 +232,9 @@ public interface Resource extends org.springframework.core.io.Resource, FileProx
     try (
       final OutputStream out2 = out;
       final InputStream in = newBufferedInputStream();) {
-      FileUtil.copy(in, out2);
+      IoUtil.copy(in, out2);
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 
@@ -367,7 +368,7 @@ public interface Resource extends org.springframework.core.io.Resource, FileProx
         final File file = FileUtil.newTempFile(baseName, "." + fileNameExtension);
         try (
           InputStream inputStream = getInputStream()) {
-          FileUtil.copy(inputStream, file);
+          IoUtil.copy(inputStream, file);
         } catch (final IOException e1) {
           throw Exceptions.wrap("Error downloading: " + this, e1);
         }
@@ -437,7 +438,7 @@ public interface Resource extends org.springframework.core.io.Resource, FileProx
     try {
       return getURI();
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 
@@ -563,7 +564,7 @@ public interface Resource extends org.springframework.core.io.Resource, FileProx
         return connection.getOutputStream();
       }
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 

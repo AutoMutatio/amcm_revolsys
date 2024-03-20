@@ -243,7 +243,7 @@ public interface EndianInput extends Closeable {
 
       return value;
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 
@@ -261,7 +261,7 @@ public interface EndianInput extends Closeable {
       }
       return value;
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 
@@ -281,7 +281,7 @@ public interface EndianInput extends Closeable {
       final int value = (b2 << 8) + b1;
       return (short)value;
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 
@@ -303,7 +303,7 @@ public interface EndianInput extends Closeable {
       final long value = (b4 << 24) + (b3 << 16) + (b2 << 8) + b1;
       return value;
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 
@@ -322,7 +322,7 @@ public interface EndianInput extends Closeable {
       }
       return value;
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 
@@ -335,7 +335,7 @@ public interface EndianInput extends Closeable {
       }
       return (ch1 << 0) + (ch2 << 8);
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 
