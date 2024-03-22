@@ -2,6 +2,7 @@ package com.revolsys.jdbc.io;
 
 import java.nio.file.Path;
 import java.sql.SQLException;
+import java.time.Duration;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -27,8 +28,8 @@ public interface JdbcDatabaseFactory extends RecordStoreFactory {
   String URL_FIELD = "urlField";
 
   static DataSource closeDataSource(final DataSource dataSource) {
-    if (dataSource instanceof DataSourceImpl) {
-      final DataSourceImpl basicDataSource = (DataSourceImpl)dataSource;
+    if (dataSource instanceof JdbcDataSourceImpl) {
+      final JdbcDataSourceImpl basicDataSource = (JdbcDataSourceImpl) dataSource;
       try {
         basicDataSource.close();
       } catch (final SQLException e) {
@@ -42,7 +43,7 @@ public interface JdbcDatabaseFactory extends RecordStoreFactory {
   }
 
   static JdbcDatabaseFactory databaseFactory(final Map<String, ? extends Object> config) {
-    final String url = (String)config.get("url");
+    final String url = (String) config.get("url");
     if (url == null) {
       throw new IllegalArgumentException("The url parameter must be specified");
     } else {
@@ -94,8 +95,9 @@ public interface JdbcDatabaseFactory extends RecordStoreFactory {
   List<FieldDefinition> getConnectionFieldDefinitions();
 
   /**
-   * Get  the map from connection name to JDBC URL for the database driver. For
+   * Get the map from connection name to JDBC URL for the database driver. For
    * example in Oracle this will be connections loaded from the TNSNAMES.ora file.
+   *
    * @return
    */
   default Map<String, String> getConnectionUrlMap() {
@@ -112,7 +114,7 @@ public interface JdbcDatabaseFactory extends RecordStoreFactory {
 
   @Override
   Class<? extends RecordStore> getRecordStoreInterfaceClass(
-    Map<String, ? extends Object> connectionProperties);
+      Map<String, ? extends Object> connectionProperties);
 
   @Override
   default List<Pattern> getUrlPatterns() {
@@ -129,42 +131,32 @@ public interface JdbcDatabaseFactory extends RecordStoreFactory {
   default DataSource newDataSource(final Map<String, ? extends Object> config) {
     try {
       final MapEx newConfig = JsonObject.hash(config);
-      final String url = (String)newConfig.remove("url");
-      final String user = (String)newConfig.remove("user");
-      String password = (String)newConfig.remove("password");
+      final String url = (String) newConfig.remove("url");
+      final String user = (String) newConfig.remove("user");
+      String password = (String) newConfig.remove("password");
       if (Property.hasValue(password)) {
         password = PasswordUtil.decrypt(password);
       }
-      final DataSourceImpl dataSource = new DataSourceImpl();
-      dataSource.setAccessToUnderlyingConnectionAllowed(true);
-      dataSource.setDriverClassName(getDriverClassName());
-      dataSource.setUsername(user);
-      dataSource.setPassword(password);
-      dataSource.setUrl(url);
-      dataSource.setValidationQuery(getConnectionValidationQuery());
-
       final int minPoolSize = newConfig.getInteger("minPoolSize", -1);
       newConfig.remove("minPoolSize");
-      dataSource.setMinIdle(minPoolSize);
-      dataSource.setMaxIdle(-1);
-
       final int maxPoolSize = newConfig.getInteger("maxPoolSize", 10);
       newConfig.remove("maxPoolSize");
-      dataSource.setMaxTotal(maxPoolSize);
-
       final int maxWaitMillis = newConfig.getInteger("waitTimeout", 10);
       newConfig.remove("waitTimeout");
-      dataSource.setMaxWaitMillis(maxWaitMillis);
-
-      final boolean validateConnection = newConfig.getBoolean("validateConnection", true);
-      newConfig.remove("validateConnection");
-      dataSource.setTestOnCreate(validateConnection);
-      // dataSource.setTestOnBorrow(validateConnection);
-
       final int inactivityTimeout = newConfig.getInteger("inactivityTimeout", 60);
       newConfig.remove("inactivityTimeout");
-      dataSource.setMinEvictableIdleTimeMillis(inactivityTimeout * 1000);
-      dataSource.setTimeBetweenEvictionRunsMillis(inactivityTimeout * 1000);
+
+      final JdbcDataSourceImpl dataSource = new JdbcDataSourceImpl()//
+          .setAccessToUnderlyingConnectionAllowed(true)
+          .setDriverClassName(getDriverClassName())
+          .setUrl(url)
+          .setValidationQuery(getConnectionValidationQuery())
+          .setMinIdle(minPoolSize)
+          .setMaxIdle(-1)
+          .setMaxPoolSize(maxPoolSize)
+          .setMaxWait(Duration.ofMillis(maxWaitMillis))
+          .setMinEvictableIdle(Duration.ofSeconds(inactivityTimeout))
+          .setDurationBetweenEvictionRuns(Duration.ofSeconds(inactivityTimeout));
 
       for (final Entry<String, Object> property : newConfig.entrySet()) {
         final String name = property.getKey();
@@ -173,9 +165,13 @@ public interface JdbcDatabaseFactory extends RecordStoreFactory {
           Property.setSimple(dataSource, name, value);
         } catch (final Throwable t) {
           Logs.debug(this,
-            "Unable to set data source property " + name + " = " + value + " for " + url, t);
+              "Unable to set data source property " + name + " = " + value + " for " + url, t);
         }
       }
+
+      final var connectionProperties = dataSource.getConnectionProperties();
+      connectionProperties.setProperty("user", user);
+      connectionProperties.setProperty("password", password);
       return dataSource;
     } catch (final Throwable e) {
       throw new IllegalArgumentException("Unable to create data source for " + config, e);

@@ -1,11 +1,8 @@
 package com.revolsys.jdbc;
 
-import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.SQLFeatureNotSupportedException;
 import java.util.function.Function;
-import java.util.logging.Logger;
 
 import javax.sql.DataSource;
 
@@ -17,7 +14,7 @@ import com.revolsys.transaction.ActiveTransactionContext;
 import com.revolsys.transaction.Transaction;
 import com.revolsys.transaction.TransactionContext;
 
-public class JdbcDataSource implements DataSource {
+public abstract class JdbcDataSource implements DataSource {
 
   public static interface ConnectionConsumer {
     void accept(Connection connection) throws SQLException;
@@ -25,23 +22,18 @@ public class JdbcDataSource implements DataSource {
 
   private final Object key = new Object();
 
-  private final DataSource dataSource;
-
-  private final SQLErrorCodeSQLExceptionTranslator exceptionTranslator;
+  protected final SQLErrorCodeSQLExceptionTranslator exceptionTranslator = new SQLErrorCodeSQLExceptionTranslator();
 
   private final Function<ActiveTransactionContext, JdbcConnectionTransactionResource> resourceConstructor = context -> new JdbcConnectionTransactionResource(
-    context, this);
+      context, this);
 
-  public JdbcDataSource(final DataSource dataSource) {
-    super();
-    this.dataSource = dataSource;
-    this.exceptionTranslator = new SQLErrorCodeSQLExceptionTranslator(dataSource);
+  public JdbcDataSource() {
   }
 
   public void addConnectionInitializer(final ActiveTransactionContext activeContext,
-    final ConnectionConsumer connection) {
+      final ConnectionConsumer connection) {
     activeContext.getResource(this.key, this.resourceConstructor)
-      .addConnectionInitializer(connection);
+        .addConnectionInitializer(connection);
   }
 
   @Override
@@ -56,8 +48,8 @@ public class JdbcDataSource implements DataSource {
     final TransactionContext context = Transaction.getContext();
     if (context instanceof final ActiveTransactionContext activeContext) {
       return activeContext.getResource(this.key, this.resourceConstructor)
-        .addConnectionInitializer(initializer)
-        .newJdbcConnection();
+          .addConnectionInitializer(initializer)
+          .newJdbcConnection();
     } else {
       final Connection connection = getConnectionInternal();
       if (connection == null) {
@@ -73,18 +65,16 @@ public class JdbcDataSource implements DataSource {
 
   @Override
   public Connection getConnection(final String username, final String password)
-    throws SQLException {
+      throws SQLException {
     throw new UnsupportedOperationException("Username/password connections are not supported");
   }
 
-  Connection getConnectionInternal() throws SQLException {
-    return this.dataSource.getConnection();
-  }
+  protected abstract Connection getConnectionInternal() throws SQLException;
 
   public DataAccessException getException(final String task, final String sql,
-    final SQLException e) {
+      final SQLException e) {
     final DataAccessException translatedException = this.exceptionTranslator.translate(task, sql,
-      e);
+        e);
     if (translatedException == null) {
       return new UncategorizedSQLException(task, sql, e);
     } else {
@@ -92,40 +82,8 @@ public class JdbcDataSource implements DataSource {
     }
   }
 
-  @Override
-  public int getLoginTimeout() throws SQLException {
-    return this.dataSource.getLoginTimeout();
-  }
-
-  @Override
-  public PrintWriter getLogWriter() throws SQLException {
-    return this.dataSource.getLogWriter();
-  }
-
-  @Override
-  public Logger getParentLogger() throws SQLFeatureNotSupportedException {
-    return this.dataSource.getParentLogger();
-  }
-
-  @Override
-  public boolean isWrapperFor(final Class<?> iface) throws SQLException {
-    return this.dataSource.isWrapperFor(iface);
-  }
-
-  @Override
-  public void setLoginTimeout(final int seconds) throws SQLException {
-    this.dataSource.setLoginTimeout(seconds);
-  }
-
-  @Override
-  public void setLogWriter(final PrintWriter out) throws SQLException {
-    this.dataSource.setLogWriter(out);
-  }
-
-  @Override
-  public <T> T unwrap(final Class<T> iface) throws SQLException {
-    return this.dataSource.unwrap(iface);
-
+  void releaseConnection(final Connection connection) throws SQLException {
+    connection.close();
   }
 
 }

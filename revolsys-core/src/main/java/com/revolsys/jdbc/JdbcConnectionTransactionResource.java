@@ -26,16 +26,16 @@ public class JdbcConnectionTransactionResource implements TransactionableResourc
   private final boolean closed = false;
 
   public JdbcConnectionTransactionResource(final TransactionContext context,
-    final JdbcDataSource dataSource) {
+      final JdbcDataSource dataSource) {
     this.context = context;
     this.dataSource = dataSource;
   }
 
   public JdbcConnectionTransactionResource addConnectionInitializer(
-    final ConnectionConsumer initializer) {
+      final ConnectionConsumer initializer) {
     if (initializer != null) {
       try (
-        var l = this.lock.lockX()) {
+          var l = this.lock.lockX()) {
         if (this.connection == null) {
           if (this.connectionInitializers == null) {
             this.connectionInitializers = new ArrayList<>();
@@ -56,7 +56,7 @@ public class JdbcConnectionTransactionResource implements TransactionableResourc
   @Override
   public void close() {
     try (
-      var l = this.lock.lockX()) {
+        var l = this.lock.lockX()) {
       if (this.connection != null) {
         if (this.context.isReadOnly()) {
           try {
@@ -77,7 +77,7 @@ public class JdbcConnectionTransactionResource implements TransactionableResourc
   @Override
   public void commit() {
     try (
-      var l = this.lock.lockX()) {
+        var l = this.lock.lockX()) {
       if (this.connection != null) {
         try {
           this.connection.commit();
@@ -89,11 +89,8 @@ public class JdbcConnectionTransactionResource implements TransactionableResourc
   }
 
   public JdbcConnection newJdbcConnection() throws SQLException {
-    if (this.closed) {
-      Debug.noOp();
-    }
     try (
-      var l = this.lock.lockX()) {
+        var l = this.lock.lockX()) {
       if (this.connection == null) {
         final Connection connection = this.dataSource.getConnectionInternal();
         try {
@@ -141,7 +138,7 @@ public class JdbcConnectionTransactionResource implements TransactionableResourc
   @Override
   public void rollback() {
     try (
-      var l = this.lock.lockX()) {
+        var l = this.lock.lockX()) {
       if (this.connection != null) {
         try {
           this.connection.rollback();
