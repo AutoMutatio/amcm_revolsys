@@ -15,6 +15,7 @@ import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.jdbc.UncategorizedSQLException;
 
 import com.revolsys.function.Function3;
+import com.revolsys.jdbc.JdbcDatabaseFactory;
 
 public abstract class AbstractJdbcDatabaseFactory implements JdbcDatabaseFactory {
 

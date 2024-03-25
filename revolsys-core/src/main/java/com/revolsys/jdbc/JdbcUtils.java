@@ -21,16 +21,10 @@ import java.util.List;
 
 import javax.management.ObjectName;
 
-import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.support.SQLExceptionTranslator;
-import org.springframework.jdbc.support.SQLStateSQLExceptionTranslator;
-
 import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.map.MapEx;
-import com.revolsys.exception.Exceptions;
 import com.revolsys.io.PathName;
 import com.revolsys.io.PathUtil;
-import com.revolsys.jdbc.exception.JdbcExceptionTranslator;
 import com.revolsys.jdbc.field.JdbcFieldDefinition;
 import com.revolsys.jdbc.field.JdbcFieldDefinitions;
 import com.revolsys.logging.Logs;
@@ -42,7 +36,6 @@ import com.revolsys.record.query.StringBuilderSqlAppendable;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordStore;
 import com.revolsys.util.Property;
-import com.revolsys.util.Strings;
 
 public final class JdbcUtils {
 
@@ -116,7 +109,7 @@ public final class JdbcUtils {
       final Connection connection = dataSource.getConnection()) {
       return executeUpdate(connection, sql, parameters);
     } catch (final SQLException e) {
-      throw getException(dataSource, "Update", sql, e);
+      throw dataSource.getException("Update", sql, e);
     }
   }
 
@@ -138,21 +131,6 @@ public final class JdbcUtils {
     return sql.toSqlString();
   }
 
-  public static RuntimeException getException(final JdbcDataSource dataSource, final String task,
-    final String sql, final SQLException e) {
-    SQLExceptionTranslator translator;
-    if (dataSource == null) {
-      translator = new SQLStateSQLExceptionTranslator();
-    } else {
-      translator = new JdbcExceptionTranslator(dataSource);
-    }
-    final DataAccessException exception = translator.translate(task, sql, e);
-    if (exception == null) {
-      return Exceptions.wrap(Strings.toString("\n", task, sql), e);
-    }
-    return exception;
-  }
-
   public static String getProductName(final JdbcDataSource dataSource) {
     if (dataSource == null) {
       return null;
@@ -160,9 +138,15 @@ public final class JdbcUtils {
       try (
         final Connection connection = dataSource.getConnection()) {
         if (connection == null) {
-          if (dataSource.getClass().getName().toLowerCase().contains("oracle")) {
+          if (dataSource.getClass()
+            .getName()
+            .toLowerCase()
+            .contains("oracle")) {
             return "Oracle";
-          } else if (dataSource.getClass().getName().toLowerCase().contains("postgres")) {
+          } else if (dataSource.getClass()
+            .getName()
+            .toLowerCase()
+            .contains("postgres")) {
             return "PostgreSQL";
           } else {
             return null;
@@ -427,9 +411,11 @@ public final class JdbcUtils {
     }
     try {
       // Cleanup Oracle MBean
-      final ObjectName objectname = new ObjectName("com.oracle.jdbc:type=diagnosability,name="
-        + classLoader.getClass().getName() + "@" + Integer.toHexString(classLoader.hashCode()));
-      ManagementFactory.getPlatformMBeanServer().unregisterMBean(objectname);
+      final ObjectName objectname = new ObjectName(
+        "com.oracle.jdbc:type=diagnosability,name=" + classLoader.getClass()
+          .getName() + "@" + Integer.toHexString(classLoader.hashCode()));
+      ManagementFactory.getPlatformMBeanServer()
+        .unregisterMBean(objectname);
     } catch (final Throwable e) {
       Logs.error(JdbcUtils.class, "Unable to remove Oracle MBean", e);
     }

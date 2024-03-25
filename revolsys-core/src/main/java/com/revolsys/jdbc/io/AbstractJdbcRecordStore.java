@@ -35,6 +35,7 @@ import com.revolsys.io.PathUtil;
 import com.revolsys.jdbc.JdbcConnection;
 import com.revolsys.jdbc.JdbcDataSource;
 import com.revolsys.jdbc.JdbcDataSourceWrapper;
+import com.revolsys.jdbc.JdbcDatabaseFactory;
 import com.revolsys.jdbc.field.JdbcFieldAdder;
 import com.revolsys.jdbc.field.JdbcFieldDefinition;
 import com.revolsys.jdbc.field.JdbcFieldFactory;

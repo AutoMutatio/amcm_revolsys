@@ -10,6 +10,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.UncategorizedSQLException;
 import org.springframework.jdbc.support.SQLErrorCodeSQLExceptionTranslator;
 
+import com.revolsys.collection.value.ValueHolder;
 import com.revolsys.transaction.ActiveTransactionContext;
 import com.revolsys.transaction.Transaction;
 import com.revolsys.transaction.TransactionContext;
@@ -17,23 +18,37 @@ import com.revolsys.transaction.TransactionContext;
 public abstract class JdbcDataSource implements DataSource {
 
   public static interface ConnectionConsumer {
+    static ConnectionConsumer EMPTY = t -> {
+    };
+
     void accept(Connection connection) throws SQLException;
+
+    default ConnectionConsumer andThen(final ConnectionConsumer after) {
+      if (after == null) {
+        return this;
+      } else {
+        return v -> {
+          accept(v);
+          after.accept(v);
+        };
+      }
+    }
   }
 
   private final Object key = new Object();
 
-  protected final SQLErrorCodeSQLExceptionTranslator exceptionTranslator = new SQLErrorCodeSQLExceptionTranslator();
+  protected final ValueHolder<SQLErrorCodeSQLExceptionTranslator> exceptionTranslator = ValueHolder
+    .lazy(this::newExceptionTranslator);
 
-  private final Function<ActiveTransactionContext, JdbcConnectionTransactionResource> resourceConstructor = context -> new JdbcConnectionTransactionResource(
-      context, this);
+  private final Function<ActiveTransactionContext, JdbcConnectionTransactionResource> resourceConstructor = this::newConnectionTransactionResource;
 
   public JdbcDataSource() {
   }
 
   public void addConnectionInitializer(final ActiveTransactionContext activeContext,
-      final ConnectionConsumer connection) {
+    final ConnectionConsumer connection) {
     activeContext.getResource(this.key, this.resourceConstructor)
-        .addConnectionInitializer(connection);
+      .addConnectionInitializer(connection);
   }
 
   @Override
@@ -48,33 +63,29 @@ public abstract class JdbcDataSource implements DataSource {
     final TransactionContext context = Transaction.getContext();
     if (context instanceof final ActiveTransactionContext activeContext) {
       return activeContext.getResource(this.key, this.resourceConstructor)
-          .addConnectionInitializer(initializer)
-          .newJdbcConnection();
+        .addConnectionInitializer(initializer)
+        .getJdbcConnection();
     } else {
-      final Connection connection = getConnectionInternal();
-      if (connection == null) {
-        return null;
+      final JdbcConnection connection = newJdbcConnection();
+      if (connection.hasConnection()) {
+        initializer.accept(connection);
       } else {
-        if (initializer != null) {
-          initializer.accept(connection);
-        }
-        return new JdbcConnection(this, connection, true);
+        throw new SQLException("No connection");
       }
+      return connection;
     }
   }
 
   @Override
   public Connection getConnection(final String username, final String password)
-      throws SQLException {
+    throws SQLException {
     throw new UnsupportedOperationException("Username/password connections are not supported");
   }
 
-  protected abstract Connection getConnectionInternal() throws SQLException;
-
   public DataAccessException getException(final String task, final String sql,
-      final SQLException e) {
-    final DataAccessException translatedException = this.exceptionTranslator.translate(task, sql,
-        e);
+    final SQLException e) {
+    final var translatedException = this.exceptionTranslator.getValue()
+      .translate(task, sql, e);
     if (translatedException == null) {
       return new UncategorizedSQLException(task, sql, e);
     } else {
@@ -82,8 +93,10 @@ public abstract class JdbcDataSource implements DataSource {
     }
   }
 
-  void releaseConnection(final Connection connection) throws SQLException {
-    connection.close();
-  }
+  protected abstract JdbcConnectionTransactionResource newConnectionTransactionResource(
+    final ActiveTransactionContext context);
 
+  protected abstract SQLErrorCodeSQLExceptionTranslator newExceptionTranslator();
+
+  protected abstract JdbcConnection newJdbcConnection() throws SQLException;
 }

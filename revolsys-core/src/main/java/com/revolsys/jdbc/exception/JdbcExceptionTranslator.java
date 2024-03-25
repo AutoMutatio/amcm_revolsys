@@ -11,7 +11,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.support.SQLErrorCodeSQLExceptionTranslator;
 import org.springframework.jdbc.support.SQLErrorCodesFactory;
 
-import com.revolsys.jdbc.io.JdbcDataSourceImpl;
+import com.revolsys.jdbc.JdbcDataSourceImpl;
 import com.revolsys.log.LogbackUtil;
 import com.revolsys.util.Property;
 

@@ -1,4 +1,4 @@
-package com.revolsys.jdbc.io;
+package com.revolsys.jdbc;
 
 import java.nio.file.Path;
 import java.sql.SQLException;
@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
 import javax.sql.DataSource;
@@ -17,6 +18,7 @@ import org.springframework.dao.DataAccessException;
 import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.io.IoFactory;
+import com.revolsys.jdbc.io.JdbcRecordStore;
 import com.revolsys.logging.Logs;
 import com.revolsys.record.io.RecordStoreFactory;
 import com.revolsys.record.schema.FieldDefinition;
@@ -29,7 +31,7 @@ public interface JdbcDatabaseFactory extends RecordStoreFactory {
 
   static DataSource closeDataSource(final DataSource dataSource) {
     if (dataSource instanceof JdbcDataSourceImpl) {
-      final JdbcDataSourceImpl basicDataSource = (JdbcDataSourceImpl) dataSource;
+      final JdbcDataSourceImpl basicDataSource = (JdbcDataSourceImpl)dataSource;
       try {
         basicDataSource.close();
       } catch (final SQLException e) {
@@ -43,7 +45,7 @@ public interface JdbcDatabaseFactory extends RecordStoreFactory {
   }
 
   static JdbcDatabaseFactory databaseFactory(final Map<String, ? extends Object> config) {
-    final String url = (String) config.get("url");
+    final String url = (String)config.get("url");
     if (url == null) {
       throw new IllegalArgumentException("The url parameter must be specified");
     } else {
@@ -58,7 +60,8 @@ public interface JdbcDatabaseFactory extends RecordStoreFactory {
 
   static JdbcDatabaseFactory databaseFactory(final String productName) {
     for (final JdbcDatabaseFactory databaseFactory : databaseFactories()) {
-      if (databaseFactory.getProductName().equals(productName)) {
+      if (databaseFactory.getProductName()
+        .equals(productName)) {
         return databaseFactory;
       }
     }
@@ -114,7 +117,7 @@ public interface JdbcDatabaseFactory extends RecordStoreFactory {
 
   @Override
   Class<? extends RecordStore> getRecordStoreInterfaceClass(
-      Map<String, ? extends Object> connectionProperties);
+    Map<String, ? extends Object> connectionProperties);
 
   @Override
   default List<Pattern> getUrlPatterns() {
@@ -128,35 +131,59 @@ public interface JdbcDatabaseFactory extends RecordStoreFactory {
     return true;
   }
 
+  @SuppressWarnings({
+    "unchecked"
+  })
   default DataSource newDataSource(final Map<String, ? extends Object> config) {
     try {
       final MapEx newConfig = JsonObject.hash(config);
-      final String url = (String) newConfig.remove("url");
-      final String user = (String) newConfig.remove("user");
-      String password = (String) newConfig.remove("password");
-      if (Property.hasValue(password)) {
-        password = PasswordUtil.decrypt(password);
-      }
+      final String url = (String)newConfig.remove("url");
+
       final int minPoolSize = newConfig.getInteger("minPoolSize", -1);
       newConfig.remove("minPoolSize");
       final int maxPoolSize = newConfig.getInteger("maxPoolSize", 10);
       newConfig.remove("maxPoolSize");
+      final int maxIdle = newConfig.getInteger("maxIdle", Math.max(minPoolSize, maxPoolSize));
+      newConfig.remove("maxIdle");
       final int maxWaitMillis = newConfig.getInteger("waitTimeout", 10);
       newConfig.remove("waitTimeout");
       final int inactivityTimeout = newConfig.getInteger("inactivityTimeout", 60);
       newConfig.remove("inactivityTimeout");
-
+      Supplier<String> userSupplier;
+      final var user = newConfig.remove("user");
+      {
+        if (user instanceof final Supplier supplier) {
+          userSupplier = supplier;
+        } else if (user != null) {
+          final var s = user.toString();
+          userSupplier = () -> s;
+        } else {
+          userSupplier = null;
+        }
+      }
+      Supplier<String> passwordSupplier;
+      {
+        final var password = newConfig.remove("password");
+        if (password instanceof final Supplier supplier) {
+          passwordSupplier = supplier;
+        } else if (Property.hasValue(password)) {
+          final var s = PasswordUtil.decrypt(password.toString());
+          passwordSupplier = () -> s;
+        } else {
+          passwordSupplier = null;
+        }
+      }
       final JdbcDataSourceImpl dataSource = new JdbcDataSourceImpl()//
-          .setAccessToUnderlyingConnectionAllowed(true)
-          .setDriverClassName(getDriverClassName())
-          .setUrl(url)
-          .setValidationQuery(getConnectionValidationQuery())
-          .setMinIdle(minPoolSize)
-          .setMaxIdle(-1)
-          .setMaxPoolSize(maxPoolSize)
-          .setMaxWait(Duration.ofMillis(maxWaitMillis))
-          .setMinEvictableIdle(Duration.ofSeconds(inactivityTimeout))
-          .setDurationBetweenEvictionRuns(Duration.ofSeconds(inactivityTimeout));
+        .setDriverClassName(getDriverClassName())
+        .setUrl(url)
+        .setMinIdle(minPoolSize)
+        .setMaxIdle(maxIdle)
+        .setMaxPoolSize(maxPoolSize)
+        .setMaxWait(Duration.ofMillis(maxWaitMillis))
+        .setMinEvictableIdle(Duration.ofSeconds(inactivityTimeout))
+        .setDurationBetweenEvictionRuns(Duration.ofSeconds(inactivityTimeout))
+        .setUserSupplier(userSupplier)
+        .setPasswordSupplier(passwordSupplier);
 
       for (final Entry<String, Object> property : newConfig.entrySet()) {
         final String name = property.getKey();
@@ -165,13 +192,10 @@ public interface JdbcDatabaseFactory extends RecordStoreFactory {
           Property.setSimple(dataSource, name, value);
         } catch (final Throwable t) {
           Logs.debug(this,
-              "Unable to set data source property " + name + " = " + value + " for " + url, t);
+            "Unable to set data source property " + name + " = " + value + " for " + url, t);
         }
       }
 
-      final var connectionProperties = dataSource.getConnectionProperties();
-      connectionProperties.setProperty("user", user);
-      connectionProperties.setProperty("password", password);
       return dataSource;
     } catch (final Throwable e) {
       throw new IllegalArgumentException("Unable to create data source for " + config, e);
@@ -186,6 +210,20 @@ public interface JdbcDatabaseFactory extends RecordStoreFactory {
 
   @Override
   JdbcRecordStore newRecordStore(MapEx connectionProperties);
+
+  default Object removeSupplier(final MapEx newConfig, final String key) {
+    Supplier<String> userSupplier;
+    final var user = newConfig.remove(key);
+    if (user instanceof final Supplier supplier) {
+      userSupplier = supplier;
+    } else if (user != null) {
+      final var s = user.toString();
+      userSupplier = () -> s;
+    } else {
+      userSupplier = null;
+    }
+    return user;
+  }
 
   DataAccessException translateException(String message, String sql, SQLException exception);
 }
