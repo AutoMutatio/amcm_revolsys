@@ -12,7 +12,8 @@ import com.revolsys.http.AzureManagedIdentityRequestBuilderFactory;
 import com.revolsys.net.oauth.BearerToken;
 
 /**
- * The authentication password supplier that enables authentication with Microsoft Entra
+ * The authentication password supplier that enables authentication with
+ * Microsoft Entra
  * ID.
  */
 public class AzurePostgresqlPasswordSupplier implements Supplier<String> {
@@ -21,9 +22,19 @@ public class AzurePostgresqlPasswordSupplier implements Supplier<String> {
 
   private static final String SCOPE = "https://ossrdbms-aad.database.windows.net/.default";
 
+  public static AzurePostgresqlPasswordSupplier managed() {
+    final var tokenRefresh = AzureManagedIdentityRequestBuilderFactory.tokenRefesh(RESOURCE);
+    return new AzurePostgresqlPasswordSupplier(tokenRefresh);
+  }
+
   private final Function<BearerToken, BearerToken> tokenRefresh;
 
   private final ValueHolder<BearerToken> token;
+
+  public AzurePostgresqlPasswordSupplier(final Function<BearerToken, BearerToken> tokenRefresh) {
+    this.tokenRefresh = tokenRefresh;
+    this.token = ValueHolder.lazy(this.tokenRefresh, t -> t != null && !t.isExpired());
+  }
 
   /**
    * Constructor with properties.
@@ -45,8 +56,7 @@ public class AzurePostgresqlPasswordSupplier implements Supplier<String> {
     if (token == null) {
       throw new TransientDataAccessResourceException("Unable to acquire access token");
     } else {
-      final var accessToken = token.getAccessToken();
-      return accessToken;
+      return token.getAccessToken();
     }
   }
 }

@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.CountDownLatch;
@@ -27,18 +28,21 @@ import org.springframework.jdbc.CannotGetJdbcConnectionException;
 import org.springframework.jdbc.support.SQLErrorCodeSQLExceptionTranslator;
 
 import com.revolsys.collection.list.ListEx;
+import com.revolsys.collection.map.MapEx;
 import com.revolsys.exception.Exceptions;
+import com.revolsys.logging.Logs;
 import com.revolsys.parallel.SemaphoreEx;
 import com.revolsys.transaction.ActiveTransactionContext;
 import com.revolsys.transaction.TransactionContext;
 import com.revolsys.util.BaseCloseable;
+import com.revolsys.util.Property;
 
-public class JdbcDataSourceImpl extends JdbcDataSource {
+public class JdbcDataSourceImpl extends JdbcDataSource implements BaseCloseable {
   private class ConnectionEntry {
     private static final AtomicInteger INDEX = new AtomicInteger();
 
     private final AtomicReference<ConnectionEntryState> state = new AtomicReference<>(
-      ConnectionEntryState.IDLE);
+        ConnectionEntryState.IDLE);
 
     private Connection connection;
 
@@ -66,7 +70,7 @@ public class JdbcDataSourceImpl extends JdbcDataSource {
     private void close() {
       final var oldState = this.state.get();
       if (oldState != ConnectionEntryState.CLOSED
-        && this.state.compareAndSet(oldState, ConnectionEntryState.CLOSED)) {
+          && this.state.compareAndSet(oldState, ConnectionEntryState.CLOSED)) {
         final var connection = this.connection;
         this.connection = null;
         if (JdbcDataSourceImpl.this.idleConnections.remove(this)) {
@@ -127,7 +131,7 @@ public class JdbcDataSourceImpl extends JdbcDataSource {
         final var state = this.state.get();
         if (state == ConnectionEntryState.IDLE) {
           throw new IllegalStateException(
-            "Cannot release connection as it is not aqcuired:  " + state);
+              "Cannot release connection as it is not aqcuired:  " + state);
         }
       }
     }
@@ -147,7 +151,7 @@ public class JdbcDataSourceImpl extends JdbcDataSource {
     private ConnectionEntry entry;
 
     public ConnectionImpl(final JdbcDataSource dataSource, final ConnectionEntry entry,
-      final Connection connection, final boolean close) throws SQLException {
+        final Connection connection, final boolean close) throws SQLException {
       super(dataSource, connection, close);
       this.entry = entry;
     }
@@ -208,9 +212,9 @@ public class JdbcDataSourceImpl extends JdbcDataSource {
   private static final Duration MAX_DURATION = Duration.ofMillis(Long.MAX_VALUE);
 
   private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(0,
-    Thread.ofVirtual()
-      .name("datasourceevictor-", 0)
-      .factory());
+      Thread.ofVirtual()
+          .name("datasourceevictor-", 0)
+          .factory());
 
   private final AtomicBoolean closed = new AtomicBoolean();
 
@@ -257,7 +261,7 @@ public class JdbcDataSourceImpl extends JdbcDataSource {
   private SemaphoreEx poolSizeSemaphore;
 
   private final AtomicReference<DataSourceStateState> state = new AtomicReference<>(
-    DataSourceStateState.NEW);
+      DataSourceStateState.NEW);
 
   private final CountDownLatch initLatch = new CountDownLatch(1);
 
@@ -266,6 +270,8 @@ public class JdbcDataSourceImpl extends JdbcDataSource {
   private Supplier<String> userSupplier;
 
   private Supplier<String> passwordSupplier;
+
+  private final Properties connectionProperties = new Properties();
 
   public JdbcDataSourceImpl() {
   }
@@ -291,7 +297,8 @@ public class JdbcDataSourceImpl extends JdbcDataSource {
     }
   }
 
-  public void close() throws SQLException {
+  @Override
+  public void close() {
     if (!this.closed.compareAndSet(false, true)) {
       clear();
       this.poolSizeSemaphore.release(this.poolSizeSemaphore.availablePermits());
@@ -313,7 +320,7 @@ public class JdbcDataSourceImpl extends JdbcDataSource {
       final var idleSoftEvict = getIdleSoftEvictDuration();
       final var idleEvict = getIdleEvictDuration();
       if (idleSoftEvict.compareTo(idleDuration) < 0 && getMinIdle() < idleCount
-        || idleEvict.compareTo(idleDuration) < 0) {
+          || idleEvict.compareTo(idleDuration) < 0) {
         removeEntry(entry);
       } else if (entry.isClosed()) {
         removeEntry(entry);
@@ -345,7 +352,7 @@ public class JdbcDataSourceImpl extends JdbcDataSource {
       if (entry == null) {
         try {
           final var url = getUrl();
-          final var connectionProperties = new Properties();
+          final var connectionProperties = new Properties(this.connectionProperties);
           if (this.userSupplier != null) {
             connectionProperties.setProperty("user", this.userSupplier.get());
           }
@@ -355,7 +362,7 @@ public class JdbcDataSourceImpl extends JdbcDataSource {
           final var connection = this.driver.connect(url, connectionProperties);
           if (connection == null) {
             throw new CannotGetJdbcConnectionException(
-              "JDBC driver doesn't support connection URL");
+                "JDBC driver doesn't support connection URL");
           }
           try {
             for (final Consumer<Connection> callback : JdbcDataSourceImpl.this.connectionInitCallbacks) {
@@ -468,8 +475,8 @@ public class JdbcDataSourceImpl extends JdbcDataSource {
               }
             } catch (final ClassNotFoundException cnfe) {
               driverFromCCL = Thread.currentThread()
-                .getContextClassLoader()
-                .loadClass(driverClassName);
+                  .getContextClassLoader()
+                  .loadClass(driverClassName);
             }
           } catch (final Exception t) {
             final String message = "Cannot load JDBC driver class '" + driverClassName + "'";
@@ -485,15 +492,15 @@ public class JdbcDataSourceImpl extends JdbcDataSource {
             // respect the ContextClassLoader
             // N.B. This cast may cause ClassCastException which is
             // handled below
-            this.driver = (Driver)driverFromCCL.getConstructor()
-              .newInstance();
+            this.driver = (Driver) driverFromCCL.getConstructor()
+                .newInstance();
             if (!this.driver.acceptsURL(url)) {
               throw new SQLException("No suitable driver", "08001");
             }
           }
         } catch (final Exception t) {
           final String message = "Cannot create JDBC driver of class '"
-            + (driverClassName != null ? driverClassName : "") + "' for connect URL '" + url + "'";
+              + (driverClassName != null ? driverClassName : "") + "' for connect URL '" + url + "'";
           throw new SQLException(message, t);
         }
       }
@@ -502,9 +509,9 @@ public class JdbcDataSourceImpl extends JdbcDataSource {
     }
     this.poolSizeSemaphore = new SemaphoreEx(this.maxPoolSize);
     this.evictor = this.executor.scheduleWithFixedDelay(this::evict, this.evictDelaySeconds,
-      this.evictDelaySeconds, TimeUnit.SECONDS);
+        this.evictDelaySeconds, TimeUnit.SECONDS);
     if (this.state.compareAndSet(DataSourceStateState.INITIALIZING,
-      DataSourceStateState.INITIALIZED)) {
+        DataSourceStateState.INITIALIZED)) {
       this.initLatch.countDown();
     }
   }
@@ -524,7 +531,7 @@ public class JdbcDataSourceImpl extends JdbcDataSource {
 
   @Override
   protected JdbcConnectionTransactionResource newConnectionTransactionResource(
-    final ActiveTransactionContext context) {
+      final ActiveTransactionContext context) {
     return new ConnectionTransactionResource(context);
   }
 
@@ -557,8 +564,24 @@ public class JdbcDataSourceImpl extends JdbcDataSource {
     }
   }
 
+  public JdbcDataSourceImpl setConfig(final MapEx newConfig) {
+    for (final Entry<String, Object> property : newConfig.entrySet()) {
+      final String name = property.getKey();
+      final Object value = property.getValue();
+      try {
+        if (!Property.setSimple(this, name, value)) {
+          this.connectionProperties.setProperty(name, value.toString());
+        }
+      } catch (final Throwable t) {
+        Logs.debug(this,
+            "Unable to set data source property " + name + " = " + value + " for " + this.url, t);
+      }
+    }
+    return this;
+  }
+
   public JdbcDataSourceImpl setConnectionInitCallbacks(
-    final ListEx<Consumer<Connection>> connectionInitCallbacks) {
+      final ListEx<Consumer<Connection>> connectionInitCallbacks) {
     this.connectionInitCallbacks = connectionInitCallbacks;
     return this;
   }
@@ -584,7 +607,7 @@ public class JdbcDataSourceImpl extends JdbcDataSource {
   }
 
   public JdbcDataSourceImpl setDurationBetweenEvictionRuns(final Duration duration) {
-    this.evictDelaySeconds = Math.max(1, (int)duration.toSeconds());
+    this.evictDelaySeconds = Math.max(1, (int) duration.toSeconds());
     return this;
   }
 

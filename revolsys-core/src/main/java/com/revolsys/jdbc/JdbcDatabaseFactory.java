@@ -7,7 +7,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
@@ -19,7 +18,6 @@ import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.io.IoFactory;
 import com.revolsys.jdbc.io.JdbcRecordStore;
-import com.revolsys.logging.Logs;
 import com.revolsys.record.io.RecordStoreFactory;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordStore;
@@ -30,12 +28,8 @@ public interface JdbcDatabaseFactory extends RecordStoreFactory {
   String URL_FIELD = "urlField";
 
   static DataSource closeDataSource(final DataSource dataSource) {
-    if (dataSource instanceof JdbcDataSourceImpl) {
-      final JdbcDataSourceImpl basicDataSource = (JdbcDataSourceImpl)dataSource;
-      try {
-        basicDataSource.close();
-      } catch (final SQLException e) {
-      }
+    if (dataSource instanceof final JdbcDataSourceImpl ds) {
+      ds.close();
     }
     return null;
   }
@@ -45,7 +39,7 @@ public interface JdbcDatabaseFactory extends RecordStoreFactory {
   }
 
   static JdbcDatabaseFactory databaseFactory(final Map<String, ? extends Object> config) {
-    final String url = (String)config.get("url");
+    final String url = (String) config.get("url");
     if (url == null) {
       throw new IllegalArgumentException("The url parameter must be specified");
     } else {
@@ -61,14 +55,14 @@ public interface JdbcDatabaseFactory extends RecordStoreFactory {
   static JdbcDatabaseFactory databaseFactory(final String productName) {
     for (final JdbcDatabaseFactory databaseFactory : databaseFactories()) {
       if (databaseFactory.getProductName()
-        .equals(productName)) {
+          .equals(productName)) {
         return databaseFactory;
       }
     }
     return null;
   }
 
-  static DataSource dataSource(final Map<String, Object> config) {
+  static JdbcDataSourceImpl dataSource(final Map<String, Object> config) {
     final JdbcDatabaseFactory databaseFactory = JdbcDatabaseFactory.databaseFactory(config);
     return databaseFactory.newDataSource(config);
   }
@@ -117,7 +111,7 @@ public interface JdbcDatabaseFactory extends RecordStoreFactory {
 
   @Override
   Class<? extends RecordStore> getRecordStoreInterfaceClass(
-    Map<String, ? extends Object> connectionProperties);
+      Map<String, ? extends Object> connectionProperties);
 
   @Override
   default List<Pattern> getUrlPatterns() {
@@ -132,12 +126,12 @@ public interface JdbcDatabaseFactory extends RecordStoreFactory {
   }
 
   @SuppressWarnings({
-    "unchecked"
+      "unchecked"
   })
-  default DataSource newDataSource(final Map<String, ? extends Object> config) {
+  default JdbcDataSourceImpl newDataSource(final Map<String, ? extends Object> config) {
     try {
       final MapEx newConfig = JsonObject.hash(config);
-      final String url = (String)newConfig.remove("url");
+      final String url = (String) newConfig.remove("url");
 
       final int minPoolSize = newConfig.getInteger("minPoolSize", -1);
       newConfig.remove("minPoolSize");
@@ -173,30 +167,20 @@ public interface JdbcDatabaseFactory extends RecordStoreFactory {
           passwordSupplier = null;
         }
       }
-      final JdbcDataSourceImpl dataSource = new JdbcDataSourceImpl()//
-        .setDriverClassName(getDriverClassName())
-        .setUrl(url)
-        .setMinIdle(minPoolSize)
-        .setMaxIdle(maxIdle)
-        .setMaxPoolSize(maxPoolSize)
-        .setMaxWait(Duration.ofMillis(maxWaitMillis))
-        .setMinEvictableIdle(Duration.ofSeconds(inactivityTimeout))
-        .setDurationBetweenEvictionRuns(Duration.ofSeconds(inactivityTimeout))
-        .setUserSupplier(userSupplier)
-        .setPasswordSupplier(passwordSupplier);
-
-      for (final Entry<String, Object> property : newConfig.entrySet()) {
-        final String name = property.getKey();
-        final Object value = property.getValue();
-        try {
-          Property.setSimple(dataSource, name, value);
-        } catch (final Throwable t) {
-          Logs.debug(this,
-            "Unable to set data source property " + name + " = " + value + " for " + url, t);
-        }
-      }
-
-      return dataSource;
+      @SuppressWarnings("resource")
+      final var dataSource = new JdbcDataSourceImpl();
+      return dataSource//
+          .setDriverClassName(getDriverClassName())
+          .setUrl(url)
+          .setMinIdle(minPoolSize)
+          .setMaxIdle(maxIdle)
+          .setMaxPoolSize(maxPoolSize)
+          .setMaxWait(Duration.ofMillis(maxWaitMillis))
+          .setMinEvictableIdle(Duration.ofSeconds(inactivityTimeout))
+          .setDurationBetweenEvictionRuns(Duration.ofSeconds(inactivityTimeout))
+          .setUserSupplier(userSupplier)
+          .setPasswordSupplier(passwordSupplier)
+          .setConfig(newConfig);
     } catch (final Throwable e) {
       throw new IllegalArgumentException("Unable to create data source for " + config, e);
     }

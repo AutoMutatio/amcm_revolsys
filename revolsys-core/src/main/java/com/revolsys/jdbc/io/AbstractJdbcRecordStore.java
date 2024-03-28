@@ -68,6 +68,7 @@ import com.revolsys.record.schema.RecordStore;
 import com.revolsys.record.schema.RecordStoreSchema;
 import com.revolsys.record.schema.RecordStoreSchemaElement;
 import com.revolsys.transaction.Transaction;
+import com.revolsys.util.BaseCloseable;
 import com.revolsys.util.Booleans;
 import com.revolsys.util.Property;
 
@@ -242,7 +243,7 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
       try {
         super.close();
         if (this.databaseFactory != null && this.dataSource != null) {
-          JdbcDatabaseFactory.closeDataSource(this.dataSource);
+          BaseCloseable.closeValue(this.dataSource);
         }
       } finally {
         this.allSchemaNames.clear();
