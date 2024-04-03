@@ -62,7 +62,7 @@ public interface JdbcDatabaseFactory extends RecordStoreFactory {
     return null;
   }
 
-  static JdbcDataSourceImpl dataSource(final Map<String, Object> config) {
+  static JdbcDataSource dataSource(final Map<String, Object> config) {
     final JdbcDatabaseFactory databaseFactory = JdbcDatabaseFactory.databaseFactory(config);
     return databaseFactory.newDataSource(config);
   }
@@ -128,7 +128,7 @@ public interface JdbcDatabaseFactory extends RecordStoreFactory {
   @SuppressWarnings({
       "unchecked"
   })
-  default JdbcDataSourceImpl newDataSource(final Map<String, ? extends Object> config) {
+  default JdbcDataSource newDataSource(final Map<String, ? extends Object> config) {
     try {
       final MapEx newConfig = JsonObject.hash(config);
       final String url = (String) newConfig.remove("url");

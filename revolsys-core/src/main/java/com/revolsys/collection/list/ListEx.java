@@ -19,6 +19,8 @@ import javax.measure.Quantity;
 import javax.measure.Unit;
 
 import com.revolsys.collection.iterator.BaseIterable;
+import com.revolsys.collection.json.Json;
+import com.revolsys.collection.json.JsonType;
 import com.revolsys.data.type.DataType;
 import com.revolsys.data.type.DataTypes;
 import com.revolsys.util.Property;
@@ -50,7 +52,7 @@ public interface ListEx<T> extends List<T>, Cloneable, BaseIterable<T> {
 
     @Override
     public boolean equals(final Object o) {
-      return o instanceof List && ((List<?>)o).isEmpty();
+      return o instanceof List && ((List<?>) o).isEmpty();
     }
 
     @Override
@@ -221,7 +223,7 @@ public interface ListEx<T> extends List<T>, Cloneable, BaseIterable<T> {
   }
 
   default <Q extends Quantity<Q>> Quantity<Q> getQuantity(final int index, final Unit<Q> unit,
-    final Quantity<Q> defaultValue) {
+      final Quantity<Q> defaultValue) {
     final Quantity<Q> value = getQuantity(index, unit);
     if (value == null) {
       return defaultValue;
@@ -252,7 +254,7 @@ public interface ListEx<T> extends List<T>, Cloneable, BaseIterable<T> {
 
   @SuppressWarnings("unchecked")
   default <V> V getValue(final int index) {
-    return (V)get(index);
+    return (V) get(index);
   }
 
   default <V extends Object> V getValue(final int index, final DataType dataType) {
@@ -273,6 +275,30 @@ public interface ListEx<T> extends List<T>, Cloneable, BaseIterable<T> {
   @Override
   default Stream<T> parallelStream() {
     return List.super.parallelStream();
+  }
+
+  default boolean removeEmptyProperties() {
+    boolean removed = false;
+    for (final Iterator<T> iterator = iterator(); iterator.hasNext();) {
+      final Object value = iterator.next();
+      if (value instanceof final JsonType jsonValue) {
+        jsonValue.removeEmptyProperties();
+        if (jsonValue.isEmpty()) {
+          iterator.remove();
+          removed = true;
+        }
+      } else if (value instanceof final ListEx list) {
+        list.removeEmptyProperties();
+        if (list.isEmpty()) {
+          iterator.remove();
+          removed = true;
+        }
+      } else if (!Property.hasValue(value)) {
+        iterator.remove();
+        removed = true;
+      }
+    }
+    return removed;
   }
 
   @Override
@@ -316,5 +342,9 @@ public interface ListEx<T> extends List<T>, Cloneable, BaseIterable<T> {
       array[i] = width;
     }
     return array;
+  }
+
+  default String toJsonString(final boolean indent) {
+    return Json.toString(this, indent);
   }
 }
