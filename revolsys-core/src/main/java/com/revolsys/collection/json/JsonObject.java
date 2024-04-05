@@ -82,10 +82,6 @@ public interface JsonObject extends MapEx, JsonType {
     return new JsonObjectHash("items", items);
   }
 
-  static JsonObject parse(final Object value) {
-    return JsonParser.read(value);
-  }
-
   static JsonObject tree() {
     return new JsonObjectTree();
   }
