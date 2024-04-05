@@ -43,30 +43,30 @@ public class AzureManagedIdentityRequestBuilderFactory extends BearerTokenReques
 
   public static HttpRequestBuilder createTokenRequestBuilder(final String resource) {
     return HttpRequestBuilder//
-      .get(ENDPOINT_URL)
-      .addHeader(IDENTITY_HEADER)
-      .addParameter(API_VERSION)
-      .addParameter("resource", resource);
+        .get(ENDPOINT_URL)
+        .addHeader(IDENTITY_HEADER)
+        .addParameter(API_VERSION)
+        .addParameter("resource", resource);
   }
 
   public static boolean isAvailable() {
     return AVAILABLE;
   }
 
-  public static final Function<BearerToken, BearerToken> tokenRefesh(final String resource) {
-    return token -> {
-      if (isAvailable()) {
+  public static final Function<BearerToken, BearerToken> tokenRefresh(final String resource) {
+    if (isAvailable()) {
+      return token -> {
         final var requestBuilder = createTokenRequestBuilder(resource);
         final var response = requestBuilder.getJson();
         return new AzureManagedIdentityBearerToken(response, resource);
-      } else {
-        return null;
-      }
-    };
+      };
+    } else {
+      throw new IllegalStateException("Managed identity not supported");
+    }
   }
 
   public AzureManagedIdentityRequestBuilderFactory(final String resource) {
-    super(tokenRefesh(resource));
+    super(tokenRefresh(resource));
   }
 
 }

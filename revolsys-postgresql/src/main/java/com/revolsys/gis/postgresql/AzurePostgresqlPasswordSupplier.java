@@ -23,7 +23,7 @@ public class AzurePostgresqlPasswordSupplier implements Supplier<String> {
   private static final String SCOPE = "https://ossrdbms-aad.database.windows.net/.default";
 
   public static AzurePostgresqlPasswordSupplier managed() {
-    final var tokenRefresh = AzureManagedIdentityRequestBuilderFactory.tokenRefesh(RESOURCE);
+    final var tokenRefresh = AzureManagedIdentityRequestBuilderFactory.tokenRefresh(RESOURCE);
     return new AzurePostgresqlPasswordSupplier(tokenRefresh);
   }
 
@@ -43,7 +43,7 @@ public class AzurePostgresqlPasswordSupplier implements Supplier<String> {
    */
   public AzurePostgresqlPasswordSupplier(final Properties properties) {
     if ("true".equals(properties.getProperty("azure.managedId", "false"))) {
-      this.tokenRefresh = AzureManagedIdentityRequestBuilderFactory.tokenRefesh(RESOURCE);
+      this.tokenRefresh = AzureManagedIdentityRequestBuilderFactory.tokenRefresh(RESOURCE);
     } else {
       throw new IllegalArgumentException("Invalid properties");
     }

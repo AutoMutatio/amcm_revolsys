@@ -2,6 +2,7 @@ package com.revolsys.http;
 
 import java.io.File;
 import java.util.List;
+import java.util.function.Function;
 
 import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.json.JsonParser;
@@ -14,6 +15,10 @@ import com.revolsys.net.oauth.BearerToken;
 import com.revolsys.net.oauth.OpenIdScope;
 
 public class AzureCliRequestBuilderFactory extends BearerTokenRequestBuilderFactory {
+
+  public static BearerToken newToken(final OpenIdScope scope) {
+    return newToken(scope.getScope());
+  }
 
   public static BearerToken newToken(final String scope) {
     final List<String> command = Lists.newArray("cmd", "/c", "az", "account", "get-access-token",
@@ -49,11 +54,16 @@ public class AzureCliRequestBuilderFactory extends BearerTokenRequestBuilderFact
     return null;
   }
 
-  public AzureCliRequestBuilderFactory(final OpenIdScope scope) {
-    this(scope.getScope());
+  public static final Function<BearerToken, BearerToken> tokenRefresh(final OpenIdScope resource) {
+    return token -> newToken(resource);
   }
 
-  public AzureCliRequestBuilderFactory(final String resource) {
-    super(token -> newToken(resource));
+  public static final Function<BearerToken, BearerToken> tokenRefresh(final String resource) {
+    return token -> newToken(resource);
   }
+
+  public AzureCliRequestBuilderFactory(final OpenIdScope scope) {
+    super(tokenRefresh(scope));
+  }
+
 }

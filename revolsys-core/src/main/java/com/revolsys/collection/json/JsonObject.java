@@ -29,7 +29,7 @@ public interface JsonObject extends MapEx, JsonType {
     @Override
     public boolean equals(final Object object) {
       if (object instanceof Map<?, ?>) {
-        final Map<?, ?> map = (Map<?, ?>)object;
+        final Map<?, ?> map = (Map<?, ?>) object;
         return map.isEmpty();
       } else {
         return false;
@@ -38,7 +38,7 @@ public interface JsonObject extends MapEx, JsonType {
 
     @Override
     public boolean equals(final Object object,
-      final Collection<? extends CharSequence> excludeFieldNames) {
+        final Collection<? extends CharSequence> excludeFieldNames) {
       return equals(object);
     }
 
@@ -49,10 +49,10 @@ public interface JsonObject extends MapEx, JsonType {
   };
 
   static DataTypeValueFactory<JsonObject> HASH_FACTORY = Json.JSON_OBJECT
-    .newFactory(JsonObjectHash::new);
+      .newFactory(JsonObjectHash::new);
 
   static DataTypeValueFactory<JsonObject> TREE_FACTORY = Json.JSON_OBJECT
-    .newFactory(JsonObjectTree::new);
+      .newFactory(JsonObjectTree::new);
 
   static JsonObject hash() {
     return new JsonObjectHash();
@@ -112,7 +112,7 @@ public interface JsonObject extends MapEx, JsonType {
 
   @Override
   default JsonObject addFieldValue(final CharSequence key,
-    final Map<? extends CharSequence, ? extends Object> source) {
+      final Map<? extends CharSequence, ? extends Object> source) {
     final Object value = source.get(key);
     if (value != null || containsKey(key)) {
       addValue(key, value);
@@ -122,7 +122,7 @@ public interface JsonObject extends MapEx, JsonType {
 
   @Override
   default <SK> JsonObject addFieldValue(final CharSequence key,
-    final Map<SK, ? extends Object> source, final SK sourceKey) {
+      final Map<SK, ? extends Object> source, final SK sourceKey) {
     final Object value = source.get(sourceKey);
     if (value != null || containsKey(key)) {
       addValue(key, value);
@@ -224,7 +224,7 @@ public interface JsonObject extends MapEx, JsonType {
 
   @Override
   default JsonObject asJson() {
-    return (JsonObject)JsonType.super.asJson();
+    return (JsonObject) JsonType.super.asJson();
   }
 
   @Override
@@ -248,7 +248,7 @@ public interface JsonObject extends MapEx, JsonType {
       if (offset + 1 == names.length) {
         return value;
       } else if (value instanceof JsonObject) {
-        final JsonObject object = (JsonObject)value;
+        final JsonObject object = (JsonObject) value;
         return object.getByPath(names, offset + 1);
       }
     }
@@ -277,14 +277,14 @@ public interface JsonObject extends MapEx, JsonType {
 
   @Override
   default JsonObject renameProperty(final CharSequence oldName, final CharSequence newName,
-    final DataType dataType) {
+      final DataType dataType) {
     MapEx.super.renameProperty(oldName, newName, dataType);
     return this;
   }
 
   @Override
   default JsonObject toJson() {
-    return (JsonObject)JsonType.super.toJson();
+    return (JsonObject) JsonType.super.toJson();
   }
 
   @Override
