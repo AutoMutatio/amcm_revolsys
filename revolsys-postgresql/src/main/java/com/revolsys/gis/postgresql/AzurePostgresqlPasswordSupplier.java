@@ -10,6 +10,7 @@ import org.springframework.dao.TransientDataAccessResourceException;
 import com.revolsys.collection.value.ValueHolder;
 import com.revolsys.http.AzureManagedIdentityRequestBuilderFactory;
 import com.revolsys.net.oauth.BearerToken;
+import com.revolsys.net.oauth.MicrosoftOpenIdScope;
 
 /**
  * The authentication password supplier that enables authentication with
@@ -18,12 +19,11 @@ import com.revolsys.net.oauth.BearerToken;
  */
 public class AzurePostgresqlPasswordSupplier implements Supplier<String> {
 
-  private static final String RESOURCE = "https://ossrdbms-aad.database.windows.net";
-
-  private static final String SCOPE = "https://ossrdbms-aad.database.windows.net/.default";
+  private static final MicrosoftOpenIdScope SCOPE = MicrosoftOpenIdScope
+      .fromResource("https://ossrdbms-aad.database.windows.net");
 
   public static AzurePostgresqlPasswordSupplier managed() {
-    final var tokenRefresh = AzureManagedIdentityRequestBuilderFactory.tokenRefresh(RESOURCE);
+    final var tokenRefresh = AzureManagedIdentityRequestBuilderFactory.tokenRefresh(SCOPE);
     return new AzurePostgresqlPasswordSupplier(tokenRefresh);
   }
 
@@ -43,7 +43,7 @@ public class AzurePostgresqlPasswordSupplier implements Supplier<String> {
    */
   public AzurePostgresqlPasswordSupplier(final Properties properties) {
     if ("true".equals(properties.getProperty("azure.managedId", "false"))) {
-      this.tokenRefresh = AzureManagedIdentityRequestBuilderFactory.tokenRefresh(RESOURCE);
+      this.tokenRefresh = AzureManagedIdentityRequestBuilderFactory.tokenRefresh(SCOPE);
     } else {
       throw new IllegalArgumentException("Invalid properties");
     }
