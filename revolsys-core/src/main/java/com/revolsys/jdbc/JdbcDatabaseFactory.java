@@ -1,12 +1,13 @@
-package com.revolsys.jdbc.io;
+package com.revolsys.jdbc;
 
 import java.nio.file.Path;
 import java.sql.SQLException;
+import java.time.Duration;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
+import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
 import javax.sql.DataSource;
@@ -16,7 +17,7 @@ import org.springframework.dao.DataAccessException;
 import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.io.IoFactory;
-import com.revolsys.logging.Logs;
+import com.revolsys.jdbc.io.JdbcRecordStore;
 import com.revolsys.record.io.RecordStoreFactory;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordStore;
@@ -27,12 +28,8 @@ public interface JdbcDatabaseFactory extends RecordStoreFactory {
   String URL_FIELD = "urlField";
 
   static DataSource closeDataSource(final DataSource dataSource) {
-    if (dataSource instanceof DataSourceImpl) {
-      final DataSourceImpl basicDataSource = (DataSourceImpl)dataSource;
-      try {
-        basicDataSource.close();
-      } catch (final SQLException e) {
-      }
+    if (dataSource instanceof final JdbcDataSourceImpl ds) {
+      ds.close();
     }
     return null;
   }
@@ -42,7 +39,7 @@ public interface JdbcDatabaseFactory extends RecordStoreFactory {
   }
 
   static JdbcDatabaseFactory databaseFactory(final Map<String, ? extends Object> config) {
-    final String url = (String)config.get("url");
+    final String url = (String) config.get("url");
     if (url == null) {
       throw new IllegalArgumentException("The url parameter must be specified");
     } else {
@@ -57,14 +54,15 @@ public interface JdbcDatabaseFactory extends RecordStoreFactory {
 
   static JdbcDatabaseFactory databaseFactory(final String productName) {
     for (final JdbcDatabaseFactory databaseFactory : databaseFactories()) {
-      if (databaseFactory.getProductName().equals(productName)) {
+      if (databaseFactory.getProductName()
+          .equals(productName)) {
         return databaseFactory;
       }
     }
     return null;
   }
 
-  static DataSource dataSource(final Map<String, Object> config) {
+  static JdbcDataSource dataSource(final Map<String, Object> config) {
     final JdbcDatabaseFactory databaseFactory = JdbcDatabaseFactory.databaseFactory(config);
     return databaseFactory.newDataSource(config);
   }
@@ -94,8 +92,9 @@ public interface JdbcDatabaseFactory extends RecordStoreFactory {
   List<FieldDefinition> getConnectionFieldDefinitions();
 
   /**
-   * Get  the map from connection name to JDBC URL for the database driver. For
+   * Get the map from connection name to JDBC URL for the database driver. For
    * example in Oracle this will be connections loaded from the TNSNAMES.ora file.
+   *
    * @return
    */
   default Map<String, String> getConnectionUrlMap() {
@@ -112,7 +111,7 @@ public interface JdbcDatabaseFactory extends RecordStoreFactory {
 
   @Override
   Class<? extends RecordStore> getRecordStoreInterfaceClass(
-    Map<String, ? extends Object> connectionProperties);
+      Map<String, ? extends Object> connectionProperties);
 
   @Override
   default List<Pattern> getUrlPatterns() {
@@ -126,57 +125,62 @@ public interface JdbcDatabaseFactory extends RecordStoreFactory {
     return true;
   }
 
-  default DataSource newDataSource(final Map<String, ? extends Object> config) {
+  @SuppressWarnings({
+      "unchecked"
+  })
+  default JdbcDataSource newDataSource(final Map<String, ? extends Object> config) {
     try {
       final MapEx newConfig = JsonObject.hash(config);
-      final String url = (String)newConfig.remove("url");
-      final String user = (String)newConfig.remove("user");
-      String password = (String)newConfig.remove("password");
-      if (Property.hasValue(password)) {
-        password = PasswordUtil.decrypt(password);
-      }
-      final DataSourceImpl dataSource = new DataSourceImpl();
-      dataSource.setAccessToUnderlyingConnectionAllowed(true);
-      dataSource.setDriverClassName(getDriverClassName());
-      dataSource.setUsername(user);
-      dataSource.setPassword(password);
-      dataSource.setUrl(url);
-      dataSource.setValidationQuery(getConnectionValidationQuery());
+      final String url = (String) newConfig.remove("url");
 
       final int minPoolSize = newConfig.getInteger("minPoolSize", -1);
       newConfig.remove("minPoolSize");
-      dataSource.setMinIdle(minPoolSize);
-      dataSource.setMaxIdle(-1);
-
       final int maxPoolSize = newConfig.getInteger("maxPoolSize", 10);
       newConfig.remove("maxPoolSize");
-      dataSource.setMaxTotal(maxPoolSize);
-
+      final int maxIdle = newConfig.getInteger("maxIdle", Math.max(minPoolSize, maxPoolSize));
+      newConfig.remove("maxIdle");
       final int maxWaitMillis = newConfig.getInteger("waitTimeout", 10);
       newConfig.remove("waitTimeout");
-      dataSource.setMaxWaitMillis(maxWaitMillis);
-
-      final boolean validateConnection = newConfig.getBoolean("validateConnection", true);
-      newConfig.remove("validateConnection");
-      dataSource.setTestOnCreate(validateConnection);
-      // dataSource.setTestOnBorrow(validateConnection);
-
       final int inactivityTimeout = newConfig.getInteger("inactivityTimeout", 60);
       newConfig.remove("inactivityTimeout");
-      dataSource.setMinEvictableIdleTimeMillis(inactivityTimeout * 1000);
-      dataSource.setTimeBetweenEvictionRunsMillis(inactivityTimeout * 1000);
-
-      for (final Entry<String, Object> property : newConfig.entrySet()) {
-        final String name = property.getKey();
-        final Object value = property.getValue();
-        try {
-          Property.setSimple(dataSource, name, value);
-        } catch (final Throwable t) {
-          Logs.debug(this,
-            "Unable to set data source property " + name + " = " + value + " for " + url, t);
+      Supplier<String> userSupplier;
+      final var user = newConfig.remove("user");
+      {
+        if (user instanceof final Supplier supplier) {
+          userSupplier = supplier;
+        } else if (user != null) {
+          final var s = user.toString();
+          userSupplier = () -> s;
+        } else {
+          userSupplier = null;
         }
       }
-      return dataSource;
+      Supplier<String> passwordSupplier;
+      {
+        final var password = newConfig.remove("password");
+        if (password instanceof final Supplier supplier) {
+          passwordSupplier = supplier;
+        } else if (Property.hasValue(password)) {
+          final var s = PasswordUtil.decrypt(password.toString());
+          passwordSupplier = () -> s;
+        } else {
+          passwordSupplier = null;
+        }
+      }
+      @SuppressWarnings("resource")
+      final var dataSource = new JdbcDataSourceImpl();
+      return dataSource//
+          .setDriverClassName(getDriverClassName())
+          .setUrl(url)
+          .setMinIdle(minPoolSize)
+          .setMaxIdle(maxIdle)
+          .setMaxPoolSize(maxPoolSize)
+          .setMaxWait(Duration.ofMillis(maxWaitMillis))
+          .setMinEvictableIdle(Duration.ofSeconds(inactivityTimeout))
+          .setDurationBetweenEvictionRuns(Duration.ofSeconds(inactivityTimeout))
+          .setUserSupplier(userSupplier)
+          .setPasswordSupplier(passwordSupplier)
+          .setConfig(newConfig);
     } catch (final Throwable e) {
       throw new IllegalArgumentException("Unable to create data source for " + config, e);
     }
@@ -190,6 +194,20 @@ public interface JdbcDatabaseFactory extends RecordStoreFactory {
 
   @Override
   JdbcRecordStore newRecordStore(MapEx connectionProperties);
+
+  default Object removeSupplier(final MapEx newConfig, final String key) {
+    Supplier<String> userSupplier;
+    final var user = newConfig.remove(key);
+    if (user instanceof final Supplier supplier) {
+      userSupplier = supplier;
+    } else if (user != null) {
+      final var s = user.toString();
+      userSupplier = () -> s;
+    } else {
+      userSupplier = null;
+    }
+    return user;
+  }
 
   DataAccessException translateException(String message, String sql, SQLException exception);
 }

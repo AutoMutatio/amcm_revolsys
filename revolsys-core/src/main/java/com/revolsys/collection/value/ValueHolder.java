@@ -1,13 +1,23 @@
 package com.revolsys.collection.value;
 
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 import com.revolsys.util.BaseCloseable;
 import com.revolsys.util.Emptyable;
 
 public interface ValueHolder<T> extends Emptyable {
+  public static <V> LazyValueHolder<V> lazy(final Function<V, V> valueRefresh, final Predicate<V> validator) {
+    return new LazyValueHolder<>(valueRefresh, validator);
+  }
+
   public static <V> LazyValueHolder<V> lazy(final Supplier<V> valueSupplier) {
     return new LazyValueHolder<>(valueSupplier);
+  }
+
+  public static <V> LazyValueHolder<V> lazy(final Supplier<V> valueSupplier, final Predicate<V> validator) {
+    return new LazyValueHolder<>(valueSupplier, validator);
   }
 
   public static <V> ValueHolder<V> of(final V value) {

@@ -11,7 +11,6 @@ import com.revolsys.data.type.DataType;
 import com.revolsys.data.type.DataTypes;
 import com.revolsys.record.query.functions.Exists;
 import com.revolsys.record.query.functions.F;
-import com.revolsys.record.query.functions.JsonRawValue;
 import com.revolsys.record.query.functions.JsonValue;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordStore;
@@ -356,12 +355,12 @@ public class Q {
     return new IsNull(condition);
   }
 
-  public static JsonRawValue jsonRawValue(final QueryValue left, final QueryValue right) {
-    return new JsonRawValue(Arrays.asList(left, right));
+  public static JsonValue jsonRawValue(final QueryValue left, final QueryValue right) {
+    return new JsonValue(Arrays.asList(left, right)).setText(false);
   }
 
-  public static JsonRawValue jsonRawValue(final QueryValue left, final String right) {
-    return jsonRawValue(left, Value.newValue(right));
+  public static JsonValue jsonRawValue(final QueryValue left, final String right) {
+    return jsonRawValue(left, Value.newValue(right)).setText(false);
   }
 
   public static JsonValue jsonValue(final QueryValue left, final QueryValue right) {
@@ -442,13 +441,16 @@ public class Q {
   public static Condition likeRegEx(final RecordStore recordStore, final String fieldName,
     final Object value) {
     QueryValue left;
-    if (recordStore.getClass().getName().contains("Oracle")) {
+    if (recordStore.getClass()
+      .getName()
+      .contains("Oracle")) {
       left = F.regexpReplace(F.upper(fieldName), "[^A-Z0-9]", "");
     } else {
       left = F.regexpReplace(F.upper(fieldName), "[^A-Z0-9]", "", "g");
     }
-    final String right = "%" + DataTypes.toString(value).toUpperCase().replaceAll("[^A-Z0-9]", "")
-      + "%";
+    final String right = "%" + DataTypes.toString(value)
+      .toUpperCase()
+      .replaceAll("[^A-Z0-9]", "") + "%";
     return Q.like(left, right);
   }
 

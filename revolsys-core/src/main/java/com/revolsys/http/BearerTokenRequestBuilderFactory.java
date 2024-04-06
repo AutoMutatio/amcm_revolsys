@@ -6,21 +6,21 @@ import com.revolsys.net.oauth.BearerToken;
 
 public class BearerTokenRequestBuilderFactory extends HttpRequestBuilderFactory {
 
-  private final Function<BearerToken, BearerToken> tokenRefesh;
+  private final Function<BearerToken, BearerToken> tokenRefresh;
 
   private BearerToken token;
 
   public BearerTokenRequestBuilderFactory() {
-    this.tokenRefesh = this::refreshTokenDo;
+    this.tokenRefresh = this::refreshTokenDo;
   }
 
-  public BearerTokenRequestBuilderFactory(final Function<BearerToken, BearerToken> tokenRefesh) {
-    this.tokenRefesh = tokenRefesh;
+  public BearerTokenRequestBuilderFactory(final Function<BearerToken, BearerToken> tokenRefresh) {
+    this.tokenRefresh = tokenRefresh;
   }
 
   protected String getAccessToken() {
     if (this.token == null || this.token.isExpired()) {
-      this.token = this.tokenRefesh.apply(this.token);
+      this.token = this.tokenRefresh.apply(this.token);
     }
     if (this.token == null) {
       return null;

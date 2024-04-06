@@ -1,11 +1,13 @@
 package com.revolsys.parallel;
 
+import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.StructuredTaskScope;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -93,6 +95,28 @@ public class SemaphoreEx extends Semaphore {
       acquire();
       return CompletableFuture.supplyAsync(supplier, executor)
         .whenComplete((r, e) -> release());
+    } catch (final InterruptedException e) {
+      throw Exceptions.toRuntimeException(e);
+    }
+  }
+
+  public boolean tryAcquire(final Duration duration) {
+    return tryAcquire(1, duration);
+  }
+
+  public boolean tryAcquire(final int permits, final Duration duration) {
+    try {
+      if (duration.isZero()) {
+        // Don't wait
+        return tryAcquire();
+      } else if (duration.isNegative()) {
+        // Wait indefinitely
+        acquire();
+        return true;
+      } else {
+        final var nano = duration.getNano();
+        return tryAcquire(permits, nano, TimeUnit.NANOSECONDS);
+      }
     } catch (final InterruptedException e) {
       throw Exceptions.toRuntimeException(e);
     }

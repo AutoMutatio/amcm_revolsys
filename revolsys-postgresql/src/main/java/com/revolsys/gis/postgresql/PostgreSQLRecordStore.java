@@ -45,7 +45,6 @@ import com.revolsys.record.query.Query;
 import com.revolsys.record.query.QueryValue;
 import com.revolsys.record.query.SqlAppendable;
 import com.revolsys.record.query.functions.EnvelopeIntersects;
-import com.revolsys.record.query.functions.JsonRawValue;
 import com.revolsys.record.query.functions.JsonValue;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
@@ -130,23 +129,6 @@ public class PostgreSQLRecordStore extends AbstractJdbcRecordStore {
     }
   }
 
-  private void appendJsonRawValue(final Query query, final SqlAppendable sql,
-    final QueryValue queryValue) {
-    final JsonRawValue jsonValue = (JsonRawValue)queryValue;
-    final QueryValue jsonParameter = jsonValue.getParameter(0);
-    sql.append('(');
-    jsonParameter.appendSql(query, this, sql);
-
-    final String[] path = jsonValue.getPath().split("\\.");
-    for (int i = 1; i < path.length; i++) {
-      final String propertyName = path[i];
-      sql.append(" -> '");
-      sql.append(propertyName);
-      sql.append("'");
-    }
-    sql.append(")");
-  }
-
   private void appendJsonValue(final Query query, final SqlAppendable sql,
     final QueryValue queryValue) {
     final JsonValue jsonValue = (JsonValue)queryValue;
@@ -154,14 +136,22 @@ public class PostgreSQLRecordStore extends AbstractJdbcRecordStore {
     sql.append('(');
     jsonParameter.appendSql(query, this, sql);
 
-    final String[] path = jsonValue.getPath().split("\\.");
+    final String[] path = jsonValue.getPath()
+      .split("\\.");
     for (int i = 1; i < path.length; i++) {
       final String propertyName = path[i];
-      sql.append(" ->> '");
+      if (jsonValue.isText()) {
+        sql.append(" ->> '");
+      } else {
+        sql.append(" -> '");
+      }
       sql.append(propertyName);
       sql.append("'");
     }
-    sql.append(")::text");
+    sql.append(")");
+    if (jsonValue.isText()) {
+      sql.append("::text");
+    }
   }
 
   @Override
@@ -315,7 +305,6 @@ public class PostgreSQLRecordStore extends AbstractJdbcRecordStore {
       "/PUBLIC/PG_BUFFER_CACHE", "/PUBLIC/PG_STAT_STATEMENTS", "/PUBLIC/SPATIAL_REF_SYS");
     addSqlQueryAppender(EnvelopeIntersects.class, this::appendEnvelopeIntersects);
     addSqlQueryAppender(JsonValue.class, this::appendJsonValue);
-    addSqlQueryAppender(JsonRawValue.class, this::appendJsonRawValue);
   }
 
   @Override
@@ -365,7 +354,8 @@ public class PostgreSQLRecordStore extends AbstractJdbcRecordStore {
   @Override
   public Array newArray(final Connection connection, final String typeName, final Object array) {
     try {
-      return connection.unwrap(PgConnection.class).createArrayOf(typeName, array);
+      return connection.unwrap(PgConnection.class)
+        .createArrayOf(typeName, array);
     } catch (final SQLException e) {
       throw Exceptions.toRuntimeException(e);
     }
@@ -410,8 +400,10 @@ public class PostgreSQLRecordStore extends AbstractJdbcRecordStore {
     final Object[] values = new Object[size];
     int i = 0;
     for (final Object element : elements) {
-      values[i++] = field.getDataType().toObject(element);
+      values[i++] = field.getDataType()
+        .toObject(element);
     }
-    return connection.unwrap(PgConnection.class).createArrayOf(field.getDbDataType(), values);
+    return connection.unwrap(PgConnection.class)
+      .createArrayOf(field.getDbDataType(), values);
   }
 }

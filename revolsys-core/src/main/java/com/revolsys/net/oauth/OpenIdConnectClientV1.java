@@ -36,29 +36,29 @@ public class OpenIdConnectClientV1 extends OpenIdConnectClient {
   }
 
   public Function<BearerToken, BearerToken> bearerTokenRefreshFactory(
-    final OpenIdResource resource) {
+    final OpenIdScope resource) {
     return bearerToken -> tokenClientCredentials(resource);
   }
 
   private OpenIdBearerToken getOpenIdBearerToken(final HttpRequestBuilder requestBuilder,
-    final OpenIdResource resource) {
+    final OpenIdScope resource) {
     final var response = requestBuilder.getJson();
     return new OpenIdBearerToken(this, response, resource);
   }
 
-  public OpenIdBearerToken tokenClientCredentials(final OpenIdResource resource) {
+  public OpenIdBearerToken tokenClientCredentials(final OpenIdScope resource) {
     final var requestBuilder = tokenBuilder("client_credentials", true);
     if (resource != null) {
-      requestBuilder.addParameter("resource", resource.getResource());
+      requestBuilder.addParameter("resource", resource.getScope());
     }
     return getOpenIdBearerToken(requestBuilder, resource);
   }
 
-  public OpenIdBearerToken tokenRefresh(final String refreshToken, final OpenIdResource resource) {
+  public OpenIdBearerToken tokenRefresh(final String refreshToken, final OpenIdScope resource) {
     final var requestBuilder = tokenBuilder("refresh_token", true);
     requestBuilder.addParameter("refresh_token", refreshToken);
     if (resource != null) {
-      requestBuilder.addParameter("resource", resource.getResource());
+      requestBuilder.addParameter("resource", resource.getScope());
     }
     return getOpenIdBearerToken(requestBuilder, resource);
   }
