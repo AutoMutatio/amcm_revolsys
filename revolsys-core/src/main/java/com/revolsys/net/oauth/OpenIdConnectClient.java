@@ -9,6 +9,8 @@ import org.apache.http.client.methods.RequestBuilder;
 import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.json.JsonParser;
 import com.revolsys.http.HttpRequestBuilder;
+import com.revolsys.http.HttpRequestBuilderFactory;
+import com.revolsys.http.OpenIdRequestBuilderFactory;
 import com.revolsys.io.map.ObjectFactoryConfig;
 import com.revolsys.net.http.ApacheHttpException;
 import com.revolsys.net.http.exception.AuthenticationException;
@@ -231,6 +233,10 @@ public class OpenIdConnectClient extends BaseObjectWithProperties {
 
   public String getUserinfoEndpoint() {
     return this.userinfoEndpoint;
+  }
+
+  public HttpRequestBuilderFactory newRequestBuilderFactory(final OpenIdScope scope) {
+    return new OpenIdRequestBuilderFactory(this, scope);
   }
 
   public OpenIdConnectClient setClientId(final String clientId) {
