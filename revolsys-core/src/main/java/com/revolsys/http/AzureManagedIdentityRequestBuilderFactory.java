@@ -10,6 +10,7 @@ import org.apache.http.message.BasicHeader;
 
 import com.revolsys.net.http.SimpleNameValuePair;
 import com.revolsys.net.oauth.BearerToken;
+import com.revolsys.net.oauth.MicrosoftOpenIdScope;
 
 public class AzureManagedIdentityRequestBuilderFactory extends BearerTokenRequestBuilderFactory {
   public static final String ENDPOINT_URL;
@@ -53,10 +54,11 @@ public class AzureManagedIdentityRequestBuilderFactory extends BearerTokenReques
     return AVAILABLE;
   }
 
-  public static final Function<BearerToken, BearerToken> tokenRefresh(final String resource) {
+  public static final Function<BearerToken, BearerToken> tokenRefresh(final MicrosoftOpenIdScope scope) {
     if (isAvailable()) {
+      final var resource = scope.getResource();
+      final var requestBuilder = createTokenRequestBuilder(resource);
       return token -> {
-        final var requestBuilder = createTokenRequestBuilder(resource);
         final var response = requestBuilder.getJson();
         return new AzureManagedIdentityBearerToken(response, resource);
       };
@@ -65,8 +67,8 @@ public class AzureManagedIdentityRequestBuilderFactory extends BearerTokenReques
     }
   }
 
-  public AzureManagedIdentityRequestBuilderFactory(final String resource) {
-    super(tokenRefresh(resource));
+  public AzureManagedIdentityRequestBuilderFactory(final MicrosoftOpenIdScope scope) {
+    super(tokenRefresh(scope));
   }
 
 }
