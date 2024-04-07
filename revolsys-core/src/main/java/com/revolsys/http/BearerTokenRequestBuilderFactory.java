@@ -1,12 +1,11 @@
 package com.revolsys.http;
 
-import java.util.function.Function;
-
 import com.revolsys.net.oauth.BearerToken;
+import com.revolsys.net.oauth.BearerTokenRefresher;
 
 public class BearerTokenRequestBuilderFactory extends HttpRequestBuilderFactory {
 
-  private final Function<BearerToken, BearerToken> tokenRefresh;
+  private final BearerTokenRefresher tokenRefresh;
 
   private BearerToken token;
 
@@ -14,13 +13,13 @@ public class BearerTokenRequestBuilderFactory extends HttpRequestBuilderFactory 
     this.tokenRefresh = this::refreshTokenDo;
   }
 
-  public BearerTokenRequestBuilderFactory(final Function<BearerToken, BearerToken> tokenRefresh) {
+  public BearerTokenRequestBuilderFactory(final BearerTokenRefresher tokenRefresh) {
     this.tokenRefresh = tokenRefresh;
   }
 
   protected String getAccessToken() {
     if (this.token == null || this.token.isExpired()) {
-      this.token = this.tokenRefresh.apply(this.token);
+      this.token = this.tokenRefresh.refreshBearerToken(this.token);
     }
     if (this.token == null) {
       return null;

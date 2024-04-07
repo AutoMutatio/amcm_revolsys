@@ -1,7 +1,5 @@
 package com.revolsys.net.oauth;
 
-import java.util.function.Function;
-
 import com.revolsys.collection.json.JsonObject;
 import com.revolsys.http.HttpRequestBuilder;
 import com.revolsys.record.io.format.json.JsonIo;
@@ -35,7 +33,7 @@ public class OpenIdConnectClientV1 extends OpenIdConnectClient {
     super(config);
   }
 
-  public Function<BearerToken, BearerToken> bearerTokenRefreshFactory(
+  public BearerTokenRefresher newTokenRefresh(
     final OpenIdScope resource) {
     return bearerToken -> tokenClientCredentials(resource);
   }

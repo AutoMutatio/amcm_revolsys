@@ -9,8 +9,6 @@ import org.apache.http.client.methods.RequestBuilder;
 import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.json.JsonParser;
 import com.revolsys.http.HttpRequestBuilder;
-import com.revolsys.http.HttpRequestBuilderFactory;
-import com.revolsys.http.OpenIdRequestBuilderFactory;
 import com.revolsys.io.map.ObjectFactoryConfig;
 import com.revolsys.net.http.ApacheHttpException;
 import com.revolsys.net.http.exception.AuthenticationException;
@@ -19,7 +17,7 @@ import com.revolsys.record.io.format.json.JsonIo;
 import com.revolsys.spring.resource.Resource;
 import com.revolsys.util.Strings;
 
-public class OpenIdConnectClient extends BaseObjectWithProperties {
+public class OpenIdConnectClient extends BaseObjectWithProperties implements BearerTokenFactory {
 
   public static OpenIdConnectClient google() {
     return newClient("https://accounts.google.com/.well-known/openid-configuration");
@@ -139,14 +137,6 @@ public class OpenIdConnectClient extends BaseObjectWithProperties {
     return builder;
   }
 
-  public Function<BearerToken, BearerToken> bearerTokenRefreshFactory(final OpenIdScope scope) {
-    return bearerToken -> tokenClientCredentials(scope.getScope());
-  }
-
-  public Function<BearerToken, BearerToken> bearerTokenRefreshFactory(final String scope) {
-    return bearerToken -> tokenClientCredentials(scope);
-  }
-
   public DeviceCodeResponse deviceCode(final String scope) {
     final var requestBuilder = HttpRequestBuilder//
         .post(this.deviceAuthorizationEndpoint);
@@ -235,8 +225,9 @@ public class OpenIdConnectClient extends BaseObjectWithProperties {
     return this.userinfoEndpoint;
   }
 
-  public HttpRequestBuilderFactory newRequestBuilderFactory(final OpenIdScope scope) {
-    return new OpenIdRequestBuilderFactory(this, scope);
+  @Override
+  public BearerTokenRefresher newTokenRefresh(final OpenIdScope scope) {
+    return bearerToken -> tokenClientCredentials(scope.getScope());
   }
 
   public OpenIdConnectClient setClientId(final String clientId) {
