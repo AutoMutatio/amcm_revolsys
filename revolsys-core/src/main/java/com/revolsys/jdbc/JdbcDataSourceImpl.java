@@ -537,7 +537,11 @@ public class JdbcDataSourceImpl extends JdbcDataSource implements BaseCloseable 
 
   @Override
   protected SQLErrorCodeSQLExceptionTranslator newExceptionTranslator() {
-    return new SQLErrorCodeSQLExceptionTranslator(this);
+    try {
+      return new SQLErrorCodeSQLExceptionTranslator(this);
+    } catch (final Exception e) {
+      return new SQLErrorCodeSQLExceptionTranslator();
+    }
   }
 
   @Override

@@ -35,6 +35,8 @@ public abstract class JdbcDataSource implements DataSource {
     }
   }
 
+  public SQLErrorCodeSQLExceptionTranslator DEFAULT_ERROR_HANDLER = new SQLErrorCodeSQLExceptionTranslator();
+
   private final Object key = new Object();
 
   protected final ValueHolder<SQLErrorCodeSQLExceptionTranslator> exceptionTranslator = ValueHolder
