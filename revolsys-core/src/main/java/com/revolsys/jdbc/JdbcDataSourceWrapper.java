@@ -55,7 +55,7 @@ public class JdbcDataSourceWrapper extends JdbcDataSource {
 
   @Override
   public Connection getConnection(final String username, final String password)
-    throws SQLException {
+      throws SQLException {
     throw new UnsupportedOperationException("Username/password connections are not supported");
   }
 
@@ -93,13 +93,17 @@ public class JdbcDataSourceWrapper extends JdbcDataSource {
 
   @Override
   protected JdbcConnectionTransactionResource newConnectionTransactionResource(
-    final ActiveTransactionContext context) {
+      final ActiveTransactionContext context) {
     return new ConnectionTransactionResource(context);
   }
 
   @Override
   protected SQLErrorCodeSQLExceptionTranslator newExceptionTranslator() {
-    return new SQLErrorCodeSQLExceptionTranslator(this.dataSource);
+    try {
+      return new SQLErrorCodeSQLExceptionTranslator(this.dataSource);
+    } catch (final Exception e) {
+      return new SQLErrorCodeSQLExceptionTranslator();
+    }
   }
 
   @Override
