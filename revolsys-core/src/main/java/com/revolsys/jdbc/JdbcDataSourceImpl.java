@@ -26,6 +26,7 @@ import java.util.logging.Logger;
 import org.springframework.dao.TransientDataAccessResourceException;
 import org.springframework.jdbc.CannotGetJdbcConnectionException;
 import org.springframework.jdbc.support.SQLErrorCodeSQLExceptionTranslator;
+import org.springframework.jdbc.support.SQLErrorCodesFactory;
 
 import com.revolsys.collection.list.ListEx;
 import com.revolsys.collection.map.MapEx;
@@ -351,15 +352,7 @@ public class JdbcDataSourceImpl extends JdbcDataSource implements BaseCloseable 
       var entry = nextEntry();
       if (entry == null) {
         try {
-          final var url = getUrl();
-          final var connectionProperties = new Properties(this.connectionProperties);
-          if (this.userSupplier != null) {
-            connectionProperties.setProperty("user", this.userSupplier.get());
-          }
-          if (this.passwordSupplier != null) {
-            connectionProperties.setProperty("password", this.passwordSupplier.get());
-          }
-          final var connection = this.driver.connect(url, connectionProperties);
+          final var connection = newConnectionDo();
           if (connection == null) {
             throw new CannotGetJdbcConnectionException(
                 "JDBC driver doesn't support connection URL");
@@ -529,6 +522,19 @@ public class JdbcDataSourceImpl extends JdbcDataSource implements BaseCloseable 
     return iface != null && iface.isInstance(this);
   }
 
+  private Connection newConnectionDo() throws SQLException {
+    final var url = getUrl();
+    final var connectionProperties = new Properties(this.connectionProperties);
+    if (this.userSupplier != null) {
+      connectionProperties.setProperty("user", this.userSupplier.get());
+    }
+    if (this.passwordSupplier != null) {
+      connectionProperties.setProperty("password", this.passwordSupplier.get());
+    }
+    final var connection = this.driver.connect(url, connectionProperties);
+    return connection;
+  }
+
   @Override
   protected JdbcConnectionTransactionResource newConnectionTransactionResource(
       final ActiveTransactionContext context) {
@@ -537,11 +543,23 @@ public class JdbcDataSourceImpl extends JdbcDataSource implements BaseCloseable 
 
   @Override
   protected SQLErrorCodeSQLExceptionTranslator newExceptionTranslator() {
+    final var translator = new SQLErrorCodeSQLExceptionTranslator();
     try {
-      return new SQLErrorCodeSQLExceptionTranslator(this);
-    } catch (final Exception e) {
-      return new SQLErrorCodeSQLExceptionTranslator();
+      try (
+          var connection = newConnectionDo()) {
+        final var metadata = connection.getMetaData();
+        final var productName = metadata.getDatabaseProductName();
+        final var errorCodes = SQLErrorCodesFactory.getInstance().getErrorCodes(productName);
+        translator.setSqlErrorCodes(errorCodes);
+      }
+    } catch (final SQLException e) {
+      return translator;
+    } catch (final Throwable e) {
+      if (Exceptions.isInterruptException(e)) {
+        throw e;
+      }
     }
+    return translator;
   }
 
   @Override
