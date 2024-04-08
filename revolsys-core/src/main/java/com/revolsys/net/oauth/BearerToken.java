@@ -64,6 +64,10 @@ public class BearerToken {
     return System.currentTimeMillis() >= this.expireTime;
   }
 
+  public boolean isValid() {
+    return System.currentTimeMillis() < this.expireTime;
+  }
+
   protected void setExpireTime(final long expireTime) {
     this.expireTime = expireTime;
   }
