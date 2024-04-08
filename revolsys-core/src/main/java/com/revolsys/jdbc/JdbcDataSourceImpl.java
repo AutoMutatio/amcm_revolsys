@@ -43,7 +43,7 @@ public class JdbcDataSourceImpl extends JdbcDataSource implements BaseCloseable 
     private static final AtomicInteger INDEX = new AtomicInteger();
 
     private final AtomicReference<ConnectionEntryState> state = new AtomicReference<>(
-        ConnectionEntryState.IDLE);
+      ConnectionEntryState.IDLE);
 
     private Connection connection;
 
@@ -71,7 +71,7 @@ public class JdbcDataSourceImpl extends JdbcDataSource implements BaseCloseable 
     private void close() {
       final var oldState = this.state.get();
       if (oldState != ConnectionEntryState.CLOSED
-          && this.state.compareAndSet(oldState, ConnectionEntryState.CLOSED)) {
+        && this.state.compareAndSet(oldState, ConnectionEntryState.CLOSED)) {
         final var connection = this.connection;
         this.connection = null;
         if (JdbcDataSourceImpl.this.idleConnections.remove(this)) {
@@ -132,7 +132,7 @@ public class JdbcDataSourceImpl extends JdbcDataSource implements BaseCloseable 
         final var state = this.state.get();
         if (state == ConnectionEntryState.IDLE) {
           throw new IllegalStateException(
-              "Cannot release connection as it is not aqcuired:  " + state);
+            "Cannot release connection as it is not aqcuired:  " + state);
         }
       }
     }
@@ -152,7 +152,7 @@ public class JdbcDataSourceImpl extends JdbcDataSource implements BaseCloseable 
     private ConnectionEntry entry;
 
     public ConnectionImpl(final JdbcDataSource dataSource, final ConnectionEntry entry,
-        final Connection connection, final boolean close) throws SQLException {
+      final Connection connection, final boolean close) throws SQLException {
       super(dataSource, connection, close);
       this.entry = entry;
     }
@@ -213,9 +213,9 @@ public class JdbcDataSourceImpl extends JdbcDataSource implements BaseCloseable 
   private static final Duration MAX_DURATION = Duration.ofMillis(Long.MAX_VALUE);
 
   private final ScheduledExecutorService executor = Executors.newScheduledThreadPool(0,
-      Thread.ofVirtual()
-          .name("datasourceevictor-", 0)
-          .factory());
+    Thread.ofVirtual()
+      .name("datasourceevictor-", 0)
+      .factory());
 
   private final AtomicBoolean closed = new AtomicBoolean();
 
@@ -262,7 +262,7 @@ public class JdbcDataSourceImpl extends JdbcDataSource implements BaseCloseable 
   private SemaphoreEx poolSizeSemaphore;
 
   private final AtomicReference<DataSourceStateState> state = new AtomicReference<>(
-      DataSourceStateState.NEW);
+    DataSourceStateState.NEW);
 
   private final CountDownLatch initLatch = new CountDownLatch(1);
 
@@ -321,7 +321,7 @@ public class JdbcDataSourceImpl extends JdbcDataSource implements BaseCloseable 
       final var idleSoftEvict = getIdleSoftEvictDuration();
       final var idleEvict = getIdleEvictDuration();
       if (idleSoftEvict.compareTo(idleDuration) < 0 && getMinIdle() < idleCount
-          || idleEvict.compareTo(idleDuration) < 0) {
+        || idleEvict.compareTo(idleDuration) < 0) {
         removeEntry(entry);
       } else if (entry.isClosed()) {
         removeEntry(entry);
@@ -355,7 +355,7 @@ public class JdbcDataSourceImpl extends JdbcDataSource implements BaseCloseable 
           final var connection = newConnectionDo();
           if (connection == null) {
             throw new CannotGetJdbcConnectionException(
-                "JDBC driver doesn't support connection URL");
+              "JDBC driver doesn't support connection URL");
           }
           try {
             for (final Consumer<Connection> callback : JdbcDataSourceImpl.this.connectionInitCallbacks) {
@@ -468,8 +468,8 @@ public class JdbcDataSourceImpl extends JdbcDataSource implements BaseCloseable 
               }
             } catch (final ClassNotFoundException cnfe) {
               driverFromCCL = Thread.currentThread()
-                  .getContextClassLoader()
-                  .loadClass(driverClassName);
+                .getContextClassLoader()
+                .loadClass(driverClassName);
             }
           } catch (final Exception t) {
             final String message = "Cannot load JDBC driver class '" + driverClassName + "'";
@@ -485,15 +485,15 @@ public class JdbcDataSourceImpl extends JdbcDataSource implements BaseCloseable 
             // respect the ContextClassLoader
             // N.B. This cast may cause ClassCastException which is
             // handled below
-            this.driver = (Driver) driverFromCCL.getConstructor()
-                .newInstance();
+            this.driver = (Driver)driverFromCCL.getConstructor()
+              .newInstance();
             if (!this.driver.acceptsURL(url)) {
               throw new SQLException("No suitable driver", "08001");
             }
           }
         } catch (final Exception t) {
           final String message = "Cannot create JDBC driver of class '"
-              + (driverClassName != null ? driverClassName : "") + "' for connect URL '" + url + "'";
+            + (driverClassName != null ? driverClassName : "") + "' for connect URL '" + url + "'";
           throw new SQLException(message, t);
         }
       }
@@ -502,9 +502,9 @@ public class JdbcDataSourceImpl extends JdbcDataSource implements BaseCloseable 
     }
     this.poolSizeSemaphore = new SemaphoreEx(this.maxPoolSize);
     this.evictor = this.executor.scheduleWithFixedDelay(this::evict, this.evictDelaySeconds,
-        this.evictDelaySeconds, TimeUnit.SECONDS);
+      this.evictDelaySeconds, TimeUnit.SECONDS);
     if (this.state.compareAndSet(DataSourceStateState.INITIALIZING,
-        DataSourceStateState.INITIALIZED)) {
+      DataSourceStateState.INITIALIZED)) {
       this.initLatch.countDown();
     }
   }
@@ -526,10 +526,18 @@ public class JdbcDataSourceImpl extends JdbcDataSource implements BaseCloseable 
     final var url = getUrl();
     final var connectionProperties = new Properties(this.connectionProperties);
     if (this.userSupplier != null) {
-      connectionProperties.setProperty("user", this.userSupplier.get());
+      final var user = this.userSupplier.get();
+      if (user == null) {
+        throw new IllegalArgumentException("User was null");
+      }
+      connectionProperties.setProperty("user", user);
     }
     if (this.passwordSupplier != null) {
-      connectionProperties.setProperty("password", this.passwordSupplier.get());
+      final var password = this.passwordSupplier.get();
+      if (password == null) {
+        throw new IllegalArgumentException("password was null");
+      }
+      connectionProperties.setProperty("password", password);
     }
     final var connection = this.driver.connect(url, connectionProperties);
     return connection;
@@ -537,7 +545,7 @@ public class JdbcDataSourceImpl extends JdbcDataSource implements BaseCloseable 
 
   @Override
   protected JdbcConnectionTransactionResource newConnectionTransactionResource(
-      final ActiveTransactionContext context) {
+    final ActiveTransactionContext context) {
     return new ConnectionTransactionResource(context);
   }
 
@@ -546,10 +554,11 @@ public class JdbcDataSourceImpl extends JdbcDataSource implements BaseCloseable 
     final var translator = new SQLErrorCodeSQLExceptionTranslator();
     try {
       try (
-          var connection = newConnectionDo()) {
+        var connection = newConnectionDo()) {
         final var metadata = connection.getMetaData();
         final var productName = metadata.getDatabaseProductName();
-        final var errorCodes = SQLErrorCodesFactory.getInstance().getErrorCodes(productName);
+        final var errorCodes = SQLErrorCodesFactory.getInstance()
+          .getErrorCodes(productName);
         translator.setSqlErrorCodes(errorCodes);
       }
     } catch (final SQLException e) {
@@ -596,14 +605,14 @@ public class JdbcDataSourceImpl extends JdbcDataSource implements BaseCloseable 
         }
       } catch (final Throwable t) {
         Logs.debug(this,
-            "Unable to set data source property " + name + " = " + value + " for " + this.url, t);
+          "Unable to set data source property " + name + " = " + value + " for " + this.url, t);
       }
     }
     return this;
   }
 
   public JdbcDataSourceImpl setConnectionInitCallbacks(
-      final ListEx<Consumer<Connection>> connectionInitCallbacks) {
+    final ListEx<Consumer<Connection>> connectionInitCallbacks) {
     this.connectionInitCallbacks = connectionInitCallbacks;
     return this;
   }
@@ -629,7 +638,7 @@ public class JdbcDataSourceImpl extends JdbcDataSource implements BaseCloseable 
   }
 
   public JdbcDataSourceImpl setDurationBetweenEvictionRuns(final Duration duration) {
-    this.evictDelaySeconds = Math.max(1, (int) duration.toSeconds());
+    this.evictDelaySeconds = Math.max(1, (int)duration.toSeconds());
     return this;
   }
 
