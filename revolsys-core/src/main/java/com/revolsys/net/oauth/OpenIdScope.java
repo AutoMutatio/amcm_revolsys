@@ -1,6 +1,16 @@
 package com.revolsys.net.oauth;
 
+import com.revolsys.util.Property;
+
 public class OpenIdScope implements CharSequence {
+
+  public static OpenIdScope forString(final String scope) {
+    if (Property.hasValue(scope)) {
+      return new OpenIdScope(scope);
+    } else {
+      return null;
+    }
+  }
 
   private final String scope;
 
