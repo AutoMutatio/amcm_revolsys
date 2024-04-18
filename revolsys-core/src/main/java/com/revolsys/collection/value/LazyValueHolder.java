@@ -1,17 +1,11 @@
 package com.revolsys.collection.value;
 
-import java.io.Closeable;
-import java.io.IOException;
-import java.util.concurrent.locks.ReentrantLock;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.function.Supplier;
-
 import java.time.Duration;
 import java.time.Instant;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
@@ -24,7 +18,7 @@ public class LazyValueHolder<T> implements ValueHolder<T>, BaseCloseable {
   public static class Builder<V> {
     private final LazyValueHolder<V> holder = new LazyValueHolder<>();
 
-    public ValueHolder<V> build() {
+    public LazyValueHolder<V> build() {
       return this.holder;
     }
 
@@ -117,7 +111,8 @@ public class LazyValueHolder<T> implements ValueHolder<T>, BaseCloseable {
 
   }
 
-  private static final ValueReference<?> EMPTY=new ValueReference<>(){};
+  private static final ValueReference<?> EMPTY = new ValueReference<>() {
+  };
 
   @SuppressWarnings("unchecked")
   public static <V> ValueReference<V> empty() {
@@ -125,15 +120,15 @@ public class LazyValueHolder<T> implements ValueHolder<T>, BaseCloseable {
   }
 
   private Supplier<T> valueSupplier;
+
   private Function<T, T> valueRefresh;
-  private Predicate<T> validator;
+
+  private Predicate<T> validator = Predicates.all();
 
   private final AtomicReference<ValueReference<T>> valueRef = new AtomicReference<>(empty());
 
   private Consumer<T> loadCallback = v -> {
   };
-
-  private Predicate<T> validator = Predicates.all();
 
   protected LazyValueHolder() {
     this(null);
@@ -153,35 +148,12 @@ public class LazyValueHolder<T> implements ValueHolder<T>, BaseCloseable {
   @Override
   public void close() {
     this.valueRefresh = null;
-  }
     this.valueSupplier = null;
     this.clear();
   }
 
   @Override
   public T getValue() {
-//<<<<<<< HEAD
-//    T value = super.getValue();
-//    if (value == null || !this.validator.test(value)) {
-//      this.lock.lock();
-//      try {
-//        value = super.getValue();
-//        if (!this.initialized || !this.validator.test(value)) {
-//          if (this.valueRefresh == null) {
-//            value = this.valueSupplier.get();
-//          } else {
-//            value = this.valueRefresh.apply(value);
-//          }
-//          this.initialized = true;
-//          super.setValue(value);
-//        }
-//      } finally {
-//        this.lock.unlock();
-//      }
-//    }
-//    return value;
-//=======
-
     if (this.valueSupplier == null) {
       return null;
     }
@@ -195,11 +167,16 @@ public class LazyValueHolder<T> implements ValueHolder<T>, BaseCloseable {
       }
       final var updateRef = new ReloadValueReference<T>();
       if (this.valueRef.compareAndSet(ref, updateRef)) {
-        final var value = this.valueSupplier.get();
+        T value = ref.getValue();
+        if (this.valueRefresh == null) {
+          value = this.valueSupplier.get();
+        } else {
+          value = this.valueRefresh.apply(value);
+        }
         this.loadCallback.accept(value);
         return updateRef.setValue(value);
       }
-
+    }
   }
 
   public boolean isInitialized() {
