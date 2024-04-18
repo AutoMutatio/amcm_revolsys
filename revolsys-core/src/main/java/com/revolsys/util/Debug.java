@@ -1,6 +1,7 @@
 package com.revolsys.util;
 
 import java.sql.Timestamp;
+import java.time.Instant;
 
 import org.slf4j.LoggerFactory;
 
@@ -29,10 +30,10 @@ public class Debug {
   }
 
   public static boolean equals(final LineString line, final double x1, final double y1,
-    final double x2, final double y2) {
+      final double x2, final double y2) {
     final LineString points = line;
     if (points.getPoint(0).equalsVertex(x1, y1)
-      && points.getPoint(points.getVertexCount() - 1).equalsVertex(x2, y2)) {
+        && points.getPoint(points.getVertexCount() - 1).equalsVertex(x2, y2)) {
       noOp();
       return true;
     } else {
@@ -90,7 +91,7 @@ public class Debug {
   }
 
   public static void log(final Object object) {
-    ((Logger)LoggerFactory.getLogger(Debug.class)).setLevel(Level.INFO);
+    ((Logger) LoggerFactory.getLogger(Debug.class)).setLevel(Level.INFO);
     Logs.info(Debug.class, object.toString());
   }
 
@@ -115,6 +116,10 @@ public class Debug {
 
   public static void println(final Object... values) {
     System.out.println(Strings.toString("\t", values));
+  }
+
+  public static void printlnTime(final Object... values) {
+    System.out.println(Instant.now() + "\t" + Strings.toString("\t", values));
   }
 
   public static void printTime() {

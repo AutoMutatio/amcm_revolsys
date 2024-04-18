@@ -190,7 +190,14 @@ public class LazyValueHolder<T> implements ValueHolder<T>, BaseCloseable {
 
   @Override
   public T setValue(final T value) {
-    throw new UnsupportedOperationException("Value cannot be changed");
+    final var ref = this.valueRef.get();
+    final var updateRef = new ReloadValueReference<T>();
+    if (this.valueRef.compareAndSet(ref, updateRef)) {
+      this.loadCallback.accept(value);
+      return updateRef.setValue(value);
+    } else {
+      return this.valueRef.get().getValue();
+    }
   }
 
   protected void setValueSupplier(final Supplier<T> valueSupplier) {
