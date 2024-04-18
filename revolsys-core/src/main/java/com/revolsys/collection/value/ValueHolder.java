@@ -8,9 +8,14 @@ import com.revolsys.util.BaseCloseable;
 import com.revolsys.util.Emptyable;
 
 public interface ValueHolder<T> extends Emptyable, Supplier<T> {
+  public static <V> LazyValueHolder.Builder<V> lazy() {
+    return new LazyValueHolder.Builder<>();
+
+  }
+
   public static <V> LazyValueHolder<V> lazy(final Function<V, V> valueRefresh,
-    final Predicate<V> validator) {
-    return new LazyValueHolder<>(valueRefresh, validator);
+      final Predicate<V> validator) {
+    return ValueHolder.<V>lazy().valueRefresh(valueRefresh).validator(validator).build();
   }
 
   public static <V> LazyValueHolder<V> lazy(final Supplier<V> valueSupplier) {
@@ -18,8 +23,8 @@ public interface ValueHolder<T> extends Emptyable, Supplier<T> {
   }
 
   public static <V> LazyValueHolder<V> lazy(final Supplier<V> valueSupplier,
-    final Predicate<V> validator) {
-    return new LazyValueHolder<>(valueSupplier, validator);
+      final Predicate<V> validator) {
+    return ValueHolder.<V>lazy().valueSupplier(valueSupplier).validator(validator).build();
   }
 
   public static <V> ValueHolder<V> of(final V value) {
