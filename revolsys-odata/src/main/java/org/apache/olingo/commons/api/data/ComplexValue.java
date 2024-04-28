@@ -24,7 +24,7 @@ import java.util.List;
 /**
  * Represents the value of a complex property.
  */
-public class ComplexValue extends Linked {
+public class ComplexValue extends Linked implements ODataPropertyMap {
 
   private final List<Property> value = new ArrayList<>();
 
@@ -35,6 +35,16 @@ public class ComplexValue extends Linked {
     return super.equals(o) && this.value.equals(((ComplexValue)o).value);
   }
 
+  @Override
+  public Property getProperty(final String name) {
+    for (final Property property : this.value) {
+      if (name.equals(property.getName())) {
+        return property;
+      }
+    }
+    return null;
+  }
+
   /**
    * Get string representation of type (can be null if not set).
    * @return string representation of type (can be null if not set)
@@ -43,13 +53,9 @@ public class ComplexValue extends Linked {
     return this.typeName;
   }
 
-  /**
-   * Get list of all values for this ComplexValue.
-   *
-   * @return all values for this ComplexValue (can not be null).
-   */
-  public List<Property> getValue() {
-    return this.value;
+  @Override
+  public Object getValue(final String name) {
+    return getProperty(name).getValue();
   }
 
   @Override

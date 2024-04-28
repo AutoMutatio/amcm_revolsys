@@ -32,7 +32,6 @@ import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.geo.SRID;
 import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
 import org.apache.olingo.commons.api.edm.provider.CsdlMapping;
-import org.apache.olingo.commons.api.edm.provider.CsdlProperty;
 import org.apache.olingo.commons.api.edm.provider.annotation.CsdlConstantExpression;
 import org.apache.olingo.commons.api.edm.provider.annotation.CsdlConstantExpression.ConstantExpressionType;
 
@@ -118,7 +117,8 @@ public class EdmPropertyImpl extends AbstractEdmNamed implements EdmProperty {
 
   private static void addEdmToDataType(final EdmPrimitiveTypeKind kind, final DataType dataType) {
     DATA_TYPE_BY_EDM.put(kind, dataType);
-    DATA_TYPE_BY_EDM_STRING.put(kind.getFullQualifiedName().toString(), dataType);
+    DATA_TYPE_BY_EDM_STRING.put(kind.getFullQualifiedName()
+      .toString(), dataType);
   }
 
   private static void addGeometryDataType(final EdmPrimitiveTypeKind geometryKind,
@@ -168,7 +168,8 @@ public class EdmPropertyImpl extends AbstractEdmNamed implements EdmProperty {
   }
 
   public static <V> V toValue(final EdmPrimitiveTypeKind type, final String text) {
-    return DATA_TYPE_BY_EDM.get(type).toObject(text);
+    return DATA_TYPE_BY_EDM.get(type)
+      .toObject(text);
   }
 
   private final EdmTypeInfo typeInfo;
@@ -195,13 +196,14 @@ public class EdmPropertyImpl extends AbstractEdmNamed implements EdmProperty {
 
   private String mimeType;
 
-  public EdmPropertyImpl(final Edm edm, final CsdlProperty property) {
-    super(edm, property.getField().getName(), null);
-    final FieldDefinition field = property.getField();
+  private final EdmPrimitiveTypeKind fieldType;
+
+  public EdmPropertyImpl(final Edm edm, final FieldDefinition field) {
+    super(edm, field.getName(), null);
     final DataType dataType = field.getDataType();
     final boolean isGeometry = Geometry.class.isAssignableFrom(dataType.getJavaClass());
     final GeometryFactory geometryFactory = field.getGeometryFactory();
-    final EdmPrimitiveTypeKind fieldType = getEdmPrimitiveTypeKind(dataType, geometryFactory);
+    this.fieldType = getEdmPrimitiveTypeKind(dataType, geometryFactory);
     this.required = field.isRequired();
     this.collection = field.isDataTypeCollection();
     final Object defaultValue = field.getDefaultValue();
@@ -210,19 +212,23 @@ public class EdmPropertyImpl extends AbstractEdmNamed implements EdmProperty {
     }
     final int length = field.getLength();
     final int scale = field.getScale();
-    if (Number.class.isAssignableFrom(dataType.getJavaClass())) {
+    if (DataTypes.BYTE.equals(dataType) || DataTypes.SHORT.equals(dataType)
+      || DataTypes.INT.equals(dataType) || DataTypes.LONG.equals(dataType)
+      || DataTypes.FLOAT.equals(dataType) || DataTypes.DOUBLE.equals(dataType)) {
+    } else if (Number.class.isAssignableFrom(dataType.getJavaClass())) {
       if (scale > 0) {
         this.precision = length + scale;
         this.scale = scale;
       } else if (length > 0) {
         this.precision = length;
       }
+    } else if (DataTypes.BOOLEAN.equals(dataType)) {
     } else if (length > 0) {
       this.maxLength = length;
     }
     final List<CsdlAnnotation> annotations = new ArrayList<>();
 
-    this.typeName = fieldType.getFullQualifiedName();
+    this.typeName = this.fieldType.getFullQualifiedName();
     final String type = this.typeName.getFullQualifiedNameAsString();
     this.typeInfo = new EdmTypeInfo.Builder().setEdm(this.edm)
       .setIncludeAnnotations(true)
@@ -263,6 +269,10 @@ public class EdmPropertyImpl extends AbstractEdmNamed implements EdmProperty {
   @Override
   public String getDefaultValue() {
     return this.defaultValue;
+  }
+
+  public EdmPrimitiveTypeKind getEdmType() {
+    return this.fieldType;
   }
 
   @Override

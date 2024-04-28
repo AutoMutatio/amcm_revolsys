@@ -23,7 +23,7 @@ import java.net.URI;
 /**
  * Abstract OData object with basic values (<code>id</code>, <code>baseURI</code>, <code>title</code>).
  */
-public abstract class AbstractODataObject extends Annotatable {
+public abstract class AbstractODataObject extends Annotatable implements ODataObject {
 
   private URI baseURI;
 
@@ -51,6 +51,7 @@ public abstract class AbstractODataObject extends Annotatable {
    * Gets base URI.
    * @return base URI
    */
+  @Override
   public URI getBaseURI() {
     return this.baseURI;
   }
@@ -59,6 +60,7 @@ public abstract class AbstractODataObject extends Annotatable {
    * Gets ID.
    * @return ID.
    */
+  @Override
   public URI getId() {
     return this.id;
   }
@@ -67,6 +69,7 @@ public abstract class AbstractODataObject extends Annotatable {
    * Gets title.
    * @return title
    */
+  @Override
   public String getTitle() {
     return this.title;
   }

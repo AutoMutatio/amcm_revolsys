@@ -71,7 +71,7 @@ public class RecordDefinitionImpl extends AbstractRecordStoreSchemaElement
 
   private final Map<String, FieldDefinition> fieldMap = new HashMap<>();
 
-  private List<String> fieldNames = Collections.emptyList();
+  private ListEx<String> fieldNames = Lists.empty();
 
   private Set<String> fieldNamesSet = Collections.emptySet();
 
@@ -602,7 +602,7 @@ public class RecordDefinitionImpl extends AbstractRecordStoreSchemaElement
   }
 
   @Override
-  public List<String> getFieldNames() {
+  public ListEx<String> getFieldNames() {
     return this.fieldNames;
   }
 

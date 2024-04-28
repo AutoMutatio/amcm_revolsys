@@ -20,7 +20,7 @@ package org.apache.olingo.server.core.uri;
 
 import java.util.List;
 
-import org.apache.olingo.commons.api.data.Entity;
+import org.apache.olingo.commons.api.data.ODataEntity;
 import org.apache.olingo.commons.api.data.Property;
 import org.apache.olingo.commons.api.edm.EdmEntitySet;
 import org.apache.olingo.commons.api.edm.EdmEntityType;
@@ -42,14 +42,13 @@ import org.apache.olingo.server.api.uri.UriResourceEntitySet;
 import org.apache.olingo.server.api.uri.UriResourceKind;
 import org.apache.olingo.server.api.uri.queryoption.ExpandOption;
 import org.apache.olingo.server.api.uri.queryoption.SelectOption;
-import org.apache.olingo.server.core.ODataImpl;
 import org.apache.olingo.server.core.serializer.utils.ContextURLHelper;
 import org.apache.olingo.server.core.uri.parser.Parser;
 
 public class UriHelperImpl implements UriHelper {
 
   @Override
-  public String buildCanonicalURL(final EdmEntitySet edmEntitySet, final Entity entity)
+  public String buildCanonicalURL(final EdmEntitySet edmEntitySet, final ODataEntity entity)
     throws SerializerException {
     return edmEntitySet.getName() + '(' + buildKeyPredicate(edmEntitySet.getEntityType(), entity)
       + ')';
@@ -68,7 +67,7 @@ public class UriHelperImpl implements UriHelper {
   }
 
   @Override
-  public String buildKeyPredicate(final EdmEntityType edmEntityType, final Entity entity)
+  public String buildKeyPredicate(final EdmEntityType edmEntityType, final ODataEntity entity)
     throws SerializerException {
     final StringBuilder result = new StringBuilder();
     final List<String> keyNames = edmEntityType.getKeyPredicateNames();
@@ -81,7 +80,8 @@ public class UriHelperImpl implements UriHelper {
         result.append(',');
       }
       if (keyNames.size() > 1) {
-        result.append(Encoder.encode(keyName)).append('=');
+        result.append(Encoder.encode(keyName))
+          .append('=');
       }
       final EdmProperty edmProperty = refType.getProperty();
       if (edmProperty == null) {
@@ -104,16 +104,7 @@ public class UriHelperImpl implements UriHelper {
     return result.toString();
   }
 
-  private Property findProperty(final String propertyName, final List<Property> properties) {
-    for (final Property property : properties) {
-      if (propertyName.equals(property.getName())) {
-        return property;
-      }
-    }
-    return null;
-  }
-
-  private Object findPropertyRefValue(final Entity entity, final EdmKeyPropertyRef refType)
+  private Object findPropertyRefValue(final ODataEntity entity, final EdmKeyPropertyRef refType)
     throws SerializerException {
     final int INDEX_ERROR_CODE = -1;
     final String propertyPath = refType.getName();
@@ -134,7 +125,8 @@ public class UriHelperImpl implements UriHelper {
         index = propertyPath.length();
       }
       tmpPropertyName = propertyPath.substring(lastIndex, index);
-      prop = findProperty(tmpPropertyName, prop.asComplex().getValue());
+      prop = prop.asComplex()
+        .getProperty(tmpPropertyName);
     }
     if (prop == null) {
       throw new SerializerException("Key Value Cannot be null for property: " + propertyPath,
@@ -154,11 +146,11 @@ public class UriHelperImpl implements UriHelper {
     oDataPath = oDataPath.startsWith("/") ? oDataPath : "/" + oDataPath;
 
     try {
-      final List<UriResource> uriResourceParts = new Parser(edm, new ODataImpl())
+      final List<UriResource> uriResourceParts = new Parser(edm)
         .parseUri(oDataPath, null, null, rawServiceRoot)
         .getUriResourceParts();
-      if (uriResourceParts.size() == 1
-        && uriResourceParts.get(0).getKind() == UriResourceKind.entitySet) {
+      if (uriResourceParts.size() == 1 && uriResourceParts.get(0)
+        .getKind() == UriResourceKind.entitySet) {
         final UriResourceEntitySet entityUriResource = (UriResourceEntitySet)uriResourceParts
           .get(0);
 

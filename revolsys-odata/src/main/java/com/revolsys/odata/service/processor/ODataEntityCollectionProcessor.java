@@ -1,6 +1,5 @@
 package com.revolsys.odata.service.processor;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -26,7 +25,9 @@ import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.UriResourceEntitySet;
 import org.apache.olingo.server.api.uri.UriResourceNavigation;
 import org.apache.olingo.server.api.uri.queryoption.SelectOption;
+import org.apache.olingo.server.core.uri.UriHelperImpl;
 
+import com.revolsys.collection.map.Maps;
 import com.revolsys.logging.Logs;
 import com.revolsys.odata.model.ODataEdmProvider;
 import com.revolsys.odata.model.ODataEntityIterator;
@@ -35,24 +36,15 @@ import com.revolsys.odata.model.ODataEntityType;
 public class ODataEntityCollectionProcessor extends AbstractProcessor
   implements EntityCollectionProcessor {
 
-  private final Map<ContentType, ODataSerializer> serializerByContentType = new HashMap<>();
+  private final Map<ContentType, ODataSerializer> serializerByContentType = Maps
+    .lazy(ODataSerializer::createSerializer);
 
   public ODataEntityCollectionProcessor(final ODataEdmProvider provider) {
     super(provider);
   }
 
   ODataSerializer getSerializer(final ContentType contentType) throws SerializerException {
-    ODataSerializer serializer = this.serializerByContentType.get(contentType);
-    if (serializer == null) {
-      synchronized (this.serializerByContentType) {
-        serializer = this.serializerByContentType.get(contentType);
-        if (serializer == null) {
-          serializer = this.odata.createSerializer(contentType);
-          this.serializerByContentType.put(contentType, serializer);
-        }
-      }
-    }
-    return serializer;
+    return this.serializerByContentType.get(contentType);
   }
 
   @Override
@@ -109,8 +101,8 @@ public class ODataEntityCollectionProcessor extends AbstractProcessor
       String selectList = null;
       final SelectOption selectOption = uriInfo.getSelectOption();
       if (selectOption != null) {
-        selectList = this.odata.createUriHelper()
-          .buildContextURLSelectList(edmEntityType, null, selectOption);
+        selectList = new UriHelperImpl().buildContextURLSelectList(edmEntityType, null,
+          selectOption);
       }
 
       final ContextURL contextUrl = newContextUrl().selectList(selectList)
@@ -129,7 +121,8 @@ public class ODataEntityCollectionProcessor extends AbstractProcessor
           final Exception exception = context.getException();
           Throwable cause = exception.getCause();
           while (cause != null) {
-            if (cause.getMessage().equals("Broken pipe")) {
+            if (cause.getMessage()
+              .equals("Broken pipe")) {
               return;
             }
             cause = cause.getCause();

@@ -22,6 +22,8 @@ import java.util.List;
 
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
 
+import com.revolsys.record.schema.FieldDefinition;
+
 /**
  * The type Csdl complex type.
  */
@@ -71,8 +73,8 @@ public class CsdlComplexType extends CsdlStructuralType {
   }
 
   @Override
-  public CsdlComplexType setProperties(final List<CsdlProperty> properties) {
-    this.properties = properties;
+  public CsdlComplexType setProperties(final List<FieldDefinition> properties) {
+    this.fields = properties;
     return this;
   }
 }

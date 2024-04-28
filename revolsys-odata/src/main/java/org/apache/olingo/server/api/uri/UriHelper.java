@@ -20,7 +20,7 @@ package org.apache.olingo.server.api.uri;
 
 import java.util.List;
 
-import org.apache.olingo.commons.api.data.Entity;
+import org.apache.olingo.commons.api.data.ODataEntity;
 import org.apache.olingo.commons.api.edm.EdmEntitySet;
 import org.apache.olingo.commons.api.edm.EdmEntityType;
 import org.apache.olingo.commons.api.edm.EdmStructuredType;
@@ -41,7 +41,7 @@ public interface UriHelper {
    * @param entity the entity data
    * @return the relative canonical URL
    */
-  String buildCanonicalURL(EdmEntitySet edmEntitySet, Entity entity) throws SerializerException;
+  String buildCanonicalURL(EdmEntitySet edmEntitySet, ODataEntity entity) throws SerializerException;
 
   /**
    * Builds the key-predicate part of a {@link org.apache.olingo.commons.api.data.ContextURL ContextURL}.
@@ -66,7 +66,7 @@ public interface UriHelper {
    * @param entity the entity data
    * @return the key predicate
    */
-  String buildKeyPredicate(EdmEntityType edmEntityType, Entity entity) throws SerializerException;
+  String buildKeyPredicate(EdmEntityType edmEntityType, ODataEntity entity) throws SerializerException;
 
   /**
    * Parses a given entity-id. Provides the entity set and key predicates.

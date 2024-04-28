@@ -26,7 +26,6 @@ import org.apache.olingo.commons.api.ex.ODataRuntimeException;
 import org.apache.olingo.commons.api.format.ContentType;
 import org.apache.olingo.commons.api.http.HttpHeader;
 import org.apache.olingo.commons.api.http.HttpMethod;
-import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.ODataHandler;
 import org.apache.olingo.server.api.ODataLibraryException;
@@ -57,8 +56,6 @@ import com.revolsys.logging.Logs;
 
 public class ODataHandlerImpl implements ODataHandler {
 
-  private final OData odata;
-
   private final ServiceMetadata serviceMetadata;
 
   private final List<Processor> processors = new LinkedList<>();
@@ -69,8 +66,7 @@ public class ODataHandlerImpl implements ODataHandler {
 
   private Exception lastThrownException;
 
-  public ODataHandlerImpl(final OData odata, final ServiceMetadata serviceMetadata) {
-    this.odata = odata;
+  public ODataHandlerImpl(final ServiceMetadata serviceMetadata) {
     this.serviceMetadata = serviceMetadata;
 
     register(new DefaultRedirectProcessor());
@@ -172,8 +168,8 @@ public class ODataHandlerImpl implements ODataHandler {
 
     UriInfo uriInfo;
     try {
-      uriInfo = new Parser(this.serviceMetadata.getEdm(), this.odata).parseUri(
-        request.getRawODataPath(), request.getRawQueryPath(), null, request.getRawBaseUri());
+      uriInfo = new Parser(this.serviceMetadata.getEdm()).parseUri(request.getRawODataPath(),
+        request.getRawQueryPath(), null, request.getRawBaseUri());
       request.setUriInfo(uriInfo);
     } catch (final ODataLibraryException e) {
       throw e;
@@ -195,7 +191,8 @@ public class ODataHandlerImpl implements ODataHandler {
       this.customETagSupport = (CustomETagSupport)extension;
     } else {
       throw new ODataRuntimeException(
-        "Got not supported exception with class name " + extension.getClass().getSimpleName());
+        "Got not supported exception with class name " + extension.getClass()
+          .getSimpleName());
     }
   }
 
@@ -207,7 +204,7 @@ public class ODataHandlerImpl implements ODataHandler {
   <T extends Processor> T selectProcessor(final Class<T> cls) throws ODataHandlerException {
     for (final Processor processor : this.processors) {
       if (cls.isAssignableFrom(processor.getClass())) {
-        processor.init(this.odata, this.serviceMetadata);
+        processor.init(this.serviceMetadata);
         return cls.cast(processor);
       }
     }

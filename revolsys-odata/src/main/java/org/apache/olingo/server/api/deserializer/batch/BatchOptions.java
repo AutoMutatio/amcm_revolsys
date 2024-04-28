@@ -20,7 +20,6 @@ package org.apache.olingo.server.api.deserializer.batch;
 
 /**
  * Options for the batch deserializer.
- * @see org.apache.olingo.server.api.deserializer.FixedFormatDeserializer #parseBatchRequest(java.io.InputStream,
  * String, BatchOptions)
  */
 public final class BatchOptions {

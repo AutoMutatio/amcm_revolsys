@@ -22,6 +22,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
+import org.apache.olingo.commons.core.edm.Edm;
+
+import com.revolsys.record.schema.FieldDefinition;
 
 /**
  * The type Csdl structural type.
@@ -52,7 +55,7 @@ public abstract class CsdlStructuralType
   /**
    * The Properties.
    */
-  protected List<CsdlProperty> properties = new ArrayList<>();
+  protected List<FieldDefinition> fields = new ArrayList<>();
 
   /**
    * The Navigation properties.
@@ -90,6 +93,10 @@ public abstract class CsdlStructuralType
     return this.baseType;
   }
 
+  public List<CsdlAnnotation> getFieldAnnotations(final String name) {
+    return Edm.getAnnotations(getField(name));
+  }
+
   @Override
   public String getName() {
     return this.name;
@@ -119,8 +126,8 @@ public abstract class CsdlStructuralType
    *
    * @return the properties
    */
-  public List<CsdlProperty> getProperties() {
-    return this.properties;
+  public List<FieldDefinition> getFields() {
+    return this.fields;
   }
 
   /**
@@ -129,8 +136,13 @@ public abstract class CsdlStructuralType
    * @param name the name
    * @return the property
    */
-  public CsdlProperty getProperty(final String name) {
-    return getOneByName(name, this.properties);
+  public FieldDefinition getField(final String name) {
+    for (final var field : this.fields) {
+      if (name.equals(field.getName())) {
+        return field;
+      }
+    }
+    return null;
   }
 
   /**
@@ -234,8 +246,8 @@ public abstract class CsdlStructuralType
    * @param properties the properties
    * @return the properties
    */
-  public CsdlStructuralType setProperties(final List<CsdlProperty> properties) {
-    this.properties = properties;
+  public CsdlStructuralType setProperties(final List<FieldDefinition> properties) {
+    this.fields = properties;
     return this;
   }
 }

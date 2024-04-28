@@ -11,7 +11,6 @@ import org.apache.olingo.commons.api.edm.EdmEntityType;
 import org.apache.olingo.commons.api.edm.EdmNavigationProperty;
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
-import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.ServiceMetadata;
 import org.apache.olingo.server.api.processor.Processor;
@@ -20,7 +19,6 @@ import com.revolsys.odata.model.ODataEdmProvider;
 import com.revolsys.odata.model.ODataEntityType;
 
 public abstract class AbstractProcessor implements Processor {
-  protected OData odata;
 
   protected final String serviceRoot;
 
@@ -67,8 +65,7 @@ public abstract class AbstractProcessor implements Processor {
   }
 
   @Override
-  public void init(final OData odata, final ServiceMetadata serviceMetadata) {
-    this.odata = odata;
+  public void init(final ServiceMetadata serviceMetadata) {
     this.serviceMetadata = serviceMetadata;
   }
 

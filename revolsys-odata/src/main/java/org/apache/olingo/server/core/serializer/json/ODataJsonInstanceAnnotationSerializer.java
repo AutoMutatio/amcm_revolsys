@@ -119,7 +119,8 @@ public class ODataJsonInstanceAnnotationSerializer {
     } catch (final EdmPrimitiveTypeException e) {
       throw new SerializerException("Wrong value for instance annotation!", e,
         SerializerException.MessageKeys.WRONG_PROPERTY_VALUE, ((Annotation)annotation).getTerm(),
-        annotation.getValue().toString());
+        annotation.getValue()
+          .toString());
     }
   }
 
@@ -168,9 +169,9 @@ public class ODataJsonInstanceAnnotationSerializer {
     if (this.isODataMetadataFull) {
       json.labelValue(this.constants.getType(), "#" + complexValue.getTypeName());
     }
-    final List<Property> properties = complexValue.getValue();
-    for (final Property prop : properties) {
-      writeInstanceAnnotation(json, prop, prop.getName());
+    for (final var name : complexValue.getFieldNames()) {
+      final var property = complexValue.getProperty(name);
+      writeInstanceAnnotation(json, property, name);
     }
     json.endObject();
   }
@@ -214,10 +215,12 @@ public class ODataJsonInstanceAnnotationSerializer {
           }
         }
         if (this.isODataMetadataFull) {
-          if (stream.getRel() != null && stream.getRel().equals(Constants.NS_MEDIA_READ_LINK_REL)) {
+          if (stream.getRel() != null && stream.getRel()
+            .equals(Constants.NS_MEDIA_READ_LINK_REL)) {
             json.labelValue(name + this.constants.getMediaReadLink(), stream.getHref());
           }
-          if (stream.getRel() == null || stream.getRel().equals(Constants.NS_MEDIA_EDIT_LINK_REL)) {
+          if (stream.getRel() == null || stream.getRel()
+            .equals(Constants.NS_MEDIA_EDIT_LINK_REL)) {
             json.labelValue(name + this.constants.getMediaEditLink(), stream.getHref());
           }
         }

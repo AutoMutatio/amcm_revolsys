@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
 
-import org.apache.olingo.commons.api.data.Entity;
+import org.apache.olingo.commons.api.data.ODataEntity;
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.provider.CsdlNavigationProperty;
 import org.apache.olingo.commons.api.edm.provider.CsdlReferentialConstraint;
@@ -17,7 +17,7 @@ public class ODataNavigationProperty extends CsdlNavigationProperty {
 
   private final AbstractODataEntitySet targetEntitySet;
 
-  private Function<Entity, Condition> whereConstructor;
+  private Function<ODataEntity, Condition> whereConstructor;
 
   public ODataNavigationProperty(final AbstractODataEntitySet targetEntitySet, final String name) {
     this.targetEntitySet = targetEntitySet;
@@ -41,11 +41,11 @@ public class ODataNavigationProperty extends CsdlNavigationProperty {
     return this;
   }
 
-  private Function<Entity, Condition> newEqualCondition(final String sourcePropertyName,
+  private Function<ODataEntity, Condition> newEqualCondition(final String sourcePropertyName,
     final String targetPropertyName) {
     final TableReference table = this.targetEntitySet.getRecordDefinition();
-    final Function<Entity, Condition> newWhere = entity -> {
-      final Object value = entity.getProperty(sourcePropertyName).getValue();
+    final Function<ODataEntity, Condition> newWhere = entity -> {
+      final Object value = entity.getValue(sourcePropertyName);
       return table.equal(targetPropertyName, value);
     };
     return newWhere;
@@ -61,17 +61,16 @@ public class ODataNavigationProperty extends CsdlNavigationProperty {
       final String sourcePropertyName = constraint.getReferencedProperty();
       this.whereConstructor = newEqualCondition(sourcePropertyName, targetPropertyName);
     } else {
-      final List<Function<Entity, Condition>> constructors = new ArrayList<>();
+      final List<Function<ODataEntity, Condition>> constructors = new ArrayList<>();
       for (final CsdlReferentialConstraint constraint : constraints) {
         final String targetPropertyName = constraint.getProperty();
         final String sourcePropertyName = constraint.getReferencedProperty();
-        final Function<Entity, Condition> constructor = newEqualCondition(sourcePropertyName,
-          targetPropertyName);
+        final var constructor = newEqualCondition(sourcePropertyName, targetPropertyName);
         constructors.add(constructor);
       }
       this.whereConstructor = entity -> {
         final And and = new And();
-        for (final Function<Entity, Condition> constructor : constructors) {
+        for (final var constructor : constructors) {
           final Condition condition = constructor.apply(entity);
           and.addCondition(condition);
         }
@@ -80,7 +79,7 @@ public class ODataNavigationProperty extends CsdlNavigationProperty {
     }
   }
 
-  public Condition whereCondition(final Entity entity) {
+  public Condition whereCondition(final ODataEntity entity) {
     return this.whereConstructor.apply(entity);
   }
 }

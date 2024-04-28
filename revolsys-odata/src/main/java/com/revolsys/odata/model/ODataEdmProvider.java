@@ -14,9 +14,10 @@ import org.apache.olingo.commons.api.edm.provider.CsdlEntitySet;
 import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
 import org.apache.olingo.commons.api.edm.provider.CsdlTerm;
 import org.apache.olingo.commons.api.ex.ODataException;
-import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataHttpHandler;
 import org.apache.olingo.server.api.ServiceMetadata;
+import org.apache.olingo.server.core.ODataHttpHandlerImpl;
+import org.apache.olingo.server.core.ServiceMetadataImpl;
 
 import com.revolsys.odata.service.processor.ODataEntityCollectionProcessor;
 import com.revolsys.odata.service.processor.ODataEntityProcessor;
@@ -61,7 +62,8 @@ public abstract class ODataEdmProvider extends CsdlAbstractEdmProvider {
   }
 
   private CsdlTerm addTerm(final String namespace, final String name, final String type) {
-    final CsdlTerm term = new CsdlTerm().setName(name).setType(type);
+    final CsdlTerm term = new CsdlTerm().setName(name)
+      .setType(type);
     this.termByName.put(new FullQualifiedName(namespace, name), term);
     return term;
   }
@@ -133,7 +135,7 @@ public abstract class ODataEdmProvider extends CsdlAbstractEdmProvider {
   }
 
   @Override
-  public List<CsdlSchema> getSchemas() throws ODataException {
+  public List<CsdlSchema> getSchemas() {
     return this.schemas;
   }
 
@@ -142,19 +144,20 @@ public abstract class ODataEdmProvider extends CsdlAbstractEdmProvider {
   }
 
   @Override
-  public CsdlTerm getTerm(final FullQualifiedName termName) throws ODataException {
+  public CsdlTerm getTerm(final FullQualifiedName termName) {
     return this.termByName.get(termName);
   }
 
   public void init() {
     for (final CsdlSchema schema : this.schemas) {
-      for (final CsdlEntitySet entitySet : schema.getEntityContainer().getEntitySets()) {
-        this.allEntityContainer.getEntitySets().add(entitySet);
+      for (final CsdlEntitySet entitySet : schema.getEntityContainer()
+        .getEntitySets()) {
+        this.allEntityContainer.getEntitySets()
+          .add(entitySet);
       }
     }
-    final OData odata = OData.newInstance();
-    final ServiceMetadata edm = odata.createServiceMetadata(this, new ArrayList<>());
-    final ODataHttpHandler handler = odata.createHandler(edm);
+    final ServiceMetadata edm = new ServiceMetadataImpl(this, new ArrayList<>(), null);
+    final ODataHttpHandler handler = new ODataHttpHandlerImpl(edm);
     handler.register(new ODataEntityCollectionProcessor(this));
     handler.register(new ODataEntityProcessor(this));
     handler.register(new ODataPrimitiveProcessor(this));

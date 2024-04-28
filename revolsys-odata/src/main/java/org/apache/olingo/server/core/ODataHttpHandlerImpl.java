@@ -37,7 +37,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.apache.olingo.commons.api.ex.ODataRuntimeException;
 import org.apache.olingo.commons.api.http.HttpHeader;
 import org.apache.olingo.commons.api.http.HttpMethod;
-import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataContent;
 import org.apache.olingo.server.api.ODataHttpHandler;
 import org.apache.olingo.server.api.ODataLibraryException;
@@ -70,7 +69,8 @@ public class ODataHttpHandlerImpl implements ODataHttpHandler {
   static void convertToHttp(final HttpServletResponse response, final ODataResponse odResponse) {
     response.setStatus(odResponse.getStatusCode());
 
-    for (final Entry<String, List<String>> entry : odResponse.getAllHeaders().entrySet()) {
+    for (final Entry<String, List<String>> entry : odResponse.getAllHeaders()
+      .entrySet()) {
       for (final String headerValue : entry.getValue()) {
         response.addHeader(entry.getKey(), headerValue);
       }
@@ -154,24 +154,28 @@ public class ODataHttpHandlerImpl implements ODataHttpHandler {
 
   static void fillUriInformation(final ODataRequest odRequest, final HttpServletRequest httpRequest,
     final int split) {
-    final String rawRequestUri = httpRequest.getRequestURL().toString();
+    final String rawRequestUri = httpRequest.getRequestURL()
+      .toString();
 
     String rawServiceResolutionUri = null;
     String rawODataPath;
     // Application need to set the request mapping attribute if the request is
     // coming from a spring based application
     if (httpRequest.getAttribute(REQUESTMAPPING) != null) {
-      final String requestMapping = httpRequest.getAttribute(REQUESTMAPPING).toString();
+      final String requestMapping = httpRequest.getAttribute(REQUESTMAPPING)
+        .toString();
       rawServiceResolutionUri = requestMapping;
       final int beginIndex = rawRequestUri.indexOf(requestMapping) + requestMapping.length();
       rawODataPath = rawRequestUri.substring(beginIndex);
     } else if (!"".equals(httpRequest.getServletPath())) {
       final int beginIndex = rawRequestUri.indexOf(httpRequest.getServletPath())
-        + httpRequest.getServletPath().length();
+        + httpRequest.getServletPath()
+          .length();
       rawODataPath = rawRequestUri.substring(beginIndex);
     } else if (!"".equals(httpRequest.getContextPath())) {
       final int beginIndex = rawRequestUri.indexOf(httpRequest.getContextPath())
-        + httpRequest.getContextPath().length();
+        + httpRequest.getContextPath()
+          .length();
       rawODataPath = rawRequestUri.substring(beginIndex);
     } else {
       rawODataPath = httpRequest.getRequestURI();
@@ -218,8 +222,8 @@ public class ODataHttpHandlerImpl implements ODataHttpHandler {
 
   private int split = 0;
 
-  public ODataHttpHandlerImpl(final OData odata, final ServiceMetadata serviceMetadata) {
-    this.handler = new ODataHandlerImpl(odata, serviceMetadata);
+  public ODataHttpHandlerImpl(final ServiceMetadata serviceMetadata) {
+    this.handler = new ODataHandlerImpl(serviceMetadata);
   }
 
   private ODataRequest fillODataRequest(final ODataRequest odRequest,

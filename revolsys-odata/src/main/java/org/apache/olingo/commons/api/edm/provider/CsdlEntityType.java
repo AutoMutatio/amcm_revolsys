@@ -22,6 +22,8 @@ import java.util.List;
 
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
 
+import com.revolsys.record.schema.FieldDefinition;
+
 /**
  * The type Csdl entity type.
  */
@@ -125,8 +127,8 @@ public class CsdlEntityType extends CsdlStructuralType {
   }
 
   @Override
-  public CsdlEntityType setProperties(final List<CsdlProperty> properties) {
-    this.properties = properties;
+  public CsdlEntityType setProperties(final List<FieldDefinition> properties) {
+    this.fields = properties;
     return this;
   }
 }

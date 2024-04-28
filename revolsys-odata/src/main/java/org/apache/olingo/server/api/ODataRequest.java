@@ -89,6 +89,7 @@ public class ODataRequest {
     return this.headers.getHeaderToValues();
   }
 
+  @SuppressWarnings("unchecked")
   public <T> T getAttribute(final String name) {
     return (T)this.attributesFunction.apply(name);
   }

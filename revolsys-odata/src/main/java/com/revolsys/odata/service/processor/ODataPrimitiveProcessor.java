@@ -68,7 +68,7 @@ public class ODataPrimitiveProcessor extends AbstractProcessor implements Primit
 
     final Object value = property.getValue();
     if (value != null) {
-      final ODataSerializer serializer = this.odata.createSerializer(responseFormat);
+      final ODataSerializer serializer = ODataSerializer.createSerializer(responseFormat);
 
       final ContextURL contextUrl = newContextUrl()//
         .entitySet(edmEntitySet)
@@ -77,8 +77,9 @@ public class ODataPrimitiveProcessor extends AbstractProcessor implements Primit
       final PrimitiveSerializerOptions options = PrimitiveSerializerOptions.with()
         .contextURL(contextUrl)
         .build();
+      final var name = property.getName();
       final SerializerResult serializerResult = serializer.primitive(this.serviceMetadata,
-        edmPropertyType, property, options);
+        edmPropertyType, property, name, options, value);
       final InputStream propertyStream = serializerResult.getContent();
 
       response.setContent(propertyStream);

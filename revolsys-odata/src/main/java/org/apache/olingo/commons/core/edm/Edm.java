@@ -53,12 +53,13 @@ import org.apache.olingo.commons.api.edm.provider.CsdlFunction;
 import org.apache.olingo.commons.api.edm.provider.CsdlNavigationProperty;
 import org.apache.olingo.commons.api.edm.provider.CsdlOperation;
 import org.apache.olingo.commons.api.edm.provider.CsdlParameter;
-import org.apache.olingo.commons.api.edm.provider.CsdlProperty;
 import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
 import org.apache.olingo.commons.api.edm.provider.CsdlStructuralType;
 import org.apache.olingo.commons.api.edm.provider.CsdlTerm;
 import org.apache.olingo.commons.api.edm.provider.CsdlTypeDefinition;
 import org.apache.olingo.commons.api.ex.ODataException;
+
+import com.revolsys.record.schema.FieldDefinition;
 
 /**
  * Entity Data Model (EDM)
@@ -66,6 +67,18 @@ import org.apache.olingo.commons.api.ex.ODataException;
  * Interface representing a Entity Data Model as described in the Conceptual Schema Definition.
  */
 public class Edm {
+
+  public static List<CsdlAnnotation> getAnnotations(final FieldDefinition field) {
+    return field.getProperty("csdlAnnotations");
+  }
+
+  public static String getType(final FieldDefinition field) {
+    return field.getProperty("csdlType");
+  }
+
+  public static FullQualifiedName getTypeName(final FieldDefinition field) {
+    return field.getProperty("csdlTypeName");
+  }
 
   protected Map<String, EdmSchema> schemas;
 
@@ -158,7 +171,8 @@ public class Edm {
     if (null != annotations) {
       for (final CsdlAnnotation annotation : annotations) {
         if (!compareAnnotations(csdlEntityContainer.getAnnotations(), annotation)) {
-          csdlEntityContainer.getAnnotations().add(annotation);
+          csdlEntityContainer.getAnnotations()
+            .add(annotation);
         }
       }
     }
@@ -173,7 +187,8 @@ public class Edm {
     if (null != annotations) {
       for (final CsdlAnnotation annotation : annotations) {
         if (!compareAnnotations(enumType.getAnnotations(), annotation)) {
-          enumType.getAnnotations().add(annotation);
+          enumType.getAnnotations()
+            .add(annotation);
         }
       }
     }
@@ -189,9 +204,8 @@ public class Edm {
     final CsdlNavigationProperty navProperty, final List<CsdlAnnotation> navPropAnnotations) {
     if (null != navPropAnnotations && !navPropAnnotations.isEmpty()) {
       for (final CsdlAnnotation annotation : navPropAnnotations) {
-        if (!compareAnnotations(
-          structuralType.getNavigationProperty(navProperty.getName()).getAnnotations(),
-          annotation)) {
+        if (!compareAnnotations(structuralType.getNavigationProperty(navProperty.getName())
+          .getAnnotations(), annotation)) {
           structuralType.getNavigationProperty(navProperty.getName())
             .getAnnotations()
             .add(annotation);
@@ -207,12 +221,12 @@ public class Edm {
    * @param propAnnotations
    */
   private void addAnnotationsOnPropertiesOfStructuralType(final CsdlStructuralType structuralType,
-    final CsdlProperty property, final List<CsdlAnnotation> propAnnotations) {
+    final String name, final List<CsdlAnnotation> propAnnotations) {
     if (null != propAnnotations && !propAnnotations.isEmpty()) {
       for (final CsdlAnnotation annotation : propAnnotations) {
-        if (!compareAnnotations(structuralType.getProperty(property.getName()).getAnnotations(),
-          annotation)) {
-          structuralType.getProperty(property.getName()).getAnnotations().add(annotation);
+        if (!compareAnnotations(structuralType.getFieldAnnotations(name), annotation)) {
+          structuralType.getFieldAnnotations(name)
+            .add(annotation);
         }
       }
     }
@@ -228,7 +242,8 @@ public class Edm {
     if (null != annotations && !annotations.isEmpty()) {
       for (final CsdlAnnotation annotation : annotations) {
         if (!compareAnnotations(structuralType.getAnnotations(), annotation)) {
-          structuralType.getAnnotations().add(annotation);
+          structuralType.getAnnotations()
+            .add(annotation);
         }
       }
     }
@@ -243,7 +258,8 @@ public class Edm {
     if (null != annotations) {
       for (final CsdlAnnotation annotation : annotations) {
         if (!compareAnnotations(typeDefinition.getAnnotations(), annotation)) {
-          typeDefinition.getAnnotations().add(annotation);
+          typeDefinition.getAnnotations()
+            .add(annotation);
         }
       }
     }
@@ -257,7 +273,8 @@ public class Edm {
     final List<CsdlAnnotation> annotations) {
     for (final CsdlAnnotation annotation : annotations) {
       if (!compareAnnotations(operation.getAnnotations(), annotation)) {
-        operation.getAnnotations().add(annotation);
+        operation.getAnnotations()
+          .add(annotation);
       }
     }
   }
@@ -275,9 +292,11 @@ public class Edm {
         .get(actionName.getFullQualifiedNameAsString() + "/" + parameter.getName());
       if (null != annotsToParams && !annotsToParams.isEmpty()) {
         for (final CsdlAnnotation annotation : annotsToParams) {
-          if (!compareAnnotations(operation.getParameter(parameter.getName()).getAnnotations(),
-            annotation)) {
-            operation.getParameter(parameter.getName()).getAnnotations().add(annotation);
+          if (!compareAnnotations(operation.getParameter(parameter.getName())
+            .getAnnotations(), annotation)) {
+            operation.getParameter(parameter.getName())
+              .getAnnotations()
+              .add(annotation);
           }
         }
       }
@@ -286,9 +305,11 @@ public class Edm {
         .get(aliasName + "." + actionName.getName() + "/" + parameter.getName());
       if (null != annotsToParamsOnAlias && !annotsToParamsOnAlias.isEmpty()) {
         for (final CsdlAnnotation annotation : annotsToParamsOnAlias) {
-          if (!compareAnnotations(operation.getParameter(parameter.getName()).getAnnotations(),
-            annotation)) {
-            operation.getParameter(parameter.getName()).getAnnotations().add(annotation);
+          if (!compareAnnotations(operation.getParameter(parameter.getName())
+            .getAnnotations(), annotation)) {
+            operation.getParameter(parameter.getName())
+              .getAnnotations()
+              .add(annotation);
           }
         }
       }
@@ -408,7 +429,8 @@ public class Edm {
       if (!this.unboundFunctionsByName.containsKey(functionName)) {
         this.unboundFunctionsByName.put(functionName, new ArrayList<>());
       }
-      this.unboundFunctionsByName.get(functionName).add(function);
+      this.unboundFunctionsByName.get(functionName)
+        .add(function);
 
       this.unboundFunctionsByKey.put(key, function);
     }
@@ -537,7 +559,8 @@ public class Edm {
 
             final List<String> providerParameterNames = new ArrayList<>();
             for (int i = 1; i < providerParameters.size(); i++) {
-              providerParameterNames.add(providerParameters.get(i).getName());
+              providerParameterNames.add(providerParameters.get(i)
+                .getName());
             }
             if (parameterNamesCopy.containsAll(providerParameterNames)) {
               addOperationsAnnotations(function, functionName);
@@ -660,12 +683,14 @@ public class Edm {
         return new EdmTermImpl(this, termName.getNamespace(), providerTerm);
       } else {
         for (final CsdlSchema schema : this.termSchemaDefinition) {
-          if (schema.getNamespace().equalsIgnoreCase(termName.getNamespace())
-            || null != schema.getAlias()
-              && schema.getAlias().equalsIgnoreCase(termName.getNamespace())) {
+          if (schema.getNamespace()
+            .equalsIgnoreCase(termName.getNamespace())
+            || null != schema.getAlias() && schema.getAlias()
+              .equalsIgnoreCase(termName.getNamespace())) {
             final List<CsdlTerm> terms = schema.getTerms();
             for (final CsdlTerm term : terms) {
-              if (term.getName().equals(termName.getName())) {
+              if (term.getName()
+                .equals(termName.getName())) {
                 return new EdmTermImpl(this, termName.getNamespace(), term);
               }
             }
@@ -800,7 +825,8 @@ public class Edm {
           }
         }
         if (!newAnnotations.isEmpty()) {
-          getAnnotationsMap().get(annotationGrp.getTarget()).addAll(newAnnotations);
+          getAnnotationsMap().get(annotationGrp.getTarget())
+            .addAll(newAnnotations);
         }
       }
     }
@@ -815,8 +841,8 @@ public class Edm {
     try {
       if (null != this.provider.getAliasInfos()) {
         for (final CsdlAliasInfo aliasInfo : this.provider.getAliasInfos()) {
-          if (null != aliasInfo.getNamespace()
-            && aliasInfo.getNamespace().equalsIgnoreCase(namespace)) {
+          if (null != aliasInfo.getNamespace() && aliasInfo.getNamespace()
+            .equalsIgnoreCase(namespace)) {
             return aliasInfo.getAlias();
           }
         }
@@ -869,9 +895,11 @@ public class Edm {
     for (final EdmSchema schema : getSchemas()) {
       for (final EdmAction action : schema.getActions()) {
         if (action.isBound()) {
-          final EdmParameter bindingParameter = action
-            .getParameter(action.getParameterNames().get(0));
-          if (bindingParameter.getType().getFullQualifiedName().equals(bindingParameterTypeName)
+          final EdmParameter bindingParameter = action.getParameter(action.getParameterNames()
+            .get(0));
+          if (bindingParameter.getType()
+            .getFullQualifiedName()
+            .equals(bindingParameterTypeName)
             && bindingParameter.isCollection() == isBindingParameterCollection) {
             return action;
           }
@@ -908,9 +936,11 @@ public class Edm {
     for (final EdmSchema schema : getSchemas()) {
       for (final EdmFunction function : schema.getFunctions()) {
         if (function.isBound()) {
-          final EdmParameter bindingParameter = function
-            .getParameter(function.getParameterNames().get(0));
-          if (bindingParameter.getType().getFullQualifiedName().equals(bindingParameterTypeName)
+          final EdmParameter bindingParameter = function.getParameter(function.getParameterNames()
+            .get(0));
+          if (bindingParameter.getType()
+            .getFullQualifiedName()
+            .equals(bindingParameterTypeName)
             && bindingParameter.isCollection() == isBindingParameterCollection) {
             functions.add(function);
           }
@@ -1162,12 +1192,14 @@ public class Edm {
     if (this.provider.getEntityType(parameter.getTypeFQN()) == null) {
       return false;
     }
-    final List<CsdlProperty> properties = this.provider.getEntityType(parameter.getTypeFQN())
-      .getProperties();
-    for (final CsdlProperty property : properties) {
-      final String paramPropertyTypeName = property.getTypeName().getFullQualifiedNameAsString();
-      if (complexType != null && complexType.getBaseType() != null
-        && complexType.getBaseTypeFQN().getFullQualifiedNameAsString().equals(paramPropertyTypeName)
+    final var properties = this.provider.getEntityType(parameter.getTypeFQN())
+      .getFields();
+    for (final var property : properties) {
+      final String paramPropertyTypeName = Edm.getTypeName(property)
+        .getFullQualifiedNameAsString();
+      if (complexType != null && complexType.getBaseType() != null && complexType.getBaseTypeFQN()
+        .getFullQualifiedNameAsString()
+        .equals(paramPropertyTypeName)
         || paramPropertyTypeName.equals(bindingParameterTypeName.getFullQualifiedNameAsString())
           && isBindingParameterCollection.booleanValue() == property.isDataTypeCollection()) {
         return true;
@@ -1190,7 +1222,8 @@ public class Edm {
     final FullQualifiedName bindingParameterTypeName, final CsdlParameter parameter)
     throws ODataException {
     return this.provider.getEntityType(bindingParameterTypeName) != null
-      && this.provider.getEntityType(bindingParameterTypeName).getBaseTypeFQN() != null
+      && this.provider.getEntityType(bindingParameterTypeName)
+        .getBaseTypeFQN() != null
       && this.provider.getEntityType(bindingParameterTypeName)
         .getBaseTypeFQN()
         .equals(parameter.getTypeFQN());
@@ -1243,11 +1276,12 @@ public class Edm {
     for (final CsdlEntitySet entitySet : entitySets) {
       try {
         final CsdlEntityType entType = this.provider.getEntityType(entitySet.getTypeFQN());
-        final List<CsdlProperty> entTypeProperties = null != entType ? entType.getProperties()
-          : new ArrayList<>();
-        for (final CsdlProperty entTypeProperty : entTypeProperties) {
-          if (entTypeProperty.equalsType(typeName)) {
-            complexPropName = entTypeProperty.getName();
+        final var fields = null != entType ? entType.getFields()
+          : new ArrayList<FieldDefinition>();
+        for (final var field : fields) {
+          if (Edm.getTypeName(field)
+            .equals(typeName)) {
+            complexPropName = field.getName();
             containerName = csdlEntityContainer.getName();
             schemaName = typeName.getNamespace();
             for (final CsdlNavigationProperty navProperty : navProperties) {
@@ -1298,41 +1332,42 @@ public class Edm {
    */
   private void removeAnnotationsAddedToCTTypePropFromES(final CsdlStructuralType structuralType,
     final FullQualifiedName typeName, final CsdlEntityContainer csdlEntityContainer,
-    final List<CsdlProperty> properties, final List<CsdlEntitySet> entitySets) {
+    final List<FieldDefinition> properties, final List<CsdlEntitySet> entitySets) {
     String containerName;
     String schemaName;
     String complexPropName;
     for (final CsdlEntitySet entitySet : entitySets) {
       try {
         final CsdlEntityType entType = this.provider.getEntityType(entitySet.getTypeFQN());
-        final List<CsdlProperty> entTypeProperties = null != entType ? entType.getProperties()
-          : new ArrayList<>();
-        for (final CsdlProperty entTypeProperty : entTypeProperties) {
-          if (null != entTypeProperty.getType()
-            && entTypeProperty.getType().endsWith("." + structuralType.getName())) {
+        final var entTypeProperties = null != entType ? entType.getFields()
+          : new ArrayList<FieldDefinition>();
+        for (final var entTypeProperty : entTypeProperties) {
+          if (null != getType(entTypeProperty)
+            && getType(entTypeProperty).endsWith("." + structuralType.getName())) {
             complexPropName = entTypeProperty.getName();
             containerName = csdlEntityContainer.getName();
             schemaName = typeName.getNamespace();
-            for (final CsdlProperty property : properties) {
+            for (final var property : properties) {
+              final var name = property.getName();
               final List<CsdlAnnotation> annotPropDerivedFromES = getAnnotationsMap()
                 .get(schemaName + "." + containerName + "/" + entitySet.getName() + "/"
-                  + complexPropName + "/" + property.getName());
+                  + complexPropName + "/" + name);
               removeAnnotationsOnPropDerivedFromEntitySet(structuralType, property,
                 annotPropDerivedFromES);
               String aliasName = getAliasInfo(schemaName);
               final List<CsdlAnnotation> annotPropDerivedFromESOnAlias = getAnnotationsMap()
                 .get(aliasName + "." + containerName + "/" + entitySet.getName() + "/"
-                  + complexPropName + "/" + property.getName());
+                  + complexPropName + "/" + name);
               removeAnnotationsOnPropDerivedFromEntitySet(structuralType, property,
                 annotPropDerivedFromESOnAlias);
 
               final List<CsdlAnnotation> propAnnotations = getAnnotationsMap()
-                .get(typeName.getFullQualifiedNameAsString() + "/" + property.getName());
-              addAnnotationsOnPropertiesOfStructuralType(structuralType, property, propAnnotations);
+                .get(typeName.getFullQualifiedNameAsString() + "/" + name);
+              addAnnotationsOnPropertiesOfStructuralType(structuralType, name, propAnnotations);
               aliasName = getAliasInfo(typeName.getNamespace());
               final List<CsdlAnnotation> propAnnotationsOnAlias = getAnnotationsMap()
-                .get(typeName.getName() + "/" + property.getName());
-              addAnnotationsOnPropertiesOfStructuralType(structuralType, property,
+                .get(typeName.getName() + "/" + name);
+              addAnnotationsOnPropertiesOfStructuralType(structuralType, name,
                 propAnnotationsOnAlias);
             }
           }
@@ -1372,11 +1407,11 @@ public class Edm {
    * @param annotPropDerivedFromESOnAlias
    */
   private void removeAnnotationsOnPropDerivedFromEntitySet(final CsdlStructuralType structuralType,
-    final CsdlProperty property, final List<CsdlAnnotation> annotPropDerivedFromES) {
+    final FieldDefinition property, final List<CsdlAnnotation> annotPropDerivedFromES) {
     if (null != annotPropDerivedFromES && !annotPropDerivedFromES.isEmpty()) {
       for (final CsdlAnnotation annotation : annotPropDerivedFromES) {
-        final List<CsdlAnnotation> propAnnot = structuralType.getProperty(property.getName())
-          .getAnnotations();
+        final List<CsdlAnnotation> propAnnot = structuralType
+          .getFieldAnnotations(property.getName());
         if (propAnnot.contains(annotation)) {
           propAnnot.remove(annotation);
         }
@@ -1427,7 +1462,8 @@ public class Edm {
     } else {
       for (final CsdlEntitySet entitySet : entitySets) {
         entitySetName = entitySet.getName();
-        final String entityTypeName = entitySet.getTypeFQN().getFullQualifiedNameAsString();
+        final String entityTypeName = entitySet.getTypeFQN()
+          .getFullQualifiedNameAsString();
         if (null != entityTypeName
           && entityTypeName.equalsIgnoreCase(typeName.getFullQualifiedNameAsString())) {
           containerName = csdlEntityContainer.getName();
@@ -1464,7 +1500,7 @@ public class Edm {
    */
   private void updateAnnotationsOnStructuralProperties(final CsdlStructuralType structuralType,
     final FullQualifiedName typeName, final CsdlEntityContainer csdlEntityContainer) {
-    final List<CsdlProperty> properties = structuralType.getProperties();
+    final var properties = structuralType.getFields();
     String containerName = null;
     String schemaName = null;
     String entitySetName = null;
@@ -1477,7 +1513,8 @@ public class Edm {
     } else {
       for (final CsdlEntitySet entitySet : entitySets) {
         entitySetName = entitySet.getName();
-        final String entityTypeName = entitySet.getTypeFQN().getFullQualifiedNameAsString();
+        final String entityTypeName = entitySet.getTypeFQN()
+          .getFullQualifiedNameAsString();
         if (null != entityTypeName
           && entityTypeName.equalsIgnoreCase(typeName.getFullQualifiedNameAsString())) {
           containerName = csdlEntityContainer.getName();
@@ -1485,24 +1522,24 @@ public class Edm {
           break;
         }
       }
-      for (final CsdlProperty property : properties) {
+      for (final var property : properties) {
+        final var name = property.getName();
         final List<CsdlAnnotation> annotPropDerivedFromES = getAnnotationsMap()
-          .get(schemaName + "." + containerName + "/" + entitySetName + "/" + property.getName());
+          .get(schemaName + "." + containerName + "/" + entitySetName + "/" + name);
         removeAnnotationsOnPropDerivedFromEntitySet(structuralType, property,
           annotPropDerivedFromES);
         String aliasName = getAliasInfo(schemaName);
         final List<CsdlAnnotation> annotPropDerivedFromESOnAlias = getAnnotationsMap()
-          .get(aliasName + "." + containerName + "/" + entitySetName + "/" + property.getName());
+          .get(aliasName + "." + containerName + "/" + entitySetName + "/" + name);
         removeAnnotationsOnPropDerivedFromEntitySet(structuralType, property,
           annotPropDerivedFromESOnAlias);
         final List<CsdlAnnotation> propAnnotations = getAnnotationsMap()
-          .get(typeName.getFullQualifiedNameAsString() + "/" + property.getName());
-        addAnnotationsOnPropertiesOfStructuralType(structuralType, property, propAnnotations);
+          .get(typeName.getFullQualifiedNameAsString() + "/" + name);
+        addAnnotationsOnPropertiesOfStructuralType(structuralType, name, propAnnotations);
         aliasName = getAliasInfo(typeName.getNamespace());
         final List<CsdlAnnotation> propAnnotationsOnAlias = getAnnotationsMap()
-          .get(aliasName + "." + typeName.getName() + "/" + property.getName());
-        addAnnotationsOnPropertiesOfStructuralType(structuralType, property,
-          propAnnotationsOnAlias);
+          .get(aliasName + "." + typeName.getName() + "/" + name);
+        addAnnotationsOnPropertiesOfStructuralType(structuralType, name, propAnnotationsOnAlias);
       }
     }
   }

@@ -29,7 +29,6 @@ import org.apache.olingo.commons.api.edm.constants.EdmTypeKind;
 import org.apache.olingo.commons.api.ex.ODataRuntimeException;
 import org.apache.olingo.commons.core.edm.Edm;
 import org.apache.olingo.commons.core.edm.primitivetype.EdmPrimitiveTypeFactory;
-import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.uri.UriInfoKind;
 import org.apache.olingo.server.api.uri.UriResourceNavigation;
 import org.apache.olingo.server.api.uri.UriResourcePartTyped;
@@ -67,7 +66,8 @@ public class ExpandParser {
     while (tokenizer.next(TokenKind.ODataIdentifier)) {
       name = tokenizer.getText();
       final EdmProperty property = type.getStructuralProperty(name);
-      if (property != null && property.getType().getKind() == EdmTypeKind.COMPLEX) {
+      if (property != null && property.getType()
+        .getKind() == EdmTypeKind.COMPLEX) {
         type = (EdmStructuredType)property.getType();
         final UriResourceComplexPropertyImpl complexResource = new UriResourceComplexPropertyImpl(
           property);
@@ -107,16 +107,13 @@ public class ExpandParser {
 
   private final Edm edm;
 
-  private final OData odata;
-
   private final Map<String, AliasQueryOption> aliases;
 
   private final Collection<String> crossjoinEntitySetNames;
 
-  public ExpandParser(final Edm edm, final OData odata, final Map<String, AliasQueryOption> aliases,
+  public ExpandParser(final Edm edm, final Map<String, AliasQueryOption> aliases,
     final Collection<String> crossjoinEntitySetNames) {
     this.edm = edm;
-    this.odata = odata;
     this.aliases = aliases;
     this.crossjoinEntitySetNames = crossjoinEntitySetNames;
   }
@@ -149,7 +146,8 @@ public class ExpandParser {
       if (this.crossjoinEntitySetNames.contains(entitySetName)) {
         final UriInfoImpl resource = new UriInfoImpl().setKind(UriInfoKind.resource);
         final UriResourceEntitySetImpl entitySetResourceSegment = new UriResourceEntitySetImpl(
-          this.edm.getEntityContainer().getEntitySet(entitySetName));
+          this.edm.getEntityContainer()
+            .getEntitySet(entitySetName));
         resource.addResourcePart(entitySetResourceSegment);
 
         item.setResourcePath(resource);
@@ -272,8 +270,8 @@ public class ExpandParser {
 
         } else if (!forRef && !forCount && tokenizer.next(TokenKind.EXPAND)) {
           ParserHelper.requireNext(tokenizer, TokenKind.EQ);
-          systemQueryOption = new ExpandParser(this.edm, this.odata, this.aliases, null)
-            .parse(tokenizer, referencedType);
+          systemQueryOption = new ExpandParser(this.edm, this.aliases, null).parse(tokenizer,
+            referencedType);
 
         } else if (tokenizer.next(TokenKind.FILTER)) {
           ParserHelper.requireNext(tokenizer, TokenKind.EQ);
