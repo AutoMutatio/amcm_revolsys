@@ -50,7 +50,7 @@ public class EdmPropertyValueImpl extends AbstractEdmAnnotatable implements EdmP
       if (this.csdlExp.getValue() == null) {
         throw new EdmException("PropertyValue expressions require an expression value.");
       }
-      this.value = AbstractEdmExpression.getExpression(this.edm, this.csdlExp.getValue());
+      this.value = this.csdlExp.getValue().toEdm(this.edm);
     }
     return this.value;
   }

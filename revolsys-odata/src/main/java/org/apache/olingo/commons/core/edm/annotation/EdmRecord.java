@@ -26,13 +26,12 @@ import org.apache.olingo.commons.api.edm.EdmException;
 import org.apache.olingo.commons.api.edm.EdmStructuredType;
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.annotation.EdmPropertyValue;
-import org.apache.olingo.commons.api.edm.annotation.EdmRecord;
 import org.apache.olingo.commons.api.edm.provider.annotation.CsdlPropertyValue;
 import org.apache.olingo.commons.api.edm.provider.annotation.CsdlRecord;
 import org.apache.olingo.commons.core.edm.Edm;
 import org.apache.olingo.commons.core.edm.EdmTypeInfo;
 
-public class EdmRecordImpl extends AbstractEdmAnnotatableDynamicExpression implements EdmRecord {
+public class EdmRecord extends AbstractEdmAnnotatableDynamicExpression {
 
   private List<EdmPropertyValue> propertyValues;
 
@@ -40,7 +39,7 @@ public class EdmRecordImpl extends AbstractEdmAnnotatableDynamicExpression imple
 
   private final CsdlRecord record;
 
-  public EdmRecordImpl(final Edm edm, final CsdlRecord csdlExp) {
+  public EdmRecord(final Edm edm, final CsdlRecord csdlExp) {
     super(edm, "Record", csdlExp);
     this.record = csdlExp;
   }
@@ -50,7 +49,6 @@ public class EdmRecordImpl extends AbstractEdmAnnotatableDynamicExpression imple
     return EdmExpressionType.Record;
   }
 
-  @Override
   public List<EdmPropertyValue> getPropertyValues() {
     if (this.propertyValues == null) {
       final List<EdmPropertyValue> localValues = new ArrayList<>();
@@ -64,7 +62,6 @@ public class EdmRecordImpl extends AbstractEdmAnnotatableDynamicExpression imple
     return this.propertyValues;
   }
 
-  @Override
   public EdmStructuredType getType() {
     if (this.type == null && this.record.getType() != null) {
       // record MAY have a type information.
@@ -80,7 +77,6 @@ public class EdmRecordImpl extends AbstractEdmAnnotatableDynamicExpression imple
     return this.type;
   }
 
-  @Override
   public FullQualifiedName getTypeFQN() {
     return this.record.getType() != null ? new FullQualifiedName(this.record.getType()) : null;
   }

@@ -22,19 +22,18 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.olingo.commons.api.edm.annotation.EdmCollection;
 import org.apache.olingo.commons.api.edm.annotation.EdmExpression;
 import org.apache.olingo.commons.api.edm.provider.annotation.CsdlCollection;
 import org.apache.olingo.commons.api.edm.provider.annotation.CsdlExpression;
 import org.apache.olingo.commons.core.edm.Edm;
 
-public class EdmCollectionImpl extends AbstractEdmDynamicExpression implements EdmCollection {
+public class EdmCollection extends AbstractEdmDynamicExpression {
 
   private List<EdmExpression> items;
 
   private final CsdlCollection csdlCollection;
 
-  public EdmCollectionImpl(final Edm edm, final CsdlCollection csdlExp) {
+  public EdmCollection(final Edm edm, final CsdlCollection csdlExp) {
     super(edm, "Collection");
     this.csdlCollection = csdlExp;
   }
@@ -44,13 +43,12 @@ public class EdmCollectionImpl extends AbstractEdmDynamicExpression implements E
     return EdmExpressionType.Collection;
   }
 
-  @Override
   public List<EdmExpression> getItems() {
     if (this.items == null) {
       final List<EdmExpression> localItems = new ArrayList<>();
       if (this.csdlCollection.getItems() != null) {
         for (final CsdlExpression item : this.csdlCollection.getItems()) {
-          localItems.add(getExpression(this.edm, item));
+          localItems.add(item.toEdm(this.edm));
         }
       }
       this.items = Collections.unmodifiableList(localItems);

@@ -16,20 +16,26 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.olingo.commons.api.edm.annotation;
+package org.apache.olingo.commons.core.edm.annotation;
 
-/**
- *  The edm:Path expression enables a value to be obtained by traversing an object graph.
- *  It can be used in annotations that target entity containers, entity sets, entity types, complex types,
- *  navigation properties of structured types, and properties of structured types.
- */
-public interface EdmPath extends EdmDynamicExpression {
+import org.apache.olingo.commons.api.edm.provider.annotation.CsdlAnnotationPath;
+import org.apache.olingo.commons.core.edm.Edm;
 
-  /**
-   * Returns the target value of the expression
-   *
-   * @return target value of the expression
-   */
-  String getValue();
+public class EdmAnnotationPath extends AbstractEdmDynamicExpression {
 
+  private final CsdlAnnotationPath csdlExp;
+
+  public EdmAnnotationPath(final Edm edm, final CsdlAnnotationPath csdlExp) {
+    super(edm, "AnnotationPath");
+    this.csdlExp = csdlExp;
+  }
+
+  @Override
+  public EdmExpressionType getExpressionType() {
+    return EdmExpressionType.AnnotationPath;
+  }
+
+  public String getValue() {
+    return this.csdlExp.getValue();
+  }
 }

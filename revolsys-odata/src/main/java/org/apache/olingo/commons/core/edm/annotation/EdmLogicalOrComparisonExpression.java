@@ -20,7 +20,6 @@ package org.apache.olingo.commons.core.edm.annotation;
 
 import org.apache.olingo.commons.api.edm.EdmException;
 import org.apache.olingo.commons.api.edm.annotation.EdmExpression;
-import org.apache.olingo.commons.api.edm.annotation.EdmLogicalOrComparisonExpression;
 import org.apache.olingo.commons.api.edm.provider.annotation.CsdlLogicalOrComparisonExpression;
 //CHECKSTYLE:OFF
 import org.apache.olingo.commons.api.edm.provider.annotation.CsdlLogicalOrComparisonExpression.LogicalOrComparisonExpressionType;
@@ -28,8 +27,7 @@ import org.apache.olingo.commons.core.edm.Edm;
 
 //CHECKSTYLE:ON
 
-public abstract class AbstractEdmLogicalOrComparisonExpression
-  extends AbstractEdmAnnotatableDynamicExpression implements EdmLogicalOrComparisonExpression {
+public class EdmLogicalOrComparisonExpression extends AbstractEdmAnnotatableDynamicExpression {
 
   private EdmExpression left;
 
@@ -37,9 +35,13 @@ public abstract class AbstractEdmLogicalOrComparisonExpression
 
   private final CsdlLogicalOrComparisonExpression csdlExp;
 
-  public AbstractEdmLogicalOrComparisonExpression(final Edm edm,
+  public EdmLogicalOrComparisonExpression(final Edm edm,
     final CsdlLogicalOrComparisonExpression csdlExp) {
-    super(edm, csdlExp.getType().toString(), csdlExp);
+    super(
+      edm,
+        csdlExp.getType()
+          .toString(),
+        csdlExp);
     this.csdlExp = csdlExp;
   }
 
@@ -70,14 +72,14 @@ public abstract class AbstractEdmLogicalOrComparisonExpression
     }
   }
 
-  @Override
   public EdmExpression getLeftExpression() {
     if (this.left == null) {
       if (this.csdlExp.getLeft() == null) {
         throw new EdmException(
           "Comparison Or Logical expression MUST have a left and right expression.");
       }
-      this.left = AbstractEdmExpression.getExpression(this.edm, this.csdlExp.getLeft());
+      this.left = this.csdlExp.getLeft()
+        .toEdm(this.edm);
       if (this.csdlExp.getType() == LogicalOrComparisonExpressionType.Not) {
         this.right = this.left;
       }
@@ -85,14 +87,14 @@ public abstract class AbstractEdmLogicalOrComparisonExpression
     return this.left;
   }
 
-  @Override
   public EdmExpression getRightExpression() {
     if (this.right == null) {
       if (this.csdlExp.getRight() == null) {
         throw new EdmException(
           "Comparison Or Logical expression MUST have a left and right expression.");
       }
-      this.right = AbstractEdmExpression.getExpression(this.edm, this.csdlExp.getRight());
+      this.right = this.csdlExp.getRight()
+        .toEdm(this.edm);
       if (this.csdlExp.getType() == LogicalOrComparisonExpressionType.Not) {
         this.left = this.right;
       }

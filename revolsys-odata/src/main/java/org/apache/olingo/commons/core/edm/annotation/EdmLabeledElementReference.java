@@ -18,13 +18,24 @@
  */
 package org.apache.olingo.commons.core.edm.annotation;
 
-import org.apache.olingo.commons.api.edm.annotation.EdmLt;
-import org.apache.olingo.commons.api.edm.provider.annotation.CsdlLogicalOrComparisonExpression;
+import org.apache.olingo.commons.api.edm.provider.annotation.CsdlLabeledElementReference;
 import org.apache.olingo.commons.core.edm.Edm;
 
-public class EdmLtImpl extends AbstractEdmLogicalOrComparisonExpression implements EdmLt {
+public class EdmLabeledElementReference extends AbstractEdmDynamicExpression {
 
-  public EdmLtImpl(final Edm edm, final CsdlLogicalOrComparisonExpression csdlExp) {
-    super(edm, csdlExp);
+  private final CsdlLabeledElementReference csdlExp;
+
+  public EdmLabeledElementReference(final Edm edm, final CsdlLabeledElementReference csdlExp) {
+    super(edm, "LabeledElementReference");
+    this.csdlExp = csdlExp;
+  }
+
+  @Override
+  public EdmExpressionType getExpressionType() {
+    return EdmExpressionType.LabeledElementReference;
+  }
+
+  public String getValue() {
+    return this.csdlExp.getValue();
   }
 }

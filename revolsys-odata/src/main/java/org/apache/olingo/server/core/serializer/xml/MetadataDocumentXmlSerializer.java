@@ -57,27 +57,27 @@ import org.apache.olingo.commons.api.edm.EdmType;
 import org.apache.olingo.commons.api.edm.EdmTypeDefinition;
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.TargetType;
-import org.apache.olingo.commons.api.edm.annotation.EdmApply;
-import org.apache.olingo.commons.api.edm.annotation.EdmCast;
-import org.apache.olingo.commons.api.edm.annotation.EdmConstantExpression;
-import org.apache.olingo.commons.api.edm.annotation.EdmDynamicExpression;
 import org.apache.olingo.commons.api.edm.annotation.EdmExpression;
-import org.apache.olingo.commons.api.edm.annotation.EdmIf;
-import org.apache.olingo.commons.api.edm.annotation.EdmIsOf;
-import org.apache.olingo.commons.api.edm.annotation.EdmLabeledElement;
-import org.apache.olingo.commons.api.edm.annotation.EdmLabeledElementReference;
-import org.apache.olingo.commons.api.edm.annotation.EdmLogicalOrComparisonExpression;
-import org.apache.olingo.commons.api.edm.annotation.EdmNavigationPropertyPath;
-import org.apache.olingo.commons.api.edm.annotation.EdmNot;
-import org.apache.olingo.commons.api.edm.annotation.EdmPath;
-import org.apache.olingo.commons.api.edm.annotation.EdmPropertyPath;
 import org.apache.olingo.commons.api.edm.annotation.EdmPropertyValue;
-import org.apache.olingo.commons.api.edm.annotation.EdmRecord;
-import org.apache.olingo.commons.api.edm.annotation.EdmUrlRef;
 import org.apache.olingo.commons.api.edm.constants.EdmTypeKind;
 import org.apache.olingo.commons.api.edmx.EdmxReference;
 import org.apache.olingo.commons.api.edmx.EdmxReferenceInclude;
 import org.apache.olingo.commons.api.edmx.EdmxReferenceIncludeAnnotation;
+import org.apache.olingo.commons.core.edm.annotation.AbstractEdmDynamicExpression;
+import org.apache.olingo.commons.core.edm.annotation.EdmApply;
+import org.apache.olingo.commons.core.edm.annotation.EdmCast;
+import org.apache.olingo.commons.core.edm.annotation.EdmConstantExpression;
+import org.apache.olingo.commons.core.edm.annotation.EdmIf;
+import org.apache.olingo.commons.core.edm.annotation.EdmIsOf;
+import org.apache.olingo.commons.core.edm.annotation.EdmLabeledElement;
+import org.apache.olingo.commons.core.edm.annotation.EdmLabeledElementReference;
+import org.apache.olingo.commons.core.edm.annotation.EdmLogicalOrComparisonExpression;
+import org.apache.olingo.commons.core.edm.annotation.EdmNavigationPropertyPath;
+import org.apache.olingo.commons.core.edm.annotation.EdmNot;
+import org.apache.olingo.commons.core.edm.annotation.EdmPath;
+import org.apache.olingo.commons.core.edm.annotation.EdmPropertyPath;
+import org.apache.olingo.commons.core.edm.annotation.EdmRecord;
+import org.apache.olingo.commons.core.edm.annotation.EdmUrlRef;
 import org.apache.olingo.server.api.ServiceMetadata;
 import org.apache.olingo.server.api.serializer.ODataSerializer;
 import org.apache.olingo.server.api.serializer.SerializerException;
@@ -309,8 +309,8 @@ public class MetadataDocumentXmlSerializer {
       for (final EdmAnnotation annotation : annotations) {
         writer.writeStartElement(XML_ANNOTATION);
         if (annotation.getTerm() != null) {
-          writer.writeAttribute(XML_TERM_ATT,
-            getAliasedFullQualifiedName(annotation.getTerm().getFullQualifiedName(), false));
+          writer.writeAttribute(XML_TERM_ATT, getAliasedFullQualifiedName(annotation.getTerm()
+            .getFullQualifiedName(), false));
         }
         if (annotation.getQualifier() != null) {
           writer.writeAttribute(XML_QUALIFIER_ATT, annotation.getQualifier());
@@ -361,47 +361,29 @@ public class MetadataDocumentXmlSerializer {
   private void appendDataServices(final XMLStreamWriter writer) throws XMLStreamException {
     writer.setDefaultNamespace(NS_EDM);
     writer.writeStartElement(NS_EDMX, DATA_SERVICES);
-    for (final EdmSchema schema : this.serviceMetadata.getEdm().getSchemas()) {
+    for (final EdmSchema schema : this.serviceMetadata.getEdm()
+      .getSchemas()) {
       appendSchema(writer, schema);
     }
     writer.writeEndElement();
   }
 
   private void appendDynamicExpression(final XMLStreamWriter writer,
-    final EdmDynamicExpression dynExp) throws XMLStreamException {
+    final AbstractEdmDynamicExpression dynExp) throws XMLStreamException {
     writer.writeStartElement(dynExp.getExpressionName());
+    if (dynExp instanceof final EdmLogicalOrComparisonExpression logical) {
+      appendLogicalOrComparisonExpression(writer, logical);
+    }
     switch (dynExp.getExpressionType()) {
-      // Logical
-      case And:
-        appendLogicalOrComparisonExpression(writer, dynExp.asAnd());
-      break;
-      case Or:
-        appendLogicalOrComparisonExpression(writer, dynExp.asOr());
-      break;
+
       case Not:
-        appendNotExpression(writer, dynExp.asNot());
+        appendNotExpression(writer, (EdmNot)dynExp);
       break;
       // Comparison
-      case Eq:
-        appendLogicalOrComparisonExpression(writer, dynExp.asEq());
-      break;
-      case Ne:
-        appendLogicalOrComparisonExpression(writer, dynExp.asNe());
-      break;
-      case Gt:
-        appendLogicalOrComparisonExpression(writer, dynExp.asGt());
-      break;
-      case Ge:
-        appendLogicalOrComparisonExpression(writer, dynExp.asGe());
-      break;
-      case Lt:
-        appendLogicalOrComparisonExpression(writer, dynExp.asLt());
-      break;
-      case Le:
-        appendLogicalOrComparisonExpression(writer, dynExp.asLe());
-      break;
+
       case AnnotationPath:
-        writer.writeCharacters(dynExp.asAnnotationPath().getValue());
+        writer.writeCharacters(dynExp.asAnnotationPath()
+          .getValue());
       break;
       case Apply:
         final EdmApply asApply = dynExp.asApply();
@@ -430,7 +412,8 @@ public class MetadataDocumentXmlSerializer {
         appendAnnotations(writer, asCast);
       break;
       case Collection:
-        for (final EdmExpression item : dynExp.asCollection().getItems()) {
+        for (final EdmExpression item : dynExp.asCollection()
+          .getItems()) {
           appendExpression(writer, item);
         }
       break;
@@ -649,10 +632,10 @@ public class MetadataDocumentXmlSerializer {
     if (expression == null) {
       return;
     }
-    if (expression.isConstant()) {
-      appendConstantExpression(writer, expression.asConstant());
-    } else if (expression.isDynamic()) {
-      appendDynamicExpression(writer, expression.asDynamic());
+    if (expression instanceof final EdmConstantExpression constant) {
+      appendConstantExpression(writer, constant);
+    } else if (expression instanceof final AbstractEdmDynamicExpression dynamic) {
+      appendDynamicExpression(writer, dynamic);
     } else {
       throw new IllegalArgumentException("Unkown expressiontype in metadata");
     }
@@ -682,7 +665,8 @@ public class MetadataDocumentXmlSerializer {
         if (null != returnedEntitySetNamespace
           && returnedEntitySetNamespace.equals(containerNamespace)
           || this.namespaceToAlias.get(returnedEntitySetNamespace) != null
-            && this.namespaceToAlias.get(returnedEntitySetNamespace).equals(containerNamespace)) {
+            && this.namespaceToAlias.get(returnedEntitySetNamespace)
+              .equals(containerNamespace)) {
           writer.writeAttribute(XML_ENTITY_SET, returnedEntitySet.getName());
         } else {
           writer.writeAttribute(XML_ENTITY_SET,
@@ -732,7 +716,8 @@ public class MetadataDocumentXmlSerializer {
       // Resolve Base Type key as it is shown in derived type
       final EdmEntityType baseType = entityType.getBaseType();
       if (baseType != null && baseType.getKeyPropertyRefs() != null
-        && !baseType.getKeyPropertyRefs().isEmpty()) {
+        && !baseType.getKeyPropertyRefs()
+          .isEmpty()) {
         return;
       }
 
@@ -761,7 +746,8 @@ public class MetadataDocumentXmlSerializer {
     final EdmStructuredType type) throws XMLStreamException {
     final List<String> navigationPropertyNames = new ArrayList<>(type.getNavigationPropertyNames());
     if (type.getBaseType() != null) {
-      navigationPropertyNames.removeAll(type.getBaseType().getNavigationPropertyNames());
+      navigationPropertyNames.removeAll(type.getBaseType()
+        .getNavigationPropertyNames());
     }
     for (final String navigationPropertyName : navigationPropertyNames) {
       final EdmNavigationProperty navigationProperty = type
@@ -797,7 +783,8 @@ public class MetadataDocumentXmlSerializer {
 
       if (navigationProperty.getOnDelete() != null) {
         writer.writeStartElement(XML_ON_DELETE);
-        writer.writeAttribute(XML_ON_DELETE_PROPERTY, navigationProperty.getOnDelete().getAction());
+        writer.writeAttribute(XML_ON_DELETE_PROPERTY, navigationProperty.getOnDelete()
+          .getAction());
         appendAnnotations(writer, navigationProperty.getOnDelete());
         writer.writeEndElement();
       }
@@ -833,7 +820,8 @@ public class MetadataDocumentXmlSerializer {
       writer.writeStartElement(XML_PARAMETER);
       writer.writeAttribute(XML_NAME, parameterName);
       String typeFqnString;
-      if (EdmTypeKind.PRIMITIVE.equals(parameter.getType().getKind())) {
+      if (EdmTypeKind.PRIMITIVE.equals(parameter.getType()
+        .getKind())) {
         typeFqnString = getFullQualifiedName(parameter.getType(), parameter.isCollection());
       } else {
         typeFqnString = getAliasedFullQualifiedName(parameter.getType(), parameter.isCollection());
@@ -853,7 +841,8 @@ public class MetadataDocumentXmlSerializer {
     if (returnType != null) {
       writer.writeEmptyElement(XML_RETURN_TYPE);
       String returnTypeFqnString;
-      if (EdmTypeKind.PRIMITIVE.equals(returnType.getType().getKind())) {
+      if (EdmTypeKind.PRIMITIVE.equals(returnType.getType()
+        .getKind())) {
         returnTypeFqnString = getFullQualifiedName(returnType.getType(), returnType.isCollection());
       } else {
         returnTypeFqnString = getAliasedFullQualifiedName(returnType.getType(),
@@ -885,7 +874,8 @@ public class MetadataDocumentXmlSerializer {
     throws XMLStreamException {
     final List<String> propertyNames = new ArrayList<>(type.getPropertyNames());
     if (type.getBaseType() != null) {
-      propertyNames.removeAll(type.getBaseType().getPropertyNames());
+      propertyNames.removeAll(type.getBaseType()
+        .getPropertyNames());
     }
     for (final String propertyName : propertyNames) {
       final EdmProperty property = type.getStructuralProperty(propertyName);
@@ -942,7 +932,8 @@ public class MetadataDocumentXmlSerializer {
   private void appendReference(final XMLStreamWriter writer) throws XMLStreamException {
     for (final EdmxReference reference : this.serviceMetadata.getReferences()) {
       writer.writeStartElement(PREFIX_EDMX, REFERENCE, NS_EDMX);
-      writer.writeAttribute(URI, reference.getUri().toASCIIString());
+      writer.writeAttribute(URI, reference.getUri()
+        .toASCIIString());
 
       final List<EdmxReferenceInclude> includes = reference.getIncludes();
       for (final EdmxReferenceInclude include : includes) {
@@ -1057,11 +1048,12 @@ public class MetadataDocumentXmlSerializer {
       writer.writeAttribute(XML_TYPE, getAliasedFullQualifiedName(term.getType(), false));
 
       if (term.getBaseTerm() != null) {
-        writer.writeAttribute(XML_BASE_TERM,
-          getAliasedFullQualifiedName(term.getBaseTerm().getFullQualifiedName(), false));
+        writer.writeAttribute(XML_BASE_TERM, getAliasedFullQualifiedName(term.getBaseTerm()
+          .getFullQualifiedName(), false));
       }
 
-      if (term.getAppliesTo() != null && !term.getAppliesTo().isEmpty()) {
+      if (term.getAppliesTo() != null && !term.getAppliesTo()
+        .isEmpty()) {
         String appliesToString = "";
         boolean first = true;
         for (final TargetType target : term.getAppliesTo()) {
@@ -1145,7 +1137,8 @@ public class MetadataDocumentXmlSerializer {
   }
 
   private String getFullQualifiedName(final EdmType type, final boolean isCollection) {
-    final String name = type.getFullQualifiedName().getFullQualifiedNameAsString();
+    final String name = type.getFullQualifiedName()
+      .getFullQualifiedNameAsString();
     return isCollection ? "Collection(" + name + ")" : name;
   }
 

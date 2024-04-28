@@ -26,14 +26,12 @@ import org.apache.olingo.commons.api.edm.EdmException;
 import org.apache.olingo.commons.api.edm.EdmPrimitiveType;
 import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeException;
 import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
-import org.apache.olingo.commons.api.edm.annotation.EdmConstantExpression;
 import org.apache.olingo.commons.api.edm.geo.Geospatial;
 import org.apache.olingo.commons.api.edm.provider.annotation.CsdlConstantExpression;
 import org.apache.olingo.commons.core.edm.Edm;
 import org.apache.olingo.commons.core.edm.primitivetype.EdmPrimitiveTypeFactory;
 
-public class EdmConstantExpressionImpl extends AbstractEdmExpression
-  implements EdmConstantExpression {
+public class EdmConstantExpression extends AbstractEdmExpression {
 
   private EdmPrimitiveType type;
 
@@ -49,12 +47,14 @@ public class EdmConstantExpressionImpl extends AbstractEdmExpression
 
   private Geospatial geospatial;
 
-  public EdmConstantExpressionImpl(final Edm edm, final CsdlConstantExpression constExprConstruct) {
-    super(edm, constExprConstruct.getType().toString());
+  public EdmConstantExpression(final Edm edm, final CsdlConstantExpression constExprConstruct) {
+    super(
+      edm,
+        constExprConstruct.getType()
+          .toString());
     this.csdlExp = constExprConstruct;
   }
 
-  @Override
   public List<String> asEnumMembers() {
     if (!this.built) {
       build();
@@ -62,7 +62,6 @@ public class EdmConstantExpressionImpl extends AbstractEdmExpression
     return this.enumMembers;
   }
 
-  @Override
   public Geospatial asGeospatial() {
     if (!this.built) {
       build();
@@ -70,7 +69,6 @@ public class EdmConstantExpressionImpl extends AbstractEdmExpression
     return this.geospatial;
   }
 
-  @Override
   public Object asPrimitive() {
     if (!this.built) {
       build();
@@ -84,7 +82,8 @@ public class EdmConstantExpressionImpl extends AbstractEdmExpression
         throw new EdmException("Expression value must not be null");
       }
       final List<String> localEnumValues = new ArrayList<>();
-      for (final String split : this.csdlExp.getValue().split(" ")) {
+      for (final String split : this.csdlExp.getValue()
+        .split(" ")) {
         final String[] enumSplit = split.split("/");
         if (enumSplit.length != 2) {
           throw new EdmException("Enum expression value must consist of enumTypeName/EnumMember.");
@@ -141,7 +140,6 @@ public class EdmConstantExpressionImpl extends AbstractEdmExpression
     this.built = true;
   }
 
-  @Override
   public String getEnumTypeName() {
     if (!this.built) {
       build();
@@ -182,7 +180,6 @@ public class EdmConstantExpressionImpl extends AbstractEdmExpression
     }
   }
 
-  @Override
   public String getValueAsString() {
     return this.csdlExp.getValue();
   }

@@ -23,13 +23,12 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.olingo.commons.api.edm.EdmException;
-import org.apache.olingo.commons.api.edm.annotation.EdmApply;
 import org.apache.olingo.commons.api.edm.annotation.EdmExpression;
 import org.apache.olingo.commons.api.edm.provider.annotation.CsdlApply;
 import org.apache.olingo.commons.api.edm.provider.annotation.CsdlExpression;
 import org.apache.olingo.commons.core.edm.Edm;
 
-public class EdmApplyImpl extends AbstractEdmAnnotatableDynamicExpression implements EdmApply {
+public class EdmApply extends AbstractEdmAnnotatableDynamicExpression {
 
   private final CsdlApply csdlExp;
 
@@ -37,7 +36,7 @@ public class EdmApplyImpl extends AbstractEdmAnnotatableDynamicExpression implem
 
   private List<EdmExpression> parameters;
 
-  public EdmApplyImpl(final Edm edm, final CsdlApply csdlExp) {
+  public EdmApply(final Edm edm, final CsdlApply csdlExp) {
     super(edm, "Apply", csdlExp);
     this.csdlExp = csdlExp;
   }
@@ -47,7 +46,6 @@ public class EdmApplyImpl extends AbstractEdmAnnotatableDynamicExpression implem
     return EdmExpressionType.Apply;
   }
 
-  @Override
   public String getFunction() {
     if (this.function == null) {
       if (this.csdlExp.getFunction() == null) {
@@ -58,13 +56,12 @@ public class EdmApplyImpl extends AbstractEdmAnnotatableDynamicExpression implem
     return this.function;
   }
 
-  @Override
   public List<EdmExpression> getParameters() {
     if (this.parameters == null) {
       final List<EdmExpression> localParameters = new ArrayList<>();
       if (this.csdlExp.getParameters() != null) {
         for (final CsdlExpression param : this.csdlExp.getParameters()) {
-          localParameters.add(getExpression(this.edm, param));
+          localParameters.add(param.toEdm(this.edm));
         }
       }
       this.parameters = Collections.unmodifiableList(localParameters);

@@ -18,13 +18,35 @@
  */
 package org.apache.olingo.commons.core.edm.annotation;
 
-import org.apache.olingo.commons.api.edm.annotation.EdmGt;
-import org.apache.olingo.commons.api.edm.provider.annotation.CsdlLogicalOrComparisonExpression;
+import org.apache.olingo.commons.api.edm.EdmException;
+import org.apache.olingo.commons.api.edm.annotation.EdmExpression;
+import org.apache.olingo.commons.api.edm.provider.annotation.CsdlUrlRef;
 import org.apache.olingo.commons.core.edm.Edm;
 
-public class EdmGtImpl extends AbstractEdmLogicalOrComparisonExpression implements EdmGt {
+public class EdmUrlRef extends AbstractEdmAnnotatableDynamicExpression {
 
-  public EdmGtImpl(final Edm edm, final CsdlLogicalOrComparisonExpression csdlExp) {
-    super(edm, csdlExp);
+  private final CsdlUrlRef csdlExp;
+
+  private EdmExpression value;
+
+  public EdmUrlRef(final Edm edm, final CsdlUrlRef csdlExp) {
+    super(edm, "UrlRef", csdlExp);
+    this.csdlExp = csdlExp;
+  }
+
+  @Override
+  public EdmExpressionType getExpressionType() {
+    return EdmExpressionType.UrlRef;
+  }
+
+  public EdmExpression getValue() {
+    if (this.value == null) {
+      if (this.csdlExp.getValue() == null) {
+        throw new EdmException("URLRef expressions require an expression value.");
+      }
+      this.value = this.csdlExp.getValue()
+        .toEdm(this.edm);
+    }
+    return this.value;
   }
 }

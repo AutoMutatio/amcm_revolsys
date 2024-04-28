@@ -20,33 +20,39 @@ package org.apache.olingo.commons.core.edm.annotation;
 
 import org.apache.olingo.commons.api.edm.EdmException;
 import org.apache.olingo.commons.api.edm.annotation.EdmExpression;
-import org.apache.olingo.commons.api.edm.annotation.EdmUrlRef;
-import org.apache.olingo.commons.api.edm.provider.annotation.CsdlUrlRef;
+import org.apache.olingo.commons.api.edm.provider.annotation.CsdlLabeledElement;
 import org.apache.olingo.commons.core.edm.Edm;
 
-public class EdmUrlRefImpl extends AbstractEdmAnnotatableDynamicExpression implements EdmUrlRef {
-
-  private final CsdlUrlRef csdlExp;
+public class EdmLabeledElement extends AbstractEdmAnnotatableDynamicExpression {
 
   private EdmExpression value;
 
-  public EdmUrlRefImpl(final Edm edm, final CsdlUrlRef csdlExp) {
-    super(edm, "UrlRef", csdlExp);
-    this.csdlExp = csdlExp;
+  private final CsdlLabeledElement csdlLableledElement;
+
+  public EdmLabeledElement(final Edm edm, final CsdlLabeledElement csdlExp) {
+    super(edm, "LabeledElement", csdlExp);
+    this.csdlLableledElement = csdlExp;
   }
 
   @Override
   public EdmExpressionType getExpressionType() {
-    return EdmExpressionType.UrlRef;
+    return EdmExpressionType.LabeledElement;
   }
 
-  @Override
+  public String getName() {
+    if (this.csdlLableledElement.getName() == null) {
+      throw new EdmException("The LabeledElement expression must have a name attribute.");
+    }
+    return this.csdlLableledElement.getName();
+  }
+
   public EdmExpression getValue() {
     if (this.value == null) {
-      if (this.csdlExp.getValue() == null) {
-        throw new EdmException("URLRef expressions require an expression value.");
+      if (this.csdlLableledElement.getValue() == null) {
+        throw new EdmException("The LabeledElement expression must have a child expression");
       }
-      this.value = getExpression(this.edm, this.csdlExp.getValue());
+      this.value = this.csdlLableledElement.getValue()
+        .toEdm(this.edm);
     }
     return this.value;
   }

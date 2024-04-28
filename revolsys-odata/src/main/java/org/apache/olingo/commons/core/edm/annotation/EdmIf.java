@@ -20,11 +20,10 @@ package org.apache.olingo.commons.core.edm.annotation;
 
 import org.apache.olingo.commons.api.edm.EdmException;
 import org.apache.olingo.commons.api.edm.annotation.EdmExpression;
-import org.apache.olingo.commons.api.edm.annotation.EdmIf;
 import org.apache.olingo.commons.api.edm.provider.annotation.CsdlIf;
 import org.apache.olingo.commons.core.edm.Edm;
 
-public class EdmIfImpl extends AbstractEdmAnnotatableDynamicExpression implements EdmIf {
+public class EdmIf extends AbstractEdmAnnotatableDynamicExpression {
 
   private EdmExpression guard;
 
@@ -34,17 +33,17 @@ public class EdmIfImpl extends AbstractEdmAnnotatableDynamicExpression implement
 
   private final CsdlIf csdlExp;
 
-  public EdmIfImpl(final Edm edm, final CsdlIf csdlExp) {
+  public EdmIf(final Edm edm, final CsdlIf csdlExp) {
     super(edm, "If", csdlExp);
     this.csdlExp = csdlExp;
   }
 
-  @Override
   public EdmExpression getElse() {
     // The else clause might be null in certain conditions so we can`t evaluate
     // this here.
     if (this._else == null && this.csdlExp.getElse() != null) {
-      this._else = getExpression(this.edm, this.csdlExp.getElse());
+      this._else = this.csdlExp.getElse()
+        .toEdm(this.edm);
     }
     return this._else;
   }
@@ -54,24 +53,24 @@ public class EdmIfImpl extends AbstractEdmAnnotatableDynamicExpression implement
     return EdmExpressionType.If;
   }
 
-  @Override
   public EdmExpression getGuard() {
     if (this.guard == null) {
       if (this.csdlExp.getGuard() == null) {
         throw new EdmException("Guard clause of an if expression must not be null");
       }
-      this.guard = getExpression(this.edm, this.csdlExp.getGuard());
+      this.guard = this.csdlExp.getGuard()
+        .toEdm(this.edm);
     }
     return this.guard;
   }
 
-  @Override
   public EdmExpression getThen() {
     if (this._then == null) {
       if (this.csdlExp.getThen() == null) {
         throw new EdmException("Then clause of an if expression must not be null");
       }
-      this._then = getExpression(this.edm, this.csdlExp.getThen());
+      this._then = this.csdlExp.getThen()
+        .toEdm(this.edm);
     }
     return this._then;
   }

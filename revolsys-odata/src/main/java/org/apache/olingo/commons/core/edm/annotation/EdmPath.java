@@ -16,20 +16,26 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.olingo.commons.api.edm.annotation;
+package org.apache.olingo.commons.core.edm.annotation;
 
-import java.util.List;
+import org.apache.olingo.commons.api.edm.provider.annotation.CsdlPath;
+import org.apache.olingo.commons.core.edm.Edm;
 
-/**
- * The edm:Collection expression enables a value to be obtained from zero or more child expressions.
- * The value calculated by the collection expression is the collection of the values calculated
- * by each of the child expressions.
- */
-public interface EdmCollection extends EdmDynamicExpression {
+public class EdmPath extends AbstractEdmDynamicExpression {
 
-  /**
-   * Returns a list of child expression
-   * @return List of child expression
-   */
-  List<EdmExpression> getItems();
+  private final CsdlPath csdlExp;
+
+  public EdmPath(final Edm edm, final CsdlPath csdlExp) {
+    super(edm, "Path");
+    this.csdlExp = csdlExp;
+  }
+
+  @Override
+  public EdmExpressionType getExpressionType() {
+    return EdmExpressionType.Path;
+  }
+
+  public String getValue() {
+    return this.csdlExp.getValue();
+  }
 }

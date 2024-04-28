@@ -21,74 +21,65 @@ package org.apache.olingo.commons.core.edm.annotation;
 import org.apache.olingo.commons.api.edm.EdmException;
 import org.apache.olingo.commons.api.edm.EdmType;
 import org.apache.olingo.commons.api.edm.annotation.EdmExpression;
-import org.apache.olingo.commons.api.edm.annotation.EdmIsOf;
 import org.apache.olingo.commons.api.edm.geo.SRID;
-import org.apache.olingo.commons.api.edm.provider.annotation.CsdlIsOf;
+import org.apache.olingo.commons.api.edm.provider.annotation.CsdlCast;
 import org.apache.olingo.commons.core.edm.Edm;
 import org.apache.olingo.commons.core.edm.EdmTypeInfo;
 
-public class EdmIsOfImpl extends AbstractEdmAnnotatableDynamicExpression implements EdmIsOf {
+public class EdmCast extends AbstractEdmAnnotatableDynamicExpression {
 
-  private final Edm edm;
-
-  private final CsdlIsOf isOf;
+  private final CsdlCast cast;
 
   private EdmExpression value;
 
   private EdmType type;
 
-  public EdmIsOfImpl(final Edm edm, final CsdlIsOf isOf) {
-    super(edm, "IsOf", isOf);
-    this.edm = edm;
-    this.isOf = isOf;
+  public EdmCast(final Edm edm, final CsdlCast csdlExp) {
+    super(edm, "Cast", csdlExp);
+    this.cast = csdlExp;
   }
 
   @Override
   public EdmExpressionType getExpressionType() {
-    return EdmExpressionType.IsOf;
+    return EdmExpressionType.Cast;
   }
 
-  @Override
   public Integer getMaxLength() {
-    return this.isOf.getMaxLength();
+    return this.cast.getMaxLength();
   }
 
-  @Override
   public Integer getPrecision() {
-    return this.isOf.getPrecision();
+    return this.cast.getPrecision();
   }
 
-  @Override
   public Integer getScale() {
-    return this.isOf.getScale();
+    return this.cast.getScale();
   }
 
-  @Override
   public SRID getSrid() {
-    return this.isOf.getSrid();
+    return this.cast.getSrid();
   }
 
-  @Override
   public EdmType getType() {
     if (this.type == null) {
-      if (this.isOf.getType() == null) {
-        throw new EdmException("Must specify a type for an IsOf expression.");
+      if (this.cast.getType() == null) {
+        throw new EdmException("Must specify a type for a Cast expression.");
       }
       final EdmTypeInfo typeInfo = new EdmTypeInfo.Builder().setEdm(this.edm)
-        .setTypeExpression(this.isOf.getType())
+        .setTypeExpression(this.cast.getType())
         .build();
       this.type = typeInfo.getType();
     }
     return this.type;
   }
 
-  @Override
   public EdmExpression getValue() {
     if (this.value == null) {
-      if (this.isOf.getValue() == null) {
-        throw new EdmException("IsOf expressions require an expression value.");
+      if (this.cast.getValue() == null) {
+        throw new EdmException("Cast expressions require an expression value.");
       }
-      this.value = getExpression(this.edm, this.isOf.getValue());
+      this.value = this.cast.getValue()
+        .toEdm(this.edm);
     }
     return this.value;
   }

@@ -101,9 +101,9 @@ public class EdmPropertyImpl extends AbstractEdmNamed implements EdmProperty {
   private static void addAnnotation(final List<CsdlAnnotation> annotations, final String term,
     final ConstantExpressionType type, final Object value) {
     if (value != null) {
-      final CsdlAnnotation axisCountAnnotation = new CsdlAnnotation().setTerm(term)
+      final var annotation = new CsdlAnnotation().setTerm(term)
         .setExpression(new CsdlConstantExpression(type, value.toString()));
-      annotations.add(axisCountAnnotation);
+      annotations.add(annotation);
     }
   }
 

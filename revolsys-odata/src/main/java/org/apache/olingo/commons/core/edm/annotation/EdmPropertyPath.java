@@ -18,15 +18,14 @@
  */
 package org.apache.olingo.commons.core.edm.annotation;
 
-import org.apache.olingo.commons.api.edm.annotation.EdmPropertyPath;
 import org.apache.olingo.commons.api.edm.provider.annotation.CsdlPropertyPath;
 import org.apache.olingo.commons.core.edm.Edm;
 
-public class EdmPropertyPathImpl extends AbstractEdmDynamicExpression implements EdmPropertyPath {
+public class EdmPropertyPath extends AbstractEdmDynamicExpression {
 
   private final CsdlPropertyPath csdlExp;
 
-  public EdmPropertyPathImpl(final Edm edm, final CsdlPropertyPath csdlExp) {
+  public EdmPropertyPath(final Edm edm, final CsdlPropertyPath csdlExp) {
     super(edm, "PropertyPath");
     this.csdlExp = csdlExp;
   }
@@ -36,7 +35,6 @@ public class EdmPropertyPathImpl extends AbstractEdmDynamicExpression implements
     return EdmExpressionType.PropertyPath;
   }
 
-  @Override
   public String getValue() {
     return this.csdlExp.getValue();
   }

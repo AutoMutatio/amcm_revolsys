@@ -18,26 +18,12 @@
  */
 package org.apache.olingo.commons.core.edm.annotation;
 
-import org.apache.olingo.commons.api.edm.annotation.EdmPath;
-import org.apache.olingo.commons.api.edm.provider.annotation.CsdlPath;
+import org.apache.olingo.commons.api.edm.provider.annotation.CsdlLogicalOrComparisonExpression;
 import org.apache.olingo.commons.core.edm.Edm;
 
-public class EdmPathImpl extends AbstractEdmDynamicExpression implements EdmPath {
+public class EdmNot extends EdmLogicalOrComparisonExpression {
 
-  private final CsdlPath csdlExp;
-
-  public EdmPathImpl(final Edm edm, final CsdlPath csdlExp) {
-    super(edm, "Path");
-    this.csdlExp = csdlExp;
-  }
-
-  @Override
-  public EdmExpressionType getExpressionType() {
-    return EdmExpressionType.Path;
-  }
-
-  @Override
-  public String getValue() {
-    return this.csdlExp.getValue();
+  public EdmNot(final Edm edm, final CsdlLogicalOrComparisonExpression csdlExp) {
+    super(edm, csdlExp);
   }
 }

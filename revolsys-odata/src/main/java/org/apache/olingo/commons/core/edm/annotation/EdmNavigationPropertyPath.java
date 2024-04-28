@@ -16,11 +16,26 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.apache.olingo.commons.api.edm.annotation;
+package org.apache.olingo.commons.core.edm.annotation;
 
-/**
- * Represents a logical edm:And expression
- */
-public interface EdmOr extends EdmLogicalOrComparisonExpression {
-  // No additional methods needed for now.
+import org.apache.olingo.commons.api.edm.provider.annotation.CsdlNavigationPropertyPath;
+import org.apache.olingo.commons.core.edm.Edm;
+
+public class EdmNavigationPropertyPath extends AbstractEdmDynamicExpression {
+
+  private final CsdlNavigationPropertyPath csdlExp;
+
+  public EdmNavigationPropertyPath(final Edm edm, final CsdlNavigationPropertyPath csdlExp) {
+    super(edm, "NavigationPropertyPath");
+    this.csdlExp = csdlExp;
+  }
+
+  @Override
+  public EdmExpressionType getExpressionType() {
+    return EdmExpressionType.NavigationPropertyPath;
+  }
+
+  public String getValue() {
+    return this.csdlExp.getValue();
+  }
 }
