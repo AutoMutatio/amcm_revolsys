@@ -37,13 +37,21 @@ public class CsdlFunctionImport extends CsdlOperationImport {
    */
   private String title;
 
+  public CsdlFunctionImport() {
+  }
+
+  public CsdlFunctionImport(final CsdlFunction function) {
+    this.name = function.getName();
+    this.function = new FullQualifiedName(function.getNamespace(), this.name);
+  }
+
   /**
    * Gets function.
    *
    * @return the function
    */
   public String getFunction() {
-    return this.function.getFullQualifiedNameAsString();
+    return this.function.toString();
   }
 
   /**

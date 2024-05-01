@@ -124,7 +124,8 @@ public class EdmSchemaImpl extends AbstractEdmAnnotatable implements EdmSchema {
     if (providerAnnotations != null) {
       for (final CsdlAnnotations annotationGroup : providerAnnotations) {
         FullQualifiedName targetName;
-        if (annotationGroup.getTarget().contains(".")) {
+        if (annotationGroup.getTarget()
+          .contains(".")) {
           targetName = new FullQualifiedName(annotationGroup.getTarget());
         } else {
           targetName = new FullQualifiedName(this.namespace, annotationGroup.getTarget());
@@ -169,14 +170,13 @@ public class EdmSchemaImpl extends AbstractEdmAnnotatable implements EdmSchema {
   }
 
   protected EdmEntityContainer createEntityContainer() {
-    if (this.schema.getEntityContainer() != null) {
-      final FullQualifiedName containerFQN = new FullQualifiedName(this.namespace,
-        this.schema.getEntityContainer().getName());
-      this.edm.addEntityContainerAnnotations(this.schema.getEntityContainer(), containerFQN);
-      final EdmEntityContainer impl = new EdmEntityContainerImpl(this.edm, this.provider,
-        containerFQN, this.schema.getEntityContainer());
+    final var entityContainer = this.schema.getEntityContainer();
+    if (entityContainer != null) {
+      final var containerFQN = new FullQualifiedName(this.namespace, entityContainer.getName());
+      this.edm.addEntityContainerAnnotations(entityContainer, containerFQN);
+      final var impl = new EdmEntityContainer(this.edm, this.provider, containerFQN,
+        entityContainer);
       this.edm.cacheEntityContainer(containerFQN, impl);
-      // this.edm.cacheEntityContainer(null, impl);
       return impl;
     }
     return null;
@@ -191,8 +191,7 @@ public class EdmSchemaImpl extends AbstractEdmAnnotatable implements EdmSchema {
           entityType.getName());
         this.edm.addStructuralTypeAnnotations(entityType, entityTypeName,
           this.schema.getEntityContainer());
-        final EdmEntityTypeImpl entityTypeImpl = new EdmEntityTypeImpl(this.edm, entityTypeName,
-          entityType);
+        final var entityTypeImpl = new EdmEntityType(this.edm, entityTypeName, entityType);
         edmEntityTypes.add(entityTypeImpl);
         this.edm.cacheEntityType(entityTypeName, entityTypeImpl);
       }
@@ -208,7 +207,7 @@ public class EdmSchemaImpl extends AbstractEdmAnnotatable implements EdmSchema {
         final FullQualifiedName enumName = new FullQualifiedName(this.namespace,
           enumType.getName());
         this.edm.addEnumTypeAnnotations(enumType, enumName);
-        final EdmEnumType enumTypeImpl = new EdmEnumTypeImpl(this.edm, enumName, enumType);
+        final EdmEnumType enumTypeImpl = new EdmEnumType(this.edm, enumName, enumType);
         enumTyps.add(enumTypeImpl);
         this.edm.cacheEnumType(enumName, enumTypeImpl);
       }
@@ -224,7 +223,7 @@ public class EdmSchemaImpl extends AbstractEdmAnnotatable implements EdmSchema {
         final FullQualifiedName functionName = new FullQualifiedName(this.namespace,
           function.getName());
         this.edm.addOperationsAnnotations(function, functionName);
-        final EdmFunctionImpl functionImpl = new EdmFunctionImpl(this.edm, functionName, function);
+        final EdmFunction functionImpl = new EdmFunction(this.edm, functionName, function);
         edmFunctions.add(functionImpl);
         this.edm.cacheFunction(functionName, functionImpl);
       }
@@ -253,8 +252,7 @@ public class EdmSchemaImpl extends AbstractEdmAnnotatable implements EdmSchema {
       for (final CsdlTypeDefinition def : providerTypeDefinitions) {
         final FullQualifiedName typeDefName = new FullQualifiedName(this.namespace, def.getName());
         this.edm.addTypeDefnAnnotations(def, typeDefName);
-        final EdmTypeDefinitionImpl typeDefImpl = new EdmTypeDefinitionImpl(this.edm, typeDefName,
-          def);
+        final var typeDefImpl = new EdmTypeDefinition(this.edm, typeDefName, def);
         typeDefns.add(typeDefImpl);
         this.edm.cacheTypeDefinition(typeDefName, typeDefImpl);
       }

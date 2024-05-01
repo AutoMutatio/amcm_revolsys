@@ -20,8 +20,6 @@ package org.apache.olingo.commons.api.edm;
 
 import java.util.List;
 
-import org.apache.olingo.commons.api.edm.geo.SRID;
-
 /**
  * An {@link EdmTerm} defines a term in a vocabulary.
  */
@@ -69,7 +67,7 @@ public interface EdmTerm extends EdmNamed, EdmAnnotatable {
   /**
    * @return a non-negative integer or the special value <tt>variable</tt>
    */
-  SRID getSrid();
+  int getSrid();
 
   /**
    * @return type of value returned by the expression contained in an annotation using this term

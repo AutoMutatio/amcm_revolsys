@@ -24,7 +24,7 @@ import org.apache.olingo.commons.api.edm.EdmTerm;
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.annotation.EdmExpression;
 import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
-import org.apache.olingo.commons.core.edm.annotation.AbstractEdmExpression;
+import org.apache.olingo.commons.api.edm.provider.annotation.CsdlExpression;
 
 public class EdmAnnotationImpl extends AbstractEdmAnnotatable implements EdmAnnotation {
 
@@ -41,9 +41,12 @@ public class EdmAnnotationImpl extends AbstractEdmAnnotatable implements EdmAnno
 
   @Override
   public EdmExpression getExpression() {
-    if (this.expression == null && this.annotation.getExpression() != null) {
-      this.expression = AbstractEdmExpression.getExpression(this.edm,
-        this.annotation.getExpression());
+    if (this.expression == null) {
+      final var expression = this.annotation.getExpression();
+      if (expression != null) {
+        final CsdlExpression exp = expression;
+        this.expression = exp.toEdm(this.getEdm());
+      }
     }
     return this.expression;
   }
@@ -59,7 +62,7 @@ public class EdmAnnotationImpl extends AbstractEdmAnnotatable implements EdmAnno
       if (this.annotation.getTerm() == null) {
         throw new EdmException("Term must not be null for an annotation.");
       }
-      this.term = this.edm.getTerm(new FullQualifiedName(this.annotation.getTerm()));
+      this.term = this.getEdm().getTerm(new FullQualifiedName(this.annotation.getTerm()));
     }
     return this.term;
   }

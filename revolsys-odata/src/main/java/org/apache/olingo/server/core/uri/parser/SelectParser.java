@@ -31,15 +31,15 @@ import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.constants.EdmTypeKind;
 import org.apache.olingo.commons.core.edm.Edm;
 import org.apache.olingo.server.api.uri.UriInfoKind;
-import org.apache.olingo.server.api.uri.UriResourcePartTyped;
 import org.apache.olingo.server.api.uri.queryoption.SelectItem;
 import org.apache.olingo.server.api.uri.queryoption.SelectOption;
 import org.apache.olingo.server.core.uri.UriInfoImpl;
-import org.apache.olingo.server.core.uri.UriResourceActionImpl;
-import org.apache.olingo.server.core.uri.UriResourceComplexPropertyImpl;
-import org.apache.olingo.server.core.uri.UriResourceFunctionImpl;
-import org.apache.olingo.server.core.uri.UriResourceNavigationPropertyImpl;
-import org.apache.olingo.server.core.uri.UriResourcePrimitivePropertyImpl;
+import org.apache.olingo.server.core.uri.UriResourceAction;
+import org.apache.olingo.server.core.uri.UriResourceComplexProperty;
+import org.apache.olingo.server.core.uri.UriResourceFunction;
+import org.apache.olingo.server.core.uri.UriResourceNavigationProperty;
+import org.apache.olingo.server.core.uri.UriResourcePartTyped;
+import org.apache.olingo.server.core.uri.UriResourcePrimitiveProperty;
 import org.apache.olingo.server.core.uri.parser.UriTokenizer.TokenKind;
 import org.apache.olingo.server.core.uri.queryoption.SelectItemImpl;
 import org.apache.olingo.server.core.uri.queryoption.SelectOptionImpl;
@@ -65,16 +65,16 @@ public class SelectParser {
           UriParserSemanticException.MessageKeys.EXPRESSION_PROPERTY_NOT_IN_TYPE,
           referencedType.getName(), name);
       } else {
-        resource.addResourcePart(new UriResourceNavigationPropertyImpl(navigationProperty));
+        resource.addResourcePart(new UriResourceNavigationProperty(navigationProperty));
       }
 
-    } else if (property.isPrimitive() || property.getType().getKind() == EdmTypeKind.ENUM
-      || property.getType().getKind() == EdmTypeKind.DEFINITION) {
-      resource.addResourcePart(new UriResourcePrimitivePropertyImpl(property));
+    } else if (property.isPrimitive() || property.getType()
+      .getKind() == EdmTypeKind.ENUM || property.getType()
+        .getKind() == EdmTypeKind.DEFINITION) {
+      resource.addResourcePart(new UriResourcePrimitiveProperty(property, null));
 
     } else {
-      final UriResourceComplexPropertyImpl complexPart = new UriResourceComplexPropertyImpl(
-        property);
+      final UriResourceComplexProperty complexPart = new UriResourceComplexProperty(property);
       resource.addResourcePart(complexPart);
       if (tokenizer.next(TokenKind.SLASH)) {
         if (tokenizer.next(TokenKind.QualifiedName)) {
@@ -82,8 +82,7 @@ public class SelectParser {
           final EdmComplexType type = this.edm.getComplexType(qualifiedName);
           if (type == null) {
             throw new UriParserSemanticException("Type not found.",
-              UriParserSemanticException.MessageKeys.UNKNOWN_TYPE,
-              qualifiedName.getFullQualifiedNameAsString());
+              UriParserSemanticException.MessageKeys.UNKNOWN_TYPE, qualifiedName.toString());
           } else if (type.compatibleTo(property.getType())) {
             complexPart.setTypeFilter(type);
             if (tokenizer.next(TokenKind.SLASH)) {
@@ -142,8 +141,9 @@ public class SelectParser {
         // schema;
         // however, the default entity container should always be there, so its
         // access methods can be used.
-        if (this.edm.getEntityContainer(
-          new FullQualifiedName(namespace, this.edm.getEntityContainer().getName())) == null) {
+        if (this.edm
+          .getEntityContainer(new FullQualifiedName(namespace, this.edm.getEntityContainer()
+            .getName())) == null) {
           throw new UriParserSemanticException("Wrong namespace '" + namespace + "'.",
             UriParserSemanticException.MessageKeys.UNKNOWN_PART, namespace);
         }
@@ -167,13 +167,12 @@ public class SelectParser {
         referencedType.getFullQualifiedName(), referencedIsCollection, parameterNames);
       if (boundFunction == null) {
         throw new UriParserSemanticException("Function not found.",
-          UriParserSemanticException.MessageKeys.UNKNOWN_PART,
-          qualifiedName.getFullQualifiedNameAsString());
+          UriParserSemanticException.MessageKeys.UNKNOWN_PART, qualifiedName.toString());
       } else {
-        return new UriResourceFunctionImpl(null, boundFunction, null);
+        return new UriResourceFunction(null, boundFunction, null);
       }
     } else {
-      return new UriResourceActionImpl(boundAction);
+      return new UriResourceAction(boundAction);
     }
   }
 

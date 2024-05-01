@@ -6,7 +6,7 @@ import java.util.Map;
 
 import org.slf4j.LoggerFactory;
 
-import com.revolsys.collection.map.LazyValueMap;
+import com.revolsys.collection.map.Maps;
 import com.revolsys.geometry.coordinatesystem.operation.ChainedCoordinatesOperation;
 import com.revolsys.geometry.coordinatesystem.operation.CoordinatesOperation;
 import com.revolsys.geometry.coordinatesystem.operation.NoOpOperation;
@@ -25,8 +25,8 @@ public abstract class AbstractCoordinateSystem implements CoordinateSystem {
 
   private final String name;
 
-  private final Map<CoordinateSystem, CoordinatesOperation> coordinatesOperationByCoordinateSystem = new LazyValueMap<>(
-    this::newOperation);
+  private final Map<CoordinateSystem, CoordinatesOperation> coordinatesOperationByCoordinateSystem = Maps
+    .lazy(this::newOperation);
 
   public AbstractCoordinateSystem(final int id, final String name, final List<Axis> axis,
     final Area area, final boolean deprecated) {

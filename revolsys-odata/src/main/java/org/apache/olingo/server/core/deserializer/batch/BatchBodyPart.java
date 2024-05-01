@@ -141,7 +141,8 @@ public class BatchBodyPart implements BatchPart {
       throw new BatchDeserializerException(
         "Change set boundary is equals to batch request boundary",
         BatchDeserializerException.MessageKeys.INVALID_BOUNDARY,
-        Integer.toString(header.getHeaderField(HttpHeader.CONTENT_TYPE).getLineNumber()));
+        Integer.toString(header.getHeaderField(HttpHeader.CONTENT_TYPE)
+          .getLineNumber()));
     }
   }
 }

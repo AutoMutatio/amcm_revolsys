@@ -21,15 +21,13 @@ package org.apache.olingo.server.core.uri.queryoption.expression;
 import org.apache.olingo.commons.api.edm.EdmType;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriInfoResource;
-import org.apache.olingo.server.api.uri.UriResource;
-import org.apache.olingo.server.api.uri.UriResourcePartTyped;
 import org.apache.olingo.server.api.uri.queryoption.expression.ExpressionVisitException;
 import org.apache.olingo.server.api.uri.queryoption.expression.ExpressionVisitor;
 import org.apache.olingo.server.api.uri.queryoption.expression.Member;
 import org.apache.olingo.server.core.uri.UriInfoImpl;
-import org.apache.olingo.server.core.uri.UriResourceActionImpl;
-import org.apache.olingo.server.core.uri.UriResourceImpl;
-import org.apache.olingo.server.core.uri.UriResourceTypedImpl;
+import org.apache.olingo.server.core.uri.UriResource;
+import org.apache.olingo.server.core.uri.UriResourceAction;
+import org.apache.olingo.server.core.uri.UriResourcePartTyped;
 import org.apache.olingo.server.core.uri.UriResourceWithKeysImpl;
 
 public class MemberImpl implements Member {
@@ -62,7 +60,7 @@ public class MemberImpl implements Member {
   @Override
   public EdmType getType() {
     final UriInfoImpl uriInfo = (UriInfoImpl)this.path;
-    final UriResourceImpl lastResourcePart = (UriResourceImpl)uriInfo.getLastResourcePart();
+    final UriResource lastResourcePart = (UriResource)uriInfo.getLastResourcePart();
 
     if (lastResourcePart instanceof UriResourceWithKeysImpl) {
       final UriResourceWithKeysImpl lastKeyPred = (UriResourceWithKeysImpl)lastResourcePart;
@@ -72,15 +70,15 @@ public class MemberImpl implements Member {
         return lastKeyPred.getTypeFilterOnCollection();
       }
       return lastKeyPred.getType();
-    } else if (lastResourcePart instanceof UriResourceTypedImpl) {
-      final UriResourceTypedImpl lastTyped = (UriResourceTypedImpl)lastResourcePart;
+    } else if (lastResourcePart instanceof UriResourcePartTyped) {
+      final UriResourcePartTyped lastTyped = (UriResourcePartTyped)lastResourcePart;
       final EdmType type = lastTyped.getTypeFilter();
       if (type != null) {
         return type;
       }
       return lastTyped.getType();
-    } else if (lastResourcePart instanceof UriResourceActionImpl) {
-      return ((UriResourceActionImpl)lastResourcePart).getType();
+    } else if (lastResourcePart instanceof UriResourceAction) {
+      return ((UriResourceAction)lastResourcePart).getType();
     } else {
       return null;
     }
@@ -97,7 +95,7 @@ public class MemberImpl implements Member {
 
   @Override
   public String toString() {
-    return this.path.getUriResourceParts().toString()
-      + (this.startTypeFilter == null ? "" : this.startTypeFilter);
+    return this.path.getUriResourceParts()
+      .toString() + (this.startTypeFilter == null ? "" : this.startTypeFilter);
   }
 }

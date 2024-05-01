@@ -18,46 +18,8 @@
  */
 package org.apache.olingo.commons.api.edm.provider;
 
-import java.util.List;
-
 /**
  * Represents an action CSDL item
  */
-public class CsdlAction extends CsdlOperation {
-
-  @Override
-  public CsdlAction setAnnotations(final List<CsdlAnnotation> annotations) {
-    this.annotations = annotations;
-    return this;
-  }
-
-  @Override
-  public CsdlAction setBound(final boolean isBound) {
-    this.isBound = isBound;
-    return this;
-  }
-
-  @Override
-  public CsdlAction setEntitySetPath(final String entitySetPath) {
-    this.entitySetPath = entitySetPath;
-    return this;
-  }
-
-  @Override
-  public CsdlAction setName(final String name) {
-    this.name = name;
-    return this;
-  }
-
-  @Override
-  public CsdlAction setParameters(final List<CsdlParameter> parameters) {
-    this.parameters = parameters;
-    return this;
-  }
-
-  @Override
-  public CsdlAction setReturnType(final CsdlReturnType returnType) {
-    this.returnType = returnType;
-    return this;
-  }
+public class CsdlAction extends CsdlOperation<CsdlAction> {
 }

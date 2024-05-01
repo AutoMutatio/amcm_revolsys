@@ -2,22 +2,29 @@ package com.revolsys.odata.model;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.function.Consumer;
 
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.provider.CsdlAbstractEdmProvider;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntityContainer;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntityContainerInfo;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntitySet;
+import org.apache.olingo.commons.api.edm.provider.CsdlEntityType;
+import org.apache.olingo.commons.api.edm.provider.CsdlFunction;
+import org.apache.olingo.commons.api.edm.provider.CsdlFunctionImport;
 import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
 import org.apache.olingo.commons.api.edm.provider.CsdlTerm;
 import org.apache.olingo.commons.api.ex.ODataException;
-import org.apache.olingo.server.api.OData;
+import org.apache.olingo.commons.core.edm.Edm;
 import org.apache.olingo.server.api.ODataHttpHandler;
 import org.apache.olingo.server.api.ServiceMetadata;
+import org.apache.olingo.server.core.ServiceMetadataImpl;
 
+import com.revolsys.collection.list.Lists;
 import com.revolsys.odata.service.processor.ODataEntityCollectionProcessor;
 import com.revolsys.odata.service.processor.ODataEntityProcessor;
 import com.revolsys.odata.service.processor.ODataPrimitiveProcessor;
@@ -43,11 +50,43 @@ public abstract class ODataEdmProvider extends CsdlAbstractEdmProvider {
 
   private final Map<FullQualifiedName, CsdlTerm> termByName = new HashMap<>();
 
+  private final Map<FullQualifiedName, List<CsdlFunction>> functionByName = new LinkedHashMap<>();
+
+  private final Map<String, CsdlFunctionImport> functionImportByName = new LinkedHashMap<>();
+
+  private final Map<CsdlFunction, ODataEntityCollectionProcessor.Handler> functionEntitSetHandlerByFunction = new HashMap<>();
+
+  private Edm edm;
+
   public ODataEdmProvider() {
     addTerm("Geometry", "axisCount", "Int");
     addTerm("Geometry", "scaleX", "Float");
     addTerm("Geometry", "scaleY", "Float");
     addTerm("Geometry", "scaleZ", "Float");
+  }
+
+  public ODataEdmProvider addEntitySetFunction(final String namespace, final String name,
+    final Consumer<CsdlFunction> configurer, final ODataEntityCollectionProcessor.Handler handler) {
+    return addFunction(namespace, name, function -> {
+      configurer.accept(function);
+      this.functionEntitSetHandlerByFunction.put(function, handler);
+    });
+  }
+
+  public ODataEdmProvider addFunction(final FullQualifiedName qName,
+    final Consumer<CsdlFunction> configurer) {
+    final var function = new CsdlFunction();
+    final var name = qName.getName();
+    function.setName(name);
+    configurer.accept(function);
+    this.functionByName.put(qName, Lists.newArray(function));
+    this.functionImportByName.put(name, new CsdlFunctionImport(function));
+    return this;
+  }
+
+  public ODataEdmProvider addFunction(final String namespace, final String name,
+    final Consumer<CsdlFunction> configurer) {
+    return addFunction(new FullQualifiedName(namespace, name), configurer);
   }
 
   protected ODataSchema addSchema(final String namespace) {
@@ -61,13 +100,18 @@ public abstract class ODataEdmProvider extends CsdlAbstractEdmProvider {
   }
 
   private CsdlTerm addTerm(final String namespace, final String name, final String type) {
-    final CsdlTerm term = new CsdlTerm().setName(name).setType(type);
+    final CsdlTerm term = new CsdlTerm().setName(name)
+      .setType(type);
     this.termByName.put(new FullQualifiedName(namespace, name), term);
     return term;
   }
 
   public void close() {
     this.recordStore.close();
+  }
+
+  public Edm getEdm() {
+    return this.edm;
   }
 
   @Override
@@ -111,12 +155,29 @@ public abstract class ODataEdmProvider extends CsdlAbstractEdmProvider {
   }
 
   @Override
-  public ODataEntityType getEntityType(final FullQualifiedName entityTypeName) {
+  public CsdlEntityType getEntityType(final FullQualifiedName entityTypeName) {
     final ODataSchema schema = getSchema(entityTypeName);
     if (schema != null) {
       return schema.getEntityType(entityTypeName);
     }
     return null;
+  }
+
+  public ODataEntityCollectionProcessor.Handler getFunctionEntitySetHandler(
+    final CsdlFunction function) {
+    return this.functionEntitSetHandlerByFunction.get(function);
+  }
+
+  @Override
+  public CsdlFunctionImport getFunctionImport(final FullQualifiedName containerQName,
+    final String name) throws ODataException {
+    return this.functionImportByName.get(name);
+  }
+
+  @Override
+  public List<CsdlFunction> getFunctions(final FullQualifiedName functionName)
+    throws ODataException {
+    return this.functionByName.get(functionName);
   }
 
   public ODataHttpHandler getHandler() {
@@ -133,7 +194,7 @@ public abstract class ODataEdmProvider extends CsdlAbstractEdmProvider {
   }
 
   @Override
-  public List<CsdlSchema> getSchemas() throws ODataException {
+  public List<CsdlSchema> getSchemas() {
     return this.schemas;
   }
 
@@ -142,19 +203,21 @@ public abstract class ODataEdmProvider extends CsdlAbstractEdmProvider {
   }
 
   @Override
-  public CsdlTerm getTerm(final FullQualifiedName termName) throws ODataException {
+  public CsdlTerm getTerm(final FullQualifiedName termName) {
     return this.termByName.get(termName);
   }
 
   public void init() {
     for (final CsdlSchema schema : this.schemas) {
-      for (final CsdlEntitySet entitySet : schema.getEntityContainer().getEntitySets()) {
-        this.allEntityContainer.getEntitySets().add(entitySet);
+      for (final CsdlEntitySet entitySet : schema.getEntityContainer()
+        .getEntitySets()) {
+        this.allEntityContainer.getEntitySets()
+          .add(entitySet);
       }
     }
-    final OData odata = OData.newInstance();
-    final ServiceMetadata edm = odata.createServiceMetadata(this, new ArrayList<>());
-    final ODataHttpHandler handler = odata.createHandler(edm);
+    final ServiceMetadata edm = new ServiceMetadataImpl(this, new ArrayList<>(), null);
+    this.edm = edm.getEdm();
+    final var handler = new ODataHttpHandler(edm);
     handler.register(new ODataEntityCollectionProcessor(this));
     handler.register(new ODataEntityProcessor(this));
     handler.register(new ODataPrimitiveProcessor(this));

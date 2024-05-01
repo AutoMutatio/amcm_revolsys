@@ -41,9 +41,13 @@ public class CsdlIf extends CsdlDynamicExpression implements CsdlAnnotatable {
     if (csdlIfAnnotations == null) {
       return false;
     }
-    if (this.getAnnotations().size() == csdlIfAnnotations.size()) {
-      for (int i = 0; i < this.getAnnotations().size(); i++) {
-        if (!this.getAnnotations().get(i).equals(csdlIfAnnotations.get(i))) {
+    if (this.getAnnotations()
+      .size() == csdlIfAnnotations.size()) {
+      for (int i = 0; i < this.getAnnotations()
+        .size(); i++) {
+        if (!this.getAnnotations()
+          .get(i)
+          .equals(csdlIfAnnotations.get(i))) {
           return false;
         }
       }
@@ -60,11 +64,14 @@ public class CsdlIf extends CsdlDynamicExpression implements CsdlAnnotatable {
     }
     final CsdlIf csdlIf = (CsdlIf)obj;
     return (this.getGuard() == null ? csdlIf.getGuard() == null
-      : this.getGuard().equals(csdlIf.getGuard()))
+      : this.getGuard()
+        .equals(csdlIf.getGuard()))
       && (this.getThen() == null ? csdlIf.getThen() == null
-        : this.getThen().equals(csdlIf.getThen()))
+        : this.getThen()
+          .equals(csdlIf.getThen()))
       && (this.getElse() == null ? csdlIf.getElse() == null
-        : this.getElse().equals(csdlIf.getElse()))
+        : this.getElse()
+          .equals(csdlIf.getElse()))
       && (this.getAnnotations() == null ? csdlIf.getAnnotations() == null
         : checkAnnotations(csdlIf.getAnnotations()));
   }

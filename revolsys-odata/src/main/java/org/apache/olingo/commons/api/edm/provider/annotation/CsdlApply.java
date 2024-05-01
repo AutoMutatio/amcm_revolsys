@@ -36,9 +36,13 @@ public class CsdlApply extends CsdlDynamicExpression implements CsdlAnnotatable 
     if (annotApplyannotations == null) {
       return false;
     }
-    if (this.getAnnotations().size() == annotApplyannotations.size()) {
-      for (int i = 0; i < this.getAnnotations().size(); i++) {
-        if (!this.getAnnotations().get(i).equals(annotApplyannotations.get(i))) {
+    if (this.getAnnotations()
+      .size() == annotApplyannotations.size()) {
+      for (int i = 0; i < this.getAnnotations()
+        .size(); i++) {
+        if (!this.getAnnotations()
+          .get(i)
+          .equals(annotApplyannotations.get(i))) {
           return false;
         }
       }
@@ -52,9 +56,13 @@ public class CsdlApply extends CsdlDynamicExpression implements CsdlAnnotatable 
     if (annotApplyParams == null) {
       return false;
     }
-    if (this.getParameters().size() == annotApplyParams.size()) {
-      for (int i = 0; i < this.getParameters().size(); i++) {
-        if (!this.getParameters().get(i).equals(annotApplyParams.get(i))) {
+    if (this.getParameters()
+      .size() == annotApplyParams.size()) {
+      for (int i = 0; i < this.getParameters()
+        .size(); i++) {
+        if (!this.getParameters()
+          .get(i)
+          .equals(annotApplyParams.get(i))) {
           return false;
         }
       }
@@ -71,7 +79,8 @@ public class CsdlApply extends CsdlDynamicExpression implements CsdlAnnotatable 
     }
     final CsdlApply annotApply = (CsdlApply)obj;
     return (this.getFunction() == null ? annotApply.getFunction() == null
-      : this.getFunction().equals(annotApply.getFunction()))
+      : this.getFunction()
+        .equals(annotApply.getFunction()))
       && (this.getParameters() == null ? annotApply.getParameters() == null
         : checkParamaters(annotApply.getParameters()))
       && (this.getAnnotations() == null ? annotApply.getAnnotations() == null

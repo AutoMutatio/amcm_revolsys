@@ -21,8 +21,8 @@ package org.apache.olingo.commons.api.edm.provider;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
-import org.apache.olingo.commons.api.edm.geo.SRID;
 
 /**
  * The type Csdl parameter.
@@ -46,7 +46,7 @@ public class CsdlParameter implements CsdlAbstractEdmItem, CsdlNamed, CsdlAnnota
 
   private Integer scale;
 
-  private SRID srid;
+  private int srid;
 
   private List<CsdlAnnotation> annotations = new ArrayList<>();
 
@@ -101,7 +101,7 @@ public class CsdlParameter implements CsdlAbstractEdmItem, CsdlNamed, CsdlAnnota
    *
    * @return the srid
    */
-  public SRID getSrid() {
+  public int getSrid() {
     return this.srid;
   }
 
@@ -234,8 +234,13 @@ public class CsdlParameter implements CsdlAbstractEdmItem, CsdlNamed, CsdlAnnota
    * @param srid the srid
    * @return the srid
    */
-  public CsdlParameter setSrid(final SRID srid) {
+  public CsdlParameter setSrid(final int srid) {
     this.srid = srid;
+    return this;
+  }
+
+  public CsdlParameter setType(final EdmPrimitiveTypeKind type) {
+    this.type = type.getFullQualifiedName().toString();
     return this;
   }
 
@@ -246,7 +251,7 @@ public class CsdlParameter implements CsdlAbstractEdmItem, CsdlNamed, CsdlAnnota
    * @return the type
    */
   public CsdlParameter setType(final FullQualifiedName type) {
-    this.type = type.getFullQualifiedNameAsString();
+    this.type = type.toString();
     return this;
   }
 

@@ -22,6 +22,8 @@ import java.util.List;
 
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
 
+import com.revolsys.record.schema.FieldDefinition;
+
 /**
  * The type Csdl entity type.
  */
@@ -83,6 +85,12 @@ public class CsdlEntityType extends CsdlStructuralType {
     return this;
   }
 
+  @Override
+  public CsdlEntityType setFields(final List<FieldDefinition> properties) {
+    super.setFields(properties);
+    return this;
+  }
+
   /**
    * Sets has stream.
    *
@@ -124,9 +132,4 @@ public class CsdlEntityType extends CsdlStructuralType {
     return this;
   }
 
-  @Override
-  public CsdlEntityType setProperties(final List<CsdlProperty> properties) {
-    this.properties = properties;
-    return this;
-  }
 }

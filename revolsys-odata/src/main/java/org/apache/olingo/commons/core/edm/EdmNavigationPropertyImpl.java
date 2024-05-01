@@ -55,7 +55,7 @@ public class EdmNavigationPropertyImpl extends AbstractEdmNamed implements EdmNa
   @Override
   public EdmOnDelete getOnDelete() {
     final CsdlOnDelete csdlOnDelete = this.navigationProperty.getOnDelete();
-    return csdlOnDelete != null ? new EdmOnDeleteImpl(this.edm, csdlOnDelete) : null;
+    return csdlOnDelete != null ? new EdmOnDeleteImpl(this.getEdm(), csdlOnDelete) : null;
   }
 
   @Override
@@ -86,7 +86,8 @@ public class EdmNavigationPropertyImpl extends AbstractEdmNamed implements EdmNa
       .getReferentialConstraints();
     if (refConstraints != null) {
       for (final CsdlReferentialConstraint constraint : refConstraints) {
-        if (constraint.getReferencedProperty().equals(referencedPropertyName)) {
+        if (constraint.getReferencedProperty()
+          .equals(referencedPropertyName)) {
           return constraint.getProperty();
         }
       }
@@ -102,7 +103,7 @@ public class EdmNavigationPropertyImpl extends AbstractEdmNamed implements EdmNa
       final List<EdmReferentialConstraint> referentialConstraintsLocal = new ArrayList<>();
       if (providerConstraints != null) {
         for (final CsdlReferentialConstraint constraint : providerConstraints) {
-          referentialConstraintsLocal.add(new EdmReferentialConstraintImpl(this.edm, constraint));
+          referentialConstraintsLocal.add(new EdmReferentialConstraintImpl(this.getEdm(), constraint));
         }
       }
 
@@ -114,7 +115,7 @@ public class EdmNavigationPropertyImpl extends AbstractEdmNamed implements EdmNa
   @Override
   public EdmEntityType getType() {
     if (this.typeImpl == null) {
-      this.typeImpl = this.edm.getEntityType(this.navigationProperty.getTypeFQN());
+      this.typeImpl = this.getEdm().getEntityType(this.navigationProperty.getTypeFQN());
       if (this.typeImpl == null) {
         throw new EdmException(
           "Cannot find type with name: " + this.navigationProperty.getTypeFQN());

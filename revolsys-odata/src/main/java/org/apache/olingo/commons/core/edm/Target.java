@@ -61,7 +61,7 @@ public class Target {
     if (this.entityContainer == null) {
       return this.targetName;
     }
-    return this.entityContainer.getFullQualifiedNameAsString() + "/" + this.targetName;
+    return this.entityContainer.toString() + "/" + this.targetName;
   }
 
 }

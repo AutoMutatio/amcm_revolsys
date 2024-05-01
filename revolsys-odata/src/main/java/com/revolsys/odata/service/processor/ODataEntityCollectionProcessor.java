@@ -1,6 +1,5 @@
 package com.revolsys.odata.service.processor;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -21,38 +20,37 @@ import org.apache.olingo.server.api.serializer.EntityCollectionSerializerOptions
 import org.apache.olingo.server.api.serializer.ODataSerializer;
 import org.apache.olingo.server.api.serializer.SerializerException;
 import org.apache.olingo.server.api.serializer.SerializerStreamResult;
+import org.apache.olingo.server.api.uri.UriHelper;
 import org.apache.olingo.server.api.uri.UriInfo;
-import org.apache.olingo.server.api.uri.UriResource;
-import org.apache.olingo.server.api.uri.UriResourceEntitySet;
-import org.apache.olingo.server.api.uri.UriResourceNavigation;
 import org.apache.olingo.server.api.uri.queryoption.SelectOption;
+import org.apache.olingo.server.core.uri.UriResource;
+import org.apache.olingo.server.core.uri.UriResourceEntitySet;
+import org.apache.olingo.server.core.uri.UriResourceFunction;
+import org.apache.olingo.server.core.uri.UriResourceNavigationProperty;
 
+import com.revolsys.collection.map.Maps;
 import com.revolsys.logging.Logs;
 import com.revolsys.odata.model.ODataEdmProvider;
 import com.revolsys.odata.model.ODataEntityIterator;
-import com.revolsys.odata.model.ODataEntityType;
 
 public class ODataEntityCollectionProcessor extends AbstractProcessor
   implements EntityCollectionProcessor {
 
-  private final Map<ContentType, ODataSerializer> serializerByContentType = new HashMap<>();
+  public interface Handler {
+    void accept(ODataEntityCollectionProcessor processor, ODataRequest request,
+      ODataResponse response, UriInfo info, UriResourceFunction function,
+      ContentType responseFormat);
+  }
+
+  private final Map<ContentType, ODataSerializer> serializerByContentType = Maps
+    .lazy(ODataSerializer::createSerializer);
 
   public ODataEntityCollectionProcessor(final ODataEdmProvider provider) {
     super(provider);
   }
 
   ODataSerializer getSerializer(final ContentType contentType) throws SerializerException {
-    ODataSerializer serializer = this.serializerByContentType.get(contentType);
-    if (serializer == null) {
-      synchronized (this.serializerByContentType) {
-        serializer = this.serializerByContentType.get(contentType);
-        if (serializer == null) {
-          serializer = this.odata.createSerializer(contentType);
-          this.serializerByContentType.put(contentType, serializer);
-        }
-      }
-    }
-    return serializer;
+    return this.serializerByContentType.get(contentType);
   }
 
   @Override
@@ -65,16 +63,15 @@ public class ODataEntityCollectionProcessor extends AbstractProcessor
     final int segmentCount = resourceParts.size();
 
     final UriResource uriResource = resourceParts.get(0);
-    if (uriResource instanceof UriResourceEntitySet) {
-      final UriResourceEntitySet uriResourceEntitySet = (UriResourceEntitySet)uriResource;
+    if (uriResource instanceof final UriResourceEntitySet uriResourceEntitySet) {
       final EdmEntitySet edmEntitySet = uriResourceEntitySet.getEntitySet();
       if (segmentCount == 1) {
-        final ODataEntityType entityType = getEntityType(edmEntitySet);
-        entityIterator = entityType.readEntityIterator(request, uriInfo, edmEntitySet);
+        entityIterator = getEntityType(edmEntitySet).readEntityIterator(request, uriInfo,
+          edmEntitySet);
       } else if (segmentCount == 2) {
         final UriResource lastSegment = resourceParts.get(1);
-        if (lastSegment instanceof UriResourceNavigation) {
-          final UriResourceNavigation uriResourceNavigation = (UriResourceNavigation)lastSegment;
+        if (lastSegment instanceof UriResourceNavigationProperty) {
+          final UriResourceNavigationProperty uriResourceNavigation = (UriResourceNavigationProperty)lastSegment;
           final EdmNavigationProperty edmNavigationProperty = uriResourceNavigation.getProperty();
           final EdmEntityType targetEntityType = edmNavigationProperty.getType();
           // responseEdmEntitySet =
@@ -103,54 +100,70 @@ public class ODataEntityCollectionProcessor extends AbstractProcessor
         throw new ODataApplicationException("Not supported",
           HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), Locale.ROOT);
       }
-      final ODataSerializer serializer = getSerializer(responseFormat);
+      serializeEntitySet(request, response, uriInfo, responseFormat, entityIterator);
 
-      final EdmEntityType edmEntityType = edmEntitySet.getEntityType();
-      String selectList = null;
-      final SelectOption selectOption = uriInfo.getSelectOption();
-      if (selectOption != null) {
-        selectList = this.odata.createUriHelper()
-          .buildContextURLSelectList(edmEntityType, null, selectOption);
+    } else if (uriResource instanceof final UriResourceFunction uriFunction) {
+      final var function = uriFunction.getFunction();
+      final var handler = getProvider().getFunctionEntitySetHandler(function.getFunction());
+      if (handler == null) {
+        throw new ODataApplicationException("Function not found",
+          HttpStatusCode.NOT_FOUND.getStatusCode(), Locale.ROOT);
+      } else {
+        handler.accept(this, request, response, uriInfo, uriFunction, responseFormat);
       }
-
-      final ContextURL contextUrl = newContextUrl().selectList(selectList)
-        .entitySet(edmEntitySet)
-        .build();
-
-      final String id = request.getRawBaseUri() + "/" + edmEntitySet.getName();
-      final EntityCollectionSerializerOptions opts = EntityCollectionSerializerOptions//
-        .with()
-        .id(id)
-        .count(uriInfo.getCountOption())
-        .contextURL(contextUrl)
-        .select(selectOption)
-        .writeContentErrorCallback((context, channel) -> {
-          final String message = request.getRawRequestUri();
-          final Exception exception = context.getException();
-          Throwable cause = exception.getCause();
-          while (cause != null) {
-            if (cause.getMessage().equals("Broken pipe")) {
-              return;
-            }
-            cause = cause.getCause();
-          }
-          Logs.error(this, message, exception);
-        })
-        .build();
-
-      if (entityIterator != null) {
-        final SerializerStreamResult serializerResult = serializer
-          .entityCollectionStreamed(this.serviceMetadata, edmEntityType, entityIterator, opts);
-
-        final ODataEntityInteratorDataContent dataContent = new ODataEntityInteratorDataContent(
-          serializerResult, entityIterator);
-        response.setODataContent(dataContent);
-      }
-      response.setStatusCode(HttpStatusCode.OK.getStatusCode());
-      response.setHeader(HttpHeader.CONTENT_TYPE, responseFormat.toContentTypeString());
     } else {
       throw new ODataApplicationException("Only EntitySet is supported",
         HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), Locale.ROOT);
     }
+  }
+
+  public void serializeEntitySet(final ODataRequest request, final ODataResponse response,
+    final UriInfo uriInfo, final ContentType responseFormat, final ODataEntityIterator iterator) {
+    final var entitySet = iterator.getEdmEntitySet();
+    final ODataSerializer serializer = getSerializer(responseFormat);
+
+    final EdmEntityType entityType = iterator.getEdmEntityType();
+    String selectList = null;
+    final SelectOption selectOption = uriInfo.getSelectOption();
+    if (selectOption != null) {
+      selectList = UriHelper.buildContextURLSelectList(entityType, null, selectOption);
+    }
+
+    final ContextURL contextUrl = newContextUrl().selectList(selectList)
+      .entitySetOrSingletonOrType(entityType.getName())
+      .build();
+
+    final String id = request.getRawBaseUri() + "/" + entitySet.getName();
+    final EntityCollectionSerializerOptions opts = EntityCollectionSerializerOptions//
+      .with()
+      .id(id)
+      .count(uriInfo.getCountOption())
+      .contextURL(contextUrl)
+      .select(selectOption)
+      .writeContentErrorCallback((context, channel) -> {
+        final String message = request.getRawRequestUri();
+        final Exception exception = context.getException();
+        Throwable cause = exception.getCause();
+        while (cause != null) {
+          if (cause.getMessage()
+            .equals("Broken pipe")) {
+            return;
+          }
+          cause = cause.getCause();
+        }
+        Logs.error(this, message, exception);
+      })
+      .build();
+
+    if (iterator != null) {
+      final SerializerStreamResult serializerResult = serializer
+        .entityCollectionStreamed(this.serviceMetadata, entityType, iterator, opts);
+
+      final ODataEntityInteratorDataContent dataContent = new ODataEntityInteratorDataContent(
+        serializerResult, iterator);
+      response.setODataContent(dataContent);
+    }
+    response.setStatusCode(HttpStatusCode.OK.getStatusCode());
+    response.setHeader(HttpHeader.CONTENT_TYPE, responseFormat.toContentTypeString());
   }
 }

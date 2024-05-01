@@ -36,6 +36,6 @@ public class EdmActionImportImpl extends AbstractEdmOperationImport implements E
 
   @Override
   public EdmAction getUnboundAction() {
-    return this.edm.getUnboundAction(this.actionImport.getActionFQN());
+    return this.getEdm().getUnboundAction(this.actionImport.getActionFQN());
   }
 }

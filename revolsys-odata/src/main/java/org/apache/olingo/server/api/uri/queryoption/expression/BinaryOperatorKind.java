@@ -106,7 +106,8 @@ public enum BinaryOperatorKind {
    */
   public static BinaryOperatorKind get(final String operator) {
     for (final BinaryOperatorKind op : BinaryOperatorKind.values()) {
-      if (op.toString().equals(operator)) {
+      if (op.toString()
+        .equals(operator)) {
         return op;
       }
     }

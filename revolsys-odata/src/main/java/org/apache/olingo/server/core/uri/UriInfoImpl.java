@@ -36,7 +36,6 @@ import org.apache.olingo.server.api.uri.UriInfoKind;
 import org.apache.olingo.server.api.uri.UriInfoMetadata;
 import org.apache.olingo.server.api.uri.UriInfoResource;
 import org.apache.olingo.server.api.uri.UriInfoService;
-import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.queryoption.AliasQueryOption;
 import org.apache.olingo.server.api.uri.queryoption.ApplyOption;
 import org.apache.olingo.server.api.uri.queryoption.CountOption;
@@ -89,7 +88,8 @@ public class UriInfoImpl implements UriInfo {
   }
 
   public UriInfoImpl addCustomQueryOption(final CustomQueryOption option) {
-    if (option.getName() != null && !option.getName().isEmpty()) {
+    if (option.getName() != null && !option.getName()
+      .isEmpty()) {
       this.customQueryOptions.add(option);
     }
     return this;

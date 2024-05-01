@@ -34,7 +34,7 @@ public class CsdlActionImport extends CsdlOperationImport {
    * @return full qualified name
    */
   public String getAction() {
-    return this.action.getFullQualifiedNameAsString();
+    return this.action.toString();
   }
 
   /**

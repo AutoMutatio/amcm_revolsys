@@ -33,7 +33,8 @@ public class CsdlNavigationPropertyPath extends CsdlDynamicExpression {
     }
     final CsdlNavigationPropertyPath csdlNavPropPath = (CsdlNavigationPropertyPath)obj;
     return this.getValue() == null ? csdlNavPropPath.getValue() == null
-      : this.getValue().equals(csdlNavPropPath.getValue());
+      : this.getValue()
+        .equals(csdlNavPropPath.getValue());
   }
 
   /**

@@ -367,7 +367,8 @@ public class JsonWriter implements BaseCloseable {
         this.out.write('"');
         this.encodingOut.append(string);
         this.out.write('"');
-      } else if (value.getClass().isArray()) {
+      } else if (value.getClass()
+        .isArray()) {
         final List<? extends Object> list = Lists.arrayToList(value);
         list(list);
       } else {
@@ -422,9 +423,13 @@ public class JsonWriter implements BaseCloseable {
     endObject();
   }
 
-  public void writeNull() throws IOException {
+  public void writeNull() {
     valuePre();
-    this.out.write("null");
+    try {
+      this.out.write("null");
+    } catch (final IOException e) {
+      throw Exceptions.toRuntimeException(e);
+    }
   }
 
   public void writeRecord(final Record record) {

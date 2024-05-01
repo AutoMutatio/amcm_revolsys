@@ -77,7 +77,8 @@ public class FixedFormatSerializerImpl implements FixedFormatSerializer {
   @Override
   public InputStream count(final Integer count) throws SerializerException {
     try {
-      return new ByteArrayInputStream(count.toString().getBytes("UTF-8"));
+      return new ByteArrayInputStream(count.toString()
+        .getBytes("UTF-8"));
     } catch (final UnsupportedEncodingException e) {
       throw new SerializerException("UTF-8 is nott supprted as an encoding", e,
         SerializerException.MessageKeys.UNSUPPORTED_ENCODING, "UTF-8");
@@ -87,20 +88,20 @@ public class FixedFormatSerializerImpl implements FixedFormatSerializer {
   @Override
   public SerializerStreamResult mediaEntityStreamed(final EntityMediaObject mediaEntity)
     throws SerializerException {
-    return ODataWritableContent.with(mediaEntity, this).build();
+    return ODataWritableContent.with(mediaEntity, this)
+      .build();
   }
 
   @Override
   public InputStream primitiveValue(final EdmPrimitiveType type, final Object value,
     final PrimitiveValueSerializerOptions options) throws SerializerException {
     try {
-      final String result = type.valueToString(value, options.isNullable(), options.getMaxLength(),
-        options.getPrecision(), options.getScale(), options.isUnicode());
+      final String result = type.valueToString(value);
       return new ByteArrayInputStream(result.getBytes("UTF-8"));
     } catch (final EdmPrimitiveTypeException e) {
       throw new SerializerException("Error in primitive-value formatting.", e,
-        SerializerException.MessageKeys.WRONG_PRIMITIVE_VALUE,
-        type.getFullQualifiedName().getFullQualifiedNameAsString(), value.toString());
+        SerializerException.MessageKeys.WRONG_PRIMITIVE_VALUE, type.getFullQualifiedName().toString(),
+        value.toString());
     } catch (final UnsupportedEncodingException e) {
       throw new SerializerException("Encoding exception.", e,
         SerializerException.MessageKeys.IO_EXCEPTION);

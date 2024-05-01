@@ -58,7 +58,7 @@ public abstract class AbstractEdmOperationImport extends AbstractEdmNamed
   @Override
   public EdmEntitySet getReturnedEntitySet() {
     if (this.entitySet != null && this.returnedEntitySet == null) {
-      final EdmEntityContainer entityContainer = this.edm
+      final EdmEntityContainer entityContainer = this.getEdm()
         .getEntityContainer(this.entitySet.getEntityContainer());
       if (entityContainer == null) {
         throw new EdmException(

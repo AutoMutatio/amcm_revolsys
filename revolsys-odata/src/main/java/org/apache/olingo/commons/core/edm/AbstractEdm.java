@@ -153,7 +153,8 @@ public abstract class AbstractEdm {
       if (!this.unboundFunctionsByName.containsKey(functionName)) {
         this.unboundFunctionsByName.put(functionName, new ArrayList<>());
       }
-      this.unboundFunctionsByName.get(functionName).add(function);
+      this.unboundFunctionsByName.get(functionName)
+        .add(function);
 
       this.unboundFunctionsByKey.put(key, function);
     }
@@ -243,9 +244,11 @@ public abstract class AbstractEdm {
     for (final EdmSchema schema : getSchemas()) {
       for (final EdmAction action : schema.getActions()) {
         if (action.isBound()) {
-          final EdmParameter bindingParameter = action
-            .getParameter(action.getParameterNames().get(0));
-          if (bindingParameter.getType().getFullQualifiedName().equals(bindingParameterTypeName)
+          final EdmParameter bindingParameter = action.getParameter(action.getParameterNames()
+            .get(0));
+          if (bindingParameter.getType()
+            .getFullQualifiedName()
+            .equals(bindingParameterTypeName)
             && bindingParameter.isCollection() == isBindingParameterCollection) {
             return action;
           }
@@ -282,9 +285,11 @@ public abstract class AbstractEdm {
     for (final EdmSchema schema : getSchemas()) {
       for (final EdmFunction function : schema.getFunctions()) {
         if (function.isBound()) {
-          final EdmParameter bindingParameter = function
-            .getParameter(function.getParameterNames().get(0));
-          if (bindingParameter.getType().getFullQualifiedName().equals(bindingParameterTypeName)
+          final EdmParameter bindingParameter = function.getParameter(function.getParameterNames()
+            .get(0));
+          if (bindingParameter.getType()
+            .getFullQualifiedName()
+            .equals(bindingParameterTypeName)
             && bindingParameter.isCollection() == isBindingParameterCollection) {
             functions.add(function);
           }

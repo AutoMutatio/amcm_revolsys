@@ -18,35 +18,72 @@
  */
 package org.apache.olingo.commons.api.edm;
 
-import org.apache.olingo.commons.api.edm.geo.SRID;
+import org.apache.olingo.commons.api.edm.provider.CsdlParameter;
+import org.apache.olingo.commons.core.edm.AbstractEdmNamed;
+import org.apache.olingo.commons.core.edm.Edm;
+import org.apache.olingo.commons.core.edm.EdmTypeInfo;
 
 /**
  * A CSDL parameter element
  */
-public interface EdmParameter extends EdmElement, EdmMappable, EdmAnnotatable {
+public class EdmParameter extends AbstractEdmNamed
+  implements EdmElement, EdmMappable, EdmAnnotatable {
 
-  /**
-   * @return the maximum length as an Integer or null if not specified
-   */
-  Integer getMaxLength();
+  private final CsdlParameter parameter;
 
-  /**
-   * @return the precision as an Integer or null if not specified
-   */
-  Integer getPrecision();
+  private EdmType typeImpl;
 
-  /**
-   * @return the scale as an Integer or null if not specified
-   */
-  Integer getScale();
+  public EdmParameter(final Edm edm, final CsdlParameter parameter) {
+    super(edm, parameter.getName(), parameter);
+    this.parameter = parameter;
+  }
 
-  /**
-   * @return a non-negative integer or the special value <tt>variable</tt>
-   */
-  SRID getSrid();
+  @Override
+  public EdmMapping getMapping() {
+    return this.parameter.getMapping();
+  }
 
-  /**
-   * @return true if nullable or not specified
-   */
-  boolean isNullable();
+  public Integer getMaxLength() {
+    return this.parameter.getMaxLength();
+  }
+
+  public Integer getPrecision() {
+    return this.parameter.getPrecision();
+  }
+
+  public Integer getScale() {
+    return this.parameter.getScale();
+  }
+
+  public int getSrid() {
+    return this.parameter.getSrid();
+  }
+
+  @Override
+  public EdmType getType() {
+    if (this.typeImpl == null) {
+      if (this.parameter.getType() == null) {
+        throw new EdmException(
+          "Parameter " + this.parameter.getName() + " must hava a full qualified type.");
+      }
+      this.typeImpl = new EdmTypeInfo.Builder().setEdm(this.getEdm())
+        .setTypeExpression(this.parameter.getType())
+        .build()
+        .getType();
+      if (this.typeImpl == null) {
+        throw new EdmException("Cannot find type with name: " + this.parameter.getTypeFQN());
+      }
+    }
+
+    return this.typeImpl;
+  }
+
+  @Override
+  public boolean isCollection() {
+    return this.parameter.isCollection();
+  }
+
+  public boolean isNullable() {
+    return this.parameter.isNullable();
+  }
 }

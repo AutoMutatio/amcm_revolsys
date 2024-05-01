@@ -28,11 +28,7 @@ import org.apache.olingo.commons.api.edm.EdmStructuredType;
 import org.apache.olingo.commons.api.edm.constants.EdmTypeKind;
 import org.apache.olingo.commons.api.ex.ODataRuntimeException;
 import org.apache.olingo.commons.core.edm.Edm;
-import org.apache.olingo.commons.core.edm.primitivetype.EdmPrimitiveTypeFactory;
-import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.uri.UriInfoKind;
-import org.apache.olingo.server.api.uri.UriResourceNavigation;
-import org.apache.olingo.server.api.uri.UriResourcePartTyped;
 import org.apache.olingo.server.api.uri.queryoption.AliasQueryOption;
 import org.apache.olingo.server.api.uri.queryoption.ExpandItem;
 import org.apache.olingo.server.api.uri.queryoption.ExpandOption;
@@ -40,12 +36,13 @@ import org.apache.olingo.server.api.uri.queryoption.LevelsExpandOption;
 import org.apache.olingo.server.api.uri.queryoption.SystemQueryOption;
 import org.apache.olingo.server.api.uri.queryoption.SystemQueryOptionKind;
 import org.apache.olingo.server.core.uri.UriInfoImpl;
-import org.apache.olingo.server.core.uri.UriResourceComplexPropertyImpl;
-import org.apache.olingo.server.core.uri.UriResourceCountImpl;
-import org.apache.olingo.server.core.uri.UriResourceEntitySetImpl;
-import org.apache.olingo.server.core.uri.UriResourceNavigationPropertyImpl;
-import org.apache.olingo.server.core.uri.UriResourcePrimitivePropertyImpl;
-import org.apache.olingo.server.core.uri.UriResourceRefImpl;
+import org.apache.olingo.server.core.uri.UriResourceComplexProperty;
+import org.apache.olingo.server.core.uri.UriResourceCount;
+import org.apache.olingo.server.core.uri.UriResourceEntitySet;
+import org.apache.olingo.server.core.uri.UriResourceNavigationProperty;
+import org.apache.olingo.server.core.uri.UriResourcePartTyped;
+import org.apache.olingo.server.core.uri.UriResourcePrimitiveProperty;
+import org.apache.olingo.server.core.uri.UriResourceRef;
 import org.apache.olingo.server.core.uri.parser.UriTokenizer.TokenKind;
 import org.apache.olingo.server.core.uri.queryoption.CountOptionImpl;
 import org.apache.olingo.server.core.uri.queryoption.ExpandItemImpl;
@@ -67,10 +64,10 @@ public class ExpandParser {
     while (tokenizer.next(TokenKind.ODataIdentifier)) {
       name = tokenizer.getText();
       final EdmProperty property = type.getStructuralProperty(name);
-      if (property != null && property.getType().getKind() == EdmTypeKind.COMPLEX) {
+      if (property != null && property.getType()
+        .getKind() == EdmTypeKind.COMPLEX) {
         type = (EdmStructuredType)property.getType();
-        final UriResourceComplexPropertyImpl complexResource = new UriResourceComplexPropertyImpl(
-          property);
+        final UriResourceComplexProperty complexResource = new UriResourceComplexProperty(property);
         ParserHelper.requireNext(tokenizer, TokenKind.SLASH);
         final EdmStructuredType typeCast = ParserHelper.parseTypeCast(tokenizer, edm, type);
         if (typeCast != null) {
@@ -86,9 +83,8 @@ public class ExpandParser {
     if (navigationProperty == null) {
       // For handling $expand with Stream Properties in version 4.01
       final EdmProperty streamProperty = (EdmProperty)type.getProperty(name);
-      if (streamProperty != null && streamProperty.getType() == EdmPrimitiveTypeFactory
-        .getInstance(EdmPrimitiveTypeKind.Stream)) {
-        resource.addResourcePart(new UriResourcePrimitivePropertyImpl(streamProperty));
+      if (streamProperty != null && streamProperty.getType() == EdmPrimitiveTypeKind.Stream) {
+        resource.addResourcePart(new UriResourcePrimitiveProperty(streamProperty, null));
       } else if (tokenizer.next(TokenKind.STAR)) {
         item.setIsStar(true);
       } else {
@@ -99,7 +95,7 @@ public class ExpandParser {
           name);
       }
     } else {
-      resource.addResourcePart(new UriResourceNavigationPropertyImpl(navigationProperty));
+      resource.addResourcePart(new UriResourceNavigationProperty(navigationProperty));
     }
 
     return resource;
@@ -107,16 +103,13 @@ public class ExpandParser {
 
   private final Edm edm;
 
-  private final OData odata;
-
   private final Map<String, AliasQueryOption> aliases;
 
   private final Collection<String> crossjoinEntitySetNames;
 
-  public ExpandParser(final Edm edm, final OData odata, final Map<String, AliasQueryOption> aliases,
+  public ExpandParser(final Edm edm, final Map<String, AliasQueryOption> aliases,
     final Collection<String> crossjoinEntitySetNames) {
     this.edm = edm;
-    this.odata = odata;
     this.aliases = aliases;
     this.crossjoinEntitySetNames = crossjoinEntitySetNames;
   }
@@ -148,8 +141,9 @@ public class ExpandParser {
       final String entitySetName = tokenizer.getText();
       if (this.crossjoinEntitySetNames.contains(entitySetName)) {
         final UriInfoImpl resource = new UriInfoImpl().setKind(UriInfoKind.resource);
-        final UriResourceEntitySetImpl entitySetResourceSegment = new UriResourceEntitySetImpl(
-          this.edm.getEntityContainer().getEntitySet(entitySetName));
+        final UriResourceEntitySet entitySetResourceSegment = new UriResourceEntitySet(
+          this.edm.getEntityContainer()
+            .getEntitySet(entitySetName));
         resource.addResourcePart(entitySetResourceSegment);
 
         item.setResourcePath(resource);
@@ -196,8 +190,8 @@ public class ExpandParser {
       EdmStructuredType typeCastSuffix = null;
       if (tokenizer.next(TokenKind.SLASH)) {
         hasSlash = true;
-        if (lastPart instanceof UriResourceNavigation) {
-          final UriResourceNavigationPropertyImpl navigationResource = (UriResourceNavigationPropertyImpl)lastPart;
+        if (lastPart instanceof UriResourceNavigationProperty) {
+          final UriResourceNavigationProperty navigationResource = (UriResourceNavigationProperty)lastPart;
           final EdmNavigationProperty navigationProperty = navigationResource.getProperty();
           typeCastSuffix = ParserHelper.parseTypeCast(tokenizer, this.edm,
             navigationProperty.getType());
@@ -212,7 +206,7 @@ public class ExpandParser {
         }
       }
       // For handling $expand for Stream property in v 4.01
-      if (lastPart instanceof UriResourcePrimitivePropertyImpl) {
+      if (lastPart instanceof UriResourcePrimitiveProperty) {
         item.setResourcePath(resource);
       } else {
         final EdmStructuredType newReferencedType = typeCastSuffix != null ? typeCastSuffix
@@ -220,13 +214,13 @@ public class ExpandParser {
         final boolean newReferencedIsCollection = lastPart.isCollection();
         if (hasSlash || tokenizer.next(TokenKind.SLASH)) {
           if (tokenizer.next(TokenKind.REF)) {
-            resource.addResourcePart(new UriResourceRefImpl());
+            resource.addResourcePart(new UriResourceRef());
             item.setIsRef(true);
             parseOptions(tokenizer, newReferencedType, newReferencedIsCollection, item, true,
               false);
           } else {
             ParserHelper.requireNext(tokenizer, TokenKind.COUNT);
-            resource.addResourcePart(new UriResourceCountImpl());
+            resource.addResourcePart(new UriResourceCount());
             item.setCountPath(true);
             parseOptions(tokenizer, newReferencedType, newReferencedIsCollection, item, false,
               true);
@@ -272,8 +266,8 @@ public class ExpandParser {
 
         } else if (!forRef && !forCount && tokenizer.next(TokenKind.EXPAND)) {
           ParserHelper.requireNext(tokenizer, TokenKind.EQ);
-          systemQueryOption = new ExpandParser(this.edm, this.odata, this.aliases, null)
-            .parse(tokenizer, referencedType);
+          systemQueryOption = new ExpandParser(this.edm, this.aliases, null).parse(tokenizer,
+            referencedType);
 
         } else if (tokenizer.next(TokenKind.FILTER)) {
           ParserHelper.requireNext(tokenizer, TokenKind.EQ);

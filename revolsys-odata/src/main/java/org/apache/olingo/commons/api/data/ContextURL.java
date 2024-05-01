@@ -64,8 +64,7 @@ public final class ContextURL {
      * @return Builder
      */
     public Builder derived(final EdmEntityType derivedType) {
-      this.contextUrl.derivedEntity = derivedType.getFullQualifiedName()
-        .getFullQualifiedNameAsString();
+      this.contextUrl.derivedEntity = derivedType.getFullQualifiedName().toString();
       return this;
     }
 
@@ -165,7 +164,8 @@ public final class ContextURL {
      * @return Builder
      */
     public Builder type(final EdmType type) {
-      this.contextUrl.entitySetOrSingletonOrType = type.getFullQualifiedName().toString();
+      this.contextUrl.entitySetOrSingletonOrType = type.getFullQualifiedName()
+        .toString();
       return this;
     }
   }
@@ -388,7 +388,9 @@ public final class ContextURL {
     if (entitySetOrSingletonOrType != null) {
       result.append('#');
       if (isCollection()) {
-        result.append("Collection(").append(Encoder.encode(entitySetOrSingletonOrType)).append(")");
+        result.append("Collection(")
+          .append(Encoder.encode(entitySetOrSingletonOrType))
+          .append(")");
       } else {
         result.append(Encoder.encode(entitySetOrSingletonOrType));
       }
@@ -399,11 +401,14 @@ public final class ContextURL {
         throw new IllegalArgumentException(
           "ContextURL: Derived Type without anything to derive from!");
       }
-      result.append('/').append(Encoder.encode(derivedEntity));
+      result.append('/')
+        .append(Encoder.encode(derivedEntity));
     }
     final String keyPath = getKeyPath();
     if (keyPath != null) {
-      result.append('(').append(keyPath).append(')');
+      result.append('(')
+        .append(keyPath)
+        .append(')');
     }
     final String navOrPropertyPath = getNavOrPropertyPath();
     if (navOrPropertyPath != null) {
@@ -413,11 +418,14 @@ public final class ContextURL {
           result.insert(0, "../");
         }
       }
-      result.append('/').append(navOrPropertyPath);
+      result.append('/')
+        .append(navOrPropertyPath);
     }
     final String selectList = getSelectList();
     if (selectList != null) {
-      result.append('(').append(selectList).append(')');
+      result.append('(')
+        .append(selectList)
+        .append(')');
     }
     if (isReference()) {
       if (this.serviceRoot == null || !this.serviceRoot.isAbsolute()) {
@@ -432,7 +440,8 @@ public final class ContextURL {
           .append(ContextURL.Suffix.REFERENCE.getRepresentation())
           .append(")");
       } else {
-        result.append('#').append(ContextURL.Suffix.REFERENCE.getRepresentation());
+        result.append('#')
+          .append(ContextURL.Suffix.REFERENCE.getRepresentation());
       }
     } else {
       final Suffix suffix = getSuffix();
@@ -440,7 +449,8 @@ public final class ContextURL {
         if (entitySetOrSingletonOrType == null) {
           throw new IllegalArgumentException("ContextURL: Suffix without preceding Entity Set!");
         }
-        result.append('/').append(suffix.getRepresentation());
+        result.append('/')
+          .append(suffix.getRepresentation());
       }
     }
     return URI.create(result.toString());

@@ -53,7 +53,8 @@ public class CsdlEnumType implements CsdlAbstractEdmItem, CsdlNamed, CsdlAnnotat
     CsdlEnumMember result = null;
     if (getMembers() != null) {
       for (final CsdlEnumMember member : getMembers()) {
-        if (String.valueOf(value).equals(member.getValue())) {
+        if (String.valueOf(value)
+          .equals(member.getValue())) {
           result = member;
         }
       }
@@ -100,7 +101,7 @@ public class CsdlEnumType implements CsdlAbstractEdmItem, CsdlNamed, CsdlAnnotat
    */
   public String getUnderlyingType() {
     if (this.underlyingType != null) {
-      return this.underlyingType.getFullQualifiedNameAsString();
+      return this.underlyingType.toString();
     }
     return null;
   }
