@@ -44,12 +44,10 @@ import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.constants.EdmTypeKind;
 import org.apache.olingo.commons.core.edm.Edm;
 import org.apache.olingo.server.api.uri.UriParameter;
-import org.apache.olingo.server.api.uri.UriResourcePartTyped;
 import org.apache.olingo.server.api.uri.queryoption.AliasQueryOption;
 import org.apache.olingo.server.api.uri.queryoption.expression.Expression;
 import org.apache.olingo.server.api.uri.queryoption.expression.Literal;
-import org.apache.olingo.server.core.uri.UriParameterImpl;
-import org.apache.olingo.server.core.uri.UriResourceTypedImpl;
+import org.apache.olingo.server.core.uri.UriResourcePartTyped;
 import org.apache.olingo.server.core.uri.UriResourceWithKeysImpl;
 import org.apache.olingo.server.core.uri.parser.UriTokenizer.TokenKind;
 import org.apache.olingo.server.core.uri.queryoption.AliasQueryOptionImpl;
@@ -153,8 +151,7 @@ public class ParserHelper {
     final EdmPrimitiveType primitiveType = (EdmPrimitiveType)edmProperty.getType();
     try {
       if (!primitiveType.validate(primitiveType.fromUriLiteral(value), edmProperty.isNullable(),
-        edmProperty.getMaxLength(), edmProperty.getPrecision(), edmProperty.getScale(),
-        edmProperty.isUnicode())) {
+        edmProperty.getMaxLength(), edmProperty.getPrecision(), edmProperty.getScale())) {
         throw new UriValidationException("Invalid key property",
           UriValidationException.MessageKeys.INVALID_KEY_PROPERTY, parameterName);
       }
@@ -163,7 +160,7 @@ public class ParserHelper {
         UriValidationException.MessageKeys.INVALID_KEY_PROPERTY, parameterName);
     }
 
-    return new UriParameterImpl().setName(parameterName)
+    return new UriParameter().setName(parameterName)
       .setText("null".equals(literalValue) ? null : literalValue)
       .setAlias(alias == null ? null : literalValue)
       .setExpression(alias == null ? null
@@ -202,8 +199,8 @@ public class ParserHelper {
         type = lastPartWithKeys.getType();
       }
 
-    } else if (resourcePart instanceof UriResourceTypedImpl) {
-      final UriResourceTypedImpl lastPartTyped = (UriResourceTypedImpl)resourcePart;
+    } else if (resourcePart instanceof UriResourcePartTyped) {
+      final UriResourcePartTyped lastPartTyped = resourcePart;
       type = lastPartTyped.getTypeFilter() == null ? lastPartTyped.getType()
         : lastPartTyped.getTypeFilter();
     } else {
@@ -396,7 +393,7 @@ public class ParserHelper {
         throw new UriParserSyntaxException("Parameter value expected.",
           UriParserSyntaxException.MessageKeys.SYNTAX);
       }
-      final UriParameterImpl parameter = new UriParameterImpl().setName(name);
+      final UriParameter parameter = new UriParameter().setName(name);
       if (tokenizer.next(TokenKind.ParameterAliasName)) {
         final String aliasName = tokenizer.getText();
         parameter.setAlias(aliasName)
@@ -495,7 +492,7 @@ public class ParserHelper {
           }
         }
         if (!found && referencedNames.get(name) != null) {
-          keys.add(0, new UriParameterImpl().setName(name)
+          keys.add(0, new UriParameter().setName(name)
             .setReferencedProperty(referencedNames.get(name)));
         }
       }
@@ -557,8 +554,7 @@ public class ParserHelper {
         : edm.getComplexType(qualifiedName);
       if (type == null) {
         throw new UriParserSemanticException("Type '" + qualifiedName + "' not found:" + tokenizer,
-          UriParserSemanticException.MessageKeys.UNKNOWN_PART,
-          qualifiedName.getFullQualifiedNameAsString());
+          UriParserSemanticException.MessageKeys.UNKNOWN_PART, qualifiedName.toString());
       } else {
         if (!type.compatibleTo(referencedType)) {
           throw new UriParserSemanticException(
@@ -622,12 +618,11 @@ public class ParserHelper {
           if (edmParameter.getMapping() == null) {
             primitiveType.valueOfString(primitiveType.fromUriLiteral(text),
               edmParameter.isNullable(), edmParameter.getMaxLength(), edmParameter.getPrecision(),
-              edmParameter.getScale(), true, primitiveType.getDefaultType());
+              edmParameter.getScale());
           } else {
             primitiveType.valueOfString(primitiveType.fromUriLiteral(text),
               edmParameter.isNullable(), edmParameter.getMaxLength(), edmParameter.getPrecision(),
-              edmParameter.getScale(), true, edmParameter.getMapping()
-                .getMappedJavaClass());
+              edmParameter.getScale());
           }
         } catch (final EdmPrimitiveTypeException e) {
           throw new UriValidationException(

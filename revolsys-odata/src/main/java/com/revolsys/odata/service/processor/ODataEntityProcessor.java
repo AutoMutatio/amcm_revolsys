@@ -22,9 +22,9 @@ import org.apache.olingo.server.api.serializer.ODataSerializer;
 import org.apache.olingo.server.api.serializer.SerializerResult;
 import org.apache.olingo.server.api.uri.UriInfo;
 import org.apache.olingo.server.api.uri.UriParameter;
-import org.apache.olingo.server.api.uri.UriResource;
-import org.apache.olingo.server.api.uri.UriResourceEntitySet;
-import org.apache.olingo.server.api.uri.UriResourceNavigation;
+import org.apache.olingo.server.core.uri.UriResource;
+import org.apache.olingo.server.core.uri.UriResourceEntitySet;
+import org.apache.olingo.server.core.uri.UriResourceNavigationProperty;
 
 import com.revolsys.odata.model.ODataEdmProvider;
 import com.revolsys.odata.model.ODataEntityType;
@@ -84,8 +84,8 @@ public class ODataEntityProcessor extends AbstractProcessor implements EntityPro
       responseEntity = readEntity(request, startEdmEntitySet, keyPredicates);
     } else if (segmentCount == 2) { // navigation
       final UriResource navSegment = resourceParts.get(1);
-      if (navSegment instanceof UriResourceNavigation) {
-        final UriResourceNavigation uriResourceNavigation = (UriResourceNavigation)navSegment;
+      if (navSegment instanceof UriResourceNavigationProperty) {
+        final UriResourceNavigationProperty uriResourceNavigation = (UriResourceNavigationProperty)navSegment;
         final EdmNavigationProperty edmNavigationProperty = uriResourceNavigation.getProperty();
         responseEdmEntityType = edmNavigationProperty.getType();
         responseEdmEntitySet = getNavigationTargetEntitySet(startEdmEntitySet,

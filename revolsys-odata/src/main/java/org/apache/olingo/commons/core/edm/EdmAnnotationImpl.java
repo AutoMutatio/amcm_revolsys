@@ -42,10 +42,10 @@ public class EdmAnnotationImpl extends AbstractEdmAnnotatable implements EdmAnno
   @Override
   public EdmExpression getExpression() {
     if (this.expression == null) {
-      var expression = this.annotation.getExpression();
+      final var expression = this.annotation.getExpression();
       if (expression != null) {
         final CsdlExpression exp = expression;
-        this.expression = exp.toEdm(this.edm);
+        this.expression = exp.toEdm(this.getEdm());
       }
     }
     return this.expression;
@@ -62,7 +62,7 @@ public class EdmAnnotationImpl extends AbstractEdmAnnotatable implements EdmAnno
       if (this.annotation.getTerm() == null) {
         throw new EdmException("Term must not be null for an annotation.");
       }
-      this.term = this.edm.getTerm(new FullQualifiedName(this.annotation.getTerm()));
+      this.term = this.getEdm().getTerm(new FullQualifiedName(this.annotation.getTerm()));
     }
     return this.term;
   }

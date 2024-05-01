@@ -96,7 +96,7 @@ public abstract class AbstractEdmStructuredType extends EdmTypeImpl implements E
       if (structuredTypeNavigationProperties != null) {
         for (final CsdlNavigationProperty navigationProperty : structuredTypeNavigationProperties) {
           localNavigationProperties.put(navigationProperty.getName(),
-            new EdmNavigationPropertyImpl(this.edm, navigationProperty));
+            new EdmNavigationPropertyImpl(this.getEdm(), navigationProperty));
         }
       }
 
@@ -177,7 +177,7 @@ public abstract class AbstractEdmStructuredType extends EdmTypeImpl implements E
     final var properties = new LinkedHashMap<String, EdmProperty>();
     for (final var field : this.providerStructuredType.getFields()) {
       final var name = field.getName();
-      final var edmProperty = new EdmPropertyImpl(this.edm, field);
+      final var edmProperty = new EdmPropertyImpl(this.getEdm(), field);
       boolean add = true;
       final var edmType = edmProperty.getEdmType();
       if (edmType == EdmPrimitiveTypeKind.Untyped) {

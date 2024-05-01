@@ -40,8 +40,6 @@ import org.apache.olingo.commons.api.edm.constants.EdmTypeKind;
 import org.apache.olingo.commons.core.edm.Edm;
 import org.apache.olingo.server.api.uri.UriInfo;
 import org.apache.olingo.server.api.uri.UriParameter;
-import org.apache.olingo.server.api.uri.UriResource;
-import org.apache.olingo.server.api.uri.UriResourcePartTyped;
 import org.apache.olingo.server.api.uri.queryoption.AliasQueryOption;
 import org.apache.olingo.server.api.uri.queryoption.ApplyItem;
 import org.apache.olingo.server.api.uri.queryoption.ApplyOption;
@@ -61,10 +59,12 @@ import org.apache.olingo.server.api.uri.queryoption.apply.GroupBy;
 import org.apache.olingo.server.api.uri.queryoption.apply.GroupByItem;
 import org.apache.olingo.server.api.uri.queryoption.expression.Expression;
 import org.apache.olingo.server.core.uri.UriInfoImpl;
-import org.apache.olingo.server.core.uri.UriResourceComplexPropertyImpl;
-import org.apache.olingo.server.core.uri.UriResourceCountImpl;
-import org.apache.olingo.server.core.uri.UriResourceNavigationPropertyImpl;
-import org.apache.olingo.server.core.uri.UriResourcePrimitivePropertyImpl;
+import org.apache.olingo.server.core.uri.UriResource;
+import org.apache.olingo.server.core.uri.UriResourceComplexProperty;
+import org.apache.olingo.server.core.uri.UriResourceCount;
+import org.apache.olingo.server.core.uri.UriResourceNavigationProperty;
+import org.apache.olingo.server.core.uri.UriResourcePartTyped;
+import org.apache.olingo.server.core.uri.UriResourcePrimitiveProperty;
 import org.apache.olingo.server.core.uri.UriResourceStartingTypeFilterImpl;
 import org.apache.olingo.server.core.uri.parser.UriTokenizer.TokenKind;
 import org.apache.olingo.server.core.uri.queryoption.ApplyOptionImpl;
@@ -159,7 +159,7 @@ public class ApplyParser {
     // Currently we don't look into annotations, so all custom aggregates are
     // allowed and have no type.
     uriInfo.addResourcePart(
-      new UriResourcePrimitivePropertyImpl(createDynamicProperty(customAggregate, null)));
+      new UriResourcePrimitiveProperty(createDynamicProperty(customAggregate, null), null));
     aggregateExpression.setPath(uriInfo);
     final String alias = parseAsAlias(referencedType, aggregateExpression.getDynamicProperties(),
       Requirement.OPTIONAL);
@@ -224,7 +224,7 @@ public class ApplyParser {
         .setInlineAggregateExpression(parseAggregateExpr(inlineType, dynamicProps, aliasRequired));
       ParserHelper.requireNext(this.tokenizer, TokenKind.CLOSE);
     } else if (this.tokenizer.next(TokenKind.COUNT)) {
-      uriInfo.addResourcePart(new UriResourceCountImpl());
+      uriInfo.addResourcePart(new UriResourceCount());
       aggregateExpression.setPath(uriInfo);
       final String alias = parseAsAlias(referencedType, dynamicProps, aliasRequired);
       if (alias != null) {
@@ -380,7 +380,8 @@ public class ApplyParser {
         Requirement.REQUIRED);
       ((DynamicStructuredType)referencedType)
         .addProperty(createDynamicProperty(alias, expressionType));
-      compute.addExpression(new ComputeExpressionImpl().setExpression(expression).setAlias(alias));
+      compute.addExpression(new ComputeExpressionImpl().setExpression(expression)
+        .setAlias(alias));
     } while (this.tokenizer.next(TokenKind.COMMA));
     ParserHelper.requireNext(this.tokenizer, TokenKind.CLOSE);
     return compute;
@@ -411,29 +412,33 @@ public class ApplyParser {
       referencedType.getFullQualifiedName(), true, parameterNames);
     if (function == null) {
       throw new UriParserSemanticException("No function '" + functionName + "' found.",
-        UriParserSemanticException.MessageKeys.FUNCTION_NOT_FOUND,
-        functionName.getFullQualifiedNameAsString());
+        UriParserSemanticException.MessageKeys.FUNCTION_NOT_FOUND, functionName.toString());
     }
     ParserHelper.validateFunctionParameters(function, parameters, this.edm, referencedType,
       this.aliases);
 
     // The binding parameter and the return type must be of type complex or
     // entity collection.
-    final EdmParameter bindingParameter = function
-      .getParameter(function.getParameterNames().get(0));
+    final EdmParameter bindingParameter = function.getParameter(function.getParameterNames()
+      .get(0));
     final EdmReturnType returnType = function.getReturnType();
-    if (bindingParameter.getType().getKind() != EdmTypeKind.ENTITY
-      && bindingParameter.getType().getKind() != EdmTypeKind.COMPLEX
-      || !bindingParameter.isCollection() || returnType.getType().getKind() != EdmTypeKind.ENTITY
-        && returnType.getType().getKind() != EdmTypeKind.COMPLEX
+    if (bindingParameter.getType()
+      .getKind() != EdmTypeKind.ENTITY
+      && bindingParameter.getType()
+        .getKind() != EdmTypeKind.COMPLEX
+      || !bindingParameter.isCollection() || returnType.getType()
+        .getKind() != EdmTypeKind.ENTITY
+        && returnType.getType()
+          .getKind() != EdmTypeKind.COMPLEX
       || !returnType.isCollection()) {
       throw new UriParserSemanticException(
         "Only entity- or complex-collection functions are allowed.",
         UriParserSemanticException.MessageKeys.FUNCTION_MUST_USE_COLLECTIONS,
-        functionName.getFullQualifiedNameAsString());
+        functionName.toString());
     }
 
-    return new CustomFunctionImpl().setFunction(function).setParameters(parameters);
+    return new CustomFunctionImpl().setFunction(function)
+      .setParameters(parameters);
   }
 
   private ExpandOption parseExpandTrafo(final EdmStructuredType referencedType)
@@ -460,8 +465,8 @@ public class ApplyParser {
         item.setSystemQueryOption(nestedExpand);
       } else {
         // Add to the existing items.
-        ((ExpandOptionImpl)item.getExpandOption())
-          .addExpandItem(nestedExpand.getExpandItems().get(0));
+        ((ExpandOptionImpl)item.getExpandOption()).addExpandItem(nestedExpand.getExpandItems()
+          .get(0));
       }
     }
     ParserHelper.requireNext(this.tokenizer, TokenKind.CLOSE);
@@ -510,7 +515,7 @@ public class ApplyParser {
           && uriInfo.getLastResourcePart() instanceof UriResourcePartTyped
             ? ((UriResourcePartTyped)uriInfo.getLastResourcePart()).getType()
               .getFullQualifiedName()
-              .getFullQualifiedNameAsString()
+              .toString()
             : "");
     }
     return uriInfo;
@@ -538,10 +543,11 @@ public class ApplyParser {
           return name;
         } else {
           uriInfo.addResourcePart(property instanceof EdmNavigationProperty
-            ? new UriResourceNavigationPropertyImpl((EdmNavigationProperty)property)
-            : property.getType().getKind() == EdmTypeKind.COMPLEX
-              ? new UriResourceComplexPropertyImpl((EdmProperty)property)
-              : new UriResourcePrimitivePropertyImpl((EdmProperty)property));
+            ? new UriResourceNavigationProperty((EdmNavigationProperty)property)
+            : property.getType()
+              .getKind() == EdmTypeKind.COMPLEX
+                ? new UriResourceComplexProperty((EdmProperty)property)
+                : new UriResourcePrimitiveProperty((EdmProperty)property, null));
           return null;
         }
       } else {
@@ -553,8 +559,8 @@ public class ApplyParser {
   }
 
   private UriResource parsePathSegment(final EdmElement property) throws UriParserException {
-    if (property == null || !(property.getType().getKind() == EdmTypeKind.COMPLEX
-      || property instanceof EdmNavigationProperty)) {
+    if (property == null || !(property.getType()
+      .getKind() == EdmTypeKind.COMPLEX || property instanceof EdmNavigationProperty)) {
       // Could be a customAggregate or $count.
       return null;
     }
@@ -564,10 +570,11 @@ public class ApplyParser {
       if (typeCast != null) {
         ParserHelper.requireNext(this.tokenizer, TokenKind.SLASH);
       }
-      return property.getType().getKind() == EdmTypeKind.COMPLEX
-        ? new UriResourceComplexPropertyImpl((EdmProperty)property).setTypeFilter(typeCast)
-        : new UriResourceNavigationPropertyImpl((EdmNavigationProperty)property)
-          .setCollectionTypeFilter(typeCast);
+      return property.getType()
+        .getKind() == EdmTypeKind.COMPLEX
+          ? new UriResourceComplexProperty((EdmProperty)property).setTypeFilter(typeCast)
+          : new UriResourceNavigationProperty((EdmNavigationProperty)property)
+            .setCollectionTypeFilter(typeCast);
     } else {
       return null;
     }

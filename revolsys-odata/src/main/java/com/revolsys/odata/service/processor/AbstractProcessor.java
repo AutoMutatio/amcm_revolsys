@@ -5,12 +5,12 @@ import java.util.Locale;
 
 import org.apache.olingo.commons.api.data.ContextURL;
 import org.apache.olingo.commons.api.data.ContextURL.Builder;
-import org.apache.olingo.commons.api.edm.EdmBindingTarget;
 import org.apache.olingo.commons.api.edm.EdmEntitySet;
 import org.apache.olingo.commons.api.edm.EdmEntityType;
 import org.apache.olingo.commons.api.edm.EdmNavigationProperty;
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
+import org.apache.olingo.commons.core.edm.EdmBindingTarget;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.ServiceMetadata;
 import org.apache.olingo.server.api.processor.Processor;
@@ -38,7 +38,7 @@ public abstract class AbstractProcessor implements Processor {
     throws ODataApplicationException {
     final EdmEntityType edmEntityType = edmEntitySet.getEntityType();
     final FullQualifiedName entityTypeName = edmEntityType.getFullQualifiedName();
-    final ODataEntityType entityType = this.provider.getEntityType(entityTypeName);
+    final ODataEntityType entityType = (ODataEntityType)this.provider.getEntityType(entityTypeName);
     if (entityType == null) {
       throw new ODataApplicationException(
         "Entity type " + entityTypeName + " for requested key doesn't exist",
@@ -62,6 +62,10 @@ public abstract class AbstractProcessor implements Processor {
         HttpStatusCode.NOT_IMPLEMENTED.getStatusCode(), Locale.ROOT);
     }
 
+  }
+
+  public ODataEdmProvider getProvider() {
+    return this.provider;
   }
 
   @Override

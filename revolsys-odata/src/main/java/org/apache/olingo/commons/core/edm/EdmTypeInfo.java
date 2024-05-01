@@ -32,7 +32,6 @@ import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
 import org.apache.olingo.commons.api.edm.EdmType;
 import org.apache.olingo.commons.api.edm.EdmTypeDefinition;
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
-import org.apache.olingo.commons.core.edm.primitivetype.EdmPrimitiveTypeFactory;
 
 public class EdmTypeInfo {
 
@@ -199,7 +198,7 @@ public class EdmTypeInfo {
   }
 
   public EdmType getType() {
-    return isPrimitiveType() ? EdmPrimitiveTypeFactory.getInstance(getPrimitiveTypeKind())
+    return isPrimitiveType() ? getPrimitiveTypeKind()
       : isTypeDefinition() ? getTypeDefinition()
         : isEnumType() ? getEnumType()
           : isComplexType() ? getComplexType() : isEntityType() ? getEntityType() : null;
@@ -249,7 +248,7 @@ public class EdmTypeInfo {
     }
 
     serialize.append(external && isPrimitiveType() ? getFullQualifiedName().getName()
-      : getFullQualifiedName().getFullQualifiedNameAsString());
+      : getFullQualifiedName().toString());
 
     if (isCollection()) {
       serialize.append(')');

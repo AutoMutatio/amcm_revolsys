@@ -108,6 +108,7 @@ public abstract class AbstractODataObject extends Annotatable implements ODataOb
    * Sets ID.
    * @param id new ID value
    */
+  @Override
   public void setId(final URI id) {
     this.id = id;
   }

@@ -47,9 +47,8 @@ public abstract class AbstractODataEntitySet extends CsdlEntitySet
     final ODataNavigationProperty navigationProperty = new ODataNavigationProperty(referencedTable,
       propertyName);
 
-    final CsdlNavigationPropertyBinding navigationPropertyBinding = new CsdlNavigationPropertyBinding()
-      .setPath(propertyName)
-      .setTarget(referencedTable.getName());
+    final var navigationPropertyBinding = new CsdlNavigationPropertyBinding(propertyName,
+      referencedTable.getName());
     addNavigationPropertyBinding(navigationPropertyBinding);
 
     this.entityType.addNavigationProperty(navigationProperty);

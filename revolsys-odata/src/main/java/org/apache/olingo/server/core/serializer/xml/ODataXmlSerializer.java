@@ -41,7 +41,6 @@ import org.apache.olingo.commons.api.data.ODataEntity;
 import org.apache.olingo.commons.api.data.ODataLinked;
 import org.apache.olingo.commons.api.data.ODataPropertyMap;
 import org.apache.olingo.commons.api.data.Operation;
-import org.apache.olingo.commons.api.data.Property;
 import org.apache.olingo.commons.api.edm.EdmComplexType;
 import org.apache.olingo.commons.api.edm.EdmEntitySet;
 import org.apache.olingo.commons.api.edm.EdmEntityType;
@@ -55,8 +54,6 @@ import org.apache.olingo.commons.api.edm.EdmType;
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.constants.EdmTypeKind;
 import org.apache.olingo.commons.api.ex.ODataErrorDetail;
-import org.apache.olingo.commons.core.edm.primitivetype.EdmPrimitiveTypeFactory;
-import org.apache.olingo.commons.core.edm.primitivetype.EdmString;
 import org.apache.olingo.server.api.ODataServerError;
 import org.apache.olingo.server.api.ServiceMetadata;
 import org.apache.olingo.server.api.serializer.ComplexSerializerOptions;
@@ -79,9 +76,10 @@ import org.apache.olingo.server.core.ODataWritableContent;
 import org.apache.olingo.server.core.serializer.SerializerResultImpl;
 import org.apache.olingo.server.core.serializer.utils.CircleStreamBuffer;
 import org.apache.olingo.server.core.serializer.utils.ExpandSelectHelper;
-import org.apache.olingo.server.core.uri.UriHelperImpl;
 import org.apache.olingo.server.core.uri.queryoption.ExpandOptionImpl;
 
+import com.revolsys.exception.Exceptions;
+import com.revolsys.geometry.model.Geometry;
 import com.revolsys.odata.model.ODataEntityIterator;
 
 public class ODataXmlSerializer implements ODataSerializer {
@@ -100,9 +98,8 @@ public class ODataXmlSerializer implements ODataSerializer {
   private static final String NS_DATA = Constants.NS_DATASERVICES;
 
   static String replaceInvalidCharacters(final EdmPrimitiveType expectedType, final String value,
-    final Boolean isUniCode, final String invalidCharacterReplacement) {
-    if (!(expectedType instanceof EdmString) || invalidCharacterReplacement == null
-      || isUniCode == null || !isUniCode) {
+    final String invalidCharacterReplacement) {
+    if (!(expectedType == EdmPrimitiveTypeKind.String) || invalidCharacterReplacement == null) {
       return value;
     }
     final String s = value;
@@ -147,36 +144,34 @@ public class ODataXmlSerializer implements ODataSerializer {
 
   private String collectionType(final EdmType type) {
     return "#Collection(" + type.getFullQualifiedName()
-      .getFullQualifiedNameAsString() + ")";
+      .toString() + ")";
   }
 
   @Override
   public SerializerResult complex(final ServiceMetadata metadata, final EdmComplexType type,
-    final Property property, final ComplexSerializerOptions options) throws SerializerException {
+    final String name, final Object value, final ComplexSerializerOptions options)
+    throws SerializerException {
     final ContextURL contextURL = checkContextURL(options == null ? null : options.getContextURL());
-
-    OutputStream outputStream = null;
-    SerializerException cachedException = null;
-    try {
+    final CircleStreamBuffer buffer = new CircleStreamBuffer();
+    try (
+      var outputStream = buffer.getOutputStream();) {
       EdmComplexType resolvedType = null;
       if (!type.getFullQualifiedName()
-        .getFullQualifiedNameAsString()
-        .equals(property.getType())) {
+        .toString()
+        .equals(type.getName())) {
         if (type.getBaseType() != null && type.getBaseType()
           .getFullQualifiedName()
-          .getFullQualifiedNameAsString()
-          .equals(property.getType())) {
+          .toString()
+          .equals(type.getName())) {
           resolvedType = resolveComplexType(metadata, type.getBaseType(),
             type.getFullQualifiedName()
-              .getFullQualifiedNameAsString());
+              .toString());
         } else {
-          resolvedType = resolveComplexType(metadata, type, property.getType());
+          resolvedType = resolveComplexType(metadata, type, type.getName());
         }
       } else {
-        resolvedType = resolveComplexType(metadata, type, property.getType());
+        resolvedType = resolveComplexType(metadata, type, type.getName());
       }
-      final CircleStreamBuffer buffer = new CircleStreamBuffer();
-      outputStream = buffer.getOutputStream();
       final XMLStreamWriter writer = XMLOutputFactory.newInstance()
         .createXMLStreamWriter(outputStream, DEFAULT_CHARSET);
       writer.writeStartDocument(DEFAULT_CHARSET, "1.0");
@@ -186,50 +181,36 @@ public class ODataXmlSerializer implements ODataSerializer {
       writer.writeNamespace(ATOM, NS_ATOM);
       writer.writeAttribute(METADATA, NS_METADATA, Constants.ATTR_TYPE,
         "#" + resolvedType.getFullQualifiedName()
-          .getFullQualifiedNameAsString());
+          .toString());
       writer.writeAttribute(METADATA, NS_METADATA, Constants.CONTEXT, contextURL.toUriString());
       writeMetadataETag(metadata, writer);
-      if (property.isNull()) {
+      if (value == null) {
         writer.writeAttribute(METADATA, NS_METADATA, Constants.ATTR_NULL, "true");
-      } else {
-        final var complex = property.asComplex();
+      } else if (value instanceof final ComplexValue complex) {
         writeProperties(metadata, resolvedType, complex,
           options == null ? null : options.getSelect(),
-          options == null ? null : options.xml10InvalidCharReplacement(), writer,
-          property.asComplex(), options == null ? null : options.getExpand());
+          options == null ? null : options.xml10InvalidCharReplacement(), writer, complex,
+          options == null ? null : options.getExpand());
       }
       writer.writeEndDocument();
       writer.flush();
       writer.close();
-      outputStream.close();
-
-      return SerializerResultImpl.with()
-        .content(buffer.getInputStream())
-        .build();
-    } catch (final XMLStreamException e) {
-      cachedException = new SerializerException(IO_EXCEPTION_TEXT, e,
-        SerializerException.MessageKeys.IO_EXCEPTION);
-      throw cachedException;
-    } catch (final IOException e) {
-      cachedException = new SerializerException(IO_EXCEPTION_TEXT, e,
-        SerializerException.MessageKeys.IO_EXCEPTION);
-      throw cachedException;
-    } finally {
-      ODataSerializer.closeCircleStreamBufferOutput(outputStream, cachedException);
+    } catch (final XMLStreamException | IOException e) {
+      throw Exceptions.toRuntimeException(e);
     }
+    return SerializerResultImpl.with()
+      .content(buffer.getInputStream())
+      .build();
   }
 
   @Override
-  public SerializerResult complexCollection(final ServiceMetadata metadata,
-    final EdmComplexType type, final Property property, final String name,
-    final ComplexSerializerOptions options) throws SerializerException {
+  public SerializerResult complexCollection(final ServiceMetadata metadata, final String name,
+    final EdmComplexType type, final Object value, final ComplexSerializerOptions options)
+    throws SerializerException {
     final ContextURL contextURL = checkContextURL(options == null ? null : options.getContextURL());
-
-    OutputStream outputStream = null;
-    SerializerException cachedException = null;
-    try {
-      final CircleStreamBuffer buffer = new CircleStreamBuffer();
-      outputStream = buffer.getOutputStream();
+    final CircleStreamBuffer buffer = new CircleStreamBuffer();
+    try (
+      var outputStream = buffer.getOutputStream()) {
       final XMLStreamWriter writer = XMLOutputFactory.newInstance()
         .createXMLStreamWriter(outputStream, DEFAULT_CHARSET);
       writer.writeStartDocument(DEFAULT_CHARSET, "1.0");
@@ -243,7 +224,7 @@ public class ODataXmlSerializer implements ODataSerializer {
       Set<List<String>> selectedPaths = null;
       if (null != options && null != options.getSelect()) {
         final boolean all = ExpandSelectHelper.isAll(options.getSelect());
-        selectedPaths = all || property.isPrimitive() ? null
+        selectedPaths = all || !(value instanceof Iterable) ? null
           : ExpandSelectHelper.getSelectedPaths(options.getSelect()
             .getSelectItems());
       }
@@ -252,7 +233,7 @@ public class ODataXmlSerializer implements ODataSerializer {
         expandPaths = ExpandSelectHelper.getExpandedItemsPath(options.getExpand());
       }
 
-      writeComplexCollection(metadata, type, property, name, selectedPaths,
+      writeComplexCollection(metadata, type, (Iterable<?>)value, name, selectedPaths,
         options == null ? null : options.xml10InvalidCharReplacement(), writer, expandPaths, null,
         options == null ? null : options.getExpand());
       writer.writeEndElement();
@@ -260,33 +241,25 @@ public class ODataXmlSerializer implements ODataSerializer {
       writer.flush();
       writer.close();
       outputStream.close();
-      return SerializerResultImpl.with()
-        .content(buffer.getInputStream())
-        .build();
-    } catch (final XMLStreamException e) {
-      cachedException = new SerializerException(IO_EXCEPTION_TEXT, e,
-        SerializerException.MessageKeys.IO_EXCEPTION);
-      throw cachedException;
-    } catch (final IOException e) {
-      cachedException = new SerializerException(IO_EXCEPTION_TEXT, e,
-        SerializerException.MessageKeys.IO_EXCEPTION);
-      throw cachedException;
-    } finally {
-      ODataSerializer.closeCircleStreamBufferOutput(outputStream, cachedException);
+    } catch (final XMLStreamException | IOException e) {
+      throw Exceptions.toRuntimeException(e);
     }
+    return SerializerResultImpl.with()
+      .content(buffer.getInputStream())
+      .build();
   }
 
   private String complexType(final ServiceMetadata metadata, final EdmComplexType baseType,
     final String definedType) throws SerializerException {
     final EdmComplexType type = resolveComplexType(metadata, baseType, definedType);
     return type.getFullQualifiedName()
-      .getFullQualifiedNameAsString();
+      .toString();
   }
 
   private String derivedComplexType(final EdmComplexType baseType, final String definedType)
     throws SerializerException {
     final String base = baseType.getFullQualifiedName()
-      .getFullQualifiedNameAsString();
+      .toString();
     if (base.equals(definedType)) {
       return null;
     }
@@ -304,11 +277,9 @@ public class ODataXmlSerializer implements ODataSerializer {
         .build());
     }
 
-    OutputStream outputStream = null;
-    SerializerException cachedException = null;
-    try {
-      final CircleStreamBuffer buffer = new CircleStreamBuffer();
-      outputStream = buffer.getOutputStream();
+    final CircleStreamBuffer buffer = new CircleStreamBuffer();
+    try (
+      var outputStream = buffer.getOutputStream()) {
       final XMLStreamWriter writer = XMLOutputFactory.newInstance()
         .createXMLStreamWriter(outputStream, DEFAULT_CHARSET);
       writer.writeStartDocument(DEFAULT_CHARSET, "1.0");
@@ -321,22 +292,13 @@ public class ODataXmlSerializer implements ODataSerializer {
 
       writer.flush();
       writer.close();
-      outputStream.close();
 
-      return SerializerResultImpl.with()
-        .content(buffer.getInputStream())
-        .build();
-    } catch (final XMLStreamException e) {
-      cachedException = new SerializerException(IO_EXCEPTION_TEXT, e,
-        SerializerException.MessageKeys.IO_EXCEPTION);
-      throw cachedException;
-    } catch (final IOException e) {
-      cachedException = new SerializerException(IO_EXCEPTION_TEXT, e,
-        SerializerException.MessageKeys.IO_EXCEPTION);
-      throw cachedException;
-    } finally {
-      ODataSerializer.closeCircleStreamBufferOutput(outputStream, cachedException);
+    } catch (final XMLStreamException | IOException e) {
+      throw Exceptions.toRuntimeException(e);
     }
+    return SerializerResultImpl.with()
+      .content(buffer.getInputStream())
+      .build();
   }
 
   @Override
@@ -353,11 +315,9 @@ public class ODataXmlSerializer implements ODataSerializer {
       return entityReferenceCollection(entitySet, rso);
     }
 
-    OutputStream outputStream = null;
-    SerializerException cachedException = null;
-    try {
-      final CircleStreamBuffer buffer = new CircleStreamBuffer();
-      outputStream = buffer.getOutputStream();
+    final CircleStreamBuffer buffer = new CircleStreamBuffer();
+    try (
+      var outputStream = buffer.getOutputStream()) {
       final XMLStreamWriter writer = XMLOutputFactory.newInstance()
         .createXMLStreamWriter(outputStream, DEFAULT_CHARSET);
       writer.writeStartDocument(DEFAULT_CHARSET, "1.0");
@@ -397,22 +357,12 @@ public class ODataXmlSerializer implements ODataSerializer {
 
       writer.flush();
       writer.close();
-      outputStream.close();
-
-      return SerializerResultImpl.with()
-        .content(buffer.getInputStream())
-        .build();
-    } catch (final XMLStreamException e) {
-      cachedException = new SerializerException(IO_EXCEPTION_TEXT, e,
-        SerializerException.MessageKeys.IO_EXCEPTION);
-      throw cachedException;
-    } catch (final IOException e) {
-      cachedException = new SerializerException(IO_EXCEPTION_TEXT, e,
-        SerializerException.MessageKeys.IO_EXCEPTION);
-      throw cachedException;
-    } finally {
-      ODataSerializer.closeCircleStreamBufferOutput(outputStream, cachedException);
+    } catch (final XMLStreamException | IOException e) {
+      throw Exceptions.toRuntimeException(e);
     }
+    return SerializerResultImpl.with()
+      .content(buffer.getInputStream())
+      .build();
   }
 
   public void entityCollectionIntoStream(final ServiceMetadata metadata,
@@ -478,11 +428,9 @@ public class ODataXmlSerializer implements ODataSerializer {
 
   protected SerializerResult entityReference(final ODataEntity entity,
     final ReferenceSerializerOptions options) throws SerializerException {
-    OutputStream outputStream = null;
-    SerializerException cachedException = null;
-    try {
-      final CircleStreamBuffer buffer = new CircleStreamBuffer();
-      outputStream = buffer.getOutputStream();
+    final CircleStreamBuffer buffer = new CircleStreamBuffer();
+    try (
+      var outputStream = buffer.getOutputStream()) {
       final XMLStreamWriter writer = XMLOutputFactory.newInstance()
         .createXMLStreamWriter(outputStream, DEFAULT_CHARSET);
       writer.writeStartDocument(DEFAULT_CHARSET, "1.0");
@@ -490,31 +438,19 @@ public class ODataXmlSerializer implements ODataSerializer {
       writer.writeEndDocument();
       writer.flush();
       writer.close();
-      outputStream.close();
-
-      return SerializerResultImpl.with()
-        .content(buffer.getInputStream())
-        .build();
-    } catch (final XMLStreamException e) {
-      cachedException = new SerializerException(IO_EXCEPTION_TEXT, e,
-        SerializerException.MessageKeys.IO_EXCEPTION);
-      throw cachedException;
-    } catch (final IOException e) {
-      cachedException = new SerializerException(IO_EXCEPTION_TEXT, e,
-        SerializerException.MessageKeys.IO_EXCEPTION);
-      throw cachedException;
-    } finally {
-      ODataSerializer.closeCircleStreamBufferOutput(outputStream, cachedException);
+    } catch (final XMLStreamException | IOException e) {
+      throw Exceptions.toRuntimeException(e);
     }
+    return SerializerResultImpl.with()
+      .content(buffer.getInputStream())
+      .build();
   }
 
   protected SerializerResult entityReferenceCollection(final AbstractEntityCollection entitySet,
     final ReferenceCollectionSerializerOptions options) throws SerializerException {
-    OutputStream outputStream = null;
-    SerializerException cachedException = null;
-    try {
-      final CircleStreamBuffer buffer = new CircleStreamBuffer();
-      outputStream = buffer.getOutputStream();
+    final CircleStreamBuffer buffer = new CircleStreamBuffer();
+    try (
+      var outputStream = buffer.getOutputStream()) {
       final XMLStreamWriter writer = XMLOutputFactory.newInstance()
         .createXMLStreamWriter(outputStream, DEFAULT_CHARSET);
       writer.writeStartDocument(DEFAULT_CHARSET, "1.0");
@@ -542,22 +478,13 @@ public class ODataXmlSerializer implements ODataSerializer {
       writer.writeEndDocument();
       writer.flush();
       writer.close();
-      outputStream.close();
 
-      return SerializerResultImpl.with()
-        .content(buffer.getInputStream())
-        .build();
-    } catch (final XMLStreamException e) {
-      cachedException = new SerializerException(IO_EXCEPTION_TEXT, e,
-        SerializerException.MessageKeys.IO_EXCEPTION);
-      throw cachedException;
-    } catch (final IOException e) {
-      cachedException = new SerializerException(IO_EXCEPTION_TEXT, e,
-        SerializerException.MessageKeys.IO_EXCEPTION);
-      throw cachedException;
-    } finally {
-      ODataSerializer.closeCircleStreamBufferOutput(outputStream, cachedException);
+    } catch (final XMLStreamException | IOException e) {
+      throw Exceptions.toRuntimeException(e);
     }
+    return SerializerResultImpl.with()
+      .content(buffer.getInputStream())
+      .build();
   }
 
   @Override
@@ -567,11 +494,9 @@ public class ODataXmlSerializer implements ODataSerializer {
         SerializerException.MessageKeys.NULL_INPUT);
     }
 
-    OutputStream outputStream = null;
-    SerializerException cachedException = null;
-    try {
-      final CircleStreamBuffer buffer = new CircleStreamBuffer();
-      outputStream = buffer.getOutputStream();
+    final CircleStreamBuffer buffer = new CircleStreamBuffer();
+    try (
+      var outputStream = buffer.getOutputStream()) {
       final XMLStreamWriter writer = XMLOutputFactory.newInstance()
         .createXMLStreamWriter(outputStream, DEFAULT_CHARSET);
       writer.writeStartDocument(DEFAULT_CHARSET, "1.0");
@@ -593,22 +518,13 @@ public class ODataXmlSerializer implements ODataSerializer {
 
       writer.flush();
       writer.close();
-      outputStream.close();
 
-      return SerializerResultImpl.with()
-        .content(buffer.getInputStream())
-        .build();
-    } catch (final XMLStreamException e) {
-      cachedException = new SerializerException(IO_EXCEPTION_TEXT, e,
-        SerializerException.MessageKeys.IO_EXCEPTION);
-      throw cachedException;
-    } catch (final IOException e) {
-      cachedException = new SerializerException(IO_EXCEPTION_TEXT, e,
-        SerializerException.MessageKeys.IO_EXCEPTION);
-      throw cachedException;
-    } finally {
-      ODataSerializer.closeCircleStreamBufferOutput(outputStream, cachedException);
+    } catch (final XMLStreamException | IOException e) {
+      throw Exceptions.toRuntimeException(e);
     }
+    return SerializerResultImpl.with()
+      .content(buffer.getInputStream())
+      .build();
   }
 
   /**
@@ -628,9 +544,8 @@ public class ODataXmlSerializer implements ODataSerializer {
         throw new SerializerException("Entity id is null.",
           SerializerException.MessageKeys.MISSING_ID);
       } else {
-        final UriHelper uriHelper = new UriHelperImpl();
         entity
-          .setId(URI.create(name + '(' + uriHelper.buildKeyPredicate(entityType, entity) + ')'));
+          .setId(URI.create(name + '(' + UriHelper.buildKeyPredicate(entityType, entity) + ')'));
       }
     }
     return entity.getId()
@@ -658,11 +573,9 @@ public class ODataXmlSerializer implements ODataSerializer {
   @Override
   public SerializerResult metadataDocument(final ServiceMetadata serviceMetadata)
     throws SerializerException {
-    OutputStream outputStream = null;
-    SerializerException cachedException = null;
-    try {
-      final CircleStreamBuffer buffer = new CircleStreamBuffer();
-      outputStream = buffer.getOutputStream();
+    final CircleStreamBuffer buffer = new CircleStreamBuffer();
+    try (
+      var outputStream = buffer.getOutputStream()) {
       final XMLStreamWriter writer = XMLOutputFactory.newInstance()
         .createXMLStreamWriter(outputStream, DEFAULT_CHARSET);
       final MetadataDocumentXmlSerializer serializer = new MetadataDocumentXmlSerializer(
@@ -671,35 +584,22 @@ public class ODataXmlSerializer implements ODataSerializer {
 
       writer.flush();
       writer.close();
-      outputStream.close();
-
-      return SerializerResultImpl.with()
-        .content(buffer.getInputStream())
-        .build();
-    } catch (final XMLStreamException e) {
-      cachedException = new SerializerException(IO_EXCEPTION_TEXT, e,
-        SerializerException.MessageKeys.IO_EXCEPTION);
-      throw cachedException;
-    } catch (final IOException e) {
-      cachedException = new SerializerException(IO_EXCEPTION_TEXT, e,
-        SerializerException.MessageKeys.IO_EXCEPTION);
-      throw cachedException;
-    } finally {
-      ODataSerializer.closeCircleStreamBufferOutput(outputStream, cachedException);
+    } catch (final XMLStreamException | IOException e) {
+      throw Exceptions.toRuntimeException(e);
     }
+    return SerializerResultImpl.with()
+      .content(buffer.getInputStream())
+      .build();
   }
 
   @Override
-  public SerializerResult primitive(final ServiceMetadata metadata, final EdmPrimitiveType type,
-    final Property property, final String name, final PrimitiveSerializerOptions options,
-    final Object value) throws SerializerException {
+  public SerializerResult primitive(final ServiceMetadata metadata, final String name,
+    final EdmPrimitiveType type, final PrimitiveSerializerOptions options, final Object value)
+    throws SerializerException {
     final ContextURL contextURL = checkContextURL(options == null ? null : options.getContextURL());
-
-    OutputStream outputStream = null;
-    SerializerException cachedException = null;
-    try {
-      final CircleStreamBuffer buffer = new CircleStreamBuffer();
-      outputStream = buffer.getOutputStream();
+    final CircleStreamBuffer buffer = new CircleStreamBuffer();
+    try (
+      var outputStream = buffer.getOutputStream()) {
       final XMLStreamWriter writer = XMLOutputFactory.newInstance()
         .createXMLStreamWriter(outputStream, DEFAULT_CHARSET);
 
@@ -710,52 +610,32 @@ public class ODataXmlSerializer implements ODataSerializer {
         writer.writeAttribute(METADATA, NS_METADATA, Constants.CONTEXT, contextURL.toUriString());
       }
       writeMetadataETag(metadata, writer);
-      if (property.isNull()) {
+      if (value == null) {
         writer.writeAttribute(METADATA, NS_METADATA, Constants.ATTR_NULL, "true");
       } else {
-        writePrimitive(type, property, name, options == null ? null : options.isNullable(),
-          options == null ? null : options.getMaxLength(),
-          options == null ? null : options.getPrecision(),
-          options == null ? null : options.getScale(), options == null ? null : options.isUnicode(),
-          options == null ? null : options.xml10InvalidCharReplacement(), writer, value);
+        writePrimitive(type, name, options == null ? null : options.xml10InvalidCharReplacement(),
+          writer, value);
       }
       writer.writeEndElement();
       writer.writeEndDocument();
       writer.flush();
       writer.close();
-      outputStream.close();
-
-      return SerializerResultImpl.with()
-        .content(buffer.getInputStream())
-        .build();
-    } catch (final XMLStreamException e) {
-      cachedException = new SerializerException(IO_EXCEPTION_TEXT, e,
-        SerializerException.MessageKeys.IO_EXCEPTION);
-      throw cachedException;
-    } catch (final EdmPrimitiveTypeException e) {
-      cachedException = new SerializerException("Wrong value for property!", e,
-        SerializerException.MessageKeys.WRONG_PROPERTY_VALUE, name, value.toString());
-      throw cachedException;
-    } catch (final IOException e) {
-      cachedException = new SerializerException(IO_EXCEPTION_TEXT, e,
-        SerializerException.MessageKeys.IO_EXCEPTION);
-      throw cachedException;
-    } finally {
-      ODataSerializer.closeCircleStreamBufferOutput(outputStream, cachedException);
+    } catch (final XMLStreamException | IOException e) {
+      throw Exceptions.toRuntimeException(e);
     }
+    return SerializerResultImpl.with()
+      .content(buffer.getInputStream())
+      .build();
   }
 
   @Override
   public SerializerResult primitiveCollection(final ServiceMetadata metadata,
-    final EdmPrimitiveType type, final Property property, final String name,
-    final PrimitiveSerializerOptions options, final Object value) throws SerializerException {
+    final EdmPrimitiveType type, final String name, final PrimitiveSerializerOptions options,
+    final Object value) throws SerializerException {
     final ContextURL contextURL = checkContextURL(options == null ? null : options.getContextURL());
-
-    OutputStream outputStream = null;
-    SerializerException cachedException = null;
-    try {
-      final CircleStreamBuffer buffer = new CircleStreamBuffer();
-      outputStream = buffer.getOutputStream();
+    final CircleStreamBuffer buffer = new CircleStreamBuffer();
+    try (
+      var outputStream = buffer.getOutputStream()) {
       final XMLStreamWriter writer = XMLOutputFactory.newInstance()
         .createXMLStreamWriter(outputStream, DEFAULT_CHARSET);
 
@@ -768,35 +648,18 @@ public class ODataXmlSerializer implements ODataSerializer {
       writeMetadataETag(metadata, writer);
       writer.writeAttribute(METADATA, NS_METADATA, Constants.ATTR_TYPE,
         "#Collection(" + type.getName() + ")");
-      writePrimitiveCollection(type, property, name, options == null ? null : options.isNullable(),
-        options == null ? null : options.getMaxLength(),
-        options == null ? null : options.getPrecision(),
-        options == null ? null : options.getScale(), options == null ? null : options.isUnicode(),
-        options == null ? null : options.xml10InvalidCharReplacement(), writer);
+      writePrimitiveCollection(writer, type, (Iterable<?>)value, name,
+        options == null ? null : options.xml10InvalidCharReplacement());
       writer.writeEndElement();
       writer.writeEndDocument();
       writer.flush();
       writer.close();
-      outputStream.close();
-
-      return SerializerResultImpl.with()
-        .content(buffer.getInputStream())
-        .build();
-    } catch (final XMLStreamException e) {
-      cachedException = new SerializerException(IO_EXCEPTION_TEXT, e,
-        SerializerException.MessageKeys.IO_EXCEPTION);
-      throw cachedException;
-    } catch (final EdmPrimitiveTypeException e) {
-      cachedException = new SerializerException("Wrong value for property!", e,
-        SerializerException.MessageKeys.WRONG_PROPERTY_VALUE, name, value.toString());
-      throw cachedException;
-    } catch (final IOException e) {
-      cachedException = new SerializerException(IO_EXCEPTION_TEXT, e,
-        SerializerException.MessageKeys.IO_EXCEPTION);
-      throw cachedException;
-    } finally {
-      ODataSerializer.closeCircleStreamBufferOutput(outputStream, cachedException);
+    } catch (final XMLStreamException | IOException e) {
+      throw Exceptions.toRuntimeException(e);
     }
+    return SerializerResultImpl.with()
+      .content(buffer.getInputStream())
+      .build();
   }
 
   @Override
@@ -815,7 +678,7 @@ public class ODataXmlSerializer implements ODataSerializer {
   protected EdmComplexType resolveComplexType(final ServiceMetadata metadata,
     final EdmComplexType baseType, final String derivedTypeName) throws SerializerException {
     if (derivedTypeName == null || baseType.getFullQualifiedName()
-      .getFullQualifiedNameAsString()
+      .toString()
       .equals(derivedTypeName)) {
       return baseType;
     }
@@ -828,9 +691,9 @@ public class ODataXmlSerializer implements ODataSerializer {
     EdmComplexType type = derivedType.getBaseType();
     while (type != null) {
       if (type.getFullQualifiedName()
-        .getFullQualifiedNameAsString()
+        .toString()
         .equals(baseType.getFullQualifiedName()
-          .getFullQualifiedNameAsString())) {
+          .toString())) {
         return derivedType;
       }
       type = type.getBaseType();
@@ -838,13 +701,13 @@ public class ODataXmlSerializer implements ODataSerializer {
     throw new SerializerException("Wrong base type",
       SerializerException.MessageKeys.WRONG_BASE_TYPE, derivedTypeName,
       baseType.getFullQualifiedName()
-        .getFullQualifiedNameAsString());
+        .toString());
   }
 
   protected EdmEntityType resolveEntityType(final ServiceMetadata metadata,
     final EdmEntityType baseType, final String derivedTypeName) throws SerializerException {
     if (derivedTypeName == null || baseType.getFullQualifiedName()
-      .getFullQualifiedNameAsString()
+      .toString()
       .equals(derivedTypeName)) {
       return baseType;
     }
@@ -857,9 +720,9 @@ public class ODataXmlSerializer implements ODataSerializer {
     EdmEntityType type = derivedType.getBaseType();
     while (type != null) {
       if (type.getFullQualifiedName()
-        .getFullQualifiedNameAsString()
+        .toString()
         .equals(baseType.getFullQualifiedName()
-          .getFullQualifiedNameAsString())) {
+          .toString())) {
         return derivedType;
       }
       type = type.getBaseType();
@@ -867,17 +730,15 @@ public class ODataXmlSerializer implements ODataSerializer {
     throw new SerializerException("Wrong base type",
       SerializerException.MessageKeys.WRONG_BASE_TYPE, derivedTypeName,
       baseType.getFullQualifiedName()
-        .getFullQualifiedNameAsString());
+        .toString());
   }
 
   @Override
   public SerializerResult serviceDocument(final ServiceMetadata metadata, final String serviceRoot)
     throws SerializerException {
-    OutputStream outputStream = null;
-    SerializerException cachedException = null;
-    try {
-      final CircleStreamBuffer buffer = new CircleStreamBuffer();
-      outputStream = buffer.getOutputStream();
+    final CircleStreamBuffer buffer = new CircleStreamBuffer();
+    try (
+      var outputStream = buffer.getOutputStream();) {
       final XMLStreamWriter writer = XMLOutputFactory.newInstance()
         .createXMLStreamWriter(outputStream, DEFAULT_CHARSET);
       final ServiceDocumentXmlSerializer serializer = new ServiceDocumentXmlSerializer(metadata,
@@ -886,52 +747,40 @@ public class ODataXmlSerializer implements ODataSerializer {
 
       writer.flush();
       writer.close();
-      outputStream.close();
-
-      return SerializerResultImpl.with()
-        .content(buffer.getInputStream())
-        .build();
     } catch (final XMLStreamException | IOException e) {
-      cachedException = new SerializerException(IO_EXCEPTION_TEXT, e,
-        SerializerException.MessageKeys.IO_EXCEPTION);
-      throw cachedException;
-    } finally {
-      ODataSerializer.closeCircleStreamBufferOutput(outputStream, cachedException);
+      throw Exceptions.toRuntimeException(e);
     }
+    return SerializerResultImpl.with()
+      .content(buffer.getInputStream())
+      .build();
   }
 
   private void writeComplex(final ServiceMetadata metadata, final EdmProperty edmProperty,
-    final Property property, final String name, final Set<List<String>> selectedPaths,
+    final ComplexValue complex, final String name, final Set<List<String>> selectedPaths,
     final String xml10InvalidCharReplacement, final XMLStreamWriter writer,
     Set<List<String>> expandedPaths, ODataLinked linked, final ExpandOption expand)
     throws XMLStreamException, SerializerException {
 
     writer.writeAttribute(METADATA, NS_METADATA, Constants.ATTR_TYPE,
-      "#" + complexType(metadata, (EdmComplexType)edmProperty.getType(), property.getType()));
-    final String derivedName = property.getType();
+      "#" + complexType(metadata, (EdmComplexType)edmProperty.getType(), complex.getTypeName()));
+    final String derivedName = complex.getTypeName();
     final EdmComplexType resolvedType = resolveComplexType(metadata,
       (EdmComplexType)edmProperty.getType(), derivedName);
 
     if (null != linked) {
-      if (linked instanceof ODataEntity) {
-        linked = ((ODataEntity)linked).getProperty(name)
-          .asComplex();
-      } else if (linked instanceof final ComplexValue complex) {
-        final var p2 = complex.getProperty(name);
-        if (p2 != null) {
-          linked = p2.asComplex();
-        }
+      if (linked instanceof final ODataPropertyMap map) {
+        linked = map.getValue(name);
       }
       expandedPaths = expandedPaths == null || expandedPaths.isEmpty() ? null
         : ExpandSelectHelper.getReducedExpandItemsPaths(expandedPaths, name);
     }
 
-    writeComplexValue(metadata, resolvedType, property.asComplex(), selectedPaths,
-      xml10InvalidCharReplacement, writer, expandedPaths, linked, expand, name);
+    writeComplexValue(metadata, resolvedType, complex, selectedPaths, xml10InvalidCharReplacement,
+      writer, expandedPaths, linked, expand, name);
   }
 
   private void writeComplexCollection(final ServiceMetadata metadata, final EdmComplexType type,
-    final Property property, final String name, final Set<List<String>> selectedPaths,
+    final Iterable<?> collection, final String name, final Set<List<String>> selectedPaths,
     final String xml10InvalidCharReplacement, final XMLStreamWriter writer,
     Set<List<String>> expandedPaths, final ODataLinked linked, final ExpandOption expand)
     throws XMLStreamException, SerializerException {
@@ -939,32 +788,25 @@ public class ODataXmlSerializer implements ODataSerializer {
     final Set<List<String>> expandedPaths1 = expandedPaths != null && !expandedPaths.isEmpty()
       ? expandedPaths
       : ExpandSelectHelper.getExpandedItemsPath(expand);
-    for (final Object value : property.asCollection()) {
+    for (final Object value : collection) {
       expandedPaths = expandedPaths1;
       writer.writeStartElement(METADATA, Constants.ELEM_ELEMENT, NS_METADATA);
       final String typeName = ((ComplexValue)value).getTypeName();
-      final String propertyType = typeName != null ? typeName : property.getType();
+      final String propertyType = typeName != null ? typeName : type.getName();
       if (derivedComplexType(type, propertyType) != null) {
         writer.writeAttribute(METADATA, NS_METADATA, Constants.ATTR_TYPE, propertyType);
       }
       if (typeName != null && !propertyType.equals(type.getFullQualifiedName()
-        .getFullQualifiedNameAsString())) {
+        .toString())) {
         complexType = metadata.getEdm()
           .getComplexType(new FullQualifiedName(propertyType));
       } else {
         complexType = type;
       }
-      switch (property.getValueType()) {
-        case COLLECTION_COMPLEX:
-          expandedPaths = expandedPaths == null || expandedPaths.isEmpty() ? null
-            : ExpandSelectHelper.getReducedExpandItemsPaths(expandedPaths, name);
-          writeComplexValue(metadata, complexType, (ComplexValue)value, selectedPaths,
-            xml10InvalidCharReplacement, writer, expandedPaths, (ComplexValue)value, expand, name);
-        break;
-        default:
-          throw new SerializerException("Property type not yet supported!",
-            SerializerException.MessageKeys.UNSUPPORTED_PROPERTY_TYPE, name);
-      }
+      expandedPaths = expandedPaths == null || expandedPaths.isEmpty() ? null
+        : ExpandSelectHelper.getReducedExpandItemsPaths(expandedPaths, name);
+      writeComplexValue(metadata, complexType, (ComplexValue)value, selectedPaths,
+        xml10InvalidCharReplacement, writer, expandedPaths, (ComplexValue)value, expand, name);
       writer.writeEndElement();
     }
   }
@@ -985,13 +827,12 @@ public class ODataXmlSerializer implements ODataSerializer {
     }
 
     for (final String propertyName : type.getPropertyNames()) {
-      final Property property = properties.getProperty(propertyName);
       final var value = properties.getValue(propertyName);
       if (selectedPaths == null || ExpandSelectHelper.isSelected(selectedPaths, propertyName)) {
-        writeProperty(metadata, (EdmProperty)type.getProperty(propertyName), property, propertyName,
+        writeProperty(writer, metadata, (EdmProperty)type.getProperty(propertyName), propertyName,
           selectedPaths == null ? null
             : ExpandSelectHelper.getReducedSelectedPaths(selectedPaths, propertyName),
-          xml10InvalidCharReplacement, writer, expandedPaths, linked, expand, value);
+          xml10InvalidCharReplacement, expandedPaths, linked, expand, value);
       }
     }
     writeNavigationProperties(metadata, type, linked, expand, null, xml10InvalidCharReplacement,
@@ -1082,7 +923,7 @@ public class ODataXmlSerializer implements ODataSerializer {
       writer.writeStartElement(ATOM, Constants.ATOM_ELEM_CATEGORY, NS_ATOM);
       writer.writeAttribute(Constants.ATOM_ATTR_SCHEME, Constants.NS_SCHEME);
       writer.writeAttribute(Constants.ATOM_ATTR_TERM, "#" + resolvedType.getFullQualifiedName()
-        .getFullQualifiedNameAsString());
+        .toString());
       writer.writeEndElement();
 
       // In the case media, content is sibiling
@@ -1284,73 +1125,47 @@ public class ODataXmlSerializer implements ODataSerializer {
     }
   }
 
-  private void writePrimitive(final EdmPrimitiveType type, final Property property,
-    final String name, final Boolean isNullable, final Integer maxLength, final Integer precision,
-    final Integer scale, final Boolean isUnicode, final String xml10InvalidCharReplacement,
-    final XMLStreamWriter writer, final Object value)
+  private void writePrimitive(final EdmPrimitiveType type, final String name,
+    final String xml10InvalidCharReplacement, final XMLStreamWriter writer, final Object value)
     throws EdmPrimitiveTypeException, XMLStreamException, SerializerException {
-    if (property.isPrimitive()) {
-      if (type != EdmPrimitiveTypeFactory.getInstance(EdmPrimitiveTypeKind.String)) {
+    if (value instanceof Geometry) {
+      throw new SerializerException("Property type not yet supported!",
+        SerializerException.MessageKeys.UNSUPPORTED_PROPERTY_TYPE, name);
+    } else {
+      if (type != EdmPrimitiveTypeKind.String) {
         writer.writeAttribute(METADATA, NS_METADATA, Constants.ATTR_TYPE,
           type.getKind() == EdmTypeKind.DEFINITION ? "#" + type.getFullQualifiedName()
-            .getFullQualifiedNameAsString() : type.getName());
+            .toString() : type.getName());
       }
-      writePrimitiveValue(type, value, isNullable, maxLength, precision, scale, isUnicode,
-        xml10InvalidCharReplacement, writer);
-    } else {
-      if (property.isGeospatial()) {
-        throw new SerializerException("Property type not yet supported!",
-          SerializerException.MessageKeys.UNSUPPORTED_PROPERTY_TYPE, name);
-      } else if (property.isEnum()) {
-        writer.writeAttribute(METADATA, NS_METADATA, Constants.ATTR_TYPE,
-          "#" + type.getFullQualifiedName()
-            .getFullQualifiedNameAsString());
-        writePrimitiveValue(type, property.asEnum(), isNullable, maxLength, precision, scale,
-          isUnicode, xml10InvalidCharReplacement, writer);
-      } else {
-        throw new SerializerException("Inconsistent property type!",
-          SerializerException.MessageKeys.INCONSISTENT_PROPERTY_TYPE, name);
-      }
+      writePrimitiveValue(type, value, xml10InvalidCharReplacement, writer);
     }
   }
 
-  private void writePrimitiveCollection(final EdmPrimitiveType type, final Property property,
-    final String name, final Boolean isNullable, final Integer maxLength, final Integer precision,
-    final Integer scale, final Boolean isUnicode, final String xml10InvalidCharReplacement,
-    final XMLStreamWriter writer)
+  private void writePrimitiveCollection(final XMLStreamWriter writer, final EdmPrimitiveType type,
+    final Iterable<?> collection, final String name, final String xml10InvalidCharReplacement)
     throws XMLStreamException, EdmPrimitiveTypeException, SerializerException {
-    for (final Object value : property.asCollection()) {
+    for (final Object value : collection) {
       writer.writeStartElement(METADATA, Constants.ELEM_ELEMENT, NS_METADATA);
-      switch (property.getValueType()) {
-        case COLLECTION_PRIMITIVE:
-        case COLLECTION_ENUM:
-          writePrimitiveValue(type, value, isNullable, maxLength, precision, scale, isUnicode,
-            xml10InvalidCharReplacement, writer);
-        break;
-        case COLLECTION_GEOSPATIAL:
-          throw new SerializerException("Property type not yet supported!",
-            SerializerException.MessageKeys.UNSUPPORTED_PROPERTY_TYPE, name);
-        default:
-          throw new SerializerException("Property type not yet supported!",
-            SerializerException.MessageKeys.UNSUPPORTED_PROPERTY_TYPE, name);
+      if (value instanceof Geometry) {
+        throw new SerializerException("Property type not yet supported!",
+          SerializerException.MessageKeys.UNSUPPORTED_PROPERTY_TYPE, name);
+      } else {
+        writePrimitiveValue(type, value, xml10InvalidCharReplacement, writer);
       }
       writer.writeEndElement();
     }
   }
 
   protected void writePrimitiveValue(final EdmPrimitiveType type, final Object primitiveValue,
-    final Boolean isNullable, final Integer maxLength, final Integer precision, final Integer scale,
-    final Boolean isUnicode, final String xml10InvalidCharReplacement, final XMLStreamWriter writer)
+    final String xml10InvalidCharReplacement, final XMLStreamWriter writer)
     throws EdmPrimitiveTypeException, XMLStreamException {
-    final String value = type.valueToString(primitiveValue, isNullable, maxLength, precision, scale,
-      isUnicode);
+    final String value = type.valueToString(primitiveValue);
     if (value == null) {
       writer.writeAttribute(METADATA, NS_METADATA, Constants.ATTR_NULL, "true");
     } else {
       // XML 1.0 does not handle certain unicode characters, they need to be
       // replaced
-      writer.writeCharacters(
-        replaceInvalidCharacters(type, value, isUnicode, xml10InvalidCharReplacement));
+      writer.writeCharacters(replaceInvalidCharacters(type, value, xml10InvalidCharReplacement));
     }
   }
 
@@ -1367,23 +1182,22 @@ public class ODataXmlSerializer implements ODataSerializer {
     for (final String propertyName : type.getPropertyNames()) {
       if (all || selected.contains(propertyName)) {
         final EdmProperty edmProperty = type.getStructuralProperty(propertyName);
-        final Property property = properties.getProperty(propertyName);
         final var value = properties.getValue(propertyName);
         final Set<List<String>> selectedPaths = all || edmProperty.isPrimitive() ? null
           : ExpandSelectHelper.getSelectedPaths(select.getSelectItems(), propertyName);
-        writeProperty(metadata, edmProperty, property, propertyName, selectedPaths,
-          xml10InvalidCharReplacement, writer, expandedPaths, linked, expand, value);
+        writeProperty(writer, metadata, edmProperty, propertyName, selectedPaths,
+          xml10InvalidCharReplacement, expandedPaths, linked, expand, value);
       }
     }
   }
 
-  protected void writeProperty(final ServiceMetadata metadata, final EdmProperty edmProperty,
-    final Property property, final String name, final Set<List<String>> selectedPaths,
-    final String xml10InvalidCharReplacement, final XMLStreamWriter writer,
-    final Set<List<String>> expandedPaths, final ODataLinked linked, final ExpandOption expand,
-    final Object value) throws XMLStreamException, SerializerException {
+  protected void writeProperty(final XMLStreamWriter writer, final ServiceMetadata metadata,
+    final EdmProperty edmProperty, final String name, final Set<List<String>> selectedPaths,
+    final String xml10InvalidCharReplacement, final Set<List<String>> expandedPaths,
+    final ODataLinked linked, final ExpandOption expand, final Object value)
+    throws XMLStreamException, SerializerException {
     writer.writeStartElement(DATA, name, NS_DATA);
-    if (property == null || property.isNull()) {
+    if (value == null) {
       if (edmProperty.isNullable()) {
         writer.writeAttribute(METADATA, NS_METADATA, Constants.ATTR_NULL, "true");
       } else {
@@ -1391,17 +1205,18 @@ public class ODataXmlSerializer implements ODataSerializer {
           SerializerException.MessageKeys.MISSING_PROPERTY, name);
       }
     } else {
-      writePropertyValue(metadata, edmProperty, property, name, selectedPaths,
-        xml10InvalidCharReplacement, writer, expandedPaths, linked, expand, value);
+      writePropertyValue(writer, metadata, edmProperty, name, selectedPaths,
+        xml10InvalidCharReplacement, expandedPaths, linked, expand, value);
     }
     writer.writeEndElement();
   }
 
-  private void writePropertyValue(final ServiceMetadata metadata, final EdmProperty edmProperty,
-    final Property property, final String name, final Set<List<String>> selectedPaths,
-    final String xml10InvalidCharReplacement, final XMLStreamWriter writer,
-    final Set<List<String>> expandedPaths, final ODataLinked linked, final ExpandOption expand,
-    final Object value) throws XMLStreamException, SerializerException {
+  @SuppressWarnings("unchecked")
+  private void writePropertyValue(final XMLStreamWriter writer, final ServiceMetadata metadata,
+    final EdmProperty edmProperty, final String name, final Set<List<String>> selectedPaths,
+    final String xml10InvalidCharReplacement, final Set<List<String>> expandedPaths,
+    final ODataLinked linked, final ExpandOption expand, final Object value)
+    throws XMLStreamException, SerializerException {
     try {
       if (edmProperty.isPrimitive() || edmProperty.getType()
         .getKind() == EdmTypeKind.ENUM || edmProperty.getType()
@@ -1412,23 +1227,22 @@ public class ODataXmlSerializer implements ODataSerializer {
               ? "#Collection(" + edmProperty.getType()
                 .getName() + ")"
               : collectionType(edmProperty.getType()));
-          writePrimitiveCollection((EdmPrimitiveType)edmProperty.getType(), property, name,
-            edmProperty.isNullable(), edmProperty.getMaxLength(), edmProperty.getPrecision(),
-            edmProperty.getScale(), edmProperty.isUnicode(), xml10InvalidCharReplacement, writer);
+          writePrimitiveCollection(writer, (EdmPrimitiveType)edmProperty.getType(),
+            (Iterable<?>)value, name, xml10InvalidCharReplacement);
         } else {
-          writePrimitive((EdmPrimitiveType)edmProperty.getType(), property, name,
-            edmProperty.isNullable(), edmProperty.getMaxLength(), edmProperty.getPrecision(),
-            edmProperty.getScale(), edmProperty.isUnicode(), xml10InvalidCharReplacement, writer,
-            value);
+          writePrimitive((EdmPrimitiveType)edmProperty.getType(), name, xml10InvalidCharReplacement,
+            writer, value);
         }
-      } else if (property.isComplex()) {
+      } else if (edmProperty.getType()
+        .getKind() == EdmTypeKind.COMPLEX) {
         if (edmProperty.isCollection()) {
           writer.writeAttribute(METADATA, NS_METADATA, Constants.ATTR_TYPE,
             collectionType(edmProperty.getType()));
-          writeComplexCollection(metadata, (EdmComplexType)edmProperty.getType(), property, name,
-            selectedPaths, xml10InvalidCharReplacement, writer, expandedPaths, linked, expand);
+          writeComplexCollection(metadata, (EdmComplexType)edmProperty.getType(),
+            (List<Object>)value, name, selectedPaths, xml10InvalidCharReplacement, writer,
+            expandedPaths, linked, expand);
         } else {
-          writeComplex(metadata, edmProperty, property, name, selectedPaths,
+          writeComplex(metadata, edmProperty, (ComplexValue)value, name, selectedPaths,
             xml10InvalidCharReplacement, writer, expandedPaths, linked, expand);
         }
       } else {

@@ -54,6 +54,12 @@ public class CsdlComplexType extends CsdlStructuralType {
   }
 
   @Override
+  public CsdlComplexType setFields(final List<FieldDefinition> properties) {
+    super.setFields(properties);
+    return this;
+  }
+
+  @Override
   public CsdlComplexType setName(final String name) {
     this.name = name;
     return this;
@@ -69,12 +75,6 @@ public class CsdlComplexType extends CsdlStructuralType {
   @Override
   public CsdlComplexType setOpenType(final boolean isOpenType) {
     this.isOpenType = isOpenType;
-    return this;
-  }
-
-  @Override
-  public CsdlComplexType setProperties(final List<FieldDefinition> properties) {
-    this.fields = properties;
     return this;
   }
 }

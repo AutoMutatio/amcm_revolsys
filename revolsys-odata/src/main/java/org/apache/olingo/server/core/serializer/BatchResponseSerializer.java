@@ -209,7 +209,11 @@ public class BatchResponseSerializer {
   }
 
   private void appendHeader(final String name, final String value, final BodyBuilder builder) {
-    builder.append(name).append(COLON).append(SP).append(value).append(CRLF);
+    builder.append(name)
+      .append(COLON)
+      .append(SP)
+      .append(value)
+      .append(CRLF);
   }
 
   private void appendResponseHeader(final ODataResponse response, final int contentLength,
@@ -218,8 +222,10 @@ public class BatchResponseSerializer {
 
     for (final Map.Entry<String, List<String>> entry : header.entrySet()) {
       // Requests never have a content id header.
-      if (!entry.getKey().equalsIgnoreCase(HttpHeader.CONTENT_ID)) {
-        appendHeader(entry.getKey(), entry.getValue().get(0), builder);
+      if (!entry.getKey()
+        .equalsIgnoreCase(HttpHeader.CONTENT_ID)) {
+        appendHeader(entry.getKey(), entry.getValue()
+          .get(0), builder);
       }
     }
 
@@ -245,7 +251,8 @@ public class BatchResponseSerializer {
       if (part.isChangeSet()) {
         appendChangeSet(part, builder);
       } else {
-        appendBodyPart(part.getResponses().get(0), builder, false);
+        appendBodyPart(part.getResponses()
+          .get(0), builder, false);
       }
     }
     builder.append(getCloseDelimiter(boundary));
@@ -254,7 +261,8 @@ public class BatchResponseSerializer {
   }
 
   private String generateBoundary(final String value) {
-    return value + "_" + UUID.randomUUID().toString();
+    return value + "_" + UUID.randomUUID()
+      .toString();
   }
 
   private String getCloseDelimiter(final String boundary) {

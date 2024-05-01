@@ -18,17 +18,28 @@
  */
 package org.apache.olingo.commons.api.edm;
 
+import org.apache.olingo.commons.api.edm.provider.CsdlEntitySet;
+import org.apache.olingo.commons.core.edm.Edm;
+import org.apache.olingo.commons.core.edm.EdmBindingTarget;
+
 /**
  * A CSDL EntitySet element.
  * <br/>
  * EdmEntitySet is the container for entity type instances as described in the OData protocol. It can be the target of a
  * navigation property binding.
  */
-public interface EdmEntitySet extends EdmBindingTarget {
+public class EdmEntitySet extends EdmBindingTarget {
 
-  /**
-   * @return true if entity set must be included in the service document
-   */
-  boolean isIncludeInServiceDocument();
+  private final CsdlEntitySet entitySet;
+
+  public EdmEntitySet(final Edm edm, final EdmEntityContainer container,
+    final CsdlEntitySet entitySet) {
+    super(edm, container, entitySet);
+    this.entitySet = entitySet;
+  }
+
+  public boolean isIncludeInServiceDocument() {
+    return this.entitySet.isIncludeInServiceDocument();
+  }
 
 }

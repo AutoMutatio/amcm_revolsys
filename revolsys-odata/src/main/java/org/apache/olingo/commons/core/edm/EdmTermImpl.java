@@ -27,7 +27,6 @@ import org.apache.olingo.commons.api.edm.EdmTerm;
 import org.apache.olingo.commons.api.edm.EdmType;
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.TargetType;
-import org.apache.olingo.commons.api.edm.geo.SRID;
 import org.apache.olingo.commons.api.edm.provider.CsdlTerm;
 
 public class EdmTermImpl extends AbstractEdmNamed implements EdmTerm {
@@ -67,7 +66,7 @@ public class EdmTermImpl extends AbstractEdmNamed implements EdmTerm {
   @Override
   public EdmTerm getBaseTerm() {
     if (this.baseTerm == null && this.term.getBaseTerm() != null) {
-      this.baseTerm = this.edm.getTerm(new FullQualifiedName(this.term.getBaseTerm()));
+      this.baseTerm = this.getEdm().getTerm(new FullQualifiedName(this.term.getBaseTerm()));
     }
     return this.baseTerm;
   }
@@ -98,7 +97,7 @@ public class EdmTermImpl extends AbstractEdmNamed implements EdmTerm {
   }
 
   @Override
-  public SRID getSrid() {
+  public int getSrid() {
     return this.term.getSrid();
   }
 
@@ -108,7 +107,7 @@ public class EdmTermImpl extends AbstractEdmNamed implements EdmTerm {
       if (this.term.getType() == null) {
         throw new EdmException("Terms must hava a full qualified type.");
       }
-      this.termType = new EdmTypeInfo.Builder().setEdm(this.edm)
+      this.termType = new EdmTypeInfo.Builder().setEdm(this.getEdm())
         .setTypeExpression(this.term.getType())
         .build()
         .getType();

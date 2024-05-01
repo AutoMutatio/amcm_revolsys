@@ -85,6 +85,12 @@ public class CsdlEntityType extends CsdlStructuralType {
     return this;
   }
 
+  @Override
+  public CsdlEntityType setFields(final List<FieldDefinition> properties) {
+    super.setFields(properties);
+    return this;
+  }
+
   /**
    * Sets has stream.
    *
@@ -126,9 +132,4 @@ public class CsdlEntityType extends CsdlStructuralType {
     return this;
   }
 
-  @Override
-  public CsdlEntityType setProperties(final List<FieldDefinition> properties) {
-    this.fields = properties;
-    return this;
-  }
 }

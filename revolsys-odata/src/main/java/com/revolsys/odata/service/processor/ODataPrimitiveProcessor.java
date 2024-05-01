@@ -1,11 +1,11 @@
 package com.revolsys.odata.service.processor;
 
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 
 import org.apache.olingo.commons.api.data.ContextURL;
-import org.apache.olingo.commons.api.data.Property;
+import org.apache.olingo.commons.api.data.ODataEntity;
 import org.apache.olingo.commons.api.edm.EdmEntitySet;
 import org.apache.olingo.commons.api.edm.EdmPrimitiveType;
 import org.apache.olingo.commons.api.edm.EdmProperty;
@@ -22,9 +22,9 @@ import org.apache.olingo.server.api.serializer.PrimitiveSerializerOptions;
 import org.apache.olingo.server.api.serializer.SerializerResult;
 import org.apache.olingo.server.api.uri.UriInfo;
 import org.apache.olingo.server.api.uri.UriParameter;
-import org.apache.olingo.server.api.uri.UriResource;
-import org.apache.olingo.server.api.uri.UriResourceEntitySet;
-import org.apache.olingo.server.api.uri.UriResourceProperty;
+import org.apache.olingo.server.core.uri.UriResource;
+import org.apache.olingo.server.core.uri.UriResourceEntitySet;
+import org.apache.olingo.server.core.uri.UriResourceProperty;
 
 import com.revolsys.odata.model.ODataEdmProvider;
 import com.revolsys.odata.model.ODataEntityType;
@@ -54,39 +54,37 @@ public class ODataPrimitiveProcessor extends AbstractProcessor implements Primit
     final UriResourceProperty uriProperty = (UriResourceProperty)resourceParts
       .get(resourceParts.size() - 1);
     final EdmProperty edmProperty = uriProperty.getProperty();
-    final String edmPropertyName = edmProperty.getName();
+    final String name = edmProperty.getName();
     final EdmPrimitiveType edmPropertyType = (EdmPrimitiveType)edmProperty.getType();
 
     final ODataEntityType entityType = getEntityType(edmEntitySet);
-    final Property property = entityType.readPrimitive(request, edmEntitySet, keyPredicates,
-      edmPropertyName);
-
-    if (property == null) {
-      throw new ODataApplicationException("Property not found",
-        HttpStatusCode.NOT_FOUND.getStatusCode(), Locale.ENGLISH);
-    }
-
-    final Object value = property.getValue();
-    if (value != null) {
-      final ODataSerializer serializer = ODataSerializer.createSerializer(responseFormat);
-
-      final ContextURL contextUrl = newContextUrl()//
-        .entitySet(edmEntitySet)
-        .navOrPropertyPath(edmPropertyName)
-        .build();
-      final PrimitiveSerializerOptions options = PrimitiveSerializerOptions.with()
-        .contextURL(contextUrl)
-        .build();
-      final var name = property.getName();
-      final SerializerResult serializerResult = serializer.primitive(this.serviceMetadata,
-        edmPropertyType, property, name, options, value);
-      final InputStream propertyStream = serializerResult.getContent();
-
-      response.setContent(propertyStream);
-      response.setStatusCode(HttpStatusCode.OK.getStatusCode());
-      response.setHeader(HttpHeader.CONTENT_TYPE, responseFormat.toContentTypeString());
-    } else {
+    final ODataEntity entity = entityType.readEntity(request, edmEntitySet, keyPredicates,
+      Arrays.asList(name));
+    if (entity == null) {
       response.setStatusCode(HttpStatusCode.NO_CONTENT.getStatusCode());
+    } else {
+      final var value = entity.getValue(name);
+
+      if (value == null) {
+        response.setStatusCode(HttpStatusCode.NO_CONTENT.getStatusCode());
+      } else {
+        final ODataSerializer serializer = ODataSerializer.createSerializer(responseFormat);
+
+        final ContextURL contextUrl = newContextUrl()//
+          .entitySet(edmEntitySet)
+          .navOrPropertyPath(name)
+          .build();
+        final PrimitiveSerializerOptions options = PrimitiveSerializerOptions.with()
+          .contextURL(contextUrl)
+          .build();
+        final SerializerResult serializerResult = serializer.primitive(this.serviceMetadata, name,
+          edmPropertyType, options, value);
+        final InputStream propertyStream = serializerResult.getContent();
+
+        response.setContent(propertyStream);
+        response.setStatusCode(HttpStatusCode.OK.getStatusCode());
+        response.setHeader(HttpHeader.CONTENT_TYPE, responseFormat.toContentTypeString());
+      }
     }
   }
 

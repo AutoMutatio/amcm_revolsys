@@ -22,8 +22,8 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
-import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.queryoption.expression.Expression;
+import org.apache.olingo.server.core.uri.UriResource;
 
 /**
  * Represents an aggregate expression.

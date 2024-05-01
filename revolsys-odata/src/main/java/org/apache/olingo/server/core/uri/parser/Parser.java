@@ -31,14 +31,6 @@ import org.apache.olingo.commons.api.ex.ODataRuntimeException;
 import org.apache.olingo.commons.core.edm.Edm;
 import org.apache.olingo.server.api.uri.UriInfo;
 import org.apache.olingo.server.api.uri.UriInfoKind;
-import org.apache.olingo.server.api.uri.UriResource;
-import org.apache.olingo.server.api.uri.UriResourceAction;
-import org.apache.olingo.server.api.uri.UriResourceCount;
-import org.apache.olingo.server.api.uri.UriResourceEntitySet;
-import org.apache.olingo.server.api.uri.UriResourceFunction;
-import org.apache.olingo.server.api.uri.UriResourcePartTyped;
-import org.apache.olingo.server.api.uri.UriResourceRef;
-import org.apache.olingo.server.api.uri.UriResourceValue;
 import org.apache.olingo.server.api.uri.queryoption.AliasQueryOption;
 import org.apache.olingo.server.api.uri.queryoption.ApplyItem;
 import org.apache.olingo.server.api.uri.queryoption.ApplyOption;
@@ -53,7 +45,15 @@ import org.apache.olingo.server.api.uri.queryoption.SystemQueryOption;
 import org.apache.olingo.server.api.uri.queryoption.SystemQueryOptionKind;
 import org.apache.olingo.server.api.uri.queryoption.expression.Expression;
 import org.apache.olingo.server.core.uri.UriInfoImpl;
+import org.apache.olingo.server.core.uri.UriResource;
+import org.apache.olingo.server.core.uri.UriResourceAction;
+import org.apache.olingo.server.core.uri.UriResourceCount;
+import org.apache.olingo.server.core.uri.UriResourceEntitySet;
+import org.apache.olingo.server.core.uri.UriResourceFunction;
+import org.apache.olingo.server.core.uri.UriResourcePartTyped;
+import org.apache.olingo.server.core.uri.UriResourceRef;
 import org.apache.olingo.server.core.uri.UriResourceStartingTypeFilterImpl;
+import org.apache.olingo.server.core.uri.UriResourceValue;
 import org.apache.olingo.server.core.uri.parser.UriTokenizer.TokenKind;
 import org.apache.olingo.server.core.uri.parser.search.SearchParser;
 import org.apache.olingo.server.core.uri.queryoption.AliasQueryOptionImpl;
@@ -421,8 +421,8 @@ public class Parser {
           final String typeCastSegment = pathSegmentsDecoded.get(1);
           ensureLastSegment(typeCastSegment, 2, numberOfSegments);
           contextType = resourcePathParser.parseDollarEntityTypeCast(typeCastSegment);
-          contextUriInfo = (UriInfoImpl)new Parser(this.edm).parseUri("/" + idOptionText, query,
-            fragment, baseUri);
+          contextUriInfo = (UriInfoImpl)this.edm.getParser()
+            .parseUri("/" + idOptionText, query, fragment, baseUri);
           contextUriInfo.setEntityTypeCast((EdmEntityType)contextType);
         } else if (numberOfSegments == 1) {
           /**

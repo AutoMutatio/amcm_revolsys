@@ -27,14 +27,11 @@ import org.apache.olingo.commons.api.IConstants;
 import org.apache.olingo.commons.api.data.Annotation;
 import org.apache.olingo.commons.api.data.ComplexValue;
 import org.apache.olingo.commons.api.data.Link;
-import org.apache.olingo.commons.api.data.Property;
 import org.apache.olingo.commons.api.data.Valuable;
 import org.apache.olingo.commons.api.edm.EdmPrimitiveType;
 import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeException;
 import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
-import org.apache.olingo.commons.api.edm.EdmProperty;
 import org.apache.olingo.commons.api.format.ContentType;
-import org.apache.olingo.commons.core.edm.primitivetype.EdmPrimitiveTypeFactory;
 import org.apache.olingo.server.api.serializer.SerializerException;
 import org.apache.olingo.server.core.serializer.utils.ContentTypeHelper;
 
@@ -48,11 +45,8 @@ public class ODataJsonInstanceAnnotationSerializer {
 
   private final IConstants constants;
 
-  private final boolean isIEEE754Compatible;
-
   public ODataJsonInstanceAnnotationSerializer(final ContentType contentType,
     final IConstants constants) {
-    this.isIEEE754Compatible = ContentTypeHelper.isODataIEEE754Compatible(contentType);
     this.isODataMetadataNone = ContentTypeHelper.isODataMetadataNone(contentType);
     this.isODataMetadataFull = ContentTypeHelper.isODataMetadataFull(contentType);
     this.constants = constants;
@@ -61,8 +55,8 @@ public class ODataJsonInstanceAnnotationSerializer {
   @SuppressWarnings({
     "unchecked", "rawtypes"
   })
-  private void writeInstanceAnnotation(final JsonWriter json, final Valuable annotation,
-    final String name) throws IOException, SerializerException, DecoderException {
+  private void writeInstanceAnnotation(final JsonWriter json, final Annotation annotation,
+    final String name) {
     try {
       switch (annotation.getValueType()) {
         case PRIMITIVE:
@@ -118,7 +112,7 @@ public class ODataJsonInstanceAnnotationSerializer {
       }
     } catch (final EdmPrimitiveTypeException e) {
       throw new SerializerException("Wrong value for instance annotation!", e,
-        SerializerException.MessageKeys.WRONG_PROPERTY_VALUE, ((Annotation)annotation).getTerm(),
+        SerializerException.MessageKeys.WRONG_PROPERTY_VALUE, annotation.getTerm(),
         annotation.getValue()
           .toString());
     }
@@ -133,7 +127,7 @@ public class ODataJsonInstanceAnnotationSerializer {
    * @throws DecoderException
    */
   public void writeInstanceAnnotationsOnEntity(final List<Annotation> annotations,
-    final JsonWriter json) throws IOException, SerializerException, DecoderException {
+    final JsonWriter json) {
     for (final Annotation annotation : annotations) {
       if (this.isODataMetadataFull) {
         json.labelValue(this.constants.getType(), "#" + annotation.getType());
@@ -143,69 +137,42 @@ public class ODataJsonInstanceAnnotationSerializer {
     }
   }
 
-  /**
-   * Write instance annotation of a property
-   * @param edmProperty EdmProperty
-   * @param property Property
-   * @param json JsonWriter
-   * @throws IOException
-   * @throws SerializerException
-   * @throws DecoderException
-   */
-  public void writeInstanceAnnotationsOnProperties(final EdmProperty edmProperty,
-    final Property property, final JsonWriter json)
-    throws IOException, SerializerException, DecoderException {
-    if (property != null) {
-      for (final Annotation annotation : property.getAnnotations()) {
-        json.label(edmProperty.getName() + "@" + annotation.getTerm());
+  public void writeInstanceAnnotationsOnProperties(final JsonWriter json, final String name,
+    final Iterable<Annotation> annotations) {
+    if (annotations != null) {
+      for (final Annotation annotation : annotations) {
+        json.label(name + "@" + annotation.getTerm());
         writeInstanceAnnotation(json, annotation, "");
       }
     }
   }
 
   private void writeInstanceAnnotOnComplexProperty(final JsonWriter json, final Valuable annotation,
-    final ComplexValue complexValue) throws IOException, SerializerException, DecoderException {
-    json.startObject();
-    if (this.isODataMetadataFull) {
-      json.labelValue(this.constants.getType(), "#" + complexValue.getTypeName());
-    }
-    for (final var name : complexValue.getFieldNames()) {
-      final var property = complexValue.getProperty(name);
-      writeInstanceAnnotation(json, property, name);
-    }
-    json.endObject();
+    final ComplexValue complexValue) {
+    throw new IllegalArgumentException("Complex annotations not supported");
+    // json.startObject();
+    // if (this.isODataMetadataFull) {
+    // json.labelValue(this.constants.getType(), "#" +
+    // complexValue.getTypeName());
+    // }
+    // for (final var name : complexValue.getFieldNames()) {
+    // // final var value = complexValue.getValue(name);
+    // // writeInstanceAnnotation(json, property, name);
+    // }
+    // json.endObject();
   }
 
   private void writeInstanceAnnotOnPrimitiveProperty(final JsonWriter json,
-    final Valuable annotation, final Object value) throws IOException, EdmPrimitiveTypeException {
-    writePrimitiveValue("",
-      EdmPrimitiveTypeFactory.getInstance(EdmPrimitiveTypeKind.getByName(annotation.getType())),
-      value, null, null, null, null, true, json);
+    final Valuable annotation, final Object value) {
+    writePrimitiveValue(json, "", EdmPrimitiveTypeKind.getByName(annotation.getType()), value);
   }
 
-  protected void writePrimitiveValue(final String name, final EdmPrimitiveType type,
-    final Object primitiveValue, final Boolean isNullable, final Integer maxLength,
-    final Integer precision, final Integer scale, final Boolean isUnicode, final JsonWriter json)
-    throws EdmPrimitiveTypeException, IOException {
-    final String value = type.valueToString(primitiveValue, isNullable, maxLength, precision, scale,
-      isUnicode);
-    if (value == null) {
+  protected void writePrimitiveValue(final JsonWriter json, final String name,
+    final EdmPrimitiveType type, final Object primitiveValue) {
+    if (primitiveValue == null) {
       json.writeNull();
-    } else if (type == EdmPrimitiveTypeFactory.getInstance(EdmPrimitiveTypeKind.Boolean)) {
-      json.value(Boolean.parseBoolean(value));
-    } else if (type == EdmPrimitiveTypeFactory.getInstance(EdmPrimitiveTypeKind.Byte)
-      || type == EdmPrimitiveTypeFactory.getInstance(EdmPrimitiveTypeKind.Double)
-      || type == EdmPrimitiveTypeFactory.getInstance(EdmPrimitiveTypeKind.Int16)
-      || type == EdmPrimitiveTypeFactory.getInstance(EdmPrimitiveTypeKind.Int32)
-      || type == EdmPrimitiveTypeFactory.getInstance(EdmPrimitiveTypeKind.SByte)
-      || type == EdmPrimitiveTypeFactory.getInstance(EdmPrimitiveTypeKind.Single)
-      || (type == EdmPrimitiveTypeFactory.getInstance(EdmPrimitiveTypeKind.Decimal)
-        || type == EdmPrimitiveTypeFactory.getInstance(EdmPrimitiveTypeKind.Int64))
-        && !this.isIEEE754Compatible) {
-      json.label(value);
-    } else if (type == EdmPrimitiveTypeFactory.getInstance(EdmPrimitiveTypeKind.Stream)) {
-      if (primitiveValue instanceof Link) {
-        final Link stream = (Link)primitiveValue;
+    } else if (type == EdmPrimitiveTypeKind.Stream) {
+      if (primitiveValue instanceof final Link stream) {
         if (!this.isODataMetadataNone) {
           if (stream.getMediaETag() != null) {
             json.labelValue(name + this.constants.getMediaEtag(), stream.getMediaETag());
@@ -226,7 +193,8 @@ public class ODataJsonInstanceAnnotationSerializer {
         }
       }
     } else {
-      json.value(value);
+      final var string = type.valueToString(primitiveValue);
+      json.value(string);
     }
   }
 }

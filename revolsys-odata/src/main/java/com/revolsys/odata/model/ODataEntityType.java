@@ -1,9 +1,5 @@
 package com.revolsys.odata.model;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -14,8 +10,6 @@ import java.util.stream.Collectors;
 
 import org.apache.olingo.commons.api.data.EntityCollection;
 import org.apache.olingo.commons.api.data.ODataEntity;
-import org.apache.olingo.commons.api.data.Property;
-import org.apache.olingo.commons.api.data.RecordEntity;
 import org.apache.olingo.commons.api.edm.EdmAction;
 import org.apache.olingo.commons.api.edm.EdmEntitySet;
 import org.apache.olingo.commons.api.edm.EdmFunction;
@@ -24,19 +18,12 @@ import org.apache.olingo.commons.api.edm.EdmProperty;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntityType;
 import org.apache.olingo.commons.api.edm.provider.CsdlNavigationProperty;
 import org.apache.olingo.commons.api.edm.provider.CsdlPropertyRef;
-import org.apache.olingo.commons.api.ex.ODataRuntimeException;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.ODataRequest;
 import org.apache.olingo.server.api.uri.UriInfo;
 import org.apache.olingo.server.api.uri.UriInfoResource;
 import org.apache.olingo.server.api.uri.UriParameter;
-import org.apache.olingo.server.api.uri.UriResource;
-import org.apache.olingo.server.api.uri.UriResourceAction;
-import org.apache.olingo.server.api.uri.UriResourceFunction;
-import org.apache.olingo.server.api.uri.UriResourceNavigation;
-import org.apache.olingo.server.api.uri.UriResourcePrimitiveProperty;
-import org.apache.olingo.server.api.uri.UriResourceProperty;
 import org.apache.olingo.server.api.uri.queryoption.CountOption;
 import org.apache.olingo.server.api.uri.queryoption.FilterOption;
 import org.apache.olingo.server.api.uri.queryoption.OrderByItem;
@@ -48,6 +35,12 @@ import org.apache.olingo.server.api.uri.queryoption.SystemQueryOptionKind;
 import org.apache.olingo.server.api.uri.queryoption.TopOption;
 import org.apache.olingo.server.api.uri.queryoption.expression.Expression;
 import org.apache.olingo.server.api.uri.queryoption.expression.Member;
+import org.apache.olingo.server.core.uri.UriResource;
+import org.apache.olingo.server.core.uri.UriResourceAction;
+import org.apache.olingo.server.core.uri.UriResourceFunction;
+import org.apache.olingo.server.core.uri.UriResourceNavigationProperty;
+import org.apache.olingo.server.core.uri.UriResourcePrimitiveProperty;
+import org.apache.olingo.server.core.uri.UriResourceProperty;
 
 import com.revolsys.collection.list.Lists;
 import com.revolsys.io.PathName;
@@ -77,8 +70,8 @@ public class ODataEntityType extends CsdlEntityType {
         final EdmProperty property = uriResourceProperty.getProperty();
         final String name = property.getName();
         selected.add(name);
-      } else if (resource instanceof UriResourceNavigation) {
-        final UriResourceNavigation uriResourceNavigation = (UriResourceNavigation)resource;
+      } else if (resource instanceof UriResourceNavigationProperty) {
+        final UriResourceNavigationProperty uriResourceNavigation = (UriResourceNavigationProperty)resource;
         final EdmNavigationProperty property = uriResourceNavigation.getProperty();
         final String name = property.getName();
         selected.add(name);
@@ -168,32 +161,6 @@ public class ODataEntityType extends CsdlEntityType {
     this.navigationProperties.add(navigationProperty);
   }
 
-  public URI createId(final Object id) {
-    final StringBuilder idBuilder = new StringBuilder(getName()).append('(');
-
-    if (id == null) {
-      return null;
-    } else {
-      if (id instanceof Number) {
-        idBuilder.append(id);
-      } else {
-        final String idString = URLEncoder.encode(id.toString(), StandardCharsets.UTF_8);
-        idBuilder //
-          .append('\'')
-          .append(idString)
-          .append('\'');
-      }
-      idBuilder.append(')');
-      final String idUrl = idBuilder.toString();
-
-      try {
-        return new URI(idUrl);
-      } catch (final URISyntaxException e) {
-        throw new ODataRuntimeException("Unable to create id for entity: " + idUrl, e);
-      }
-    }
-  }
-
   public int getMaxLimit() {
     return this.maxLimit;
   }
@@ -279,14 +246,17 @@ public class ODataEntityType extends CsdlEntityType {
   // return navigationTargetEntityCollection;
   // }
 
+  @Override
   public PathName getPathName() {
     return this.pathName;
   }
 
+  @Override
   public RecordDefinition getRecordDefinition() {
     return this.recordDefinition;
   }
 
+  @Override
   public RecordStore getRecordStore() {
     return this.schema.getRecordStore();
   }
@@ -295,10 +265,6 @@ public class ODataEntityType extends CsdlEntityType {
     final ODataNavigationProperty navigationProperty) throws ODataApplicationException {
     final Condition where = navigationProperty.whereCondition(entity);
     return readEntity(request, null, where);
-  }
-
-  public ODataEntity newEntity(final Record record) {
-    return new RecordEntity(this, record);
   }
 
   protected Query newQuery(final ODataRequest request) {
@@ -440,14 +406,6 @@ public class ODataEntityType extends CsdlEntityType {
     return new ODataEntityIterator(request, uriInfo, edmEntitySet, this);
   }
 
-  public Property readPrimitive(final ODataRequest request, final EdmEntitySet edmEntitySet,
-    final List<UriParameter> keyParams, final String propertyName)
-    throws ODataApplicationException {
-    final ODataEntity entity = readEntity(request, edmEntitySet, keyParams,
-      Arrays.asList(propertyName));
-    return entity.getProperty(propertyName);
-  }
-
   public ODataEntityType removeFieldNames(final String... removeFieldNames) {
     final List<String> names = Arrays.asList(removeFieldNames);
     final RecordDefinition recordDefinition = this.recordDefinition;
@@ -481,12 +439,10 @@ public class ODataEntityType extends CsdlEntityType {
       for (final FieldDefinition field : this.recordDefinition.getFields()) {
         final String name = field.getName();
 
-        this.fields.add(field);
+        getFields().add(field);
 
         if (recordDefinition.isIdField(name)) {
-          final CsdlPropertyRef propertyRef = new CsdlPropertyRef() //
-            .setName(name)//
-          ;
+          final CsdlPropertyRef propertyRef = new CsdlPropertyRef(name);
           keys.add(propertyRef);
         }
       }

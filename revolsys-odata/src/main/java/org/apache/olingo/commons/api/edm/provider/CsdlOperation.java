@@ -20,41 +20,53 @@ package org.apache.olingo.commons.api.edm.provider;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * The type Csdl operation.
  */
-public abstract class CsdlOperation implements CsdlAbstractEdmItem, CsdlNamed, CsdlAnnotatable {
+public abstract class CsdlOperation<SELF extends CsdlOperation<SELF>>
+  implements CsdlAbstractEdmItem, CsdlNamed, CsdlAnnotatable {
 
   /**
    * The Name.
    */
-  protected String name;
+  private String name;
+
+  private String namespace;
 
   /**
    * The Is bound.
    */
-  protected boolean isBound = false;
+  private boolean isBound = false;
 
   /**
    * The Entity set path.
    */
-  protected String entitySetPath;
+  private String entitySetPath;
 
   /**
    * The Parameters.
    */
-  protected List<CsdlParameter> parameters = new ArrayList<>();
+  private List<CsdlParameter> parameters = new ArrayList<>();
 
   /**
    * The Return type.
    */
-  protected CsdlReturnType returnType;
+  private CsdlReturnType returnType;
 
   /**
    * The Annotations.
    */
-  protected List<CsdlAnnotation> annotations = new ArrayList<>();
+  private List<CsdlAnnotation> annotations = new ArrayList<>();
+
+  public SELF addParameter(final String name, final Consumer<CsdlParameter> configurer) {
+    final var parameter = new CsdlParameter();
+    parameter.setName(name);
+    configurer.accept(parameter);
+    this.parameters.add(parameter);
+    return self();
+  }
 
   @Override
   public List<CsdlAnnotation> getAnnotations() {
@@ -73,6 +85,10 @@ public abstract class CsdlOperation implements CsdlAbstractEdmItem, CsdlNamed, C
   @Override
   public String getName() {
     return this.name;
+  }
+
+  public String getNamespace() {
+    return this.namespace;
   }
 
   /**
@@ -112,14 +128,19 @@ public abstract class CsdlOperation implements CsdlAbstractEdmItem, CsdlNamed, C
     return this.isBound;
   }
 
+  @SuppressWarnings("unchecked")
+  public SELF self() {
+    return (SELF)this;
+  }
+
   /**
    * Sets a list of annotations
    * @param annotations list of annotations
    * @return this instance
    */
-  public CsdlOperation setAnnotations(final List<CsdlAnnotation> annotations) {
+  public SELF setAnnotations(final List<CsdlAnnotation> annotations) {
     this.annotations = annotations;
-    return this;
+    return self();
   }
 
   /**
@@ -128,9 +149,9 @@ public abstract class CsdlOperation implements CsdlAbstractEdmItem, CsdlNamed, C
    * @param isBound the is bound
    * @return the bound
    */
-  public CsdlOperation setBound(final boolean isBound) {
+  public SELF setBound(final boolean isBound) {
     this.isBound = isBound;
-    return this;
+    return self();
   }
 
   /**
@@ -139,9 +160,9 @@ public abstract class CsdlOperation implements CsdlAbstractEdmItem, CsdlNamed, C
    * @param entitySetPath the entity set path
    * @return the entity set path
    */
-  public CsdlOperation setEntitySetPath(final String entitySetPath) {
+  public SELF setEntitySetPath(final String entitySetPath) {
     this.entitySetPath = entitySetPath;
-    return this;
+    return self();
   }
 
   /**
@@ -150,9 +171,14 @@ public abstract class CsdlOperation implements CsdlAbstractEdmItem, CsdlNamed, C
    * @param name the name
    * @return the name
    */
-  public CsdlOperation setName(final String name) {
+  public SELF setName(final String name) {
     this.name = name;
-    return this;
+    return self();
+  }
+
+  public SELF setNamespace(final String namespace) {
+    this.namespace = namespace;
+    return self();
   }
 
   /**
@@ -161,9 +187,15 @@ public abstract class CsdlOperation implements CsdlAbstractEdmItem, CsdlNamed, C
    * @param parameters the parameters
    * @return the parameters
    */
-  public CsdlOperation setParameters(final List<CsdlParameter> parameters) {
+  public SELF setParameters(final List<CsdlParameter> parameters) {
     this.parameters = parameters;
-    return this;
+    return self();
+  }
+
+  public SELF setReturnType(final Consumer<CsdlReturnType> configurer) {
+    this.returnType = new CsdlReturnType();
+    configurer.accept(this.returnType);
+    return self();
   }
 
   /**
@@ -172,8 +204,8 @@ public abstract class CsdlOperation implements CsdlAbstractEdmItem, CsdlNamed, C
    * @param returnType the return type
    * @return the return type
    */
-  public CsdlOperation setReturnType(final CsdlReturnType returnType) {
+  public SELF setReturnType(final CsdlReturnType returnType) {
     this.returnType = returnType;
-    return this;
+    return self();
   }
 }

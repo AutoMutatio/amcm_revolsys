@@ -2007,7 +2007,9 @@ public interface Geometry extends BoundingBoxProxy, Cloneable, Comparable<Object
    *      s are considered to be equal by the <code>equalsExact</code> method.
    */
   default boolean isEquivalentClass(final Geometry other) {
-    return getClass().getName().equals(other.getClass().getName());
+    return getClass().getName()
+      .equals(other.getClass()
+        .getName());
   }
 
   default boolean isGeometryCollection() {
@@ -2054,6 +2056,10 @@ public interface Geometry extends BoundingBoxProxy, Cloneable, Comparable<Object
       return geometryDistance < distance;
 
     }
+  }
+
+  default boolean isProjected() {
+    return getGeometryFactory().isProjected();
   }
 
   default boolean isRectangle() {

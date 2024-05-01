@@ -88,7 +88,7 @@ public abstract class CsdlBindingTarget implements CsdlAbstractEdmItem, CsdlName
    * @return the type
    */
   public String getType() {
-    return this.type.getFullQualifiedNameAsString();
+    return this.type.toString();
   }
 
   /**

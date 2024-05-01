@@ -84,8 +84,8 @@ public class UriDecoder {
       if (ACCEPT_FORM_ENCODING.equals(name)) {
         formEncoding = Boolean.parseBoolean(text);
       }
-      queryOptions.add(
-        new CustomQueryOptionImpl().setName(decode(name).strip()).setText(decode(text).strip()));
+      queryOptions.add(new CustomQueryOptionImpl().setName(decode(name).strip())
+        .setText(decode(text).strip()));
     }
     return queryOptions;
   }

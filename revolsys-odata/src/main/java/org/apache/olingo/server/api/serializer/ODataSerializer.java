@@ -18,14 +18,10 @@
  */
 package org.apache.olingo.server.api.serializer;
 
-import java.io.IOException;
-import java.io.OutputStream;
-
 import org.apache.olingo.commons.api.Constants;
 import org.apache.olingo.commons.api.constants.Constantsv00;
 import org.apache.olingo.commons.api.data.AbstractEntityCollection;
 import org.apache.olingo.commons.api.data.ODataEntity;
-import org.apache.olingo.commons.api.data.Property;
 import org.apache.olingo.commons.api.edm.EdmComplexType;
 import org.apache.olingo.commons.api.edm.EdmEntitySet;
 import org.apache.olingo.commons.api.edm.EdmEntityType;
@@ -34,6 +30,7 @@ import org.apache.olingo.commons.api.format.ContentType;
 import org.apache.olingo.server.api.ODataServerError;
 import org.apache.olingo.server.api.ServiceMetadata;
 import org.apache.olingo.server.core.serializer.json.ODataJsonSerializer;
+import org.apache.olingo.server.core.serializer.record.ODataRecordWriterSerializer;
 import org.apache.olingo.server.core.serializer.xml.ODataXmlSerializer;
 
 import com.revolsys.odata.model.ODataEntityIterator;
@@ -45,22 +42,6 @@ public interface ODataSerializer {
 
   /** The default character set is UTF-8. */
   public static final String DEFAULT_CHARSET = Constants.UTF8;
-
-  public static void closeCircleStreamBufferOutput(final OutputStream outputStream,
-    final SerializerException cachedException) throws SerializerException {
-    if (outputStream != null) {
-      try {
-        outputStream.close();
-      } catch (final IOException e) {
-        if (cachedException != null) {
-          throw cachedException;
-        } else {
-          throw new SerializerException(IO_EXCEPTION_TEXT, e,
-            SerializerException.MessageKeys.IO_EXCEPTION);
-        }
-      }
-    }
-  }
 
   // TODO CSV/TSV
   static ODataSerializer createSerializer(final ContentType contentType) {
@@ -76,6 +57,8 @@ public interface ODataSerializer {
     } else if (contentType != null && (contentType.isCompatible(ContentType.APPLICATION_XML)
       || contentType.isCompatible(ContentType.APPLICATION_ATOM_XML))) {
       serializer = new ODataXmlSerializer();
+    } else if (contentType != null && contentType.isCompatible(ContentType.TEXT_CSV)) {
+      serializer = new ODataRecordWriterSerializer(contentType);
     }
 
     if (serializer == null) {
@@ -92,21 +75,22 @@ public interface ODataSerializer {
    * Writes complex-type instance data into an InputStream.
    * @param metadata metadata for the service
    * @param type complex type
-   * @param property property value
+   * @param name TODO
+   * @param value property value
    * @param options options for the serializer
    */
-  SerializerResult complex(ServiceMetadata metadata, EdmComplexType type, Property property,
+  SerializerResult complex(ServiceMetadata metadata, EdmComplexType type, String name, Object value,
     ComplexSerializerOptions options) throws SerializerException;
 
   /**
    * Writes data of a collection of complex-type instances into an InputStream.
    * @param metadata metadata for the service
    * @param type complex type
-   * @param property property value
+   * @param value property value
    * @param options options for the serializer
    */
-  SerializerResult complexCollection(ServiceMetadata metadata, EdmComplexType type,
-    Property property, String name, ComplexSerializerOptions options) throws SerializerException;
+  SerializerResult complexCollection(ServiceMetadata metadata, String name, EdmComplexType type,
+    Object value, ComplexSerializerOptions options) throws SerializerException;
 
   /**
    * Writes entity data into an InputStream.
@@ -156,23 +140,20 @@ public interface ODataSerializer {
    * Writes primitive-type instance data into an InputStream.
    * @param metadata metadata for the service
    * @param type primitive type
-   * @param property property value
    * @param options options for the serializer
    * @param value TODO
    */
-  SerializerResult primitive(ServiceMetadata metadata, EdmPrimitiveType type, Property property,
-    String name, PrimitiveSerializerOptions options, Object value) throws SerializerException;
+  SerializerResult primitive(ServiceMetadata metadata, String name, EdmPrimitiveType type,
+    PrimitiveSerializerOptions options, Object value) throws SerializerException;
 
   /**
    * Writes data of a collection of primitive-type instances into an InputStream.
    * @param metadata metadata for the service
    * @param type primitive type
-   * @param property property value
    * @param options options for the serializer
    */
-  SerializerResult primitiveCollection(ServiceMetadata metadata, EdmPrimitiveType type,
-    Property property, String name, PrimitiveSerializerOptions options, Object value)
-    throws SerializerException;
+  SerializerResult primitiveCollection(ServiceMetadata metadata, EdmPrimitiveType type, String name,
+    PrimitiveSerializerOptions options, Object value) throws SerializerException;
 
   /**
    * Writes a single entity reference into an InputStream.

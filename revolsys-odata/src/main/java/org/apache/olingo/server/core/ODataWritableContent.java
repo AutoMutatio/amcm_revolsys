@@ -37,6 +37,7 @@ import org.apache.olingo.server.api.serializer.SerializerStreamResult;
 import org.apache.olingo.server.core.serializer.FixedFormatSerializerImpl;
 import org.apache.olingo.server.core.serializer.SerializerStreamResultImpl;
 import org.apache.olingo.server.core.serializer.json.ODataJsonSerializer;
+import org.apache.olingo.server.core.serializer.record.ODataRecordWriterSerializer;
 import org.apache.olingo.server.core.serializer.xml.ODataXmlSerializer;
 
 import com.revolsys.odata.model.ODataEntityIterator;
@@ -82,17 +83,23 @@ public class ODataWritableContent implements ODataContent {
     }
 
     public SerializerStreamResult build() {
-      return SerializerStreamResultImpl.with().content(buildContent()).build();
+      return SerializerStreamResultImpl.with()
+        .content(buildContent())
+        .build();
     }
 
     public ODataContent buildContent() {
-      if (this.serializer instanceof ODataJsonSerializer) {
-        final StreamContent input = new StreamContentForJson(this.entities, this.entityType,
-          (ODataJsonSerializer)this.serializer, this.metadata, this.options);
+      if (this.serializer instanceof final ODataJsonSerializer jsonSerializer) {
+        final var input = new StreamContentForJson(this.entities, this.entityType, jsonSerializer,
+          this.metadata, this.options);
         return new ODataWritableContent(input);
-      } else if (this.serializer instanceof ODataXmlSerializer) {
-        final StreamContentForXml input = new StreamContentForXml(this.entities, this.entityType,
-          (ODataXmlSerializer)this.serializer, this.metadata, this.options);
+      } else if (this.serializer instanceof final ODataXmlSerializer xmlSerializer) {
+        final var input = new StreamContentForXml(this.entities, this.entityType, xmlSerializer,
+          this.metadata, this.options);
+        return new ODataWritableContent(input);
+      } else if (this.serializer instanceof final ODataRecordWriterSerializer writeSerializer) {
+        final var input = new StreamContentForRecordWriter(this.entities, this.entityType,
+          writeSerializer, this.metadata, this.options);
         return new ODataWritableContent(input);
       } else if (this.fixedFormatSerializer instanceof FixedFormatSerializerImpl) {
         final StreamContent input = new StreamContentForMedia(this.mediaEntity,
@@ -200,6 +207,35 @@ public class ODataWritableContent implements ODataContent {
     protected void writeEntities(final ODataEntityIterator entity, final OutputStream outputStream)
       throws SerializerException {
       throw new ODataRuntimeException("Not Implemented in Entity Handling");
+    }
+  }
+
+  private static class StreamContentForRecordWriter extends StreamContent {
+    private final ODataRecordWriterSerializer serializer;
+
+    public StreamContentForRecordWriter(final ODataEntityIterator iterator,
+      final EdmEntityType entityType, final ODataRecordWriterSerializer serializer,
+      final ServiceMetadata metadata, final EntityCollectionSerializerOptions options) {
+      super(iterator, entityType, metadata, options);
+      this.serializer = serializer;
+    }
+
+    @Override
+    protected void writeBinary(final EntityMediaObject mediaEntity, final OutputStream outputStream)
+      throws SerializerException {
+      throw new ODataRuntimeException("Not Implemented in Entity Handling");
+    }
+
+    @Override
+    protected void writeEntities(final ODataEntityIterator entity, final OutputStream outputStream)
+      throws SerializerException {
+      try {
+        this.serializer.writeRecords(this.metadata, this.entityType, entity, this.options,
+          outputStream);
+        outputStream.flush();
+      } catch (final IOException e) {
+        throw new ODataRuntimeException("Failed entity serialization", e);
+      }
     }
   }
 

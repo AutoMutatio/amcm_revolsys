@@ -21,7 +21,6 @@ package org.apache.olingo.commons.core.edm.annotation;
 import org.apache.olingo.commons.api.edm.EdmException;
 import org.apache.olingo.commons.api.edm.EdmType;
 import org.apache.olingo.commons.api.edm.annotation.EdmExpression;
-import org.apache.olingo.commons.api.edm.geo.SRID;
 import org.apache.olingo.commons.api.edm.provider.annotation.CsdlIsOf;
 import org.apache.olingo.commons.core.edm.Edm;
 import org.apache.olingo.commons.core.edm.EdmTypeInfo;
@@ -59,7 +58,7 @@ public class EdmIsOf extends AbstractEdmAnnotatableDynamicExpression {
     return this.isOf.getScale();
   }
 
-  public SRID getSrid() {
+  public int getSrid() {
     return this.isOf.getSrid();
   }
 

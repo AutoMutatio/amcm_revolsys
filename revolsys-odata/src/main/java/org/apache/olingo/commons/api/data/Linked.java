@@ -34,7 +34,7 @@ public abstract class Linked extends AbstractODataObject implements ODataLinked 
 
   @Override
   public boolean equals(final Object o) {
-    var linked = (Linked)o;
+    final var linked = (Linked)o;
     return super.equals(o) && this.associationLinks.equals(linked.associationLinks)
       && this.navigationLinks.equals(linked.navigationLinks)
       && this.bindingLinks.equals(linked.bindingLinks);

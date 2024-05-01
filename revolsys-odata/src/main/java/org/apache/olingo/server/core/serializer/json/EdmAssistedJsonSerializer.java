@@ -20,7 +20,6 @@ package org.apache.olingo.server.core.serializer.json;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.math.BigDecimal;
 import java.net.URI;
 import java.util.List;
 
@@ -37,7 +36,6 @@ import org.apache.olingo.commons.api.data.ODataEntity;
 import org.apache.olingo.commons.api.data.ODataLinked;
 import org.apache.olingo.commons.api.data.ODataObject;
 import org.apache.olingo.commons.api.data.Valuable;
-import org.apache.olingo.commons.api.data.ValueType;
 import org.apache.olingo.commons.api.edm.EdmComplexType;
 import org.apache.olingo.commons.api.edm.EdmEntityType;
 import org.apache.olingo.commons.api.edm.EdmPrimitiveType;
@@ -47,7 +45,6 @@ import org.apache.olingo.commons.api.edm.EdmProperty;
 import org.apache.olingo.commons.api.edm.EdmType;
 import org.apache.olingo.commons.api.format.ContentType;
 import org.apache.olingo.commons.core.edm.EdmTypeInfo;
-import org.apache.olingo.commons.core.edm.primitivetype.EdmPrimitiveTypeFactory;
 import org.apache.olingo.server.api.ServiceMetadata;
 import org.apache.olingo.server.api.serializer.EdmAssistedSerializer;
 import org.apache.olingo.server.api.serializer.EdmAssistedSerializerOptions;
@@ -59,6 +56,8 @@ import org.apache.olingo.server.core.serializer.utils.CircleStreamBuffer;
 import org.apache.olingo.server.core.serializer.utils.ContentTypeHelper;
 
 import com.revolsys.collection.json.JsonWriter;
+import com.revolsys.collection.list.ListEx;
+import com.revolsys.geometry.model.Geometry;
 
 public class EdmAssistedJsonSerializer implements EdmAssistedSerializer {
 
@@ -87,53 +86,88 @@ public class EdmAssistedJsonSerializer implements EdmAssistedSerializer {
   }
 
   private void collection(final JsonWriter json, final EdmType itemType, final String typeName,
-    final EdmProperty edmProperty, final ValueType valueType, final List<?> value)
-    throws IOException, SerializerException {
-
+    final EdmProperty edmProperty, final List<?> value) throws IOException, SerializerException {
     json.startList();
-
     for (final Object item : value) {
-      switch (valueType) {
-        case COLLECTION_PRIMITIVE:
-          primitiveValue(json, (EdmPrimitiveType)itemType, typeName, edmProperty, item);
-        break;
-
-        case COLLECTION_GEOSPATIAL:
-        case COLLECTION_ENUM:
-          throw new SerializerException("Geo and enum types are not supported.",
-            MessageKeys.NOT_IMPLEMENTED);
-
-        case COLLECTION_COMPLEX:
-          complexValue(json, (EdmComplexType)itemType, typeName, (ComplexValue)item);
-        break;
-
-        default:
+      if (item instanceof final ComplexValue complex) {
+        complexValue(json, (EdmComplexType)itemType, typeName, complex);
+      } else {
+        primitiveValue(json, (EdmPrimitiveType)itemType, typeName, edmProperty, item);
       }
     }
-
     json.endList();
   }
 
   private void complexValue(final JsonWriter json, final EdmComplexType valueType,
     final String typeName, final ComplexValue complex) throws IOException, SerializerException {
-    json.startObject();
-
-    if (typeName != null && this.isODataMetadataFull) {
-      json.labelValue(this.constants.getType(), typeName);
-    }
-
-    for (final var name : complex.getFieldNames()) {
-      final var property = complex.getProperty(name);
-      final var value = complex.getValue(name);
-      final EdmProperty edmProperty = valueType == null
-        || valueType.getStructuralProperty(name) == null ? null
-          : valueType.getStructuralProperty(name);
-      valuable(json, property, name, edmProperty == null ? null : edmProperty.getType(),
-        edmProperty, value);
-    }
-    links(complex, null, json);
-
-    json.endObject();
+    throw new UnsupportedOperationException("Complex not supported");
+    // json.startObject();
+    //
+    // if (typeName != null && this.isODataMetadataFull) {
+    // json.labelValue(this.constants.getType(), typeName);
+    // }
+    //
+    // for (final var name : complex.getFieldNames()) {
+    // final var value = complex.getValue(name);
+    // final EdmProperty edmProperty = valueType == null
+    // || valueType.getStructuralProperty(name) == null ? null
+    // : valueType.getStructuralProperty(name);
+    // if (this.isODataMetadataFull && edmProperty.getType()
+    // .getKind() == EdmTypeKind.COMPLEX) {
+    //
+    // String valueTypeName = valueComplex.getTypeName();
+    // if (valueTypeName == null && type == null) {
+    // if (value instanceof final List<?> collection) {
+    // if (!collection.isEmpty()) {
+    // final EdmPrimitiveTypeKind kind =
+    // EdmTypeInfo.determineTypeKind(collection.get(0));
+    // if (kind != null) {
+    // valueTypeName = "Collection(" + kind.getFullQualifiedName()
+    // .getFullQualifiedNameAsString() + ')';
+    // }
+    // }
+    // } else {
+    // final EdmPrimitiveTypeKind kind = EdmTypeInfo.determineTypeKind(value);
+    // if (kind != null) {
+    // valueTypeName = kind.getFullQualifiedName()
+    // .getFullQualifiedNameAsString();
+    // }
+    // }
+    // }
+    //
+    // if (valueTypeName != null) {
+    // json.labelValue(name + this.constants.getType(),
+    // constructTypeExpression(valueTypeName));
+    // }
+    // }
+    //
+    // for (final Annotation annotation :
+    // ((Annotatable)valuable).getAnnotations()) {
+    // valuable(json, annotation, name + '@' + annotation.getTerm(), null, null,
+    // annotation.getValue());
+    // }
+    //
+    // json.label(name);
+    // final String typeName = valueable.getType() == null ? null
+    // : new EdmTypeInfo.Builder().setTypeExpression(valueable.getType())
+    // .build()
+    // .external();
+    //
+    // if (value == null) {
+    // json.writeNull();
+    // } else if (value instanceof final Iterable<?> collection) {
+    // collection(json, type, typeName, edmProperty, valueable.getValueType(),
+    // collection);
+    // } else if (value instanceof final ComplexValue subCommplex) {
+    // complexValue(json, (EdmComplexType)type, typeName, subCommplex);
+    // } else {
+    // primitiveValue(json, (EdmPrimitiveType)type, typeName, edmProperty,
+    // value);
+    // }
+    // }
+    // links(complex, null, json);
+    //
+    // json.endObject();
   }
 
   private String constructTypeExpression(final String typeName) {
@@ -149,8 +183,7 @@ public class EdmAssistedJsonSerializer implements EdmAssistedSerializer {
 
     stringBuilder.append(typeInfo.isPrimitiveType() ? typeInfo.getFullQualifiedName()
       .getName()
-      : typeInfo.getFullQualifiedName()
-        .getFullQualifiedNameAsString());
+      : typeInfo.getFullQualifiedName().toString());
 
     if (typeInfo.isCollection()) {
       stringBuilder.append(')');
@@ -216,7 +249,6 @@ public class EdmAssistedJsonSerializer implements EdmAssistedSerializer {
     }
 
     for (final var name : entity.getFieldNames()) {
-      final var property = entity.getProperty(name);
       final var value = entity.getValue(name);
 
       EdmProperty edmProperty = null;
@@ -227,7 +259,56 @@ public class EdmAssistedJsonSerializer implements EdmAssistedSerializer {
       if (edmProperty != null) {
         type = edmProperty.getType();
       }
-      valuable(json, property, name, type, edmProperty, value);
+      if (this.isODataMetadataFull && value instanceof final ComplexValue complexValue) {
+
+        String metadataTypeName = complexValue.getTypeName();
+        if (metadataTypeName == null && type == null) {
+          if (value instanceof final ListEx<?> collection) {
+            if (!collection.isEmpty()) {
+              final EdmPrimitiveTypeKind kind = EdmTypeInfo.determineTypeKind(collection.get(0));
+              if (kind != null) {
+                metadataTypeName = "Collection(" + kind.getFullQualifiedName().toString() + ')';
+              }
+            }
+          } else {
+            final EdmPrimitiveTypeKind kind = EdmTypeInfo.determineTypeKind(value);
+            if (kind != null) {
+              metadataTypeName = kind.getFullQualifiedName().toString();
+            }
+          }
+        }
+
+        if (metadataTypeName != null) {
+          json.labelValue(name + this.constants.getType(),
+            constructTypeExpression(metadataTypeName));
+        }
+      }
+      for (final Annotation annotation : entity.getAnnotations(name)) {
+        valuable(json, annotation, name + '@' + annotation.getTerm(), null, null,
+          annotation.getValue());
+      }
+
+      json.label(name);
+      final String valueTypeName = edmProperty.getType()
+        .getName() == null
+          ? null
+          : new EdmTypeInfo.Builder().setTypeExpression(edmProperty.getType()
+            .getName())
+            .build()
+            .external();
+
+      if (value == null) {
+        json.writeNull();
+      } else if (value instanceof final List<?> collection) {
+        collection(json, type, valueTypeName, edmProperty, collection);
+      } else if (value instanceof final ComplexValue complex) {
+        complexValue(json, (EdmComplexType)type, valueTypeName, complex);
+      } else if (value instanceof Geometry) {
+        throw new SerializerException("Geo and enum types are not supported.",
+          MessageKeys.NOT_IMPLEMENTED);
+      } else {
+        primitiveValue(json, (EdmPrimitiveType)type, valueTypeName, edmProperty, value);
+      }
     }
 
     if (!this.isODataMetadataNone && entity.getEditLink() != null && entity.getEditLink()
@@ -328,7 +409,7 @@ public class EdmAssistedJsonSerializer implements EdmAssistedSerializer {
         : new EdmTypeInfo.Builder().setTypeExpression(typeName)
           .build()
           .getPrimitiveTypeKind();
-      type = kind == null ? null : EdmPrimitiveTypeFactory.getInstance(kind);
+      type = kind == null ? null : kind;
     }
 
     if (value == null) {
@@ -336,43 +417,18 @@ public class EdmAssistedJsonSerializer implements EdmAssistedSerializer {
     } else if (type == null) {
       throw new SerializerException("The primitive type could not be determined.",
         MessageKeys.INCONSISTENT_PROPERTY_TYPE, "");
-    } else if (type == EdmPrimitiveTypeFactory.getInstance(EdmPrimitiveTypeKind.Boolean)) {
+    } else if (type == EdmPrimitiveTypeKind.Boolean) {
       json.value(value);
     } else {
       String serialized = null;
       try {
-        Integer scale = null;
-        if (value instanceof BigDecimal) {
-          scale = Math.max(0, ((BigDecimal)value).scale());
-        } else {
-          scale = Constants.DEFAULT_SCALE;
-        }
-        serialized = type.valueToString(value,
-          edmProperty == null ? null : edmProperty.isNullable(),
-          edmProperty == null ? null : edmProperty.getMaxLength(),
-          edmProperty == null ? null : edmProperty.getPrecision(),
-          edmProperty == null ? scale : edmProperty.getScale(),
-          edmProperty == null ? null : edmProperty.isUnicode());
+        serialized = type.valueToString(value);
       } catch (final EdmPrimitiveTypeException e) {
         final String name = edmProperty == null ? "" : edmProperty.getName();
         throw new SerializerException("Wrong value for property '" + name + "'!", e,
           SerializerException.MessageKeys.WRONG_PROPERTY_VALUE, name, value.toString());
       }
-      if (this.isIEEE754Compatible
-        && (type == EdmPrimitiveTypeFactory.getInstance(EdmPrimitiveTypeKind.Int64)
-          || type == EdmPrimitiveTypeFactory.getInstance(EdmPrimitiveTypeKind.Decimal))
-        || type != EdmPrimitiveTypeFactory.getInstance(EdmPrimitiveTypeKind.Byte)
-          && type != EdmPrimitiveTypeFactory.getInstance(EdmPrimitiveTypeKind.SByte)
-          && type != EdmPrimitiveTypeFactory.getInstance(EdmPrimitiveTypeKind.Single)
-          && type != EdmPrimitiveTypeFactory.getInstance(EdmPrimitiveTypeKind.Double)
-          && type != EdmPrimitiveTypeFactory.getInstance(EdmPrimitiveTypeKind.Int16)
-          && type != EdmPrimitiveTypeFactory.getInstance(EdmPrimitiveTypeKind.Int32)
-          && type != EdmPrimitiveTypeFactory.getInstance(EdmPrimitiveTypeKind.Int64)
-          && type != EdmPrimitiveTypeFactory.getInstance(EdmPrimitiveTypeKind.Decimal)) {
-        json.value(serialized);
-      } else {
-        json.value(serialized);
-      }
+      json.value(serialized);
     }
   }
 
@@ -437,15 +493,13 @@ public class EdmAssistedJsonSerializer implements EdmAssistedSerializer {
             final EdmPrimitiveTypeKind kind = EdmTypeInfo.determineTypeKind(valuable.asCollection()
               .get(0));
             if (kind != null) {
-              typeName = "Collection(" + kind.getFullQualifiedName()
-                .getFullQualifiedNameAsString() + ')';
+              typeName = "Collection(" + kind.getFullQualifiedName().toString() + ')';
             }
           }
         } else {
           final EdmPrimitiveTypeKind kind = EdmTypeInfo.determineTypeKind(valuable.asPrimitive());
           if (kind != null) {
-            typeName = kind.getFullQualifiedName()
-              .getFullQualifiedNameAsString();
+            typeName = kind.getFullQualifiedName().toString();
           }
         }
       }
@@ -474,8 +528,7 @@ public class EdmAssistedJsonSerializer implements EdmAssistedSerializer {
     if (value == null) {
       json.writeNull();
     } else if (valueable.isCollection()) {
-      collection(json, type, typeName, edmProperty, valueable.getValueType(),
-        valueable.asCollection());
+      collection(json, type, typeName, edmProperty, valueable.asCollection());
     } else if (valueable.isPrimitive()) {
       primitiveValue(json, (EdmPrimitiveType)type, typeName, edmProperty, value);
     } else if (value instanceof final ComplexValue complex) {

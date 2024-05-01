@@ -18,19 +18,31 @@
  */
 package org.apache.olingo.commons.api.edm.provider;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.olingo.commons.api.data.RecordEntity;
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
+import org.apache.olingo.commons.api.ex.ODataRuntimeException;
 import org.apache.olingo.commons.core.edm.Edm;
 
+import com.revolsys.collection.value.ValueHolder;
+import com.revolsys.record.Record;
+import com.revolsys.record.RecordState;
 import com.revolsys.record.schema.FieldDefinition;
+import com.revolsys.record.schema.RecordDefinition;
+import com.revolsys.record.schema.RecordDefinitionBuilder;
+import com.revolsys.record.schema.RecordDefinitionProxy;
 
 /**
  * The type Csdl structural type.
  */
 public abstract class CsdlStructuralType
-  implements CsdlAbstractEdmItem, CsdlNamed, CsdlAnnotatable {
+  implements CsdlAbstractEdmItem, CsdlNamed, CsdlAnnotatable, RecordDefinitionProxy {
 
   /**
    * The Name.
@@ -55,17 +67,51 @@ public abstract class CsdlStructuralType
   /**
    * The Properties.
    */
-  protected List<FieldDefinition> fields = new ArrayList<>();
+  private List<FieldDefinition> fields = new ArrayList<>();
 
   /**
    * The Navigation properties.
    */
   protected List<CsdlNavigationProperty> navigationProperties = new ArrayList<>();
 
+  private final ValueHolder<RecordDefinition> recordDefinition = ValueHolder.lazy(() -> {
+    final var rd = new RecordDefinitionBuilder(this.name);
+    for (final var field : this.fields) {
+      rd.addField(field);
+    }
+    return rd.getRecordDefinition();
+  });
+
   /**
    * The Annotations.
    */
   protected List<CsdlAnnotation> annotations = new ArrayList<>();
+
+  public URI createId(final Object id) {
+    final StringBuilder idBuilder = new StringBuilder(getName()).append('(');
+
+    if (id == null) {
+      return null;
+    } else {
+      if (id instanceof Number) {
+        idBuilder.append(id);
+      } else {
+        final String idString = URLEncoder.encode(id.toString(), StandardCharsets.UTF_8);
+        idBuilder //
+          .append('\'')
+          .append(idString)
+          .append('\'');
+      }
+      idBuilder.append(')');
+      final String idUrl = idBuilder.toString();
+
+      try {
+        return new URI(idUrl);
+      } catch (final URISyntaxException e) {
+        throw new ODataRuntimeException("Unable to create id for entity: " + idUrl, e);
+      }
+    }
+  }
 
   @Override
   public List<CsdlAnnotation> getAnnotations() {
@@ -79,7 +125,7 @@ public abstract class CsdlStructuralType
    */
   public String getBaseType() {
     if (this.baseType != null) {
-      return this.baseType.getFullQualifiedNameAsString();
+      return this.baseType.toString();
     }
     return null;
   }
@@ -93,8 +139,32 @@ public abstract class CsdlStructuralType
     return this.baseType;
   }
 
+  /**
+   * Gets property.
+   *
+   * @param name the name
+   * @return the property
+   */
+  public FieldDefinition getField(final String name) {
+    for (final var field : getFields()) {
+      if (name.equals(field.getName())) {
+        return field;
+      }
+    }
+    return null;
+  }
+
   public List<CsdlAnnotation> getFieldAnnotations(final String name) {
     return Edm.getAnnotations(getField(name));
+  }
+
+  /**
+   * Gets properties.
+   *
+   * @return the properties
+   */
+  public List<FieldDefinition> getFields() {
+    return this.fields;
   }
 
   @Override
@@ -121,28 +191,9 @@ public abstract class CsdlStructuralType
     return getOneByName(name, this.navigationProperties);
   }
 
-  /**
-   * Gets properties.
-   *
-   * @return the properties
-   */
-  public List<FieldDefinition> getFields() {
-    return this.fields;
-  }
-
-  /**
-   * Gets property.
-   *
-   * @param name the name
-   * @return the property
-   */
-  public FieldDefinition getField(final String name) {
-    for (final var field : this.fields) {
-      if (name.equals(field.getName())) {
-        return field;
-      }
-    }
-    return null;
+  @Override
+  public RecordDefinition getRecordDefinition() {
+    return this.recordDefinition.getValue();
   }
 
   /**
@@ -161,6 +212,19 @@ public abstract class CsdlStructuralType
    */
   public boolean isOpenType() {
     return this.isOpenType;
+  }
+
+  public RecordEntity newEntity(final Record record) {
+    return new RecordEntity(this, record);
+  }
+
+  public Record newRecord(final Record values) {
+    final var recordDefinition = getRecordDefinition();
+    final var record = recordDefinition.newRecord();
+    record.setState(RecordState.INITIALIZING);
+    record.setValuesAll(values);
+    record.setState(RecordState.PERSISTED);
+    return record;
   }
 
   /**
@@ -207,6 +271,17 @@ public abstract class CsdlStructuralType
   }
 
   /**
+   * Sets properties.
+   *
+   * @param properties the properties
+   * @return the properties
+   */
+  public CsdlStructuralType setFields(final List<FieldDefinition> properties) {
+    this.fields = properties;
+    return this;
+  }
+
+  /**
    * Sets name.
    *
    * @param name the name
@@ -237,17 +312,6 @@ public abstract class CsdlStructuralType
    */
   public CsdlStructuralType setOpenType(final boolean isOpenType) {
     this.isOpenType = isOpenType;
-    return this;
-  }
-
-  /**
-   * Sets properties.
-   *
-   * @param properties the properties
-   * @return the properties
-   */
-  public CsdlStructuralType setProperties(final List<FieldDefinition> properties) {
-    this.fields = properties;
     return this;
   }
 }

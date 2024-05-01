@@ -24,7 +24,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.olingo.commons.api.edm.EdmBindingTarget;
 import org.apache.olingo.commons.api.edm.EdmEntitySet;
 import org.apache.olingo.commons.api.edm.EdmException;
 import org.apache.olingo.commons.api.edm.EdmOperation;
@@ -35,9 +34,10 @@ import org.apache.olingo.commons.api.edm.constants.EdmTypeKind;
 import org.apache.olingo.commons.api.edm.provider.CsdlOperation;
 import org.apache.olingo.commons.api.edm.provider.CsdlParameter;
 
-public abstract class AbstractEdmOperation extends EdmTypeImpl implements EdmOperation {
+public abstract class AbstractEdmOperation<F extends CsdlOperation<F>> extends EdmTypeImpl
+  implements EdmOperation {
 
-  private final CsdlOperation operation;
+  private final F operation;
 
   private Map<String, EdmParameter> parameters;
 
@@ -45,8 +45,8 @@ public abstract class AbstractEdmOperation extends EdmTypeImpl implements EdmOpe
 
   private EdmReturnType returnType;
 
-  protected AbstractEdmOperation(final Edm edm, final FullQualifiedName name,
-    final CsdlOperation operation, final EdmTypeKind kind) {
+  protected AbstractEdmOperation(final Edm edm, final FullQualifiedName name, final F operation,
+    final EdmTypeKind kind) {
 
     super(edm, name, kind, operation);
     this.operation = operation;
@@ -59,7 +59,7 @@ public abstract class AbstractEdmOperation extends EdmTypeImpl implements EdmOpe
       if (providerParameters != null) {
         final List<String> parameterNamesLocal = new ArrayList<>(providerParameters.size());
         for (final CsdlParameter parameter : providerParameters) {
-          parametersLocal.put(parameter.getName(), new EdmParameterImpl(this.edm, parameter));
+          parametersLocal.put(parameter.getName(), new EdmParameter(this.getEdm(), parameter));
           parameterNamesLocal.add(parameter.getName());
         }
 
@@ -74,7 +74,8 @@ public abstract class AbstractEdmOperation extends EdmTypeImpl implements EdmOpe
   @Override
   public FullQualifiedName getBindingParameterTypeFqn() {
     if (isBound()) {
-      final CsdlParameter bindingParameter = this.operation.getParameters().get(0);
+      final CsdlParameter bindingParameter = this.operation.getParameters()
+        .get(0);
       return bindingParameter.getTypeFQN();
     }
     return null;
@@ -124,7 +125,7 @@ public abstract class AbstractEdmOperation extends EdmTypeImpl implements EdmOpe
   @Override
   public EdmReturnType getReturnType() {
     if (this.returnType == null && this.operation.getReturnType() != null) {
-      this.returnType = new EdmReturnTypeImpl(this.edm, this.operation.getReturnType());
+      this.returnType = new EdmReturnType(this.getEdm(), this.operation.getReturnType());
     }
     return this.returnType;
   }
@@ -132,7 +133,8 @@ public abstract class AbstractEdmOperation extends EdmTypeImpl implements EdmOpe
   @Override
   public Boolean isBindingParameterTypeCollection() {
     if (isBound()) {
-      final CsdlParameter bindingParameter = this.operation.getParameters().get(0);
+      final CsdlParameter bindingParameter = this.operation.getParameters()
+        .get(0);
       return bindingParameter.isCollection();
     }
     return null;

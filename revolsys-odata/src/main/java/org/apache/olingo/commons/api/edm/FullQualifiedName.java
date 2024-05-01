@@ -75,13 +75,6 @@ public final class FullQualifiedName implements Serializable {
   }
 
   /**
-   * @return namespace.name
-   */
-  public String getFullQualifiedNameAsString() {
-    return this.fqn;
-  }
-
-  /**
    * @return name
    */
   public String getName() {

@@ -20,6 +20,7 @@ package org.apache.olingo.commons.api.edm.provider;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * The type Csdl schema.
@@ -49,6 +50,19 @@ public class CsdlSchema implements CsdlAbstractEdmItem, CsdlAnnotatable {
   private List<CsdlAnnotations> annotationGroups = new ArrayList<>();
 
   private List<CsdlAnnotation> annotations = new ArrayList<>();
+
+  protected void addEntityType(final CsdlEntityType entityType) {
+    this.entityTypes.add(entityType);
+    this.entityTypes.sort((a, b) -> a.getName()
+      .compareToIgnoreCase(b.getName()));
+  }
+
+  public void addEntityType(final String name, final Consumer<CsdlEntityType> configurer) {
+    final var entityType = new CsdlEntityType();
+    entityType.setName(name);
+    configurer.accept(entityType);
+    addEntityType(entityType);
+  }
 
   /**
    * Gets actions.

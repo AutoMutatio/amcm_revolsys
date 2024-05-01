@@ -4,6 +4,8 @@ import java.net.URI;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.olingo.commons.api.edm.provider.CsdlStructuralType;
+
 import com.revolsys.collection.list.ListEx;
 import com.revolsys.collection.list.Lists;
 
@@ -32,6 +34,7 @@ public interface ODataEntity extends ODataLinked, ODataPropertyMap {
     return null;
   }
 
+  @Override
   default ListEx<String> getFieldNames() {
     return Lists.empty();
   }
@@ -82,22 +85,15 @@ public interface ODataEntity extends ODataLinked, ODataPropertyMap {
   }
 
   /**
-   * Gets property with given name.
-   *
-   * @param name property name
-   * @return property with given name if found, null otherwise
-   */
-  @Override
-  default Property getProperty(final String name) {
-    return null;
-  }
-
-  /**
    * Gets entity self link.
    *
    * @return self link.
    */
   default Link getSelfLink() {
+    return null;
+  }
+
+  default CsdlStructuralType getStructuralType() {
     return null;
   }
 

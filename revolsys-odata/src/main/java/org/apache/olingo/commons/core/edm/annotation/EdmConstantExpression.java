@@ -26,10 +26,10 @@ import org.apache.olingo.commons.api.edm.EdmException;
 import org.apache.olingo.commons.api.edm.EdmPrimitiveType;
 import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeException;
 import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
-import org.apache.olingo.commons.api.edm.geo.Geospatial;
 import org.apache.olingo.commons.api.edm.provider.annotation.CsdlConstantExpression;
 import org.apache.olingo.commons.core.edm.Edm;
-import org.apache.olingo.commons.core.edm.primitivetype.EdmPrimitiveTypeFactory;
+
+import com.revolsys.geometry.model.Geometry;
 
 public class EdmConstantExpression extends AbstractEdmExpression {
 
@@ -45,7 +45,7 @@ public class EdmConstantExpression extends AbstractEdmExpression {
 
   private List<String> enumMembers;
 
-  private Geospatial geospatial;
+  private Geometry geometry;
 
   public EdmConstantExpression(final Edm edm, final CsdlConstantExpression constExprConstruct) {
     super(
@@ -62,11 +62,11 @@ public class EdmConstantExpression extends AbstractEdmExpression {
     return this.enumMembers;
   }
 
-  public Geospatial asGeospatial() {
+  public Geometry asGeometry() {
     if (!this.built) {
       build();
     }
-    return this.geospatial;
+    return this.geometry;
   }
 
   public Object asPrimitive() {
@@ -129,10 +129,9 @@ public class EdmConstantExpression extends AbstractEdmExpression {
         default:
           kind = EdmPrimitiveTypeKind.String;
       }
-      this.type = EdmPrimitiveTypeFactory.getInstance(kind);
+      this.type = kind;
       try {
-        this.primitive = this.type.valueOfString(this.csdlExp.getValue(), null, null, null, null,
-          null, this.type.getDefaultType());
+        this.primitive = this.type.valueOfString(this.csdlExp.getValue(), null, null, null, null);
       } catch (final EdmPrimitiveTypeException e) {
         throw new IllegalArgumentException(e);
       }

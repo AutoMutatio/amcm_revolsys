@@ -20,40 +20,40 @@ package org.apache.olingo.commons.api.edm;
 
 import java.util.List;
 
+import org.apache.olingo.commons.api.edm.provider.CsdlFunctionImport;
+import org.apache.olingo.commons.core.edm.AbstractEdmOperationImport;
+import org.apache.olingo.commons.core.edm.Edm;
+
 /**
  * A CSDL FunctionImport element
  */
-public interface EdmFunctionImport extends EdmOperationImport {
+public class EdmFunctionImport extends AbstractEdmOperationImport {
 
-  /**
-   * @return the Full qualified name for the function as specified in the metadata
-   */
-  FullQualifiedName getFunctionFqn();
+  private final CsdlFunctionImport functionImport;
 
-  /**
-   * Returns a human readable title or null if not set.
-   * @return a human readable title or null
-   */
-  String getTitle();
+  public EdmFunctionImport(final Edm edm, final EdmEntityContainer container,
+    final CsdlFunctionImport functionImport) {
+    super(edm, container, functionImport);
+    this.functionImport = functionImport;
+  }
 
-  /**
-   * Gets unbound function with given parameter names.
-   *
-   * @param parameterNames parameter names
-   * @return unbound function with given parameter names
-   */
-  EdmFunction getUnboundFunction(List<String> parameterNames);
+  public FullQualifiedName getFunctionFqn() {
+    return this.functionImport.getFunctionFQN();
+  }
 
-  /**
-   * Gets unbound functions.
-   *
-   * @return unbound functions
-   */
-  List<EdmFunction> getUnboundFunctions();
+  public String getTitle() {
+    return this.functionImport.getTitle();
+  }
 
-  /**
-   * @return true if the function import must be included in the service document
-   */
-  boolean isIncludeInServiceDocument();
+  public EdmFunction getUnboundFunction(final List<String> parameterNames) {
+    return this.getEdm().getUnboundFunction(getFunctionFqn(), parameterNames);
+  }
 
+  public List<EdmFunction> getUnboundFunctions() {
+    return this.getEdm().getUnboundFunctions(getFunctionFqn());
+  }
+
+  public boolean isIncludeInServiceDocument() {
+    return this.functionImport.isIncludeInServiceDocument();
+  }
 }

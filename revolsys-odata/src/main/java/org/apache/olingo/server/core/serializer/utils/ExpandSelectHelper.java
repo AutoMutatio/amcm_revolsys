@@ -25,19 +25,19 @@ import java.util.Set;
 
 import org.apache.olingo.commons.api.edm.EdmStructuredType;
 import org.apache.olingo.server.api.serializer.SerializerException;
-import org.apache.olingo.server.api.uri.UriResource;
-import org.apache.olingo.server.api.uri.UriResourceAction;
-import org.apache.olingo.server.api.uri.UriResourceComplexProperty;
-import org.apache.olingo.server.api.uri.UriResourceCount;
-import org.apache.olingo.server.api.uri.UriResourceEntitySet;
-import org.apache.olingo.server.api.uri.UriResourceFunction;
-import org.apache.olingo.server.api.uri.UriResourceNavigation;
-import org.apache.olingo.server.api.uri.UriResourceProperty;
-import org.apache.olingo.server.api.uri.UriResourceRef;
 import org.apache.olingo.server.api.uri.queryoption.ExpandItem;
 import org.apache.olingo.server.api.uri.queryoption.ExpandOption;
 import org.apache.olingo.server.api.uri.queryoption.SelectItem;
 import org.apache.olingo.server.api.uri.queryoption.SelectOption;
+import org.apache.olingo.server.core.uri.UriResource;
+import org.apache.olingo.server.core.uri.UriResourceAction;
+import org.apache.olingo.server.core.uri.UriResourceComplexProperty;
+import org.apache.olingo.server.core.uri.UriResourceCount;
+import org.apache.olingo.server.core.uri.UriResourceEntitySet;
+import org.apache.olingo.server.core.uri.UriResourceFunction;
+import org.apache.olingo.server.core.uri.UriResourceNavigationProperty;
+import org.apache.olingo.server.core.uri.UriResourceProperty;
+import org.apache.olingo.server.core.uri.UriResourceRef;
 
 public abstract class ExpandSelectHelper {
 
@@ -51,15 +51,16 @@ public abstract class ExpandSelectHelper {
     if (parts.size() > 1) {
       for (final UriResource part : parts.subList(1, parts.size())) {
         if (part instanceof UriResourceProperty) {
-          path.add(((UriResourceProperty)part).getProperty().getName());
-        } else if (part instanceof UriResourceNavigation) {
-          path.add(((UriResourceNavigation)part).getProperty().getName());
+          path.add(((UriResourceProperty)part).getProperty()
+            .getName());
+        } else if (part instanceof UriResourceNavigationProperty) {
+          path.add(((UriResourceNavigationProperty)part).getProperty()
+            .getName());
         }
         if (part instanceof UriResourceComplexProperty
           && ((UriResourceComplexProperty)part).getComplexTypeFilter() != null) {
           path.add(((UriResourceComplexProperty)part).getComplexTypeFilter()
-            .getFullQualifiedName()
-            .getFullQualifiedNameAsString());
+          .getFullQualifiedName().toString());
         }
       }
       selectedPaths.add(path);
@@ -88,14 +89,17 @@ public abstract class ExpandSelectHelper {
         if (item.isStar()) {
           continue;
         }
-        final List<UriResource> resourceParts = item.getResourcePath().getUriResourceParts();
+        final List<UriResource> resourceParts = item.getResourcePath()
+          .getUriResourceParts();
         if (resourceParts.get(0) instanceof UriResourceComplexProperty) {
           final List<String> path = new ArrayList<>();
           for (final UriResource resource : resourceParts) {
-            if (resource instanceof UriResourceNavigation) {
-              path.add(((UriResourceNavigation)resource).getProperty().getName());
+            if (resource instanceof UriResourceNavigationProperty) {
+              path.add(((UriResourceNavigationProperty)resource).getProperty()
+                .getName());
             } else if (resource instanceof UriResourceProperty) {
-              path.add(((UriResourceProperty)resource).getProperty().getName());
+              path.add(((UriResourceProperty)resource).getProperty()
+                .getName());
             }
           }
           expandPaths.add(path);
@@ -109,10 +113,12 @@ public abstract class ExpandSelectHelper {
     throws SerializerException {
     final Set<String> expanded = new HashSet<>();
     for (final ExpandItem item : expandItems) {
-      final List<UriResource> resourceParts = item.getResourcePath().getUriResourceParts();
+      final List<UriResource> resourceParts = item.getResourcePath()
+        .getUriResourceParts();
       final UriResource resource = resourceParts.get(0);
-      if (resource instanceof UriResourceNavigation) {
-        expanded.add(((UriResourceNavigation)resource).getProperty().getName());
+      if (resource instanceof UriResourceNavigationProperty) {
+        expanded.add(((UriResourceNavigationProperty)resource).getProperty()
+          .getName());
       }
     }
     return expanded;
@@ -124,7 +130,8 @@ public abstract class ExpandSelectHelper {
       if (item.isStar()) {
         continue;
       }
-      final List<UriResource> resourceParts = item.getResourcePath().getUriResourceParts();
+      final List<UriResource> resourceParts = item.getResourcePath()
+        .getUriResourceParts();
       UriResource resource = null;
       if (resourceParts.get(resourceParts.size() - 1) instanceof UriResourceRef
         || resourceParts.get(resourceParts.size() - 1) instanceof UriResourceCount) {
@@ -132,10 +139,12 @@ public abstract class ExpandSelectHelper {
       } else {
         resource = resourceParts.get(resourceParts.size() - 1);
       }
-      if (resource instanceof UriResourceNavigation
-        && propertyName.equals(((UriResourceNavigation)resource).getProperty().getName())
+      if (resource instanceof UriResourceNavigationProperty
+        && propertyName.equals(((UriResourceNavigationProperty)resource).getProperty()
+          .getName())
         || resource instanceof UriResourceProperty
-          && propertyName.equals(((UriResourceProperty)resource).getProperty().getName())) {
+          && propertyName.equals(((UriResourceProperty)resource).getProperty()
+            .getName())) {
         return item;
       }
     }
@@ -158,7 +167,8 @@ public abstract class ExpandSelectHelper {
       if (item.isStar()) {
         continue;
       }
-      final List<UriResource> resourceParts = item.getResourcePath().getUriResourceParts();
+      final List<UriResource> resourceParts = item.getResourcePath()
+        .getUriResourceParts();
       UriResource resource = null;
       if (resourceParts.size() == 1) {
         resource = resourceParts.get(0);
@@ -172,17 +182,15 @@ public abstract class ExpandSelectHelper {
           expandItem = getMatchedExpandItem(propertyName, item, matched, resource);
         } else {
           resource = resourceParts.get(resourceParts.size() - 3);
-          matched = resource.getSegmentValue().equalsIgnoreCase(resourceName)
-            ? isFoundExpandItem(type, matched, resource)
-            : false;
+          matched = resource.getSegmentValue()
+            .equalsIgnoreCase(resourceName) ? isFoundExpandItem(type, matched, resource) : false;
           expandItem = getMatchedExpandItem(propertyName, item, matched,
             resourceParts.get(resourceParts.size() - 2));
         }
       } else {
         resource = resourceParts.get(resourceParts.size() - 2);
-        matched = resource.getSegmentValue().equalsIgnoreCase(resourceName)
-          ? isFoundExpandItem(type, matched, resource)
-          : false;
+        matched = resource.getSegmentValue()
+          .equalsIgnoreCase(resourceName) ? isFoundExpandItem(type, matched, resource) : false;
         expandItem = getMatchedExpandItem(propertyName, item, matched,
           resourceParts.get(resourceParts.size() - 1));
       }
@@ -201,10 +209,12 @@ public abstract class ExpandSelectHelper {
    */
   private static ExpandItem getMatchedExpandItem(final String propertyName, final ExpandItem item,
     final boolean matched, final UriResource resource) {
-    if (matched && (resource instanceof UriResourceNavigation
-      && propertyName.equals(((UriResourceNavigation)resource).getProperty().getName())
+    if (matched && (resource instanceof UriResourceNavigationProperty
+      && propertyName.equals(((UriResourceNavigationProperty)resource).getProperty()
+        .getName())
       || resource instanceof UriResourceProperty
-        && propertyName.equals(((UriResourceProperty)resource).getProperty().getName()))) {
+        && propertyName.equals(((UriResourceProperty)resource).getProperty()
+          .getName()))) {
       return item;
     }
     return null;
@@ -243,14 +253,16 @@ public abstract class ExpandSelectHelper {
   public static Set<List<String>> getSelectedPaths(final List<SelectItem> selectItems) {
     final Set<List<String>> selectedPaths = new HashSet<>();
     for (final SelectItem item : selectItems) {
-      final List<UriResource> parts = item.getResourcePath().getUriResourceParts();
+      final List<UriResource> parts = item.getResourcePath()
+        .getUriResourceParts();
       final UriResource resource = parts.get(0);
       if (resource instanceof UriResourceProperty) {
         if (!parts.isEmpty()) {
           final List<String> path = new ArrayList<>();
           for (final UriResource part : parts.subList(0, parts.size())) {
             if (part instanceof UriResourceProperty) {
-              path.add(((UriResourceProperty)part).getProperty().getName());
+              path.add(((UriResourceProperty)part).getProperty()
+                .getName());
             }
           }
           selectedPaths.add(path);
@@ -266,17 +278,21 @@ public abstract class ExpandSelectHelper {
     final String propertyName) {
     final Set<List<String>> selectedPaths = new HashSet<>();
     for (final SelectItem item : selectItems) {
-      final List<UriResource> parts = item.getResourcePath().getUriResourceParts();
+      final List<UriResource> parts = item.getResourcePath()
+        .getUriResourceParts();
       final UriResource resource = parts.get(0);
       if (resource instanceof UriResourceProperty
-        && propertyName.equals(((UriResourceProperty)resource).getProperty().getName())) {
+        && propertyName.equals(((UriResourceProperty)resource).getProperty()
+          .getName())) {
         if (parts.size() > 1) {
           final List<String> path = new ArrayList<>();
           for (final UriResource part : parts.subList(1, parts.size())) {
             if (part instanceof UriResourceProperty) {
-              path.add(((UriResourceProperty)part).getProperty().getName());
-            } else if (part instanceof UriResourceNavigation) {
-              path.add(((UriResourceNavigation)part).getProperty().getName());
+              path.add(((UriResourceProperty)part).getProperty()
+                .getName());
+            } else if (part instanceof UriResourceNavigationProperty) {
+              path.add(((UriResourceNavigationProperty)part).getProperty()
+                .getName());
             }
           }
           selectedPaths.add(path);
@@ -299,31 +315,34 @@ public abstract class ExpandSelectHelper {
     final String propertyName) {
     final Set<List<String>> selectedPaths = new HashSet<>();
     for (final SelectItem item : selectItems) {
-      final List<UriResource> parts = item.getResourcePath().getUriResourceParts();
+      final List<UriResource> parts = item.getResourcePath()
+        .getUriResourceParts();
       final UriResource resource = parts.get(0);
       if (resource instanceof UriResourceProperty
-        && propertyName.equals(((UriResourceProperty)resource).getProperty().getName())) {
+        && propertyName.equals(((UriResourceProperty)resource).getProperty()
+          .getName())) {
         final List<String> path = new ArrayList<>();
         if (item.getStartTypeFilter() != null) {
-          path.add(item.getStartTypeFilter().getFullQualifiedName().getFullQualifiedNameAsString());
+          path.add(item.getStartTypeFilter()
+          .getFullQualifiedName().toString());
         }
         if (resource instanceof UriResourceComplexProperty
           && ((UriResourceComplexProperty)resource).getComplexTypeFilter() != null) {
           path.add(((UriResourceComplexProperty)resource).getComplexTypeFilter()
-            .getFullQualifiedName()
-            .getFullQualifiedNameAsString());
+          .getFullQualifiedName().toString());
         } else if (resource instanceof UriResourceEntitySet
           && ((UriResourceEntitySet)resource).getTypeFilterOnCollection() != null) {
           path.add(((UriResourceEntitySet)resource).getTypeFilterOnCollection()
-            .getFullQualifiedName()
-            .getFullQualifiedNameAsString());
+          .getFullQualifiedName().toString());
         }
         extractPathsFromResourceParts(selectedPaths, parts, path);
-      } else if (resource instanceof UriResourceNavigation
-        && propertyName.equals(((UriResourceNavigation)resource).getProperty().getName())) {
+      } else if (resource instanceof UriResourceNavigationProperty
+        && propertyName.equals(((UriResourceNavigationProperty)resource).getProperty()
+          .getName())) {
         final List<String> path = new ArrayList<>();
         if (item.getStartTypeFilter() != null) {
-          path.add(item.getStartTypeFilter().getFullQualifiedName().getFullQualifiedNameAsString());
+          path.add(item.getStartTypeFilter()
+          .getFullQualifiedName().toString());
         }
         extractPathsFromResourceParts(selectedPaths, parts, path);
       }
@@ -334,26 +353,34 @@ public abstract class ExpandSelectHelper {
   public static Set<String> getSelectedPropertyNames(final List<SelectItem> selectItems) {
     final Set<String> selected = new HashSet<>();
     for (final SelectItem item : selectItems) {
-      final UriResource resource = item.getResourcePath().getUriResourceParts().get(0);
+      final UriResource resource = item.getResourcePath()
+        .getUriResourceParts()
+        .get(0);
       if (resource instanceof UriResourceProperty) {
-        selected.add(((UriResourceProperty)resource).getProperty().getName());
-      } else if (resource instanceof UriResourceNavigation) {
-        selected.add(((UriResourceNavigation)resource).getProperty().getName());
+        selected.add(((UriResourceProperty)resource).getProperty()
+          .getName());
+      } else if (resource instanceof UriResourceNavigationProperty) {
+        selected.add(((UriResourceNavigationProperty)resource).getProperty()
+          .getName());
       } else if (resource instanceof UriResourceAction) {
-        selected.add(((UriResourceAction)resource).getAction().getName());
+        selected.add(((UriResourceAction)resource).getAction()
+          .getName());
       } else if (resource instanceof UriResourceFunction) {
-        selected.add(((UriResourceFunction)resource).getFunction().getName());
+        selected.add(((UriResourceFunction)resource).getFunction()
+          .getName());
       }
     }
     return selected;
   }
 
   public static boolean hasExpand(final ExpandOption expand) {
-    return expand != null && expand.getExpandItems() != null && !expand.getExpandItems().isEmpty();
+    return expand != null && expand.getExpandItems() != null && !expand.getExpandItems()
+      .isEmpty();
   }
 
   public static boolean hasSelect(final SelectOption select) {
-    return select != null && select.getSelectItems() != null && !select.getSelectItems().isEmpty();
+    return select != null && select.getSelectItems() != null && !select.getSelectItems()
+      .isEmpty();
   }
 
   public static boolean isAll(final SelectOption select) {
@@ -380,8 +407,8 @@ public abstract class ExpandSelectHelper {
     if (!matched) {
       if (resource instanceof UriResourceProperty
         && type.compatibleTo(((UriResourceProperty)resource).getType())
-        || resource instanceof UriResourceNavigation
-          && type.compatibleTo(((UriResourceNavigation)resource).getType())) {
+        || resource instanceof UriResourceNavigationProperty
+          && type.compatibleTo(((UriResourceNavigationProperty)resource).getType())) {
         matched = true;
       }
     }

@@ -29,14 +29,12 @@ import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
 import org.apache.olingo.commons.api.edm.EdmProperty;
 import org.apache.olingo.commons.api.edm.EdmType;
 import org.apache.olingo.commons.api.edm.FullQualifiedName;
-import org.apache.olingo.commons.api.edm.geo.SRID;
 import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
 import org.apache.olingo.commons.api.edm.provider.CsdlMapping;
 import org.apache.olingo.commons.api.edm.provider.annotation.CsdlConstantExpression;
 import org.apache.olingo.commons.api.edm.provider.annotation.CsdlConstantExpression.ConstantExpressionType;
 
 import com.revolsys.collection.json.Json;
-import com.revolsys.collection.map.IntHashMap;
 import com.revolsys.data.type.CollectionDataType;
 import com.revolsys.data.type.DataType;
 import com.revolsys.data.type.DataTypes;
@@ -47,8 +45,6 @@ import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.record.schema.FieldDefinition;
 
 public class EdmPropertyImpl extends AbstractEdmNamed implements EdmProperty {
-
-  private static IntHashMap<SRID> SRID_BY_ID = new IntHashMap<>();
 
   private static Map<DataType, EdmPrimitiveTypeKind> EDM_BY_DATA_TYPE = new HashMap<>();
 
@@ -153,18 +149,8 @@ public class EdmPropertyImpl extends AbstractEdmNamed implements EdmProperty {
     }
   }
 
-  public static SRID getSrid(final HorizontalCoordinateSystemProxy spatial) {
-    final int id = spatial.getHorizontalCoordinateSystemId();
-    if (id <= 0) {
-      return null;
-    }
-    SRID srid = SRID_BY_ID.get(id);
-    if (srid == null) {
-      final String idString = Integer.toString(id);
-      srid = SRID.valueOf(idString);
-      SRID_BY_ID.put(id, srid);
-    }
-    return srid;
+  public static int getSrid(final HorizontalCoordinateSystemProxy spatial) {
+    return spatial.getHorizontalCoordinateSystemId();
   }
 
   public static <V> V toValue(final EdmPrimitiveTypeKind type, final String text) {
@@ -188,7 +174,7 @@ public class EdmPropertyImpl extends AbstractEdmNamed implements EdmProperty {
 
   private Integer scale;
 
-  private SRID srid;
+  private int srid;
 
   private final FullQualifiedName typeName;
 
@@ -229,8 +215,8 @@ public class EdmPropertyImpl extends AbstractEdmNamed implements EdmProperty {
     final List<CsdlAnnotation> annotations = new ArrayList<>();
 
     this.typeName = this.fieldType.getFullQualifiedName();
-    final String type = this.typeName.getFullQualifiedNameAsString();
-    this.typeInfo = new EdmTypeInfo.Builder().setEdm(this.edm)
+    final String type = this.typeName.toString();
+    this.typeInfo = new EdmTypeInfo.Builder().setEdm(this.getEdm())
       .setIncludeAnnotations(true)
       .setTypeExpression(type)
       .build();
@@ -260,10 +246,15 @@ public class EdmPropertyImpl extends AbstractEdmNamed implements EdmProperty {
 
     final List<EdmAnnotation> edmAnnotations = new ArrayList<>();
     for (final CsdlAnnotation annotation : annotations) {
-      edmAnnotations.add(new EdmAnnotationImpl(this.edm, annotation));
+      edmAnnotations.add(new EdmAnnotationImpl(this.getEdm(), annotation));
     }
 
     setAnnotations(edmAnnotations);
+  }
+
+  @Override
+  public DataType getDataType() {
+    return this.fieldType.getDataType();
   }
 
   @Override
@@ -306,7 +297,7 @@ public class EdmPropertyImpl extends AbstractEdmNamed implements EdmProperty {
   }
 
   @Override
-  public SRID getSrid() {
+  public int getSrid() {
     return this.srid;
   }
 
@@ -335,8 +326,4 @@ public class EdmPropertyImpl extends AbstractEdmNamed implements EdmProperty {
     return this.typeInfo.isPrimitiveType();
   }
 
-  @Override
-  public boolean isUnicode() {
-    return true;
-  }
 }

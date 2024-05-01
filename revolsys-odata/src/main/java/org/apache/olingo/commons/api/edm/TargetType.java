@@ -21,6 +21,7 @@ package org.apache.olingo.commons.api.edm;
 import org.apache.olingo.commons.api.edm.annotation.EdmPropertyValue;
 import org.apache.olingo.commons.api.edm.constants.EdmOnDelete;
 import org.apache.olingo.commons.api.edmx.EdmxReference;
+import org.apache.olingo.commons.core.edm.EdmSingleton;
 import org.apache.olingo.commons.core.edm.annotation.EdmApply;
 import org.apache.olingo.commons.core.edm.annotation.EdmCast;
 import org.apache.olingo.commons.core.edm.annotation.EdmIf;

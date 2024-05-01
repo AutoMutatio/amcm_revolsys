@@ -20,69 +20,139 @@ package org.apache.olingo.server.api.uri;
 
 import java.util.List;
 
+import org.apache.olingo.commons.api.data.ComplexValue;
 import org.apache.olingo.commons.api.data.ODataEntity;
 import org.apache.olingo.commons.api.edm.EdmEntitySet;
 import org.apache.olingo.commons.api.edm.EdmEntityType;
+import org.apache.olingo.commons.api.edm.EdmKeyPropertyRef;
+import org.apache.olingo.commons.api.edm.EdmPrimitiveType;
+import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeException;
+import org.apache.olingo.commons.api.edm.EdmProperty;
 import org.apache.olingo.commons.api.edm.EdmStructuredType;
+import org.apache.olingo.commons.core.Encoder;
 import org.apache.olingo.commons.core.edm.Edm;
+import org.apache.olingo.server.api.ODataLibraryException;
 import org.apache.olingo.server.api.deserializer.DeserializerException;
+import org.apache.olingo.server.api.deserializer.DeserializerException.MessageKeys;
 import org.apache.olingo.server.api.serializer.SerializerException;
 import org.apache.olingo.server.api.uri.queryoption.ExpandOption;
 import org.apache.olingo.server.api.uri.queryoption.SelectOption;
+import org.apache.olingo.server.core.serializer.utils.ContextURLHelper;
+import org.apache.olingo.server.core.uri.UriResource;
+import org.apache.olingo.server.core.uri.UriResourceEntitySet;
 
 /**
  * Used for URI-related tasks.
  */
-public interface UriHelper {
+public class UriHelper {
 
-  /**
-   * Builds the relative canonical URL for the given entity in the given entity set.
-   * @param edmEntitySet the entity set
-   * @param entity the entity data
-   * @return the relative canonical URL
-   */
-  String buildCanonicalURL(EdmEntitySet edmEntitySet, ODataEntity entity) throws SerializerException;
+  public static String buildCanonicalURL(final EdmEntitySet edmEntitySet, final ODataEntity entity)
+    throws SerializerException {
+    return edmEntitySet.getName() + '(' + buildKeyPredicate(edmEntitySet.getEntityType(), entity)
+      + ')';
+  }
 
-  /**
-   * Builds the key-predicate part of a {@link org.apache.olingo.commons.api.data.ContextURL ContextURL}.
-   * @param keys the keys as a list of {@link UriParameter} instances
-   * @return a String with the key predicate
-   */
-  String buildContextURLKeyPredicate(List<UriParameter> keys) throws SerializerException;
+  public static String buildContextURLKeyPredicate(final List<UriParameter> keys)
+    throws SerializerException {
+    return ContextURLHelper.buildKeyPredicate(keys);
+  }
 
-  /**
-   * Builds the select-list part of a {@link org.apache.olingo.commons.api.data.ContextURL ContextURL}.
-   * @param type the {@link EdmStructuredType}
-   * @param expand the $expand option
-   * @param select the $select option
-   * @return a String with the select list
-   */
-  String buildContextURLSelectList(EdmStructuredType type, ExpandOption expand, SelectOption select)
-    throws SerializerException;
+  public static String buildContextURLSelectList(final EdmStructuredType type,
+    final ExpandOption expand, final SelectOption select) throws SerializerException {
+    return ContextURLHelper.buildSelectList(type, expand, select);
+  }
 
-  /**
-   * Builds the key predicate for the given entity.
-   * @param edmEntityType the entity type of the entity
-   * @param entity the entity data
-   * @return the key predicate
-   */
-  String buildKeyPredicate(EdmEntityType edmEntityType, ODataEntity entity) throws SerializerException;
+  public static String buildKeyPredicate(final EdmEntityType edmEntityType,
+    final ODataEntity entity) throws SerializerException {
+    final StringBuilder result = new StringBuilder();
+    final List<String> keyNames = edmEntityType.getKeyPredicateNames();
+    boolean first = true;
+    for (final String keyName : keyNames) {
+      final EdmKeyPropertyRef refType = edmEntityType.getKeyPropertyRef(keyName);
+      if (first) {
+        first = false;
+      } else {
+        result.append(',');
+      }
+      if (keyNames.size() > 1) {
+        result.append(Encoder.encode(keyName))
+          .append('=');
+      }
+      final EdmProperty edmProperty = refType.getProperty();
+      if (edmProperty == null) {
+        throw new SerializerException("Property not found (possibly an alias): " + keyName,
+          SerializerException.MessageKeys.MISSING_PROPERTY, keyName);
+      }
+      final EdmPrimitiveType type = (EdmPrimitiveType)edmProperty.getType();
+      final Object propertyValue = findPropertyRefValue(entity, refType);
+      try {
+        final String value = type.toUriLiteral(type.valueToString(propertyValue));
+        result.append(Encoder.encode(value));
+      } catch (final EdmPrimitiveTypeException e) {
+        throw new SerializerException("Wrong key value!", e,
+          SerializerException.MessageKeys.WRONG_PROPERTY_VALUE, edmProperty.getName(),
+          propertyValue != null ? propertyValue.toString() : null);
+      }
+    }
+    return result.toString();
+  }
 
-  /**
-   * Parses a given entity-id. Provides the entity set and key predicates.
-   * A canonical entiy-id to an entity must follow the pattern
-   * <code>[&lt;service root&gt;][&lt;entityContainer&gt;.]&lt;entitySet&gt;(&lt;key&gt;)</code>, i.e.,
-   * it must be a relative or absolute URI consisting of an entity set (qualified
-   * with an entity-container name if not in the default entity container) and a
-   * syntactically valid key that identifies a single entity; example:
-   * <code>http://example.server.com/service.svc/Employees('42')</code>.
-   *
-   * @param edm the edm the entity belongs to
-   * @param entityId URI of the entity-id
-   * @param rawServiceRoot the root URI of the service
-   * @return {@link UriResourceEntitySet} - contains the entity set and the key predicates
-   * @throws DeserializerException in case the entity-id is malformed
-   */
-  UriResourceEntitySet parseEntityId(Edm edm, String entityId, String rawServiceRoot)
-    throws DeserializerException;
+  private static Object findPropertyRefValue(final ODataEntity entity,
+    final EdmKeyPropertyRef refType) throws SerializerException {
+    final int INDEX_ERROR_CODE = -1;
+    final String propertyPath = refType.getName();
+    String tmpPropertyName;
+    int lastIndex;
+    int index = propertyPath.indexOf('/');
+    if (index == INDEX_ERROR_CODE) {
+      index = propertyPath.length();
+    }
+    tmpPropertyName = propertyPath.substring(0, index);
+    // get first property
+    var prop = entity.getValue(tmpPropertyName);
+    // get following properties
+    while (index < propertyPath.length()) {
+      lastIndex = ++index;
+      index = propertyPath.indexOf('/', index + 1);
+      if (index == INDEX_ERROR_CODE) {
+        index = propertyPath.length();
+      }
+      tmpPropertyName = propertyPath.substring(lastIndex, index);
+      prop = ((ComplexValue)prop).getValue(tmpPropertyName);
+    }
+    if (prop == null) {
+      throw new SerializerException("Key Value Cannot be null for property: " + propertyPath,
+        SerializerException.MessageKeys.NULL_PROPERTY, propertyPath);
+    }
+    return prop;
+  }
+
+  public static UriResourceEntitySet parseEntityId(final Edm edm, final String entityId,
+    final String rawServiceRoot) throws DeserializerException {
+
+    String oDataPath = entityId;
+    if (rawServiceRoot != null && entityId.startsWith(rawServiceRoot)) {
+      oDataPath = entityId.substring(rawServiceRoot.length());
+    }
+    oDataPath = oDataPath.startsWith("/") ? oDataPath : "/" + oDataPath;
+
+    try {
+      final List<UriResource> uriResourceParts = edm.getParser()
+        .parseUri(oDataPath, null, null, rawServiceRoot)
+        .getUriResourceParts();
+      if (uriResourceParts.size() == 1 && uriResourceParts.get(0)
+        .getKind() == UriResourceKind.entitySet) {
+        final UriResourceEntitySet entityUriResource = (UriResourceEntitySet)uriResourceParts
+          .get(0);
+
+        return entityUriResource;
+      }
+
+      throw new DeserializerException("Invalid entity binding link",
+        MessageKeys.INVALID_ENTITY_BINDING_LINK, entityId);
+    } catch (final ODataLibraryException e) {
+      throw new DeserializerException("Invalid entity binding link", e,
+        MessageKeys.INVALID_ENTITY_BINDING_LINK, entityId);
+    }
+  }
 }

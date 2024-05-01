@@ -36,7 +36,7 @@ public class EdmComplexTypeImpl extends AbstractEdmStructuredType implements Edm
   protected EdmStructuredType buildBaseType(final FullQualifiedName baseTypeName) {
     EdmComplexType baseType = null;
     if (baseTypeName != null) {
-      baseType = this.edm.getComplexType(baseTypeName);
+      baseType = this.getEdm().getComplexType(baseTypeName);
       if (baseType == null) {
         throw new EdmException(
           "Can't find base type with name: " + baseTypeName + " for complex type: " + getName());

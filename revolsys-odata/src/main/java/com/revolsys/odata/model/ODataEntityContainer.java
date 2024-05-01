@@ -43,4 +43,9 @@ public class ODataEntityContainer extends CsdlEntityContainer {
   public FullQualifiedName getQualifiedName() {
     return this.qualifiedName;
   }
+
+  @Override
+  public String toString() {
+    return this.qualifiedName.toString();
+  }
 }

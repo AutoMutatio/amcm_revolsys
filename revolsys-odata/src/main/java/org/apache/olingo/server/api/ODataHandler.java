@@ -18,7 +18,38 @@
  */
 package org.apache.olingo.server.api;
 
+import java.util.LinkedList;
+import java.util.List;
+
+import org.apache.olingo.commons.api.edm.constants.ODataServiceVersion;
+import org.apache.olingo.commons.api.ex.ODataRuntimeException;
+import org.apache.olingo.commons.api.format.ContentType;
+import org.apache.olingo.commons.api.http.HttpHeader;
+import org.apache.olingo.commons.api.http.HttpMethod;
+import org.apache.olingo.server.api.deserializer.DeserializerException;
+import org.apache.olingo.server.api.etag.CustomETagSupport;
+import org.apache.olingo.server.api.etag.PreconditionException;
+import org.apache.olingo.server.api.processor.DefaultProcessor;
+import org.apache.olingo.server.api.processor.ErrorProcessor;
 import org.apache.olingo.server.api.processor.Processor;
+import org.apache.olingo.server.api.serializer.CustomContentTypeSupport;
+import org.apache.olingo.server.api.serializer.RepresentationType;
+import org.apache.olingo.server.api.serializer.SerializerException;
+import org.apache.olingo.server.api.uri.queryoption.FormatOption;
+import org.apache.olingo.server.core.AcceptHeaderContentNegotiatorException;
+import org.apache.olingo.server.core.ContentNegotiator;
+import org.apache.olingo.server.core.ContentNegotiatorException;
+import org.apache.olingo.server.core.DefaultRedirectProcessor;
+import org.apache.olingo.server.core.ODataDispatcher;
+import org.apache.olingo.server.core.ODataExceptionHelper;
+import org.apache.olingo.server.core.ODataHandlerException;
+import org.apache.olingo.server.core.uri.parser.UriParserException;
+import org.apache.olingo.server.core.uri.parser.UriParserSemanticException;
+import org.apache.olingo.server.core.uri.parser.UriParserSyntaxException;
+import org.apache.olingo.server.core.uri.validator.UriValidationException;
+import org.apache.olingo.server.core.uri.validator.UriValidator;
+
+import com.revolsys.logging.Logs;
 
 /**
  * <p>Handles requests as OData requests.</p>
@@ -27,30 +58,163 @@ import org.apache.olingo.server.api.processor.Processor;
  * to a specific custom processor implementation for handling data and
  * creating the serialized content for the response object.</p>
  */
-public interface ODataHandler {
+public class ODataHandler {
 
-  /**
-   * <p>Processes an OData request.</p>
-   * <p>This includes URI parsing, content negotiation, dispatching the request
-   * to a specific custom processor implementation for handling data and
-   * creating the serialized content for the response object.</p>
-   * @param request the OData request
-   * @return OData response
-   */
-  ODataResponse process(final ODataRequest request);
+  private final ServiceMetadata serviceMetadata;
 
-  /**
-   * <p>Registers additional extensions for handling OData requests.</p>
-   * <p>This method is used for registration of all possible extensions
-   * and provide the extensibility for further extensions and
-   * different ODataHandler implementations/extensions.</p>
-   */
-  void register(OlingoExtension extension);
+  private final List<Processor> processors = new LinkedList<>();
 
-  /**
-   * <p>Registers additional custom processor implementations for handling OData requests.</p>
-   * <p>If request processing requires a processor that is not registered then a
-   * "not implemented" exception will happen.</p>
-   */
-  void register(Processor processor);
+  private CustomContentTypeSupport customContentTypeSupport;
+
+  private CustomETagSupport customETagSupport;
+
+  private Exception lastThrownException;
+
+  public ODataHandler(final ServiceMetadata serviceMetadata) {
+    this.serviceMetadata = serviceMetadata;
+
+    register(new DefaultRedirectProcessor());
+    register(new DefaultProcessor());
+  }
+
+  public CustomContentTypeSupport getCustomContentTypeSupport() {
+    return this.customContentTypeSupport;
+  }
+
+  public CustomETagSupport getCustomETagSupport() {
+    return this.customETagSupport;
+  }
+
+  public Exception getLastThrownException() {
+    return this.lastThrownException;
+  }
+
+  public void handleException(final ODataRequest request, final ODataResponse response,
+    final ODataServerError serverError, final Exception exception) {
+    Logs.error(this, exception);
+    this.lastThrownException = exception;
+    ErrorProcessor exceptionProcessor;
+    try {
+      exceptionProcessor = selectProcessor(ErrorProcessor.class);
+    } catch (final ODataHandlerException e) {
+      // This cannot happen since there is always an ExceptionProcessor
+      // registered.
+      exceptionProcessor = new DefaultProcessor();
+    }
+    ContentType requestedContentType;
+    try {
+      final FormatOption formatOption = request.getFormatOption();
+      requestedContentType = ContentNegotiator.doContentNegotiation(formatOption, request,
+        getCustomContentTypeSupport(), RepresentationType.ERROR);
+    } catch (final AcceptHeaderContentNegotiatorException e) {
+      requestedContentType = ContentType.JSON;
+    } catch (final ContentNegotiatorException e) {
+      requestedContentType = ContentType.JSON;
+    }
+    exceptionProcessor.processError(request, response, serverError, requestedContentType);
+  }
+
+  public ODataResponse process(final ODataRequest request) {
+    final ODataResponse response = new ODataResponse();
+    try {
+      processInternal(request, response);
+    } catch (final UriValidationException e) {
+      final ODataServerError serverError = ODataExceptionHelper.createServerErrorObject(e, null);
+      handleException(request, response, serverError, e);
+    } catch (final UriParserSemanticException e) {
+      final ODataServerError serverError = ODataExceptionHelper.createServerErrorObject(e, null);
+      handleException(request, response, serverError, e);
+    } catch (final UriParserSyntaxException e) {
+      final ODataServerError serverError = ODataExceptionHelper.createServerErrorObject(e, null);
+      handleException(request, response, serverError, e);
+    } catch (final UriParserException e) {
+      final ODataServerError serverError = ODataExceptionHelper.createServerErrorObject(e, null);
+      handleException(request, response, serverError, e);
+    } catch (final AcceptHeaderContentNegotiatorException e) {
+      final ODataServerError serverError = ODataExceptionHelper.createServerErrorObject(e, null);
+      handleException(request, response, serverError, e);
+    } catch (final ContentNegotiatorException e) {
+      final ODataServerError serverError = ODataExceptionHelper.createServerErrorObject(e, null);
+      handleException(request, response, serverError, e);
+    } catch (final SerializerException e) {
+      final ODataServerError serverError = ODataExceptionHelper.createServerErrorObject(e, null);
+      handleException(request, response, serverError, e);
+    } catch (final DeserializerException e) {
+      final ODataServerError serverError = ODataExceptionHelper.createServerErrorObject(e, null);
+      handleException(request, response, serverError, e);
+    } catch (final PreconditionException e) {
+      final ODataServerError serverError = ODataExceptionHelper.createServerErrorObject(e, null);
+      handleException(request, response, serverError, e);
+    } catch (final ODataHandlerException e) {
+      final ODataServerError serverError = ODataExceptionHelper.createServerErrorObject(e, null);
+      handleException(request, response, serverError, e);
+    } catch (final ODataApplicationException e) {
+      final ODataServerError serverError = ODataExceptionHelper.createServerErrorObject(e);
+      handleException(request, response, serverError, e);
+    } catch (final Exception e) {
+      final ODataServerError serverError = ODataExceptionHelper.createServerErrorObject(e);
+      handleException(request, response, serverError, e);
+    }
+    return response;
+  }
+
+  private void processInternal(final ODataRequest request, final ODataResponse response)
+    throws ODataApplicationException, ODataLibraryException {
+
+    response.setHeader(HttpHeader.ODATA_VERSION, ODataServiceVersion.V40.toString());
+
+    validateODataVersion(request);
+
+    final var path = request.getRawODataPath();
+    final var queryPath = request.getRawQueryPath();
+    final var baseUri = request.getRawBaseUri();
+    final var uriInfo = this.serviceMetadata.getEdm()
+      .getParser()
+      .parseUri(path, queryPath, null, baseUri);
+    request.setUriInfo(uriInfo);
+    final HttpMethod method = request.getMethod();
+    new UriValidator().validate(uriInfo, method);
+    new ODataDispatcher(uriInfo, this).dispatch(request, response);
+  }
+
+  public void register(final OlingoExtension extension) {
+    if (extension instanceof CustomContentTypeSupport) {
+      this.customContentTypeSupport = (CustomContentTypeSupport)extension;
+    } else if (extension instanceof CustomETagSupport) {
+      this.customETagSupport = (CustomETagSupport)extension;
+    } else {
+      throw new ODataRuntimeException(
+        "Got not supported exception with class name " + extension.getClass()
+          .getSimpleName());
+    }
+  }
+
+  public void register(final Processor processor) {
+    this.processors.add(0, processor);
+  }
+
+  public <T extends Processor> T selectProcessor(final Class<T> cls) throws ODataHandlerException {
+    for (final Processor processor : this.processors) {
+      if (cls.isAssignableFrom(processor.getClass())) {
+        processor.init(this.serviceMetadata);
+        return cls.cast(processor);
+      }
+    }
+    throw new ODataHandlerException("Processor: " + cls.getSimpleName() + " not registered.",
+      ODataHandlerException.MessageKeys.PROCESSOR_NOT_IMPLEMENTED, cls.getSimpleName());
+  }
+
+  private void validateODataVersion(final ODataRequest request) throws ODataHandlerException {
+    final String odataVersion = request.getHeader(HttpHeader.ODATA_VERSION);
+    if (odataVersion != null && !ODataServiceVersion.isValidODataVersion(odataVersion)) {
+      throw new ODataHandlerException("ODataVersion not supported: " + odataVersion,
+        ODataHandlerException.MessageKeys.ODATA_VERSION_NOT_SUPPORTED, odataVersion);
+    }
+
+    final String maxVersion = request.getHeader(HttpHeader.ODATA_MAX_VERSION);
+    if (maxVersion != null && !ODataServiceVersion.isValidMaxODataVersion(maxVersion)) {
+      throw new ODataHandlerException("ODataVersion not supported: " + maxVersion,
+        ODataHandlerException.MessageKeys.ODATA_VERSION_NOT_SUPPORTED, maxVersion);
+    }
+  }
 }

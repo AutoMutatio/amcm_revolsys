@@ -23,7 +23,7 @@ import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.constants.EdmTypeKind;
 import org.apache.olingo.commons.api.edm.provider.CsdlAction;
 
-public class EdmActionImpl extends AbstractEdmOperation implements EdmAction {
+public class EdmActionImpl extends AbstractEdmOperation<CsdlAction> implements EdmAction {
 
   public EdmActionImpl(final Edm edm, final FullQualifiedName name, final CsdlAction action) {
     super(edm, name, action, EdmTypeKind.ACTION);

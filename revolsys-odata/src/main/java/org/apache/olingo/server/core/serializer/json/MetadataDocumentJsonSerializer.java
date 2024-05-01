@@ -30,7 +30,6 @@ import org.apache.olingo.commons.api.edm.EdmActionImport;
 import org.apache.olingo.commons.api.edm.EdmAnnotatable;
 import org.apache.olingo.commons.api.edm.EdmAnnotation;
 import org.apache.olingo.commons.api.edm.EdmAnnotations;
-import org.apache.olingo.commons.api.edm.EdmBindingTarget;
 import org.apache.olingo.commons.api.edm.EdmComplexType;
 import org.apache.olingo.commons.api.edm.EdmEntityContainer;
 import org.apache.olingo.commons.api.edm.EdmEntitySet;
@@ -42,14 +41,12 @@ import org.apache.olingo.commons.api.edm.EdmFunctionImport;
 import org.apache.olingo.commons.api.edm.EdmKeyPropertyRef;
 import org.apache.olingo.commons.api.edm.EdmMember;
 import org.apache.olingo.commons.api.edm.EdmNavigationProperty;
-import org.apache.olingo.commons.api.edm.EdmNavigationPropertyBinding;
 import org.apache.olingo.commons.api.edm.EdmOperation;
 import org.apache.olingo.commons.api.edm.EdmParameter;
 import org.apache.olingo.commons.api.edm.EdmProperty;
 import org.apache.olingo.commons.api.edm.EdmReferentialConstraint;
 import org.apache.olingo.commons.api.edm.EdmReturnType;
 import org.apache.olingo.commons.api.edm.EdmSchema;
-import org.apache.olingo.commons.api.edm.EdmSingleton;
 import org.apache.olingo.commons.api.edm.EdmStructuredType;
 import org.apache.olingo.commons.api.edm.EdmTerm;
 import org.apache.olingo.commons.api.edm.EdmType;
@@ -62,6 +59,8 @@ import org.apache.olingo.commons.api.edm.constants.EdmTypeKind;
 import org.apache.olingo.commons.api.edmx.EdmxReference;
 import org.apache.olingo.commons.api.edmx.EdmxReferenceInclude;
 import org.apache.olingo.commons.api.edmx.EdmxReferenceIncludeAnnotation;
+import org.apache.olingo.commons.core.edm.EdmBindingTarget;
+import org.apache.olingo.commons.core.edm.EdmSingleton;
 import org.apache.olingo.commons.core.edm.annotation.AbstractEdmDynamicExpression;
 import org.apache.olingo.commons.core.edm.annotation.EdmApply;
 import org.apache.olingo.commons.core.edm.annotation.EdmCast;
@@ -133,8 +132,6 @@ public class MetadataDocumentJsonSerializer {
   private static final String TYPE = DOLLAR + "Type";
 
   private static final String NULLABLE = DOLLAR + "Nullable";
-
-  private static final String UNICODE = DOLLAR + "Unicode";
 
   private static final String DEFAULT_VALUE = DOLLAR + "DefaultValue";
 
@@ -595,7 +592,7 @@ public class MetadataDocumentJsonSerializer {
           parentContainerNameString = this.namespaceToAlias.get(parentContainerName.getNamespace())
             + "." + parentContainerName.getName();
         } else {
-          parentContainerNameString = parentContainerName.getFullQualifiedNameAsString();
+          parentContainerNameString = parentContainerName.toString();
         }
         json.label(Kind.Extending.name());
         json.startObject();
@@ -727,7 +724,7 @@ public class MetadataDocumentJsonSerializer {
         functionFQNString = this.namespaceToAlias.get(functionFqn.getNamespace()) + "."
           + functionFqn.getName();
       } else {
-        functionFQNString = functionFqn.getFullQualifiedNameAsString();
+        functionFQNString = functionFqn.toString();
       }
       json.labelValue(DOLLAR + Kind.Function.name(), functionFQNString);
 
@@ -934,9 +931,8 @@ public class MetadataDocumentJsonSerializer {
         .isEmpty()) {
       json.label(NAVIGATION_PROPERTY_BINDING);
       json.startObject();
-      for (final EdmNavigationPropertyBinding binding : bindingTarget
-        .getNavigationPropertyBindings()) {
-        json.labelValue(binding.getPath(), binding.getTarget());
+      for (final var binding : bindingTarget.getNavigationPropertyBindings()) {
+        json.labelValue(binding.path(), binding.target());
       }
       json.endObject();
     }
@@ -1050,10 +1046,6 @@ public class MetadataDocumentJsonSerializer {
         json.labelValue(NULLABLE, property.isNullable());
       }
 
-      if (!property.isUnicode()) {
-        json.labelValue(UNICODE, property.isUnicode());
-      }
-
       if (property.getDefaultValue() != null) {
         json.labelValue(DEFAULT_VALUE, property.getDefaultValue());
       }
@@ -1070,7 +1062,7 @@ public class MetadataDocumentJsonSerializer {
         json.labelValue(SCALE, property.getScale());
       }
 
-      if (property.getSrid() != null) {
+      if (property.getSrid() > 0) {
         json.labelValue(SRID, "" + property.getSrid());
       }
 
@@ -1250,7 +1242,7 @@ public class MetadataDocumentJsonSerializer {
         json.labelValue(SCALE, "" + definition.getScale());
       }
 
-      if (definition.getSrid() != null) {
+      if (definition.getSrid() > 0) {
         json.labelValue(SRID, "" + definition.getSrid());
       }
 
@@ -1269,15 +1261,14 @@ public class MetadataDocumentJsonSerializer {
     if (this.namespaceToAlias.get(fqn.getNamespace()) != null) {
       name = this.namespaceToAlias.get(fqn.getNamespace()) + "." + fqn.getName();
     } else {
-      name = fqn.getFullQualifiedNameAsString();
+      name = fqn.toString();
     }
 
     return name;
   }
 
   private String getFullQualifiedName(final EdmType type) {
-    return type.getFullQualifiedName()
-      .getFullQualifiedNameAsString();
+    return type.getFullQualifiedName().toString();
   }
 
   public void writeMetadataDocument(final JsonWriter json) throws SerializerException, IOException {

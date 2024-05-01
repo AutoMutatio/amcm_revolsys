@@ -91,7 +91,7 @@ public class CsdlNavigationProperty implements CsdlAbstractEdmItem, CsdlNamed, C
    */
   public String getType() {
     if (this.type != null) {
-      return this.type.getFullQualifiedNameAsString();
+      return this.type.toString();
     }
     return null;
   }

@@ -31,7 +31,6 @@ import org.apache.olingo.commons.api.edm.EdmActionImport;
 import org.apache.olingo.commons.api.edm.EdmAnnotatable;
 import org.apache.olingo.commons.api.edm.EdmAnnotation;
 import org.apache.olingo.commons.api.edm.EdmAnnotations;
-import org.apache.olingo.commons.api.edm.EdmBindingTarget;
 import org.apache.olingo.commons.api.edm.EdmComplexType;
 import org.apache.olingo.commons.api.edm.EdmEntityContainer;
 import org.apache.olingo.commons.api.edm.EdmEntitySet;
@@ -43,14 +42,12 @@ import org.apache.olingo.commons.api.edm.EdmFunctionImport;
 import org.apache.olingo.commons.api.edm.EdmKeyPropertyRef;
 import org.apache.olingo.commons.api.edm.EdmMember;
 import org.apache.olingo.commons.api.edm.EdmNavigationProperty;
-import org.apache.olingo.commons.api.edm.EdmNavigationPropertyBinding;
 import org.apache.olingo.commons.api.edm.EdmOperation;
 import org.apache.olingo.commons.api.edm.EdmParameter;
 import org.apache.olingo.commons.api.edm.EdmProperty;
 import org.apache.olingo.commons.api.edm.EdmReferentialConstraint;
 import org.apache.olingo.commons.api.edm.EdmReturnType;
 import org.apache.olingo.commons.api.edm.EdmSchema;
-import org.apache.olingo.commons.api.edm.EdmSingleton;
 import org.apache.olingo.commons.api.edm.EdmStructuredType;
 import org.apache.olingo.commons.api.edm.EdmTerm;
 import org.apache.olingo.commons.api.edm.EdmType;
@@ -63,6 +60,8 @@ import org.apache.olingo.commons.api.edm.constants.EdmTypeKind;
 import org.apache.olingo.commons.api.edmx.EdmxReference;
 import org.apache.olingo.commons.api.edmx.EdmxReferenceInclude;
 import org.apache.olingo.commons.api.edmx.EdmxReferenceIncludeAnnotation;
+import org.apache.olingo.commons.core.edm.EdmBindingTarget;
+import org.apache.olingo.commons.core.edm.EdmSingleton;
 import org.apache.olingo.commons.core.edm.annotation.AbstractEdmDynamicExpression;
 import org.apache.olingo.commons.core.edm.annotation.EdmApply;
 import org.apache.olingo.commons.core.edm.annotation.EdmCast;
@@ -117,8 +116,6 @@ public class MetadataDocumentXmlSerializer {
   private static final String XML_MAX_LENGTH = "MaxLength";
 
   private static final String XML_DEFAULT_VALUE = "DefaultValue";
-
-  private static final String XML_UNICODE = "Unicode";
 
   private static final String XML_PROPERTY = "Property";
 
@@ -247,11 +244,9 @@ public class MetadataDocumentXmlSerializer {
       final EdmEntitySet returnedEntitySet = actionImport.getReturnedEntitySet();
       if (returnedEntitySet != null) {
         final String fullQualifiedName = returnedEntitySet.getEntityContainer()
-          .getFullQualifiedName()
-          .getFullQualifiedNameAsString();
+        .getFullQualifiedName().toString();
         if (!actionImport.getEntityContainer()
-          .getFullQualifiedName()
-          .getFullQualifiedNameAsString()
+        .getFullQualifiedName().toString()
           .equalsIgnoreCase(fullQualifiedName)) {
           writer.writeAttribute(XML_ENTITY_SET,
             fullQualifiedName + "/" + returnedEntitySet.getName());
@@ -373,133 +368,134 @@ public class MetadataDocumentXmlSerializer {
     writer.writeStartElement(dynExp.getExpressionName());
     if (dynExp instanceof final EdmLogicalOrComparisonExpression logical) {
       appendLogicalOrComparisonExpression(writer, logical);
-    }
-    switch (dynExp.getExpressionType()) {
+    } else {
+      switch (dynExp.getExpressionType()) {
 
-      case Not:
-        appendNotExpression(writer, (EdmNot)dynExp);
-      break;
-      // Comparison
+        case Not:
+          appendNotExpression(writer, (EdmNot)dynExp);
+        break;
+        // Comparison
 
-      case AnnotationPath:
-        writer.writeCharacters(dynExp.asAnnotationPath()
-          .getValue());
-      break;
-      case Apply:
-        final EdmApply asApply = dynExp.asApply();
-        writer.writeAttribute(XML_FUNCTION, asApply.getFunction());
-        for (final EdmExpression parameter : asApply.getParameters()) {
-          appendExpression(writer, parameter);
-        }
-        appendAnnotations(writer, asApply);
-      break;
-      case Cast:
-        final EdmCast asCast = dynExp.asCast();
-        writer.writeAttribute(XML_TYPE, getAliasedFullQualifiedName(asCast.getType(), false));
-
-        if (asCast.getMaxLength() != null) {
-          writer.writeAttribute(XML_MAX_LENGTH, "" + asCast.getMaxLength());
-        }
-
-        if (asCast.getPrecision() != null) {
-          writer.writeAttribute(XML_PRECISION, "" + asCast.getPrecision());
-        }
-
-        if (asCast.getScale() != null) {
-          writer.writeAttribute(XML_SCALE, "" + asCast.getScale());
-        }
-        appendExpression(writer, asCast.getValue());
-        appendAnnotations(writer, asCast);
-      break;
-      case Collection:
-        for (final EdmExpression item : dynExp.asCollection()
-          .getItems()) {
-          appendExpression(writer, item);
-        }
-      break;
-      case If:
-        final EdmIf asIf = dynExp.asIf();
-        appendExpression(writer, asIf.getGuard());
-        appendExpression(writer, asIf.getThen());
-        appendExpression(writer, asIf.getElse());
-        appendAnnotations(writer, asIf);
-      break;
-      case IsOf:
-        final EdmIsOf asIsOf = dynExp.asIsOf();
-        writer.writeAttribute(XML_TYPE, getAliasedFullQualifiedName(asIsOf.getType(), false));
-
-        if (asIsOf.getMaxLength() != null) {
-          writer.writeAttribute(XML_MAX_LENGTH, "" + asIsOf.getMaxLength());
-        }
-
-        if (asIsOf.getPrecision() != null) {
-          writer.writeAttribute(XML_PRECISION, "" + asIsOf.getPrecision());
-        }
-
-        if (asIsOf.getScale() != null) {
-          writer.writeAttribute(XML_SCALE, "" + asIsOf.getScale());
-        }
-        appendExpression(writer, asIsOf.getValue());
-        appendAnnotations(writer, asIsOf);
-      break;
-      case LabeledElement:
-        final EdmLabeledElement asLabeledElement = dynExp.asLabeledElement();
-        writer.writeAttribute(XML_NAME, asLabeledElement.getName());
-        appendExpression(writer, asLabeledElement.getValue());
-        appendAnnotations(writer, asLabeledElement);
-      break;
-      case LabeledElementReference:
-        final EdmLabeledElementReference asLabeledElementReference = dynExp
-          .asLabeledElementReference();
-        writer.writeCharacters(asLabeledElementReference.getValue());
-      break;
-      case Null:
-        appendAnnotations(writer, dynExp.asNull());
-      break;
-      case NavigationPropertyPath:
-        final EdmNavigationPropertyPath asNavigationPropertyPath = dynExp
-          .asNavigationPropertyPath();
-        writer.writeCharacters(asNavigationPropertyPath.getValue());
-      break;
-      case Path:
-        final EdmPath asPath = dynExp.asPath();
-        writer.writeCharacters(asPath.getValue());
-      break;
-      case PropertyPath:
-        final EdmPropertyPath asPropertyPath = dynExp.asPropertyPath();
-        writer.writeCharacters(asPropertyPath.getValue());
-      break;
-      case Record:
-        final EdmRecord asRecord = dynExp.asRecord();
-        try {
-          final EdmStructuredType structuredType = asRecord.getType();
-          if (structuredType != null) {
-            writer.writeAttribute(XML_TYPE, getAliasedFullQualifiedName(structuredType, false));
+        case AnnotationPath:
+          writer.writeCharacters(dynExp.asAnnotationPath()
+            .getValue());
+        break;
+        case Apply:
+          final EdmApply asApply = dynExp.asApply();
+          writer.writeAttribute(XML_FUNCTION, asApply.getFunction());
+          for (final EdmExpression parameter : asApply.getParameters()) {
+            appendExpression(writer, parameter);
           }
-        } catch (final EdmException e) {
-          final FullQualifiedName type = asRecord.getTypeFQN();
-          if (type != null) {
-            writer.writeAttribute(XML_TYPE, getAliasedFullQualifiedName(type, false));
-          }
-        }
+          appendAnnotations(writer, asApply);
+        break;
+        case Cast:
+          final EdmCast asCast = dynExp.asCast();
+          writer.writeAttribute(XML_TYPE, getAliasedFullQualifiedName(asCast.getType(), false));
 
-        for (final EdmPropertyValue propValue : asRecord.getPropertyValues()) {
-          writer.writeStartElement(XML_PROPERTY_VALUE);
-          writer.writeAttribute(XML_PROPERTY, propValue.getProperty());
-          appendExpression(writer, propValue.getValue());
-          appendAnnotations(writer, propValue);
-          writer.writeEndElement();
-        }
-        appendAnnotations(writer, asRecord);
-      break;
-      case UrlRef:
-        final EdmUrlRef asUrlRef = dynExp.asUrlRef();
-        appendExpression(writer, asUrlRef.getValue());
-        appendAnnotations(writer, asUrlRef);
-      break;
-      default:
-        throw new IllegalArgumentException(
-          "Unkown ExpressionType for dynamic expression: " + dynExp.getExpressionType());
+          if (asCast.getMaxLength() != null) {
+            writer.writeAttribute(XML_MAX_LENGTH, "" + asCast.getMaxLength());
+          }
+
+          if (asCast.getPrecision() != null) {
+            writer.writeAttribute(XML_PRECISION, "" + asCast.getPrecision());
+          }
+
+          if (asCast.getScale() != null) {
+            writer.writeAttribute(XML_SCALE, "" + asCast.getScale());
+          }
+          appendExpression(writer, asCast.getValue());
+          appendAnnotations(writer, asCast);
+        break;
+        case Collection:
+          for (final EdmExpression item : dynExp.asCollection()
+            .getItems()) {
+            appendExpression(writer, item);
+          }
+        break;
+        case If:
+          final EdmIf asIf = dynExp.asIf();
+          appendExpression(writer, asIf.getGuard());
+          appendExpression(writer, asIf.getThen());
+          appendExpression(writer, asIf.getElse());
+          appendAnnotations(writer, asIf);
+        break;
+        case IsOf:
+          final EdmIsOf asIsOf = dynExp.asIsOf();
+          writer.writeAttribute(XML_TYPE, getAliasedFullQualifiedName(asIsOf.getType(), false));
+
+          if (asIsOf.getMaxLength() != null) {
+            writer.writeAttribute(XML_MAX_LENGTH, "" + asIsOf.getMaxLength());
+          }
+
+          if (asIsOf.getPrecision() != null) {
+            writer.writeAttribute(XML_PRECISION, "" + asIsOf.getPrecision());
+          }
+
+          if (asIsOf.getScale() != null) {
+            writer.writeAttribute(XML_SCALE, "" + asIsOf.getScale());
+          }
+          appendExpression(writer, asIsOf.getValue());
+          appendAnnotations(writer, asIsOf);
+        break;
+        case LabeledElement:
+          final EdmLabeledElement asLabeledElement = dynExp.asLabeledElement();
+          writer.writeAttribute(XML_NAME, asLabeledElement.getName());
+          appendExpression(writer, asLabeledElement.getValue());
+          appendAnnotations(writer, asLabeledElement);
+        break;
+        case LabeledElementReference:
+          final EdmLabeledElementReference asLabeledElementReference = dynExp
+            .asLabeledElementReference();
+          writer.writeCharacters(asLabeledElementReference.getValue());
+        break;
+        case Null:
+          appendAnnotations(writer, dynExp.asNull());
+        break;
+        case NavigationPropertyPath:
+          final EdmNavigationPropertyPath asNavigationPropertyPath = dynExp
+            .asNavigationPropertyPath();
+          writer.writeCharacters(asNavigationPropertyPath.getValue());
+        break;
+        case Path:
+          final EdmPath asPath = dynExp.asPath();
+          writer.writeCharacters(asPath.getValue());
+        break;
+        case PropertyPath:
+          final EdmPropertyPath asPropertyPath = dynExp.asPropertyPath();
+          writer.writeCharacters(asPropertyPath.getValue());
+        break;
+        case Record:
+          final EdmRecord asRecord = dynExp.asRecord();
+          try {
+            final EdmStructuredType structuredType = asRecord.getType();
+            if (structuredType != null) {
+              writer.writeAttribute(XML_TYPE, getAliasedFullQualifiedName(structuredType, false));
+            }
+          } catch (final EdmException e) {
+            final FullQualifiedName type = asRecord.getTypeFQN();
+            if (type != null) {
+              writer.writeAttribute(XML_TYPE, getAliasedFullQualifiedName(type, false));
+            }
+          }
+
+          for (final EdmPropertyValue propValue : asRecord.getPropertyValues()) {
+            writer.writeStartElement(XML_PROPERTY_VALUE);
+            writer.writeAttribute(XML_PROPERTY, propValue.getProperty());
+            appendExpression(writer, propValue.getValue());
+            appendAnnotations(writer, propValue);
+            writer.writeEndElement();
+          }
+          appendAnnotations(writer, asRecord);
+        break;
+        case UrlRef:
+          final EdmUrlRef asUrlRef = dynExp.asUrlRef();
+          appendExpression(writer, asUrlRef.getValue());
+          appendAnnotations(writer, asUrlRef);
+        break;
+        default:
+          throw new IllegalArgumentException(
+            "Unkown ExpressionType for dynamic expression: " + dynExp.getExpressionType());
+      }
     }
 
     writer.writeEndElement();
@@ -518,7 +514,7 @@ public class MetadataDocumentXmlSerializer {
           parentContainerNameString = this.namespaceToAlias.get(parentContainerName.getNamespace())
             + "." + parentContainerName.getName();
         } else {
-          parentContainerNameString = parentContainerName.getFullQualifiedNameAsString();
+          parentContainerNameString = parentContainerName.toString();
         }
         writer.writeAttribute(XML_EXTENDS, parentContainerNameString);
       }
@@ -654,7 +650,7 @@ public class MetadataDocumentXmlSerializer {
         functionFQNString = this.namespaceToAlias.get(functionFqn.getNamespace()) + "."
           + functionFqn.getName();
       } else {
-        functionFQNString = functionFqn.getFullQualifiedNameAsString();
+        functionFQNString = functionFqn.toString();
       }
       writer.writeAttribute(XML_FUNCTION, functionFQNString);
 
@@ -798,11 +794,10 @@ public class MetadataDocumentXmlSerializer {
   private void appendNavigationPropertyBindings(final XMLStreamWriter writer,
     final EdmBindingTarget bindingTarget) throws XMLStreamException {
     if (bindingTarget.getNavigationPropertyBindings() != null) {
-      for (final EdmNavigationPropertyBinding binding : bindingTarget
-        .getNavigationPropertyBindings()) {
+      for (final var binding : bindingTarget.getNavigationPropertyBindings()) {
         writer.writeEmptyElement(XML_NAVIGATION_PROPERTY_BINDING);
-        writer.writeAttribute(XML_PATH, binding.getPath());
-        writer.writeAttribute(XML_TARGET, binding.getTarget());
+        writer.writeAttribute(XML_PATH, binding.path());
+        writer.writeAttribute(XML_TARGET, binding.target());
       }
     }
   }
@@ -894,10 +889,6 @@ public class MetadataDocumentXmlSerializer {
         writer.writeAttribute(XML_NULLABLE, "" + property.isNullable());
       }
 
-      if (!property.isUnicode()) {
-        writer.writeAttribute(XML_UNICODE, "" + property.isUnicode());
-      }
-
       if (property.getDefaultValue() != null) {
         writer.writeAttribute(XML_DEFAULT_VALUE, property.getDefaultValue());
       }
@@ -916,7 +907,7 @@ public class MetadataDocumentXmlSerializer {
         writer.writeAttribute(XML_SCALE, "" + property.getScale());
       }
 
-      if (property.getSrid() != null) {
+      if (property.getSrid() > 0) {
         writer.writeAttribute(XML_SRID, "" + property.getSrid());
       }
 
@@ -1130,15 +1121,14 @@ public class MetadataDocumentXmlSerializer {
     if (this.namespaceToAlias.get(fqn.getNamespace()) != null) {
       name = this.namespaceToAlias.get(fqn.getNamespace()) + "." + fqn.getName();
     } else {
-      name = fqn.getFullQualifiedNameAsString();
+      name = fqn.toString();
     }
 
     return isCollection ? "Collection(" + name + ")" : name;
   }
 
   private String getFullQualifiedName(final EdmType type, final boolean isCollection) {
-    final String name = type.getFullQualifiedName()
-      .getFullQualifiedNameAsString();
+    final String name = type.getFullQualifiedName().toString();
     return isCollection ? "Collection(" + name + ")" : name;
   }
 
