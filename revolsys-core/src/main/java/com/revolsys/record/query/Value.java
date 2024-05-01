@@ -6,6 +6,8 @@ import java.sql.SQLException;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import com.revolsys.collection.map.MapEx;
@@ -25,6 +27,10 @@ import com.revolsys.util.Property;
 import com.revolsys.util.Strings;
 
 public class Value implements QueryValue {
+  private static final DateTimeFormatter TIMESTAMP_FORMAT = DateTimeFormatter
+    .ofPattern("yyyy-MM-dd'T'HH:mm:ss.S")
+    .withZone(ZoneId.systemDefault());
+
   public static boolean isString(final QueryValue queryValue) {
     if (queryValue instanceof Value) {
       final Value value = (Value)queryValue;
@@ -54,28 +60,21 @@ public class Value implements QueryValue {
   public static String toString(final Object displayValue) {
     if (displayValue == null) {
       return "null";
-    } else if (displayValue instanceof Number) {
-      final Object value = displayValue;
-      return DataTypes.toString(value);
-    } else if (displayValue instanceof Date) {
-      final Date date = (Date)displayValue;
+    } else if (displayValue instanceof final Number number) {
+      return DataTypes.toString(number);
+    } else if (displayValue instanceof final Date date) {
       final String stringValue = Dates.format("yyyy-MM-dd", date);
       return "{d '" + stringValue + "'}";
-    } else if (displayValue instanceof Time) {
-      final Time time = (Time)displayValue;
+    } else if (displayValue instanceof final Time time) {
       final String stringValue = Dates.format("HH:mm:ss", time);
       return "{t '" + stringValue + "'}";
-    } else if (displayValue instanceof Instant) {
-      final Instant time = (Instant)displayValue;
-      final String stringValue = Dates.format("yyyy-MM-ddTHH:mm:ss.S", time);
-      return "{i '" + stringValue + "'}";
-    } else if (displayValue instanceof Timestamp) {
-      final Timestamp time = (Timestamp)displayValue;
-      final String stringValue = Dates.format("yyyy-MM-dd HH:mm:ss.S", time);
+    } else if (displayValue instanceof final Instant instant) {
+      return "{i '" + TIMESTAMP_FORMAT.format(instant) + "'}";
+    } else if (displayValue instanceof final Timestamp time) {
+      final String stringValue = TIMESTAMP_FORMAT.format(time.toInstant());
       return "{ts '" + stringValue + "'}";
-    } else if (displayValue instanceof java.util.Date) {
-      final java.util.Date time = (java.util.Date)displayValue;
-      final String stringValue = Dates.format("yyyy-MM-dd HH:mm:ss.S", time);
+    } else if (displayValue instanceof final java.util.Date time) {
+      final String stringValue = TIMESTAMP_FORMAT.format(time.toInstant());
       return "{ts '" + stringValue + "'}";
     } else {
       final Object value = displayValue;

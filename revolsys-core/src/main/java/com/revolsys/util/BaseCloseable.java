@@ -93,7 +93,7 @@ public interface BaseCloseable extends Closeable {
         try {
           closeable.close();
         } catch (final Exception e) {
-          Exceptions.throwUncheckedException(e);
+          throw Exceptions.toRuntimeException(e);
         }
       };
     } else {
