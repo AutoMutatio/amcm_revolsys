@@ -21,9 +21,10 @@ package org.apache.olingo.server.api.uri.queryoption.apply;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.server.api.uri.queryoption.expression.Expression;
 import org.apache.olingo.server.core.uri.UriResource;
+
+import com.revolsys.io.PathName;
 
 /**
  * Represents an aggregate expression.
@@ -50,10 +51,10 @@ public interface AggregateExpression extends Expression {
 
   /**
    * Gets the name of the custom aggregation method if used.
-   * @return a {@link FullQualifiedName} or <code>null</code>
+   * @return a {@link PathName} or <code>null</code>
    * @see #getStandardMethod()
    */
-  FullQualifiedName getCustomMethod();
+  PathName getCustomMethod();
 
   /**
    * Gets the dynamic properties for aggregation expression.

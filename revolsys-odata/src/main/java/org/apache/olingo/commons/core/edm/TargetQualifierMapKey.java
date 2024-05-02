@@ -19,15 +19,16 @@
 package org.apache.olingo.commons.core.edm;
 
 import org.apache.olingo.commons.api.edm.EdmException;
-import org.apache.olingo.commons.api.edm.FullQualifiedName;
+
+import com.revolsys.io.PathName;
 
 public class TargetQualifierMapKey {
 
-  private final FullQualifiedName targetName;
+  private final PathName targetName;
 
   private final String qualifier;
 
-  public TargetQualifierMapKey(final FullQualifiedName targetName, final String qualifier) {
+  public TargetQualifierMapKey(final PathName targetName, final String qualifier) {
     if (targetName == null) {
       throw new EdmException("targetName for TargetQualifierMapKey must not be null.");
     }

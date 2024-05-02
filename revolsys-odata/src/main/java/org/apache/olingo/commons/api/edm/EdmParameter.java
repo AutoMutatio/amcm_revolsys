@@ -71,7 +71,7 @@ public class EdmParameter extends AbstractEdmNamed
         .build()
         .getType();
       if (this.typeImpl == null) {
-        throw new EdmException("Cannot find type with name: " + this.parameter.getTypeFQN());
+        throw new EdmException("Cannot find type with name: " + this.parameter.getTypePathName());
       }
     }
 

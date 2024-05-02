@@ -29,10 +29,11 @@ import org.apache.olingo.commons.api.edm.EdmException;
 import org.apache.olingo.commons.api.edm.EdmOperation;
 import org.apache.olingo.commons.api.edm.EdmParameter;
 import org.apache.olingo.commons.api.edm.EdmReturnType;
-import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.constants.EdmTypeKind;
 import org.apache.olingo.commons.api.edm.provider.CsdlOperation;
 import org.apache.olingo.commons.api.edm.provider.CsdlParameter;
+
+import com.revolsys.io.PathName;
 
 public abstract class AbstractEdmOperation<F extends CsdlOperation<F>> extends EdmTypeImpl
   implements EdmOperation {
@@ -45,7 +46,7 @@ public abstract class AbstractEdmOperation<F extends CsdlOperation<F>> extends E
 
   private EdmReturnType returnType;
 
-  protected AbstractEdmOperation(final Edm edm, final FullQualifiedName name, final F operation,
+  protected AbstractEdmOperation(final Edm edm, final PathName name, final F operation,
     final EdmTypeKind kind) {
 
     super(edm, name, kind, operation);
@@ -59,7 +60,7 @@ public abstract class AbstractEdmOperation<F extends CsdlOperation<F>> extends E
       if (providerParameters != null) {
         final List<String> parameterNamesLocal = new ArrayList<>(providerParameters.size());
         for (final CsdlParameter parameter : providerParameters) {
-          parametersLocal.put(parameter.getName(), new EdmParameter(this.getEdm(), parameter));
+          parametersLocal.put(parameter.getName(), new EdmParameter(getEdm(), parameter));
           parameterNamesLocal.add(parameter.getName());
         }
 
@@ -72,11 +73,11 @@ public abstract class AbstractEdmOperation<F extends CsdlOperation<F>> extends E
   }
 
   @Override
-  public FullQualifiedName getBindingParameterTypeFqn() {
+  public PathName getBindingParameterTypePathName() {
     if (isBound()) {
       final CsdlParameter bindingParameter = this.operation.getParameters()
         .get(0);
-      return bindingParameter.getTypeFQN();
+      return bindingParameter.getTypePathName();
     }
     return null;
   }
@@ -125,7 +126,7 @@ public abstract class AbstractEdmOperation<F extends CsdlOperation<F>> extends E
   @Override
   public EdmReturnType getReturnType() {
     if (this.returnType == null && this.operation.getReturnType() != null) {
-      this.returnType = new EdmReturnType(this.getEdm(), this.operation.getReturnType());
+      this.returnType = new EdmReturnType(getEdm(), this.operation.getReturnType());
     }
     return this.returnType;
   }

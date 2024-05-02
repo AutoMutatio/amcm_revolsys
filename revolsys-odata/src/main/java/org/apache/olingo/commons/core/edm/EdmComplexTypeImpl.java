@@ -21,22 +21,22 @@ package org.apache.olingo.commons.core.edm;
 import org.apache.olingo.commons.api.edm.EdmComplexType;
 import org.apache.olingo.commons.api.edm.EdmException;
 import org.apache.olingo.commons.api.edm.EdmStructuredType;
-import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.constants.EdmTypeKind;
 import org.apache.olingo.commons.api.edm.provider.CsdlComplexType;
 
+import com.revolsys.io.PathName;
+
 public class EdmComplexTypeImpl extends AbstractEdmStructuredType implements EdmComplexType {
 
-  public EdmComplexTypeImpl(final Edm edm, final FullQualifiedName name,
-    final CsdlComplexType complexType) {
+  public EdmComplexTypeImpl(final Edm edm, final PathName name, final CsdlComplexType complexType) {
     super(edm, name, EdmTypeKind.COMPLEX, complexType);
   }
 
   @Override
-  protected EdmStructuredType buildBaseType(final FullQualifiedName baseTypeName) {
+  protected EdmStructuredType buildBaseType(final PathName baseTypeName) {
     EdmComplexType baseType = null;
     if (baseTypeName != null) {
-      baseType = this.getEdm().getComplexType(baseTypeName);
+      baseType = getEdm().getComplexType(baseTypeName);
       if (baseType == null) {
         throw new EdmException(
           "Can't find base type with name: " + baseTypeName + " for complex type: " + getName());

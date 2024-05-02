@@ -22,6 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
+import com.revolsys.io.PathName;
+
 /**
  * The type Csdl operation.
  */
@@ -33,7 +35,7 @@ public abstract class CsdlOperation<SELF extends CsdlOperation<SELF>>
    */
   private String name;
 
-  private String namespace;
+  private PathName namespace;
 
   /**
    * The Is bound.
@@ -87,7 +89,7 @@ public abstract class CsdlOperation<SELF extends CsdlOperation<SELF>>
     return this.name;
   }
 
-  public String getNamespace() {
+  public PathName getNamespace() {
     return this.namespace;
   }
 
@@ -176,7 +178,7 @@ public abstract class CsdlOperation<SELF extends CsdlOperation<SELF>>
     return self();
   }
 
-  public SELF setNamespace(final String namespace) {
+  public SELF setNamespace(final PathName namespace) {
     this.namespace = namespace;
     return self();
   }

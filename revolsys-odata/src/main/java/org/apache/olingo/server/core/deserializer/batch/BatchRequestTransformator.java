@@ -56,7 +56,7 @@ public class BatchRequestTransformator {
 
     validateForbiddenHeader(operation);
 
-    final ODataRequest request = new ODataRequest();
+    final ODataRequest request = new ODataRequest(null);
     request.setBody(bodyStream);
     request.setMethod(statusLine.getMethod());
     request.setRawBaseUri(statusLine.getRawBaseUri());

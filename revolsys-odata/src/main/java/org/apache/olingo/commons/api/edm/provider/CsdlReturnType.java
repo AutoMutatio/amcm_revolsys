@@ -22,7 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
-import org.apache.olingo.commons.api.edm.FullQualifiedName;
+
+import com.revolsys.io.PathName;
 
 /**
  * The type Csdl return type.
@@ -101,8 +102,8 @@ public class CsdlReturnType implements CsdlAbstractEdmItem, CsdlAnnotatable {
    *
    * @return the type fQN
    */
-  public FullQualifiedName getTypeFQN() {
-    return new FullQualifiedName(this.type);
+  public PathName getTypeFQN() {
+    return PathName.fromDotSeparated(this.type);
   }
 
   /**
@@ -201,7 +202,7 @@ public class CsdlReturnType implements CsdlAbstractEdmItem, CsdlAnnotatable {
   }
 
   public CsdlReturnType setType(final EdmPrimitiveTypeKind type) {
-    this.type = type.getFullQualifiedName()
+    this.type = type.getPathName()
       .toString();
     return this;
   }
@@ -212,8 +213,8 @@ public class CsdlReturnType implements CsdlAbstractEdmItem, CsdlAnnotatable {
    * @param type the type
    * @return the type
    */
-  public CsdlReturnType setType(final FullQualifiedName type) {
-    this.type = type.toString();
+  public CsdlReturnType setType(final PathName type) {
+    this.type = type.toDotSeparated();
     return this;
   }
 

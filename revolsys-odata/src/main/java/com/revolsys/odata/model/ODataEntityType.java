@@ -44,12 +44,12 @@ import org.apache.olingo.server.core.uri.UriResourceProperty;
 
 import com.revolsys.collection.list.Lists;
 import com.revolsys.io.PathName;
+import com.revolsys.odata.model.ODataEntityIterator.Options;
 import com.revolsys.record.Record;
 import com.revolsys.record.io.RecordReader;
 import com.revolsys.record.query.And;
 import com.revolsys.record.query.Condition;
 import com.revolsys.record.query.Query;
-import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordDefinitionBuilder;
 import com.revolsys.record.schema.RecordStore;
@@ -110,8 +110,6 @@ public class ODataEntityType extends CsdlEntityType {
 
   private final PathName pathName;
 
-  private RecordDefinition recordDefinition;
-
   private final ODataSchema schema;
 
   private int maxLimit = 10000;
@@ -128,7 +126,8 @@ public class ODataEntityType extends CsdlEntityType {
     setRecordDefinition(recordDefinition);
   }
 
-  void addLimits(final Query query, final UriInfo uriInfo) throws ODataApplicationException {
+  public void addLimits(final Query query, final UriInfo uriInfo, final Options options)
+    throws ODataApplicationException {
     final SkipOption skipOption = uriInfo.getSkipOption();
     if (skipOption != null) {
       final int offset = skipOption.getValue();
@@ -151,7 +150,7 @@ public class ODataEntityType extends CsdlEntityType {
       }
     }
     final int maxLimit = getMaxLimit();
-    if (query.getLimit() > maxLimit) {
+    if (options.isUseMaxLimit() && query.getLimit() > maxLimit) {
       query.setLimit(maxLimit);
     }
 
@@ -251,14 +250,10 @@ public class ODataEntityType extends CsdlEntityType {
     return this.pathName;
   }
 
+  @SuppressWarnings("unchecked")
   @Override
-  public RecordDefinition getRecordDefinition() {
-    return this.recordDefinition;
-  }
-
-  @Override
-  public RecordStore getRecordStore() {
-    return this.schema.getRecordStore();
+  public <R extends RecordStore> R getRecordStore() {
+    return (R)this.schema.getRecordStore();
   }
 
   public ODataEntity getRelatedEntity(final ODataRequest request, final ODataEntity entity,
@@ -271,8 +266,8 @@ public class ODataEntityType extends CsdlEntityType {
     return this.entitySet.newQuery(request);
   }
 
-  public Query newQuery(final ODataRequest request, final UriInfo uriInfo) {
-    final RecordDefinition recordDefinition = this.recordDefinition;
+  public Query newQuery(final ODataRequest request, final UriInfo uriInfo, final Options options) {
+    final RecordDefinition recordDefinition = getRecordDefinition();
 
     final Query query = newQuery(request);
     if (recordDefinition != null) {
@@ -324,7 +319,7 @@ public class ODataEntityType extends CsdlEntityType {
     final List<String> fieldNames) {
     idFieldNames.retainAll(fieldNames);
     sortFieldNames(idFieldNames, fieldNames);
-    final RecordDefinition recordDefinition = new RecordDefinitionBuilder(this.recordDefinition,
+    final RecordDefinition recordDefinition = new RecordDefinitionBuilder(getRecordDefinition(),
       fieldNames)//
       .setIdFieldNames(idFieldNames)//
       .getRecordDefinition();
@@ -335,7 +330,7 @@ public class ODataEntityType extends CsdlEntityType {
   public ODataEntity readEntity(final ODataRequest request, final EdmEntitySet edmEntitySet,
     final List<UriParameter> keyParams, final List<String> propertyNames)
     throws ODataApplicationException {
-    final RecordDefinition recordDefinition = this.recordDefinition;
+    final RecordDefinition recordDefinition = getRecordDefinition();
     final And and = new And();
     for (final UriParameter key : keyParams) {
       final String keyName = key.getName();
@@ -377,7 +372,8 @@ public class ODataEntityType extends CsdlEntityType {
     final EdmEntitySet edmEntitySet) throws ODataApplicationException {
     return request.getConnection()
       .transactionCall(() -> {
-        final Query query = newQuery(request, uriInfo);
+        final var options = new Options();
+        final Query query = newQuery(request, uriInfo, options);
 
         final EntityCollection entityCollection = new EntityCollection();
         final RecordStore recordStore = getRecordStore();
@@ -389,7 +385,7 @@ public class ODataEntityType extends CsdlEntityType {
         }
         try (
           RecordReader reader = recordStore.getRecords(query)) {
-          addLimits(query, uriInfo);
+          addLimits(query, uriInfo, options);
 
           final var entityList = entityCollection.getEntities();
           for (final Record record : reader) {
@@ -401,14 +397,9 @@ public class ODataEntityType extends CsdlEntityType {
       });
   }
 
-  public ODataEntityIterator readEntityIterator(final ODataRequest request, final UriInfo uriInfo,
-    final EdmEntitySet edmEntitySet) throws ODataApplicationException {
-    return new ODataEntityIterator(request, uriInfo, edmEntitySet, this);
-  }
-
   public ODataEntityType removeFieldNames(final String... removeFieldNames) {
     final List<String> names = Arrays.asList(removeFieldNames);
-    final RecordDefinition recordDefinition = this.recordDefinition;
+    final RecordDefinition recordDefinition = getRecordDefinition();
     final List<String> fieldNames = recordDefinition.getFieldNames()
       .stream()
       .filter(name -> !names.contains(name))
@@ -418,7 +409,7 @@ public class ODataEntityType extends CsdlEntityType {
   }
 
   public ODataEntityType setIdFieldNames(final String... idFieldNames) {
-    final RecordDefinition recordDefinition = this.recordDefinition;
+    final RecordDefinition recordDefinition = getRecordDefinition();
     final List<String> fieldNames = new ArrayList<>(recordDefinition.getFieldNames());
     final List<String> idNames = Lists.newArray(idFieldNames);
     return newRecordDefinition(idNames, fieldNames);
@@ -429,22 +420,16 @@ public class ODataEntityType extends CsdlEntityType {
     return this;
   }
 
+  @Override
   public void setRecordDefinition(final RecordDefinition recordDefinition) {
-    this.recordDefinition = recordDefinition;
-
-    if (this.recordDefinition != null) {
-      getFields().clear();
-
+    super.setRecordDefinition(recordDefinition);
+    if (recordDefinition != null) {
       final List<CsdlPropertyRef> keys = new ArrayList<>();
-      for (final FieldDefinition field : this.recordDefinition.getFields()) {
+      for (final var field : recordDefinition.getIdFields()) {
         final String name = field.getName();
 
-        getFields().add(field);
-
-        if (recordDefinition.isIdField(name)) {
-          final CsdlPropertyRef propertyRef = new CsdlPropertyRef(name);
-          keys.add(propertyRef);
-        }
+        final CsdlPropertyRef propertyRef = new CsdlPropertyRef(name);
+        keys.add(propertyRef);
       }
       if (keys.isEmpty()) {
         setKey(null);
@@ -452,7 +437,6 @@ public class ODataEntityType extends CsdlEntityType {
         setKey(keys);
       }
     }
-
   }
 
   protected void sortFieldNames(final List<String> idFieldNames, final List<String> fieldNames) {
@@ -486,4 +470,5 @@ public class ODataEntityType extends CsdlEntityType {
   public String toString() {
     return getName();
   }
+
 }

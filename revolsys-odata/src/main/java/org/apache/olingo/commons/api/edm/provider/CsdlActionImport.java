@@ -20,28 +20,28 @@ package org.apache.olingo.commons.api.edm.provider;
 
 import java.util.List;
 
-import org.apache.olingo.commons.api.edm.FullQualifiedName;
+import com.revolsys.io.PathName;
 
 /**
  * Represents an action import CSDL item
  */
 public class CsdlActionImport extends CsdlOperationImport {
 
-  private FullQualifiedName action;
+  private PathName action;
 
   /**
    * Returns the full qualified name of the action as string
    * @return full qualified name
    */
   public String getAction() {
-    return this.action.toString();
+    return this.action.toDotSeparated();
   }
 
   /**
    * Returns the full qualified name of the action
    * @return full qualified name
    */
-  public FullQualifiedName getActionFQN() {
+  public PathName getActionPathName() {
     return this.action;
   }
 
@@ -50,7 +50,7 @@ public class CsdlActionImport extends CsdlOperationImport {
    * @param action full qualified name
    * @return this instance
    */
-  public CsdlActionImport setAction(final FullQualifiedName action) {
+  public CsdlActionImport setAction(final PathName action) {
     this.action = action;
     return this;
   }
@@ -61,7 +61,7 @@ public class CsdlActionImport extends CsdlOperationImport {
    * @return this instance
    */
   public CsdlActionImport setAction(final String action) {
-    this.action = new FullQualifiedName(action);
+    this.action = PathName.fromDotSeparated(action);
     return this;
   }
 

@@ -21,7 +21,7 @@ package org.apache.olingo.commons.api.edm.provider;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.olingo.commons.api.edm.FullQualifiedName;
+import com.revolsys.io.PathName;
 
 /**
  * The type Csdl type definition.
@@ -30,7 +30,7 @@ public class CsdlTypeDefinition implements CsdlAbstractEdmItem, CsdlNamed, CsdlA
 
   private String name;
 
-  private FullQualifiedName underlyingType;
+  private PathName underlyingType;
 
   // Facets
   private Integer maxLength;
@@ -172,7 +172,7 @@ public class CsdlTypeDefinition implements CsdlAbstractEdmItem, CsdlNamed, CsdlA
    * @param underlyingType the underlying type
    * @return the underlying type
    */
-  public CsdlTypeDefinition setUnderlyingType(final FullQualifiedName underlyingType) {
+  public CsdlTypeDefinition setUnderlyingType(final PathName underlyingType) {
     this.underlyingType = underlyingType;
     return this;
   }
@@ -184,7 +184,7 @@ public class CsdlTypeDefinition implements CsdlAbstractEdmItem, CsdlNamed, CsdlA
    * @return the underlying type
    */
   public CsdlTypeDefinition setUnderlyingType(final String underlyingType) {
-    this.underlyingType = new FullQualifiedName(underlyingType);
+    this.underlyingType = PathName.fromDotSeparated(underlyingType);
     return this;
   }
 

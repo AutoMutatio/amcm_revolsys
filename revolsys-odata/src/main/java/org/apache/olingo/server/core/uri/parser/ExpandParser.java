@@ -89,7 +89,7 @@ public class ExpandParser {
         item.setIsStar(true);
       } else {
         throw new UriParserSemanticException(
-          "Navigation Property '" + name + "' not found in type '" + type.getFullQualifiedName()
+          "Navigation Property '" + name + "' not found in type '" + type.getPathName()
             + "'.",
           UriParserSemanticException.MessageKeys.EXPRESSION_PROPERTY_NOT_IN_TYPE, type.getName(),
           name);

@@ -130,13 +130,11 @@ public class ODataRecordWriterSerializer implements ODataSerializer {
   public void writeRecords(final ServiceMetadata metadata, final EdmEntityType entityType,
     final ODataEntityIterator records, final EntityCollectionSerializerOptions options,
     final OutputStream outputStream) {
-    records.transactionRun(() -> {
-      try (
-        final var writer = this.writerFactory.newRecordWriter(entityType.getName(), entityType,
-          outputStream, StandardCharsets.UTF_8)) {
-        writer.writeAll(records.records());
-      }
-    });
+    try (
+      final var writer = this.writerFactory.newRecordWriter(entityType.getName(), entityType,
+        outputStream, StandardCharsets.UTF_8)) {
+      writer.writeAll(records.records());
+    }
   }
 
 }

@@ -31,7 +31,8 @@ import org.apache.olingo.commons.api.edm.EdmPrimitiveType;
 import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
 import org.apache.olingo.commons.api.edm.EdmType;
 import org.apache.olingo.commons.api.edm.EdmTypeDefinition;
-import org.apache.olingo.commons.api.edm.FullQualifiedName;
+
+import com.revolsys.io.PathName;
 
 public class EdmTypeInfo {
 
@@ -102,7 +103,7 @@ public class EdmTypeInfo {
 
   private final boolean collection;
 
-  private final FullQualifiedName fullQualifiedName;
+  private final PathName fullQualifiedName;
 
   private final EdmPrimitiveTypeKind primitiveType;
 
@@ -136,14 +137,14 @@ public class EdmTypeInfo {
     }
 
     String typeName;
-    String namespace;
+    PathName namespace;
 
     final int lastDotIdx = baseType.lastIndexOf('.');
     if (lastDotIdx == -1) {
       namespace = EdmPrimitiveType.EDM_NAMESPACE;
       typeName = baseType;
     } else {
-      namespace = baseType.substring(0, lastDotIdx);
+      namespace = PathName.fromDotSeparated(baseType.substring(0, lastDotIdx));
       typeName = baseType.substring(lastDotIdx + 1);
     }
 
@@ -151,7 +152,7 @@ public class EdmTypeInfo {
       throw new IllegalArgumentException("Null or empty type name in " + typeExpression);
     }
 
-    this.fullQualifiedName = new FullQualifiedName(namespace, typeName);
+    this.fullQualifiedName = namespace.newChild(typeName);
 
     this.primitiveType = EdmPrimitiveTypeKind.getByName(typeName);
 
@@ -189,7 +190,7 @@ public class EdmTypeInfo {
     return this.enumType;
   }
 
-  public FullQualifiedName getFullQualifiedName() {
+  public PathName getPathName() {
     return this.fullQualifiedName;
   }
 
@@ -247,8 +248,8 @@ public class EdmTypeInfo {
       serialize.append("Collection(");
     }
 
-    serialize.append(external && isPrimitiveType() ? getFullQualifiedName().getName()
-      : getFullQualifiedName().toString());
+    serialize.append(
+      external && isPrimitiveType() ? getPathName().getName() : getPathName().toDotSeparated());
 
     if (isCollection()) {
       serialize.append(')');

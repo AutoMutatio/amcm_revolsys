@@ -19,10 +19,10 @@
 package org.apache.olingo.server.core.uri;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.collections.map.HashedMap;
 import org.apache.olingo.commons.api.edm.EdmFunction;
 import org.apache.olingo.commons.api.edm.EdmFunctionImport;
 import org.apache.olingo.commons.api.edm.EdmType;
@@ -40,7 +40,7 @@ public class UriResourceFunction extends UriResourceWithKeysImpl {
 
   private final List<UriParameter> parameters;
 
-  private final Map<String, UriParameter> parameterByName = new HashedMap();
+  private final Map<String, UriParameter> parameterByName = new HashMap<>();
 
   public UriResourceFunction(final EdmFunctionImport edmFunctionImport, final EdmFunction function,
     final List<UriParameter> parameters) {

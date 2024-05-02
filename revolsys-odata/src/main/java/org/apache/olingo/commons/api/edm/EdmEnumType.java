@@ -33,6 +33,7 @@ import org.apache.olingo.commons.core.edm.EdmMemberImpl;
 import org.apache.olingo.commons.core.edm.EdmTypeImpl;
 
 import com.revolsys.data.type.DataType;
+import com.revolsys.io.PathName;
 
 /**
  * An EdmEnumType represents a set of related values.
@@ -43,13 +44,13 @@ public class EdmEnumType extends EdmTypeImpl implements EdmPrimitiveType {
 
   private final CsdlEnumType enumType;
 
-  private final FullQualifiedName enumName;
+  private final PathName enumName;
 
   private List<String> memberNames;
 
   private Map<String, EdmMember> membersMap;
 
-  public EdmEnumType(final Edm edm, final FullQualifiedName enumName, final CsdlEnumType enumType) {
+  public EdmEnumType(final Edm edm, final PathName enumName, final CsdlEnumType enumType) {
     super(edm, enumName, EdmTypeKind.ENUM, enumType);
 
     if (enumType.getUnderlyingType() == null) {
@@ -110,7 +111,7 @@ public class EdmEnumType extends EdmTypeImpl implements EdmPrimitiveType {
     final List<String> memberNamesLocal = new ArrayList<>();
     if (this.enumType.getMembers() != null) {
       for (final CsdlEnumMember member : this.enumType.getMembers()) {
-        membersMapLocal.put(member.getName(), new EdmMemberImpl(this.getEdm(), member));
+        membersMapLocal.put(member.getName(), new EdmMemberImpl(getEdm(), member));
         memberNamesLocal.add(member.getName());
       }
 
@@ -121,8 +122,8 @@ public class EdmEnumType extends EdmTypeImpl implements EdmPrimitiveType {
 
   @Override
   public boolean equals(final Object obj) {
-    return obj != null && (obj == this || obj instanceof EdmEnumType
-      && getFullQualifiedName().equals(((EdmEnumType)obj).getFullQualifiedName()));
+    return obj != null && (obj == this
+      || obj instanceof EdmEnumType && getPathName().equals(((EdmEnumType)obj).getPathName()));
   }
 
   @Override
@@ -142,9 +143,9 @@ public class EdmEnumType extends EdmTypeImpl implements EdmPrimitiveType {
         if (literal.endsWith(uriSuffix)) {
           final int indexSingleQuote = literal.indexOf('\'');
           final String fqn = literal.substring(0, indexSingleQuote);
-          FullQualifiedName typeFqn = null;
+          PathName typeFqn = null;
           try {
-            typeFqn = new FullQualifiedName(fqn);
+            typeFqn = PathName.fromDotSeparated(fqn);
           } catch (final IllegalArgumentException e) {
             throw new EdmPrimitiveTypeException(
               "The literal '" + literal + "' has illegal content.", e);
@@ -157,8 +158,8 @@ public class EdmEnumType extends EdmTypeImpl implements EdmPrimitiveType {
            * the alias for us. Also in a positive case the type is already
            * cached so the EdmProvider should not be called.
            */
-          final EdmEnumType prospect = this.getEdm().getEnumType(typeFqn);
-          if (prospect != null && this.enumName.equals(prospect.getFullQualifiedName())
+          final EdmEnumType prospect = getEdm().getEnumType(typeFqn);
+          if (prospect != null && this.enumName.equals(prospect.getPathName())
             && literal.length() >= fqn.length() + 2) {
             return literal.substring(fqn.length() + 1, literal.length() - 1);
           }
@@ -205,7 +206,7 @@ public class EdmEnumType extends EdmTypeImpl implements EdmPrimitiveType {
 
   @Override
   public int hashCode() {
-    return getFullQualifiedName().toString()
+    return getPathName().toString()
       .hashCode();
   }
 

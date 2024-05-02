@@ -19,13 +19,14 @@
 package org.apache.olingo.commons.core.edm;
 
 import org.apache.olingo.commons.api.edm.EdmAction;
-import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.constants.EdmTypeKind;
 import org.apache.olingo.commons.api.edm.provider.CsdlAction;
 
+import com.revolsys.io.PathName;
+
 public class EdmActionImpl extends AbstractEdmOperation<CsdlAction> implements EdmAction {
 
-  public EdmActionImpl(final Edm edm, final FullQualifiedName name, final CsdlAction action) {
+  public EdmActionImpl(final Edm edm, final PathName name, final CsdlAction action) {
     super(edm, name, action, EdmTypeKind.ACTION);
   }
 }

@@ -24,12 +24,13 @@ import java.util.List;
 
 import org.apache.olingo.commons.api.edm.EdmException;
 import org.apache.olingo.commons.api.edm.EdmStructuredType;
-import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.annotation.EdmPropertyValue;
 import org.apache.olingo.commons.api.edm.provider.annotation.CsdlPropertyValue;
 import org.apache.olingo.commons.api.edm.provider.annotation.CsdlRecord;
 import org.apache.olingo.commons.core.edm.Edm;
 import org.apache.olingo.commons.core.edm.EdmTypeInfo;
+
+import com.revolsys.io.PathName;
 
 public class EdmRecord extends AbstractEdmAnnotatableDynamicExpression {
 
@@ -77,7 +78,8 @@ public class EdmRecord extends AbstractEdmAnnotatableDynamicExpression {
     return this.type;
   }
 
-  public FullQualifiedName getTypeFQN() {
-    return this.record.getType() != null ? new FullQualifiedName(this.record.getType()) : null;
+  public PathName getTypePathName() {
+    var type = this.record.getType();
+    return type != null ? PathName.fromDotSeparated(type) : null;
   }
 }

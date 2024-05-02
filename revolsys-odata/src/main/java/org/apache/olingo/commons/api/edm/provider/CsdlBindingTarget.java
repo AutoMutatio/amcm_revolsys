@@ -21,7 +21,7 @@ package org.apache.olingo.commons.api.edm.provider;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.olingo.commons.api.edm.FullQualifiedName;
+import com.revolsys.io.PathName;
 
 /**
  * The type Csdl binding target.
@@ -41,7 +41,7 @@ public abstract class CsdlBindingTarget implements CsdlAbstractEdmItem, CsdlName
   /**
    * The Type.
    */
-  protected FullQualifiedName type;
+  protected PathName type;
 
   /**
    * The Navigation property bindings.
@@ -88,7 +88,7 @@ public abstract class CsdlBindingTarget implements CsdlAbstractEdmItem, CsdlName
    * @return the type
    */
   public String getType() {
-    return this.type.toString();
+    return this.type.toDotSeparated();
   }
 
   /**
@@ -96,7 +96,7 @@ public abstract class CsdlBindingTarget implements CsdlAbstractEdmItem, CsdlName
    *
    * @return the type fQN
    */
-  public FullQualifiedName getTypeFQN() {
+  public PathName getTypePathName() {
     return this.type;
   }
 
@@ -159,7 +159,7 @@ public abstract class CsdlBindingTarget implements CsdlAbstractEdmItem, CsdlName
    * @param type the type
    * @return the type
    */
-  public CsdlBindingTarget setType(final FullQualifiedName type) {
+  public CsdlBindingTarget setType(final PathName type) {
     this.type = type;
     return this;
   }
@@ -171,7 +171,7 @@ public abstract class CsdlBindingTarget implements CsdlAbstractEdmItem, CsdlName
    * @return the type
    */
   public CsdlBindingTarget setType(final String type) {
-    this.type = new FullQualifiedName(type);
+    this.type = PathName.fromDotSeparated(type);
     return this;
   }
 }

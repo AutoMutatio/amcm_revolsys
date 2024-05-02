@@ -25,15 +25,16 @@ import java.util.List;
 import org.apache.olingo.commons.api.edm.EdmException;
 import org.apache.olingo.commons.api.edm.EdmTerm;
 import org.apache.olingo.commons.api.edm.EdmType;
-import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.TargetType;
 import org.apache.olingo.commons.api.edm.provider.CsdlTerm;
+
+import com.revolsys.io.PathName;
 
 public class EdmTermImpl extends AbstractEdmNamed implements EdmTerm {
 
   private final CsdlTerm term;
 
-  private final FullQualifiedName fqn;
+  private final PathName pathName;
 
   private EdmType termType;
 
@@ -41,10 +42,10 @@ public class EdmTermImpl extends AbstractEdmNamed implements EdmTerm {
 
   private List<TargetType> appliesTo;
 
-  public EdmTermImpl(final Edm edm, final String namespace, final CsdlTerm term) {
+  public EdmTermImpl(final Edm edm, final PathName namespace, final CsdlTerm term) {
     super(edm, term.getName(), term);
     this.term = term;
-    this.fqn = new FullQualifiedName(namespace, term.getName());
+    this.pathName = namespace.newChild(term.getName());
   }
 
   @Override
@@ -66,7 +67,7 @@ public class EdmTermImpl extends AbstractEdmNamed implements EdmTerm {
   @Override
   public EdmTerm getBaseTerm() {
     if (this.baseTerm == null && this.term.getBaseTerm() != null) {
-      this.baseTerm = this.getEdm().getTerm(new FullQualifiedName(this.term.getBaseTerm()));
+      this.baseTerm = getEdm().getTerm(PathName.fromDotSeparated(this.term.getBaseTerm()));
     }
     return this.baseTerm;
   }
@@ -77,13 +78,13 @@ public class EdmTermImpl extends AbstractEdmNamed implements EdmTerm {
   }
 
   @Override
-  public FullQualifiedName getFullQualifiedName() {
-    return this.fqn;
+  public Integer getMaxLength() {
+    return this.term.getMaxLength();
   }
 
   @Override
-  public Integer getMaxLength() {
-    return this.term.getMaxLength();
+  public PathName getPathName() {
+    return this.pathName;
   }
 
   @Override
@@ -107,7 +108,7 @@ public class EdmTermImpl extends AbstractEdmNamed implements EdmTerm {
       if (this.term.getType() == null) {
         throw new EdmException("Terms must hava a full qualified type.");
       }
-      this.termType = new EdmTypeInfo.Builder().setEdm(this.getEdm())
+      this.termType = new EdmTypeInfo.Builder().setEdm(getEdm())
         .setTypeExpression(this.term.getType())
         .build()
         .getType();

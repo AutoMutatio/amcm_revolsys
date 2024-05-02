@@ -181,9 +181,10 @@ public class EdmAssistedJsonSerializer implements EdmAssistedSerializer {
       stringBuilder.append('#');
     }
 
-    stringBuilder.append(typeInfo.isPrimitiveType() ? typeInfo.getFullQualifiedName()
+    stringBuilder.append(typeInfo.isPrimitiveType() ? typeInfo.getPathName()
       .getName()
-      : typeInfo.getFullQualifiedName().toString());
+      : typeInfo.getPathName()
+        .toString());
 
     if (typeInfo.isCollection()) {
       stringBuilder.append(')');
@@ -267,13 +268,15 @@ public class EdmAssistedJsonSerializer implements EdmAssistedSerializer {
             if (!collection.isEmpty()) {
               final EdmPrimitiveTypeKind kind = EdmTypeInfo.determineTypeKind(collection.get(0));
               if (kind != null) {
-                metadataTypeName = "Collection(" + kind.getFullQualifiedName().toString() + ')';
+                metadataTypeName = "Collection(" + kind.getPathName()
+                  .toString() + ')';
               }
             }
           } else {
             final EdmPrimitiveTypeKind kind = EdmTypeInfo.determineTypeKind(value);
             if (kind != null) {
-              metadataTypeName = kind.getFullQualifiedName().toString();
+              metadataTypeName = kind.getPathName()
+                .toString();
             }
           }
         }
@@ -493,13 +496,15 @@ public class EdmAssistedJsonSerializer implements EdmAssistedSerializer {
             final EdmPrimitiveTypeKind kind = EdmTypeInfo.determineTypeKind(valuable.asCollection()
               .get(0));
             if (kind != null) {
-              typeName = "Collection(" + kind.getFullQualifiedName().toString() + ')';
+              typeName = "Collection(" + kind.getPathName()
+                .toString() + ')';
             }
           }
         } else {
           final EdmPrimitiveTypeKind kind = EdmTypeInfo.determineTypeKind(valuable.asPrimitive());
           if (kind != null) {
-            typeName = kind.getFullQualifiedName().toString();
+            typeName = kind.getPathName()
+              .toString();
           }
         }
       }

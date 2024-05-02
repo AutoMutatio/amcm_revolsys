@@ -19,33 +19,34 @@
 package org.apache.olingo.commons.core.edm;
 
 import org.apache.olingo.commons.api.edm.EdmEntityContainer;
-import org.apache.olingo.commons.api.edm.FullQualifiedName;
+
+import com.revolsys.io.PathName;
 
 /**
- * An Edm target element. It contains a target as a String name as well as the {@link FullQualifiedName} of the entity
+ * An Edm target element. It contains a target as a String name as well as the {@link PathName} of the entity
  * container it is contained in.
  */
 public class Target {
 
   private String targetName;
 
-  private FullQualifiedName entityContainer;
+  private PathName entityContainer;
 
   public Target(final String target, final EdmEntityContainer defaultContainer) {
     final String[] bindingTargetParts = target.split("/");
     if (bindingTargetParts.length == 1) {
-      this.entityContainer = defaultContainer.getFullQualifiedName();
+      this.entityContainer = defaultContainer.getPathName();
       this.targetName = bindingTargetParts[0];
     } else {
-      this.entityContainer = new FullQualifiedName(bindingTargetParts[0]);
+      this.entityContainer = PathName.fromDotSeparated(bindingTargetParts[0]);
       this.targetName = bindingTargetParts[1];
     }
   }
 
   /**
-   * @return {@link FullQualifiedName} of the entity container this target is contained in.
+   * @return {@link PathName} of the entity container this target is contained in.
    */
-  public FullQualifiedName getEntityContainer() {
+  public PathName getEntityContainer() {
     return this.entityContainer;
   }
 

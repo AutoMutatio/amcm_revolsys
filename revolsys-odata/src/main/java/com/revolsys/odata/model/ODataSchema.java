@@ -1,10 +1,10 @@
 package com.revolsys.odata.model;
 
-import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntityContainerInfo;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntityType;
 import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
 
+import com.revolsys.io.PathName;
 import com.revolsys.record.schema.RecordStore;
 
 public class ODataSchema extends CsdlSchema {
@@ -12,7 +12,7 @@ public class ODataSchema extends CsdlSchema {
 
   private final ODataEdmProvider provider;
 
-  public ODataSchema(final ODataEdmProvider provider, final String namespace) {
+  public ODataSchema(final ODataEdmProvider provider, final PathName namespace) {
     this.provider = provider;
     setNamespace(namespace);
     this.entityContainer = new ODataEntityContainer(namespace);
@@ -26,9 +26,9 @@ public class ODataSchema extends CsdlSchema {
     addEntityType(entityType);
   }
 
-  private boolean equalsNamespace(final FullQualifiedName qualifiedName) {
-    final String namespaceThis = getNamespace();
-    final String namespaceOther = qualifiedName.getNamespace();
+  private boolean equalsNamespace(final PathName qualifiedName) {
+    final PathName namespaceThis = getNamespace();
+    final PathName namespaceOther = qualifiedName.getParent();
     return namespaceThis.equals(namespaceOther);
   }
 
@@ -37,7 +37,7 @@ public class ODataSchema extends CsdlSchema {
     return this.entityContainer;
   }
 
-  public ODataEntityContainer getEntityContainer(final FullQualifiedName entityContainerName) {
+  public ODataEntityContainer getEntityContainer(final PathName entityContainerName) {
     if (this.entityContainer.getQualifiedName()
       .equals(entityContainerName)) {
       return this.entityContainer;
@@ -49,7 +49,7 @@ public class ODataSchema extends CsdlSchema {
     return this.entityContainer.getEntityContainerInfo();
   }
 
-  public CsdlEntityType getEntityType(final FullQualifiedName entityTypeName) {
+  public CsdlEntityType getEntityType(final PathName entityTypeName) {
     if (equalsNamespace(entityTypeName)) {
       final String name = entityTypeName.getName();
       return getEntityType(name);
@@ -66,9 +66,9 @@ public class ODataSchema extends CsdlSchema {
     return this.provider;
   }
 
-  public FullQualifiedName getQualifiedName(final String name) {
-    final String namespace = getNamespace();
-    return new FullQualifiedName(namespace, name);
+  public PathName getQualifiedName(final String name) {
+    final var namespace = getNamespace();
+    return namespace.newChild(name);
   }
 
   public RecordStore getRecordStore() {

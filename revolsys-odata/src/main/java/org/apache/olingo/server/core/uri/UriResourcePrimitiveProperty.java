@@ -39,17 +39,17 @@ public class UriResourcePrimitiveProperty extends UriResourceProperty {
     return this.property;
   }
 
-  @Override
-  public String getSegmentValue() {
-    return getPropertyName();
-  }
-
   public String getPropertyName() {
     if (this.property == null) {
       return this.name;
     } else {
       return this.property.getName();
     }
+  }
+
+  @Override
+  public String getSegmentValue() {
+    return getPropertyName();
   }
 
   @Override

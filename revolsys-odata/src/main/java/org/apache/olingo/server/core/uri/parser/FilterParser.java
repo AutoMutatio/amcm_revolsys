@@ -43,7 +43,8 @@ public class FilterParser {
     } else {
       throw new UriParserSemanticException("Filter expressions must be boolean.",
         UriParserSemanticException.MessageKeys.TYPES_NOT_COMPATIBLE, "Edm.Boolean",
-        type.getFullQualifiedName().toString());
+        type.getPathName()
+          .toString());
     }
   }
 

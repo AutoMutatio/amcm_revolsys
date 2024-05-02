@@ -19,6 +19,7 @@
 package org.apache.olingo.commons.api.edm;
 
 import com.revolsys.data.type.DataType;
+import com.revolsys.io.PathName;
 
 /**
  * EdmPrimitiveType is a primitive type as defined in the Entity Data Model (EDM).
@@ -73,7 +74,7 @@ import com.revolsys.data.type.DataType;
  */
 public interface EdmPrimitiveType extends EdmType {
 
-  String EDM_NAMESPACE = "Edm";
+  PathName EDM_NAMESPACE = PathName.newPathName("Edm");
 
   /**
   * Converts URI literal representation to default literal representation.

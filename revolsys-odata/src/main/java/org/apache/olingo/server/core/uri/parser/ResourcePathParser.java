@@ -33,7 +33,6 @@ import org.apache.olingo.commons.api.edm.EdmNavigationProperty;
 import org.apache.olingo.commons.api.edm.EdmProperty;
 import org.apache.olingo.commons.api.edm.EdmStructuredType;
 import org.apache.olingo.commons.api.edm.EdmType;
-import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.constants.EdmTypeKind;
 import org.apache.olingo.commons.core.edm.Edm;
 import org.apache.olingo.commons.core.edm.EdmSingleton;
@@ -55,6 +54,8 @@ import org.apache.olingo.server.core.uri.UriResourceWithKeysImpl;
 import org.apache.olingo.server.core.uri.parser.UriTokenizer.TokenKind;
 import org.apache.olingo.server.core.uri.validator.UriValidationException;
 
+import com.revolsys.io.PathName;
+
 public class ResourcePathParser {
 
   private final Edm edm;
@@ -73,7 +74,7 @@ public class ResourcePathParser {
 
   private UriResource boundOperationOrTypeCast(final UriResource previous)
     throws UriParserException, UriValidationException {
-    final FullQualifiedName name = new FullQualifiedName(this.tokenizer.getText());
+    final var name = PathName.fromDotSeparated(this.tokenizer.getText());
     requireTyped(previous, name.toString());
     final UriResourcePartTyped previousTyped = (UriResourcePartTyped)previous;
     final EdmType previousTypeFilter = getPreviousTypeFilter(previousTyped);
@@ -82,7 +83,7 @@ public class ResourcePathParser {
 
     // We check for bound actions first because they cannot be followed by
     // anything.
-    final EdmAction boundAction = this.edm.getBoundAction(name, previousType.getFullQualifiedName(),
+    final EdmAction boundAction = this.edm.getBoundAction(name, previousType.getPathName(),
       previousTyped.isCollection());
     if (boundAction != null) {
       ParserHelper.requireTokenEnd(this.tokenizer);
@@ -104,8 +105,7 @@ public class ResourcePathParser {
     }
 
     // Now a bound function call is the only remaining option.
-    return functionCall(null, name, previousType.getFullQualifiedName(),
-      previousTyped.isCollection());
+    return functionCall(null, name, previousType.getPathName(), previousTyped.isCollection());
   }
 
   private UriResource count(final UriResource previous) throws UriParserException {
@@ -120,7 +120,7 @@ public class ResourcePathParser {
   }
 
   private UriResource functionCall(final EdmFunctionImport edmFunctionImport,
-    final FullQualifiedName boundFunctionName, final FullQualifiedName bindingParameterTypeName,
+    final PathName boundFunctionName, final PathName bindingParameterTypeName,
     final boolean isBindingParameterCollection) throws UriParserException, UriValidationException {
     final List<UriParameter> parameters = ParserHelper.parseFunctionParameters(this.tokenizer,
       this.edm, null, false, this.aliases);
@@ -253,10 +253,9 @@ public class ResourcePathParser {
     final EdmNavigationProperty navigationProperty = structType.getNavigationProperty(name);
     if (navigationProperty == null) {
       throw new UriParserSemanticException(
-        "Property '" + name + "' not found in type '" + structType.getFullQualifiedName()
+        "Property '" + name + "' not found in type '" + structType.getPathName()
           .toString() + "'",
-        UriParserSemanticException.MessageKeys.PROPERTY_NOT_IN_TYPE,
-        structType.getFullQualifiedName()
+        UriParserSemanticException.MessageKeys.PROPERTY_NOT_IN_TYPE, structType.getPathName()
           .toString(),
         name);
     }
@@ -294,7 +293,7 @@ public class ResourcePathParser {
     ParserHelper.requireNext(this.tokenizer, TokenKind.QualifiedName);
     final String name = this.tokenizer.getText();
     ParserHelper.requireTokenEnd(this.tokenizer);
-    final EdmEntityType type = this.edm.getEntityType(new FullQualifiedName(name));
+    final EdmEntityType type = this.edm.getEntityType(PathName.fromDotSeparated(name));
     if (type == null) {
       throw new UriParserSemanticException("Type '" + name + "' not found.",
         UriParserSemanticException.MessageKeys.UNKNOWN_TYPE, name);
@@ -314,7 +313,9 @@ public class ResourcePathParser {
       if (this.tokenizer.next(TokenKind.QualifiedName)) {
         throw new UriParserSemanticException("The initial segment must not be namespace-qualified.",
           UriParserSemanticException.MessageKeys.NAMESPACE_NOT_ALLOWED_AT_FIRST_ELEMENT,
-          new FullQualifiedName(this.tokenizer.getText()).getNamespace());
+          PathName.fromDotSeparated(this.tokenizer.getText())
+            .getParent()
+            .toDotSeparated());
       } else if (this.tokenizer.next(TokenKind.ODataIdentifier)) {
         return leadingResourcePathSegment();
       }
@@ -383,7 +384,7 @@ public class ResourcePathParser {
     }
   }
 
-  private UriResource typeCast(final FullQualifiedName name, final EdmStructuredType type,
+  private UriResource typeCast(final PathName name, final EdmStructuredType type,
     final UriResourcePartTyped previousTyped) throws UriParserException, UriValidationException {
     if (type.compatibleTo(previousTyped.getType())) {
       EdmType previousTypeFilter = null;

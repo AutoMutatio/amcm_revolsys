@@ -103,7 +103,8 @@ public class EdmNavigationPropertyImpl extends AbstractEdmNamed implements EdmNa
       final List<EdmReferentialConstraint> referentialConstraintsLocal = new ArrayList<>();
       if (providerConstraints != null) {
         for (final CsdlReferentialConstraint constraint : providerConstraints) {
-          referentialConstraintsLocal.add(new EdmReferentialConstraintImpl(this.getEdm(), constraint));
+          referentialConstraintsLocal
+            .add(new EdmReferentialConstraintImpl(this.getEdm(), constraint));
         }
       }
 
@@ -115,10 +116,11 @@ public class EdmNavigationPropertyImpl extends AbstractEdmNamed implements EdmNa
   @Override
   public EdmEntityType getType() {
     if (this.typeImpl == null) {
-      this.typeImpl = this.getEdm().getEntityType(this.navigationProperty.getTypeFQN());
+      this.typeImpl = this.getEdm()
+        .getEntityType(this.navigationProperty.getTypePathName());
       if (this.typeImpl == null) {
         throw new EdmException(
-          "Cannot find type with name: " + this.navigationProperty.getTypeFQN());
+          "Cannot find type with name: " + this.navigationProperty.getTypePathName());
       }
     }
     return this.typeImpl;

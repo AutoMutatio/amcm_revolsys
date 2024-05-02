@@ -60,7 +60,8 @@ public abstract class ExpandSelectHelper {
         if (part instanceof UriResourceComplexProperty
           && ((UriResourceComplexProperty)part).getComplexTypeFilter() != null) {
           path.add(((UriResourceComplexProperty)part).getComplexTypeFilter()
-          .getFullQualifiedName().toString());
+            .getPathName()
+            .toString());
         }
       }
       selectedPaths.add(path);
@@ -324,16 +325,19 @@ public abstract class ExpandSelectHelper {
         final List<String> path = new ArrayList<>();
         if (item.getStartTypeFilter() != null) {
           path.add(item.getStartTypeFilter()
-          .getFullQualifiedName().toString());
+            .getPathName()
+            .toString());
         }
         if (resource instanceof UriResourceComplexProperty
           && ((UriResourceComplexProperty)resource).getComplexTypeFilter() != null) {
           path.add(((UriResourceComplexProperty)resource).getComplexTypeFilter()
-          .getFullQualifiedName().toString());
+            .getPathName()
+            .toString());
         } else if (resource instanceof UriResourceEntitySet
           && ((UriResourceEntitySet)resource).getTypeFilterOnCollection() != null) {
           path.add(((UriResourceEntitySet)resource).getTypeFilterOnCollection()
-          .getFullQualifiedName().toString());
+            .getPathName()
+            .toString());
         }
         extractPathsFromResourceParts(selectedPaths, parts, path);
       } else if (resource instanceof UriResourceNavigationProperty
@@ -342,7 +346,8 @@ public abstract class ExpandSelectHelper {
         final List<String> path = new ArrayList<>();
         if (item.getStartTypeFilter() != null) {
           path.add(item.getStartTypeFilter()
-          .getFullQualifiedName().toString());
+            .getPathName()
+            .toString());
         }
         extractPathsFromResourceParts(selectedPaths, parts, path);
       }

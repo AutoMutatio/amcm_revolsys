@@ -8,8 +8,8 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.function.Consumer;
 
-import org.apache.olingo.commons.api.edm.FullQualifiedName;
-import org.apache.olingo.commons.api.edm.provider.CsdlAbstractEdmProvider;
+import org.apache.olingo.commons.api.edm.EdmEntityType;
+import org.apache.olingo.commons.api.edm.provider.CsdlEdmProvider;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntityContainer;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntityContainerInfo;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntitySet;
@@ -25,13 +25,14 @@ import org.apache.olingo.server.api.ServiceMetadata;
 import org.apache.olingo.server.core.ServiceMetadataImpl;
 
 import com.revolsys.collection.list.Lists;
+import com.revolsys.io.PathName;
 import com.revolsys.odata.service.processor.ODataEntityCollectionProcessor;
 import com.revolsys.odata.service.processor.ODataEntityProcessor;
 import com.revolsys.odata.service.processor.ODataPrimitiveProcessor;
 import com.revolsys.odata.service.processor.ODataServiceDocumentMetadataProcessor;
 import com.revolsys.record.schema.RecordStore;
 
-public abstract class ODataEdmProvider extends CsdlAbstractEdmProvider {
+public abstract class ODataEdmProvider extends CsdlEdmProvider {
 
   private final CsdlEntityContainer allEntityContainer = new CsdlEntityContainer()
     .setName("Container");
@@ -40,7 +41,7 @@ public abstract class ODataEdmProvider extends CsdlAbstractEdmProvider {
 
   private RecordStore recordStore;
 
-  private final Map<String, ODataSchema> schemaByNamespace = new TreeMap<>();
+  private final Map<PathName, ODataSchema> schemaByNamespace = new TreeMap<>();
 
   private final List<CsdlSchema> schemas = new ArrayList<>();
 
@@ -48,9 +49,9 @@ public abstract class ODataEdmProvider extends CsdlAbstractEdmProvider {
 
   private String serviceRoot;
 
-  private final Map<FullQualifiedName, CsdlTerm> termByName = new HashMap<>();
+  private final Map<PathName, CsdlTerm> termByName = new HashMap<>();
 
-  private final Map<FullQualifiedName, List<CsdlFunction>> functionByName = new LinkedHashMap<>();
+  private final Map<PathName, List<CsdlFunction>> functionByName = new LinkedHashMap<>();
 
   private final Map<String, CsdlFunctionImport> functionImportByName = new LinkedHashMap<>();
 
@@ -65,7 +66,7 @@ public abstract class ODataEdmProvider extends CsdlAbstractEdmProvider {
     addTerm("Geometry", "scaleZ", "Float");
   }
 
-  public ODataEdmProvider addEntitySetFunction(final String namespace, final String name,
+  public ODataEdmProvider addEntitySetFunction(final PathName namespace, final String name,
     final Consumer<CsdlFunction> configurer, final ODataEntityCollectionProcessor.Handler handler) {
     return addFunction(namespace, name, function -> {
       configurer.accept(function);
@@ -73,7 +74,7 @@ public abstract class ODataEdmProvider extends CsdlAbstractEdmProvider {
     });
   }
 
-  public ODataEdmProvider addFunction(final FullQualifiedName qName,
+  public ODataEdmProvider addFunction(final PathName qName,
     final Consumer<CsdlFunction> configurer) {
     final var function = new CsdlFunction();
     final var name = qName.getName();
@@ -84,12 +85,12 @@ public abstract class ODataEdmProvider extends CsdlAbstractEdmProvider {
     return this;
   }
 
-  public ODataEdmProvider addFunction(final String namespace, final String name,
+  public ODataEdmProvider addFunction(final PathName namespace, final String name,
     final Consumer<CsdlFunction> configurer) {
-    return addFunction(new FullQualifiedName(namespace, name), configurer);
+    return addFunction(namespace.newChild(name), configurer);
   }
 
-  protected ODataSchema addSchema(final String namespace) {
+  protected ODataSchema addSchema(final PathName namespace) {
     final ODataSchema schema = new ODataSchema(this, namespace);
     this.schemaByNamespace.put(namespace, schema);
     this.schemas.add(schema);
@@ -102,7 +103,8 @@ public abstract class ODataEdmProvider extends CsdlAbstractEdmProvider {
   private CsdlTerm addTerm(final String namespace, final String name, final String type) {
     final CsdlTerm term = new CsdlTerm().setName(name)
       .setType(type);
-    this.termByName.put(new FullQualifiedName(namespace, name), term);
+    this.termByName.put(PathName.fromDotSeparated(namespace)
+      .newChild(name), term);
     return term;
   }
 
@@ -114,12 +116,16 @@ public abstract class ODataEdmProvider extends CsdlAbstractEdmProvider {
     return this.edm;
   }
 
+  public EdmEntityType getEdmEntityType(final PathName entityTypeName) {
+    return this.edm.getEntityType(entityTypeName);
+  }
+
   @Override
   public CsdlEntityContainer getEntityContainer() throws ODataException {
     return this.allEntityContainer;
   }
 
-  private ODataEntityContainer getEntityContainer(final FullQualifiedName entityContainerName) {
+  private ODataEntityContainer getEntityContainer(final PathName entityContainerName) {
     final ODataSchema schema = getSchema(entityContainerName);
     if (schema == null) {
       return null;
@@ -129,7 +135,7 @@ public abstract class ODataEdmProvider extends CsdlAbstractEdmProvider {
   }
 
   @Override
-  public CsdlEntityContainerInfo getEntityContainerInfo(final FullQualifiedName entityContainerName)
+  public CsdlEntityContainerInfo getEntityContainerInfo(final PathName entityContainerName)
     throws ODataException {
     if (entityContainerName == null) {
       if (this.defaultSchema != null) {
@@ -145,8 +151,8 @@ public abstract class ODataEdmProvider extends CsdlAbstractEdmProvider {
   }
 
   @Override
-  public CsdlEntitySet getEntitySet(final FullQualifiedName entityContainerName,
-    final String entitySetName) throws ODataException {
+  public CsdlEntitySet getEntitySet(final PathName entityContainerName, final String entitySetName)
+    throws ODataException {
     final ODataEntityContainer entityContainer = getEntityContainer(entityContainerName);
     if (entityContainer != null) {
       return entityContainer.getEntitySet(entitySetName);
@@ -155,7 +161,7 @@ public abstract class ODataEdmProvider extends CsdlAbstractEdmProvider {
   }
 
   @Override
-  public CsdlEntityType getEntityType(final FullQualifiedName entityTypeName) {
+  public CsdlEntityType getEntityType(final PathName entityTypeName) {
     final ODataSchema schema = getSchema(entityTypeName);
     if (schema != null) {
       return schema.getEntityType(entityTypeName);
@@ -169,14 +175,13 @@ public abstract class ODataEdmProvider extends CsdlAbstractEdmProvider {
   }
 
   @Override
-  public CsdlFunctionImport getFunctionImport(final FullQualifiedName containerQName,
-    final String name) throws ODataException {
+  public CsdlFunctionImport getFunctionImport(final PathName containerQName, final String name)
+    throws ODataException {
     return this.functionImportByName.get(name);
   }
 
   @Override
-  public List<CsdlFunction> getFunctions(final FullQualifiedName functionName)
-    throws ODataException {
+  public List<CsdlFunction> getFunctions(final PathName functionName) throws ODataException {
     return this.functionByName.get(functionName);
   }
 
@@ -188,8 +193,8 @@ public abstract class ODataEdmProvider extends CsdlAbstractEdmProvider {
     return this.recordStore;
   }
 
-  private ODataSchema getSchema(final FullQualifiedName qualifiedName) {
-    final String namespace = qualifiedName.getNamespace();
+  private ODataSchema getSchema(final PathName qualifiedName) {
+    final var namespace = qualifiedName.getParent();
     return this.schemaByNamespace.get(namespace);
   }
 
@@ -203,7 +208,7 @@ public abstract class ODataEdmProvider extends CsdlAbstractEdmProvider {
   }
 
   @Override
-  public CsdlTerm getTerm(final FullQualifiedName termName) {
+  public CsdlTerm getTerm(final PathName termName) {
     return this.termByName.get(termName);
   }
 

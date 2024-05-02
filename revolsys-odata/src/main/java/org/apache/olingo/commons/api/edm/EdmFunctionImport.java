@@ -24,6 +24,8 @@ import org.apache.olingo.commons.api.edm.provider.CsdlFunctionImport;
 import org.apache.olingo.commons.core.edm.AbstractEdmOperationImport;
 import org.apache.olingo.commons.core.edm.Edm;
 
+import com.revolsys.io.PathName;
+
 /**
  * A CSDL FunctionImport element
  */
@@ -37,8 +39,8 @@ public class EdmFunctionImport extends AbstractEdmOperationImport {
     this.functionImport = functionImport;
   }
 
-  public FullQualifiedName getFunctionFqn() {
-    return this.functionImport.getFunctionFQN();
+  public PathName getFunctionPathName() {
+    return this.functionImport.getFunctionPathName();
   }
 
   public String getTitle() {
@@ -46,11 +48,11 @@ public class EdmFunctionImport extends AbstractEdmOperationImport {
   }
 
   public EdmFunction getUnboundFunction(final List<String> parameterNames) {
-    return this.getEdm().getUnboundFunction(getFunctionFqn(), parameterNames);
+    return getEdm().getUnboundFunction(getFunctionPathName(), parameterNames);
   }
 
   public List<EdmFunction> getUnboundFunctions() {
-    return this.getEdm().getUnboundFunctions(getFunctionFqn());
+    return getEdm().getUnboundFunctions(getFunctionPathName());
   }
 
   public boolean isIncludeInServiceDocument() {

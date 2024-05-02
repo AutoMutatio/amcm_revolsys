@@ -64,7 +64,8 @@ public final class ContextURL {
      * @return Builder
      */
     public Builder derived(final EdmEntityType derivedType) {
-      this.contextUrl.derivedEntity = derivedType.getFullQualifiedName().toString();
+      this.contextUrl.derivedEntity = derivedType.getPathName()
+        .toString();
       return this;
     }
 
@@ -164,7 +165,7 @@ public final class ContextURL {
      * @return Builder
      */
     public Builder type(final EdmType type) {
-      this.contextUrl.entitySetOrSingletonOrType = type.getFullQualifiedName()
+      this.contextUrl.entitySetOrSingletonOrType = type.getPathName()
         .toString();
       return this;
     }

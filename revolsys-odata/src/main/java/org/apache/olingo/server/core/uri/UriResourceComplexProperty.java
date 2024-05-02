@@ -40,6 +40,7 @@ public class UriResourceComplexProperty extends UriResourceProperty {
     return (EdmComplexType)getTypeFilter();
   }
 
+  @Override
   public EdmProperty getProperty() {
     return this.property;
   }

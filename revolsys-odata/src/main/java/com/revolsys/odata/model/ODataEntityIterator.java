@@ -8,10 +8,7 @@ import java.util.function.Consumer;
 import org.apache.olingo.commons.api.data.AbstractEntityCollection;
 import org.apache.olingo.commons.api.data.ODataEntity;
 import org.apache.olingo.commons.api.data.Operation;
-import org.apache.olingo.commons.api.edm.EdmEntitySet;
 import org.apache.olingo.commons.api.edm.EdmEntityType;
-import org.apache.olingo.commons.api.edm.FullQualifiedName;
-import org.apache.olingo.commons.api.edm.provider.CsdlEntityType;
 import org.apache.olingo.commons.api.ex.ODataNotSupportedException;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.ODataRequest;
@@ -30,11 +27,24 @@ import com.revolsys.util.UriBuilder;
 public class ODataEntityIterator extends AbstractEntityCollection
   implements BaseCloseable, Iterator<ODataEntity>, Transactionable {
 
+  public static class Options {
+    private boolean useMaxLimit = true;
+
+    public boolean isUseMaxLimit() {
+      return this.useMaxLimit;
+    }
+
+    public Options useMaxLimit(final boolean useMaxLimit) {
+      this.useMaxLimit = useMaxLimit;
+      return this;
+    }
+  }
+
   private BaseIterable<Record> reader;
 
   private Iterator<Record> iterator;
 
-  private final ODataEntityType entityType;
+  private final EdmEntityType entityType;
 
   private final int skip;
 
@@ -52,19 +62,15 @@ public class ODataEntityIterator extends AbstractEntityCollection
 
   private Integer count;
 
-  private final EdmEntitySet edmEntitySet;
+  private EdmEntityType resultEntityType;
 
-  private CsdlEntityType resultEntityType;
-
-  public ODataEntityIterator(final ODataRequest request, final UriInfo uriInfo,
-    final EdmEntitySet edmEntitySet, final ODataEntityType entityType)
-    throws ODataApplicationException {
-    this.edmEntitySet = edmEntitySet;
+  public ODataEntityIterator(final EdmEntityType entityType, final ODataRequest request,
+    final UriInfo uriInfo, final Options options) throws ODataApplicationException {
     this.request = request;
     this.uriInfo = uriInfo;
     this.entityType = entityType;
     this.resultEntityType = entityType;
-    final Query query = entityType.newQuery(request, uriInfo);
+    final Query query = entityType.newQuery(request, uriInfo, options);
 
     final CountOption countOption = this.uriInfo.getCountOption();
     if (countOption == null) {
@@ -73,7 +79,8 @@ public class ODataEntityIterator extends AbstractEntityCollection
       this.countLoaded = !countOption.getValue();
     }
     this.query = query;
-    this.entityType.addLimits(this.query, this.uriInfo);
+    final ODataEntityType odataEntityType = entityType.getEntityType();
+    odataEntityType.addLimits(this.query, this.uriInfo, options);
     this.skip = query.getOffset();
     this.limit = query.getLimit();
   }
@@ -112,17 +119,8 @@ public class ODataEntityIterator extends AbstractEntityCollection
     throw new ODataNotSupportedException("Entity Iterator does not support getDeltaLink()");
   }
 
-  public EdmEntitySet getEdmEntitySet() {
-    return this.edmEntitySet;
-  }
-
   public EdmEntityType getEdmEntityType() {
-    if (this.entityType == this.resultEntityType) {
-      return this.edmEntitySet.getEntityType();
-    } else {
-      return new EdmEntityType(this.edmEntitySet.getEdm(),
-        new FullQualifiedName(null, this.resultEntityType.getName()), this.resultEntityType);
-    }
+    return this.resultEntityType;
   }
 
   private Iterator<Record> getIterator() {
@@ -215,7 +213,7 @@ public class ODataEntityIterator extends AbstractEntityCollection
     throw new ODataNotSupportedException("Entity Iterator does not support remove()");
   }
 
-  public ODataEntityIterator setResultEntityType(final CsdlEntityType resultEntityType) {
+  public ODataEntityIterator setResultEntityType(final EdmEntityType resultEntityType) {
     this.resultEntityType = resultEntityType;
     return this;
   }

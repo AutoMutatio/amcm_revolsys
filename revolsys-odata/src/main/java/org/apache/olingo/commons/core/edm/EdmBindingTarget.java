@@ -30,11 +30,15 @@ import org.apache.olingo.commons.api.edm.EdmMapping;
 import org.apache.olingo.commons.api.edm.provider.CsdlBindingTarget;
 import org.apache.olingo.commons.api.edm.provider.CsdlNavigationPropertyBinding;
 
+import com.revolsys.collection.value.ValueHolder;
+
 public abstract class EdmBindingTarget extends AbstractEdmNamed {
 
   private final CsdlBindingTarget target;
 
   private final EdmEntityContainer container;
+
+  private final ValueHolder<EdmEntityType> entityType = ValueHolder.lazy(this::initEntityType);
 
   private List<CsdlNavigationPropertyBinding> navigationPropertyBindings;
 
@@ -50,19 +54,14 @@ public abstract class EdmBindingTarget extends AbstractEdmNamed {
   }
 
   public EdmEntityType getEntityType() {
-    final EdmEntityType entityType = this.getEdm().getEntityType(this.target.getTypeFQN());
-    if (entityType == null) {
-      throw new EdmException("Can´t find entity type: " + this.target.getTypeFQN()
-        + " for entity set or singleton: " + getName());
-    }
-    return entityType;
+    return this.entityType.getValue();
   }
 
   public EdmEntityType getEntityTypeWithAnnotations() {
-    final EdmEntityType entityType = this.getEdm().getEntityTypeWithAnnotations(this.target.getTypeFQN(),
-      true);
+    final EdmEntityType entityType = getEdm()
+      .getEntityTypeWithAnnotations(this.target.getTypePathName(), true);
     if (entityType == null) {
-      throw new EdmException("Can´t find entity type: " + this.target.getTypeFQN()
+      throw new EdmException("Can´t find entity type: " + this.target.getTypePathName()
         + " for entity set or singleton: " + getName());
     }
     return entityType;
@@ -104,7 +103,7 @@ public abstract class EdmBindingTarget extends AbstractEdmNamed {
       if (path.equals(binding.path())) {
         final Target edmTarget = new Target(binding.target(), this.container);
 
-        final EdmEntityContainer entityContainer = this.getEdm()
+        final EdmEntityContainer entityContainer = getEdm()
           .getEntityContainer(edmTarget.getEntityContainer());
         if (entityContainer == null) {
           throw new EdmException(
@@ -134,5 +133,14 @@ public abstract class EdmBindingTarget extends AbstractEdmNamed {
 
   public String getTitle() {
     return this.target.getTitle();
+  }
+
+  private EdmEntityType initEntityType() {
+    final EdmEntityType entityType = getEdm().getEntityType(this.target.getTypePathName());
+    if (entityType == null) {
+      throw new EdmException("Can´t find entity type: " + this.target.getTypePathName()
+        + " for entity set or singleton: " + getName());
+    }
+    return entityType;
   }
 }

@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.function.Function;
 
 import org.apache.olingo.commons.api.data.ODataEntity;
-import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.provider.CsdlNavigationProperty;
 import org.apache.olingo.commons.api.edm.provider.CsdlReferentialConstraint;
 
@@ -22,7 +21,7 @@ public class ODataNavigationProperty extends CsdlNavigationProperty {
   public ODataNavigationProperty(final AbstractODataEntitySet targetEntitySet, final String name) {
     this.targetEntitySet = targetEntitySet;
     setName(name);
-    final FullQualifiedName referencedType = targetEntitySet.getTypeFQN();
+    final var referencedType = targetEntitySet.getTypePathName();
     setType(referencedType);
     setNullable(false);
   }

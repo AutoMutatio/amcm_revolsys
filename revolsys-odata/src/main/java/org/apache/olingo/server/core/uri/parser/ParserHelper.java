@@ -40,7 +40,6 @@ import org.apache.olingo.commons.api.edm.EdmProperty;
 import org.apache.olingo.commons.api.edm.EdmStructuredType;
 import org.apache.olingo.commons.api.edm.EdmType;
 import org.apache.olingo.commons.api.edm.EdmTypeDefinition;
-import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.constants.EdmTypeKind;
 import org.apache.olingo.commons.core.edm.Edm;
 import org.apache.olingo.server.api.uri.UriParameter;
@@ -53,6 +52,8 @@ import org.apache.olingo.server.core.uri.parser.UriTokenizer.TokenKind;
 import org.apache.olingo.server.core.uri.queryoption.AliasQueryOptionImpl;
 import org.apache.olingo.server.core.uri.queryoption.expression.LiteralImpl;
 import org.apache.olingo.server.core.uri.validator.UriValidationException;
+
+import com.revolsys.io.PathName;
 
 public class ParserHelper {
 
@@ -548,7 +549,7 @@ public class ParserHelper {
   protected static EdmStructuredType parseTypeCast(final UriTokenizer tokenizer, final Edm edm,
     final EdmStructuredType referencedType) throws UriParserException {
     if (tokenizer.next(TokenKind.QualifiedName)) {
-      final FullQualifiedName qualifiedName = new FullQualifiedName(tokenizer.getText());
+      final var qualifiedName = PathName.fromDotSeparated(tokenizer.getText());
       final EdmStructuredType type = referencedType.getKind() == EdmTypeKind.ENTITY
         ? edm.getEntityType(qualifiedName)
         : edm.getComplexType(qualifiedName);

@@ -33,9 +33,9 @@ public class RecordEntity extends Linked implements ODataEntity {
 
   private final Record record;
 
-  private final CsdlStructuralType structuralType;
+  private final CsdlStructuralType<?> structuralType;
 
-  public RecordEntity(final CsdlStructuralType type, final Record record) {
+  public RecordEntity(final CsdlStructuralType<?> type, final Record record) {
     this.structuralType = type;
     this.record = record;
     if (type != null) {
@@ -68,7 +68,7 @@ public class RecordEntity extends Linked implements ODataEntity {
   }
 
   @Override
-  public CsdlStructuralType getStructuralType() {
+  public CsdlStructuralType<?> getStructuralType() {
     return this.structuralType;
   }
 
