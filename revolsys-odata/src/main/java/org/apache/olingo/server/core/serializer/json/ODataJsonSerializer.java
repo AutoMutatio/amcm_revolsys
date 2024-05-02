@@ -47,7 +47,6 @@ import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
 import org.apache.olingo.commons.api.edm.EdmProperty;
 import org.apache.olingo.commons.api.edm.EdmStructuredType;
 import org.apache.olingo.commons.api.edm.EdmType;
-import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.constants.EdmTypeKind;
 import org.apache.olingo.commons.api.format.ContentType;
 import org.apache.olingo.server.api.ODataServerError;
@@ -89,6 +88,7 @@ import com.revolsys.geometry.model.MultiPolygon;
 import com.revolsys.geometry.model.Point;
 import com.revolsys.geometry.model.Polygon;
 import com.revolsys.geometry.model.impl.GeometryCollectionImpl;
+import com.revolsys.io.PathName;
 import com.revolsys.odata.model.ODataEntityIterator;
 
 public class ODataJsonSerializer implements ODataSerializer {
@@ -169,16 +169,15 @@ public class ODataJsonSerializer implements ODataSerializer {
       writeContextURL(json, contextURL);
       writeMetadataETag(json, metadata);
       EdmComplexType resolvedType = null;
-      if (!type.getFullQualifiedName()
+      if (!type.getPathName()
         .toString()
         .equals(complex.getTypeName())) {
         if (type.getBaseType() != null && type.getBaseType()
-          .getFullQualifiedName()
+          .getPathName()
           .toString()
           .equals(complex.getTypeName())) {
-          resolvedType = resolveComplexType(metadata, type.getBaseType(),
-            type.getFullQualifiedName()
-              .toString());
+          resolvedType = resolveComplexType(metadata, type.getBaseType(), type.getPathName()
+            .toString());
         } else {
           resolvedType = resolveComplexType(metadata, type, complex.getTypeName());
         }
@@ -186,7 +185,7 @@ public class ODataJsonSerializer implements ODataSerializer {
         resolvedType = resolveComplexType(metadata, type, complex.getTypeName());
       }
       if (!this.isODataMetadataNone && !resolvedType.equals(type) || this.isODataMetadataFull) {
-        json.labelValue(this.constants.getType(), "#" + resolvedType.getFullQualifiedName()
+        json.labelValue(this.constants.getType(), "#" + resolvedType.getPathName()
           .toString());
       }
       // writeOperations(complex.getOperations(), json);
@@ -220,7 +219,7 @@ public class ODataJsonSerializer implements ODataSerializer {
       writeContextURL(json, contextURL);
       writeMetadataETag(json, metadata);
       if (this.isODataMetadataFull) {
-        json.labelValue(this.constants.getType(), "#Collection(" + type.getFullQualifiedName()
+        json.labelValue(this.constants.getType(), "#Collection(" + type.getPathName()
           .toString() + ")");
       }
       // writeOperations(value.getOperations(), json);
@@ -425,7 +424,7 @@ public class ODataJsonSerializer implements ODataSerializer {
       writeContextURL(json, contextURL);
       writeMetadataETag(json, metadata);
       if (this.isODataMetadataFull) {
-        json.labelValue(this.constants.getType(), "#Collection(" + type.getFullQualifiedName()
+        json.labelValue(this.constants.getType(), "#Collection(" + type.getPathName()
           .getName() + ")");
       }
       // writeOperations(property.getOperations(), json);
@@ -503,55 +502,53 @@ public class ODataJsonSerializer implements ODataSerializer {
   protected EdmComplexType resolveComplexType(final ServiceMetadata metadata,
     final EdmComplexType baseType, final String derivedTypeName) throws SerializerException {
 
-    final String fullQualifiedName = baseType.getFullQualifiedName()
+    final String fullQualifiedName = baseType.getPathName()
       .toString();
     if (derivedTypeName == null || fullQualifiedName.equals(derivedTypeName)) {
       return baseType;
     }
     final EdmComplexType derivedType = metadata.getEdm()
-      .getComplexType(new FullQualifiedName(derivedTypeName));
+      .getComplexType(PathName.fromDotSeparated(derivedTypeName));
     if (derivedType == null) {
       throw new SerializerException("Complex Type not found",
         SerializerException.MessageKeys.UNKNOWN_TYPE, derivedTypeName);
     }
     EdmComplexType type = derivedType.getBaseType();
     while (type != null) {
-      if (type.getFullQualifiedName()
-        .equals(baseType.getFullQualifiedName())) {
+      if (type.getPathName()
+        .equals(baseType.getPathName())) {
         return derivedType;
       }
       type = type.getBaseType();
     }
     throw new SerializerException("Wrong base type",
-      SerializerException.MessageKeys.WRONG_BASE_TYPE, derivedTypeName,
-      baseType.getFullQualifiedName()
+      SerializerException.MessageKeys.WRONG_BASE_TYPE, derivedTypeName, baseType.getPathName()
         .toString());
   }
 
   protected EdmEntityType resolveEntityType(final ServiceMetadata metadata,
     final EdmEntityType baseType, final String derivedTypeName) throws SerializerException {
-    if (derivedTypeName == null || baseType.getFullQualifiedName()
+    if (derivedTypeName == null || baseType.getPathName()
       .toString()
       .equals(derivedTypeName)) {
       return baseType;
     }
     final EdmEntityType derivedType = metadata.getEdm()
-      .getEntityType(new FullQualifiedName(derivedTypeName));
+      .getEntityType(PathName.fromDotSeparated(derivedTypeName));
     if (derivedType == null) {
       throw new SerializerException("EntityType not found",
         SerializerException.MessageKeys.UNKNOWN_TYPE, derivedTypeName);
     }
     EdmEntityType type = derivedType.getBaseType();
     while (type != null) {
-      if (type.getFullQualifiedName()
-        .equals(baseType.getFullQualifiedName())) {
+      if (type.getPathName()
+        .equals(baseType.getPathName())) {
         return derivedType;
       }
       type = type.getBaseType();
     }
     throw new SerializerException("Wrong base type",
-      SerializerException.MessageKeys.WRONG_BASE_TYPE, derivedTypeName,
-      baseType.getFullQualifiedName()
+      SerializerException.MessageKeys.WRONG_BASE_TYPE, derivedTypeName, baseType.getPathName()
         .toString());
   }
 
@@ -592,14 +589,14 @@ public class ODataJsonSerializer implements ODataSerializer {
     json.startObject();
     final String derivedName = complex.getTypeName();
     EdmComplexType resolvedType = null;
-    if (!type.getFullQualifiedName()
+    if (!type.getPathName()
       .toString()
       .equals(derivedName)) {
       if (type.getBaseType() != null && type.getBaseType()
-        .getFullQualifiedName()
+        .getPathName()
         .toString()
         .equals(derivedName)) {
-        resolvedType = resolveComplexType(metadata, type.getBaseType(), type.getFullQualifiedName()
+        resolvedType = resolveComplexType(metadata, type.getBaseType(), type.getPathName()
           .toString());
       } else {
         resolvedType = resolveComplexType(metadata, type, derivedName);
@@ -608,7 +605,7 @@ public class ODataJsonSerializer implements ODataSerializer {
       resolvedType = resolveComplexType(metadata, type, derivedName);
     }
     if (!this.isODataMetadataNone && !resolvedType.equals(type) || this.isODataMetadataFull) {
-      json.labelValue(this.constants.getType(), "#" + resolvedType.getFullQualifiedName()
+      json.labelValue(this.constants.getType(), "#" + resolvedType.getPathName()
         .toString());
     }
 
@@ -637,10 +634,10 @@ public class ODataJsonSerializer implements ODataSerializer {
     for (final Object value : collection) {
       expandedPaths = expandedPaths1;
       derivedType = ((ComplexValue)value).getTypeName() != null ? metadata.getEdm()
-        .getComplexType(new FullQualifiedName(((ComplexValue)value).getTypeName())) : type;
+        .getComplexType(PathName.fromDotSeparated(((ComplexValue)value).getTypeName())) : type;
       json.startObject();
       if (this.isODataMetadataFull || !this.isODataMetadataNone && !derivedType.equals(type)) {
-        json.labelValue(this.constants.getType(), "#" + derivedType.getFullQualifiedName()
+        json.labelValue(this.constants.getType(), "#" + derivedType.getPathName()
           .toString());
       }
       expandedPaths = expandedPaths == null || expandedPaths.isEmpty() ? null
@@ -1127,28 +1124,28 @@ public class ODataJsonSerializer implements ODataSerializer {
     final EdmType type = edmProperty.getType();
     if (type.getKind() == EdmTypeKind.ENUM || type.getKind() == EdmTypeKind.DEFINITION) {
       if (edmProperty.isCollection()) {
-        json.labelValue(typeName, "#Collection(" + type.getFullQualifiedName()
+        json.labelValue(typeName, "#Collection(" + type.getPathName()
           .toString() + ")");
       } else {
-        json.labelValue(typeName, "#" + type.getFullQualifiedName()
+        json.labelValue(typeName, "#" + type.getPathName()
           .toString());
       }
     } else if (edmProperty.isPrimitive()) {
       if (edmProperty.isCollection()) {
-        json.labelValue(typeName, "#Collection(" + type.getFullQualifiedName()
+        json.labelValue(typeName, "#Collection(" + type.getPathName()
           .getName() + ")");
       } else {
         // exclude the properties that can be heuristically determined
         if (type != EdmPrimitiveTypeKind.Boolean && type != EdmPrimitiveTypeKind.Double
           && type != EdmPrimitiveTypeKind.String) {
-          json.labelValue(typeName, "#" + type.getFullQualifiedName()
+          json.labelValue(typeName, "#" + type.getPathName()
             .getName());
         }
       }
     } else if (type.getKind() == EdmTypeKind.COMPLEX) {
       // non-collection case written in writeComplex method directly.
       if (edmProperty.isCollection()) {
-        json.labelValue(typeName, "#Collection(" + type.getFullQualifiedName()
+        json.labelValue(typeName, "#Collection(" + type.getPathName()
           .toString() + ")");
       }
     } else {
@@ -1235,36 +1232,34 @@ public class ODataJsonSerializer implements ODataSerializer {
   public void writeRecords(final ServiceMetadata metadata, final EdmEntityType entityType,
     final ODataEntityIterator records, final EntityCollectionSerializerOptions options,
     final OutputStream outputStream) throws SerializerException {
-    records.transactionRun(() -> {
-      final boolean pagination = false;
-      try (
-        JsonWriter json = new JsonWriter(new OutputStreamWriter(outputStream))) {
-        json.startObject();
-        ContextURL contextUrl = null;
-        if (options != null) {
-          contextUrl = options.getContextURL();
-        }
-        checkContextURL(contextUrl);
-        writeContextURL(json, contextUrl);
-
-        writeMetadataETag(json, metadata);
-
-        if (options != null && options.isCount()) {
-          writeInlineCount(json, "", records.getCount());
-        }
-        json.label(Constants.VALUE);
-        final String name = contextUrl == null ? null : contextUrl.getEntitySetOrSingletonOrType();
-        if (options == null) {
-          writeEntitySet(metadata, entityType, records, null, null, null, false, null, name, json);
-        } else {
-          writeEntitySet(metadata, entityType, records, options.getExpand(), null,
-            options.getSelect(), options.getWriteOnlyReferences(), null, name, json);
-        }
-        writeNextLink(records, json, pagination);
-
-        json.endObject();
+    final boolean pagination = false;
+    try (
+      JsonWriter json = new JsonWriter(new OutputStreamWriter(outputStream))) {
+      json.startObject();
+      ContextURL contextUrl = null;
+      if (options != null) {
+        contextUrl = options.getContextURL();
       }
-    });
+      checkContextURL(contextUrl);
+      writeContextURL(json, contextUrl);
+
+      writeMetadataETag(json, metadata);
+
+      if (options != null && options.isCount()) {
+        writeInlineCount(json, "", records.getCount());
+      }
+      json.label(Constants.VALUE);
+      final String name = contextUrl == null ? null : contextUrl.getEntitySetOrSingletonOrType();
+      if (options == null) {
+        writeEntitySet(metadata, entityType, records, null, null, null, false, null, name, json);
+      } else {
+        writeEntitySet(metadata, entityType, records, options.getExpand(), null,
+          options.getSelect(), options.getWriteOnlyReferences(), null, name, json);
+      }
+      writeNextLink(records, json, pagination);
+
+      json.endObject();
+    }
   }
 
 }

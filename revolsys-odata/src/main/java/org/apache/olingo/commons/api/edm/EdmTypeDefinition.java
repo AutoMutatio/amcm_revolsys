@@ -24,6 +24,7 @@ import org.apache.olingo.commons.core.edm.Edm;
 import org.apache.olingo.commons.core.edm.EdmTypeImpl;
 
 import com.revolsys.data.type.DataType;
+import com.revolsys.io.PathName;
 
 /**
  * An {@link EdmTypeDefinition} defines a specialization of one of the possible primitive types.
@@ -36,7 +37,7 @@ public class EdmTypeDefinition extends EdmTypeImpl implements EdmPrimitiveType, 
 
   private EdmPrimitiveType edmPrimitiveTypeInstance;
 
-  public EdmTypeDefinition(final Edm edm, final FullQualifiedName typeDefinitionName,
+  public EdmTypeDefinition(final Edm edm, final PathName typeDefinitionName,
     final CsdlTypeDefinition typeDefinition) {
     super(edm, typeDefinitionName, EdmTypeKind.DEFINITION, typeDefinition);
     this.typeDefinition = typeDefinition;
@@ -77,8 +78,8 @@ public class EdmTypeDefinition extends EdmTypeImpl implements EdmPrimitiveType, 
     if (this.edmPrimitiveTypeInstance == null) {
       try {
         if (this.typeDefinition.getUnderlyingType() == null) {
-          throw new EdmException("Underlying Type for type definition: "
-            + this.typeName.toString() + " must not be null.");
+          throw new EdmException("Underlying Type for type definition: " + this.typeName.toString()
+            + " must not be null.");
         }
         this.edmPrimitiveTypeInstance = EdmPrimitiveTypeKind
           .valueOfFQN(this.typeDefinition.getUnderlyingType());

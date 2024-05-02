@@ -19,17 +19,18 @@
 package org.apache.olingo.commons.core.edm;
 
 import org.apache.olingo.commons.api.edm.EdmType;
-import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.constants.EdmTypeKind;
 import org.apache.olingo.commons.api.edm.provider.CsdlAnnotatable;
 
+import com.revolsys.io.PathName;
+
 public class EdmTypeImpl extends AbstractEdmNamed implements EdmType {
 
-  protected final FullQualifiedName typeName;
+  protected final PathName typeName;
 
   protected final EdmTypeKind kind;
 
-  public EdmTypeImpl(final Edm edm, final FullQualifiedName typeName, final EdmTypeKind kind,
+  public EdmTypeImpl(final Edm edm, final PathName typeName, final EdmTypeKind kind,
     final CsdlAnnotatable annotatable) {
     super(edm, typeName.getName(), annotatable);
     this.typeName = typeName;
@@ -37,7 +38,7 @@ public class EdmTypeImpl extends AbstractEdmNamed implements EdmType {
   }
 
   @Override
-  public FullQualifiedName getFullQualifiedName() {
+  public PathName getPathName() {
     return this.typeName;
   }
 
@@ -47,7 +48,7 @@ public class EdmTypeImpl extends AbstractEdmNamed implements EdmType {
   }
 
   @Override
-  public String getNamespace() {
-    return this.typeName.getNamespace();
+  public PathName getNamespace() {
+    return this.typeName.getParent();
   }
 }

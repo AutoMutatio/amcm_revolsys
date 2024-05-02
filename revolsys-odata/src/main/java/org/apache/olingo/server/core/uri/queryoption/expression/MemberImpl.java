@@ -60,7 +60,7 @@ public class MemberImpl implements Member {
   @Override
   public EdmType getType() {
     final UriInfoImpl uriInfo = (UriInfoImpl)this.path;
-    final UriResource lastResourcePart = (UriResource)uriInfo.getLastResourcePart();
+    final UriResource lastResourcePart = uriInfo.getLastResourcePart();
 
     if (lastResourcePart instanceof UriResourceWithKeysImpl) {
       final UriResourceWithKeysImpl lastKeyPred = (UriResourceWithKeysImpl)lastResourcePart;

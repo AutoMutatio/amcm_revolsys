@@ -33,7 +33,6 @@ import org.apache.olingo.commons.api.edm.EdmFunction;
 import org.apache.olingo.commons.api.edm.EdmSchema;
 import org.apache.olingo.commons.api.edm.EdmTerm;
 import org.apache.olingo.commons.api.edm.EdmTypeDefinition;
-import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.provider.CsdlAction;
 import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
 import org.apache.olingo.commons.api.edm.provider.CsdlAnnotations;
@@ -46,6 +45,8 @@ import org.apache.olingo.commons.api.edm.provider.CsdlSchema;
 import org.apache.olingo.commons.api.edm.provider.CsdlTerm;
 import org.apache.olingo.commons.api.edm.provider.CsdlTypeDefinition;
 
+import com.revolsys.io.PathName;
+
 public class EdmSchemaImpl extends AbstractEdmAnnotatable implements EdmSchema {
 
   private final CsdlSchema schema;
@@ -54,9 +55,9 @@ public class EdmSchemaImpl extends AbstractEdmAnnotatable implements EdmSchema {
 
   private final CsdlEdmProvider provider;
 
-  protected final String namespace;
+  protected final PathName namespace;
 
-  private final String alias;
+  private final PathName alias;
 
   private final List<EdmEnumType> enumTypes;
 
@@ -107,8 +108,7 @@ public class EdmSchemaImpl extends AbstractEdmAnnotatable implements EdmSchema {
     final List<CsdlAction> providerActions = this.schema.getActions();
     if (providerActions != null) {
       for (final CsdlAction action : providerActions) {
-        final FullQualifiedName actionName = new FullQualifiedName(this.namespace,
-          action.getName());
+        final var actionName = this.namespace.newChild(action.getName());
         this.edm.addOperationsAnnotations(action, actionName);
         final EdmActionImpl edmActionImpl = new EdmActionImpl(this.edm, actionName, action);
         edmActions.add(edmActionImpl);
@@ -123,12 +123,12 @@ public class EdmSchemaImpl extends AbstractEdmAnnotatable implements EdmSchema {
     final List<CsdlAnnotations> providerAnnotations = this.schema.getAnnotationGroups();
     if (providerAnnotations != null) {
       for (final CsdlAnnotations annotationGroup : providerAnnotations) {
-        FullQualifiedName targetName;
+        PathName targetName;
         if (annotationGroup.getTarget()
           .contains(".")) {
-          targetName = new FullQualifiedName(annotationGroup.getTarget());
+          targetName = PathName.fromDotSeparated(annotationGroup.getTarget());
         } else {
-          targetName = new FullQualifiedName(this.namespace, annotationGroup.getTarget());
+          targetName = this.namespace.newChild(annotationGroup.getTarget());
         }
         final EdmAnnotationsImpl annotationsImpl = new EdmAnnotationsImpl(this.edm,
           annotationGroup);
@@ -156,8 +156,7 @@ public class EdmSchemaImpl extends AbstractEdmAnnotatable implements EdmSchema {
     final List<CsdlComplexType> providerComplexTypes = this.schema.getComplexTypes();
     if (providerComplexTypes != null) {
       for (final CsdlComplexType complexType : providerComplexTypes) {
-        final FullQualifiedName comlexTypeName = new FullQualifiedName(this.namespace,
-          complexType.getName());
+        final var comlexTypeName = this.namespace.newChild(complexType.getName());
         this.edm.addStructuralTypeAnnotations(complexType, comlexTypeName,
           this.schema.getEntityContainer());
         final EdmComplexTypeImpl complexTypeImpl = new EdmComplexTypeImpl(this.edm, comlexTypeName,
@@ -172,7 +171,7 @@ public class EdmSchemaImpl extends AbstractEdmAnnotatable implements EdmSchema {
   protected EdmEntityContainer createEntityContainer() {
     final var entityContainer = this.schema.getEntityContainer();
     if (entityContainer != null) {
-      final var containerFQN = new FullQualifiedName(this.namespace, entityContainer.getName());
+      final var containerFQN = this.namespace.newChild(entityContainer.getName());
       this.edm.addEntityContainerAnnotations(entityContainer, containerFQN);
       final var impl = new EdmEntityContainer(this.edm, this.provider, containerFQN,
         entityContainer);
@@ -187,8 +186,7 @@ public class EdmSchemaImpl extends AbstractEdmAnnotatable implements EdmSchema {
     final List<CsdlEntityType> providerEntityTypes = this.schema.getEntityTypes();
     if (providerEntityTypes != null) {
       for (final CsdlEntityType entityType : providerEntityTypes) {
-        final FullQualifiedName entityTypeName = new FullQualifiedName(this.namespace,
-          entityType.getName());
+        final var entityTypeName = this.namespace.newChild(entityType.getName());
         this.edm.addStructuralTypeAnnotations(entityType, entityTypeName,
           this.schema.getEntityContainer());
         final var entityTypeImpl = new EdmEntityType(this.edm, entityTypeName, entityType);
@@ -204,8 +202,7 @@ public class EdmSchemaImpl extends AbstractEdmAnnotatable implements EdmSchema {
     final List<CsdlEnumType> providerEnumTypes = this.schema.getEnumTypes();
     if (providerEnumTypes != null) {
       for (final CsdlEnumType enumType : providerEnumTypes) {
-        final FullQualifiedName enumName = new FullQualifiedName(this.namespace,
-          enumType.getName());
+        final var enumName = this.namespace.newChild(enumType.getName());
         this.edm.addEnumTypeAnnotations(enumType, enumName);
         final EdmEnumType enumTypeImpl = new EdmEnumType(this.edm, enumName, enumType);
         enumTyps.add(enumTypeImpl);
@@ -220,8 +217,7 @@ public class EdmSchemaImpl extends AbstractEdmAnnotatable implements EdmSchema {
     final List<CsdlFunction> providerFunctions = this.schema.getFunctions();
     if (providerFunctions != null) {
       for (final CsdlFunction function : providerFunctions) {
-        final FullQualifiedName functionName = new FullQualifiedName(this.namespace,
-          function.getName());
+        final var functionName = this.namespace.newChild(function.getName());
         this.edm.addOperationsAnnotations(function, functionName);
         final EdmFunction functionImpl = new EdmFunction(this.edm, functionName, function);
         edmFunctions.add(functionImpl);
@@ -236,7 +232,7 @@ public class EdmSchemaImpl extends AbstractEdmAnnotatable implements EdmSchema {
     final List<CsdlTerm> providerTerms = this.schema.getTerms();
     if (providerTerms != null) {
       for (final CsdlTerm term : providerTerms) {
-        final FullQualifiedName termName = new FullQualifiedName(this.namespace, term.getName());
+        final var termName = this.namespace.newChild(term.getName());
         final EdmTermImpl termImpl = new EdmTermImpl(this.edm, getNamespace(), term);
         edmTerms.add(termImpl);
         this.edm.cacheTerm(termName, termImpl);
@@ -250,7 +246,7 @@ public class EdmSchemaImpl extends AbstractEdmAnnotatable implements EdmSchema {
     final List<CsdlTypeDefinition> providerTypeDefinitions = this.schema.getTypeDefinitions();
     if (providerTypeDefinitions != null) {
       for (final CsdlTypeDefinition def : providerTypeDefinitions) {
-        final FullQualifiedName typeDefName = new FullQualifiedName(this.namespace, def.getName());
+        final var typeDefName = this.namespace.newChild(def.getName());
         this.edm.addTypeDefnAnnotations(def, typeDefName);
         final var typeDefImpl = new EdmTypeDefinition(this.edm, typeDefName, def);
         typeDefns.add(typeDefImpl);
@@ -266,7 +262,7 @@ public class EdmSchemaImpl extends AbstractEdmAnnotatable implements EdmSchema {
   }
 
   @Override
-  public String getAlias() {
+  public PathName getAlias() {
     return this.alias;
   }
 
@@ -306,7 +302,7 @@ public class EdmSchemaImpl extends AbstractEdmAnnotatable implements EdmSchema {
   }
 
   @Override
-  public String getNamespace() {
+  public PathName getNamespace() {
     return this.namespace;
   }
 

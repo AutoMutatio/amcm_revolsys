@@ -26,22 +26,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.olingo.commons.api.data.RecordEntity;
-import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.ex.ODataRuntimeException;
 import org.apache.olingo.commons.core.edm.Edm;
 
-import com.revolsys.collection.value.ValueHolder;
+import com.revolsys.io.PathName;
 import com.revolsys.record.Record;
 import com.revolsys.record.RecordState;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
-import com.revolsys.record.schema.RecordDefinitionBuilder;
+import com.revolsys.record.schema.RecordDefinitionImpl;
 import com.revolsys.record.schema.RecordDefinitionProxy;
 
 /**
  * The type Csdl structural type.
  */
-public abstract class CsdlStructuralType
+public abstract class CsdlStructuralType<SELF extends CsdlStructuralType<SELF>>
   implements CsdlAbstractEdmItem, CsdlNamed, CsdlAnnotatable, RecordDefinitionProxy {
 
   /**
@@ -57,7 +56,7 @@ public abstract class CsdlStructuralType
   /**
    * The Base type.
    */
-  protected FullQualifiedName baseType;
+  protected PathName baseType;
 
   /**
    * The Is abstract.
@@ -65,22 +64,11 @@ public abstract class CsdlStructuralType
   protected boolean isAbstract;
 
   /**
-   * The Properties.
-   */
-  private List<FieldDefinition> fields = new ArrayList<>();
-
-  /**
    * The Navigation properties.
    */
   protected List<CsdlNavigationProperty> navigationProperties = new ArrayList<>();
 
-  private final ValueHolder<RecordDefinition> recordDefinition = ValueHolder.lazy(() -> {
-    final var rd = new RecordDefinitionBuilder(this.name);
-    for (final var field : this.fields) {
-      rd.addField(field);
-    }
-    return rd.getRecordDefinition();
-  });
+  private RecordDefinition recordDefinition = new RecordDefinitionImpl();
 
   /**
    * The Annotations.
@@ -125,7 +113,7 @@ public abstract class CsdlStructuralType
    */
   public String getBaseType() {
     if (this.baseType != null) {
-      return this.baseType.toString();
+      return this.baseType.toDotSeparated();
     }
     return null;
   }
@@ -135,7 +123,7 @@ public abstract class CsdlStructuralType
    *
    * @return the base type fQN
    */
-  public FullQualifiedName getBaseTypeFQN() {
+  public PathName getBaseTypePathName() {
     return this.baseType;
   }
 
@@ -164,7 +152,7 @@ public abstract class CsdlStructuralType
    * @return the properties
    */
   public List<FieldDefinition> getFields() {
-    return this.fields;
+    return this.recordDefinition.getFields();
   }
 
   @Override
@@ -193,7 +181,7 @@ public abstract class CsdlStructuralType
 
   @Override
   public RecordDefinition getRecordDefinition() {
-    return this.recordDefinition.getValue();
+    return this.recordDefinition;
   }
 
   /**
@@ -227,15 +215,20 @@ public abstract class CsdlStructuralType
     return record;
   }
 
+  @SuppressWarnings("unchecked")
+  public SELF self() {
+    return (SELF)this;
+  }
+
   /**
    * Sets abstract.
    *
    * @param isAbstract the is abstract
    * @return the abstract
    */
-  public CsdlStructuralType setAbstract(final boolean isAbstract) {
+  public SELF setAbstract(final boolean isAbstract) {
     this.isAbstract = isAbstract;
-    return this;
+    return self();
   }
 
   /**
@@ -243,9 +236,9 @@ public abstract class CsdlStructuralType
    * @param annotations list of annotations
    * @return this instance
    */
-  public CsdlStructuralType setAnnotations(final List<CsdlAnnotation> annotations) {
+  public SELF setAnnotations(final List<CsdlAnnotation> annotations) {
     this.annotations = annotations;
-    return this;
+    return self();
   }
 
   /**
@@ -254,9 +247,9 @@ public abstract class CsdlStructuralType
    * @param baseType the base type
    * @return the base type
    */
-  public CsdlStructuralType setBaseType(final FullQualifiedName baseType) {
+  public SELF setBaseType(final PathName baseType) {
     this.baseType = baseType;
-    return this;
+    return self();
   }
 
   /**
@@ -265,20 +258,22 @@ public abstract class CsdlStructuralType
    * @param baseType the base type
    * @return the base type
    */
-  public CsdlStructuralType setBaseType(final String baseType) {
-    this.baseType = new FullQualifiedName(baseType);
-    return this;
+  public SELF setBaseType(final String baseType) {
+    this.baseType = PathName.fromDotSeparated(baseType);
+    return self();
   }
 
   /**
    * Sets properties.
    *
-   * @param properties the properties
+   * @param fields the properties
    * @return the properties
    */
-  public CsdlStructuralType setFields(final List<FieldDefinition> properties) {
-    this.fields = properties;
-    return this;
+  public SELF setFields(final List<FieldDefinition> fields) {
+    for (final var field : fields) {
+      ((RecordDefinitionImpl)this.recordDefinition).addField(field);
+    }
+    return self();
   }
 
   /**
@@ -287,9 +282,10 @@ public abstract class CsdlStructuralType
    * @param name the name
    * @return the name
    */
-  public CsdlStructuralType setName(final String name) {
+  public SELF setName(final String name) {
     this.name = name;
-    return this;
+    ((RecordDefinitionImpl)this.recordDefinition).setPathName(name);
+    return self();
   }
 
   /**
@@ -298,10 +294,9 @@ public abstract class CsdlStructuralType
    * @param navigationProperties the navigation properties
    * @return the navigation properties
    */
-  public CsdlStructuralType setNavigationProperties(
-    final List<CsdlNavigationProperty> navigationProperties) {
+  public SELF setNavigationProperties(final List<CsdlNavigationProperty> navigationProperties) {
     this.navigationProperties = navigationProperties;
-    return this;
+    return self();
   }
 
   /**
@@ -310,8 +305,12 @@ public abstract class CsdlStructuralType
    * @param isOpenType the is open type
    * @return the open type
    */
-  public CsdlStructuralType setOpenType(final boolean isOpenType) {
+  public SELF setOpenType(final boolean isOpenType) {
     this.isOpenType = isOpenType;
-    return this;
+    return self();
+  }
+
+  protected void setRecordDefinition(final RecordDefinition recordDefinition) {
+    this.recordDefinition = recordDefinition;
   }
 }

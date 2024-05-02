@@ -22,14 +22,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
+import com.revolsys.io.PathName;
+import com.revolsys.record.schema.RecordDefinitionBuilder;
+
 /**
  * The type Csdl schema.
  */
 public class CsdlSchema implements CsdlAbstractEdmItem, CsdlAnnotatable {
 
-  private String namespace;
+  private PathName namespace;
 
-  private String alias;
+  private PathName alias;
 
   private List<CsdlEnumType> enumTypes = new ArrayList<>();
 
@@ -57,10 +60,12 @@ public class CsdlSchema implements CsdlAbstractEdmItem, CsdlAnnotatable {
       .compareToIgnoreCase(b.getName()));
   }
 
-  public void addEntityType(final String name, final Consumer<CsdlEntityType> configurer) {
-    final var entityType = new CsdlEntityType();
+  public void addEntityType(final String name, final Consumer<RecordDefinitionBuilder> configurer) {
+    final var builder = new RecordDefinitionBuilder(this.namespace.newChild(name));
+    configurer.accept(builder);
+
+    final var entityType = new CsdlEntityType(builder.getRecordDefinition());
     entityType.setName(name);
-    configurer.accept(entityType);
     addEntityType(entityType);
   }
 
@@ -87,7 +92,7 @@ public class CsdlSchema implements CsdlAbstractEdmItem, CsdlAnnotatable {
    *
    * @return the alias
    */
-  public String getAlias() {
+  public PathName getAlias() {
     return this.alias;
   }
 
@@ -227,7 +232,7 @@ public class CsdlSchema implements CsdlAbstractEdmItem, CsdlAnnotatable {
    *
    * @return the namespace
    */
-  public String getNamespace() {
+  public PathName getNamespace() {
     return this.namespace;
   }
 
@@ -286,7 +291,7 @@ public class CsdlSchema implements CsdlAbstractEdmItem, CsdlAnnotatable {
    * @param alias the alias
    * @return the alias
    */
-  public CsdlSchema setAlias(final String alias) {
+  public CsdlSchema setAlias(final PathName alias) {
     this.alias = alias;
     return this;
   }
@@ -372,7 +377,7 @@ public class CsdlSchema implements CsdlAbstractEdmItem, CsdlAnnotatable {
    * @param namespace the namespace
    * @return the namespace
    */
-  public CsdlSchema setNamespace(final String namespace) {
+  public CsdlSchema setNamespace(final PathName namespace) {
     this.namespace = namespace;
     return this;
   }

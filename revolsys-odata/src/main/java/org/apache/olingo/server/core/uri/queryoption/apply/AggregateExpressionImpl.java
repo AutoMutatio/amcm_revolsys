@@ -24,7 +24,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.uri.UriInfo;
 import org.apache.olingo.server.api.uri.queryoption.apply.AggregateExpression;
@@ -32,6 +31,8 @@ import org.apache.olingo.server.api.uri.queryoption.expression.Expression;
 import org.apache.olingo.server.api.uri.queryoption.expression.ExpressionVisitException;
 import org.apache.olingo.server.api.uri.queryoption.expression.ExpressionVisitor;
 import org.apache.olingo.server.core.uri.UriResource;
+
+import com.revolsys.io.PathName;
 
 /**
  * Represents an aggregate expression.
@@ -44,7 +45,7 @@ public class AggregateExpressionImpl implements AggregateExpression {
 
   private StandardMethod standardMethod;
 
-  private FullQualifiedName customMethod;
+  private PathName customMethod;
 
   private String alias;
 
@@ -77,7 +78,7 @@ public class AggregateExpressionImpl implements AggregateExpression {
   }
 
   @Override
-  public FullQualifiedName getCustomMethod() {
+  public PathName getCustomMethod() {
     return this.customMethod;
   }
 
@@ -117,7 +118,7 @@ public class AggregateExpressionImpl implements AggregateExpression {
     return this;
   }
 
-  public AggregateExpressionImpl setCustomMethod(final FullQualifiedName customMethod) {
+  public AggregateExpressionImpl setCustomMethod(final PathName customMethod) {
     this.customMethod = customMethod;
     return this;
   }

@@ -122,7 +122,8 @@ public class ServiceDocumentXmlSerializer {
       .getEntityContainer();
     if (container != null) {
       writer.writeStartElement(ATOM, Constants.ATOM_ELEM_TITLE, NS_ATOM);
-      writer.writeCharacters(container.getFullQualifiedName().toString());
+      writer.writeCharacters(container.getPathName()
+        .toString());
       writer.writeEndElement();
 
       writeEntitySets(writer, container);

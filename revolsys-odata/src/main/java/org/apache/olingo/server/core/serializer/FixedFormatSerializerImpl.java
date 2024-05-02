@@ -100,7 +100,8 @@ public class FixedFormatSerializerImpl implements FixedFormatSerializer {
       return new ByteArrayInputStream(result.getBytes("UTF-8"));
     } catch (final EdmPrimitiveTypeException e) {
       throw new SerializerException("Error in primitive-value formatting.", e,
-        SerializerException.MessageKeys.WRONG_PRIMITIVE_VALUE, type.getFullQualifiedName().toString(),
+        SerializerException.MessageKeys.WRONG_PRIMITIVE_VALUE, type.getPathName()
+          .toString(),
         value.toString());
     } catch (final UnsupportedEncodingException e) {
       throw new SerializerException("Encoding exception.", e,

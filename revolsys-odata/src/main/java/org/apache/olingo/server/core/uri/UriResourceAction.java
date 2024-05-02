@@ -65,12 +65,14 @@ public class UriResourceAction extends UriResourcePartTyped {
       : this.actionImport.getName();
   }
 
+  @Override
   public EdmType getType() {
     return this.action.getReturnType() == null ? null
       : this.action.getReturnType()
         .getType();
   }
 
+  @Override
   public boolean isCollection() {
     return this.action.getReturnType() != null && this.action.getReturnType()
       .isCollection();

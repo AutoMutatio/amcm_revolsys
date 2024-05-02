@@ -93,7 +93,7 @@ public interface ODataEntity extends ODataLinked, ODataPropertyMap {
     return null;
   }
 
-  default CsdlStructuralType getStructuralType() {
+  default CsdlStructuralType<?> getStructuralType() {
     return null;
   }
 

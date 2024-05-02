@@ -18,6 +18,8 @@
  */
 package org.apache.olingo.commons.api.edm;
 
+import com.revolsys.io.PathName;
+
 /**
  * An EdmOperationImport can be an EdmActionImport or an EdmFunctionImport.
  */
@@ -29,9 +31,9 @@ public interface EdmOperationImport extends EdmNamed, EdmAnnotatable {
   EdmEntityContainer getEntityContainer();
 
   /**
-   * @return {@link FullQualifiedName} of this OperationImport
+   * @return name of this OperationImport
    */
-  FullQualifiedName getFullQualifiedName();
+  PathName getPathName();
 
   /**
    * @return {@link EdmEntitySet} of this OperationImport

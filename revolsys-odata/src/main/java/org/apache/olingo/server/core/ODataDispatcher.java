@@ -469,7 +469,7 @@ public class ODataDispatcher {
       final UriResource uriResource = uriResources.get(uriResources.size() - 1);
       if (uriResource instanceof UriResourcePrimitiveProperty
         && ((UriResourcePrimitiveProperty)uriResource).getType()
-          .getFullQualifiedName()
+          .getPathName()
           .toString()
           .equalsIgnoreCase(EDMSTREAM)) {
         requestFormat = ContentType.parse(request.getHeader(HttpHeader.CONTENT_TYPE));

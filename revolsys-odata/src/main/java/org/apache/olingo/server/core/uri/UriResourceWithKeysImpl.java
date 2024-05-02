@@ -38,7 +38,8 @@ public abstract class UriResourceWithKeysImpl extends UriResourcePartTyped {
   }
 
   private String getFQN(final EdmType type) {
-    return type.getFullQualifiedName().toString();
+    return type.getPathName()
+      .toString();
   }
 
   public List<UriParameter> getKeyPredicates() {

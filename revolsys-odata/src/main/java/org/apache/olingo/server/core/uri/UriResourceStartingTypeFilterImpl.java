@@ -34,7 +34,8 @@ public class UriResourceStartingTypeFilterImpl extends UriResourceWithKeysImpl {
 
   @Override
   public String getSegmentValue() {
-    return this.type.getFullQualifiedName().toString();
+    return this.type.getPathName()
+      .toString();
   }
 
   @Override

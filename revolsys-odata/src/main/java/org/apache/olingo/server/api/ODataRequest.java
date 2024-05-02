@@ -23,12 +23,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 import org.apache.olingo.commons.api.http.HttpMethod;
 import org.apache.olingo.server.api.uri.UriInfo;
 import org.apache.olingo.server.api.uri.queryoption.FormatOption;
 import org.apache.olingo.server.api.uri.queryoption.SystemQueryOptionKind;
 import org.apache.olingo.server.core.uri.queryoption.FormatOptionImpl;
 
+import com.revolsys.data.type.DataTypes;
 import com.revolsys.record.schema.TableRecordStoreConnection;
 
 /**
@@ -56,6 +59,12 @@ public class ODataRequest {
   private UriInfo uriInfo;
 
   private Function<String, Object> attributesFunction = n -> null;
+
+  private final HttpServletRequest request;
+
+  public ODataRequest(final HttpServletRequest request) {
+    this.request = request;
+  }
 
   /**
    * <p>Adds a header to the request.</p>
@@ -162,6 +171,10 @@ public class ODataRequest {
    */
   public HttpMethod getMethod() {
     return this.method;
+  }
+
+  public Boolean getParameterBoolean(final String name) {
+    return DataTypes.BOOLEAN.toObject(this.request.getParameter(name));
   }
 
   /**

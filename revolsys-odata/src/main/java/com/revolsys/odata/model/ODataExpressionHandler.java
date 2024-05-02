@@ -9,7 +9,6 @@ import java.util.function.Function;
 
 import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
 import org.apache.olingo.commons.api.edm.EdmType;
-import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.core.edm.EdmPropertyImpl;
 import org.apache.olingo.server.api.uri.UriInfoResource;
 import org.apache.olingo.server.api.uri.queryoption.expression.Alias;
@@ -180,7 +179,7 @@ public class ODataExpressionHandler {
           return Value.newValue(text);
         }
       } else {
-        final FullQualifiedName typeName = literalType.getFullQualifiedName();
+        final var typeName = literalType.getPathName();
         final EdmPrimitiveTypeKind primitiveKind = EdmPrimitiveTypeKind.valueOfFQN(typeName);
         if (primitiveKind != null) {
           if (text.startsWith("'") && text.endsWith("'")) {

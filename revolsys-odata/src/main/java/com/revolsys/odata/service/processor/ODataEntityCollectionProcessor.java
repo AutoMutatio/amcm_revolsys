@@ -7,7 +7,6 @@ import java.util.Map;
 import org.apache.olingo.commons.api.data.ContextURL;
 import org.apache.olingo.commons.api.edm.EdmEntitySet;
 import org.apache.olingo.commons.api.edm.EdmEntityType;
-import org.apache.olingo.commons.api.edm.EdmNavigationProperty;
 import org.apache.olingo.commons.api.format.ContentType;
 import org.apache.olingo.commons.api.http.HttpHeader;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
@@ -32,6 +31,7 @@ import com.revolsys.collection.map.Maps;
 import com.revolsys.logging.Logs;
 import com.revolsys.odata.model.ODataEdmProvider;
 import com.revolsys.odata.model.ODataEntityIterator;
+import com.revolsys.odata.model.ODataEntityIterator.Options;
 
 public class ODataEntityCollectionProcessor extends AbstractProcessor
   implements EntityCollectionProcessor {
@@ -66,14 +66,17 @@ public class ODataEntityCollectionProcessor extends AbstractProcessor
     if (uriResource instanceof final UriResourceEntitySet uriResourceEntitySet) {
       final EdmEntitySet edmEntitySet = uriResourceEntitySet.getEntitySet();
       if (segmentCount == 1) {
-        entityIterator = getEntityType(edmEntitySet).readEntityIterator(request, uriInfo,
-          edmEntitySet);
+        entityIterator = edmEntitySet.getEntityType()
+          .readEntityIterator(request, uriInfo, new Options());
       } else if (segmentCount == 2) {
         final UriResource lastSegment = resourceParts.get(1);
         if (lastSegment instanceof UriResourceNavigationProperty) {
-          final UriResourceNavigationProperty uriResourceNavigation = (UriResourceNavigationProperty)lastSegment;
-          final EdmNavigationProperty edmNavigationProperty = uriResourceNavigation.getProperty();
-          final EdmEntityType targetEntityType = edmNavigationProperty.getType();
+          // final UriResourceNavigationProperty uriResourceNavigation =
+          // (UriResourceNavigationProperty)lastSegment;
+          // final EdmNavigationProperty edmNavigationProperty =
+          // uriResourceNavigation.getProperty();
+          // final EdmEntityType targetEntityType =
+          // edmNavigationProperty.getType();
           // responseEdmEntitySet =
           // Util.getNavigationTargetEntitySet(edmEntitySet,
           // edmNavigationProperty);
@@ -119,7 +122,6 @@ public class ODataEntityCollectionProcessor extends AbstractProcessor
 
   public void serializeEntitySet(final ODataRequest request, final ODataResponse response,
     final UriInfo uriInfo, final ContentType responseFormat, final ODataEntityIterator iterator) {
-    final var entitySet = iterator.getEdmEntitySet();
     final ODataSerializer serializer = getSerializer(responseFormat);
 
     final EdmEntityType entityType = iterator.getEdmEntityType();
@@ -133,7 +135,7 @@ public class ODataEntityCollectionProcessor extends AbstractProcessor
       .entitySetOrSingletonOrType(entityType.getName())
       .build();
 
-    final String id = request.getRawBaseUri() + "/" + entitySet.getName();
+    final String id = request.getRawBaseUri() + "/" + entityType.getName();
     final EntityCollectionSerializerOptions opts = EntityCollectionSerializerOptions//
       .with()
       .id(id)

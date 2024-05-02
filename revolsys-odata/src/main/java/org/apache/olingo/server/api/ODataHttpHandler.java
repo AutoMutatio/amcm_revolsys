@@ -251,7 +251,7 @@ public class ODataHttpHandler extends ODataHandler {
   }
 
   public void process(final HttpServletRequest request, final HttpServletResponse response) {
-    final ODataRequest odRequest = new ODataRequest();
+    final ODataRequest odRequest = new ODataRequest(request);
     ODataResponse odResponse;
     try {
       fillODataRequest(odRequest, request, this.split);

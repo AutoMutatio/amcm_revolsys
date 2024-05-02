@@ -24,14 +24,24 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.olingo.commons.api.data.ODataEntity;
 import org.apache.olingo.commons.api.edm.constants.EdmTypeKind;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntityType;
 import org.apache.olingo.commons.api.edm.provider.CsdlPropertyRef;
 import org.apache.olingo.commons.core.edm.AbstractEdmStructuredType;
 import org.apache.olingo.commons.core.edm.Edm;
+import org.apache.olingo.server.api.ODataRequest;
+import org.apache.olingo.server.api.uri.UriInfo;
 
+import com.revolsys.io.PathName;
+import com.revolsys.odata.model.ODataEntityIterator;
+import com.revolsys.odata.model.ODataEntityIterator.Options;
+import com.revolsys.odata.model.ODataEntityType;
+import com.revolsys.record.Record;
+import com.revolsys.record.query.Query;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordDefinitionProxy;
+import com.revolsys.record.schema.RecordStore;
 
 /**
  * A CSDL EntityType element.
@@ -54,15 +64,14 @@ public class EdmEntityType extends AbstractEdmStructuredType
 
   private List<EdmKeyPropertyRef> keyPropertyRefsList;
 
-  public EdmEntityType(final Edm edm, final FullQualifiedName name,
-    final CsdlEntityType entityType) {
+  public EdmEntityType(final Edm edm, final PathName name, final CsdlEntityType entityType) {
     super(edm, name, EdmTypeKind.ENTITY, entityType);
     this.entityType = entityType;
     this.hasStream = entityType.hasStream();
   }
 
   @Override
-  protected EdmStructuredType buildBaseType(final FullQualifiedName baseTypeName) {
+  protected EdmStructuredType buildBaseType(final PathName baseTypeName) {
     EdmEntityType baseType = null;
     if (baseTypeName != null) {
       baseType = getEdm().getEntityType(baseTypeName);
@@ -103,6 +112,11 @@ public class EdmEntityType extends AbstractEdmStructuredType
     return this.entityBaseType;
   }
 
+  @SuppressWarnings("unchecked")
+  public <T extends CsdlEntityType> T getEntityType() {
+    return (T)this.entityType;
+  }
+
   public List<String> getKeyPredicateNames() {
     checkBaseType();
     if (this.keyPredicateNames.isEmpty() && this.baseType != null) {
@@ -136,6 +150,11 @@ public class EdmEntityType extends AbstractEdmStructuredType
     return this.entityType.getRecordDefinition();
   }
 
+  @Override
+  public <R extends RecordStore> R getRecordStore() {
+    return this.entityType.getRecordStore();
+  }
+
   public boolean hasStream() {
     checkBaseType();
 
@@ -143,6 +162,24 @@ public class EdmEntityType extends AbstractEdmStructuredType
       return true;
     }
     return false;
+  }
+
+  public ODataEntity newEntity(final Record record) {
+    return this.entityType.newEntity(record);
+  }
+
+  public Query newQuery(final ODataRequest request, final UriInfo uriInfo,
+    final ODataEntityIterator.Options options) {
+    return ((ODataEntityType)this.entityType).newQuery(request, uriInfo, options);
+  }
+
+  public Record newRecord(final Record record) {
+    return this.entityType.newRecord(record);
+  }
+
+  public ODataEntityIterator readEntityIterator(final ODataRequest request, final UriInfo uriInfo,
+    final Options options) {
+    return new ODataEntityIterator(this, request, uriInfo, options);
   }
 
   protected void setEdmKeyPropertyRef(final List<EdmKeyPropertyRef> edmKey) {

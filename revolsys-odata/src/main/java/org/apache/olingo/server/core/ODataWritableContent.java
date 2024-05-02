@@ -134,20 +134,22 @@ public class ODataWritableContent implements ODataContent {
     }
 
     public void write(final OutputStream out) {
-      try {
-        if (this.mediaEntity == null) {
-          writeEntities(this.iterator, out);
-        } else {
-          writeBinary(this.mediaEntity, out);
+      this.iterator.transactionNewRun(() -> {
+        try {
+          if (this.mediaEntity == null) {
+            writeEntities(this.iterator, out);
+          } else {
+            writeBinary(this.mediaEntity, out);
+          }
+        } catch (final SerializerException e) {
+          final ODataContentWriteErrorCallback errorCallback = this.options
+            .getODataContentWriteErrorCallback();
+          if (errorCallback != null) {
+            final WriteErrorContext errorContext = new WriteErrorContext(e);
+            errorCallback.handleError(errorContext, Channels.newChannel(out));
+          }
         }
-      } catch (final SerializerException e) {
-        final ODataContentWriteErrorCallback errorCallback = this.options
-          .getODataContentWriteErrorCallback();
-        if (errorCallback != null) {
-          final WriteErrorContext errorContext = new WriteErrorContext(e);
-          errorCallback.handleError(errorContext, Channels.newChannel(out));
-        }
-      }
+      });
     }
 
     protected abstract void writeBinary(EntityMediaObject mediaEntity, OutputStream outputStream)
@@ -257,10 +259,10 @@ public class ODataWritableContent implements ODataContent {
     }
 
     @Override
-    protected void writeEntities(final ODataEntityIterator entity, final OutputStream outputStream)
-      throws SerializerException {
+    protected void writeEntities(final ODataEntityIterator iterator,
+      final OutputStream outputStream) throws SerializerException {
       try {
-        this.xmlSerializer.entityCollectionIntoStream(this.metadata, this.entityType, entity,
+        this.xmlSerializer.entityCollectionIntoStream(this.metadata, this.entityType, iterator,
           this.options, outputStream);
         outputStream.flush();
       } catch (final IOException e) {

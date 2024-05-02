@@ -35,7 +35,6 @@ import org.apache.olingo.commons.api.edm.EdmProperty;
 import org.apache.olingo.commons.api.edm.EdmReturnType;
 import org.apache.olingo.commons.api.edm.EdmStructuredType;
 import org.apache.olingo.commons.api.edm.EdmType;
-import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.constants.EdmTypeKind;
 import org.apache.olingo.commons.core.edm.Edm;
 import org.apache.olingo.server.api.uri.UriInfo;
@@ -92,6 +91,8 @@ import org.apache.olingo.server.core.uri.queryoption.apply.SkipImpl;
 import org.apache.olingo.server.core.uri.queryoption.apply.TopImpl;
 import org.apache.olingo.server.core.uri.queryoption.expression.MemberImpl;
 import org.apache.olingo.server.core.uri.validator.UriValidationException;
+
+import com.revolsys.io.PathName;
 
 public class ApplyParser {
 
@@ -308,7 +309,7 @@ public class ApplyParser {
         // structured type or of the entity container.
         // Currently we don't look into annotations, so all custom aggregation
         // methods are allowed and have no type.
-        aggregateExpression.setCustomMethod(new FullQualifiedName(this.tokenizer.getText()));
+        aggregateExpression.setCustomMethod(PathName.fromDotSeparated(this.tokenizer.getText()));
       } else {
         aggregateExpression.setStandardMethod(TOKEN_KIND_TO_STANDARD_METHOD.get(kind));
       }
@@ -403,13 +404,13 @@ public class ApplyParser {
     return concat;
   }
 
-  private CustomFunction parseCustomFunction(final FullQualifiedName functionName,
+  private CustomFunction parseCustomFunction(final PathName functionName,
     final EdmStructuredType referencedType) throws UriParserException, UriValidationException {
     final List<UriParameter> parameters = ParserHelper.parseFunctionParameters(this.tokenizer,
       this.edm, referencedType, true, this.aliases);
     final List<String> parameterNames = ParserHelper.getParameterNames(parameters);
     final EdmFunction function = this.edm.getBoundFunction(functionName,
-      referencedType.getFullQualifiedName(), true, parameterNames);
+      referencedType.getPathName(), true, parameterNames);
     if (function == null) {
       throw new UriParserSemanticException("No function '" + functionName + "' found.",
         UriParserSemanticException.MessageKeys.FUNCTION_NOT_FOUND, functionName.toString());
@@ -514,7 +515,7 @@ public class ApplyParser {
         uriInfo.getLastResourcePart() != null
           && uriInfo.getLastResourcePart() instanceof UriResourcePartTyped
             ? ((UriResourcePartTyped)uriInfo.getLastResourcePart()).getType()
-              .getFullQualifiedName()
+              .getPathName()
               .toString()
             : "");
     }
@@ -651,7 +652,8 @@ public class ApplyParser {
       ParserHelper.requireNext(this.tokenizer, TokenKind.CLOSE);
       return new SkipImpl().setSkipOption(skipOption);
     } else if (this.tokenizer.next(TokenKind.QualifiedName)) {
-      return parseCustomFunction(new FullQualifiedName(this.tokenizer.getText()), referencedType);
+      return parseCustomFunction(PathName.fromDotSeparated(this.tokenizer.getText()),
+        referencedType);
 
     } else {
       final TokenKind kind = ParserHelper.next(this.tokenizer, TokenKind.BottomCountTrafo,

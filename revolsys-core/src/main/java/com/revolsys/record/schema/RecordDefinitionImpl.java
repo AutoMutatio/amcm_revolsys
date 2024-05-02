@@ -37,6 +37,7 @@ import com.revolsys.record.RecordFactory;
 import com.revolsys.record.code.CodeTable;
 import com.revolsys.record.property.RecordDefinitionProperty;
 import com.revolsys.record.property.ValueRecordDefinitionProperty;
+import com.revolsys.record.query.Column;
 import com.revolsys.record.query.ColumnReference;
 
 public class RecordDefinitionImpl extends AbstractRecordStoreSchemaElement
@@ -483,7 +484,7 @@ public class RecordDefinitionImpl extends AbstractRecordStoreSchemaElement
         final String lowerName = nameString.toLowerCase();
         field = this.fieldMap.get(lowerName);
         if (field == null) {
-          throw new IllegalArgumentException("Column not found: " + getName() + "." + nameString);
+          return new Column(name);
         }
       }
       return field;

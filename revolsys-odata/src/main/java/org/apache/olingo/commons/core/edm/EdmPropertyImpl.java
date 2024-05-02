@@ -28,7 +28,6 @@ import org.apache.olingo.commons.api.edm.EdmMapping;
 import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
 import org.apache.olingo.commons.api.edm.EdmProperty;
 import org.apache.olingo.commons.api.edm.EdmType;
-import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
 import org.apache.olingo.commons.api.edm.provider.CsdlMapping;
 import org.apache.olingo.commons.api.edm.provider.annotation.CsdlConstantExpression;
@@ -42,6 +41,7 @@ import com.revolsys.geometry.coordinatesystem.model.HorizontalCoordinateSystemPr
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryDataTypes;
 import com.revolsys.geometry.model.GeometryFactory;
+import com.revolsys.io.PathName;
 import com.revolsys.record.schema.FieldDefinition;
 
 public class EdmPropertyImpl extends AbstractEdmNamed implements EdmProperty {
@@ -113,8 +113,8 @@ public class EdmPropertyImpl extends AbstractEdmNamed implements EdmProperty {
 
   private static void addEdmToDataType(final EdmPrimitiveTypeKind kind, final DataType dataType) {
     DATA_TYPE_BY_EDM.put(kind, dataType);
-    DATA_TYPE_BY_EDM_STRING.put(kind.getFullQualifiedName()
-      .toString(), dataType);
+    DATA_TYPE_BY_EDM_STRING.put(kind.getPathName()
+      .toDotSeparated(), dataType);
   }
 
   private static void addGeometryDataType(final EdmPrimitiveTypeKind geometryKind,
@@ -176,7 +176,7 @@ public class EdmPropertyImpl extends AbstractEdmNamed implements EdmProperty {
 
   private int srid;
 
-  private final FullQualifiedName typeName;
+  private final PathName typeName;
 
   private CsdlMapping mapping;
 
@@ -214,9 +214,9 @@ public class EdmPropertyImpl extends AbstractEdmNamed implements EdmProperty {
     }
     final List<CsdlAnnotation> annotations = new ArrayList<>();
 
-    this.typeName = this.fieldType.getFullQualifiedName();
-    final String type = this.typeName.toString();
-    this.typeInfo = new EdmTypeInfo.Builder().setEdm(this.getEdm())
+    this.typeName = this.fieldType.getPathName();
+    final String type = this.typeName.toDotSeparated();
+    this.typeInfo = new EdmTypeInfo.Builder().setEdm(getEdm())
       .setIncludeAnnotations(true)
       .setTypeExpression(type)
       .build();
@@ -246,7 +246,7 @@ public class EdmPropertyImpl extends AbstractEdmNamed implements EdmProperty {
 
     final List<EdmAnnotation> edmAnnotations = new ArrayList<>();
     for (final CsdlAnnotation annotation : annotations) {
-      edmAnnotations.add(new EdmAnnotationImpl(this.getEdm(), annotation));
+      edmAnnotations.add(new EdmAnnotationImpl(getEdm(), annotation));
     }
 
     setAnnotations(edmAnnotations);

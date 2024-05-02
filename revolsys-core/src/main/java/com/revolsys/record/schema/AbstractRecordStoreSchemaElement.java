@@ -118,7 +118,7 @@ public abstract class AbstractRecordStoreSchemaElement extends BaseObjectWithPro
     this.pathName = pathName;
   }
 
-  protected void setPathName(final String path) {
+  public void setPathName(final String path) {
     setPathName(PathName.newPathName(path));
   }
 

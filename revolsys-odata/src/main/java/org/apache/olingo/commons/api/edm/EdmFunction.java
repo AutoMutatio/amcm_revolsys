@@ -23,6 +23,8 @@ import org.apache.olingo.commons.api.edm.provider.CsdlFunction;
 import org.apache.olingo.commons.core.edm.AbstractEdmOperation;
 import org.apache.olingo.commons.core.edm.Edm;
 
+import com.revolsys.io.PathName;
+
 /**
  * An EdmFunction as described in the OData specification
  */
@@ -30,7 +32,7 @@ public class EdmFunction extends AbstractEdmOperation<CsdlFunction> {
 
   private final CsdlFunction function;
 
-  public EdmFunction(final Edm edm, final FullQualifiedName name, final CsdlFunction function) {
+  public EdmFunction(final Edm edm, final PathName name, final CsdlFunction function) {
     super(edm, name, function, EdmTypeKind.FUNCTION);
     this.function = function;
   }

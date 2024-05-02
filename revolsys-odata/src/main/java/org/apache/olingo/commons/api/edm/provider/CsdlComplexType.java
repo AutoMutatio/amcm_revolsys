@@ -18,63 +18,9 @@
  */
 package org.apache.olingo.commons.api.edm.provider;
 
-import java.util.List;
-
-import org.apache.olingo.commons.api.edm.FullQualifiedName;
-
-import com.revolsys.record.schema.FieldDefinition;
-
 /**
  * The type Csdl complex type.
  */
-public class CsdlComplexType extends CsdlStructuralType {
+public class CsdlComplexType extends CsdlStructuralType<CsdlComplexType> {
 
-  @Override
-  public CsdlComplexType setAbstract(final boolean isAbstract) {
-    this.isAbstract = isAbstract;
-    return this;
-  }
-
-  @Override
-  public CsdlComplexType setAnnotations(final List<CsdlAnnotation> annotations) {
-    this.annotations = annotations;
-    return this;
-  }
-
-  @Override
-  public CsdlComplexType setBaseType(final FullQualifiedName baseType) {
-    this.baseType = baseType;
-    return this;
-  }
-
-  @Override
-  public CsdlComplexType setBaseType(final String baseType) {
-    this.baseType = new FullQualifiedName(baseType);
-    return this;
-  }
-
-  @Override
-  public CsdlComplexType setFields(final List<FieldDefinition> properties) {
-    super.setFields(properties);
-    return this;
-  }
-
-  @Override
-  public CsdlComplexType setName(final String name) {
-    this.name = name;
-    return this;
-  }
-
-  @Override
-  public CsdlComplexType setNavigationProperties(
-    final List<CsdlNavigationProperty> navigationProperties) {
-    this.navigationProperties = navigationProperties;
-    return this;
-  }
-
-  @Override
-  public CsdlComplexType setOpenType(final boolean isOpenType) {
-    this.isOpenType = isOpenType;
-    return this;
-  }
 }

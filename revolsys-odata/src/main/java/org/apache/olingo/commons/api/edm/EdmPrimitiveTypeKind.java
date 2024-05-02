@@ -39,6 +39,7 @@ import com.revolsys.geometry.model.MultiPoint;
 import com.revolsys.geometry.model.MultiPolygon;
 import com.revolsys.geometry.model.Point;
 import com.revolsys.geometry.model.Polygon;
+import com.revolsys.io.PathName;
 
 /**
  * Enumeration of all primitive type kinds.
@@ -217,14 +218,14 @@ public enum EdmPrimitiveTypeKind implements EdmPrimitiveType {
 
   /**
    * Gets the {@link EdmPrimitiveTypeKind} from a full-qualified type name.
-   * @param fqn full-qualified type name
+   * @param pathName full-qualified type name
    * @return {@link EdmPrimitiveTypeKind} object
    */
-  public static EdmPrimitiveTypeKind valueOfFQN(final FullQualifiedName fqn) {
-    if (EdmPrimitiveType.EDM_NAMESPACE.equals(fqn.getNamespace())) {
-      return valueOf(fqn.getName());
+  public static EdmPrimitiveTypeKind valueOfFQN(final PathName pathName) {
+    if (EdmPrimitiveType.EDM_NAMESPACE.equals(pathName.getParent())) {
+      return valueOf(pathName.getName());
     } else {
-      throw new IllegalArgumentException(fqn + " does not look like an EDM primitive type.");
+      throw new IllegalArgumentException(pathName + " does not look like an EDM primitive type.");
     }
   }
 
@@ -243,12 +244,12 @@ public enum EdmPrimitiveTypeKind implements EdmPrimitiveType {
 
   private final DataType dataType;
 
-  private final FullQualifiedName fullQualifiedName;
+  private final PathName pathName;
 
   private final boolean geo;
 
   private EdmPrimitiveTypeKind(final DataType dataType) {
-    this.fullQualifiedName = new FullQualifiedName(EdmPrimitiveType.EDM_NAMESPACE, name());
+    this.pathName = EdmPrimitiveType.EDM_NAMESPACE.newChild(name());
     this.dataType = dataType;
     this.geo = Geometry.class.isAssignableFrom(getDefaultType());
   }
@@ -285,16 +286,6 @@ public enum EdmPrimitiveTypeKind implements EdmPrimitiveType {
     return this.dataType.getJavaClass();
   }
 
-  /**
-   * Returns the {@link FullQualifiedName} for this type kind.
-   *
-   * @return {@link FullQualifiedName}
-   */
-  @Override
-  public FullQualifiedName getFullQualifiedName() {
-    return this.fullQualifiedName;
-  }
-
   public EdmPrimitiveType getInstance() {
     return this;
   }
@@ -310,8 +301,18 @@ public enum EdmPrimitiveTypeKind implements EdmPrimitiveType {
   }
 
   @Override
-  public String getNamespace() {
+  public PathName getNamespace() {
     return EdmPrimitiveType.EDM_NAMESPACE;
+  }
+
+  /**
+   * Returns the {@link PathName} for this type kind.
+   *
+   * @return {@link PathName}
+   */
+  @Override
+  public PathName getPathName() {
+    return this.pathName;
   }
 
   @Override

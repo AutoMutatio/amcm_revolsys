@@ -51,7 +51,6 @@ import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
 import org.apache.olingo.commons.api.edm.EdmProperty;
 import org.apache.olingo.commons.api.edm.EdmStructuredType;
 import org.apache.olingo.commons.api.edm.EdmType;
-import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.constants.EdmTypeKind;
 import org.apache.olingo.commons.api.ex.ODataErrorDetail;
 import org.apache.olingo.server.api.ODataServerError;
@@ -80,7 +79,9 @@ import org.apache.olingo.server.core.uri.queryoption.ExpandOptionImpl;
 
 import com.revolsys.exception.Exceptions;
 import com.revolsys.geometry.model.Geometry;
+import com.revolsys.io.PathName;
 import com.revolsys.odata.model.ODataEntityIterator;
+import com.revolsys.util.Property;
 
 public class ODataXmlSerializer implements ODataSerializer {
 
@@ -143,7 +144,7 @@ public class ODataXmlSerializer implements ODataSerializer {
   }
 
   private String collectionType(final EdmType type) {
-    return "#Collection(" + type.getFullQualifiedName()
+    return "#Collection(" + type.getPathName()
       .toString() + ")";
   }
 
@@ -156,16 +157,15 @@ public class ODataXmlSerializer implements ODataSerializer {
     try (
       var outputStream = buffer.getOutputStream();) {
       EdmComplexType resolvedType = null;
-      if (!type.getFullQualifiedName()
+      if (!type.getPathName()
         .toString()
         .equals(type.getName())) {
         if (type.getBaseType() != null && type.getBaseType()
-          .getFullQualifiedName()
+          .getPathName()
           .toString()
           .equals(type.getName())) {
-          resolvedType = resolveComplexType(metadata, type.getBaseType(),
-            type.getFullQualifiedName()
-              .toString());
+          resolvedType = resolveComplexType(metadata, type.getBaseType(), type.getPathName()
+            .toString());
         } else {
           resolvedType = resolveComplexType(metadata, type, type.getName());
         }
@@ -180,7 +180,7 @@ public class ODataXmlSerializer implements ODataSerializer {
       writer.writeNamespace(DATA, NS_DATA);
       writer.writeNamespace(ATOM, NS_ATOM);
       writer.writeAttribute(METADATA, NS_METADATA, Constants.ATTR_TYPE,
-        "#" + resolvedType.getFullQualifiedName()
+        "#" + resolvedType.getPathName()
           .toString());
       writer.writeAttribute(METADATA, NS_METADATA, Constants.CONTEXT, contextURL.toUriString());
       writeMetadataETag(metadata, writer);
@@ -252,13 +252,13 @@ public class ODataXmlSerializer implements ODataSerializer {
   private String complexType(final ServiceMetadata metadata, final EdmComplexType baseType,
     final String definedType) throws SerializerException {
     final EdmComplexType type = resolveComplexType(metadata, baseType, definedType);
-    return type.getFullQualifiedName()
+    return type.getPathName()
       .toString();
   }
 
   private String derivedComplexType(final EdmComplexType baseType, final String definedType)
     throws SerializerException {
-    final String base = baseType.getFullQualifiedName()
+    final String base = baseType.getPathName()
       .toString();
     if (base.equals(definedType)) {
       return null;
@@ -677,59 +677,57 @@ public class ODataXmlSerializer implements ODataSerializer {
 
   protected EdmComplexType resolveComplexType(final ServiceMetadata metadata,
     final EdmComplexType baseType, final String derivedTypeName) throws SerializerException {
-    if (derivedTypeName == null || baseType.getFullQualifiedName()
+    if (derivedTypeName == null || baseType.getPathName()
       .toString()
       .equals(derivedTypeName)) {
       return baseType;
     }
     final EdmComplexType derivedType = metadata.getEdm()
-      .getComplexType(new FullQualifiedName(derivedTypeName));
+      .getComplexType(PathName.fromDotSeparated(derivedTypeName));
     if (derivedType == null) {
       throw new SerializerException("Complex Type not found",
         SerializerException.MessageKeys.UNKNOWN_TYPE, derivedTypeName);
     }
     EdmComplexType type = derivedType.getBaseType();
     while (type != null) {
-      if (type.getFullQualifiedName()
+      if (type.getPathName()
         .toString()
-        .equals(baseType.getFullQualifiedName()
+        .equals(baseType.getPathName()
           .toString())) {
         return derivedType;
       }
       type = type.getBaseType();
     }
     throw new SerializerException("Wrong base type",
-      SerializerException.MessageKeys.WRONG_BASE_TYPE, derivedTypeName,
-      baseType.getFullQualifiedName()
+      SerializerException.MessageKeys.WRONG_BASE_TYPE, derivedTypeName, baseType.getPathName()
         .toString());
   }
 
   protected EdmEntityType resolveEntityType(final ServiceMetadata metadata,
     final EdmEntityType baseType, final String derivedTypeName) throws SerializerException {
-    if (derivedTypeName == null || baseType.getFullQualifiedName()
+    if (derivedTypeName == null || baseType.getPathName()
       .toString()
       .equals(derivedTypeName)) {
       return baseType;
     }
     final EdmEntityType derivedType = metadata.getEdm()
-      .getEntityType(new FullQualifiedName(derivedTypeName));
+      .getEntityType(PathName.fromDotSeparated(derivedTypeName));
     if (derivedType == null) {
       throw new SerializerException("EntityType not found",
         SerializerException.MessageKeys.UNKNOWN_TYPE, derivedTypeName);
     }
     EdmEntityType type = derivedType.getBaseType();
     while (type != null) {
-      if (type.getFullQualifiedName()
+      if (type.getPathName()
         .toString()
-        .equals(baseType.getFullQualifiedName()
+        .equals(baseType.getPathName()
           .toString())) {
         return derivedType;
       }
       type = type.getBaseType();
     }
     throw new SerializerException("Wrong base type",
-      SerializerException.MessageKeys.WRONG_BASE_TYPE, derivedTypeName,
-      baseType.getFullQualifiedName()
+      SerializerException.MessageKeys.WRONG_BASE_TYPE, derivedTypeName, baseType.getPathName()
         .toString());
   }
 
@@ -796,10 +794,10 @@ public class ODataXmlSerializer implements ODataSerializer {
       if (derivedComplexType(type, propertyType) != null) {
         writer.writeAttribute(METADATA, NS_METADATA, Constants.ATTR_TYPE, propertyType);
       }
-      if (typeName != null && !propertyType.equals(type.getFullQualifiedName()
+      if (typeName != null && !propertyType.equals(type.getPathName()
         .toString())) {
         complexType = metadata.getEdm()
-          .getComplexType(new FullQualifiedName(propertyType));
+          .getComplexType(PathName.fromDotSeparated(propertyType));
       } else {
         complexType = type;
       }
@@ -922,8 +920,8 @@ public class ODataXmlSerializer implements ODataSerializer {
 
       writer.writeStartElement(ATOM, Constants.ATOM_ELEM_CATEGORY, NS_ATOM);
       writer.writeAttribute(Constants.ATOM_ATTR_SCHEME, Constants.NS_SCHEME);
-      writer.writeAttribute(Constants.ATOM_ATTR_TERM, "#" + resolvedType.getFullQualifiedName()
-        .toString());
+      writer.writeAttribute(Constants.ATOM_ATTR_TERM, "#" + resolvedType.getPathName()
+        .toDotSeparated());
       writer.writeEndElement();
 
       // In the case media, content is sibiling
@@ -1134,7 +1132,7 @@ public class ODataXmlSerializer implements ODataSerializer {
     } else {
       if (type != EdmPrimitiveTypeKind.String) {
         writer.writeAttribute(METADATA, NS_METADATA, Constants.ATTR_TYPE,
-          type.getKind() == EdmTypeKind.DEFINITION ? "#" + type.getFullQualifiedName()
+          type.getKind() == EdmTypeKind.DEFINITION ? "#" + type.getPathName()
             .toString() : type.getName());
       }
       writePrimitiveValue(type, value, xml10InvalidCharReplacement, writer);
@@ -1257,23 +1255,23 @@ public class ODataXmlSerializer implements ODataSerializer {
 
   private void writerAuthorInfo(final String title, final XMLStreamWriter writer)
     throws XMLStreamException {
-    writer.writeStartElement(NS_ATOM, Constants.ATTR_TITLE);
-    if (title != null) {
+    if (Property.hasValue(title)) {
+      writer.writeStartElement(NS_ATOM, Constants.ATTR_TITLE);
       writer.writeCharacters(title);
+      writer.writeEndElement();
     }
-    writer.writeEndElement();
-    writer.writeStartElement(NS_ATOM, Constants.ATOM_ELEM_SUMMARY);
-    writer.writeEndElement();
+    // writer.writeStartElement(NS_ATOM, Constants.ATOM_ELEM_SUMMARY);
+    // writer.writeEndElement();
 
     writer.writeStartElement(NS_ATOM, Constants.ATOM_ELEM_UPDATED);
     writer.writeCharacters(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
       .format(new Date(System.currentTimeMillis())));
     writer.writeEndElement();
 
-    writer.writeStartElement(NS_ATOM, "author");
-    writer.writeStartElement(NS_ATOM, "name");
-    writer.writeEndElement();
-    writer.writeEndElement();
+    // writer.writeStartElement(NS_ATOM, "author");
+    // writer.writeStartElement(NS_ATOM, "name");
+    // writer.writeEndElement();
+    // writer.writeEndElement();
   }
 
   private void writeReference(final ODataEntity entity, final ContextURL contextURL,

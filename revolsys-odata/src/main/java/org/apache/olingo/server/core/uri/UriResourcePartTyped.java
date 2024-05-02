@@ -32,7 +32,8 @@ public abstract class UriResourcePartTyped extends UriResource {
 
   public String getSegmentValue(final boolean includeFilters) {
     return includeFilters && this.typeFilter != null
-      ? getSegmentValue() + "/" + this.typeFilter.getFullQualifiedName().toString()
+      ? getSegmentValue() + "/" + this.typeFilter.getPathName()
+        .toString()
       : getSegmentValue();
   }
 

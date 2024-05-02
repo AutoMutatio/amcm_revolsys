@@ -23,10 +23,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.olingo.commons.api.edm.FullQualifiedName;
-
 import com.revolsys.collection.list.Lists;
 import com.revolsys.collection.map.Maps;
+import com.revolsys.io.PathName;
 
 /**
  * The type Csdl entity container.
@@ -35,7 +34,7 @@ public class CsdlEntityContainer implements CsdlAbstractEdmItem, CsdlNamed, Csdl
 
   private String name;
 
-  private FullQualifiedName extendsContainer;
+  private PathName extendsContainer;
 
   private List<CsdlEntitySet> entitySets = new ArrayList<>();
 
@@ -118,7 +117,7 @@ public class CsdlEntityContainer implements CsdlAbstractEdmItem, CsdlNamed, Csdl
    */
   public String getExtendsContainer() {
     if (this.extendsContainer != null) {
-      return this.extendsContainer.toString();
+      return this.extendsContainer.toDotSeparated();
     }
     return null;
   }
@@ -128,7 +127,7 @@ public class CsdlEntityContainer implements CsdlAbstractEdmItem, CsdlNamed, Csdl
    *
    * @return the extends container fQN
    */
-  public FullQualifiedName getExtendsContainerFQN() {
+  public PathName getExtendsContainerPathName() {
     return this.extendsContainer;
   }
 
@@ -225,7 +224,7 @@ public class CsdlEntityContainer implements CsdlAbstractEdmItem, CsdlNamed, Csdl
    * @return the extends container
    */
   public CsdlEntityContainer setExtendsContainer(final String extendsContainer) {
-    this.extendsContainer = new FullQualifiedName(extendsContainer);
+    this.extendsContainer = PathName.fromDotSeparated(extendsContainer);
     return this;
   }
 

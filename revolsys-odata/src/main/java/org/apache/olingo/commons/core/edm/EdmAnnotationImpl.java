@@ -21,10 +21,11 @@ package org.apache.olingo.commons.core.edm;
 import org.apache.olingo.commons.api.edm.EdmAnnotation;
 import org.apache.olingo.commons.api.edm.EdmException;
 import org.apache.olingo.commons.api.edm.EdmTerm;
-import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.annotation.EdmExpression;
 import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
 import org.apache.olingo.commons.api.edm.provider.annotation.CsdlExpression;
+
+import com.revolsys.io.PathName;
 
 public class EdmAnnotationImpl extends AbstractEdmAnnotatable implements EdmAnnotation {
 
@@ -45,7 +46,7 @@ public class EdmAnnotationImpl extends AbstractEdmAnnotatable implements EdmAnno
       final var expression = this.annotation.getExpression();
       if (expression != null) {
         final CsdlExpression exp = expression;
-        this.expression = exp.toEdm(this.getEdm());
+        this.expression = exp.toEdm(getEdm());
       }
     }
     return this.expression;
@@ -62,7 +63,7 @@ public class EdmAnnotationImpl extends AbstractEdmAnnotatable implements EdmAnno
       if (this.annotation.getTerm() == null) {
         throw new EdmException("Term must not be null for an annotation.");
       }
-      this.term = this.getEdm().getTerm(new FullQualifiedName(this.annotation.getTerm()));
+      this.term = getEdm().getTerm(PathName.fromDotSeparated(this.annotation.getTerm()));
     }
     return this.term;
   }

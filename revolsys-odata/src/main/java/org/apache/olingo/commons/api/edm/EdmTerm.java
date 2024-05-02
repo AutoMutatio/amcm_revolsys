@@ -20,6 +20,8 @@ package org.apache.olingo.commons.api.edm;
 
 import java.util.List;
 
+import com.revolsys.io.PathName;
+
 /**
  * An {@link EdmTerm} defines a term in a vocabulary.
  */
@@ -45,14 +47,14 @@ public interface EdmTerm extends EdmNamed, EdmAnnotatable {
   String getDefaultValue();
 
   /**
-   * @return the fully qualified name of this term
-   */
-  FullQualifiedName getFullQualifiedName();
-
-  /**
    * @return the maximum length as an Integer or null if not specified
    */
   Integer getMaxLength();
+
+  /**
+   * @return the fully qualified name of this term
+   */
+  PathName getPathName();
 
   /**
    * @return the precision as an Integer or null if not specified

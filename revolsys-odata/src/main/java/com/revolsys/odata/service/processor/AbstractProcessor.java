@@ -8,7 +8,6 @@ import org.apache.olingo.commons.api.data.ContextURL.Builder;
 import org.apache.olingo.commons.api.edm.EdmEntitySet;
 import org.apache.olingo.commons.api.edm.EdmEntityType;
 import org.apache.olingo.commons.api.edm.EdmNavigationProperty;
-import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.commons.core.edm.EdmBindingTarget;
 import org.apache.olingo.server.api.ODataApplicationException;
@@ -37,7 +36,7 @@ public abstract class AbstractProcessor implements Processor {
   public ODataEntityType getEntityType(final EdmEntitySet edmEntitySet)
     throws ODataApplicationException {
     final EdmEntityType edmEntityType = edmEntitySet.getEntityType();
-    final FullQualifiedName entityTypeName = edmEntityType.getFullQualifiedName();
+    final var entityTypeName = edmEntityType.getPathName();
     final ODataEntityType entityType = (ODataEntityType)this.provider.getEntityType(entityTypeName);
     if (entityType == null) {
       throw new ODataApplicationException(

@@ -31,20 +31,20 @@ import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
 import org.apache.olingo.commons.api.edm.EdmProperty;
 import org.apache.olingo.commons.api.edm.EdmStructuredType;
 import org.apache.olingo.commons.api.edm.EdmType;
-import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.constants.EdmTypeKind;
 import org.apache.olingo.commons.api.edm.provider.CsdlNavigationProperty;
 import org.apache.olingo.commons.api.edm.provider.CsdlStructuralType;
 
 import com.revolsys.collection.value.ValueHolder;
+import com.revolsys.io.PathName;
 
 public abstract class AbstractEdmStructuredType extends EdmTypeImpl implements EdmStructuredType {
 
   protected EdmStructuredType baseType;
 
-  protected FullQualifiedName baseTypeName;
+  protected PathName baseTypeName;
 
-  private final CsdlStructuralType providerStructuredType;
+  private final CsdlStructuralType<?> providerStructuredType;
 
   private List<String> propertyNames;
 
@@ -55,15 +55,15 @@ public abstract class AbstractEdmStructuredType extends EdmTypeImpl implements E
 
   private Map<String, EdmNavigationProperty> navigationProperties;
 
-  public AbstractEdmStructuredType(final Edm edm, final FullQualifiedName typeName,
-    final EdmTypeKind kind, final CsdlStructuralType structuredType) {
+  public AbstractEdmStructuredType(final Edm edm, final PathName typeName, final EdmTypeKind kind,
+    final CsdlStructuralType<?> structuredType) {
 
     super(edm, typeName, kind, structuredType);
-    this.baseTypeName = structuredType.getBaseTypeFQN();
+    this.baseTypeName = structuredType.getBaseTypePathName();
     this.providerStructuredType = structuredType;
   }
 
-  protected abstract EdmStructuredType buildBaseType(FullQualifiedName baseTypeName);
+  protected abstract EdmStructuredType buildBaseType(PathName baseTypeName);
 
   protected abstract void checkBaseType();
 
@@ -96,7 +96,7 @@ public abstract class AbstractEdmStructuredType extends EdmTypeImpl implements E
       if (structuredTypeNavigationProperties != null) {
         for (final CsdlNavigationProperty navigationProperty : structuredTypeNavigationProperties) {
           localNavigationProperties.put(navigationProperty.getName(),
-            new EdmNavigationPropertyImpl(this.getEdm(), navigationProperty));
+            new EdmNavigationPropertyImpl(getEdm(), navigationProperty));
         }
       }
 
@@ -177,7 +177,7 @@ public abstract class AbstractEdmStructuredType extends EdmTypeImpl implements E
     final var properties = new LinkedHashMap<String, EdmProperty>();
     for (final var field : this.providerStructuredType.getFields()) {
       final var name = field.getName();
-      final var edmProperty = new EdmPropertyImpl(this.getEdm(), field);
+      final var edmProperty = new EdmPropertyImpl(getEdm(), field);
       boolean add = true;
       final var edmType = edmProperty.getEdmType();
       if (edmType == EdmPrimitiveTypeKind.Untyped) {

@@ -199,25 +199,31 @@ public final class ContextURLHelper {
       if (resource instanceof UriResourceAction) {
         final EdmAction action = ((UriResourceAction)resource).getAction();
         if (action != null && action.isBound()) {
-          final String actionBindingParamType = action.getBindingParameterTypeFqn().toString();
-          if (type.getFullQualifiedName().toString()
+          final String actionBindingParamType = action.getBindingParameterTypePathName()
+            .toString();
+          if (type.getPathName()
+            .toString()
             .equalsIgnoreCase(actionBindingParamType)) {
             if (result.length() > 0) {
               result.append(',');
             }
-            result.append(Encoder.encode(action.getFullQualifiedName().toString()));
+            result.append(Encoder.encode(action.getPathName()
+              .toString()));
           }
         }
       } else if (resource instanceof UriResourceFunction) {
         final EdmFunction function = ((UriResourceFunction)resource).getFunction();
         if (function != null && function.isBound()) {
-          final String functionBindingParamType = function.getBindingParameterTypeFqn().toString();
-          if (type.getFullQualifiedName().toString()
+          final String functionBindingParamType = function.getBindingParameterTypePathName()
+            .toString();
+          if (type.getPathName()
+            .toString()
             .equalsIgnoreCase(functionBindingParamType)) {
             if (result.length() > 0) {
               result.append(',');
             }
-            result.append(Encoder.encode(function.getFullQualifiedName().toString()));
+            result.append(Encoder.encode(function.getPathName()
+              .toString()));
           }
         }
       }
@@ -234,7 +240,8 @@ public final class ContextURLHelper {
       int i = 0;
       for (final String sel : pathSel) {
         if (sel.equalsIgnoreCase(part.getComplexTypeFilter()
-        .getFullQualifiedName().toString())) {
+          .getPathName()
+          .toString())) {
           return i;
         }
         i++;
