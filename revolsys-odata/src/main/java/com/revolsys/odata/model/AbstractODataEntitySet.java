@@ -3,7 +3,6 @@ package com.revolsys.odata.model;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntitySet;
 import org.apache.olingo.commons.api.edm.provider.CsdlNavigationPropertyBinding;
 import org.apache.olingo.server.api.ODataRequest;
@@ -23,7 +22,7 @@ public abstract class AbstractODataEntitySet extends CsdlEntitySet
 
   protected final ODataSchema schema;
 
-  protected final FullQualifiedName typeName;
+  protected final PathName typeName;
 
   public AbstractODataEntitySet(final ODataSchema schema, final String typeName,
     final PathName pathName) {
@@ -47,9 +46,8 @@ public abstract class AbstractODataEntitySet extends CsdlEntitySet
     final ODataNavigationProperty navigationProperty = new ODataNavigationProperty(referencedTable,
       propertyName);
 
-    final CsdlNavigationPropertyBinding navigationPropertyBinding = new CsdlNavigationPropertyBinding()
-      .setPath(propertyName)
-      .setTarget(referencedTable.getName());
+    final var navigationPropertyBinding = new CsdlNavigationPropertyBinding(propertyName,
+      referencedTable.getName());
     addNavigationPropertyBinding(navigationPropertyBinding);
 
     this.entityType.addNavigationProperty(navigationProperty);
@@ -70,7 +68,7 @@ public abstract class AbstractODataEntitySet extends CsdlEntitySet
     return this.name;
   }
 
-  public String getNamespace() {
+  public PathName getNamespace() {
     return this.schema.getNamespace();
   }
 
@@ -87,7 +85,7 @@ public abstract class AbstractODataEntitySet extends CsdlEntitySet
     return this.entityType.getRecordDefinition();
   }
 
-  public FullQualifiedName getTypeName() {
+  public PathName getTypeName() {
     return this.typeName;
   }
 

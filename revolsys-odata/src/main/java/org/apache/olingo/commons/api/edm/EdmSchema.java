@@ -20,6 +20,8 @@ package org.apache.olingo.commons.api.edm;
 
 import java.util.List;
 
+import com.revolsys.io.PathName;
+
 /**
  * A csdl schema element
  */
@@ -33,7 +35,7 @@ public interface EdmSchema extends EdmAnnotatable {
   /**
    * @return the alias for this schema. May be null.
    */
-  String getAlias();
+  PathName getAlias();
 
   /**
    * @return all {@link EdmAnnotations} for this schema.
@@ -68,7 +70,7 @@ public interface EdmSchema extends EdmAnnotatable {
   /**
    * @return the namespace for this schema
    */
-  String getNamespace();
+  PathName getNamespace();
 
   /**
    * @return all {@link EdmTerm} for this schema.

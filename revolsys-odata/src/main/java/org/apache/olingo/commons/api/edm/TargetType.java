@@ -18,26 +18,19 @@
  */
 package org.apache.olingo.commons.api.edm;
 
-import org.apache.olingo.commons.api.edm.annotation.EdmAnd;
-import org.apache.olingo.commons.api.edm.annotation.EdmApply;
-import org.apache.olingo.commons.api.edm.annotation.EdmCast;
-import org.apache.olingo.commons.api.edm.annotation.EdmEq;
-import org.apache.olingo.commons.api.edm.annotation.EdmGe;
-import org.apache.olingo.commons.api.edm.annotation.EdmGt;
-import org.apache.olingo.commons.api.edm.annotation.EdmIf;
-import org.apache.olingo.commons.api.edm.annotation.EdmIsOf;
-import org.apache.olingo.commons.api.edm.annotation.EdmLabeledElement;
-import org.apache.olingo.commons.api.edm.annotation.EdmLe;
-import org.apache.olingo.commons.api.edm.annotation.EdmLt;
-import org.apache.olingo.commons.api.edm.annotation.EdmNe;
-import org.apache.olingo.commons.api.edm.annotation.EdmNot;
-import org.apache.olingo.commons.api.edm.annotation.EdmNull;
-import org.apache.olingo.commons.api.edm.annotation.EdmOr;
 import org.apache.olingo.commons.api.edm.annotation.EdmPropertyValue;
-import org.apache.olingo.commons.api.edm.annotation.EdmRecord;
-import org.apache.olingo.commons.api.edm.annotation.EdmUrlRef;
 import org.apache.olingo.commons.api.edm.constants.EdmOnDelete;
 import org.apache.olingo.commons.api.edmx.EdmxReference;
+import org.apache.olingo.commons.core.edm.EdmSingleton;
+import org.apache.olingo.commons.core.edm.annotation.EdmApply;
+import org.apache.olingo.commons.core.edm.annotation.EdmCast;
+import org.apache.olingo.commons.core.edm.annotation.EdmIf;
+import org.apache.olingo.commons.core.edm.annotation.EdmIsOf;
+import org.apache.olingo.commons.core.edm.annotation.EdmLabeledElement;
+import org.apache.olingo.commons.core.edm.annotation.EdmLogicalOrComparisonExpression;
+import org.apache.olingo.commons.core.edm.annotation.EdmNull;
+import org.apache.olingo.commons.core.edm.annotation.EdmRecord;
+import org.apache.olingo.commons.core.edm.annotation.EdmUrlRef;
 
 public enum TargetType {
 
@@ -57,10 +50,12 @@ public enum TargetType {
                           EdmTerm.class), TypeDefinition(EdmTypeDefinition.class), URLRef(
                             EdmUrlRef.class), Reference(EdmxReference.class),
   // Logical Operators
-  And(EdmAnd.class), Or(EdmOr.class), Not(EdmNot.class),
+  And(EdmLogicalOrComparisonExpression.class), Or(EdmLogicalOrComparisonExpression.class), Not(
+    EdmLogicalOrComparisonExpression.class),
   // ComparisonOperators
-  Eq(EdmEq.class), Ne(EdmNe.class), Gt(EdmGt.class), Ge(EdmGe.class), Lt(EdmLt.class), Le(
-    EdmLe.class);
+  Eq(EdmLogicalOrComparisonExpression.class), Ne(EdmLogicalOrComparisonExpression.class), Gt(
+    EdmLogicalOrComparisonExpression.class), Ge(EdmLogicalOrComparisonExpression.class), Lt(
+      EdmLogicalOrComparisonExpression.class), Le(EdmLogicalOrComparisonExpression.class);
 
   private final Class<?> edmClass;
 

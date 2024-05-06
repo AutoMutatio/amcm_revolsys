@@ -188,6 +188,11 @@ public interface Lists {
     return false;
   }
 
+  static <V> ListEx<V> empty() {
+    // TODO empty
+    return Lists.newArray();
+  }
+
   static boolean equalsNotNull(final ListEx<?> list1, final ListEx<?> list2) {
     if (list1.size() != list2.size()) {
       return false;

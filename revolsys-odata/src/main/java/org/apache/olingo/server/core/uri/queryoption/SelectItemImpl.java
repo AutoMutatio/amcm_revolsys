@@ -19,9 +19,10 @@
 package org.apache.olingo.server.core.uri.queryoption;
 
 import org.apache.olingo.commons.api.edm.EdmType;
-import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.server.api.uri.UriInfoResource;
 import org.apache.olingo.server.api.uri.queryoption.SelectItem;
+
+import com.revolsys.io.PathName;
 
 public class SelectItemImpl implements SelectItem {
 
@@ -29,16 +30,16 @@ public class SelectItemImpl implements SelectItem {
 
   private boolean isStar;
 
-  private FullQualifiedName addOperationsInSchemaNameSpace;
+  private PathName addOperationsInSchemaNameSpace;
 
   private EdmType startTypeFilter;
 
-  public void addAllOperationsInSchema(final FullQualifiedName addOperationsInSchemaNameSpace) {
+  public void addAllOperationsInSchema(final PathName addOperationsInSchemaNameSpace) {
     this.addOperationsInSchemaNameSpace = addOperationsInSchemaNameSpace;
   }
 
   @Override
-  public FullQualifiedName getAllOperationsInSchemaNameSpace() {
+  public PathName getAllOperationsInSchemaNameSpace() {
     return this.addOperationsInSchemaNameSpace;
   }
 

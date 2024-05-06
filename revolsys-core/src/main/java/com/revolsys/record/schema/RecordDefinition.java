@@ -171,7 +171,7 @@ public interface RecordDefinition extends Cloneable, GeometryFactoryProxy, Recor
    * @return The field names.
    */
   @Override
-  List<String> getFieldNames();
+  ListEx<String> getFieldNames();
 
   Set<String> getFieldNamesSet();
 

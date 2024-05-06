@@ -5,7 +5,7 @@ import java.util.Locale;
 
 import org.apache.olingo.commons.api.data.ContextURL;
 import org.apache.olingo.commons.api.data.ContextURL.Suffix;
-import org.apache.olingo.commons.api.data.Entity;
+import org.apache.olingo.commons.api.data.ODataEntity;
 import org.apache.olingo.commons.api.edm.EdmEntitySet;
 import org.apache.olingo.commons.api.edm.EdmEntityType;
 import org.apache.olingo.commons.api.edm.EdmNavigationProperty;
@@ -22,9 +22,9 @@ import org.apache.olingo.server.api.serializer.ODataSerializer;
 import org.apache.olingo.server.api.serializer.SerializerResult;
 import org.apache.olingo.server.api.uri.UriInfo;
 import org.apache.olingo.server.api.uri.UriParameter;
-import org.apache.olingo.server.api.uri.UriResource;
-import org.apache.olingo.server.api.uri.UriResourceEntitySet;
-import org.apache.olingo.server.api.uri.UriResourceNavigation;
+import org.apache.olingo.server.core.uri.UriResource;
+import org.apache.olingo.server.core.uri.UriResourceEntitySet;
+import org.apache.olingo.server.core.uri.UriResourceNavigationProperty;
 
 import com.revolsys.odata.model.ODataEdmProvider;
 import com.revolsys.odata.model.ODataEntityType;
@@ -51,7 +51,7 @@ public class ODataEntityProcessor extends AbstractProcessor implements EntityPro
 
   }
 
-  private Entity readEntity(final ODataRequest request, final EdmEntitySet entitySet,
+  private ODataEntity readEntity(final ODataRequest request, final EdmEntitySet entitySet,
     final List<UriParameter> keyPredicates) throws ODataApplicationException {
     final ODataEntityType entityType = getEntityType(entitySet);
     return entityType.readEntity(request, entitySet, keyPredicates, null);
@@ -62,7 +62,7 @@ public class ODataEntityProcessor extends AbstractProcessor implements EntityPro
     final UriInfo uriInfo, final ContentType responseFormat)
     throws ODataApplicationException, ODataLibraryException {
     EdmEntityType responseEdmEntityType = null;
-    Entity responseEntity = null;
+    ODataEntity responseEntity = null;
     EdmEntitySet responseEdmEntitySet = null;
 
     final List<UriResource> resourceParts = uriInfo.getUriResourceParts();
@@ -84,8 +84,8 @@ public class ODataEntityProcessor extends AbstractProcessor implements EntityPro
       responseEntity = readEntity(request, startEdmEntitySet, keyPredicates);
     } else if (segmentCount == 2) { // navigation
       final UriResource navSegment = resourceParts.get(1);
-      if (navSegment instanceof UriResourceNavigation) {
-        final UriResourceNavigation uriResourceNavigation = (UriResourceNavigation)navSegment;
+      if (navSegment instanceof UriResourceNavigationProperty) {
+        final UriResourceNavigationProperty uriResourceNavigation = (UriResourceNavigationProperty)navSegment;
         final EdmNavigationProperty edmNavigationProperty = uriResourceNavigation.getProperty();
         responseEdmEntityType = edmNavigationProperty.getType();
         responseEdmEntitySet = getNavigationTargetEntitySet(startEdmEntitySet,
@@ -93,7 +93,7 @@ public class ODataEntityProcessor extends AbstractProcessor implements EntityPro
         final ODataEntityType targetEntityType = getEntityType(responseEdmEntitySet);
 
         final List<UriParameter> keyPredicates = uriResourceEntitySet.getKeyPredicates();
-        final Entity sourceEntity = readEntity(request, startEdmEntitySet, keyPredicates);
+        final var sourceEntity = readEntity(request, startEdmEntitySet, keyPredicates);
         final List<UriParameter> navKeyPredicates = uriResourceNavigation.getKeyPredicates();
         final String navigationPropertyName = edmNavigationProperty.getName();
         final ODataEntityType sourceEntityType = getEntityType(startEdmEntitySet);
@@ -131,7 +131,7 @@ public class ODataEntityProcessor extends AbstractProcessor implements EntityPro
       .contextURL(contextUrl)
       .build();
 
-    final ODataSerializer serializer = this.odata.createSerializer(responseFormat);
+    final ODataSerializer serializer = ODataSerializer.createSerializer(responseFormat);
     final SerializerResult serializerResult = serializer.entity(this.serviceMetadata,
       responseEdmEntityType, responseEntity, opts);
 

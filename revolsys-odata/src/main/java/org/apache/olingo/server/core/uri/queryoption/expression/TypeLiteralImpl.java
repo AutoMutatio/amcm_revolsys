@@ -46,6 +46,7 @@ public class TypeLiteralImpl implements TypeLiteral {
   @Override
   public String toString() {
     return this.type == null ? "NULL"
-      : this.type.getFullQualifiedName().getFullQualifiedNameAsString();
+      : this.type.getPathName()
+        .toString();
   }
 }

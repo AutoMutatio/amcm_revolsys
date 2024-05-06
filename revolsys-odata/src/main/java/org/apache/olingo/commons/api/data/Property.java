@@ -101,14 +101,6 @@ public class Property extends Valuable {
     return getValue() == null || "Edm.Null".equals(getType());
   }
 
-  /**
-   * Set name of property.
-   * @param name name of property
-   */
-  public void setName(final String name) {
-    this.name = name;
-  }
-
   @Override
   public String toString() {
     return (this.name == null ? "null" : this.name) + '='

@@ -19,20 +19,40 @@
 package org.apache.olingo.commons.api.data;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import com.revolsys.collection.list.ListEx;
 
 /**
  * Represents the value of a complex property.
  */
-public class ComplexValue extends Linked {
+public class ComplexValue extends Linked implements ODataPropertyMap {
 
-  private final List<Property> value = new ArrayList<>();
+  private final Map<String, ListEx<Annotation>> annotationByName = new HashMap<>();
 
   private String typeName;
 
+  private final List<Operation> operations = new ArrayList<>();
+
+  // @Override
+  // public boolean equals(final Object o) {
+  // return super.equals(o) && this.value.equals(((ComplexValue)o).value);
+  // }
+
   @Override
-  public boolean equals(final Object o) {
-    return super.equals(o) && this.value.equals(((ComplexValue)o).value);
+  public ListEx<Annotation> getAnnotations(final String name) {
+    return this.annotationByName.getOrDefault(name, ListEx.empty());
+  }
+
+  /**
+   * Gets operations.
+   *
+   * @return operations.
+   */
+  public List<Operation> getOperations() {
+    return this.operations;
   }
 
   /**
@@ -43,19 +63,15 @@ public class ComplexValue extends Linked {
     return this.typeName;
   }
 
-  /**
-   * Get list of all values for this ComplexValue.
-   *
-   * @return all values for this ComplexValue (can not be null).
-   */
-  public List<Property> getValue() {
-    return this.value;
+  @Override
+  public <V> V getValue(final String name) {
+    return null;
   }
 
   @Override
   public int hashCode() {
-    int result = super.hashCode();
-    result = 31 * result + this.value.hashCode();
+    final int result = super.hashCode();
+    // result = 31 * result + this.value.hashCode();
     return result;
   }
 
@@ -67,8 +83,8 @@ public class ComplexValue extends Linked {
     this.typeName = typeName;
   }
 
-  @Override
-  public String toString() {
-    return this.value.toString();
-  }
+  // @Override
+  // public String toString() {
+  // return this.value.toString();
+  // }
 }

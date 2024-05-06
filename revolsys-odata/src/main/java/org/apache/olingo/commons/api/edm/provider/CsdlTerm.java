@@ -21,8 +21,6 @@ package org.apache.olingo.commons.api.edm.provider;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.olingo.commons.api.edm.geo.SRID;
-
 /**
  * The type Csdl term.
  */
@@ -47,7 +45,7 @@ public class CsdlTerm implements CsdlAbstractEdmItem, CsdlNamed, CsdlAnnotatable
 
   private Integer scale;
 
-  private SRID srid;
+  private int srid;
 
   private List<CsdlAnnotation> annotations = new ArrayList<>();
 
@@ -120,7 +118,7 @@ public class CsdlTerm implements CsdlAbstractEdmItem, CsdlNamed, CsdlAnnotatable
    *
    * @return the srid
    */
-  public SRID getSrid() {
+  public int getSrid() {
     return this.srid;
   }
 
@@ -247,7 +245,7 @@ public class CsdlTerm implements CsdlAbstractEdmItem, CsdlNamed, CsdlAnnotatable
    * @param srid the srid
    * @return the srid
    */
-  public CsdlTerm setSrid(final SRID srid) {
+  public CsdlTerm setSrid(final int srid) {
     this.srid = srid;
     return this;
   }
