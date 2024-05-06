@@ -118,7 +118,7 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
 
   private final Object writerKey = new Object();
 
-  private boolean useUpperCaseNames = true;
+  private boolean useUpperCaseNames = false;
 
   public AbstractJdbcRecordStore() {
     this(ArrayRecord.FACTORY);
@@ -972,11 +972,12 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
   }
 
   @Override
-  public RecordWriter newRecordWriter(final RecordDefinitionProxy recordDefinition) {
+  public JdbcRecordWriter newRecordWriter(final RecordDefinitionProxy recordDefinition) {
     return newRecordWriter(recordDefinition, 0);
   }
 
-  protected JdbcRecordWriter newRecordWriter(final RecordDefinitionProxy recordDefinition,
+  @Override
+  public JdbcRecordWriter newRecordWriter(final RecordDefinitionProxy recordDefinition,
       final int batchSize) {
     Transaction.assertInTransaction();
     final JdbcConnection connection = getJdbcConnection();

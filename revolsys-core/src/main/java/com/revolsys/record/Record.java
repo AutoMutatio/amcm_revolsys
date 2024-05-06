@@ -45,7 +45,7 @@ import com.revolsys.util.Property;
 import com.revolsys.util.Strings;
 
 public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordDefinitionProxy,
-  BoundingBoxProxy, Jsonable, JsonWritable {
+    BoundingBoxProxy, Jsonable, JsonWritable {
   String EVENT_RECORD_CHANGED = "_recordChanged";
 
   String EXCLUDE_GEOMETRY = Record.class.getName() + ".excludeGeometry";
@@ -69,7 +69,7 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
   };
 
   static boolean equalsNotNull(final List<Record> records1, List<Record> records2,
-    final Collection<String> excludeFieldNames) {
+      final Collection<String> excludeFieldNames) {
     if (records1 == null) {
       return records2 == null;
     } else if (records2 == null) {
@@ -96,18 +96,18 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
   }
 
   @SuppressWarnings({
-    "unchecked", "rawtypes"
+      "unchecked", "rawtypes"
   })
   static boolean equalsNotNull(final Object object1, final Object object2) {
-    return ((Record)object1).equalValuesAll((Map)object2);
+    return ((Record) object1).equalValuesAll((Map) object2);
   }
 
   @SuppressWarnings({
-    "unchecked", "rawtypes"
+      "unchecked", "rawtypes"
   })
   static boolean equalsNotNull(final Object object1, final Object object2,
-    final Collection<String> excludeFieldNames) {
-    return ((Record)object1).equalValuesExclude((Map)object2, excludeFieldNames);
+      final Collection<String> excludeFieldNames) {
+    return ((Record) object1).equalValuesExclude((Map) object2, excludeFieldNames);
   }
 
   static Comparator<Record> newComparatorIdentifier(final String fieldName) {
@@ -133,15 +133,15 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
     final RecordDefinition recordDefinition = record.getRecordDefinition();
     final StringBuilder s = new StringBuilder();
     s.append(recordDefinition.getPath())
-      .append("(\n");
+        .append("(\n");
     for (int i = 0; i < recordDefinition.getFieldCount(); i++) {
       final Object value = record.getValue(i);
       if (value != null) {
         final String fieldName = recordDefinition.getFieldName(i);
         s.append(fieldName)
-          .append('=')
-          .append(value)
-          .append('\n');
+            .append('=')
+            .append(value)
+            .append('\n');
       }
     }
     s.append(')');
@@ -150,12 +150,12 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
 
   @Override
   default Record add(final CharSequence key, final Object value) {
-    return (Record)MapEx.super.add(key, value);
+    return (Record) MapEx.super.add(key, value);
   }
 
   @Override
   default Record addFieldValue(final CharSequence key,
-    final Map<? extends CharSequence, ? extends Object> source) {
+      final Map<? extends CharSequence, ? extends Object> source) {
     final Object value = source.get(key);
     addValue(key, value);
     return this;
@@ -163,7 +163,7 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
 
   @Override
   default <SK> Record addFieldValue(final CharSequence key, final Map<SK, ? extends Object> source,
-    final SK sourceKey) {
+      final SK sourceKey) {
     final Object value = source.get(sourceKey);
     addValue(key, value);
     return this;
@@ -173,7 +173,7 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
   default <R extends Record> int addTo(final List<R> records) {
     if (!contains(records)) {
       final int index = records.size();
-      records.add((R)this);
+      records.add((R) this);
       return index;
     }
     return -1;
@@ -181,12 +181,12 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
 
   @Override
   default Record addValue(final CharSequence key, final Object value) {
-    return (Record)MapEx.super.addValue(key, value);
+    return (Record) MapEx.super.addValue(key, value);
   }
 
   default Record addValues(final MapEx values) {
     if (values instanceof Record) {
-      final Record record = (Record)values;
+      final Record record = (Record) values;
       setValues(record);
     } else if (values != null) {
       setValues(values, new ArrayList<>(values.keySet()));
@@ -222,7 +222,7 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
   @Override
   default int compareTo(final Object other) {
     if (other instanceof Record) {
-      final Record record = (Record)other;
+      final Record record = (Record) other;
       return compareTo(record);
     } else {
       return -1;
@@ -236,7 +236,7 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
       return 0;
     } else {
       final int recordDefinitionCompare = getRecordDefinition()
-        .compareTo(other.getRecordDefinition());
+          .compareTo(other.getRecordDefinition());
       if (recordDefinitionCompare == 0) {
         final Identifier id1 = getIdentifier();
         final Identifier id2 = other.getIdentifier();
@@ -300,7 +300,7 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
   }
 
   default int compareValue(final Record record, final CharSequence fieldName,
-    final boolean nullsFirst) {
+      final boolean nullsFirst) {
     final Comparable<Object> value1 = getValue(fieldName);
     Object value2;
     if (record == null) {
@@ -386,7 +386,7 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
   }
 
   default boolean equalValue(final Map<String, ? extends Object> map,
-    final CharSequence fieldName) {
+      final CharSequence fieldName) {
     if (map != null) {
       final Object value = map.get(fieldName);
       return equalValue(fieldName, value);
@@ -395,7 +395,7 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
   }
 
   default boolean equalValueExclude(final CharSequence fieldName, final Object value,
-    final CharSequence... excludeFieldNames) {
+      final CharSequence... excludeFieldNames) {
     final FieldDefinition fieldDefinition = getFieldDefinition(fieldName);
     if (fieldDefinition == null) {
       return false;
@@ -407,7 +407,7 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
   }
 
   default boolean equalValueExclude(final CharSequence fieldName, final Object value,
-    final Collection<? extends CharSequence> excludeFieldNames) {
+      final Collection<? extends CharSequence> excludeFieldNames) {
     final FieldDefinition fieldDefinition = getFieldDefinition(fieldName);
     if (fieldDefinition == null) {
       return false;
@@ -419,7 +419,7 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
   }
 
   default boolean equalValueExclude(final Map<String, ? extends Object> map,
-    final CharSequence fieldName, final CharSequence... excludeFieldNames) {
+      final CharSequence fieldName, final CharSequence... excludeFieldNames) {
     if (map != null) {
       final Object value = map.get(fieldName);
       return equalValueExclude(fieldName, value, excludeFieldNames);
@@ -428,7 +428,7 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
   }
 
   default boolean equalValueExclude(final Map<String, ? extends Object> map,
-    final CharSequence fieldName, final Collection<? extends CharSequence> excludeFieldNames) {
+      final CharSequence fieldName, final Collection<? extends CharSequence> excludeFieldNames) {
     if (isFieldExcluded(excludeFieldNames, fieldName)) {
       return true;
     } else {
@@ -441,7 +441,7 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
   }
 
   default boolean equalValueExclude(final Record otherRecord, final CharSequence fieldName,
-    final CharSequence... excludeFieldNames) {
+      final CharSequence... excludeFieldNames) {
     if (otherRecord != null) {
       final Object value = otherRecord.getValue(fieldName);
       return equalValueExclude(fieldName, value, excludeFieldNames);
@@ -450,7 +450,9 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
   }
 
   /**
-   * Equal if the keys and values in the map are equal to those field values on the record.
+   * Equal if the keys and values in the map are equal to those field values on
+   * the record.
+   *
    * @param map
    */
   default boolean equalValues(final Map<String, ? extends Object> map) {
@@ -481,6 +483,7 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
 
   /**
    * Equal if the map has all the fields and values of this record
+   *
    * @param map
    */
   default boolean equalValuesAll(final Map<String, ? extends Object> map) {
@@ -488,9 +491,9 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
       return false;
     } else {
       if (map instanceof Record) {
-        final Record record = (Record)map;
+        final Record record = (Record) map;
         if (!record.getPathName()
-          .equals(getPathName())) {
+            .equals(getPathName())) {
           return false;
         }
       }
@@ -506,10 +509,11 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
 
   /**
    * Equal if the map has all the fields and values of this record
+   *
    * @param map
    */
   default boolean equalValuesExclude(final Map<String, Object> map,
-    final Collection<? extends CharSequence> excludeFieldNames) {
+      final Collection<? extends CharSequence> excludeFieldNames) {
     final List<String> fieldNames = getFieldNames();
     for (final String fieldName : fieldNames) {
       if (!equalValueExclude(map, fieldName, excludeFieldNames)) {
@@ -522,7 +526,7 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
   @Override
   default Object get(final Object key) {
     if (key instanceof CharSequence) {
-      final CharSequence name = (String)key;
+      final CharSequence name = (String) key;
       return getValue(name);
     } else {
       return null;
@@ -544,7 +548,7 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
     final Object value = getValue(name);
     if (Property.hasValue(value)) {
       if (value instanceof Number) {
-        final Number number = (Number)value;
+        final Number number = (Number) value;
         return number.byteValue();
       } else {
         return Byte.valueOf(value.toString());
@@ -561,7 +565,7 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
       final FieldDefinition fieldDefinition = getFieldDefinition(fieldName);
       value = fieldDefinition.getCodeValue(value);
     }
-    return (T)value;
+    return (T) value;
   }
 
   @SuppressWarnings("unchecked")
@@ -571,11 +575,12 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
       final FieldDefinition fieldDefinition = getFieldDefinition(fieldIndex);
       value = fieldDefinition.getCodeValue(value);
     }
-    return (T)value;
+    return (T) value;
   }
 
   /**
-   * Return the list of field names that are different between this record and the other map.
+   * Return the list of field names that are different between this record and the
+   * other map.
    * Compares all the field names from this record.
    *
    * @param map The map to compare
@@ -586,17 +591,18 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
   }
 
   /**
-   * Return the list of field names that are different between this record and the other map.
+   * Return the list of field names that are different between this record and the
+   * other map.
    *
-   * @param map The map to compare
+   * @param map        The map to compare
    * @param fieldNames The field names to compare
    */
   default List<String> getDifferentFieldNames(final Map<String, Object> map,
-    final Collection<? extends CharSequence> fieldNames) {
+      final Collection<? extends CharSequence> fieldNames) {
     List<String> differentFieldNames = new ArrayList<>();
     for (final CharSequence fieldName : fieldNames) {
       if (!equalValue(map, fieldName)) {
-        if (differentFieldNames == Collections.<String> emptyList()) {
+        if (differentFieldNames == Collections.<String>emptyList()) {
           differentFieldNames = new ArrayList<>();
         }
         differentFieldNames.add(fieldName.toString());
@@ -606,18 +612,19 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
   }
 
   /**
-   * Return the list of field names that are different between this record and the other map.
+   * Return the list of field names that are different between this record and the
+   * other map.
    *
-   * @param map The map to compare
+   * @param map               The map to compare
    * @param excludeFieldNames The field names to not compare
    */
   default List<String> getDifferentFieldNamesExclude(final Map<String, Object> map,
-    final Collection<? extends CharSequence> excludeFieldNames) {
+      final Collection<? extends CharSequence> excludeFieldNames) {
     List<String> differentFieldNames = new ArrayList<>();
     final List<String> fieldNames = getFieldNames();
     for (final CharSequence fieldName : fieldNames) {
       if (!excludeFieldNames.contains(fieldName) && !equalValue(map, fieldName)) {
-        if (differentFieldNames == Collections.<String> emptyList()) {
+        if (differentFieldNames == Collections.<String>emptyList()) {
           differentFieldNames = new ArrayList<>();
         }
         differentFieldNames.add(fieldName.toString());
@@ -631,7 +638,7 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
     final Object value = getValue(name);
     if (Property.hasValue(value)) {
       if (value instanceof Number) {
-        final Number number = (Number)value;
+        final Number number = (Number) value;
         return number.doubleValue();
       } else {
         return Double.valueOf(value.toString());
@@ -652,7 +659,7 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
   }
 
   default <E extends Enum<E>> E getEnum(final Class<E> enumType, final CharSequence fieldName,
-    final E defaultValue) {
+      final E defaultValue) {
     final String value = getString(fieldName);
     if (Property.hasValue(value)) {
       return Enum.valueOf(enumType, value);
@@ -666,7 +673,7 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
     final Object value = getValue(name);
     if (Property.hasValue(value)) {
       if (value instanceof Number) {
-        final Number number = (Number)value;
+        final Number number = (Number) value;
         return number.floatValue();
       } else {
         return Float.valueOf(value.toString());
@@ -689,7 +696,7 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
       return null;
     } else {
       final int index = recordDefinition.getGeometryFieldIndex();
-      return (T)getValue(index, GeometryDataTypes.GEOMETRY);
+      return (T) getValue(index, GeometryDataTypes.GEOMETRY);
     }
   }
 
@@ -787,7 +794,7 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
     final Object value = getValue(name);
     if (Property.hasValue(value)) {
       if (value instanceof Number) {
-        final Number number = (Number)value;
+        final Number number = (Number) value;
         return number.intValue();
       } else {
         return Integer.valueOf(value.toString());
@@ -812,7 +819,7 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
     final Object value = getValue(name);
     if (Property.hasValue(value)) {
       if (value instanceof Number) {
-        final Number number = (Number)value;
+        final Number number = (Number) value;
         return number.longValue();
       } else {
         return Long.valueOf(value.toString());
@@ -830,7 +837,7 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
     final Object value = getValue(name);
     if (Property.hasValue(value)) {
       if (value instanceof Number) {
-        final Number number = (Number)value;
+        final Number number = (Number) value;
         return number.shortValue();
       } else {
         return Short.valueOf(value.toString());
@@ -852,9 +859,9 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
     } else if (value instanceof String) {
       return value.toString();
     } else if (value instanceof Clob) {
-      final Clob clob = (Clob)value;
+      final Clob clob = (Clob) value;
       try {
-        return clob.getSubString(1, (int)clob.length());
+        return clob.getSubString(1, (int) clob.length());
       } catch (final SQLException e) {
         throw new RuntimeException("Unable to read clob", e);
       }
@@ -891,7 +898,7 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
     final RecordDefinition recordDefinition = getRecordDefinition();
     try {
       final int index = recordDefinition.getFieldIndex(name);
-      return (T)getValue(index);
+      return (T) getValue(index);
     } catch (final NullPointerException e) {
       if (recordDefinition == null) {
         Logs.warn(this, "record defintion not specified", e);
@@ -925,12 +932,12 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
     if (fieldIndex == -1) {
       final RecordDefinition recordDefinition = getRecordDefinition();
       final String[] propertyPath = path.toString()
-        .split("\\.");
+          .split("\\.");
       Object propertyValue = this;
       for (int i = 0; i < propertyPath.length && propertyValue != null; i++) {
         final String propertyName = propertyPath[i];
         if (propertyValue instanceof Record) {
-          final Record record = (Record)propertyValue;
+          final Record record = (Record) propertyValue;
 
           if (record.hasField(propertyName)) {
             propertyValue = record.getValue(propertyName);
@@ -946,7 +953,7 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
             return null;
           }
         } else if (propertyValue instanceof Map) {
-          final Map<String, Object> map = (Map<String, Object>)propertyValue;
+          final Map<String, Object> map = (Map<String, Object>) propertyValue;
           propertyValue = map.get(propertyName);
           if (propertyValue == null) {
             return null;
@@ -966,7 +973,7 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
           }
         }
       }
-      return (T)propertyValue;
+      return (T) propertyValue;
     } else {
       return getValue(fieldIndex);
     }
@@ -1101,17 +1108,17 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
   }
 
   default boolean isFieldExcluded(final Collection<? extends CharSequence> excludeFieldNames,
-    CharSequence fieldName) {
+      CharSequence fieldName) {
     fieldName = fieldName.toString();
     final RecordDefinition recordDefinition = getRecordDefinition();
     if (excludeFieldNames.contains(fieldName)) {
       return true;
     } else if (excludeFieldNames.contains(Record.EXCLUDE_ID)
-      && ("OBJECTID".equals(fieldName) || recordDefinition.isIdField(fieldName))) {
+        && ("OBJECTID".equals(fieldName) || recordDefinition.isIdField(fieldName))) {
       return true;
     } else if (excludeFieldNames.contains(Record.EXCLUDE_GEOMETRY)
-      && ("OBJECTID".equals(fieldName) || recordDefinition.getGeometryFieldNames()
-        .contains(fieldName))) {
+        && ("OBJECTID".equals(fieldName) || recordDefinition.getGeometryFieldNames()
+            .contains(fieldName))) {
       return true;
     } else {
       return false;
@@ -1191,7 +1198,7 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
   @Override
   default Object remove(final Object key) {
     if (key instanceof CharSequence) {
-      final CharSequence name = (CharSequence)key;
+      final CharSequence name = (CharSequence) key;
       final Object value = getValue(name);
       setValue(name, null);
       return value;
@@ -1200,7 +1207,8 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
   }
 
   /**
-   * Remove the first record in the collection of records that is {{@link #isSame(Record)}} as this record.
+   * Remove the first record in the collection of records that is
+   * {{@link #isSame(Record)}} as this record.
    *
    * @param records
    * @return The index of the removed record.
@@ -1221,10 +1229,10 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
 
   @SuppressWarnings("unchecked")
   default <V> V setCodeValue(final String fieldName, final Record record,
-    final String fromFieldName) {
+      final String fromFieldName) {
     final Object value = record.getCodeValue(fromFieldName);
     setValue(fieldName, value);
-    return (V)value;
+    return (V) value;
   }
 
   /**
@@ -1263,7 +1271,7 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
       final Identifier oldIdentifier = getIdentifier();
       if (!DataTypes.IDENTIFIER.equals(oldIdentifier, identifier)) {
         throw new IllegalStateException(
-          "Cannot change the ID on a persisted record: " + identifier + "!=" + oldIdentifier);
+            "Cannot change the ID on a persisted record: " + identifier + "!=" + oldIdentifier);
       }
     }
   }
@@ -1275,7 +1283,7 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
   /**
    * Set the value of the field with the specified name.
    *
-   * @param name The name of the field.
+   * @param name  The name of the field.
    * @param value The new value.
    */
 
@@ -1294,9 +1302,9 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
   }
 
   default <T> T setValue(final CharSequence fieldName, final Record source,
-    final String sourceFieldName) {
+      final String sourceFieldName) {
     @SuppressWarnings("unchecked")
-    final T value = (T)source.getValue(sourceFieldName);
+    final T value = (T) source.getValue(sourceFieldName);
     setValueByPath(fieldName, value);
     return value;
   }
@@ -1316,7 +1324,7 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
 
   default <T> T setValue(final Record source, final CharSequence fieldName) {
     @SuppressWarnings("unchecked")
-    final T value = (T)source.getValue(fieldName);
+    final T value = (T) source.getValue(fieldName);
     setValue(fieldName, value);
     return value;
   }
@@ -1353,7 +1361,7 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
       if (codeTableValueName == null) {
         Identifier id;
         if (value instanceof List) {
-          final List list = (List)value;
+          final List list = (List) value;
           id = codeTable.getIdentifier(list.toArray());
         } else {
           if (getState().isInitializing()) {
@@ -1379,9 +1387,9 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
   }
 
   default <T> T setValueByPath(final CharSequence fieldPath, final Record source,
-    final String sourceFieldPath) {
+      final String sourceFieldPath) {
     @SuppressWarnings("unchecked")
-    final T value = (T)source.getValueByPath(sourceFieldPath);
+    final T value = (T) source.getValueByPath(sourceFieldPath);
     setValueByPath(fieldPath, value);
     return value;
   }
@@ -1396,7 +1404,7 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
 
   default void setValues(final Map<? extends CharSequence, ? extends Object> values) {
     if (values instanceof Record) {
-      final Record record = (Record)values;
+      final Record record = (Record) values;
       setValues(record);
     } else if (values != null) {
       setValues(values, new ArrayList<>(values.keySet()));
@@ -1404,7 +1412,7 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
   }
 
   default void setValues(final Map<? extends CharSequence, ? extends Object> values,
-    final Collection<? extends CharSequence> fieldNames) {
+      final Collection<? extends CharSequence> fieldNames) {
     for (final CharSequence fieldName : fieldNames) {
       final Object newValue = values.get(fieldName);
       final FieldDefinition fieldDefinition = getFieldDefinition(fieldName);
@@ -1415,7 +1423,7 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
   }
 
   default void setValues(final Map<? extends String, ? extends Object> values,
-    final String... fieldNames) {
+      final String... fieldNames) {
     setValues(values, Arrays.asList(fieldNames));
   }
 
@@ -1460,7 +1468,7 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
   default void setValuesByPath(final Map<? extends CharSequence, ? extends Object> values) {
     if (values != null) {
       for (final Entry<? extends CharSequence, ? extends Object> defaultValue : new ArrayList<>(
-        values.entrySet())) {
+          values.entrySet())) {
         final CharSequence name = defaultValue.getKey();
         final Object value = defaultValue.getValue();
         setValueByPath(name, value);

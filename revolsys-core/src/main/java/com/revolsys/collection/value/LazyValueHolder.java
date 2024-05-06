@@ -154,7 +154,7 @@ public class LazyValueHolder<T> implements ValueHolder<T>, BaseCloseable {
 
   @Override
   public T getValue() {
-    if (this.valueSupplier == null) {
+    if (this.valueSupplier == null && this.valueRefresh == null) {
       return null;
     }
     while (true) {

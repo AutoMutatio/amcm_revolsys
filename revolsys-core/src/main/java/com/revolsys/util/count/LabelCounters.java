@@ -5,6 +5,7 @@ import java.io.Writer;
 import java.util.Arrays;
 import java.util.Set;
 
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.data.type.DataTypes;
 import com.revolsys.io.PathNameProxy;
 import com.revolsys.record.io.RecordWriter;
@@ -88,6 +89,21 @@ public interface LabelCounters {
 
   void setMessage(String message);
 
+  default JsonObject toJson() {
+    if (isEmpty()) {
+      return JsonObject.EMPTY;
+    } else {
+      final JsonObject json = JsonObject.tree();
+      for (final var label : getLabels()) {
+        final Long count = getCount(label);
+        if (count != null) {
+          json.add(label, count);
+        }
+      }
+      return json;
+    }
+  }
+
   default String toTsv() {
     return toTsv("LABEL", "COUNT");
   }
@@ -100,7 +116,7 @@ public interface LabelCounters {
 
   default void toTsv(final Writer out, final String... titles) {
     try (
-      TsvWriter tsv = Tsv.plainWriter(out)) {
+        TsvWriter tsv = Tsv.plainWriter(out)) {
       long total = 0;
       tsv.write(Arrays.asList(titles));
       for (final String label : getLabels()) {
@@ -118,7 +134,7 @@ public interface LabelCounters {
     recordDefinitionBuilder.addField("Count", DataTypes.LONG, 10);
     final RecordDefinition recordDefinition = recordDefinitionBuilder.getRecordDefinition();
     try (
-      RecordWriter recordWriter = RecordWriter.newRecordWriter(recordDefinition, target)) {
+        RecordWriter recordWriter = RecordWriter.newRecordWriter(recordDefinition, target)) {
       for (final String label : getLabels()) {
         final Long count = getCount(label);
         recordWriter.write(label, count);

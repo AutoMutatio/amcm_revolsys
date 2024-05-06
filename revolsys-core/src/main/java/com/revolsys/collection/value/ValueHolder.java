@@ -61,6 +61,14 @@ public interface ValueHolder<T> extends Emptyable, Supplier<T> {
   }
 
   default <V> ValueHolder<V> then(final Function<T, V> converter) {
-    return () -> converter.apply(getValue());
+    assert converter != null;
+    return () -> {
+      final var value = getValue();
+      if (value == null) {
+        return null;
+      } else {
+        return converter.apply(value);
+      }
+    };
   }
 }

@@ -21,6 +21,7 @@ import com.revolsys.record.Record;
 import com.revolsys.record.RecordFactory;
 import com.revolsys.record.code.CodeTable;
 import com.revolsys.record.property.RecordDefinitionProperty;
+import com.revolsys.record.query.DeleteStatement;
 import com.revolsys.record.query.Query;
 import com.revolsys.record.query.QueryValue;
 import com.revolsys.record.query.SqlAppendable;
@@ -28,19 +29,19 @@ import com.revolsys.record.query.TableReference;
 import com.revolsys.util.CaseConverter;
 
 public interface RecordDefinition extends Cloneable, GeometryFactoryProxy, RecordStoreSchemaElement,
-  MapSerializer, RecordDefinitionProxy, RecordFactory<Record>, TableReference {
+    MapSerializer, RecordDefinitionProxy, RecordFactory<Record>, TableReference {
 
   static RecordDefinitionBuilder builder() {
     return new RecordDefinitionBuilder();
   }
 
   static RecordDefinition newRecordDefinition(final GeometryFactory geometryFactory,
-    final DataType dataType) {
+      final DataType dataType) {
     final String name = dataType.getName();
     return new RecordDefinitionBuilder(name) //
-      .addField(dataType) //
-      .setGeometryFactory(geometryFactory) //
-      .getRecordDefinition() //
+        .addField(dataType) //
+        .setGeometryFactory(geometryFactory) //
+        .getRecordDefinition() //
     ;
   }
 
@@ -57,14 +58,14 @@ public interface RecordDefinition extends Cloneable, GeometryFactoryProxy, Recor
 
   @Override
   default void appendQueryValue(final Query query, final SqlAppendable sql,
-    final QueryValue queryValue) {
+      final QueryValue queryValue) {
     final RecordStore recordStore = getRecordStore();
     queryValue.appendSql(query, recordStore, sql);
   }
 
   @Override
   default void appendSelect(final Query query, final SqlAppendable sql,
-    final QueryValue queryValue) {
+      final QueryValue queryValue) {
     final RecordStore recordStore = getRecordStore();
     queryValue.appendSelect(query, recordStore, sql);
   }
@@ -83,7 +84,16 @@ public interface RecordDefinition extends Cloneable, GeometryFactoryProxy, Recor
     }
   }
 
-  void deleteRecord(Record record);
+  default void deleteRecord(final Identifier id) {
+    getRecordStore().deleteRecord(getTablePath(), id);
+  }
+
+  void deleteRecord(Record record);;
+
+  @Override
+  default DeleteStatement deleteStatement() {
+    return getRecordStore().deleteStatement(getPathName());
+  }
 
   void destroy();
 

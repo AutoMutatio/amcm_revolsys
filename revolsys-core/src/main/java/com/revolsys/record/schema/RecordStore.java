@@ -4,6 +4,7 @@ import java.io.File;
 import java.nio.file.Path;
 import java.sql.Array;
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -36,6 +37,7 @@ import com.revolsys.record.io.RecordReader;
 import com.revolsys.record.io.RecordStoreConnection;
 import com.revolsys.record.io.RecordStoreFactory;
 import com.revolsys.record.io.RecordWriter;
+import com.revolsys.record.query.ColumnIndexes;
 import com.revolsys.record.query.Condition;
 import com.revolsys.record.query.DeleteStatement;
 import com.revolsys.record.query.InsertStatement;
@@ -53,13 +55,13 @@ import com.revolsys.util.count.LabelCountMap;
 import com.revolsys.util.count.LabelCounters;
 
 public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFactory, Transactionable,
-  BaseCloseable, ObjectWithProperties {
+    BaseCloseable, ObjectWithProperties {
 
   static void appendDefaultSql(final SqlAppendable sql, final Object queryValue) {
     if (queryValue == null) {
       sql.append("NULL");
     } else if (queryValue instanceof Number) {
-      final Number number = (Number)queryValue;
+      final Number number = (Number) queryValue;
       sql.append(DataTypes.toString(number));
     } else {
       final String string = DataTypes.toString(queryValue).replaceAll("'", "''");
@@ -69,7 +71,7 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
 
   static boolean isRecordStore(final Path path) {
     for (final RecordStoreFactory recordStoreFactory : IoFactory
-      .factories(RecordStoreFactory.class)) {
+        .factories(RecordStoreFactory.class)) {
       if (recordStoreFactory.canOpenPath(path)) {
         return true;
       }
@@ -82,7 +84,7 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
   }
 
   static <T extends RecordStore> T newRecordStore(final File directory,
-    final String fileExtension) {
+      final String fileExtension) {
     if (!directory.exists()) {
       throw new IllegalArgumentException("Directory does not exist: " + directory);
     } else if (!directory.isDirectory()) {
@@ -95,17 +97,18 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
 
   /**
    * Construct a new initialized record store.
+   *
    * @param connectionProperties
    * @return
    */
   @SuppressWarnings("unchecked")
   static <T extends RecordStore> T newRecordStore(final MapEx connectionProperties) {
-    final String url = (String)connectionProperties.get("url");
+    final String url = (String) connectionProperties.get("url");
     final RecordStoreFactory factory = recordStoreFactory(url);
     if (factory == null) {
       throw new IllegalArgumentException("Record Store Factory not found for " + url);
     } else {
-      return (T)factory.newRecordStore(connectionProperties);
+      return (T) factory.newRecordStore(connectionProperties);
     }
   }
 
@@ -120,36 +123,36 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
       throw new IllegalArgumentException("Record Store Factory not found for " + url);
     } else {
       final JsonObject connectionProperties = JsonObject.hash("url", url);
-      return (T)factory.newRecordStore(connectionProperties);
+      return (T) factory.newRecordStore(connectionProperties);
     }
   }
 
   @SuppressWarnings("unchecked")
   static <T extends RecordStore> T newRecordStore(final String url, final String user,
-    final String password) {
+      final String password) {
     final RecordStoreFactory factory = recordStoreFactory(url);
     if (factory == null) {
       throw new IllegalArgumentException("Record Store Factory not found for " + url);
     } else {
       final JsonObject connectionProperties = JsonObject.hash()
-        .addValue("url", url)
-        .addValue("user", user)
-        .addValue("password", password);
-      return (T)factory.newRecordStore(connectionProperties);
+          .addValue("url", url)
+          .addValue("user", user)
+          .addValue("password", password);
+      return (T) factory.newRecordStore(connectionProperties);
     }
   }
 
   @SuppressWarnings("unchecked")
   static <T extends RecordStore> T newRecordStoreInitialized(final MapEx config) {
-    final MapEx connectionProperties = (MapEx)config.get("connection");
+    final MapEx connectionProperties = (MapEx) config.get("connection");
     if (Property.isEmpty(connectionProperties)) {
       throw new IllegalArgumentException(
-        "Record store must include a 'connection' map property: " + config);
+          "Record store must include a 'connection' map property: " + config);
     } else {
       final RecordStore recordStore = RecordStore.newRecordStore(connectionProperties);
       recordStore.setProperties(config);
       recordStore.initialize();
-      return (T)recordStore;
+      return (T) recordStore;
     }
   }
 
@@ -169,8 +172,8 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
   }
 
   static Class<?> recordStoreInterfaceClass(
-    final Map<String, ? extends Object> connectionProperties) {
-    final String url = (String)connectionProperties.get("url");
+      final Map<String, ? extends Object> connectionProperties) {
+    final String url = (String) connectionProperties.get("url");
     final RecordStoreFactory factory = recordStoreFactory(url);
     if (factory == null) {
       throw new IllegalArgumentException("Data Source Factory not found for " + url);
@@ -180,7 +183,7 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
   }
 
   static void setConnectionProperties(final RecordStore recordStore,
-    final Map<String, Object> properties) {
+      final Map<String, Object> properties) {
     if (recordStore != null) {
       final DirectFieldAccessor dataSourceBean = new DirectFieldAccessor(recordStore);
       for (final Entry<String, Object> property : properties.entrySet()) {
@@ -221,12 +224,12 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
   }
 
   default void appendQueryValue(final Query query, final SqlAppendable sql,
-    final QueryValue queryValue) {
+      final QueryValue queryValue) {
     queryValue.appendDefaultSql(query, this, sql);
   }
 
   default void appendSelect(final Query query, final SqlAppendable sql,
-    final QueryValue queryValue) {
+      final QueryValue queryValue) {
     queryValue.appendDefaultSelect(query, this, sql);
   }
 
@@ -277,7 +280,7 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
   default int deleteRecords(final Query query) {
     int count = 0;
     try (
-      final RecordReader reader = getRecords(query)) {
+        final RecordReader reader = getRecords(query)) {
       for (final Record record : reader) {
         if (deleteRecord(record)) {
           count++;
@@ -285,6 +288,10 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
       }
     }
     return count;
+  }
+
+  default DeleteStatement deleteStatement(final PathName pathName) {
+    return new DeleteStatement().from(getRecordDefinition(pathName));
   }
 
   default RecordDefinition findRecordDefinition(final PathName typePath) {
@@ -326,11 +333,11 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
   }
 
   default Record getRecord(final PathName typePath, final Condition condition,
-    final LockMode lockMode) {
+      final LockMode lockMode) {
     final RecordDefinition recordDefinition = getRecordDefinition(typePath);
     final Query query = new Query(recordDefinition)//
-      .setWhereCondition(condition)
-      .setLockMode(lockMode);
+        .setWhereCondition(condition)
+        .setLockMode(lockMode);
     return getRecord(query);
   }
 
@@ -352,7 +359,7 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
   default Record getRecord(final Query query) {
     Record firstRecord = null;
     try (
-      RecordReader records = getRecords(query)) {
+        RecordReader records = getRecords(query)) {
       for (final Record record : records) {
         if (firstRecord == null) {
           firstRecord = record;
@@ -396,13 +403,13 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
   }
 
   default <RD extends RecordDefinition> RD getRecordDefinition(
-    final RecordDefinition objectRecordDefinition) {
+      final RecordDefinition objectRecordDefinition) {
     final String typePath = objectRecordDefinition.getPath();
     return getRecordDefinition(typePath);
   }
 
   default <RD extends RecordDefinition> RD getRecordDefinition(
-    final RecordDefinitionProxy recordDefinition) {
+      final RecordDefinitionProxy recordDefinition) {
     if (recordDefinition != null) {
       final RecordDefinition rd = recordDefinition.getRecordDefinition();
       return getRecordDefinition(rd);
@@ -422,7 +429,7 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
   RecordFactory<Record> getRecordFactory();
 
   default Record getRecordLocked(final PathName typePath, final LockMode lockMode,
-    final Identifier id) {
+      final Identifier id) {
     final Query query = newGetRecordQuery(typePath, id);
     if (query == null) {
       return null;
@@ -441,7 +448,7 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
 
   @SuppressWarnings("unchecked")
   default <R extends RecordStore> R getRecordStore() {
-    return (R)this;
+    return (R) this;
   }
 
   RecordStoreConnection getRecordStoreConnection();
@@ -473,6 +480,12 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
   String getUrl();
 
   String getUsername();
+
+  default Object getValueFromResultSet(final RecordDefinition recordDefinition, final String dataType,
+      final ResultSet resultSet,
+      final ColumnIndexes indexes, final boolean internStrings) {
+    throw new UnsupportedOperationException();
+  }
 
   default boolean hasSchema(final PathName schemaName) {
     return getSchema(schemaName) != null;
@@ -543,7 +556,7 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
         throw new IllegalArgumentException(typePath + " does not have a primary key");
       } else if (id.getValueCount() != idFieldNames.size()) {
         throw new IllegalArgumentException(
-          id + " not a valid id for " + typePath + " requires " + idFieldNames);
+            id + " not a valid id for " + typePath + " requires " + idFieldNames);
       } else {
         final Query query = new Query(recordDefinition);
         for (int i = 0; i < idFieldNames.size(); i++) {
@@ -558,7 +571,7 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
   }
 
   default <R extends Record> InsertUpdateBuilder<R> newInsert(final PathName pathName) {
-    return this.<R> newInsertUpdate(pathName).setUpdate(false);
+    return this.<R>newInsertUpdate(pathName).setUpdate(false);
   }
 
   default <R extends Record> InsertUpdateBuilder<R> newInsertUpdate(final PathName pathName) {
@@ -590,7 +603,7 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
   }
 
   default Query newQuery(final String typePath, final String whereClause,
-    final BoundingBox boundingBox) {
+      final BoundingBox boundingBox) {
     throw new UnsupportedOperationException();
   }
 
@@ -624,7 +637,7 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
   }
 
   default <R extends Record> R newRecord(final PathName typePath,
-    final RecordFactory<R> recordFactory) {
+      final RecordFactory<R> recordFactory) {
     final RecordDefinition recordDefinition = getRecordDefinition(typePath);
     if (recordDefinition == null) {
       return null;
@@ -653,7 +666,7 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
   }
 
   default Record newRecord(RecordDefinition recordDefinition,
-    final Map<String, ? extends Object> values) {
+      final Map<String, ? extends Object> values) {
     final PathName typePath = recordDefinition.getPathName();
     recordDefinition = getRecordDefinition(recordDefinition);
     if (recordDefinition == null) {
@@ -675,7 +688,7 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
   }
 
   default <R extends Record> R newRecord(final RecordDefinition objectRecordDefinition,
-    final RecordFactory<R> recordFactory) {
+      final RecordFactory<R> recordFactory) {
     final RecordDefinition recordDefinition = getRecordDefinition(objectRecordDefinition);
     if (recordDefinition == null || recordFactory == null) {
       return null;
@@ -713,7 +726,7 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
   }
 
   default <R extends Record> InsertUpdateBuilder<R> newUpdate(final PathName pathName) {
-    return this.<R> newInsertUpdate(pathName).setInsert(false);
+    return this.<R>newInsertUpdate(pathName).setInsert(false);
   }
 
   default void refreshCodeTable(final PathName pathName) {
@@ -763,14 +776,14 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
   }
 
   default int updateRecords(final Query query,
-    final Consumer<? super ChangeTrackRecord> updateAction) {
+      final Consumer<? super ChangeTrackRecord> updateAction) {
     int i = 0;
     query.setRecordFactory(ArrayChangeTrackRecord.FACTORY);
     try (
-      RecordReader reader = getRecords(query);
-      RecordWriter writer = newRecordWriter()) {
+        RecordReader reader = getRecords(query);
+        RecordWriter writer = newRecordWriter()) {
       for (final Record queryRecord : reader) {
-        final ChangeTrackRecord record = (ChangeTrackRecord)queryRecord;
+        final ChangeTrackRecord record = (ChangeTrackRecord) queryRecord;
         updateAction.accept(record);
         if (record.isModified()) {
           writer.write(record);
@@ -791,7 +804,7 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
       // won't get caught on closing the writer and the transaction won't get
       // rolled back.
       try (
-        RecordWriter writer = newRecordWriter(true)) {
+          RecordWriter writer = newRecordWriter(true)) {
         write(writer, record, state);
       }
     });
@@ -817,7 +830,7 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
       // won't get caught on closing the writer and the transaction won't get
       // rolled back.
       try (
-        final RecordWriter writer = newRecordWriter(true)) {
+          final RecordWriter writer = newRecordWriter(true)) {
         for (final Record record : records) {
           write(writer, record, state);
           count++;

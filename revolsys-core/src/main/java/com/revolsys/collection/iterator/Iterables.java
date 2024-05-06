@@ -8,16 +8,16 @@ public interface Iterables {
   static BaseIterable<?> EMPTY = Collections::emptyIterator;
 
   @SuppressWarnings({
-    "unchecked", "rawtypes"
+      "unchecked", "rawtypes"
   })
   static <V> BaseIterable<V> empty() {
-    return (BaseIterable)EMPTY;
+    return (BaseIterable) EMPTY;
   }
 
   /**
    * Create an iterable that returns the {@link Iterable#iterator()}.
    *
-   * @param <V> The type of data returned.
+   * @param <V>      The type of data returned.
    * @param iterable The iterator.
    * @return The iterable.
    */
@@ -32,7 +32,7 @@ public interface Iterables {
   /**
    * Create an iterable that returns the iterator.
    *
-   * @param <V> The type of data returned.
+   * @param <V>      The type of data returned.
    * @param iterator The iterator.
    * @return The iterable.
    */
@@ -41,9 +41,10 @@ public interface Iterables {
   }
 
   /**
-   * Create an iterable for the supplier. Each call it {@link #iterator()} will call the supplier.
+   * Create an iterable for the supplier. Each call it {@link #iterator()} will
+   * call the supplier.
    *
-   * @param <V> The type of data returned.
+   * @param <V>      The type of data returned.
    * @param supplier The iterator supplier.
    * @return The iterable.
    */
@@ -54,7 +55,7 @@ public interface Iterables {
   /**
    * Create an iterable that returns the single value.
    *
-   * @param <V> The type of data returned.
+   * @param <V>   The type of data returned.
    * @param value The value.
    * @return The iterable.
    */
@@ -66,12 +67,16 @@ public interface Iterables {
    * Create an iterable that returns the single result from the supplier.
    * The supplier will be called on the each {@link #iterator()} call.
    *
-   * @param <V> The type of data returned.
+   * @param <V>      The type of data returned.
    * @param supplier The iterator supplier.
    * @return The iterable.
    */
   static <V> BaseIterable<V> fromValueSupplier(final Supplier<V> supplier) {
     return () -> new SingleIterator<>(supplier.get());
+  }
+
+  static <V> BaseIterable<V> generate(final AutoCloseable resource, final Supplier<V> generator) {
+    return new GenerateIterator<>(resource, generator);
   }
 
   static <V> BaseIterable<V> multiple(final Iterable<Iterable<V>> iterables) {

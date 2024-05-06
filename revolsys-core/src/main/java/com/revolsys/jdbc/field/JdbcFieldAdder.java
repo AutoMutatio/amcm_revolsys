@@ -25,10 +25,10 @@ public class JdbcFieldAdder {
   public static final String TABLE_PROPERTIES = "tableProperties";
 
   public static Map<PathName, Map<String, Map<String, Object>>> getColumnProperties(
-    final RecordStoreSchema schema) {
+      final RecordStoreSchema schema) {
     synchronized (schema) {
       Map<PathName, Map<String, Map<String, Object>>> columnProperties = schema
-        .getProperty(COLUMN_PROPERTIES);
+          .getProperty(COLUMN_PROPERTIES);
       if (columnProperties == null) {
         columnProperties = new HashMap<>();
         schema.setProperty(COLUMN_PROPERTIES, columnProperties);
@@ -39,22 +39,22 @@ public class JdbcFieldAdder {
 
   @SuppressWarnings("unchecked")
   public static <V> V getColumnProperty(final RecordStoreSchema schema, final PathName typePath,
-    final String columnName, final String propertyName) {
+      final String columnName, final String propertyName) {
     final Map<String, Map<String, Object>> columnsProperties = getTypeColumnProperties(schema,
-      typePath);
+        typePath);
     final Map<String, Object> properties = columnsProperties.get(columnName);
     if (properties != null) {
       final Object value = properties.get(propertyName);
-      return (V)value;
+      return (V) value;
     }
     return null;
   }
 
   public static double getDoubleColumnProperty(final RecordStoreSchema schema,
-    final PathName typePath, final String columnName, final String propertyName) {
+      final PathName typePath, final String columnName, final String propertyName) {
     final Object value = getColumnProperty(schema, typePath, columnName, propertyName);
     if (value instanceof Number) {
-      final Number number = (Number)value;
+      final Number number = (Number) value;
       return number.doubleValue();
     } else {
       return 11;
@@ -62,10 +62,10 @@ public class JdbcFieldAdder {
   }
 
   public static int getIntegerColumnProperty(final RecordStoreSchema schema,
-    final PathName typePath, final String columnName, final String propertyName) {
+      final PathName typePath, final String columnName, final String propertyName) {
     final Object value = getColumnProperty(schema, typePath, columnName, propertyName);
     if (value instanceof Number) {
-      final Number number = (Number)value;
+      final Number number = (Number) value;
       return number.intValue();
     } else {
       return -1;
@@ -73,7 +73,7 @@ public class JdbcFieldAdder {
   }
 
   public static Map<String, Map<String, Object>> getTableProperties(
-    final RecordStoreSchema schema) {
+      final RecordStoreSchema schema) {
     synchronized (schema) {
       Map<String, Map<String, Object>> tableProperties = schema.getProperty(TABLE_PROPERTIES);
       if (tableProperties == null) {
@@ -85,7 +85,7 @@ public class JdbcFieldAdder {
   }
 
   public static Map<String, Object> getTableProperties(final RecordStoreSchema schema,
-    final String typePath) {
+      final String typePath) {
     final Map<String, Map<String, Object>> tableProperties = getTableProperties(schema);
     synchronized (tableProperties) {
       Map<String, Object> properties = tableProperties.get(typePath);
@@ -99,18 +99,18 @@ public class JdbcFieldAdder {
 
   @SuppressWarnings("unchecked")
   public static <V> V getTableProperty(final RecordStoreSchema schema, final String typePath,
-    final String propertyName) {
+      final String propertyName) {
     final Map<String, Object> properties = getTableProperties(schema, typePath);
     final Object value = properties.get(propertyName);
-    return (V)value;
+    return (V) value;
   }
 
   public static Map<String, Map<String, Object>> getTypeColumnProperties(
-    final RecordStoreSchema schema, final PathName typePath) {
+      final RecordStoreSchema schema, final PathName typePath) {
     final Map<PathName, Map<String, Map<String, Object>>> esriColumnProperties = getColumnProperties(
-      schema);
+        schema);
     final Map<String, Map<String, Object>> typeColumnProperties = esriColumnProperties
-      .get(typePath);
+        .get(typePath);
     if (typeColumnProperties == null) {
       return Collections.emptyMap();
     } else {
@@ -119,9 +119,9 @@ public class JdbcFieldAdder {
   }
 
   public static void setColumnProperty(final RecordStoreSchema schema, final PathName typePath,
-    final String columnName, final String propertyName, final Object propertyValue) {
+      final String columnName, final String propertyName, final Object propertyValue) {
     final Map<PathName, Map<String, Map<String, Object>>> tableColumnProperties = getColumnProperties(
-      schema);
+        schema);
     synchronized (tableColumnProperties) {
 
       Map<String, Map<String, Object>> typeColumnMap = tableColumnProperties.get(typePath);
@@ -139,7 +139,7 @@ public class JdbcFieldAdder {
   }
 
   public static void setTableProperty(final RecordStoreSchema schema, final String typePath,
-    final String propertyName, final Object value) {
+      final String propertyName, final Object value) {
     final Map<String, Object> properties = getTableProperties(schema, typePath);
     properties.put(propertyName, value);
   }
@@ -154,11 +154,11 @@ public class JdbcFieldAdder {
   }
 
   public FieldDefinition addField(final AbstractJdbcRecordStore recordStore,
-    final JdbcRecordDefinition recordDefinition, final String dbName, final String name,
-    final int sqlType, final String dbDataType, final int length, final int scale,
-    final boolean required, final String description) {
+      final JdbcRecordDefinition recordDefinition, final String dbName, final String name,
+      final int sqlType, final String dbDataType, final int length, final int scale,
+      final boolean required, final String description) {
     final JdbcFieldDefinition field = newField(recordStore, recordDefinition, dbName, name, sqlType,
-      dbDataType, length, scale, required, description);
+        dbDataType, length, scale, required, description);
     field.setQuoteName(recordStore.isQuoteNames());
     recordDefinition.addField(field);
     return field;
@@ -168,13 +168,13 @@ public class JdbcFieldAdder {
   }
 
   public JdbcFieldDefinition newField(final AbstractJdbcRecordStore recordStore,
-    final JdbcRecordDefinition recordDefinition, final String dbName, final String name,
-    final int sqlType, final String dbDataType, final int length, final int scale,
-    final boolean required, final String description) {
+      final JdbcRecordDefinition recordDefinition, final String dbName, final String name,
+      final int sqlType, final String dbDataType, final int length, final int scale,
+      final boolean required, final String description) {
     JdbcFieldDefinition field;
     if (dbDataType.equals("oid")) {
       field = new JdbcBlobFieldDefinition(dbName, name, sqlType, dbDataType, length, required,
-        description, null);
+          description, null);
     } else {
       switch (sqlType) {
         case Types.CHAR:
@@ -182,81 +182,81 @@ public class JdbcFieldAdder {
         case Types.LONGVARCHAR:
         case Types.VARCHAR:
           field = new JdbcStringFieldDefinition(dbName, name, sqlType, dbDataType, length, required,
-            description, null);
-        break;
+              description, null);
+          break;
         case Types.BIGINT:
           field = new JdbcLongFieldDefinition(dbName, name, sqlType, dbDataType, required,
-            description, null);
-        break;
+              description, null);
+          break;
         case Types.INTEGER:
           field = new JdbcIntegerFieldDefinition(dbName, name, sqlType, dbDataType, required,
-            description, null);
-        break;
+              description, null);
+          break;
         case Types.SMALLINT:
           field = new JdbcShortFieldDefinition(dbName, name, sqlType, dbDataType, required,
-            description, null);
-        break;
+              description, null);
+          break;
         case Types.TINYINT:
           field = new JdbcByteFieldDefinition(dbName, name, sqlType, dbDataType, required,
-            description, null);
-        break;
+              description, null);
+          break;
         case Types.DOUBLE:
           field = new JdbcDoubleFieldDefinition(dbName, name, sqlType, dbDataType, required,
-            description, null);
-        break;
+              description, null);
+          break;
         case Types.REAL:
           field = new JdbcFloatFieldDefinition(dbName, name, sqlType, dbDataType, required,
-            description, null);
-        break;
+              description, null);
+          break;
         case Types.DECIMAL:
         case Types.NUMERIC:
         case Types.FLOAT:
           if (scale > 0) {
             field = new JdbcBigDecimalFieldDefinition(dbName, name, sqlType, dbDataType, length,
-              scale, required, description, null);
+                scale, required, description, null);
           } else if (length == 131089 || length == 0) {
             field = new JdbcBigDecimalFieldDefinition(dbName, name, sqlType, dbDataType, -1, -1,
-              required, description, null);
+                required, description, null);
           } else {
             if (length <= 2) {
               field = new JdbcByteFieldDefinition(dbName, name, sqlType, dbDataType, required,
-                description, null);
+                  description, null);
             } else if (length <= 4) {
               field = new JdbcShortFieldDefinition(dbName, name, sqlType, dbDataType, required,
-                description, null);
+                  description, null);
             } else if (length <= 9) {
               field = new JdbcIntegerFieldDefinition(dbName, name, sqlType, dbDataType, required,
-                description, null);
+                  description, null);
             } else if (length <= 18) {
               field = new JdbcLongFieldDefinition(dbName, name, sqlType, dbDataType, required,
-                description, null);
+                  description, null);
             } else {
               field = new JdbcBigIntegerFieldDefinition(dbName, name, sqlType, dbDataType, length,
-                required, description, null);
+                  required, description, null);
             }
           }
-        break;
+          break;
         case Types.DATE:
           field = new JdbcDateFieldDefinition(dbName, name, sqlType, dbDataType, required,
-            description, null);
-        break;
+              description, null);
+          break;
         case Types.TIMESTAMP:
         case Types.TIMESTAMP_WITH_TIMEZONE:
           field = new JdbcTimestampFieldDefinition(dbName, name, sqlType, dbDataType, required,
-            description, null);
-        break;
+              description, null);
+          break;
         case Types.BIT:
           field = new JdbcBooleanFieldDefinition(dbName, name, sqlType, dbDataType, length,
-            required, description, null);
-        break;
+              required, description, null);
+          break;
         case Types.BLOB:
           field = new JdbcBlobFieldDefinition(dbName, name, sqlType, dbDataType, length, required,
-            description, null);
-        break;
+              description, null);
+          break;
         default:
           field = new JdbcFieldDefinition(dbName, name, this.dataType, sqlType, dbDataType, length,
-            scale, required, description, null);
-        break;
+              scale, required, description, null);
+          break;
       }
     }
     return field;
