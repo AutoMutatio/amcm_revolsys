@@ -851,6 +851,9 @@ public class HttpRequestBuilder {
 
   public HttpRequestBuilder setParameter(final String name, final Object value) {
     removeParameters(name);
+    if (value == null) {
+      return this;
+    }
     return addParameter(name, value);
   }
 

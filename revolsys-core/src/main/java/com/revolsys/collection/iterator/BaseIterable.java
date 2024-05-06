@@ -26,6 +26,7 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 import com.revolsys.collection.Collector;
+import com.revolsys.collection.list.ArrayListEx;
 import com.revolsys.collection.list.ListEx;
 import com.revolsys.collection.list.Lists;
 import com.revolsys.collection.value.Single;
@@ -79,6 +80,26 @@ public interface BaseIterable<T> extends Iterable<T> {
     final var result = resultSupplier.get();
     forEach(value -> action.accept(result, value));
     return result;
+  }
+
+  default void consumeAll() {
+    forEach(c -> {
+    });
+  }
+
+  default void consumePage(final int size, final Consumer<BaseIterable<T>> action) {
+    final var page = new ArrayListEx<T>(size);
+    forEach(value -> {
+      page.add(value);
+      if (page.size() == size) {
+        action.accept(page);
+        page.clear();
+      }
+    });
+    if (!page.isEmpty()) {
+      action.accept(page);
+    }
+    page.clear();
   }
 
   default BaseIterable<T> filter(final Predicate<? super T> filter) {

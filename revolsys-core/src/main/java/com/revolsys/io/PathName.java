@@ -194,7 +194,7 @@ public final class PathName implements Comparable<PathName>, CharSequence {
 
   public int getElementCount() {
     if (this.parent == null) {
-      return 1;
+      return this.path.split("/").length - 1;
     } else {
       return 1 + this.parent.getElementCount();
     }

@@ -87,14 +87,4 @@
       <artifactId>truffle-api</artifactId>
     </dependency>
   </dependencies>
-
-  <repositories>
-    <repository>
-      <id>geo-solutions</id>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-      <url>http://maven.geo-solutions.it/</url>
-    </repository>
-  </repositories>
 </project>

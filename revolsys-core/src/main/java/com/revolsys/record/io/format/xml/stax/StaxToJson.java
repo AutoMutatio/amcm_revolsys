@@ -25,6 +25,8 @@ public class StaxToJson {
   private static final Set<String> EXCLUDE_ATTRIBUTE_NAMESPACES = Sets.newHash("xsi", "xsd",
     "xlink", "xi");
 
+  private final Set<String> ignoreElements = new TreeSet<>();
+
   private final Set<String> listParentElements = new TreeSet<>();
 
   private final Set<String> listElements = new TreeSet<>();
@@ -42,6 +44,13 @@ public class StaxToJson {
   public StaxToJson dontLogDuplicateElements(final String... names) {
     for (final String name : names) {
       this.dontLogDuplicateElements.add(name);
+    }
+    return this;
+  }
+
+  public StaxToJson ignoreElements(final String... names) {
+    for (final String name : names) {
+      this.ignoreElements.add(name);
     }
     return this;
   }
@@ -102,7 +111,10 @@ public class StaxToJson {
   private Object processElement(final StaxReader in) {
     if (!"true".equals(in.getAttribute(XsiConstants.NIL))) {
       final String name = in.getLocalName();
-      if (this.listParentElements.contains(name)) {
+      if (this.ignoreElements.contains(name)) {
+        in.skipSubTree();
+        return null;
+      } else if (this.listParentElements.contains(name)) {
         return processList(in);
       } else {
         try {
@@ -111,7 +123,8 @@ public class StaxToJson {
               final QName qName = in.getAttributeName(i);
               if (!EXCLUDE_ATTRIBUTE_NAMESPACES.contains(qName.getPrefix())) {
                 final String attName = qName.getLocalPart();
-                final String value = in.getAttributeValue(i).strip();
+                final String value = in.getAttributeValue(i)
+                  .strip();
                 if (!value.isBlank()) {
                   this.attributes.put(attName, value);
                 }

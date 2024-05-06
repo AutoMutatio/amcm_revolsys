@@ -19,6 +19,7 @@ import javax.xml.stream.util.StreamReaderDelegate;
 
 import org.apache.commons.io.input.XmlStreamReader;
 
+import com.ctc.wstx.stax.WstxInputFactory;
 import com.revolsys.collection.json.JsonObject;
 import com.revolsys.exception.Exceptions;
 import com.revolsys.record.io.format.xml.XmlNameProxy;
@@ -28,6 +29,14 @@ import com.revolsys.util.Property;
 
 public class StaxReader extends StreamReaderDelegate implements BaseCloseable {
   private static final XMLInputFactory FACTORY = XMLInputFactory.newInstance();
+
+  static {
+    if (FACTORY instanceof final WstxInputFactory wstx) {
+      final var config = wstx.getConfig();
+      config.doAllowXml11EscapedCharsInXml10(true);
+      config.enableXml11(true);
+    }
+  }
 
   public static StaxReader newXmlReader(final InputStream inputStream) {
     return newXmlReader(FACTORY, inputStream);
@@ -568,7 +577,8 @@ public class StaxReader extends StreamReaderDelegate implements BaseCloseable {
    * @param parser The STAX XML
    */
   public void skipToEndElementByLocalName(final QName name) {
-    while (!isEndElement() || !getName().getLocalPart().equals(name.getLocalPart())) {
+    while (!isEndElement() || !getName().getLocalPart()
+      .equals(name.getLocalPart())) {
       next();
       if (getEventType() == XMLStreamConstants.START_ELEMENT
         || getEventType() == XMLStreamConstants.END_ELEMENT) {
