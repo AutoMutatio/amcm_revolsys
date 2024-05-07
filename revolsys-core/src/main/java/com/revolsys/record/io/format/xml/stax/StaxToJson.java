@@ -7,6 +7,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamConstants;
@@ -19,11 +21,16 @@ import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.set.Sets;
 import com.revolsys.exception.Exceptions;
 import com.revolsys.record.io.format.xml.XsiConstants;
+import com.revolsys.util.CaseConverter;
 
 public class StaxToJson {
 
   private static final Set<String> EXCLUDE_ATTRIBUTE_NAMESPACES = Sets.newHash("xsi", "xsd",
     "xlink", "xi");
+
+  private static final Function<String, String> TO_LOWER_CASE = CaseConverter::toLowerCamelCase;
+
+  private static final Function<String, String> INTERN = String::intern;
 
   private final Set<String> ignoreElements = new TreeSet<>();
 
@@ -40,6 +47,12 @@ public class StaxToJson {
   private final Map<String, String> attributes = new LinkedHashMap<>();
 
   private boolean stripValues = false;
+
+  private boolean toLowerCamelCase;
+
+  private Function<String, String> fieldNameFactory = INTERN;
+
+  private final ConcurrentHashMap<String, String> fieldNameMap = new ConcurrentHashMap<>();
 
   public StaxToJson dontLogDuplicateElements(final String... names) {
     for (final String name : names) {
@@ -122,11 +135,12 @@ public class StaxToJson {
             for (int i = 0; i < in.getAttributeCount(); i++) {
               final QName qName = in.getAttributeName(i);
               if (!EXCLUDE_ATTRIBUTE_NAMESPACES.contains(qName.getPrefix())) {
-                final String attName = qName.getLocalPart();
+                final var attName = qName.getLocalPart();
                 final String value = in.getAttributeValue(i)
                   .strip();
                 if (!value.isBlank()) {
-                  this.attributes.put(attName, value);
+                  final var fieldName = toFieldName(attName);
+                  this.attributes.put(fieldName, value);
                 }
               }
             }
@@ -189,8 +203,9 @@ public class StaxToJson {
         value = processElement(in);
       }
       if (value != null) {
+        final var fieldName = toFieldName(name);
         if (this.listElements.contains(name)) {
-          final JsonList list = object.ensureValue(name, JsonList.ARRAY_SUPPLIER);
+          final JsonList list = object.ensureValue(fieldName, JsonList.ARRAY_SUPPLIER);
           list.add(value);
         } else {
           if (object.hasValue(name) && !this.dontLogDuplicateElements.contains(name)) {
@@ -199,7 +214,7 @@ public class StaxToJson {
           if (this.stripValues && value instanceof final String s) {
             value = s.strip();
           }
-          object.addNotEmpty(name, value);
+          object.addNotEmpty(fieldName, value);
         }
       }
     } while (in.skipToStartElement(depth));
@@ -223,4 +238,14 @@ public class StaxToJson {
     }
     return this;
   }
+
+  private String toFieldName(final String name) {
+    return this.fieldNameMap.computeIfAbsent(name, this.fieldNameFactory);
+  }
+
+  public StaxToJson toLowerCamelCase() {
+    this.fieldNameFactory = TO_LOWER_CASE;
+    return this;
+  }
+
 }
