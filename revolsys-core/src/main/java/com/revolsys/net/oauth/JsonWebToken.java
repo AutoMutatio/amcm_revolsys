@@ -224,7 +224,7 @@ public class JsonWebToken {
         || !this.header.equalValue("alg", "RS256")) {
         return false;
       }
-      return isValid(issuer);
+      return isValid();
     } catch (final Exception e) {
       return false;
     }
