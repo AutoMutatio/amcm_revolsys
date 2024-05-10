@@ -25,8 +25,8 @@ import org.apache.olingo.commons.api.Constants;
 import org.apache.olingo.commons.api.edm.EdmEntityContainer;
 import org.apache.olingo.commons.api.edm.EdmEntitySet;
 import org.apache.olingo.commons.api.edm.EdmFunctionImport;
-import org.apache.olingo.commons.api.edm.EdmSingleton;
 import org.apache.olingo.commons.api.edmx.EdmxReference;
+import org.apache.olingo.commons.core.edm.EdmSingleton;
 import org.apache.olingo.server.api.ServiceMetadata;
 import org.apache.olingo.server.api.serializer.ODataSerializer;
 import org.apache.olingo.server.api.serializer.SerializerException;
@@ -109,17 +109,21 @@ public class ServiceDocumentXmlSerializer {
     writer.writeAttribute(METADATA, NS_METADATA, Constants.CONTEXT, metadataUri);
 
     if (this.metadata != null && this.metadata.getServiceMetadataETagSupport() != null
-      && this.metadata.getServiceMetadataETagSupport().getMetadataETag() != null) {
+      && this.metadata.getServiceMetadataETagSupport()
+        .getMetadataETag() != null) {
       writer.writeAttribute(METADATA, NS_METADATA, Constants.ATOM_ATTR_METADATAETAG,
-        this.metadata.getServiceMetadataETagSupport().getMetadataETag());
+        this.metadata.getServiceMetadataETagSupport()
+          .getMetadataETag());
     }
 
     writer.writeStartElement(APP, "workspace", NS_APP);
 
-    final EdmEntityContainer container = this.metadata.getEdm().getEntityContainer();
+    final EdmEntityContainer container = this.metadata.getEdm()
+      .getEntityContainer();
     if (container != null) {
       writer.writeStartElement(ATOM, Constants.ATOM_ELEM_TITLE, NS_ATOM);
-      writer.writeCharacters(container.getFullQualifiedName().getFullQualifiedNameAsString());
+      writer.writeCharacters(container.getPathName()
+        .toString());
       writer.writeEndElement();
 
       writeEntitySets(writer, container);
@@ -133,7 +137,8 @@ public class ServiceDocumentXmlSerializer {
 
   private void writeServiceDocuments(final XMLStreamWriter writer) throws XMLStreamException {
     for (final EdmxReference reference : this.metadata.getReferences()) {
-      final String referenceString = reference.getUri().toASCIIString();
+      final String referenceString = reference.getUri()
+        .toASCIIString();
       writeElement(writer, false, "service-document", referenceString, referenceString);
     }
   }

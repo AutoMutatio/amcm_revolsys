@@ -20,7 +20,7 @@ package org.apache.olingo.commons.api.edm.provider;
 
 import java.util.List;
 
-import org.apache.olingo.commons.api.edm.FullQualifiedName;
+import com.revolsys.io.PathName;
 
 /**
  * The type Csdl entity set.
@@ -82,14 +82,14 @@ public class CsdlEntitySet extends CsdlBindingTarget {
   }
 
   @Override
-  public CsdlEntitySet setType(final FullQualifiedName type) {
+  public CsdlEntitySet setType(final PathName type) {
     this.type = type;
     return this;
   }
 
   @Override
   public CsdlEntitySet setType(final String type) {
-    this.type = new FullQualifiedName(type);
+    this.type = PathName.fromDotSeparated(type);
     return this;
   }
 }

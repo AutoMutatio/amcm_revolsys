@@ -10,7 +10,7 @@ import javax.measure.UnitConverter;
 import javax.measure.quantity.Angle;
 import javax.measure.quantity.Length;
 
-import com.revolsys.collection.map.LazyValueMap;
+import com.revolsys.collection.map.Maps;
 import com.revolsys.geometry.coordinatesystem.model.datum.GeodeticDatum;
 import com.revolsys.geometry.coordinatesystem.model.systems.EpsgCoordinateSystems;
 import com.revolsys.geometry.coordinatesystem.model.unit.AngularUnit;
@@ -30,8 +30,8 @@ public class GeographicCoordinateSystem extends AbstractHorizontalCoordinateSyst
     }
   }
 
-  private Map<GeographicCoordinateSystem, GeographicCoordinateSystemGridShiftOperation> gridShiftOperationsByCoordinateSystem = new LazyValueMap<>(
-    this::newGridShiftOperations);
+  private Map<GeographicCoordinateSystem, GeographicCoordinateSystemGridShiftOperation> gridShiftOperationsByCoordinateSystem = Maps
+    .lazy(this::newGridShiftOperations);
 
   private final AngularUnit angularUnit;
 
@@ -47,8 +47,16 @@ public class GeographicCoordinateSystem extends AbstractHorizontalCoordinateSyst
     final GeodeticDatum geodeticDatum, final List<Axis> axis, final Area area,
     final CoordinateSystem sourceCoordinateSystem, final CoordinateOperation coordinateOperation,
     final boolean deprecated) {
-    this(id, name, geodeticDatum, getPrimeMeridian(geodeticDatum), axis, area,
-      sourceCoordinateSystem, coordinateOperation, deprecated);
+    this(
+      id,
+        name,
+        geodeticDatum,
+        getPrimeMeridian(geodeticDatum),
+        axis,
+        area,
+        sourceCoordinateSystem,
+        coordinateOperation,
+        deprecated);
   }
 
   public GeographicCoordinateSystem(final int id, final String name,
@@ -67,14 +75,21 @@ public class GeographicCoordinateSystem extends AbstractHorizontalCoordinateSyst
     super(id, name, axis, area, deprecated);
     this.geodeticDatum = geodeticDatum;
     this.primeMeridian = primeMeridian;
-    this.angularUnit = (AngularUnit)axis.get(0).getUnit();
+    this.angularUnit = (AngularUnit)axis.get(0)
+      .getUnit();
     this.sourceCoordinateSystem = sourceCoordinateSystem;
     this.coordinateOperation = coordinateOperation;
   }
 
   public GeographicCoordinateSystem(final String name, final Ellipsoid ellipsoid) {
-    this(0, name, new GeodeticDatum(name, ellipsoid, null, null), new PrimeMeridian(name, 0, null),
-      EpsgCoordinateSystems.getUnit(9102), null, null);
+    this(
+      0,
+        name,
+        new GeodeticDatum(name, ellipsoid, null, null),
+        new PrimeMeridian(name, 0, null),
+        EpsgCoordinateSystems.getUnit(9102),
+        null,
+        null);
   }
 
   protected void addConversionOperation(final List<CoordinatesOperation> operations,
@@ -215,7 +230,8 @@ public class GeographicCoordinateSystem extends AbstractHorizontalCoordinateSyst
     final Ellipsoid ellipsoid = getEllipsoid();
     final double radius = ellipsoid.getSemiMajorAxis();
     final double radianFactor = radianConverter.convert(1);
-    return Units.METRE.multiply(radius).multiply(radianFactor);
+    return Units.METRE.multiply(radius)
+      .multiply(radianFactor);
   }
 
   @Override

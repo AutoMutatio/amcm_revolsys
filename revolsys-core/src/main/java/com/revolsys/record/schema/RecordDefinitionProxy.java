@@ -4,6 +4,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import com.revolsys.collection.list.ListEx;
+import com.revolsys.collection.list.Lists;
 import com.revolsys.data.identifier.Identifier;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.geometry.model.GeometryFactoryProxy;
@@ -47,10 +49,10 @@ public interface RecordDefinitionProxy
     }
   }
 
-  default List<FieldDefinition> getFieldDefinitions() {
+  default ListEx<FieldDefinition> getFieldDefinitions() {
     final RecordDefinition recordDefinition = getRecordDefinition();
     if (recordDefinition == null) {
-      return Collections.emptyList();
+      return Lists.empty();
     } else {
       return recordDefinition.getFields();
     }
@@ -274,7 +276,8 @@ public interface RecordDefinitionProxy
     if (recordDefinition == null) {
       return false;
     } else {
-      return recordDefinition.getGeometryFieldIndexes().contains(fieldIndex);
+      return recordDefinition.getGeometryFieldIndexes()
+        .contains(fieldIndex);
     }
   }
 
@@ -283,7 +286,8 @@ public interface RecordDefinitionProxy
     if (fieldName == null || recordDefinition == null) {
       return false;
     } else {
-      return recordDefinition.getGeometryFieldNames().contains(fieldName);
+      return recordDefinition.getGeometryFieldNames()
+        .contains(fieldName);
     }
   }
 

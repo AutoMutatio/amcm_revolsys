@@ -34,9 +34,13 @@ public class CsdlCollection extends CsdlDynamicExpression {
     if (annotCollItems == null) {
       return false;
     }
-    if (this.getItems().size() == annotCollItems.size()) {
-      for (int i = 0; i < this.getItems().size(); i++) {
-        if (!this.getItems().get(i).equals(annotCollItems.get(i))) {
+    if (this.getItems()
+      .size() == annotCollItems.size()) {
+      for (int i = 0; i < this.getItems()
+        .size(); i++) {
+        if (!this.getItems()
+          .get(i)
+          .equals(annotCollItems.get(i))) {
           return false;
         }
       }

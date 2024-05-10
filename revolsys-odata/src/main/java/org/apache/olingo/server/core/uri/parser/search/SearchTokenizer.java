@@ -49,7 +49,8 @@ public class SearchTokenizer {
 
     @Override
     public State close() throws SearchTokenizerException {
-      if (Token.AND.name().equals(this.literal.toString())) {
+      if (Token.AND.name()
+        .equals(this.literal.toString())) {
         return finish();
       }
       return changeToken(Token.WORD).finish();
@@ -158,7 +159,8 @@ public class SearchTokenizer {
 
     @Override
     public State close() throws SearchTokenizerException {
-      if (Token.NOT.name().equals(this.literal.toString())) {
+      if (Token.NOT.name()
+        .equals(this.literal.toString())) {
         return finish();
       }
       return changeToken(Token.WORD).finish();
@@ -207,7 +209,8 @@ public class SearchTokenizer {
 
     @Override
     public State close() throws SearchTokenizerException {
-      if (Token.OR.name().equals(this.literal.toString())) {
+      if (Token.OR.name()
+        .equals(this.literal.toString())) {
         return finish();
       }
       return changeToken(Token.WORD).finish();
@@ -371,12 +374,15 @@ public class SearchTokenizer {
     public State finish() {
       final String tmpLiteral = this.literal.toString();
       if (tmpLiteral.length() == 3) {
-        if (Token.AND.name().equals(tmpLiteral)) {
+        if (Token.AND.name()
+          .equals(tmpLiteral)) {
           return finishAs(Token.AND);
-        } else if (Token.NOT.name().equals(tmpLiteral)) {
+        } else if (Token.NOT.name()
+          .equals(tmpLiteral)) {
           return finishAs(Token.NOT);
         }
-      } else if (tmpLiteral.length() == 2 && Token.OR.name().equals(tmpLiteral)) {
+      } else if (tmpLiteral.length() == 2 && Token.OR.name()
+        .equals(tmpLiteral)) {
         return finishAs(Token.OR);
       }
       return super.finish();
@@ -627,7 +633,8 @@ public class SearchTokenizer {
       throw new SearchTokenizerException("Invalid Token in Query string '",
         SearchTokenizerException.MessageKeys.NOT_EXPECTED_TOKEN, searchQuery);
     }
-    final char[] chars = searchQuery.strip().toCharArray();
+    final char[] chars = searchQuery.strip()
+      .toCharArray();
 
     State state = new SearchExpressionState();
     final List<SearchQueryToken> states = new ArrayList<>();
@@ -639,7 +646,8 @@ public class SearchTokenizer {
       state = next;
     }
 
-    if (state.close().isFinished()) {
+    if (state.close()
+      .isFinished()) {
       states.add(state);
     } else {
       throw new SearchTokenizerException(

@@ -42,13 +42,16 @@ public class BatchQueryOperation implements BatchPart {
   }
 
   protected Line consumeHttpStatusLine(final List<Line> message) throws BatchDeserializerException {
-    if (!message.isEmpty() && !"".equals(message.get(0).toString().strip())) {
+    if (!message.isEmpty() && !"".equals(message.get(0)
+      .toString()
+      .strip())) {
       final Line method = message.get(0);
       message.remove(0);
 
       return method;
     } else {
-      final int line = !message.isEmpty() ? message.get(0).getLineNumber() : 0;
+      final int line = !message.isEmpty() ? message.get(0)
+        .getLineNumber() : 0;
       throw new BatchDeserializerException("Missing http request line",
         BatchDeserializerException.MessageKeys.INVALID_STATUS_LINE, "" + line);
     }

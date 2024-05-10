@@ -18,6 +18,21 @@
  */
 package org.apache.olingo.server.api.uri;
 
+import org.apache.olingo.server.core.uri.UriResourceAction;
+import org.apache.olingo.server.core.uri.UriResourceComplexProperty;
+import org.apache.olingo.server.core.uri.UriResourceCount;
+import org.apache.olingo.server.core.uri.UriResourceEntitySet;
+import org.apache.olingo.server.core.uri.UriResourceFunction;
+import org.apache.olingo.server.core.uri.UriResourceIt;
+import org.apache.olingo.server.core.uri.UriResourceLambdaAll;
+import org.apache.olingo.server.core.uri.UriResourceLambdaAny;
+import org.apache.olingo.server.core.uri.UriResourceLambdaVariable;
+import org.apache.olingo.server.core.uri.UriResourceProperty;
+import org.apache.olingo.server.core.uri.UriResourceRef;
+import org.apache.olingo.server.core.uri.UriResourceRoot;
+import org.apache.olingo.server.core.uri.UriResourceSingleton;
+import org.apache.olingo.server.core.uri.UriResourceValue;
+
 /**
  * Defining the various resource part types
  */

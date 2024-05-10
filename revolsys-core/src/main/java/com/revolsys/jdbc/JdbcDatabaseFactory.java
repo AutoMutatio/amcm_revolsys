@@ -195,18 +195,12 @@ public interface JdbcDatabaseFactory extends RecordStoreFactory {
   @Override
   JdbcRecordStore newRecordStore(MapEx connectionProperties);
 
-  default Object removeSupplier(final MapEx newConfig, final String key) {
-    Supplier<String> userSupplier;
-    final var user = newConfig.remove(key);
-    if (user instanceof final Supplier supplier) {
-      userSupplier = supplier;
-    } else if (user != null) {
-      final var s = user.toString();
-      userSupplier = () -> s;
-    } else {
-      userSupplier = null;
+  default JdbcRecordStore newRecordStoreInitialized(final MapEx connectionProperties) {
+    final var recordStore = newRecordStore(connectionProperties);
+    if (recordStore != null) {
+      recordStore.initialize();
     }
-    return user;
+    return recordStore;
   }
 
   DataAccessException translateException(String message, String sql, SQLException exception);

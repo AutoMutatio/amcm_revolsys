@@ -26,14 +26,14 @@ import org.apache.olingo.commons.api.edm.EdmEntityType;
 import org.apache.olingo.commons.api.edm.EdmFunction;
 import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
 import org.apache.olingo.commons.api.edm.EdmReturnType;
-import org.apache.olingo.commons.api.edm.EdmSingleton;
 import org.apache.olingo.commons.api.edm.EdmType;
 import org.apache.olingo.commons.api.edm.constants.EdmTypeKind;
 import org.apache.olingo.commons.api.format.ContentType;
 import org.apache.olingo.commons.api.http.HttpHeader;
 import org.apache.olingo.commons.api.http.HttpMethod;
-import org.apache.olingo.commons.core.edm.primitivetype.EdmPrimitiveTypeFactory;
+import org.apache.olingo.commons.core.edm.EdmSingleton;
 import org.apache.olingo.server.api.ODataApplicationException;
+import org.apache.olingo.server.api.ODataHandler;
 import org.apache.olingo.server.api.ODataLibraryException;
 import org.apache.olingo.server.api.ODataRequest;
 import org.apache.olingo.server.api.ODataResponse;
@@ -64,17 +64,17 @@ import org.apache.olingo.server.api.processor.ReferenceProcessor;
 import org.apache.olingo.server.api.processor.ServiceDocumentProcessor;
 import org.apache.olingo.server.api.serializer.RepresentationType;
 import org.apache.olingo.server.api.uri.UriInfo;
-import org.apache.olingo.server.api.uri.UriResource;
-import org.apache.olingo.server.api.uri.UriResourceAction;
-import org.apache.olingo.server.api.uri.UriResourceEntitySet;
-import org.apache.olingo.server.api.uri.UriResourceFunction;
-import org.apache.olingo.server.api.uri.UriResourceNavigation;
-import org.apache.olingo.server.api.uri.UriResourcePartTyped;
-import org.apache.olingo.server.api.uri.UriResourcePrimitiveProperty;
-import org.apache.olingo.server.api.uri.UriResourceProperty;
-import org.apache.olingo.server.api.uri.UriResourceSingleton;
 import org.apache.olingo.server.core.batchhandler.BatchHandler;
 import org.apache.olingo.server.core.etag.PreconditionsValidator;
+import org.apache.olingo.server.core.uri.UriResource;
+import org.apache.olingo.server.core.uri.UriResourceAction;
+import org.apache.olingo.server.core.uri.UriResourceEntitySet;
+import org.apache.olingo.server.core.uri.UriResourceFunction;
+import org.apache.olingo.server.core.uri.UriResourceNavigationProperty;
+import org.apache.olingo.server.core.uri.UriResourcePartTyped;
+import org.apache.olingo.server.core.uri.UriResourcePrimitiveProperty;
+import org.apache.olingo.server.core.uri.UriResourceProperty;
+import org.apache.olingo.server.core.uri.UriResourceSingleton;
 
 public class ODataDispatcher {
 
@@ -88,9 +88,9 @@ public class ODataDispatcher {
 
   private final UriInfo uriInfo;
 
-  private final ODataHandlerImpl handler;
+  private final ODataHandler handler;
 
-  public ODataDispatcher(final UriInfo uriInfo, final ODataHandlerImpl handler) {
+  public ODataDispatcher(final UriInfo uriInfo, final ODataHandler handler) {
     this.uriInfo = uriInfo;
     this.handler = handler;
   }
@@ -129,7 +129,8 @@ public class ODataDispatcher {
       case service:
         checkMethods(request.getMethod(), HttpMethod.GET, HttpMethod.HEAD);
         if ("".equals(request.getRawODataPath())) {
-          this.handler.selectProcessor(RedirectProcessor.class).redirect(request, response);
+          this.handler.selectProcessor(RedirectProcessor.class)
+            .redirect(request, response);
         } else {
           final ContentType serviceContentType = ContentNegotiator.doContentNegotiation(
             this.uriInfo.getFormatOption(), request, this.handler.getCustomContentTypeSupport(),
@@ -195,7 +196,8 @@ public class ODataDispatcher {
     } else {
       final boolean isCollection = returnType.isCollection();
       ContentType responseFormat;
-      switch (returnType.getType().getKind()) {
+      switch (returnType.getType()
+        .getKind()) {
         case ENTITY:
           responseFormat = ContentNegotiator.doContentNegotiation(this.uriInfo.getFormatOption(),
             request, this.handler.getCustomContentTypeSupport(),
@@ -297,15 +299,17 @@ public class ODataDispatcher {
   private void handleCountDispatching(final ODataRequest request, final ODataResponse response,
     final int lastPathSegmentIndex) throws ODataApplicationException, ODataLibraryException {
     validatePreferHeader(request);
-    final UriResource resource = this.uriInfo.getUriResourceParts().get(lastPathSegmentIndex - 1);
-    if (resource instanceof UriResourceEntitySet || resource instanceof UriResourceNavigation
-      || resource instanceof UriResourceFunction
-        && ((UriResourceFunction)resource).getType().getKind() == EdmTypeKind.ENTITY) {
+    final UriResource resource = this.uriInfo.getUriResourceParts()
+      .get(lastPathSegmentIndex - 1);
+    if (resource instanceof UriResourceEntitySet
+      || resource instanceof UriResourceNavigationProperty
+      || resource instanceof UriResourceFunction && ((UriResourceFunction)resource).getType()
+        .getKind() == EdmTypeKind.ENTITY) {
       this.handler.selectProcessor(CountEntityCollectionProcessor.class)
         .countEntityCollection(request, response, this.uriInfo);
     } else if (resource instanceof UriResourcePrimitiveProperty
-      || resource instanceof UriResourceFunction
-        && ((UriResourceFunction)resource).getType().getKind() == EdmTypeKind.PRIMITIVE) {
+      || resource instanceof UriResourceFunction && ((UriResourceFunction)resource).getType()
+        .getKind() == EdmTypeKind.PRIMITIVE) {
       this.handler.selectProcessor(CountPrimitiveCollectionProcessor.class)
         .countPrimitiveCollection(request, response, this.uriInfo);
     } else {
@@ -338,11 +342,12 @@ public class ODataDispatcher {
       } else {
         try {
           final ContentType requestFormat = request.getHeader(HttpHeader.CONTENT_TYPE) == null
-            && (request.getBody() == null || request.getBody().available() == 0)
-              ? getSupportedContentType(request.getHeader(HttpHeader.CONTENT_TYPE),
-                RepresentationType.ENTITY, false)
-              : getSupportedContentType(request.getHeader(HttpHeader.CONTENT_TYPE),
-                RepresentationType.ENTITY, true);
+            && (request.getBody() == null || request.getBody()
+              .available() == 0)
+                ? getSupportedContentType(request.getHeader(HttpHeader.CONTENT_TYPE),
+                  RepresentationType.ENTITY, false)
+                : getSupportedContentType(request.getHeader(HttpHeader.CONTENT_TYPE),
+                  RepresentationType.ENTITY, true);
           this.handler.selectProcessor(EntityProcessor.class)
             .createEntity(request, response, this.uriInfo, requestFormat, responseFormat);
         } catch (final IOException e) {
@@ -350,7 +355,8 @@ public class ODataDispatcher {
             ODataHandlerException.MessageKeys.INVALID_PAYLOAD);
         }
       }
-    } else if (method == HttpMethod.PUT && this.uriInfo.getUriResourceParts().size() == 2) {
+    } else if (method == HttpMethod.PUT && this.uriInfo.getUriResourceParts()
+      .size() == 2) {
       if (isMedia) {
         validatePreferHeader(request);
       }
@@ -382,23 +388,25 @@ public class ODataDispatcher {
     throws ODataApplicationException, ODataLibraryException {
     EdmFunction function = uriResourceFunction.getFunction();
     if (function == null) {
-      function = uriResourceFunction.getFunctionImport().getUnboundFunctions().get(0);
+      function = uriResourceFunction.getFunctionImport()
+        .getUnboundFunctions()
+        .get(0);
     }
     final EdmReturnType returnType = function.getReturnType();
-    switch (returnType.getType().getKind()) {
-      case ENTITY:
-        handleEntityDispatching(request, response,
-          returnType.isCollection() && uriResourceFunction.getKeyPredicates().isEmpty(), false);
-      break;
-      case PRIMITIVE:
-        handlePrimitiveDispatching(request, response, returnType.isCollection());
-      break;
-      case COMPLEX:
-        handleComplexDispatching(request, response, returnType.isCollection());
-      break;
-      default:
-        throw new ODataHandlerException(NOT_IMPLEMENTED_MESSAGE,
-          ODataHandlerException.MessageKeys.FUNCTIONALITY_NOT_IMPLEMENTED);
+    final var collection = returnType.isCollection();
+    switch (returnType.getType()
+      .getKind()) {
+      case ENTITY -> {
+        final var hasKeyPredicates = uriResourceFunction.getKeyPredicates()
+          .isEmpty();
+        handleEntityDispatching(request, response, collection && hasKeyPredicates, false);
+      }
+      case PRIMITIVE -> handlePrimitiveDispatching(request, response, collection);
+
+      case COMPLEX -> handleComplexDispatching(request, response, collection);
+
+      default -> throw new ODataHandlerException(NOT_IMPLEMENTED_MESSAGE,
+        ODataHandlerException.MessageKeys.FUNCTIONALITY_NOT_IMPLEMENTED);
     }
   }
 
@@ -461,8 +469,8 @@ public class ODataDispatcher {
       final UriResource uriResource = uriResources.get(uriResources.size() - 1);
       if (uriResource instanceof UriResourcePrimitiveProperty
         && ((UriResourcePrimitiveProperty)uriResource).getType()
-          .getFullQualifiedName()
-          .getFullQualifiedNameAsString()
+          .getPathName()
+          .toString()
           .equalsIgnoreCase(EDMSTREAM)) {
         requestFormat = ContentType.parse(request.getHeader(HttpHeader.CONTENT_TYPE));
       } else {
@@ -502,9 +510,9 @@ public class ODataDispatcher {
     final EdmType type = resource instanceof UriResourceProperty
       ? ((UriResourceProperty)resource).getType()
       : ((UriResourceFunction)resource).getType();
-    final RepresentationType valueRepresentationType = type == EdmPrimitiveTypeFactory
-      .getInstance(EdmPrimitiveTypeKind.Binary) ? RepresentationType.BINARY
-        : RepresentationType.VALUE;
+    final RepresentationType valueRepresentationType = type == EdmPrimitiveTypeKind.Binary
+      ? RepresentationType.BINARY
+      : RepresentationType.VALUE;
     if (method == HttpMethod.GET) {
       validatePreferHeader(request);
       final ContentType requestedContentType = ContentNegotiator.doContentNegotiation(
@@ -579,7 +587,8 @@ public class ODataDispatcher {
   private void handleResourceDispatching(final ODataRequest request, final ODataResponse response)
     throws ODataApplicationException, ODataLibraryException {
 
-    final int lastPathSegmentIndex = this.uriInfo.getUriResourceParts().size() - 1;
+    final int lastPathSegmentIndex = this.uriInfo.getUriResourceParts()
+      .size() - 1;
     final UriResource lastPathSegment = this.uriInfo.getUriResourceParts()
       .get(lastPathSegmentIndex);
 
@@ -678,9 +687,11 @@ public class ODataDispatcher {
     final int lastPathSegmentIndex) throws ODataApplicationException, ODataLibraryException {
     // The URI Parser already checked if $value is allowed here so we only have
     // to dispatch to the correct processor
-    final UriResource resource = this.uriInfo.getUriResourceParts().get(lastPathSegmentIndex - 1);
-    if (resource instanceof UriResourceProperty || resource instanceof UriResourceFunction
-      && ((UriResourceFunction)resource).getType().getKind() == EdmTypeKind.PRIMITIVE) {
+    final UriResource resource = this.uriInfo.getUriResourceParts()
+      .get(lastPathSegmentIndex - 1);
+    if (resource instanceof UriResourceProperty
+      || resource instanceof UriResourceFunction && ((UriResourceFunction)resource).getType()
+        .getKind() == EdmTypeKind.PRIMITIVE) {
       handlePrimitiveValueDispatching(request, response, resource);
     } else {
       handleMediaValueDispatching(request, response, resource);
@@ -691,14 +702,16 @@ public class ODataDispatcher {
     // This method MUST NOT check if the resource is of type function since
     // these are handled differently
     return pathSegment instanceof UriResourceEntitySet
-      && ((UriResourceEntitySet)pathSegment).getEntityType().hasStream()
-      || pathSegment instanceof UriResourceNavigation
-        && ((EdmEntityType)((UriResourceNavigation)pathSegment).getType()).hasStream();
+      && ((UriResourceEntitySet)pathSegment).getEntityType()
+        .hasStream()
+      || pathSegment instanceof UriResourceNavigationProperty
+        && ((EdmEntityType)((UriResourceNavigationProperty)pathSegment).getType()).hasStream();
   }
 
   private boolean isSingletonMedia(final UriResource pathSegment) {
     return pathSegment instanceof UriResourceSingleton
-      && ((UriResourceSingleton)pathSegment).getEntityType().hasStream();
+      && ((UriResourceSingleton)pathSegment).getEntityType()
+        .hasStream();
   }
 
   private void throwMethodNotAllowed(final HttpMethod httpMethod) throws ODataHandlerException {
@@ -708,13 +721,14 @@ public class ODataDispatcher {
 
   /* Delete method is not allowed for Entities navigating to Singleton */
   private void validateIsSingleton(final HttpMethod method) throws ODataHandlerException {
-    final int lastPathSegmentIndex = this.uriInfo.getUriResourceParts().size() - 1;
-    final UriResource pathSegment = this.uriInfo.getUriResourceParts().get(lastPathSegmentIndex);
-    if (pathSegment instanceof UriResourceNavigation
-      && this.uriInfo.getUriResourceParts()
-        .get(lastPathSegmentIndex - 1) instanceof UriResourceEntitySet
-      && ((UriResourceEntitySet)this.uriInfo.getUriResourceParts().get(lastPathSegmentIndex - 1))
-        .getEntitySet()
+    final int lastPathSegmentIndex = this.uriInfo.getUriResourceParts()
+      .size() - 1;
+    final UriResource pathSegment = this.uriInfo.getUriResourceParts()
+      .get(lastPathSegmentIndex);
+    if (pathSegment instanceof UriResourceNavigationProperty && this.uriInfo.getUriResourceParts()
+      .get(lastPathSegmentIndex - 1) instanceof UriResourceEntitySet
+      && ((UriResourceEntitySet)this.uriInfo.getUriResourceParts()
+        .get(lastPathSegmentIndex - 1)).getEntitySet()
         .getRelatedBindingTarget(pathSegment.getSegmentValue()) instanceof EdmSingleton) {
       throwMethodNotAllowed(method);
     }

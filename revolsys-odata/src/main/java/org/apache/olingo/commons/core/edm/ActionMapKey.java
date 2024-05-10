@@ -19,18 +19,19 @@
 package org.apache.olingo.commons.core.edm;
 
 import org.apache.olingo.commons.api.edm.EdmException;
-import org.apache.olingo.commons.api.edm.FullQualifiedName;
+
+import com.revolsys.io.PathName;
 
 public class ActionMapKey {
 
-  private final FullQualifiedName actionName;
+  private final PathName actionName;
 
-  private final FullQualifiedName bindingParameterTypeName;
+  private final PathName bindingParameterTypeName;
 
   private final Boolean isBindingParameterCollection;
 
-  public ActionMapKey(final FullQualifiedName actionName,
-    final FullQualifiedName bindingParameterTypeName, final Boolean isBindingParameterCollection) {
+  public ActionMapKey(final PathName actionName, final PathName bindingParameterTypeName,
+    final Boolean isBindingParameterCollection) {
 
     if (actionName == null || bindingParameterTypeName == null
       || isBindingParameterCollection == null) {

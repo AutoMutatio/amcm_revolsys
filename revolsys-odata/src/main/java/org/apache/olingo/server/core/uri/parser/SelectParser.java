@@ -27,23 +27,24 @@ import org.apache.olingo.commons.api.edm.EdmFunction;
 import org.apache.olingo.commons.api.edm.EdmNavigationProperty;
 import org.apache.olingo.commons.api.edm.EdmProperty;
 import org.apache.olingo.commons.api.edm.EdmStructuredType;
-import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.constants.EdmTypeKind;
 import org.apache.olingo.commons.core.edm.Edm;
 import org.apache.olingo.server.api.uri.UriInfoKind;
-import org.apache.olingo.server.api.uri.UriResourcePartTyped;
 import org.apache.olingo.server.api.uri.queryoption.SelectItem;
 import org.apache.olingo.server.api.uri.queryoption.SelectOption;
 import org.apache.olingo.server.core.uri.UriInfoImpl;
-import org.apache.olingo.server.core.uri.UriResourceActionImpl;
-import org.apache.olingo.server.core.uri.UriResourceComplexPropertyImpl;
-import org.apache.olingo.server.core.uri.UriResourceFunctionImpl;
-import org.apache.olingo.server.core.uri.UriResourceNavigationPropertyImpl;
-import org.apache.olingo.server.core.uri.UriResourcePrimitivePropertyImpl;
+import org.apache.olingo.server.core.uri.UriResourceAction;
+import org.apache.olingo.server.core.uri.UriResourceComplexProperty;
+import org.apache.olingo.server.core.uri.UriResourceFunction;
+import org.apache.olingo.server.core.uri.UriResourceNavigationProperty;
+import org.apache.olingo.server.core.uri.UriResourcePartTyped;
+import org.apache.olingo.server.core.uri.UriResourcePrimitiveProperty;
 import org.apache.olingo.server.core.uri.parser.UriTokenizer.TokenKind;
 import org.apache.olingo.server.core.uri.queryoption.SelectItemImpl;
 import org.apache.olingo.server.core.uri.queryoption.SelectOptionImpl;
 import org.apache.olingo.server.core.uri.validator.UriValidationException;
+
+import com.revolsys.io.PathName;
 
 public class SelectParser {
 
@@ -65,25 +66,24 @@ public class SelectParser {
           UriParserSemanticException.MessageKeys.EXPRESSION_PROPERTY_NOT_IN_TYPE,
           referencedType.getName(), name);
       } else {
-        resource.addResourcePart(new UriResourceNavigationPropertyImpl(navigationProperty));
+        resource.addResourcePart(new UriResourceNavigationProperty(navigationProperty));
       }
 
-    } else if (property.isPrimitive() || property.getType().getKind() == EdmTypeKind.ENUM
-      || property.getType().getKind() == EdmTypeKind.DEFINITION) {
-      resource.addResourcePart(new UriResourcePrimitivePropertyImpl(property));
+    } else if (property.isPrimitive() || property.getType()
+      .getKind() == EdmTypeKind.ENUM || property.getType()
+        .getKind() == EdmTypeKind.DEFINITION) {
+      resource.addResourcePart(new UriResourcePrimitiveProperty(property, null));
 
     } else {
-      final UriResourceComplexPropertyImpl complexPart = new UriResourceComplexPropertyImpl(
-        property);
+      final UriResourceComplexProperty complexPart = new UriResourceComplexProperty(property);
       resource.addResourcePart(complexPart);
       if (tokenizer.next(TokenKind.SLASH)) {
         if (tokenizer.next(TokenKind.QualifiedName)) {
-          final FullQualifiedName qualifiedName = new FullQualifiedName(tokenizer.getText());
+          final var qualifiedName = PathName.fromDotSeparated(tokenizer.getText());
           final EdmComplexType type = this.edm.getComplexType(qualifiedName);
           if (type == null) {
             throw new UriParserSemanticException("Type not found.",
-              UriParserSemanticException.MessageKeys.UNKNOWN_TYPE,
-              qualifiedName.getFullQualifiedNameAsString());
+              UriParserSemanticException.MessageKeys.UNKNOWN_TYPE, qualifiedName.toString());
           } else if (type.compatibleTo(property.getType())) {
             complexPart.setTypeFilter(type);
             if (tokenizer.next(TokenKind.SLASH)) {
@@ -131,9 +131,9 @@ public class SelectParser {
     return new SelectOptionImpl().setSelectItems(selectItems);
   }
 
-  private FullQualifiedName parseAllOperationsInSchema(final UriTokenizer tokenizer)
+  private PathName parseAllOperationsInSchema(final UriTokenizer tokenizer)
     throws UriParserException {
-    final String namespace = tokenizer.getText();
+    final PathName namespace = PathName.fromDotSeparated(tokenizer.getText());
     if (tokenizer.next(TokenKind.DOT)) {
       if (tokenizer.next(TokenKind.STAR)) {
         // Validate the namespace. Currently a namespace from a non-default
@@ -142,12 +142,13 @@ public class SelectParser {
         // schema;
         // however, the default entity container should always be there, so its
         // access methods can be used.
-        if (this.edm.getEntityContainer(
-          new FullQualifiedName(namespace, this.edm.getEntityContainer().getName())) == null) {
-          throw new UriParserSemanticException("Wrong namespace '" + namespace + "'.",
-            UriParserSemanticException.MessageKeys.UNKNOWN_PART, namespace);
+        if (this.edm.getEntityContainer(namespace.newChild(this.edm.getEntityContainer()
+          .getName())) == null) {
+          throw new UriParserSemanticException(
+            "Wrong namespace '" + namespace.toDotSeparated() + "'.",
+            UriParserSemanticException.MessageKeys.UNKNOWN_PART, namespace.toDotSeparated());
         }
-        return new FullQualifiedName(namespace, tokenizer.getText());
+        return namespace.newChild(tokenizer.getText());
       } else {
         throw new UriParserSemanticException("Expected star after dot.",
           UriParserSemanticException.MessageKeys.UNKNOWN_PART, "");
@@ -157,23 +158,22 @@ public class SelectParser {
   }
 
   private UriResourcePartTyped parseBoundOperation(final UriTokenizer tokenizer,
-    final FullQualifiedName qualifiedName, final EdmStructuredType referencedType,
+    final PathName qualifiedName, final EdmStructuredType referencedType,
     final boolean referencedIsCollection) throws UriParserException {
     final EdmAction boundAction = this.edm.getBoundAction(qualifiedName,
-      referencedType.getFullQualifiedName(), referencedIsCollection);
+      referencedType.getPathName(), referencedIsCollection);
     if (boundAction == null) {
       final List<String> parameterNames = parseFunctionParameterNames(tokenizer);
       final EdmFunction boundFunction = this.edm.getBoundFunction(qualifiedName,
-        referencedType.getFullQualifiedName(), referencedIsCollection, parameterNames);
+        referencedType.getPathName(), referencedIsCollection, parameterNames);
       if (boundFunction == null) {
         throw new UriParserSemanticException("Function not found.",
-          UriParserSemanticException.MessageKeys.UNKNOWN_PART,
-          qualifiedName.getFullQualifiedNameAsString());
+          UriParserSemanticException.MessageKeys.UNKNOWN_PART, qualifiedName.toString());
       } else {
-        return new UriResourceFunctionImpl(null, boundFunction, null);
+        return new UriResourceFunction(null, boundFunction, null);
       }
     } else {
-      return new UriResourceActionImpl(boundAction);
+      return new UriResourceAction(boundAction);
     }
   }
 
@@ -199,13 +199,13 @@ public class SelectParser {
     } else if (tokenizer.next(TokenKind.QualifiedName)) {
       // The namespace or its alias could consist of dot-separated OData
       // identifiers.
-      final FullQualifiedName allOperationsInSchema = parseAllOperationsInSchema(tokenizer);
+      final var allOperationsInSchema = parseAllOperationsInSchema(tokenizer);
       if (allOperationsInSchema != null) {
         item.addAllOperationsInSchema(allOperationsInSchema);
 
       } else {
         ensureReferencedTypeNotNull(referencedType);
-        final FullQualifiedName qualifiedName = new FullQualifiedName(tokenizer.getText());
+        final var qualifiedName = PathName.fromDotSeparated(tokenizer.getText());
         EdmStructuredType type = this.edm.getEntityType(qualifiedName);
         if (type == null) {
           type = this.edm.getComplexType(qualifiedName);
@@ -234,7 +234,7 @@ public class SelectParser {
     } else {
       ParserHelper.requireNext(tokenizer, TokenKind.ODataIdentifier);
       // The namespace or its alias could be a single OData identifier.
-      final FullQualifiedName allOperationsInSchema = parseAllOperationsInSchema(tokenizer);
+      final var allOperationsInSchema = parseAllOperationsInSchema(tokenizer);
       if (allOperationsInSchema != null) {
         item.addAllOperationsInSchema(allOperationsInSchema);
 

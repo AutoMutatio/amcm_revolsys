@@ -18,14 +18,40 @@
  */
 package org.apache.olingo.commons.api.edm;
 
+import org.apache.olingo.commons.api.edm.constants.EdmTypeKind;
+import org.apache.olingo.commons.api.edm.provider.CsdlFunction;
+import org.apache.olingo.commons.core.edm.AbstractEdmOperation;
+import org.apache.olingo.commons.core.edm.Edm;
+
+import com.revolsys.io.PathName;
+
 /**
  * An EdmFunction as described in the OData specification
  */
-public interface EdmFunction extends EdmOperation {
+public class EdmFunction extends AbstractEdmOperation<CsdlFunction> {
 
-  /**
-   * @return true if this function is composable
-   */
-  boolean isComposable();
+  private final CsdlFunction function;
+
+  public EdmFunction(final Edm edm, final PathName name, final CsdlFunction function) {
+    super(edm, name, function, EdmTypeKind.FUNCTION);
+    this.function = function;
+  }
+
+  public CsdlFunction getFunction() {
+    return this.function;
+  }
+
+  @Override
+  public EdmReturnType getReturnType() {
+    final EdmReturnType returnType = super.getReturnType();
+    if (returnType == null) {
+      throw new EdmException("ReturnType for a function must not be null");
+    }
+    return returnType;
+  }
+
+  public boolean isComposable() {
+    return this.function.isComposable();
+  }
 
 }

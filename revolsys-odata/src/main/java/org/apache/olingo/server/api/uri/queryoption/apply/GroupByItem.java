@@ -20,7 +20,7 @@ package org.apache.olingo.server.api.uri.queryoption.apply;
 
 import java.util.List;
 
-import org.apache.olingo.server.api.uri.UriResource;
+import org.apache.olingo.server.core.uri.UriResource;
 
 /**
  * Represents a grouping property.

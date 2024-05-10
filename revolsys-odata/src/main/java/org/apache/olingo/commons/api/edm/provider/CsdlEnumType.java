@@ -21,7 +21,7 @@ package org.apache.olingo.commons.api.edm.provider;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.olingo.commons.api.edm.FullQualifiedName;
+import com.revolsys.io.PathName;
 
 /**
  * The type Csdl enum type.
@@ -32,7 +32,7 @@ public class CsdlEnumType implements CsdlAbstractEdmItem, CsdlNamed, CsdlAnnotat
 
   private boolean isFlags;
 
-  private FullQualifiedName underlyingType;
+  private PathName underlyingType;
 
   private List<CsdlEnumMember> members = new ArrayList<>();
 
@@ -53,7 +53,8 @@ public class CsdlEnumType implements CsdlAbstractEdmItem, CsdlNamed, CsdlAnnotat
     CsdlEnumMember result = null;
     if (getMembers() != null) {
       for (final CsdlEnumMember member : getMembers()) {
-        if (String.valueOf(value).equals(member.getValue())) {
+        if (String.valueOf(value)
+          .equals(member.getValue())) {
           result = member;
         }
       }
@@ -100,7 +101,7 @@ public class CsdlEnumType implements CsdlAbstractEdmItem, CsdlNamed, CsdlAnnotat
    */
   public String getUnderlyingType() {
     if (this.underlyingType != null) {
-      return this.underlyingType.getFullQualifiedNameAsString();
+      return this.underlyingType.toString();
     }
     return null;
   }
@@ -163,7 +164,7 @@ public class CsdlEnumType implements CsdlAbstractEdmItem, CsdlNamed, CsdlAnnotat
    * @param underlyingType the underlying type
    * @return the underlying type
    */
-  public CsdlEnumType setUnderlyingType(final FullQualifiedName underlyingType) {
+  public CsdlEnumType setUnderlyingType(final PathName underlyingType) {
     this.underlyingType = underlyingType;
     return this;
   }
@@ -175,7 +176,7 @@ public class CsdlEnumType implements CsdlAbstractEdmItem, CsdlNamed, CsdlAnnotat
    * @return the underlying type
    */
   public CsdlEnumType setUnderlyingType(final String underlyingType) {
-    this.underlyingType = new FullQualifiedName(underlyingType);
+    this.underlyingType = PathName.fromDotSeparated(underlyingType);
     return this;
   }
 }

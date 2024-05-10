@@ -25,7 +25,6 @@ import org.apache.olingo.commons.api.format.ContentType;
 import org.apache.olingo.commons.api.http.HttpHeader;
 import org.apache.olingo.commons.api.http.HttpMethod;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
-import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.ODataLibraryException;
 import org.apache.olingo.server.api.ODataRequest;
@@ -36,6 +35,7 @@ import org.apache.olingo.server.api.etag.ETagHelper;
 import org.apache.olingo.server.api.etag.ServiceMetadataETagSupport;
 import org.apache.olingo.server.api.serializer.ODataSerializer;
 import org.apache.olingo.server.api.uri.UriInfo;
+import org.apache.olingo.server.core.etag.ETagHelperImpl;
 
 /**
  * <p>Processor implementation for handling default cases:
@@ -47,13 +47,11 @@ import org.apache.olingo.server.api.uri.UriInfo;
  */
 public class DefaultProcessor
   implements MetadataProcessor, ServiceDocumentProcessor, ErrorProcessor {
-  private OData odata;
 
   private ServiceMetadata serviceMetadata;
 
   @Override
-  public void init(final OData odata, final ServiceMetadata serviceMetadata) {
-    this.odata = odata;
+  public void init(final ServiceMetadata serviceMetadata) {
     this.serviceMetadata = serviceMetadata;
   }
 
@@ -61,8 +59,9 @@ public class DefaultProcessor
   public void processError(final ODataRequest request, final ODataResponse response,
     final ODataServerError serverError, final ContentType requestedContentType) {
     try {
-      final ODataSerializer serializer = this.odata.createSerializer(requestedContentType);
-      response.setContent(serializer.error(serverError).getContent());
+      final ODataSerializer serializer = ODataSerializer.createSerializer(requestedContentType);
+      response.setContent(serializer.error(serverError)
+        .getContent());
       response.setStatusCode(serverError.getStatusCode());
       response.setHeader(HttpHeader.CONTENT_TYPE, requestedContentType.toContentTypeString());
     } catch (final Exception e) {
@@ -88,7 +87,7 @@ public class DefaultProcessor
       // Set application etag at response
       response.setHeader(HttpHeader.ETAG, eTagSupport.getMetadataETag());
       // Check if metadata document has been modified
-      final ETagHelper eTagHelper = this.odata.createETagHelper();
+      final ETagHelper eTagHelper = new ETagHelperImpl();
       isNotModified = eTagHelper.checkReadPreconditions(eTagSupport.getMetadataETag(),
         request.getHeaders(HttpHeader.IF_MATCH), request.getHeaders(HttpHeader.IF_NONE_MATCH));
     }
@@ -101,8 +100,9 @@ public class DefaultProcessor
       if (HttpMethod.HEAD == request.getMethod()) {
         response.setStatusCode(HttpStatusCode.OK.getStatusCode());
       } else {
-        final ODataSerializer serializer = this.odata.createSerializer(requestedContentType);
-        response.setContent(serializer.metadataDocument(this.serviceMetadata).getContent());
+        final ODataSerializer serializer = ODataSerializer.createSerializer(requestedContentType);
+        response.setContent(serializer.metadataDocument(this.serviceMetadata)
+          .getContent());
         response.setStatusCode(HttpStatusCode.OK.getStatusCode());
         response.setHeader(HttpHeader.CONTENT_TYPE, requestedContentType.toContentTypeString());
       }
@@ -120,7 +120,7 @@ public class DefaultProcessor
       // Set application etag at response
       response.setHeader(HttpHeader.ETAG, eTagSupport.getServiceDocumentETag());
       // Check if service document has been modified
-      final ETagHelper eTagHelper = this.odata.createETagHelper();
+      final ETagHelper eTagHelper = new ETagHelperImpl();
       isNotModified = eTagHelper.checkReadPreconditions(eTagSupport.getServiceDocumentETag(),
         request.getHeaders(HttpHeader.IF_MATCH), request.getHeaders(HttpHeader.IF_NONE_MATCH));
     }
@@ -133,8 +133,9 @@ public class DefaultProcessor
       if (HttpMethod.HEAD == request.getMethod()) {
         response.setStatusCode(HttpStatusCode.OK.getStatusCode());
       } else {
-        final ODataSerializer serializer = this.odata.createSerializer(requestedContentType);
-        response.setContent(serializer.serviceDocument(this.serviceMetadata, null).getContent());
+        final ODataSerializer serializer = ODataSerializer.createSerializer(requestedContentType);
+        response.setContent(serializer.serviceDocument(this.serviceMetadata, null)
+          .getContent());
         response.setStatusCode(HttpStatusCode.OK.getStatusCode());
         response.setHeader(HttpHeader.CONTENT_TYPE, requestedContentType.toContentTypeString());
       }
