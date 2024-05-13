@@ -36,8 +36,8 @@ public class Json {
 
     @Override
     protected boolean equalsNotNull(final Object object1, final Object object2,
-      final Collection<? extends CharSequence> exclude) {
-      final JsonType json = (JsonType)object1;
+        final Collection<? extends CharSequence> exclude) {
+      final JsonType json = (JsonType) object1;
       return json.equals(object2, exclude);
     }
 
@@ -47,13 +47,13 @@ public class Json {
       if (value instanceof JsonType) {
         return value;
       } else if (value instanceof Jsonable) {
-        return ((Jsonable)value).asJson();
+        return ((Jsonable) value).asJson();
       } else if (value instanceof Map) {
-        return new JsonObjectHash((Map<? extends String, ? extends Object>)value);
+        return new JsonObjectHash((Map<? extends String, ? extends Object>) value);
       } else if (value instanceof List) {
-        return JsonList.array((List<?>)value);
+        return JsonList.array((List<?>) value);
       } else if (value instanceof String) {
-        final Object read = JsonParser.read((String)value);
+        final Object read = JsonParser.read((String) value);
         if (read instanceof JsonType) {
           return read;
         } else {
@@ -67,7 +67,7 @@ public class Json {
     @Override
     protected String toStringDo(final Object value) {
       if (value instanceof Jsonable) {
-        final Jsonable json = (Jsonable)value;
+        final Jsonable json = (Jsonable) value;
         return json.toJsonString(true);
       } else {
         return Json.toString(value);
@@ -88,8 +88,8 @@ public class Json {
 
     @Override
     protected boolean equalsNotNull(final Object object1, final Object object2,
-      final Collection<? extends CharSequence> exclude) {
-      final JsonList list1 = (JsonList)object1;
+        final Collection<? extends CharSequence> exclude) {
+      final JsonList list1 = (JsonList) object1;
       return list1.equals(object2);
     }
 
@@ -98,9 +98,9 @@ public class Json {
       if (value instanceof JsonList) {
         return value;
       } else if (value instanceof Jsonable) {
-        return ((Jsonable)value).asJson();
+        return ((Jsonable) value).asJson();
       } else if (value instanceof Collection<?>) {
-        return JsonList.array((Collection<?>)value);
+        return JsonList.array((Collection<?>) value);
       } else {
         final Object json = JsonParser.read(value);
         if (json instanceof JsonList) {
@@ -114,7 +114,7 @@ public class Json {
     @Override
     protected String toStringDo(final Object value) {
       if (value instanceof JsonList) {
-        return ((JsonList)value).toJsonString();
+        return ((JsonList) value).toJsonString();
       } else if (value instanceof List<?>) {
         return Json.toString(value);
       } else if (value == null) {
@@ -134,8 +134,8 @@ public class Json {
     @SuppressWarnings("unchecked")
     @Override
     public boolean equalsNotNull(final Object object1, final Object object2) {
-      final Map<Object, Object> map1 = (Map<Object, Object>)object1;
-      final Map<Object, Object> map2 = (Map<Object, Object>)object2;
+      final Map<Object, Object> map1 = (Map<Object, Object>) object1;
+      final Map<Object, Object> map2 = (Map<Object, Object>) object2;
       if (map1.size() == map2.size()) {
         final Set<Object> keys1 = map1.keySet();
         final Set<Object> keys2 = map2.keySet();
@@ -157,13 +157,13 @@ public class Json {
     }
 
     @SuppressWarnings({
-      "unchecked"
+        "unchecked"
     })
     @Override
     protected boolean equalsNotNull(final Object object1, final Object object2,
-      final Collection<? extends CharSequence> exclude) {
-      final Map<Object, Object> map1 = (Map<Object, Object>)object1;
-      final Map<Object, Object> map2 = (Map<Object, Object>)object2;
+        final Collection<? extends CharSequence> exclude) {
+      final Map<Object, Object> map1 = (Map<Object, Object>) object1;
+      final Map<Object, Object> map2 = (Map<Object, Object>) object2;
       final Set<Object> keys = new TreeSet<>();
       keys.addAll(map1.keySet());
       keys.addAll(map2.keySet());
@@ -184,19 +184,19 @@ public class Json {
     }
 
     @SuppressWarnings({
-      "unchecked"
+        "unchecked"
     })
     @Override
     protected Object toObjectDo(final Object value) {
       if (value instanceof JsonObject) {
-        return toJsonObject((JsonObject)value);
+        return toJsonObject((JsonObject) value);
       } else if (value instanceof Jsonable) {
-        return ((Jsonable)value).asJson();
+        return ((Jsonable) value).asJson();
       } else if (value instanceof Map) {
-        final Map<? extends String, ? extends Object> map = (Map<? extends String, ? extends Object>)value;
+        final Map<? extends String, ? extends Object> map = (Map<? extends String, ? extends Object>) value;
         return toJsonObject(map);
       } else if (value instanceof String) {
-        final JsonObject map = Json.toObjectMap((String)value);
+        final JsonObject map = Json.toObjectMap((String) value);
         if (map == null) {
           return null;
         } else {
@@ -208,14 +208,14 @@ public class Json {
     }
 
     @SuppressWarnings({
-      "unchecked"
+        "unchecked"
     })
     @Override
     protected String toStringDo(final Object value) {
       if (value instanceof Jsonable) {
-        return ((Jsonable)value).toJsonString();
+        return ((Jsonable) value).toJsonString();
       } else if (value instanceof Map) {
-        final Map<? extends String, ? extends Object> map = (Map<? extends String, ? extends Object>)value;
+        final Map<? extends String, ? extends Object> map = (Map<? extends String, ? extends Object>) value;
         return Json.toString(map);
       } else if (value == null) {
         return null;
@@ -233,7 +233,7 @@ public class Json {
     @Override
     protected JsonObject toJsonObject(final Map<? extends String, ? extends Object> map) {
       if (map instanceof JsonObjectTree) {
-        return (JsonObjectTree)map;
+        return (JsonObjectTree) map;
       } else {
         return new JsonObjectTree(map);
       }
@@ -241,34 +241,34 @@ public class Json {
   }
 
   @SuppressWarnings({
-    "rawtypes", "unchecked"
+      "rawtypes", "unchecked"
   })
   public static final DataType TREE_MAP_TYPE = new FunctionDataType("TreeMap", JsonObjectTree.class,
-    true, value -> {
-      if (value instanceof JsonObjectTree) {
-        return (JsonObjectTree)value;
-      } else if (value instanceof Map) {
-        return new JsonObjectTree((Map)value);
-      } else if (value instanceof String) {
-        final MapEx map = Json.toObjectMap((String)value);
-        if (map == null) {
+      true, value -> {
+        if (value instanceof JsonObjectTree) {
+          return (JsonObjectTree) value;
+        } else if (value instanceof Map) {
+          return new JsonObjectTree((Map) value);
+        } else if (value instanceof String) {
+          final MapEx map = Json.toObjectMap((String) value);
+          if (map == null) {
+            return null;
+          } else {
+            return new JsonObjectTree(map);
+          }
+        } else {
+          return value;
+        }
+      }, value -> {
+        if (value instanceof Map) {
+          return Json.toString((Map) value);
+        } else if (value == null) {
           return null;
         } else {
-          return new JsonObjectTree(map);
+          return value.toString();
         }
-      } else {
-        return value;
-      }
-    }, value -> {
-      if (value instanceof Map) {
-        return Json.toString((Map)value);
-      } else if (value == null) {
-        return null;
-      } else {
-        return value.toString();
-      }
 
-    }, FunctionDataType.MAP_EQUALS, FunctionDataType.MAP_EQUALS_EXCLUDES);
+      }, FunctionDataType.MAP_EQUALS, FunctionDataType.MAP_EQUALS_EXCLUDES);
 
   public static final DataType JSON_OBJECT = new JsonObjectDataType("JsonObject", JsonObject.class);
 
@@ -297,8 +297,8 @@ public class Json {
   }
 
   public static Map<String, Object> getMap(final Map<String, Object> record,
-    final String fieldName) {
-    final String value = (String)record.get(fieldName);
+      final String fieldName) {
+    final String value = (String) record.get(fieldName);
     return toObjectMap(value);
   }
 
@@ -311,8 +311,8 @@ public class Json {
       return null;
     } else {
       try (
-        Reader inClosable = in;
-        final JsonMapIterator iterator = new JsonMapIterator(in, true)) {
+          Reader inClosable = in;
+          final JsonMapIterator iterator = new JsonMapIterator(in, true)) {
         if (iterator.hasNext()) {
           return iterator.next();
         } else {
@@ -345,8 +345,8 @@ public class Json {
 
   public static final List<JsonObject> toMapList(final Object source) {
     try (
-      final Reader in = JavaIo.createReader(source);
-      final JsonObjectReader jsonReader = new JsonObjectReader(in)) {
+        final Reader in = JavaIo.createReader(source);
+        final JsonObjectReader jsonReader = new JsonObjectReader(in)) {
       return jsonReader.toList();
     } catch (final IOException e) {
       return Exceptions.throwUncheckedException(e);
@@ -356,7 +356,7 @@ public class Json {
   public static List<JsonObject> toMapList(final String string) {
     final StringReader in = new StringReader(string);
     try (
-      final JsonObjectReader reader = new JsonObjectReader(in)) {
+        final JsonObjectReader reader = new JsonObjectReader(in)) {
       return reader.toList();
     }
   }
@@ -365,7 +365,7 @@ public class Json {
     if (Property.hasValue(string)) {
       final StringReader in = new StringReader(string);
       try (
-        final JsonObjectReader reader = new JsonObjectReader(in, true)) {
+          final JsonObjectReader reader = new JsonObjectReader(in, true)) {
         for (final JsonObject object : reader) {
           return object;
         }
@@ -379,7 +379,7 @@ public class Json {
   }
 
   public static String toString(final List<? extends Map<String, Object>> list,
-    final boolean indent) {
+      final boolean indent) {
     final StringWriter writer = new StringWriter();
     final JsonWriter mapWriter = new JsonWriter(writer, indent);
     mapWriter.startObject();
@@ -397,7 +397,7 @@ public class Json {
   public static String toString(final Map<String, ? extends Object> values) {
     final StringWriter writer = new StringWriter();
     try (
-      final JsonWriter jsonWriter = new JsonWriter(writer, false)) {
+        final JsonWriter jsonWriter = new JsonWriter(writer, false)) {
       jsonWriter.write(values);
     }
     return writer.toString();
@@ -406,7 +406,7 @@ public class Json {
   public static String toString(final Map<String, ? extends Object> values, final boolean indent) {
     final StringWriter writer = new StringWriter();
     try (
-      final JsonWriter jsonWriter = new JsonWriter(writer, indent)) {
+        final JsonWriter jsonWriter = new JsonWriter(writer, indent)) {
       jsonWriter.write(values);
     }
     return writer.toString();
@@ -419,7 +419,7 @@ public class Json {
   public static String toString(final Object value, final boolean indent) {
     final StringWriter stringWriter = new StringWriter();
     try (
-      JsonWriter jsonWriter = new JsonWriter(stringWriter, indent)) {
+        JsonWriter jsonWriter = new JsonWriter(stringWriter, indent)) {
       jsonWriter.value(value);
     }
     return stringWriter.toString();
@@ -430,9 +430,9 @@ public class Json {
   }
 
   public static void writeMap(final Map<String, ? extends Object> object, final Object target,
-    final boolean indent) {
+      final boolean indent) {
     try (
-      final Writer writer = JavaIo.createWriter(target)) {
+        final Writer writer = JavaIo.createWriter(target)) {
       writeMap(writer, object, indent);
     } catch (final IOException e) {
     }
@@ -443,9 +443,9 @@ public class Json {
   }
 
   public static void writeMap(final Writer writer, final Map<String, ? extends Object> object,
-    final boolean indent) {
+      final boolean indent) {
     try (
-      final JsonWriter out = new JsonWriter(writer, indent)) {
+        final JsonWriter out = new JsonWriter(writer, indent)) {
       out.write(object);
     } catch (final RuntimeException | Error e) {
       throw e;
