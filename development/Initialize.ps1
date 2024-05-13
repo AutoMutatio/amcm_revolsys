@@ -6,12 +6,12 @@ try {
   foreach ($repository in $scmConfig.repositories) {
     Write-Output $repository.path
 
-    # Fork and clone the repository
+    # Clone the repository
     if ( Test-Path $repository.path ) {
-      gh repo fork $repository.remotes.upstream --clone=false 
+      gh repo clone $repository.remotes.origin --clone=false 
     }
     else {
-      gh repo fork $repository.remotes.upstream --clone=true --remote=true $repository.path
+      gh repo clone $repository.remotes.origin --clone=true --remote=true $repository.path
     }
 
     # Add all the remotes defined in the config
