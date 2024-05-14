@@ -16,23 +16,25 @@ public interface JsonType extends DataTypedValue, Jsonable, BaseCloneable {
     if (value == null) {
       return null;
     } else if (value instanceof MapEx) {
-      final MapEx map = (MapEx) value;
-      return (V) JsonObject.hash().addValuesClone(map);
+      final MapEx map = (MapEx)value;
+      return (V)JsonObject.hash()
+        .addValuesClone(map);
     } else if (value instanceof Map) {
-      final Map<String, Object> map = (Map) value;
-      return (V) map;
+      final Map<String, Object> map = (Map)value;
+      return (V)map;
     } else if (value instanceof List) {
-      final List<?> list = (List<?>) value;
-      return (V) JsonList.array().addValuesClone(list);
+      final List<?> list = (List<?>)value;
+      return (V)JsonList.array()
+        .addValuesClone(list);
     } else if (value instanceof BaseCloneable) {
-      return (V) ((BaseCloneable) value).clone();
+      return (V)((BaseCloneable)value).clone();
     } else if (value instanceof Cloneable) {
       try {
         final Class<? extends Object> valueClass = value.getClass();
         if (!valueClass.isArray()) {
           final Method method = valueClass.getMethod("clone", BaseCloneable.ARRAY_CLASS_0);
           if (method != null) {
-            return (V) method.invoke(value, BaseCloneable.ARRAY_OBJECT_0);
+            return (V)method.invoke(value, BaseCloneable.ARRAY_OBJECT_0);
           }
         }
       } catch (final Throwable e) {
@@ -44,6 +46,15 @@ public interface JsonType extends DataTypedValue, Jsonable, BaseCloneable {
 
   @Override
   Appendable appendJson(Appendable appendable);
+
+  @Override
+  default Appendable appendJsonFormatted(final Appendable appendable) {
+    try (
+      JsonWriter jsonWriter = new JsonWriter(appendable, true)) {
+      jsonWriter.value(this);
+    }
+    return appendable;
+  }
 
   @Override
   default JsonType asJson() {

@@ -12,13 +12,13 @@ public class JsonStringEncodingWriter {
     this.out = out;
   }
 
-  public Appendable append(final CharSequence string) throws IOException {
+  public void append(final CharSequence string) throws IOException {
     final int length = string.length();
-    return append(string, 0, length);
+    append(string, 0, length);
   }
 
-  public Appendable append(final CharSequence string, int startIndex, final int length)
-      throws IOException {
+  public void append(final CharSequence string, int startIndex, final int length)
+    throws IOException {
     final var out = this.out;
     int count = 0;
     final int endIndex = startIndex + length;
@@ -52,7 +52,6 @@ public class JsonStringEncodingWriter {
       }
     }
     out.append(string, startIndex, startIndex + count);
-    return this;
   }
 
 }

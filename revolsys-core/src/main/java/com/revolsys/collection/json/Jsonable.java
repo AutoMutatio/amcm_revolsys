@@ -63,7 +63,7 @@ public interface Jsonable {
 
   default void writeTo(final Object target) {
     try (
-        Writer writer = JavaIo.createWriter(target)) {
+      Writer writer = JavaIo.createWriter(target)) {
       appendJson(writer);
     } catch (final IOException e) {
       throw Exceptions.toRuntimeException(e);
@@ -73,8 +73,8 @@ public interface Jsonable {
 
   default void writeToFormatted(final Object target) {
     try (
-        Writer writer = JavaIo.createWriter(target)) {
-      appendJson(writer);
+      Writer writer = JavaIo.createWriter(target)) {
+      appendJsonFormatted(writer);
     } catch (final IOException e) {
       throw Exceptions.toRuntimeException(e);
     }
