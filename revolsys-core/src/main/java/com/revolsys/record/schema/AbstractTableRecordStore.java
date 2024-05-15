@@ -441,15 +441,15 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     applySearchCondition(query, search);
   }
 
-  public Record newRecord() {
+  public Record newRecord(TableRecordStoreConnection connection) {
     return getRecordDefinition().newRecord();
   }
 
-  public Record newRecord(final MapEx values) {
+  public Record newRecord(TableRecordStoreConnection connection, final MapEx values) {
     if (values == null) {
       return null;
     } else {
-      final Record record = newRecord();
+      final Record record = newRecord(connection);
       for (final String fieldName : values.keySet()) {
         final Object value = values.getValue(fieldName);
         if (Property.hasValue(value)) {

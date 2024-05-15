@@ -25,6 +25,7 @@ import org.apache.olingo.server.api.ServiceMetadata;
 import org.apache.olingo.server.core.ServiceMetadataImpl;
 
 import com.revolsys.collection.list.Lists;
+import com.revolsys.collection.value.ValueHolder;
 import com.revolsys.io.PathName;
 import com.revolsys.odata.service.processor.ODataEntityCollectionProcessor;
 import com.revolsys.odata.service.processor.ODataEntityProcessor;
@@ -39,7 +40,7 @@ public abstract class ODataEdmProvider extends CsdlEdmProvider {
 
   private ODataSchema defaultSchema;
 
-  private RecordStore recordStore;
+  private ValueHolder<? extends RecordStore> recordStore;
 
   private final Map<PathName, ODataSchema> schemaByNamespace = new TreeMap<>();
 
@@ -190,7 +191,7 @@ public abstract class ODataEdmProvider extends CsdlEdmProvider {
   }
 
   public RecordStore getRecordStore() {
-    return this.recordStore;
+    return this.recordStore.getValue();
   }
 
   private ODataSchema getSchema(final PathName qualifiedName) {
@@ -230,7 +231,7 @@ public abstract class ODataEdmProvider extends CsdlEdmProvider {
     this.handler = handler;
   }
 
-  protected void setRecordStore(final RecordStore recordStore) {
+  protected void setRecordStore(final ValueHolder<? extends RecordStore> recordStore) {
     this.recordStore = recordStore;
   }
 
