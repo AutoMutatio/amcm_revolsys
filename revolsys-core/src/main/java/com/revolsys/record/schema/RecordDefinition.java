@@ -21,6 +21,7 @@ import com.revolsys.record.Record;
 import com.revolsys.record.RecordFactory;
 import com.revolsys.record.code.CodeTable;
 import com.revolsys.record.property.RecordDefinitionProperty;
+import com.revolsys.record.query.DeleteStatement;
 import com.revolsys.record.query.Query;
 import com.revolsys.record.query.QueryValue;
 import com.revolsys.record.query.SqlAppendable;
@@ -83,7 +84,16 @@ public interface RecordDefinition extends Cloneable, GeometryFactoryProxy, Recor
     }
   }
 
-  void deleteRecord(Record record);
+  default void deleteRecord(final Identifier id) {
+    getRecordStore().deleteRecord(getTablePath(), id);
+  }
+
+  void deleteRecord(Record record);;
+
+  @Override
+  default DeleteStatement deleteStatement() {
+    return getRecordStore().deleteStatement(getPathName());
+  }
 
   void destroy();
 

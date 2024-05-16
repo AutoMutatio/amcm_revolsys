@@ -19,7 +19,7 @@ public class PropertyDescriptorCacheForClass {
   private final CountDownLatch latch = new CountDownLatch(1);
 
   PropertyDescriptorCacheForClass(final Class<?> clazz) {
-    Thread.ofVirtual().start(() -> {
+    Thread.ofPlatform().start(() -> {
       try {
         final BeanInfo beanInfo = Introspector.getBeanInfo(clazz);
         for (final PropertyDescriptor propertyDescriptor : beanInfo.getPropertyDescriptors()) {
@@ -28,7 +28,7 @@ public class PropertyDescriptorCacheForClass {
           Method writeMethod = propertyDescriptor.getWriteMethod();
           if (writeMethod == null) {
             final String setMethodName = "set" + Character.toUpperCase(propertyName.charAt(0))
-              + propertyName.substring(1);
+                + propertyName.substring(1);
             try {
               final Class<?> propertyType = propertyDescriptor.getPropertyType();
               writeMethod = clazz.getMethod(setMethodName, propertyType);

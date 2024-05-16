@@ -1,7 +1,6 @@
 package com.revolsys.record.io.format.odata;
 
 import java.util.List;
-import java.util.function.Consumer;
 import java.util.function.Function;
 
 import com.revolsys.collection.json.JsonObject;
@@ -10,11 +9,10 @@ import com.revolsys.record.query.ColumnReference;
 import com.revolsys.record.query.OrderBy;
 import com.revolsys.record.query.Query;
 import com.revolsys.record.query.QueryValue;
-import com.revolsys.util.Cancellable;
 
 public class ODataQuery extends Query {
 
-  private final ODataResource resource;
+  private final ODataResourceIf resource;
 
   private int pageLimit = Integer.MAX_VALUE;
 
@@ -22,7 +20,7 @@ public class ODataQuery extends Query {
 
   private String format;
 
-  public ODataQuery(final ODataResource resource) {
+  public ODataQuery(final ODataResourceIf resource) {
     this.resource = resource;
   }
 
@@ -50,7 +48,7 @@ public class ODataQuery extends Query {
         }
         final QueryValue orderField = orderBy.getField();
         if (orderField instanceof ColumnReference) {
-          final ColumnReference column = (ColumnReference)orderField;
+          final ColumnReference column = (ColumnReference) orderField;
           order.append(column.getName());
         }
         if (!orderBy.isAscending()) {
@@ -67,7 +65,7 @@ public class ODataQuery extends Query {
       final StringBuilder select = new StringBuilder();
       for (final QueryValue selectItem : selectValues) {
         if (selectItem instanceof ColumnReference) {
-          final ColumnReference column = (ColumnReference)selectItem;
+          final ColumnReference column = (ColumnReference) selectItem;
           if (select.length() > 0) {
             select.append(',');
           }
@@ -78,10 +76,6 @@ public class ODataQuery extends Query {
       }
       request.setParameter("$select", select);
     }
-  }
-
-  public int forEach(final Cancellable cancellable, final Consumer<JsonObject> action) {
-    throw new UnsupportedOperationException();
   }
 
   public <V> V getFirst(final Function<JsonObject, V> converter) {
@@ -110,9 +104,13 @@ public class ODataQuery extends Query {
     });
   }
 
-  public <V> ODataJsonQueryIterator<V> iterator(final Function<JsonObject, V> converter) {
+  public ODataJsonQueryIterator<JsonObject> reader() {
+    return reader(v -> v);
+  }
+
+  public <V> ODataJsonQueryIterator<V> reader(final Function<JsonObject, V> converter) {
     return new ODataJsonQueryIterator<>(this.resource.getFactory(), initRequest().request(),
-      converter, toString(), this.pageLimit);
+        converter, toString(), this.pageLimit);
   }
 
   public ODataQuery setCount(final boolean count) {

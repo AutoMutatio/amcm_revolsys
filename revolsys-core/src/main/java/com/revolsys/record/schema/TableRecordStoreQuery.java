@@ -51,7 +51,7 @@ public class TableRecordStoreQuery extends Query {
 
   @Override
   public Record newRecord() {
-    return this.recordStore.newRecord();
+    return this.recordStore.newRecord(connection);
   }
 
   @Override

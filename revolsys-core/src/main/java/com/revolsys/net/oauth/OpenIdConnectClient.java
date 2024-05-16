@@ -3,6 +3,7 @@ package com.revolsys.net.oauth;
 import java.net.URI;
 import java.util.Collection;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 import org.apache.http.client.methods.RequestBuilder;
 
@@ -17,7 +18,7 @@ import com.revolsys.record.io.format.json.JsonIo;
 import com.revolsys.spring.resource.Resource;
 import com.revolsys.util.Strings;
 
-public class OpenIdConnectClient extends BaseObjectWithProperties {
+public class OpenIdConnectClient extends BaseObjectWithProperties implements BearerTokenFactory {
 
   public static OpenIdConnectClient google() {
     return newClient("https://accounts.google.com/.well-known/openid-configuration");
@@ -98,6 +99,8 @@ public class OpenIdConnectClient extends BaseObjectWithProperties {
 
   private final String endSessionEndpoint;
 
+  private Supplier<String> clientAssertionSupplier;
+
   public OpenIdConnectClient(final JsonObject config) {
     this.issuer = config.getString("issuer");
     this.authorizationEndpoint = config.getString("authorization_endpoint");
@@ -106,6 +109,27 @@ public class OpenIdConnectClient extends BaseObjectWithProperties {
     this.userinfoEndpoint = config.getString("userinfo_endpoint");
     this.revocationEndpoint = config.getString("revocation_endpoint");
     this.endSessionEndpoint = config.getString("end_session_endpoint");
+  }
+
+  protected void addAuthentication(final HttpRequestBuilder builder) {
+    addClientId(builder);
+    if (this.clientAssertionSupplier != null) {
+      final var clientAssertion = this.clientAssertionSupplier.get();
+      if (clientAssertion != null) {
+        builder
+          .addParameter("client_assertion_type",
+            "urn:ietf:params:oauth:client-assertion-type:jwt-bearer")
+          .addParameter("client_assertion", clientAssertion);
+      }
+    } else if (this.clientSecret != null) {
+      builder.addParameter("client_secret", this.clientSecret);
+    }
+  }
+
+  protected void addClientId(final HttpRequestBuilder requestBuilder) {
+    if (this.clientId != null) {
+      requestBuilder.addParameter("client_id", this.clientId);
+    }
   }
 
   protected void addScopes(final RequestBuilder builder, final Collection<String> scopes) {
@@ -117,12 +141,13 @@ public class OpenIdConnectClient extends BaseObjectWithProperties {
     final String nonce, final String prompt) {
     final RequestBuilder builder = authorizationUrlBuilder(scope, redirectUri, state, nonce,
       prompt);
-    return builder.build().getURI();
+    return builder.build()
+      .getURI();
   }
 
   public RequestBuilder authorizationUrlBuilder(final String scope, final String redirectUri,
     final String state, final String nonce, final String prompt) {
-    final RequestBuilder builder = RequestBuilder//
+    final var builder = RequestBuilder//
       .get(this.authorizationEndpoint)
       .addParameter("response_type", "code")
       .addParameter("response_mode", "query")
@@ -137,16 +162,10 @@ public class OpenIdConnectClient extends BaseObjectWithProperties {
     return builder;
   }
 
-  public Function<BearerToken, BearerToken> bearerTokenRefreshFactory(final String scope) {
-    return bearerToken -> tokenClientCredentials(scope);
-  }
-
   public DeviceCodeResponse deviceCode(final String scope) {
     final var requestBuilder = HttpRequestBuilder//
       .post(this.deviceAuthorizationEndpoint);
-    if (this.clientId != null) {
-      requestBuilder.addParameter("client_id", this.clientId);
-    }
+    addClientId(requestBuilder);
     if (scope != null) {
       requestBuilder.addParameter("scope", scope);
     }
@@ -158,7 +177,8 @@ public class OpenIdConnectClient extends BaseObjectWithProperties {
     final RequestBuilder builder = RequestBuilder//
       .get(this.endSessionEndpoint)
       .addParameter("post_logout_redirect_uri", redirectUrl);
-    return builder.build().getURI();
+    return builder.build()
+      .getURI();
   }
 
   public OpenIdConnectClient forTenant(final String tenantKey) {
@@ -203,7 +223,8 @@ public class OpenIdConnectClient extends BaseObjectWithProperties {
           if (errorDescription != null) {
             final int index = errorDescription.indexOf("Trace ID:");
             if (index != -1) {
-              errorDescription = errorDescription.substring(0, index).strip();
+              errorDescription = errorDescription.substring(0, index)
+                .strip();
             }
             throw new AuthenticationException(errorDescription);
           }
@@ -229,6 +250,23 @@ public class OpenIdConnectClient extends BaseObjectWithProperties {
     return this.userinfoEndpoint;
   }
 
+  @Override
+  public BearerToken newToken(final OpenIdScope scope) {
+    return tokenClientCredentials(scope.getScope());
+  }
+
+  @Override
+  public BearerTokenRefresher newTokenRefresh(final OpenIdScope scope) {
+    final var s = scope.getScope();
+    return bearerToken -> tokenClientCredentials(s);
+  }
+
+  public OpenIdConnectClient setClientAssertionSupplier(
+    final Supplier<String> clientAssertionSupplier) {
+    this.clientAssertionSupplier = clientAssertionSupplier;
+    return this;
+  }
+
   public OpenIdConnectClient setClientId(final String clientId) {
     this.clientId = clientId;
     return this;
@@ -248,10 +286,9 @@ public class OpenIdConnectClient extends BaseObjectWithProperties {
     final var builder = HttpRequestBuilder//
       .post(this.tokenEndpoint)
       .addParameter("grant_type", "authorization_code")
-      .addParameter("client_id", this.clientId)
-      .addParameter("client_secret", this.clientSecret)
       .addParameter("redirect_uri", redirectUri)
       .addParameter("code", code);
+    addAuthentication(builder);
     return getOpenIdBearerToken(builder, scope);
   }
 
@@ -259,11 +296,8 @@ public class OpenIdConnectClient extends BaseObjectWithProperties {
     final HttpRequestBuilder builder = HttpRequestBuilder//
       .post(this.tokenEndpoint)
       .addParameter("grant_type", grantType);
-    if (this.clientId != null) {
-      builder.addParameter("client_id", this.clientId);
-    }
-    if (this.clientSecret != null && useClientSecret) {
-      builder.addParameter("client_secret", this.clientSecret);
+    if (useClientSecret) {
+      addAuthentication(builder);
     }
     return builder;
   }

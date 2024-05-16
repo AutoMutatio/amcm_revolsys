@@ -62,8 +62,11 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
       final Number number = (Number)queryValue;
       sql.append(DataTypes.toString(number));
     } else {
-      final String string = DataTypes.toString(queryValue).replaceAll("'", "''");
-      sql.append('\'').append(string).append('\'');
+      final String string = DataTypes.toString(queryValue)
+        .replaceAll("'", "''");
+      sql.append('\'')
+        .append(string)
+        .append('\'');
     }
   }
 
@@ -110,7 +113,8 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
   }
 
   static <T extends RecordStore> T newRecordStore(final Path file) {
-    return newRecordStore(file.toUri().toString());
+    return newRecordStore(file.toUri()
+      .toString());
   }
 
   @SuppressWarnings("unchecked")
@@ -285,6 +289,10 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
       }
     }
     return count;
+  }
+
+  default DeleteStatement deleteStatement(final PathName pathName) {
+    return new DeleteStatement().from(getRecordDefinition(pathName));
   }
 
   default RecordDefinition findRecordDefinition(final PathName typePath) {
@@ -558,7 +566,8 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
   }
 
   default <R extends Record> InsertUpdateBuilder<R> newInsert(final PathName pathName) {
-    return this.<R> newInsertUpdate(pathName).setUpdate(false);
+    return this.<R> newInsertUpdate(pathName)
+      .setUpdate(false);
   }
 
   default <R extends Record> InsertUpdateBuilder<R> newInsertUpdate(final PathName pathName) {
@@ -713,7 +722,8 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
   }
 
   default <R extends Record> InsertUpdateBuilder<R> newUpdate(final PathName pathName) {
-    return this.<R> newInsertUpdate(pathName).setInsert(false);
+    return this.<R> newInsertUpdate(pathName)
+      .setInsert(false);
   }
 
   default void refreshCodeTable(final PathName pathName) {

@@ -23,6 +23,7 @@ import com.revolsys.record.query.Query;
 import com.revolsys.record.query.SqlAppendable;
 import com.revolsys.record.query.StringBuilderSqlAppendable;
 import com.revolsys.record.schema.RecordDefinition;
+import com.revolsys.record.schema.RecordDefinitionProxy;
 import com.revolsys.record.schema.RecordStore;
 
 public interface JdbcRecordStore extends RecordStore {
@@ -34,7 +35,7 @@ public interface JdbcRecordStore extends RecordStore {
   default int executeUpdate(final String sql, final Object... parameters) {
     return transactionCall(() -> {
       try (
-        final JdbcConnection connection = getJdbcConnection()) {
+          final JdbcConnection connection = getJdbcConnection()) {
         return connection.executeUpdate(sql, parameters);
       }
     });
@@ -43,7 +44,7 @@ public interface JdbcRecordStore extends RecordStore {
   JdbcDataSource getDataSource();
 
   default DataAccessException getException(final String task, final String sql,
-    final SQLException e) {
+      final SQLException e) {
     return getDataSource().getException(task, sql, e);
   }
 
@@ -57,18 +58,18 @@ public interface JdbcRecordStore extends RecordStore {
   }
 
   JdbcRecordDefinition getRecordDefinition(PathName tablePath, ResultSetMetaData resultSetMetaData,
-    String dbTableName);
+      String dbTableName);
 
   JdbcRecordDefinition getRecordDefinition(Query query, ResultSetMetaData resultSetMetaData);
 
   default ResultSet getResultSet(final PreparedStatement statement, final Query query)
-    throws SQLException {
+      throws SQLException {
     query.appendParameters(1, statement);
     return statement.executeQuery();
   }
 
   PreparedStatement insertStatementPrepareRowId(JdbcConnection connection,
-    RecordDefinition recordDefinition, String sql) throws SQLException;
+      RecordDefinition recordDefinition, String sql) throws SQLException;
 
   boolean isIdFieldRowid(RecordDefinition recordDefinition);
 
@@ -78,7 +79,7 @@ public interface JdbcRecordStore extends RecordStore {
     sql.append(" IN SHARE MODE");
     final String s = sql.toSqlString();
     try (
-      final JdbcConnection connection = getJdbcConnection()) {
+        final JdbcConnection connection = getJdbcConnection()) {
       connection.executeUpdate(s);
     } catch (final SQLException e) {
       throw getException("lock", s, e);
@@ -89,23 +90,28 @@ public interface JdbcRecordStore extends RecordStore {
     final String tableName = JdbcUtils.getQualifiedTableName(typePath);
     final String sql = "LOCK TABLE " + tableName + " IN SHARE MODE";
     try (
-      final JdbcConnection connection = getJdbcConnection()) {
+        final JdbcConnection connection = getJdbcConnection()) {
       connection.executeUpdate(sql);
     } catch (final SQLException e) {
       throw getException("lock", sql, e);
     }
   }
 
+  @Override
+  JdbcRecordWriter newRecordWriter(RecordDefinitionProxy recordDefinition);
+
+  JdbcRecordWriter newRecordWriter(RecordDefinitionProxy recordDefinition, int batchSize);
+
   default int selectInt(final String sql, final Object... parameters) {
     return transactionCall(() -> {
       try (
-        JdbcConnection connection = getJdbcConnection()) {
+          JdbcConnection connection = getJdbcConnection()) {
         try (
-          final PreparedStatement statement = connection.prepareStatement(sql)) {
+            final PreparedStatement statement = connection.prepareStatement(sql)) {
           JdbcUtils.setParameters(statement, parameters);
 
           try (
-            final ResultSet resultSet = statement.executeQuery()) {
+              final ResultSet resultSet = statement.executeQuery()) {
             if (resultSet.next()) {
               return resultSet.getInt(1);
             } else {
@@ -122,13 +128,13 @@ public interface JdbcRecordStore extends RecordStore {
   default long selectLong(final String sql, final Object... parameters) {
     return transactionCall(() -> {
       try (
-        JdbcConnection connection = getJdbcConnection()) {
+          JdbcConnection connection = getJdbcConnection()) {
         try (
-          final PreparedStatement statement = connection.prepareStatement(sql)) {
+            final PreparedStatement statement = connection.prepareStatement(sql)) {
           JdbcUtils.setParameters(statement, parameters);
 
           try (
-            final ResultSet resultSet = statement.executeQuery()) {
+              final ResultSet resultSet = statement.executeQuery()) {
             if (resultSet.next()) {
               return resultSet.getLong(1);
             } else {
@@ -145,18 +151,18 @@ public interface JdbcRecordStore extends RecordStore {
   default MapEx selectMap(final String sql, final Object... parameters) {
     return transactionCall(() -> {
       try (
-        JdbcConnection connection = getJdbcConnection()) {
+          JdbcConnection connection = getJdbcConnection()) {
         try (
-          final PreparedStatement statement = connection.prepareStatement(sql)) {
+            final PreparedStatement statement = connection.prepareStatement(sql)) {
           JdbcUtils.setParameters(statement, parameters);
 
           try (
-            final ResultSet resultSet = statement.executeQuery()) {
+              final ResultSet resultSet = statement.executeQuery()) {
             if (resultSet.next()) {
               return JdbcUtils.readMap(resultSet);
             } else {
               throw new IllegalArgumentException(
-                "Value not found for " + sql + " " + Arrays.asList(parameters));
+                  "Value not found for " + sql + " " + Arrays.asList(parameters));
             }
           }
         } catch (final SQLException e) {
@@ -169,7 +175,7 @@ public interface JdbcRecordStore extends RecordStore {
   default String selectString(final String sql, final Object... parameters) throws SQLException {
     return transactionCall(() -> {
       try (
-        JdbcConnection connection = getJdbcConnection()) {
+          JdbcConnection connection = getJdbcConnection()) {
         return JdbcUtils.selectString(connection, sql, parameters);
       }
     });
@@ -178,9 +184,9 @@ public interface JdbcRecordStore extends RecordStore {
   default int setRole(final String roleName) {
     final String sql = "SET ROLE " + roleName;
     try (
-      final JdbcConnection connection = getJdbcConnection()) {
+        final JdbcConnection connection = getJdbcConnection()) {
       try (
-        Statement statement = connection.createStatement()) {
+          Statement statement = connection.createStatement()) {
         return statement.executeUpdate(sql);
       }
     } catch (final SQLException e) {
@@ -191,7 +197,7 @@ public interface JdbcRecordStore extends RecordStore {
   JdbcRecordStore setUseUpperCaseNames(boolean useUpperCaseNames);
 
   default Array toArray(final Connection connection, final JdbcFieldDefinition field,
-    final Collection<?> value) throws SQLException {
+      final Collection<?> value) throws SQLException {
     throw new UnsupportedOperationException("Conversion to array not yet supported");
   }
 
