@@ -123,7 +123,7 @@ public class ODataEntityProcessor extends AbstractProcessor implements EntityPro
     }
 
     // 3. serialize
-    final ContextURL contextUrl = newContextUrl()//
+    final ContextURL contextUrl = newContextUrl(request)//
       .entitySet(responseEdmEntitySet)
       .suffix(Suffix.ENTITY)
       .build();

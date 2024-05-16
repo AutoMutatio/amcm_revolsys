@@ -7,6 +7,7 @@ import java.util.function.Function;
 
 import com.revolsys.collection.value.ValueHolder;
 import com.revolsys.exception.Exceptions;
+import com.revolsys.logging.Logs;
 import com.revolsys.parallel.ExecutorServiceFactory;
 import com.revolsys.util.BaseCloseable;
 
@@ -72,9 +73,13 @@ public class MapValueHolderFunction<K, V> implements ValueHolder<V> {
   }
 
   private void initialize() {
-    this.value = this.initializer.apply(this.key);
-    if (this.closed) {
-      close();
+    try {
+      this.value = this.initializer.apply(this.key);
+      if (this.closed) {
+        close();
+      }
+    } catch (final Exception e) {
+      Logs.error(this, e);
     }
     this.latch.countDown();
   }

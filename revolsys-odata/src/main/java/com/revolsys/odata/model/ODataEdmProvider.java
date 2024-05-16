@@ -25,7 +25,6 @@ import org.apache.olingo.server.api.ServiceMetadata;
 import org.apache.olingo.server.core.ServiceMetadataImpl;
 
 import com.revolsys.collection.list.Lists;
-import com.revolsys.collection.value.ValueHolder;
 import com.revolsys.io.PathName;
 import com.revolsys.odata.service.processor.ODataEntityCollectionProcessor;
 import com.revolsys.odata.service.processor.ODataEntityProcessor;
@@ -40,15 +39,13 @@ public abstract class ODataEdmProvider extends CsdlEdmProvider {
 
   private ODataSchema defaultSchema;
 
-  private ValueHolder<? extends RecordStore> recordStore;
+  private RecordStore recordStore;
 
   private final Map<PathName, ODataSchema> schemaByNamespace = new TreeMap<>();
 
   private final List<CsdlSchema> schemas = new ArrayList<>();
 
   private ODataHttpHandler handler;
-
-  private String serviceRoot;
 
   private final Map<PathName, CsdlTerm> termByName = new HashMap<>();
 
@@ -191,7 +188,7 @@ public abstract class ODataEdmProvider extends CsdlEdmProvider {
   }
 
   public RecordStore getRecordStore() {
-    return this.recordStore.getValue();
+    return this.recordStore;
   }
 
   private ODataSchema getSchema(final PathName qualifiedName) {
@@ -202,10 +199,6 @@ public abstract class ODataEdmProvider extends CsdlEdmProvider {
   @Override
   public List<CsdlSchema> getSchemas() {
     return this.schemas;
-  }
-
-  public String getServiceRoot() {
-    return this.serviceRoot;
   }
 
   @Override
@@ -231,12 +224,8 @@ public abstract class ODataEdmProvider extends CsdlEdmProvider {
     this.handler = handler;
   }
 
-  protected void setRecordStore(final ValueHolder<? extends RecordStore> recordStore) {
+  protected void setRecordStore(final RecordStore recordStore) {
     this.recordStore = recordStore;
-  }
-
-  public void setServiceRoot(final String serviceRoot) {
-    this.serviceRoot = serviceRoot;
   }
 
 }
