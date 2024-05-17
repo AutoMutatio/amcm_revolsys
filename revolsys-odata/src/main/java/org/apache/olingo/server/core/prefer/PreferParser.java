@@ -102,7 +102,8 @@ public class PreferParser {
       if (matcher.group(1) != null) {
         separator = matcher.group(1);
       } else if (separator != null) {
-        final String name = matcher.group(2).toLowerCase(Locale.ROOT);
+        final String name = matcher.group(2)
+          .toLowerCase(Locale.ROOT);
         // RFC 7240:
         // If any preference is specified more than once, only the first
         // instance is to be
@@ -111,8 +112,8 @@ public class PreferParser {
         // an error or otherwise altering the processing of the request.
         if (!partResult.containsKey(name)) {
           final String preferenceValue = getValue(matcher.group(3));
-          final Map<String, String> parameters = matcher.group(4) == null
-            || matcher.group(4).isEmpty() ? null : parseParameters(matcher.group(4));
+          final Map<String, String> parameters = matcher.group(4) == null || matcher.group(4)
+            .isEmpty() ? null : parseParameters(matcher.group(4));
           partResult.put(name, new Preference(preferenceValue, parameters));
         }
         separator = null;
@@ -140,7 +141,8 @@ public class PreferParser {
       if (matcher.group(1) != null) {
         separator = matcher.group(1);
       } else if (separator != null) {
-        final String name = matcher.group(2).toLowerCase(Locale.ROOT);
+        final String name = matcher.group(2)
+          .toLowerCase(Locale.ROOT);
         // We have to keep already existing parameters.
         if (!result.containsKey(name)) {
           result.put(name, getValue(matcher.group(3)));

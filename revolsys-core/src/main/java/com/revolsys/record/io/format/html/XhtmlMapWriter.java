@@ -7,9 +7,9 @@ import java.util.Map.Entry;
 
 import com.revolsys.collection.NameProxy;
 import com.revolsys.io.AbstractMapWriter;
-import com.revolsys.io.FileUtil;
 import com.revolsys.io.IoConstants;
 import com.revolsys.record.io.format.xml.XmlWriter;
+import com.revolsys.util.BaseCloseable;
 import com.revolsys.util.CaseConverter;
 import com.revolsys.util.HtmlAttr;
 import com.revolsys.util.HtmlElem;
@@ -50,7 +50,7 @@ public class XhtmlMapWriter extends AbstractMapWriter {
         this.out.flush();
       } finally {
         if (this.wrap) {
-          FileUtil.closeSilent(this.out);
+          BaseCloseable.closeSilent(this.out);
         }
         this.out = null;
       }

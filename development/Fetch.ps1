@@ -11,11 +11,13 @@ try {
     Write-Output "-  origin"
     git -C $repository.path fetch 'origin'
     foreach ($remote in $repository.remotes.psobject.properties.name) {
-      Write-Output "-  $remote"
-      git -C $repository.path fetch $remote
+      if ('origin' -ne $remote) {
+        Write-Output "-  $remote"
+        git -C $repository.path fetch $remote
+      }
     }
-    Write-Output "-  upstream tags"
-    git -C $repository.path fetch 'upstream' --tags  
+    Write-Output "-  origin tags"
+    git -C $repository.path fetch 'origin' --tags  
   }
 }
 finally {

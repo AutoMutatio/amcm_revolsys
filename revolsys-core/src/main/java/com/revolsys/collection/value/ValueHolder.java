@@ -6,6 +6,10 @@ import com.revolsys.util.BaseCloseable;
 import com.revolsys.util.Emptyable;
 
 public interface ValueHolder<T> extends Emptyable {
+  public static <V> LazyValueHolder.Builder<V> lazy() {
+    return new LazyValueHolder.Builder<>();
+  }
+
   public static <V> LazyValueHolder<V> lazy(final Supplier<V> valueSupplier) {
     return new LazyValueHolder<>(valueSupplier);
   }

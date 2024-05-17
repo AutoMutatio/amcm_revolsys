@@ -2,11 +2,16 @@ package com.revolsys.data.type;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
+
+import com.revolsys.collection.list.ArrayListEx;
+import com.revolsys.collection.list.ListEx;
 
 public class ListDataType extends SimpleDataType {
+
+  public static ListDataType of(final DataType contentType) {
+    return new ListDataType(ListEx.class, contentType);
+  }
 
   private final DataType contentType;
 
@@ -19,23 +24,24 @@ public class ListDataType extends SimpleDataType {
     this.contentType = contentType;
   }
 
-  private List<Object> createList() throws NoSuchMethodException, InstantiationException,
+  @SuppressWarnings("unchecked")
+  private ListEx<Object> createList() throws NoSuchMethodException, InstantiationException,
     IllegalAccessException, InvocationTargetException {
     final Class<?> javaClass = getJavaClass();
-    final List<Object> newCollection;
-    if (List.class == javaClass) {
-      newCollection = new ArrayList<>();
+    final ListEx<Object> newCollection;
+    if (ListEx.class == javaClass) {
+      newCollection = new ArrayListEx<>();
     } else {
       final Constructor<?> declaredConstructor = javaClass.getDeclaredConstructor();
-      newCollection = (List)declaredConstructor.newInstance();
+      newCollection = (ListEx)declaredConstructor.newInstance();
     }
     return newCollection;
   }
 
   @Override
   protected boolean equalsNotNull(final Object value1, final Object value2) {
-    final List<?> list1 = (List<?>)value1;
-    final List<?> list2 = (List<?>)value2;
+    final ListEx<?> list1 = (ListEx<?>)value1;
+    final ListEx<?> list2 = (ListEx<?>)value2;
     if (list1.size() != list2.size()) {
       return false;
     } else {
@@ -53,8 +59,8 @@ public class ListDataType extends SimpleDataType {
   @Override
   protected boolean equalsNotNull(final Object value1, final Object value2,
     final Collection<? extends CharSequence> excludeFieldNames) {
-    final List<?> list1 = (List<?>)value1;
-    final List<?> list2 = (List<?>)value2;
+    final ListEx<?> list1 = (ListEx<?>)value1;
+    final ListEx<?> list2 = (ListEx<?>)value2;
     if (list1.size() != list2.size()) {
       return false;
     } else {
@@ -76,9 +82,10 @@ public class ListDataType extends SimpleDataType {
   @SuppressWarnings("unchecked")
   @Override
   protected Object toObjectDo(final Object value) {
-    if (value instanceof final Collection collection) {
+    if (value instanceof Collection) {
       try {
-        final List<Object> list = createList();
+        final Collection<?> collection = (Collection<?>)value;
+        final ListEx<Object> list = createList();
         list.addAll(collection);
         return list;
       } catch (InvocationTargetException | NoSuchMethodException | InstantiationException
@@ -87,7 +94,7 @@ public class ListDataType extends SimpleDataType {
       }
     } else if (value instanceof final Iterable iterable) {
       try {
-        final List<Object> list = createList();
+        final ListEx<Object> list = createList();
         iterable.forEach(list::add);
         return list;
       } catch (InvocationTargetException | NoSuchMethodException | InstantiationException
@@ -97,7 +104,7 @@ public class ListDataType extends SimpleDataType {
     } else if (value instanceof CharSequence) {
       try {
         // TODO
-        final List<Object> list = createList();
+        final ListEx<Object> list = createList();
         final String string = value.toString();
         int i = 0;
         if (string.charAt(i) == '[') {
@@ -182,5 +189,10 @@ public class ListDataType extends SimpleDataType {
     } else {
       return super.toObjectDo(value);
     }
+  }
+
+  @Override
+  public String toString() {
+    return super.toString() + "<" + this.contentType + ">";
   }
 }

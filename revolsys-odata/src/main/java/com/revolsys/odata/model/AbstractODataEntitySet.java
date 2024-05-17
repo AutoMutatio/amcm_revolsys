@@ -3,16 +3,18 @@ package com.revolsys.odata.model;
 import java.util.Collections;
 import java.util.List;
 
-import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntitySet;
 import org.apache.olingo.commons.api.edm.provider.CsdlNavigationPropertyBinding;
+import org.apache.olingo.server.api.ODataRequest;
 
 import com.revolsys.io.PathName;
+import com.revolsys.record.query.Query;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordDefinitionProxy;
 import com.revolsys.util.CaseConverter;
 
-public class AbstractODataEntitySet extends CsdlEntitySet implements RecordDefinitionProxy {
+public abstract class AbstractODataEntitySet extends CsdlEntitySet
+  implements RecordDefinitionProxy {
 
   protected ODataEntityType entityType;
 
@@ -20,7 +22,7 @@ public class AbstractODataEntitySet extends CsdlEntitySet implements RecordDefin
 
   protected final ODataSchema schema;
 
-  protected final FullQualifiedName typeName;
+  protected final PathName typeName;
 
   public AbstractODataEntitySet(final ODataSchema schema, final String typeName,
     final PathName pathName) {
@@ -44,9 +46,8 @@ public class AbstractODataEntitySet extends CsdlEntitySet implements RecordDefin
     final ODataNavigationProperty navigationProperty = new ODataNavigationProperty(referencedTable,
       propertyName);
 
-    final CsdlNavigationPropertyBinding navigationPropertyBinding = new CsdlNavigationPropertyBinding()
-      .setPath(propertyName)
-      .setTarget(referencedTable.getName());
+    final var navigationPropertyBinding = new CsdlNavigationPropertyBinding(propertyName,
+      referencedTable.getName());
     addNavigationPropertyBinding(navigationPropertyBinding);
 
     this.entityType.addNavigationProperty(navigationProperty);
@@ -67,7 +68,7 @@ public class AbstractODataEntitySet extends CsdlEntitySet implements RecordDefin
     return this.name;
   }
 
-  public String getNamespace() {
+  public PathName getNamespace() {
     return this.schema.getNamespace();
   }
 
@@ -84,8 +85,10 @@ public class AbstractODataEntitySet extends CsdlEntitySet implements RecordDefin
     return this.entityType.getRecordDefinition();
   }
 
-  public FullQualifiedName getTypeName() {
+  public PathName getTypeName() {
     return this.typeName;
   }
+
+  public abstract Query newQuery(ODataRequest request);
 
 }

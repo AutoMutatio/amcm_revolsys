@@ -13,6 +13,7 @@ import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.io.FileUtil;
 import com.revolsys.spring.resource.Resource;
+import com.revolsys.util.BaseCloseable;
 
 public class KmzGeometryIterator extends AbstractIterator<Geometry> implements GeometryReader {
 
@@ -32,7 +33,7 @@ public class KmzGeometryIterator extends AbstractIterator<Geometry> implements G
 
   @Override
   protected void closeDo() {
-    FileUtil.closeSilent(this.kmlIterator, this.zipIn);
+    BaseCloseable.closeSilent(this.kmlIterator, this.zipIn);
     this.kmlIterator = null;
     this.zipIn = null;
   }

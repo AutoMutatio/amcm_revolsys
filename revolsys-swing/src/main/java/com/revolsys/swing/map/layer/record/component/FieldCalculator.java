@@ -155,9 +155,7 @@ public class FieldCalculator extends AbstractUpdateField implements DocumentList
     final AbstractRecordLayer layer = getLayer();
     final List<String> fieldNames = layer.getFieldNames();
     final ComboBox<String> fieldNamesField = ComboBox.newComboBox("fieldNames", fieldNames,
-      (final Object name) -> {
-        return layer.getFieldTitle((String)name);
-      });
+      (final Object name) -> layer.getFieldTitle((String)name));
     toolBar.addComponent("fieldName", fieldNamesField);
     toolBar.add(fieldNamesField);
     fieldNamesField.setMaximumSize(new Dimension(250, 30));

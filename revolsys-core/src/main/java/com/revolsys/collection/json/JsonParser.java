@@ -4,9 +4,11 @@ import java.io.BufferedReader;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 import java.sql.Clob;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -18,11 +20,14 @@ import java.util.NoSuchElementException;
 
 import com.revolsys.exception.WrappedRuntimeException;
 import com.revolsys.io.FileUtil;
+import com.revolsys.io.IoUtil;
+import com.revolsys.io.JavaIo;
 import com.revolsys.logging.Logs;
 import com.revolsys.number.Doubles;
 import com.revolsys.number.Integers;
 import com.revolsys.spring.resource.ByteArrayResource;
 import com.revolsys.spring.resource.Resource;
+import com.revolsys.util.BaseCloseable;
 
 public class JsonParser implements Iterator<JsonParser.EventType>, Closeable {
   public enum EventType {
@@ -115,11 +120,7 @@ public class JsonParser implements Iterator<JsonParser.EventType>, Closeable {
 
   @SuppressWarnings("unchecked")
   public static <V> V read(final Object source) {
-    try (
-      final JsonParser parser = newParser(source)) {
-      final V value = (V)read(parser);
-      return value;
-    }
+    return (V)read(JavaIo.createReader(source));
   }
 
   @SuppressWarnings("unchecked")
@@ -166,10 +167,10 @@ public class JsonParser implements Iterator<JsonParser.EventType>, Closeable {
 
   private final Reader reader;
 
-  private Runnable closeAction;
+  Runnable closeAction;
 
   public JsonParser(final InputStream in) {
-    this(FileUtil.newUtf8Reader(in));
+    this(new InputStreamReader(in, StandardCharsets.UTF_8));
   }
 
   public JsonParser(final Reader reader) {
@@ -181,13 +182,14 @@ public class JsonParser implements Iterator<JsonParser.EventType>, Closeable {
     }
   }
 
-  public JsonParser(final Resource resource) {
-    this(resource.newBufferedReader());
+  public JsonParser(final Reader reader, final Runnable closeAction) {
+    this(reader);
+    this.closeAction = closeAction;
   }
 
   @Override
   public void close() {
-    FileUtil.closeSilent(this.reader);
+    BaseCloseable.closeSilent(this.reader);
     if (this.closeAction != null) {
       this.closeAction.run();
     }
@@ -203,11 +205,11 @@ public class JsonParser implements Iterator<JsonParser.EventType>, Closeable {
           event = (EventType)value;
           if (event == EventType.comma) {
             throw new IllegalStateException(
-              "Missing value before ',' " + FileUtil.getString(this.reader, 80));
+              "Missing value before ',' " + IoUtil.getString(this.reader, 80));
           } else if (event == EventType.endArray) {
             if (!list.isEmpty()) {
               throw new IllegalStateException(
-                "Missing value after ',' and before ']' " + FileUtil.getString(this.reader, 80));
+                "Missing value after ',' and before ']' " + IoUtil.getString(this.reader, 80));
             }
           }
         } else {
@@ -666,6 +668,6 @@ public class JsonParser implements Iterator<JsonParser.EventType>, Closeable {
   @Override
   public String toString() {
     return this.currentEvent + " : " + this.currentValue + " "
-      + Character.toString((char)this.currentCharacter) + FileUtil.getString(this.reader, 80);
+      + Character.toString((char)this.currentCharacter) + IoUtil.getString(this.reader, 80);
   }
 }

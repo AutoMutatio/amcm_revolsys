@@ -8,7 +8,6 @@ import com.revolsys.collection.map.MapEx;
 import com.revolsys.data.type.DataTypedValue;
 import com.revolsys.exception.Exceptions;
 import com.revolsys.util.BaseCloneable;
-import com.revolsys.util.JavaBeanUtil;
 
 public interface JsonType extends DataTypedValue, Jsonable, BaseCloneable {
 
@@ -31,9 +30,9 @@ public interface JsonType extends DataTypedValue, Jsonable, BaseCloneable {
       try {
         final Class<? extends Object> valueClass = value.getClass();
         if (!valueClass.isArray()) {
-          final Method method = valueClass.getMethod("clone", JavaBeanUtil.ARRAY_CLASS_0);
+          final Method method = valueClass.getMethod("clone", BaseCloneable.ARRAY_CLASS_0);
           if (method != null) {
-            return (V)method.invoke(value, JavaBeanUtil.ARRAY_OBJECT_0);
+            return (V)method.invoke(value, BaseCloneable.ARRAY_OBJECT_0);
           }
         }
       } catch (final Throwable e) {

@@ -84,8 +84,9 @@ public class SearchParser {
 
   private SearchTerm processPhrase(final UriTokenizer tokenizer) {
     final String literal = tokenizer.getText();
-    return new SearchTermImpl(
-      literal.substring(1, literal.length() - 1).replace("\\\"", "\"").replace("\\\\", "\\"));
+    return new SearchTermImpl(literal.substring(1, literal.length() - 1)
+      .replace("\\\"", "\"")
+      .replace("\\\\", "\\"));
   }
 
   private SearchExpression processTerm(final UriTokenizer tokenizer) throws SearchParserException {

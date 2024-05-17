@@ -1,7 +1,7 @@
 package com.revolsys.util;
 
+import com.revolsys.collection.value.ValueHolder;
 import com.revolsys.data.type.DataType;
-import com.revolsys.value.ValueHolder;
 
 public final class ThreadValue<T> implements ValueHolder<T> {
   private final ThreadLocal<T> threadValue = new ThreadLocal<>();

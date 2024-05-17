@@ -76,7 +76,8 @@ public class BatchPartHandler {
     if (request.isChangeSet()) {
       return handleChangeSet(request);
     } else {
-      final ODataResponse response = handle(request.getRequests().get(0), false);
+      final ODataResponse response = handle(request.getRequests()
+        .get(0), false);
 
       return new ODataResponsePart(response, false);
     }

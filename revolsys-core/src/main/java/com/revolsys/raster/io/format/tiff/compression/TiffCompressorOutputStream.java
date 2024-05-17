@@ -18,7 +18,7 @@ public abstract class TiffCompressorOutputStream implements TiffCompressor {
     try {
       this.out.close();
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 

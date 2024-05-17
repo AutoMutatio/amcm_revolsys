@@ -4,10 +4,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntityContainer;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntityContainerInfo;
 import org.apache.olingo.commons.api.edm.provider.CsdlEntitySet;
+
+import com.revolsys.io.PathName;
 
 public class ODataEntityContainer extends CsdlEntityContainer {
   public static final String CONTAINER = "Container";
@@ -16,11 +17,11 @@ public class ODataEntityContainer extends CsdlEntityContainer {
 
   private final Map<String, AbstractODataEntitySet> entitySetByName = new TreeMap<>();
 
-  private final FullQualifiedName qualifiedName;
+  private final PathName qualifiedName;
 
-  public ODataEntityContainer(final String namespace) {
+  public ODataEntityContainer(final PathName namespace) {
     setName(CONTAINER);
-    this.qualifiedName = new FullQualifiedName(namespace, getName());
+    this.qualifiedName = namespace.newChild(getName());
     this.entityContainerInfo.setContainerName(this.qualifiedName);
   }
 
@@ -40,7 +41,12 @@ public class ODataEntityContainer extends CsdlEntityContainer {
     return (S)this.entitySetByName.get(name);
   }
 
-  public FullQualifiedName getQualifiedName() {
+  public PathName getQualifiedName() {
     return this.qualifiedName;
+  }
+
+  @Override
+  public String toString() {
+    return this.qualifiedName.toString();
   }
 }

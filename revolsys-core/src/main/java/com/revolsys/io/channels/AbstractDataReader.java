@@ -122,7 +122,7 @@ public abstract class AbstractDataReader extends InputStream implements DataRead
           }
         }
       } catch (final IOException e) {
-        throw Exceptions.wrap(e);
+        throw Exceptions.toRuntimeException(e);
       }
     }
     return remaining;

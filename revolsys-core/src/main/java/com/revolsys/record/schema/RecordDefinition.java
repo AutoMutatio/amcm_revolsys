@@ -14,8 +14,8 @@ import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.ClockDirection;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.geometry.model.GeometryFactoryProxy;
+import com.revolsys.io.MapSerializer;
 import com.revolsys.io.PathName;
-import com.revolsys.io.map.MapSerializer;
 import com.revolsys.jdbc.JdbcUtils;
 import com.revolsys.record.Record;
 import com.revolsys.record.RecordFactory;
@@ -161,7 +161,7 @@ public interface RecordDefinition extends Cloneable, GeometryFactoryProxy, Recor
    * @return The field names.
    */
   @Override
-  List<String> getFieldNames();
+  ListEx<String> getFieldNames();
 
   Set<String> getFieldNamesSet();
 

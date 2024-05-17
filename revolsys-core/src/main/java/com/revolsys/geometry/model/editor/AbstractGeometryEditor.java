@@ -56,7 +56,7 @@ public abstract class AbstractGeometryEditor<GE extends GeometryEditor<?>>
     try {
       return (Geometry)super.clone();
     } catch (final CloneNotSupportedException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 

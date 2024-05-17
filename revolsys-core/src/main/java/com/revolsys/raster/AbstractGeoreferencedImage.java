@@ -34,10 +34,10 @@ import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.geometry.model.Point;
 import com.revolsys.geometry.model.impl.PointDoubleXY;
-import com.revolsys.io.FileUtil;
 import com.revolsys.logging.Logs;
 import com.revolsys.record.io.format.xml.DomUtil;
 import com.revolsys.spring.resource.Resource;
+import com.revolsys.util.BaseCloseable;
 import com.revolsys.util.Property;
 
 public abstract class AbstractGeoreferencedImage extends AbstractPropertyChangeSupportProxy
@@ -331,7 +331,7 @@ public abstract class AbstractGeoreferencedImage extends AbstractPropertyChangeS
             setTiePoints(tiePoints);
           }
         } finally {
-          FileUtil.closeSilent(in);
+          BaseCloseable.closeSilent(in);
         }
 
       } catch (final Throwable e) {
@@ -481,7 +481,7 @@ public abstract class AbstractGeoreferencedImage extends AbstractPropertyChangeS
     try {
       final Resource resource = this.imageResource;
       final Resource rgResource = resource.newResourceAddExtension("rgobject");
-      this.writeToFile(rgResource);
+      writeToFile(rgResource);
       setHasChanges(false);
       return true;
     } catch (final Throwable e) {

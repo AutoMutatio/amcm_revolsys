@@ -20,7 +20,6 @@ package org.apache.olingo.server.core;
 
 import org.apache.olingo.commons.api.http.HttpHeader;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
-import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ODataRequest;
 import org.apache.olingo.server.api.ODataResponse;
 import org.apache.olingo.server.api.ServiceMetadata;
@@ -28,7 +27,7 @@ import org.apache.olingo.server.api.ServiceMetadata;
 public class DefaultRedirectProcessor implements RedirectProcessor {
 
   @Override
-  public void init(final OData odata, final ServiceMetadata serviceMetadata) {
+  public void init(final ServiceMetadata serviceMetadata) {
     // No init needed
   }
 

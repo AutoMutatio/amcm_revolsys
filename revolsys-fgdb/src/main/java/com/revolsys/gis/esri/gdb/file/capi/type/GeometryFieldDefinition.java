@@ -167,7 +167,7 @@ public class GeometryFieldDefinition extends AbstractFileGdbFieldDefinition {
             this.writeFunction.accept(out, projectedGeometry);
             bytes = byteOut.toByteArray();
           } catch (final IOException e) {
-            throw Exceptions.wrap(e);
+            throw Exceptions.toRuntimeException(e);
           }
         }
         synchronized (row) {

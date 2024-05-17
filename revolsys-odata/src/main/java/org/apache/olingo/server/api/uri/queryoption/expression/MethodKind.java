@@ -66,7 +66,8 @@ public enum MethodKind {
   public static MethodKind get(final String method) {
     for (final MethodKind op : MethodKind.values()) {
 
-      if (op.toString().equals(method)) {
+      if (op.toString()
+        .equals(method)) {
         return op;
       }
     }

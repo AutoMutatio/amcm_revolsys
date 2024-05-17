@@ -35,7 +35,7 @@ import com.revolsys.collection.map.MapEx;
 import com.revolsys.collection.map.Maps;
 import com.revolsys.comparator.StringNumberComparator;
 import com.revolsys.data.type.DataTypes;
-import com.revolsys.io.map.MapSerializer;
+import com.revolsys.io.MapSerializer;
 import com.revolsys.record.query.Condition;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.swing.Icons;
@@ -140,7 +140,7 @@ public class RecordLayerTablePanel extends TablePanel
     setPluginConfig(pluginConfig);
     layer.setPluginConfig(AbstractLayer.PLUGIN_TABLE_VIEW, this);
     Property.addListener(layer, this);
-    this.viewportListener = (e) -> {
+    this.viewportListener = e -> {
       if (this.tableModel != null && this.tableModel.isFilterByBoundingBox()) {
         this.tableModel.refresh();
       }
@@ -368,7 +368,7 @@ public class RecordLayerTablePanel extends TablePanel
       () -> actionExportRecords(false));
 
     this.fieldSetsButton = toolBar.addButtonTitleIcon("table", "Field Sets", "fields_filter",
-      () -> actionShowFieldSetsMenu());
+      this::actionShowFieldSetsMenu);
 
     this.fieldFilterPanel = new FieldFilterPanel(this, this.tableModel, pluginConfig);
     if (this.fieldFilterPanel.isVisible()) {
@@ -385,7 +385,7 @@ public class RecordLayerTablePanel extends TablePanel
       final EnableCheck hasFilterHistory = new ObjectPropertyEnableCheck(this.tableModel,
         "hasFilterHistory");
       toolBar.addButton("search", ConsumerAction.action("Search History",
-        Icons.getIconWithBadge("book", "filter"), hasFilterHistory, (event) -> {
+        Icons.getIconWithBadge("book", "filter"), hasFilterHistory, event -> {
           final Object source = event.getSource();
           Component component = null;
           if (source instanceof Component) {
@@ -401,7 +401,7 @@ public class RecordLayerTablePanel extends TablePanel
     }
 
     final ToggleButton showCodeValues = toolBar.addRadioButton("view", -1, null, "Show Code Values",
-      Icons.getIcon("field_code"), null, (event) -> {
+      Icons.getIcon("field_code"), null, event -> {
         final JToggleButton toggleButton = (JToggleButton)event.getSource();
         final boolean showDisplayValues = toggleButton.isSelected();
         table.setShowDisplayValues(showDisplayValues);
@@ -443,14 +443,11 @@ public class RecordLayerTablePanel extends TablePanel
 
   private void newToolBarEditRecordMenu(final ToolBar toolBar) {
     final Supplier<AbstractRecordLayer> layerSupplier = () -> this.layer;
-    final Function<AbstractRecordLayer, Integer> recordCountFunction = (layer) -> {
-      return getTableModel().getRowCount();
+    final Function<AbstractRecordLayer, Integer> recordCountFunction = layer -> getTableModel().getRowCount();
+    final Function<AbstractRecordLayer, Consumer<Consumer<LayerRecord>>> forEachRecordFunction = layer -> (action) -> {
+      final RecordLayerTableModel tableModel = getTableModel();
+      tableModel.forEachRecord(action);
     };
-    final Function<AbstractRecordLayer, Consumer<Consumer<LayerRecord>>> forEachRecordFunction = (
-      layer) -> (action) -> {
-        final RecordLayerTableModel tableModel = getTableModel();
-        tableModel.forEachRecord(action);
-      };
     final EditRecordMenu editRecordMenu = new EditRecordMenu("Record Operations", layerSupplier,
       recordCountFunction, forEachRecordFunction);
 

@@ -65,6 +65,8 @@ public final class ContentType {
 
   public static final ContentType APPLICATION_JSON = new ContentType(APPLICATION, "json", null);
 
+  public static final ContentType TEXT_CSV = new ContentType(TEXT, "csv", null);
+
   public static final ContentType JSON = create(ContentType.APPLICATION_JSON,
     PARAMETER_ODATA_METADATA, VALUE_ODATA_METADATA_MINIMAL);
 
@@ -258,7 +260,8 @@ public final class ContentType {
 
     // parameter checks
     if (this.parameters.size() == other.parameters.size()) {
-      final Iterator<Entry<String, String>> otherEntries = other.parameters.entrySet().iterator();
+      final Iterator<Entry<String, String>> otherEntries = other.parameters.entrySet()
+        .iterator();
       for (final Entry<String, String> e : this.parameters.entrySet()) {
         final Entry<String, String> oe = otherEntries.next();
         if (!areEqual(e.getKey(), oe.getKey()) || !areEqual(e.getValue(), oe.getValue())) {
@@ -323,7 +326,9 @@ public final class ContentType {
   public String toContentTypeString() {
     final StringBuilder sb = new StringBuilder();
 
-    sb.append(this.type).append(TypeUtil.TYPE_SUBTYPE_SEPARATOR).append(this.subtype);
+    sb.append(this.type)
+      .append(TypeUtil.TYPE_SUBTYPE_SEPARATOR)
+      .append(this.subtype);
 
     for (final Entry<String, String> entry : this.parameters.entrySet()) {
       sb.append(TypeUtil.PARAMETER_SEPARATOR)

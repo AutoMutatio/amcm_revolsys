@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.FileFilter;
 import java.util.regex.Pattern;
 
-import com.revolsys.io.FileUtil;
+import com.revolsys.io.IoUtil;
 
 /**
  * The PatternFileNameFilter is a {@link FileFilter} that only returns files if they
@@ -43,7 +43,7 @@ public class PatternFileFilter implements FileFilter {
    */
   @Override
   public boolean accept(final File file) {
-    String fileName = FileUtil.getFileName(file);
+    String fileName = IoUtil.getFileName(file);
     if (this.ignoreCase) {
       fileName = fileName.toUpperCase();
     }

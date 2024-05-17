@@ -173,7 +173,7 @@ public class ChannelWriter extends AbstractChannelWriter implements BaseCloseabl
         try {
           channel.close();
         } catch (final IOException e) {
-          throw Exceptions.wrap(e);
+          throw Exceptions.toRuntimeException(e);
         }
       }
     }
@@ -189,7 +189,7 @@ public class ChannelWriter extends AbstractChannelWriter implements BaseCloseabl
       try {
         return channel.position() + this.buffer.position();
       } catch (final IOException e) {
-        throw Exceptions.wrap(e);
+        throw Exceptions.toRuntimeException(e);
       }
     }
     return -1;
@@ -207,7 +207,7 @@ public class ChannelWriter extends AbstractChannelWriter implements BaseCloseabl
         throw new IllegalArgumentException("Not supported");
       }
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 
@@ -221,7 +221,7 @@ public class ChannelWriter extends AbstractChannelWriter implements BaseCloseabl
         throw new IllegalArgumentException("Not supported");
       }
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 
@@ -245,7 +245,7 @@ public class ChannelWriter extends AbstractChannelWriter implements BaseCloseabl
         this.available = this.capacity;
       }
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 }

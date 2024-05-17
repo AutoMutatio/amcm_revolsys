@@ -65,7 +65,7 @@ public class KmlRecordWriter extends AbstractRecordWriter implements Kml22Consta
       this.writer.write("</kml>\n");
       this.writer.close();
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 
@@ -74,7 +74,7 @@ public class KmlRecordWriter extends AbstractRecordWriter implements Kml22Consta
     try {
       this.writer.flush();
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 
@@ -93,7 +93,7 @@ public class KmlRecordWriter extends AbstractRecordWriter implements Kml22Consta
       try {
         writeHeader();
       } catch (final IOException e) {
-        throw Exceptions.wrap(e);
+        throw Exceptions.toRuntimeException(e);
       }
     }
   }
@@ -254,7 +254,7 @@ public class KmlRecordWriter extends AbstractRecordWriter implements Kml22Consta
       }
       this.writer.write("</Placemark>\n");
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 
@@ -334,7 +334,7 @@ public class KmlRecordWriter extends AbstractRecordWriter implements Kml22Consta
       this.writer.write("</range>\n");
       this.writer.write("</LookAt>\n");
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 

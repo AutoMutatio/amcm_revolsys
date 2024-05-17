@@ -27,17 +27,13 @@ public class AzureTableSasRequestBuilderFactory extends HttpRequestBuilderFactor
     this.tokenRefesh = tokenRefesh;
   }
 
-  void applyToken(final AzureTableSasRequestBuilder builder) {
+  @Override
+  public void preBuild(final HttpRequestBuilder requestBuilder) {
     if (this.token == null || this.token.isExpired()) {
       this.token = this.tokenRefesh.get();
     }
     if (this.token != null) {
-      this.token.applyTo(builder);
+      this.token.applyTo(requestBuilder);
     }
-  }
-
-  @Override
-  public AzureTableSasRequestBuilder newRequestBuilder() {
-    return new AzureTableSasRequestBuilder(this);
   }
 }

@@ -30,14 +30,14 @@ import org.apache.olingo.commons.api.edm.EdmType;
 import org.apache.olingo.commons.api.edm.constants.EdmTypeKind;
 import org.apache.olingo.commons.api.http.HttpMethod;
 import org.apache.olingo.server.api.uri.UriInfo;
-import org.apache.olingo.server.api.uri.UriResource;
-import org.apache.olingo.server.api.uri.UriResourceAction;
-import org.apache.olingo.server.api.uri.UriResourceFunction;
 import org.apache.olingo.server.api.uri.UriResourceKind;
-import org.apache.olingo.server.api.uri.UriResourcePartTyped;
-import org.apache.olingo.server.api.uri.UriResourceProperty;
 import org.apache.olingo.server.api.uri.queryoption.SystemQueryOption;
 import org.apache.olingo.server.api.uri.queryoption.SystemQueryOptionKind;
+import org.apache.olingo.server.core.uri.UriResource;
+import org.apache.olingo.server.core.uri.UriResourceAction;
+import org.apache.olingo.server.core.uri.UriResourceFunction;
+import org.apache.olingo.server.core.uri.UriResourcePartTyped;
+import org.apache.olingo.server.core.uri.UriResourceProperty;
 
 public class UriValidator {
 
@@ -169,7 +169,8 @@ public class UriValidator {
       break;
       default:
         throw new UriValidationException("Unsupported uriInfo kind: " + uriInfo.getKind(),
-          UriValidationException.MessageKeys.UNSUPPORTED_URI_KIND, uriInfo.getKind().toString());
+          UriValidationException.MessageKeys.UNSUPPORTED_URI_KIND, uriInfo.getKind()
+            .toString());
     }
 
     return uriType;
@@ -177,12 +178,14 @@ public class UriValidator {
 
   private UriType getUriTypeForAction(final UriResource lastPathSegment)
     throws UriValidationException {
-    final EdmReturnType rt = ((UriResourceAction)lastPathSegment).getAction().getReturnType();
+    final EdmReturnType rt = ((UriResourceAction)lastPathSegment).getAction()
+      .getReturnType();
     if (rt == null) {
       return UriType.none;
     }
     UriType uriType;
-    switch (rt.getType().getKind()) {
+    switch (rt.getType()
+      .getKind()) {
       case ENTITY:
         uriType = rt.isCollection() ? UriType.entitySet : UriType.entity;
       break;
@@ -196,10 +199,11 @@ public class UriValidator {
         uriType = rt.isCollection() ? UriType.propertyComplexCollection : UriType.propertyComplex;
       break;
       default:
-        throw new UriValidationException(
-          "Unsupported action return type: " + rt.getType().getKind(),
-          UriValidationException.MessageKeys.UNSUPPORTED_ACTION_RETURN_TYPE,
-          rt.getType().getKind().toString());
+        throw new UriValidationException("Unsupported action return type: " + rt.getType()
+          .getKind(), UriValidationException.MessageKeys.UNSUPPORTED_ACTION_RETURN_TYPE,
+          rt.getType()
+            .getKind()
+            .toString());
     }
     return uriType;
   }
@@ -227,7 +231,8 @@ public class UriValidator {
       case function:
         final UriResourceFunction uriFunction = (UriResourceFunction)secondLastPathSegment;
         final EdmFunction function = uriFunction.getFunction();
-        final EdmType returnType = function.getReturnType().getType();
+        final EdmType returnType = function.getReturnType()
+          .getType();
         switch (returnType.getKind()) {
           case ENTITY:
             uriType = UriType.entitySetCount;
@@ -243,7 +248,8 @@ public class UriValidator {
           default:
             throw new UriValidationException("Unsupported return type: " + returnType.getKind(),
               UriValidationException.MessageKeys.UNSUPPORTED_FUNCTION_RETURN_TYPE,
-              returnType.getKind().toString());
+              returnType.getKind()
+                .toString());
         }
       break;
       default:
@@ -265,7 +271,10 @@ public class UriValidator {
     throws UriValidationException {
     final UriResourceFunction uriFunction = (UriResourceFunction)lastPathSegment;
     final boolean isCollection = uriFunction.isCollection();
-    final EdmTypeKind typeKind = uriFunction.getFunction().getReturnType().getType().getKind();
+    final EdmTypeKind typeKind = uriFunction.getFunction()
+      .getReturnType()
+      .getType()
+      .getKind();
     UriType uriType;
     switch (typeKind) {
       case ENTITY:
@@ -341,7 +350,8 @@ public class UriValidator {
         throw new UriValidationException(
           "Unsupported uriResource kind: " + lastPathSegment.getKind(),
           UriValidationException.MessageKeys.UNSUPPORTED_URI_RESOURCE_KIND,
-          lastPathSegment.getKind().toString());
+          lastPathSegment.getKind()
+            .toString());
     }
 
     return uriType;
@@ -362,9 +372,9 @@ public class UriValidator {
       case function:
         final UriResourceFunction uriFunction = (UriResourceFunction)secondLastPathSegment;
         final EdmFunction function = uriFunction.getFunction();
-        uriType = function.getReturnType().getType().getKind() == EdmTypeKind.ENTITY
-          ? UriType.mediaStream
-          : UriType.propertyPrimitiveValue;
+        uriType = function.getReturnType()
+          .getType()
+          .getKind() == EdmTypeKind.ENTITY ? UriType.mediaStream : UriType.propertyPrimitiveValue;
       break;
       default:
         throw new UriValidationException(
@@ -378,7 +388,8 @@ public class UriValidator {
   private boolean isAction(final UriInfo uriInfo) {
     final List<UriResource> uriResourceParts = uriInfo.getUriResourceParts();
     return !uriResourceParts.isEmpty()
-      && UriResourceKind.action == uriResourceParts.get(uriResourceParts.size() - 1).getKind();
+      && UriResourceKind.action == uriResourceParts.get(uriResourceParts.size() - 1)
+        .getKind();
   }
 
   private boolean isCollection(final UriResource pathSegment) throws UriValidationException {
@@ -429,7 +440,8 @@ public class UriValidator {
     } else if (!options.isEmpty() && !checkIfSelectOrExpand(options, httpMethod)) {
       final StringBuilder optionsString = new StringBuilder();
       for (final SystemQueryOption option : options) {
-        optionsString.append(option.getName()).append(' ');
+        optionsString.append(option.getName())
+          .append(' ');
       }
       throw new UriValidationException(
         "System query option(s) " + optionsString.toString() + "not allowed for method "

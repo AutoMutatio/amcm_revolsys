@@ -42,7 +42,7 @@ import org.springframework.util.StringUtils;
 import com.revolsys.collection.json.JsonObject;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryFactory;
-import com.revolsys.io.map.MapSerializer;
+import com.revolsys.io.MapSerializer;
 import com.revolsys.util.Property;
 
 import junit.framework.Test;

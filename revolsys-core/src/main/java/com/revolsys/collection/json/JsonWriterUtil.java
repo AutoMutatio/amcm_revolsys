@@ -76,7 +76,7 @@ public final class JsonWriterUtil {
         appendable.append('"');
       }
     } catch (final Exception e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 
@@ -125,7 +125,7 @@ public final class JsonWriterUtil {
         appendText(appendable, value);
       }
     } catch (final Exception e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 

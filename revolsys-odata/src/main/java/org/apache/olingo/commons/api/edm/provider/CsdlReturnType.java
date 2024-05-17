@@ -21,8 +21,9 @@ package org.apache.olingo.commons.api.edm.provider;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.olingo.commons.api.edm.FullQualifiedName;
-import org.apache.olingo.commons.api.edm.geo.SRID;
+import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
+
+import com.revolsys.io.PathName;
 
 /**
  * The type Csdl return type.
@@ -42,7 +43,7 @@ public class CsdlReturnType implements CsdlAbstractEdmItem, CsdlAnnotatable {
 
   private Integer scale;
 
-  private SRID srid;
+  private int srid;
 
   private List<CsdlAnnotation> annotations = new ArrayList<>();
 
@@ -83,7 +84,7 @@ public class CsdlReturnType implements CsdlAbstractEdmItem, CsdlAnnotatable {
    *
    * @return the srid
    */
-  public SRID getSrid() {
+  public int getSrid() {
     return this.srid;
   }
 
@@ -101,8 +102,8 @@ public class CsdlReturnType implements CsdlAbstractEdmItem, CsdlAnnotatable {
    *
    * @return the type fQN
    */
-  public FullQualifiedName getTypeFQN() {
-    return new FullQualifiedName(this.type);
+  public PathName getTypeFQN() {
+    return PathName.fromDotSeparated(this.type);
   }
 
   /**
@@ -195,8 +196,14 @@ public class CsdlReturnType implements CsdlAbstractEdmItem, CsdlAnnotatable {
    * @param srid the srid
    * @return the srid
    */
-  public CsdlReturnType setSrid(final SRID srid) {
+  public CsdlReturnType setSrid(final int srid) {
     this.srid = srid;
+    return this;
+  }
+
+  public CsdlReturnType setType(final EdmPrimitiveTypeKind type) {
+    this.type = type.getPathName()
+      .toString();
     return this;
   }
 
@@ -206,8 +213,8 @@ public class CsdlReturnType implements CsdlAbstractEdmItem, CsdlAnnotatable {
    * @param type the type
    * @return the type
    */
-  public CsdlReturnType setType(final FullQualifiedName type) {
-    this.type = type.getFullQualifiedNameAsString();
+  public CsdlReturnType setType(final PathName type) {
+    this.type = type.toDotSeparated();
     return this;
   }
 
@@ -220,5 +227,10 @@ public class CsdlReturnType implements CsdlAbstractEdmItem, CsdlAnnotatable {
   public CsdlReturnType setType(final String type) {
     this.type = type;
     return this;
+  }
+
+  @Override
+  public String toString() {
+    return this.type;
   }
 }

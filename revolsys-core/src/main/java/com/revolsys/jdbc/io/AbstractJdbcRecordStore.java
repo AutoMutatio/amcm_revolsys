@@ -23,11 +23,8 @@ import javax.sql.DataSource;
 
 import jakarta.annotation.PreDestroy;
 
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
-import com.revolsys.collection.ResultPager;
 import com.revolsys.collection.map.Maps;
 import com.revolsys.data.identifier.Identifier;
 import com.revolsys.data.type.DataType;
@@ -36,6 +33,7 @@ import com.revolsys.exception.Exceptions;
 import com.revolsys.io.PathName;
 import com.revolsys.io.PathUtil;
 import com.revolsys.jdbc.JdbcConnection;
+import com.revolsys.jdbc.JdbcDataSource;
 import com.revolsys.jdbc.field.JdbcFieldAdder;
 import com.revolsys.jdbc.field.JdbcFieldDefinition;
 import com.revolsys.jdbc.field.JdbcFieldFactory;
@@ -46,10 +44,8 @@ import com.revolsys.record.Record;
 import com.revolsys.record.RecordFactory;
 import com.revolsys.record.RecordState;
 import com.revolsys.record.code.AbstractMultiValueCodeTable;
-import com.revolsys.record.io.RecordIterator;
 import com.revolsys.record.io.RecordReader;
 import com.revolsys.record.io.RecordStoreExtension;
-import com.revolsys.record.io.RecordStoreQueryReader;
 import com.revolsys.record.io.RecordWriter;
 import com.revolsys.record.property.GlobalIdProperty;
 import com.revolsys.record.query.ColumnIndexes;
@@ -57,6 +53,8 @@ import com.revolsys.record.query.DeleteStatement;
 import com.revolsys.record.query.Q;
 import com.revolsys.record.query.Query;
 import com.revolsys.record.query.QueryValue;
+import com.revolsys.record.query.SqlAppendable;
+import com.revolsys.record.query.StringBuilderSqlAppendable;
 import com.revolsys.record.query.TableReference;
 import com.revolsys.record.query.UpdateStatement;
 import com.revolsys.record.schema.AbstractRecordStore;
@@ -68,7 +66,6 @@ import com.revolsys.record.schema.RecordStore;
 import com.revolsys.record.schema.RecordStoreSchema;
 import com.revolsys.record.schema.RecordStoreSchemaElement;
 import com.revolsys.transaction.Transaction;
-import com.revolsys.transaction.TransactionOptions;
 import com.revolsys.util.Booleans;
 import com.revolsys.util.Property;
 
@@ -88,7 +85,7 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
 
   private JdbcDatabaseFactory databaseFactory;
 
-  private DataSource dataSource;
+  private JdbcDataSource dataSource;
 
   private final Object exceptionWriterKey = new Object();
 
@@ -113,8 +110,6 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
   private String sqlPrefix;
 
   private String sqlSuffix;
-
-  private DataSourceTransactionManager transactionManager;
 
   private boolean usesSchema = true;
 
@@ -222,24 +217,40 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
     }
   }
 
+  private void appendIdEquals(final SqlAppendable sqlBuffer, final List<FieldDefinition> idFields) {
+    boolean first = true;
+    for (final FieldDefinition idField : idFields) {
+      if (first) {
+        first = false;
+      } else {
+        sqlBuffer.append(" AND ");
+      }
+      idField.appendColumnName(sqlBuffer, false);
+      sqlBuffer.append(" = ");
+      ((JdbcFieldDefinition)idField).addStatementPlaceHolder(sqlBuffer);
+    }
+  }
+
   @Override
   @PreDestroy
-  public synchronized void close() {
-    try {
-      super.close();
-      if (this.databaseFactory != null && this.dataSource != null) {
-        JdbcDatabaseFactory.closeDataSource(this.dataSource);
+  public void close() {
+    try (
+      var l = this.lock.lockX()) {
+      try {
+        super.close();
+        if (this.databaseFactory != null && this.dataSource != null) {
+          JdbcDatabaseFactory.closeDataSource(this.dataSource);
+        }
+      } finally {
+        this.allSchemaNames.clear();
+        this.fieldDefinitionAdders.clear();
+        this.databaseFactory = null;
+        this.dataSource = null;
+        this.excludeTablePatterns.clear();
+        this.sequenceTypeSqlMap.clear();
+        this.sqlPrefix = null;
+        this.sqlSuffix = null;
       }
-    } finally {
-      this.allSchemaNames.clear();
-      this.fieldDefinitionAdders.clear();
-      this.transactionManager = null;
-      this.databaseFactory = null;
-      this.dataSource = null;
-      this.excludeTablePatterns.clear();
-      this.sequenceTypeSqlMap.clear();
-      this.sqlPrefix = null;
-      this.sqlSuffix = null;
     }
   }
 
@@ -252,30 +263,22 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
 
   @Override
   public int deleteRecords(final DeleteStatement delete) {
-
     final String sql = delete.toSql();
-    try (
-      Transaction transaction = newTransaction(com.revolsys.transaction.Propagation.REQUIRED)) {
-      // It's important to have this in an inner try. Otherwise the exceptions
-      // won't get caught on closing the writer and the transaction won't get
-      // rolled back.
+    return transactionCall(() -> {
       try (
-        JdbcConnection connection = getJdbcConnection(isAutoCommit());
-        final PreparedStatement statement = connection.prepareStatement(sql)) {
-
-        delete.appendParameters(1, statement);
-        return statement.executeUpdate();
-      } catch (final SQLException e) {
-        transaction.setRollbackOnly();
-        throw new RuntimeException("Unable to delete : " + sql, e);
-      } catch (final RuntimeException e) {
-        transaction.setRollbackOnly();
-        throw e;
-      } catch (final Error e) {
-        transaction.setRollbackOnly();
-        throw e;
+        JdbcConnection connection = getJdbcConnection()) {
+        // It's important to have this in an inner try. Otherwise the exceptions
+        // won't get caught on closing the writer and the transaction won't get
+        // rolled back.
+        try (
+          final PreparedStatement statement = connection.prepareStatement(sql)) {
+          delete.appendParameters(1, statement);
+          return statement.executeUpdate();
+        } catch (final SQLException e) {
+          throw connection.getException("delete", sql, e);
+        }
       }
-    }
+    });
   }
 
   @Override
@@ -294,26 +297,35 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
       }
     }
     final String sql = query.newDeleteSql();
-    try (
-      Transaction transaction = newTransaction(com.revolsys.transaction.Propagation.REQUIRED)) {
-      // It's important to have this in an inner try. Otherwise the exceptions
-      // won't get caught on closing the writer and the transaction won't get
-      // rolled back.
+    return transactionCall(() -> {
       try (
-        JdbcConnection connection = getJdbcConnection(isAutoCommit());
-        final PreparedStatement statement = connection.prepareStatement(sql)) {
+        JdbcConnection connection = getJdbcConnection()) {
+        // It's important to have this in an inner try. Otherwise the exceptions
+        // won't get caught on closing the writer and the transaction won't get
+        // rolled back.
+        try (
+          final PreparedStatement statement = connection.prepareStatement(sql)) {
 
-        query.appendParameters(1, statement);
-        return statement.executeUpdate();
-      } catch (final SQLException e) {
-        transaction.setRollbackOnly();
-        throw new RuntimeException("Unable to delete : " + sql, e);
-      } catch (final RuntimeException e) {
-        transaction.setRollbackOnly();
-        throw e;
-      } catch (final Error e) {
-        transaction.setRollbackOnly();
-        throw e;
+          query.appendParameters(1, statement);
+          return statement.executeUpdate();
+        } catch (final SQLException e) {
+          throw connection.getException("delete", sql, e);
+        }
+      }
+    });
+  }
+
+  void executeInsert(final RecordDefinition recordDefinition, final PreparedStatement statement,
+    final Record record) throws SQLException {
+    try {
+      executeUpdate(statement);
+    } catch (final SQLException e) {
+      throw e;
+    }
+    try (
+      final ResultSet generatedKeyResultSet = statement.getGeneratedKeys()) {
+      if (generatedKeyResultSet.next()) {
+        setGeneratedValues(recordDefinition, generatedKeyResultSet, record);
       }
     }
   }
@@ -356,7 +368,8 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
     return schemaNames;
   }
 
-  protected DataSource getDataSource() {
+  @Override
+  public JdbcDataSource getDataSource() {
     return this.dataSource;
   }
 
@@ -399,18 +412,97 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
     }
   }
 
-  @Override
-  public JdbcConnection getJdbcConnection() {
-    return new JdbcConnection(this.dataSource);
+  String getInsertSql(final JdbcRecordDefinition recordDefinition,
+    final boolean generatePrimaryKey) {
+    final String tableName = recordDefinition.getDbTableQualifiedName();
+    final boolean hasRowIdField = isIdFieldRowid(recordDefinition);
+    final StringBuilderSqlAppendable sqlBuffer = SqlAppendable.stringBuilder();
+    if (this.sqlPrefix != null) {
+      sqlBuffer.append(this.sqlPrefix);
+    }
+    sqlBuffer.append("insert ");
+
+    sqlBuffer.append(" into ");
+    sqlBuffer.append(tableName);
+    sqlBuffer.append(" (");
+    boolean first = true;
+    for (final FieldDefinition fieldDefinition : recordDefinition.getFields()) {
+      final JdbcFieldDefinition jdbcField = (JdbcFieldDefinition)fieldDefinition;
+      if (!jdbcField.isGenerated()) {
+        if (!(hasRowIdField && fieldDefinition.isIdField())) {
+          if (first) {
+            first = false;
+          } else {
+            sqlBuffer.append(',');
+          }
+          fieldDefinition.appendColumnName(sqlBuffer, false);
+        }
+      }
+    }
+
+    sqlBuffer.append(") VALUES (");
+    first = true;
+    for (final FieldDefinition fieldDefinition : recordDefinition.getFields()) {
+      final JdbcFieldDefinition jdbcField = (JdbcFieldDefinition)fieldDefinition;
+      if (!jdbcField.isGenerated()) {
+        final boolean idField = fieldDefinition.isIdField();
+        if (!(hasRowIdField && idField)) {
+          if (first) {
+            first = false;
+          } else {
+            sqlBuffer.append(',');
+          }
+          if (idField && generatePrimaryKey) {
+            final String primaryKeySql = getGeneratePrimaryKeySql(recordDefinition);
+            sqlBuffer.append(primaryKeySql);
+          } else {
+            jdbcField.addInsertStatementPlaceHolder(sqlBuffer, generatePrimaryKey);
+          }
+        }
+      }
+    }
+    sqlBuffer.append(")");
+    if (this.sqlSuffix != null) {
+      sqlBuffer.append(this.sqlSuffix);
+    }
+    return sqlBuffer.toSqlString();
   }
 
   @Override
-  public JdbcConnection getJdbcConnection(final boolean autoCommit) {
-    return new JdbcConnection(this.dataSource, autoCommit);
+  public JdbcConnection getJdbcConnection() {
+    try {
+      return this.dataSource.getConnection(this::initConnection);
+    } catch (final SQLException e) {
+      throw getException("connection", null, e);
+    }
   }
 
   protected Identifier getNextPrimaryKey(final String typePath) {
     return null;
+  }
+
+  public Record getNextRecord(final RecordDefinition recordDefinition,
+    final List<QueryValue> expressions, final RecordFactory<Record> recordFactory,
+    final ResultSet resultSet) {
+    final Record record = recordFactory.newRecord(recordDefinition);
+    if (record != null) {
+      record.setState(RecordState.INITIALIZING);
+      final ColumnIndexes indexes = new ColumnIndexes();
+      int fieldIndex = 0;
+      for (final QueryValue expression : expressions) {
+        try {
+          final Object value = expression.getValueFromResultSet(recordDefinition, resultSet,
+            indexes, false);
+          record.setValue(fieldIndex, value);
+          fieldIndex++;
+        } catch (final SQLException e) {
+          throw new RuntimeException(
+            "Unable to get value " + indexes.columnIndex + " from result set", e);
+        }
+      }
+      record.setState(RecordState.PERSISTED);
+    }
+    return record;
   }
 
   @Override
@@ -423,35 +515,37 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
       query.setSql(null);
       query.clearOrderBy();
       final String sql;
-      if (query.isDistinct() || !query.getGroupBy().isEmpty()) {
+      if (query.isDistinct() || !query.getGroupBy()
+        .isEmpty()) {
         sql = "select count(mainquery.*) from (" + query.getSelectSql() + ") mainquery";
       } else {
         query.setSelect(Q.sql("count(*)"));
         sql = query.getSelectSql();
       }
-      try (
-        Transaction transaction = newTransaction(TransactionOptions.REQUIRED);
-        JdbcConnection connection = getJdbcConnection()) {
+      final Query query1 = query;
+      return transactionCall(() -> {
         try (
-          final PreparedStatement statement = connection.prepareStatement(sql)) {
-          final Query query1 = query;
-          query1.appendParameters(1, statement);
+          JdbcConnection connection = getJdbcConnection()) {
           try (
-            final ResultSet resultSet = statement.executeQuery()) {
-            if (resultSet.next()) {
-              final int rowCount = resultSet.getInt(1);
-              return rowCount;
-            } else {
-              return 0;
+            final PreparedStatement statement = connection.prepareStatement(sql)) {
+            query1.appendParameters(1, statement);
+            try (
+              final ResultSet resultSet = statement.executeQuery()) {
+              if (resultSet.next()) {
+                final int rowCount = resultSet.getInt(1);
+                return rowCount;
+              } else {
+                return 0;
+              }
             }
+          } catch (final SQLException e) {
+            throw connection.getException("getRecordCount", sql, e);
+          } catch (final IllegalArgumentException e) {
+            Logs.error(this, "Cannot get row count: " + query1, e);
+            return 0;
           }
-        } catch (final SQLException e) {
-          throw connection.getException("getRecordCount", sql, e);
-        } catch (final IllegalArgumentException e) {
-          Logs.error(this, "Cannot get row count: " + query, e);
-          return 0;
         }
-      }
+      });
     }
   }
 
@@ -532,11 +626,15 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
 
   @Override
   public RecordReader getRecords(final Query query) {
-    return newIterator(query, null);
+    return new JdbcQueryIterator(this, query);
   }
 
   public String getSchemaTablePermissionsSql() {
     return this.schemaTablePermissionsSql;
+  }
+
+  protected String getSelectSql(final Query query) {
+    return query.getSelectSql();
   }
 
   protected String getSequenceName(final JdbcRecordDefinition recordDefinition) {
@@ -551,9 +649,51 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
     return this.sqlSuffix;
   }
 
-  @Override
-  public PlatformTransactionManager getTransactionManager() {
-    return this.transactionManager;
+  String getUpdateSql(final JdbcRecordDefinition recordDefinition) {
+    final String sqlPrefix = this.sqlPrefix;
+    final String sqlSuffix = this.sqlSuffix;
+    final List<FieldDefinition> idFields = recordDefinition.getIdFields();
+    if (idFields.isEmpty()) {
+      throw new RuntimeException("No primary key found for: " + recordDefinition);
+    } else {
+      final String tableName = recordDefinition.getDbTableQualifiedName();
+      final StringBuilderSqlAppendable sqlBuffer = SqlAppendable.stringBuilder();
+      if (sqlPrefix != null) {
+        sqlBuffer.append(sqlPrefix);
+      }
+      sqlBuffer.append("update ");
+
+      sqlBuffer.append(tableName);
+      sqlBuffer.append(" set ");
+      boolean first = true;
+      for (final FieldDefinition fieldDefinition : recordDefinition.getFields()) {
+        if (!idFields.contains(fieldDefinition)) {
+          final JdbcFieldDefinition jdbcFieldDefinition = (JdbcFieldDefinition)fieldDefinition;
+          if (!jdbcFieldDefinition.isGenerated()) {
+            if (first) {
+              first = false;
+            } else {
+              sqlBuffer.append(", ");
+            }
+            jdbcFieldDefinition.appendColumnName(sqlBuffer, false);
+            sqlBuffer.append(" = ");
+            jdbcFieldDefinition.addInsertStatementPlaceHolder(sqlBuffer, false);
+          }
+        }
+      }
+      sqlBuffer.append(" where ");
+      appendIdEquals(sqlBuffer, idFields);
+
+      sqlBuffer.append(" ");
+      if (sqlSuffix != null) {
+        sqlBuffer.append(sqlSuffix);
+      }
+      return sqlBuffer.toSqlString();
+
+    }
+  }
+
+  protected void initConnection(final Connection connection) {
   }
 
   @Override
@@ -562,26 +702,37 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
   }
 
   @Override
-  public void initializeDo() {
-    super.initializeDo();
-    if (this.dataSource != null) {
-      this.transactionManager = new DataSourceTransactionManager(this.dataSource);
-    }
-  }
-
-  @Override
   protected void initializePost() {
-    try (
-      Transaction transaction = newTransaction(TransactionOptions.REQUIRES_NEW_READONLY);
-      JdbcConnection connection = getJdbcConnection()) {
-      // Get a connection to test that the database works
-    }
+    transactionRun(() -> {
+      try (
+        JdbcConnection connection = getJdbcConnection()) {
+        // Get a connection to test that the database works
+      }
+    });
   }
 
   @Override
   public Record insertRecord(final Record record) {
-    write(record, RecordState.NEW);
-    return record;
+    return transactionCall(() -> {
+      try (
+        JdbcConnection connection = getJdbcConnection()) {
+        final JdbcRecordDefinition recordDefinition = getRecordDefinition(record);
+        final String sql = getInsertSql(recordDefinition, false);
+        final PreparedStatement statement = prepareInsertStatement(connection, recordDefinition,
+          recordDefinition.isHasGeneratedFields(), sql);
+
+        int parameterIndex = 1;
+        for (final FieldDefinition fieldDefinition : recordDefinition.getFields()) {
+          final JdbcFieldDefinition jdbcField = (JdbcFieldDefinition)fieldDefinition;
+          if (!jdbcField.isGenerated()) {
+            parameterIndex = jdbcField.setInsertPreparedStatementValue(statement, parameterIndex,
+              record);
+          }
+        }
+        executeInsert(recordDefinition, statement, record);
+        return record;
+      }
+    });
   }
 
   @Override
@@ -658,35 +809,39 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
     return this.useUpperCaseNames;
   }
 
-  protected synchronized Map<String, List<String>> loadIdFieldNames(final Connection connection,
+  protected Map<String, List<String>> loadIdFieldNames(final Connection connection,
     final String dbSchemaName) {
-    final String schemaName = "/" + toUpperIfNeeded(dbSchemaName);
-    final Map<String, List<String>> idFieldNames = new HashMap<>();
-    if (Property.hasValue(this.primaryKeySql)) {
-      try {
-        try (
-          final PreparedStatement statement = connection.prepareStatement(this.primaryKeySql);) {
-          if (this.primaryKeySql.indexOf('?') != -1) {
-            statement.setString(1, dbSchemaName);
-          }
+    try (
+      var l = this.lock.lockX()) {
+      final String schemaName = "/" + toUpperIfNeeded(dbSchemaName);
+      final Map<String, List<String>> idFieldNames = new HashMap<>();
+      if (Property.hasValue(this.primaryKeySql)) {
+        try {
           try (
-            final ResultSet rs = statement.executeQuery()) {
-            while (rs.next()) {
-              final String tableName = toUpperIfNeeded(rs.getString("TABLE_NAME"));
-              final String idFieldName = rs.getString("COLUMN_NAME");
-              if (Property.hasValue(dbSchemaName)) {
-                Maps.addToList(idFieldNames, schemaName + "/" + tableName, idFieldName);
-              } else {
-                Maps.addToList(idFieldNames, "/" + tableName, idFieldName);
+            final PreparedStatement statement = connection.prepareStatement(this.primaryKeySql);) {
+            if (this.primaryKeySql.indexOf('?') != -1) {
+              statement.setString(1, dbSchemaName);
+            }
+            try (
+              final ResultSet rs = statement.executeQuery()) {
+              while (rs.next()) {
+                final String tableName = toUpperIfNeeded(rs.getString("TABLE_NAME"));
+                final String idFieldName = rs.getString("COLUMN_NAME");
+                if (Property.hasValue(dbSchemaName)) {
+                  Maps.addToList(idFieldNames, schemaName + "/" + tableName, idFieldName);
+                } else {
+                  Maps.addToList(idFieldNames, "/" + tableName, idFieldName);
+                }
               }
             }
           }
+        } catch (final Throwable e) {
+          throw new IllegalArgumentException("Unable to primary keys for schema " + dbSchemaName,
+            e);
         }
-      } catch (final Throwable e) {
-        throw new IllegalArgumentException("Unable to primary keys for schema " + dbSchemaName, e);
       }
+      return idFieldNames;
     }
-    return idFieldNames;
   }
 
   protected Map<PathName, JdbcRecordDefinition> loadRecordDefinitionsPermissions(
@@ -748,11 +903,6 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
     }
   }
 
-  @Override
-  public RecordIterator newIterator(final Query query, final Map<String, Object> properties) {
-    return new JdbcQueryIterator(this, query, properties);
-  }
-
   protected Identifier newPrimaryIdentifier(final JdbcRecordDefinition recordDefinition) {
     final GlobalIdProperty globalIdProperty = GlobalIdProperty.getProperty(recordDefinition);
     if (globalIdProperty == null) {
@@ -765,7 +915,8 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
         return null;
       }
     } else {
-      return Identifier.newIdentifier(UUID.randomUUID().toString());
+      return Identifier.newIdentifier(UUID.randomUUID()
+        .toString());
     }
   }
 
@@ -778,12 +929,6 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
   protected JdbcRecordDefinition newRecordDefinition(final JdbcRecordStoreSchema schema,
     final PathName pathName, final String dbTableName) {
     return new JdbcRecordDefinition(schema, pathName, dbTableName);
-  }
-
-  protected RecordStoreQueryReader newRecordReader(final Query query) {
-    final RecordStoreQueryReader reader = newRecordReader();
-    reader.addQuery(query);
-    return reader;
   }
 
   @Override
@@ -829,7 +974,18 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
 
   protected JdbcRecordWriter newRecordWriter(final RecordDefinitionProxy recordDefinition,
     final int batchSize) {
-    final JdbcRecordWriter writer = new JdbcRecordWriter(this, recordDefinition, batchSize);
+    Transaction.assertInTransaction();
+    final JdbcConnection connection = getJdbcConnection();
+    final DataSource dataSource = getDataSource();
+    if (dataSource != null) {
+      try {
+        connection.setAutoCommit(false);
+      } catch (final SQLException e) {
+        throw new RuntimeException("Unable to create connection", e);
+      }
+    }
+    final JdbcRecordWriter writer = new JdbcRecordWriter(this, recordDefinition, batchSize,
+      connection);
     writer.setSqlPrefix(this.sqlPrefix);
     writer.setSqlSuffix(this.sqlSuffix);
     writer.setLabel(getLabel());
@@ -844,9 +1000,9 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
   }
 
   /**
-   * Create the field definition for the row identifier column for tables that don't have a primary key.
-   * @return
-   */
+  * Create the field definition for the row identifier column for tables that don't have a primary key.
+  * @return
+  */
   protected JdbcFieldDefinition newRowIdFieldDefinition() {
     return null;
   }
@@ -856,17 +1012,26 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
     return new JdbcRecordStoreSchema(rootSchema, childSchemaPath, dbSchemaName);
   }
 
-  @Override
-  public ResultPager<Record> page(final Query query) {
-    return new JdbcQueryResultPager(this, getProperties(), query);
-  }
-
   protected void postProcess(final JdbcRecordStoreSchema schema) {
   }
 
   @Override
   public final void postProcess(final RecordStoreSchema schema) {
     postProcess((JdbcRecordStoreSchema)schema);
+  }
+
+  protected PreparedStatement prepareInsertStatement(final JdbcConnection connection,
+    final JdbcRecordDefinition recordDefinition, final boolean returnGeneratedKeys,
+    final String sql) {
+    try {
+      if (returnGeneratedKeys) {
+        return insertStatementPrepareRowId(connection, recordDefinition, sql);
+      } else {
+        return connection.prepareStatement(sql);
+      }
+    } catch (final SQLException e) {
+      throw getException("Prepare Insert SQL", sql, e);
+    }
   }
 
   protected void preProcess(final JdbcRecordStoreSchema schema) {
@@ -886,8 +1051,7 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
     final JdbcRecordStoreSchema jdbcSchema = (JdbcRecordStoreSchema)schema;
     final JdbcRecordStoreSchema rootSchema = getRootSchema();
     final PathName schemaPath = jdbcSchema.getPathName();
-    try (
-      Transaction transaction = newTransaction(TransactionOptions.REQUIRED).setRollbackOnly()) {
+    return transactionCall(() -> {
       if (jdbcSchema == rootSchema) {
         if (this.usesSchema) {
           final Map<PathName, RecordStoreSchemaElement> schemas = new TreeMap<>();
@@ -911,7 +1075,7 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
       } else {
         return refreshSchemaElementsDo(jdbcSchema, schemaPath);
       }
-    }
+    });
   }
 
   protected Map<PathName, ? extends RecordStoreSchemaElement> refreshSchemaElementsDo(
@@ -952,11 +1116,13 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
               if (columnsRs.wasNull()) {
                 scale = -1;
               }
-              final boolean required = !columnsRs.getString("IS_NULLABLE").equals("YES");
+              final boolean required = !columnsRs.getString("IS_NULLABLE")
+                .equals("YES");
               final String description = columnsRs.getString("REMARKS");
               final JdbcFieldDefinition field = addField(recordDefinition, dbColumnName, name,
                 sqlType, dataType, length, scale, required, description);
-              final boolean generated = columnsRs.getString("IS_GENERATEDCOLUMN").equals("YES");
+              final boolean generated = columnsRs.getString("IS_GENERATEDCOLUMN")
+                .equals("YES");
               field.setGenerated(generated);
             }
           }
@@ -997,7 +1163,11 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
   }
 
   public void setDataSource(final DataSource dataSource) {
-    this.dataSource = dataSource;
+    if (dataSource instanceof final JdbcDataSource jdbcDataSource) {
+      this.dataSource = jdbcDataSource;
+    } else {
+      this.dataSource = new JdbcDataSource(dataSource);
+    }
   }
 
   public void setExcludeTablePaths(final Collection<String> excludeTablePaths) {
@@ -1014,6 +1184,34 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
 
   public void setFlushBetweenTypes(final boolean flushBetweenTypes) {
     this.flushBetweenTypes = flushBetweenTypes;
+  }
+
+  protected void setGeneratedValues(final RecordDefinition recordDefinition, final ResultSet rs,
+    final Record record) throws SQLException {
+    final RecordState recordState = record.setState(RecordState.INITIALIZING);
+    try {
+      final ResultSetMetaData metaData = rs.getMetaData();
+      final ColumnIndexes columnIndexes = new ColumnIndexes();
+      for (int i = 1; i <= metaData.getColumnCount(); i++) {
+        final String name = metaData.getColumnName(i);
+        final JdbcFieldDefinition field = (JdbcFieldDefinition)recordDefinition.getField(name);
+        final Object value = field.getValueFromResultSet(recordDefinition, rs, columnIndexes,
+          false);
+        record.setValue(name, value);
+      }
+    } finally {
+      record.setState(recordState);
+    }
+  }
+
+  int setIdEqualsValues(final PreparedStatement statement, int parameterIndex,
+    final JdbcRecordDefinition recordDefinition, final Record record) throws SQLException {
+    for (final FieldDefinition idField : recordDefinition.getIdFields()) {
+      final Object value = record.getValue(idField);
+      parameterIndex = ((JdbcFieldDefinition)idField).setPreparedStatementValue(statement,
+        parameterIndex++, value);
+    }
+    return parameterIndex;
   }
 
   public void setLobAsString(final boolean lobAsString) {
@@ -1068,31 +1266,50 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
   }
 
   @Override
+  public void updateRecord(final Record record) {
+    final JdbcRecordDefinition recordDefinition = getRecordDefinition(record);
+    final String sql = getUpdateSql(recordDefinition);
+    transactionRun(() -> {
+      try (
+        JdbcConnection connection = getJdbcConnection();
+        final PreparedStatement statement = connection.prepareStatement(sql);) {
+
+        int parameterIndex = 1;
+        for (final FieldDefinition fieldDefinition : recordDefinition.getFields()) {
+          if (!fieldDefinition.isIdField()) {
+            final JdbcFieldDefinition jdbcFieldDefinition = (JdbcFieldDefinition)fieldDefinition;
+            if (!jdbcFieldDefinition.isGenerated()) {
+              parameterIndex = jdbcFieldDefinition.setInsertPreparedStatementValue(statement,
+                parameterIndex, record);
+            }
+          }
+        }
+        parameterIndex = setIdEqualsValues(statement, parameterIndex, recordDefinition, record);
+        executeUpdate(statement);
+      }
+    });
+  }
+
+  @Override
   public int updateRecords(final UpdateStatement update) {
 
     final String sql = update.toSql();
-    try (
-      Transaction transaction = newTransaction(com.revolsys.transaction.Propagation.REQUIRED)) {
+    return transactionCall(() -> {
       // It's important to have this in an inner try. Otherwise the exceptions
       // won't get caught on closing the writer and the transaction won't get
       // rolled back.
       try (
-        JdbcConnection connection = getJdbcConnection(isAutoCommit());
-        final PreparedStatement statement = connection.prepareStatement(sql)) {
+        JdbcConnection connection = getJdbcConnection()) {
+        try (
+          final PreparedStatement statement = connection.prepareStatement(sql)) {
 
-        update.appendParameters(1, statement);
-        return statement.executeUpdate();
-      } catch (final SQLException e) {
-        transaction.setRollbackOnly();
-        throw new RuntimeException("Unable to delete : " + sql, e);
-      } catch (final RuntimeException e) {
-        transaction.setRollbackOnly();
-        throw e;
-      } catch (final Error e) {
-        transaction.setRollbackOnly();
-        throw e;
+          update.appendParameters(1, statement);
+          return statement.executeUpdate();
+        } catch (final SQLException e) {
+          throw connection.getException("update", sql, e);
+        }
       }
-    }
+    });
   }
 
 }

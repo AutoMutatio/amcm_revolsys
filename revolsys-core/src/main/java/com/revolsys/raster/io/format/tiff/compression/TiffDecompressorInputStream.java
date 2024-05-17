@@ -27,7 +27,7 @@ public abstract class TiffDecompressorInputStream implements TiffDecompressor {
     try {
       this.in.close();
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 

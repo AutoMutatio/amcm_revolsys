@@ -1,9 +1,13 @@
 package com.revolsys.net.oauth;
 
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Condition;
+
 import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.json.JsonParser;
 import com.revolsys.exception.Exceptions;
 import com.revolsys.net.http.ApacheHttpException;
+import com.revolsys.parallel.ReentrantLockEx;
 
 public class DeviceCodeResponse {
 
@@ -22,6 +26,10 @@ public class DeviceCodeResponse {
   private final String verificationUri;
 
   private final String scope;
+
+  private final ReentrantLockEx lock = new ReentrantLockEx();
+
+  private final Condition lockCondition = this.lock.newCondition();
 
   public DeviceCodeResponse(final OpenIdConnectClient client, final JsonObject response,
     final String scope) {
@@ -53,11 +61,12 @@ public class DeviceCodeResponse {
 
   public OpenIdBearerToken getToken() {
     while (true) {
-      synchronized (this) {
+      try (
+        var l = this.lock.lockX()) {
         try {
-          this.wait(this.interval * 1000);
+          this.lockCondition.await(this.interval, TimeUnit.SECONDS);
         } catch (final InterruptedException e) {
-          Exceptions.throwUncheckedException(e);
+          throw Exceptions.toRuntimeException(e);
         }
       }
       try {

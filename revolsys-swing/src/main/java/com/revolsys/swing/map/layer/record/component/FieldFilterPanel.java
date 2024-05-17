@@ -23,6 +23,7 @@ import org.jdesktop.swingx.JXSearchField;
 
 import com.revolsys.awt.WebColors;
 import com.revolsys.collection.map.MapEx;
+import com.revolsys.collection.value.GlobalBooleanValue;
 import com.revolsys.data.type.DataType;
 import com.revolsys.data.type.DataTypes;
 import com.revolsys.logging.Logs;
@@ -57,7 +58,6 @@ import com.revolsys.swing.parallel.Invoke;
 import com.revolsys.swing.table.TablePanel;
 import com.revolsys.util.BaseCloseable;
 import com.revolsys.util.Property;
-import com.revolsys.value.GlobalBooleanValue;
 
 public class FieldFilterPanel extends JComponent implements PropertyChangeListener {
 

@@ -86,7 +86,7 @@ public class MapService extends ArcGisRestAbstractLayerService {
         if (Exceptions.isException(e, FileNotFoundException.class)) {
           return null;
         } else if (!retry) {
-          throw Exceptions.wrap(e);
+          throw Exceptions.toRuntimeException(e);
         }
       }
       retry = false;
@@ -162,7 +162,7 @@ public class MapService extends ArcGisRestAbstractLayerService {
         if (Exceptions.isException(e, FileNotFoundException.class)) {
           return null;
         } else if (!retry) {
-          throw Exceptions.wrap(e);
+          throw Exceptions.toRuntimeException(e);
         }
       }
       retry = false;

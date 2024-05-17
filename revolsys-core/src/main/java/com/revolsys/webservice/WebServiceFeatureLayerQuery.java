@@ -3,7 +3,6 @@ package com.revolsys.webservice;
 import com.revolsys.record.Record;
 import com.revolsys.record.io.RecordReader;
 import com.revolsys.record.query.Query;
-import com.revolsys.transaction.Transaction;
 
 public class WebServiceFeatureLayerQuery extends Query {
 
@@ -27,11 +26,6 @@ public class WebServiceFeatureLayerQuery extends Query {
   @Override
   public RecordReader getRecordReader() {
     return this.featureLayer.getRecordReader(this);
-  }
-
-  @Override
-  public RecordReader getRecordReader(final Transaction transaction) {
-    return getRecordReader();
   }
 
 }

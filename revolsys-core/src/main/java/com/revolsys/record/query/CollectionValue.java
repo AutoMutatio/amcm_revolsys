@@ -86,7 +86,7 @@ public class CollectionValue extends AbstractMultiQueryValue {
         try {
           index = jdbcField.setPreparedStatementValue(statement, index, value);
         } catch (final SQLException e) {
-          throw Exceptions.wrap(e);
+          throw Exceptions.toRuntimeException(e);
         }
       } else {
         index = queryValue.appendParameters(index, statement);

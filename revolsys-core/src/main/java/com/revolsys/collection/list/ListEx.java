@@ -275,6 +275,7 @@ public interface ListEx<T> extends List<T>, Cloneable, BaseIterable<T> {
     return List.super.parallelStream();
   }
 
+  @Override
   default T removeLast() {
     if (size() > 0) {
       return remove(size() - 1);

@@ -85,7 +85,7 @@ public class TiffCmykImage extends AbstractTiffImage {
         y++;
       }
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 
@@ -131,7 +131,7 @@ public class TiffCmykImage extends AbstractTiffImage {
         y++;
       }
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 }

@@ -5,13 +5,11 @@ import java.util.Locale;
 
 import org.apache.olingo.commons.api.data.ContextURL;
 import org.apache.olingo.commons.api.data.ContextURL.Builder;
-import org.apache.olingo.commons.api.edm.EdmBindingTarget;
 import org.apache.olingo.commons.api.edm.EdmEntitySet;
 import org.apache.olingo.commons.api.edm.EdmEntityType;
 import org.apache.olingo.commons.api.edm.EdmNavigationProperty;
-import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
-import org.apache.olingo.server.api.OData;
+import org.apache.olingo.commons.core.edm.EdmBindingTarget;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.ServiceMetadata;
 import org.apache.olingo.server.api.processor.Processor;
@@ -20,7 +18,6 @@ import com.revolsys.odata.model.ODataEdmProvider;
 import com.revolsys.odata.model.ODataEntityType;
 
 public abstract class AbstractProcessor implements Processor {
-  protected OData odata;
 
   protected final String serviceRoot;
 
@@ -39,8 +36,8 @@ public abstract class AbstractProcessor implements Processor {
   public ODataEntityType getEntityType(final EdmEntitySet edmEntitySet)
     throws ODataApplicationException {
     final EdmEntityType edmEntityType = edmEntitySet.getEntityType();
-    final FullQualifiedName entityTypeName = edmEntityType.getFullQualifiedName();
-    final ODataEntityType entityType = this.provider.getEntityType(entityTypeName);
+    final var entityTypeName = edmEntityType.getPathName();
+    final ODataEntityType entityType = (ODataEntityType)this.provider.getEntityType(entityTypeName);
     if (entityType == null) {
       throw new ODataApplicationException(
         "Entity type " + entityTypeName + " for requested key doesn't exist",
@@ -66,9 +63,12 @@ public abstract class AbstractProcessor implements Processor {
 
   }
 
+  public ODataEdmProvider getProvider() {
+    return this.provider;
+  }
+
   @Override
-  public void init(final OData odata, final ServiceMetadata serviceMetadata) {
-    this.odata = odata;
+  public void init(final ServiceMetadata serviceMetadata) {
     this.serviceMetadata = serviceMetadata;
   }
 

@@ -26,17 +26,11 @@ import com.revolsys.util.BaseCloneable;
 import com.revolsys.util.Property;
 
 public interface Maps {
-  public static final Supplier<Map<?, ?>> FACTORY_TREE = () -> {
-    return new TreeMap<>();
-  };
+  public static final Supplier<Map<?, ?>> FACTORY_TREE = TreeMap::new;
 
-  public static final Supplier<Map<?, ?>> FACTORY_LINKED_HASH = () -> {
-    return new LinkedHashMap<>();
-  };
+  public static final Supplier<Map<?, ?>> FACTORY_LINKED_HASH = LinkedHashMap::new;
 
-  public static final Supplier<Map<?, ?>> FACTORY_HASH = () -> {
-    return new HashMap<>();
-  };
+  public static final Supplier<Map<?, ?>> FACTORY_HASH = HashMap::new;
 
   static <K1, V> boolean addAllToSet(final Map<K1, Set<V>> map, final K1 key1,
     final Collection<? extends V> values) {
@@ -285,7 +279,9 @@ public interface Maps {
 
   static <V> V first(final Map<?, V> map) {
     if (Property.hasValue(map)) {
-      return map.values().iterator().next();
+      return map.values()
+        .iterator()
+        .next();
     }
     return null;
   }
@@ -454,11 +450,15 @@ public interface Maps {
   }
 
   static <K> K getFirstKey(final Map<K, ?> map) {
-    return map.keySet().iterator().next();
+    return map.keySet()
+      .iterator()
+      .next();
   }
 
   static <V> V getFirstValue(final Map<?, V> map) {
-    return map.values().iterator().next();
+    return map.values()
+      .iterator()
+      .next();
   }
 
   static <K> Integer getInteger(final Map<K, ? extends Object> map, final K name) {
@@ -695,6 +695,10 @@ public interface Maps {
     }
   }
 
+  static <K, V> Map<K, V> lazy(final Function<K, V> loadFunction) {
+    return new LazyValueMap<>(loadFunction);
+  }
+
   static <K, V> void mergeCollection(final Map<K, Collection<V>> map,
     final Map<K, Collection<V>> otherMap) {
     for (final Entry<K, Collection<V>> entry : otherMap.entrySet()) {
@@ -835,11 +839,9 @@ public interface Maps {
 
   static <K, V extends Comparable<V>> void putIfGreaterThan(final Map<K, V> map, final K key,
     final V value) {
-    synchronized (map) {
-      final V lastValue = map.get(key);
-      if (lastValue == null || value.compareTo(lastValue) > 1) {
-        map.put(key, value);
-      }
+    final V lastValue = map.get(key);
+    if (lastValue == null || value.compareTo(lastValue) > 1) {
+      map.put(key, value);
     }
   }
 
@@ -885,21 +887,17 @@ public interface Maps {
 
   static <K, V extends Comparable<V>> void removeIfGreaterThanEqual(final Map<K, V> map,
     final K key, final V value) {
-    synchronized (map) {
-      final V lastValue = map.get(key);
-      if (lastValue == null || value.compareTo(lastValue) >= 0) {
-        map.remove(key);
-      }
+    final V lastValue = map.get(key);
+    if (lastValue == null || value.compareTo(lastValue) >= 0) {
+      map.remove(key);
     }
   }
 
   static <K, V extends Comparable<V>> void removeIfLessThanEqual(final Map<K, V> map, final K key,
     final V value) {
-    synchronized (map) {
-      final V lastValue = map.get(key);
-      if (lastValue == null || value.compareTo(lastValue) <= 0) {
-        map.remove(key);
-      }
+    final V lastValue = map.get(key);
+    if (lastValue == null || value.compareTo(lastValue) <= 0) {
+      map.remove(key);
     }
   }
 

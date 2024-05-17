@@ -19,7 +19,7 @@ public class SingleFileSystemTreeNode extends PathTreeNode {
     try {
       this.fileSystem = FileSystems.newFileSystem(path);
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 

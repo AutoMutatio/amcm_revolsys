@@ -76,6 +76,7 @@ import com.revolsys.swing.field.TextArea;
 import com.revolsys.swing.field.TextField;
 import com.revolsys.swing.menu.MenuFactory;
 import com.revolsys.swing.parallel.Invoke;
+import com.revolsys.util.BaseCloseable;
 import com.revolsys.util.CaseConverter;
 import com.revolsys.util.OS;
 import com.revolsys.util.PreferenceKey;
@@ -582,10 +583,10 @@ public interface SwingUtil {
         }
       } catch (final Throwable e) {
       } finally {
-        FileUtil.closeSilent(in);
-        FileUtil.closeSilent(out);
-        FileUtil.closeSilent(err);
-        FileUtil.closeSilent(inr);
+        BaseCloseable.closeSilent(in);
+        BaseCloseable.closeSilent(out);
+        BaseCloseable.closeSilent(err);
+        BaseCloseable.closeSilent(inr);
         if (process != null) {
           process.destroy();
         }

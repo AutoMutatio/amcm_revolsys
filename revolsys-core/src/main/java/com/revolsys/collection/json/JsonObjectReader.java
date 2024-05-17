@@ -2,10 +2,12 @@ package com.revolsys.collection.json;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 
 import com.revolsys.collection.iterator.AbstractReader;
-import com.revolsys.io.FileUtil;
+import com.revolsys.util.BaseCloseable;
 
 public class JsonObjectReader extends AbstractReader<JsonObject> {
   private final java.io.Reader in;
@@ -15,7 +17,7 @@ public class JsonObjectReader extends AbstractReader<JsonObject> {
   private boolean single = false;
 
   public JsonObjectReader(final InputStream in) {
-    this.in = FileUtil.newUtf8Reader(in);
+    this.in = new InputStreamReader(in, StandardCharsets.UTF_8);
   }
 
   public JsonObjectReader(final java.io.Reader in) {
@@ -29,7 +31,7 @@ public class JsonObjectReader extends AbstractReader<JsonObject> {
 
   @Override
   public void close() {
-    FileUtil.closeSilent(this.in);
+    BaseCloseable.closeSilent(this.in);
   }
 
   @Override

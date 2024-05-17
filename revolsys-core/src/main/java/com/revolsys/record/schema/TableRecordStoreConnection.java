@@ -3,8 +3,6 @@ package com.revolsys.record.schema;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import org.springframework.transaction.PlatformTransactionManager;
-
 import com.revolsys.collection.json.JsonObject;
 import com.revolsys.data.identifier.Identifier;
 import com.revolsys.io.PathName;
@@ -35,12 +33,6 @@ public interface TableRecordStoreConnection extends Transactionable, TableRecord
       return getTableRecordStore(pathName);
     }
     return null;
-  }
-
-  @Override
-  default PlatformTransactionManager getTransactionManager() {
-    final RecordStore recordStore = getRecordStore();
-    return recordStore.getTransactionManager();
   }
 
   default Record insertRecord(final Record record) {

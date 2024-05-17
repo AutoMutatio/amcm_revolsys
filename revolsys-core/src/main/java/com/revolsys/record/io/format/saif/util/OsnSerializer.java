@@ -39,7 +39,7 @@ import com.revolsys.data.type.EnumerationDataType;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.LineString;
 import com.revolsys.geometry.model.Point;
-import com.revolsys.io.FileUtil;
+import com.revolsys.io.IoUtil;
 import com.revolsys.logging.Logs;
 import com.revolsys.record.Record;
 import com.revolsys.record.io.format.saif.SaifConstants;
@@ -203,7 +203,7 @@ public class OsnSerializer {
   }
 
   private void openFile() throws IOException {
-    Logs.debug(this, "Creating object subset '" + FileUtil.getFileName(this.file) + "'");
+    Logs.debug(this, "Creating object subset '" + IoUtil.getFileName(this.file) + "'");
     this.out = new BufferedOutputStream(new FileOutputStream(this.file), 4096);
   }
 

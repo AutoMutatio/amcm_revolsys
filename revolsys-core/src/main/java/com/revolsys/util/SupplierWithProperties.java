@@ -6,8 +6,8 @@ import java.util.function.Supplier;
 import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.json.JsonObjectHash;
 import com.revolsys.collection.map.MapEx;
+import com.revolsys.io.MapSerializer;
 import com.revolsys.io.map.MapObjectFactory;
-import com.revolsys.io.map.MapSerializer;
 import com.revolsys.properties.ObjectWithProperties;
 
 public class SupplierWithProperties<T> implements ObjectWithProperties, Supplier<T>, MapSerializer {

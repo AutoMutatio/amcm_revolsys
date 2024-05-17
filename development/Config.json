@@ -1,12 +1,10 @@
 {
-  "protectedBranches":[
-    "main"
-  ],
-  "repositories":[
+  "protectedBranches": ["main"],
+  "repositories": [
     {
       "path": "revolsys",
       "remotes": {
-        "upstream": "revolsys/com.revolsys.open"
+        "origin": "revolsys/com.revolsys.open"
       }
     }
   ]

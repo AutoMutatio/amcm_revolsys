@@ -8,13 +8,9 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import org.apache.olingo.commons.api.edm.EdmPrimitiveTypeKind;
-import org.apache.olingo.commons.api.edm.EdmProperty;
 import org.apache.olingo.commons.api.edm.EdmType;
-import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.core.edm.EdmPropertyImpl;
 import org.apache.olingo.server.api.uri.UriInfoResource;
-import org.apache.olingo.server.api.uri.UriResource;
-import org.apache.olingo.server.api.uri.UriResourcePrimitiveProperty;
 import org.apache.olingo.server.api.uri.queryoption.expression.Alias;
 import org.apache.olingo.server.api.uri.queryoption.expression.Binary;
 import org.apache.olingo.server.api.uri.queryoption.expression.BinaryOperatorKind;
@@ -28,11 +24,14 @@ import org.apache.olingo.server.api.uri.queryoption.expression.MethodKind;
 import org.apache.olingo.server.api.uri.queryoption.expression.TypeLiteral;
 import org.apache.olingo.server.api.uri.queryoption.expression.Unary;
 import org.apache.olingo.server.api.uri.queryoption.expression.UnaryOperatorKind;
+import org.apache.olingo.server.core.uri.UriResource;
+import org.apache.olingo.server.core.uri.UriResourcePrimitiveProperty;
 
 import com.revolsys.record.query.Add;
 import com.revolsys.record.query.And;
 import com.revolsys.record.query.CollectionValue;
 import com.revolsys.record.query.Divide;
+import com.revolsys.record.query.In;
 import com.revolsys.record.query.Mod;
 import com.revolsys.record.query.Multiply;
 import com.revolsys.record.query.Negate;
@@ -62,7 +61,7 @@ public class ODataExpressionHandler {
     BINARY_HANDLERS.put(BinaryOperatorKind.GE, Q.GREATER_THAN_EQUAL);
     BINARY_HANDLERS.put(BinaryOperatorKind.GT, Q.GREATER_THAN);
     // TODO BINARY_HANDLERS.put(BinaryOperatorKind.HAS, Add::new);
-    BINARY_HANDLERS.put(BinaryOperatorKind.IN, Add::new);
+    BINARY_HANDLERS.put(BinaryOperatorKind.IN, In::new);
     BINARY_HANDLERS.put(BinaryOperatorKind.LE, (v1, v2) -> {
       if (v1 instanceof WithinDistance) {
         final WithinDistance wd = (WithinDistance)v1;
@@ -83,13 +82,15 @@ public class ODataExpressionHandler {
     UNARY_HANDLERS.put(UnaryOperatorKind.NOT, Not::new);
 
     // COMPUTE_AGGREGATE("aggregate"), //
-    METHOD_HANDLERS.put(MethodKind.CONTAINS, (args) -> {
+    METHOD_HANDLERS.put(MethodKind.CONTAINS, args -> {
 
       QueryValue left = args.get(0);
       QueryValue right = args.get(1);
       if (left instanceof Upper && right instanceof Upper) {
-        left = left.getQueryValues().get(0);
-        right = right.getQueryValues().get(0);
+        left = left.getQueryValues()
+          .get(0);
+        right = right.getQueryValues()
+          .get(0);
         if (right instanceof Value) {
           final Value value = (Value)right;
           return Q.iLike(left, "%" + value.getValue() + "%");
@@ -99,7 +100,8 @@ public class ODataExpressionHandler {
       } else {
         if (right instanceof Value) {
           final Value value = (Value)right;
-          return Q.like(left, value.getValue().toString());
+          return Q.like(left, value.getValue()
+            .toString());
         } else {
           return Q.like(left, right);
         }
@@ -110,8 +112,8 @@ public class ODataExpressionHandler {
     // LENGTH("length"), //
     // INDEXOF("indexof"), //
     // SUBSTRING("substring"), //
-    METHOD_HANDLERS.put(MethodKind.TOLOWER, (args) -> F.lower(args.get(0)));
-    METHOD_HANDLERS.put(MethodKind.TOUPPER, (args) -> F.upper(args.get(0)));
+    METHOD_HANDLERS.put(MethodKind.TOLOWER, args -> F.lower(args.get(0)));
+    METHOD_HANDLERS.put(MethodKind.TOUPPER, args -> F.upper(args.get(0)));
     // TRIM("trim"), //
     // CONCAT("concat"), //
     // YEAR("year"), //
@@ -131,16 +133,17 @@ public class ODataExpressionHandler {
     // ROUND("round"), //
     // FLOOR("floor"), //
     // CEILING("ceiling"), //
-    METHOD_HANDLERS.put(MethodKind.GEODISTANCE, (values) -> {
+    METHOD_HANDLERS.put(MethodKind.GEODISTANCE, values -> {
       final QueryValue value1 = values.get(0);
       final QueryValue value2 = values.get(1);
       return new WithinDistance(value1, value2, Value.newValue(0));
     });
     // GEOLENGTH("geo.length"), //
-    METHOD_HANDLERS.put(MethodKind.GEOINTERSECTS, (values) -> {
+    METHOD_HANDLERS.put(MethodKind.GEOINTERSECTS, values -> {
       final QueryValue value2 = values.get(1);
       if (value2 instanceof CollectionValue) {
-        final QueryValue newValue = ((CollectionValue)value2).getQueryValues().get(0);
+        final QueryValue newValue = ((CollectionValue)value2).getQueryValues()
+          .get(0);
         values.set(1, newValue);
       }
       return F.envelopeIntersects(values);
@@ -152,21 +155,18 @@ public class ODataExpressionHandler {
 
   public static QueryValue toQueryValue(final TableReference table, final Expression expression) {
     if (expression instanceof Alias) {
-      final Alias alias = (Alias)expression;
       return null;// TODO
-    } else if (expression instanceof Binary) {
-      final Binary binary = (Binary)expression;
+    } else if (expression instanceof final Binary binary) {
       final Expression leftOperand = binary.getLeftOperand();
       final Expression rightOperand = binary.getRightOperand();
       final BinaryOperatorKind operator = binary.getOperator();
       final QueryValue left = toQueryValue(table, leftOperand);
       final QueryValue right = toQueryValue(table, rightOperand);
-      return BINARY_HANDLERS.get(operator).apply(left, right);
+      return BINARY_HANDLERS.get(operator)
+        .apply(left, right);
     } else if (expression instanceof Enumeration) {
-      final Enumeration enumeration = (Enumeration)expression;
       return null;// TODO
     } else if (expression instanceof LambdaRef) {
-      final LambdaRef lambdaRef = (LambdaRef)expression;
       return null;// TODO
     } else if (expression instanceof Literal) {
       final Literal literal = (Literal)expression;
@@ -179,7 +179,7 @@ public class ODataExpressionHandler {
           return Value.newValue(text);
         }
       } else {
-        final FullQualifiedName typeName = literalType.getFullQualifiedName();
+        final var typeName = literalType.getPathName();
         final EdmPrimitiveTypeKind primitiveKind = EdmPrimitiveTypeKind.valueOfFQN(typeName);
         if (primitiveKind != null) {
           if (text.startsWith("'") && text.endsWith("'")) {
@@ -192,19 +192,17 @@ public class ODataExpressionHandler {
         return null;// TODO
 
       }
-    } else if (expression instanceof Member) {
-      final Member member = (Member)expression;
+    } else if (expression instanceof final Member member) {
       final UriInfoResource path = member.getResourcePath();
-      final UriResource uriResource = path.getUriResourceParts().get(0);
-      if (uriResource instanceof UriResourcePrimitiveProperty) {
-        final EdmProperty edmProperty = ((UriResourcePrimitiveProperty)uriResource).getProperty();
-        final String propertyName = edmProperty.getName();
+      final UriResource uriResource = path.getUriResourceParts()
+        .get(0);
+      if (uriResource instanceof final UriResourcePrimitiveProperty primitive) {
+        final String propertyName = primitive.getPropertyName();
         return table.getColumn(propertyName);
       } else {
         return null;// TODO
       }
-    } else if (expression instanceof Method) {
-      final Method method = (Method)expression;
+    } else if (expression instanceof final Method method) {
       final MethodKind methodKind = method.getMethod();
 
       final Function<List<QueryValue>, QueryValue> methodHandler = METHOD_HANDLERS.get(methodKind);
@@ -222,14 +220,13 @@ public class ODataExpressionHandler {
       }
 
     } else if (expression instanceof TypeLiteral) {
-      final TypeLiteral typeLiteral = (TypeLiteral)expression;
       return null; // TODO
-    } else if (expression instanceof Unary) {
-      final Unary unary = (Unary)expression;
+    } else if (expression instanceof final Unary unary) {
       final Expression operand = unary.getOperand();
       final UnaryOperatorKind operator = unary.getOperator();
       final QueryValue value = toQueryValue(table, operand);
-      return UNARY_HANDLERS.get(operator).apply(value);
+      return UNARY_HANDLERS.get(operator)
+        .apply(value);
     } else {
       return null;
     }

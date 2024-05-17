@@ -2,7 +2,7 @@ package com.revolsys.collection.map;
 
 import java.util.Set;
 
-import com.revolsys.io.map.MapSerializer;
+import com.revolsys.io.MapSerializer;
 
 public class MapSerializerMap implements MapEx {
 

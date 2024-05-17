@@ -18,8 +18,6 @@ public abstract class AbstractInOutProcess<I, O> extends AbstractProcess
 
   private int outBufferSize = 0;
 
-  private boolean initialized;
-
   public AbstractInOutProcess() {
   }
 
@@ -67,14 +65,6 @@ public abstract class AbstractInOutProcess<I, O> extends AbstractProcess
     return this.outBufferSize;
   }
 
-  @Override
-  public final synchronized void initialize() {
-    if (!this.initialized) {
-      this.initialized = true;
-      initializeDo();
-    }
-  }
-
   protected void initializeDo() {
   }
 
@@ -103,7 +93,7 @@ public abstract class AbstractInOutProcess<I, O> extends AbstractProcess
     boolean hasError = false;
     try {
       Logs.debug(this, "Start");
-      initialize();
+      initializeDo();
       run(this.in, this.out);
     } catch (final ClosedException e) {
       Logs.debug(this, "Shutdown");

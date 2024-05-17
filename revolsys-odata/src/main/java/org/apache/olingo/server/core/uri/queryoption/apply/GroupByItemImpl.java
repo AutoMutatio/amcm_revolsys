@@ -23,8 +23,8 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.olingo.server.api.uri.UriInfo;
-import org.apache.olingo.server.api.uri.UriResource;
 import org.apache.olingo.server.api.uri.queryoption.apply.GroupByItem;
+import org.apache.olingo.server.core.uri.UriResource;
 
 /**
  * Represents a grouping property.

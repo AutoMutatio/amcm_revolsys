@@ -18,7 +18,7 @@
  */
 package org.apache.olingo.commons.api.ex;
 
-public class ODataException extends Exception {
+public class ODataException extends RuntimeException {
 
   private static final long serialVersionUID = 3057981437954048107L;
 

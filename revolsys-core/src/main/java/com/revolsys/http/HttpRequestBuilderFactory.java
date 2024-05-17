@@ -25,12 +25,16 @@ public class HttpRequestBuilderFactory {
     }
 
     public final Builder parent() {
-      final URI newUri = new UriBuilder(this.uri).removeQuery().removeLastPathSegment().build();
+      final URI newUri = new UriBuilder(this.uri).removeQuery()
+        .removeLastPathSegment()
+        .build();
       return new Builder(this.factory, newUri);
     }
 
     public final Builder child(final String segment) {
-      final URI newUri = new UriBuilder(this.uri).removeQuery().appendPathSegments(segment).build();
+      final URI newUri = new UriBuilder(this.uri).removeQuery()
+        .appendPathSegments(segment)
+        .build();
       return new Builder(this.factory, newUri);
     }
 
@@ -121,7 +125,8 @@ public class HttpRequestBuilderFactory {
   }
 
   public final HttpRequestBuilder create(final HttpMethod method, final URI uri) {
-    return newRequestBuilder().setMethod(method).setUri(uri);
+    return newRequestBuilder().setMethod(method)
+      .setUri(uri);
   }
 
   public final HttpRequestBuilder delete(final String uri) {
@@ -138,16 +143,6 @@ public class HttpRequestBuilderFactory {
 
   public final HttpRequestBuilder get(final URI uri) {
     return create(HttpMethod.GET, uri);
-  }
-
-  public InputStream getInputStream(final String uri) {
-    final HttpRequestBuilder requestBuilder = get(uri);
-    return requestBuilder.newInputStream();
-  }
-
-  public InputStream getInputStream(final URI uri) {
-    final HttpRequestBuilder requestBuilder = get(uri);
-    return requestBuilder.newInputStream();
   }
 
   public final HttpRequestBuilder head(final String uri) {
@@ -172,6 +167,9 @@ public class HttpRequestBuilderFactory {
 
   public final HttpRequestBuilder post(final URI uri) {
     return create(HttpMethod.POST, uri);
+  }
+
+  public void preBuild(final HttpRequestBuilder requestBuilder) {
   }
 
   public final HttpRequestBuilder put(final String uri) {

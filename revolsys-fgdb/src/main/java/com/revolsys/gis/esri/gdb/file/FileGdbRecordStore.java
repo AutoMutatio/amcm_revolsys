@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -31,10 +32,9 @@ import com.revolsys.gis.esri.gdb.file.capi.FileGdbDomainCodeTable;
 import com.revolsys.gis.esri.gdb.file.capi.type.GeometryFieldDefinition;
 import com.revolsys.io.FileUtil;
 import com.revolsys.io.PathName;
+import com.revolsys.io.PathUtil;
 import com.revolsys.io.Writer;
-import com.revolsys.jdbc.JdbcUtils;
 import com.revolsys.logging.Logs;
-import com.revolsys.parallel.SingleThreadExecutor;
 import com.revolsys.record.Record;
 import com.revolsys.record.code.CodeTable;
 import com.revolsys.record.io.format.esri.gdb.xml.model.DEFeatureClass;
@@ -77,10 +77,19 @@ public class FileGdbRecordStore extends AbstractRecordStore {
 
   private static IntHashMap<String> WKT_BY_ID = new IntHashMap<>();
 
-  private static final SingleThreadExecutor TASK_EXECUTOR;
   static {
-    TASK_EXECUTOR = new SingleThreadExecutor("ESRI FGDB Create Thread", new FgdbApiInit());
-    TASK_EXECUTOR.waitForRunning();
+    Thread.ofPlatform()
+      .name("ESRI FGDB Create Thread")
+      .start(() -> {
+        new FgdbApiInit().run();
+        final ReentrantLock l = new ReentrantLock();
+        try {
+          l.newCondition()
+            .await();
+        } catch (final InterruptedException e) {
+          l.unlock();
+        }
+      });
   }
 
   public static SpatialReference getSpatialReference(final GeometryFactory geometryFactory) {
@@ -103,7 +112,8 @@ public class FileGdbRecordStore extends AbstractRecordStore {
   }
 
   public static String toCatalogPath(final PathName path) {
-    return path.getPath().replaceAll("/", "\\\\");
+    return path.getPath()
+      .replaceAll("/", "\\\\");
   }
 
   private PathName defaultSchemaPath = PathName.ROOT;
@@ -124,9 +134,12 @@ public class FileGdbRecordStore extends AbstractRecordStore {
 
   private boolean createAreaField = false;
 
+  private final ThreadLocal<FileGdbWriter> threadWriter = new ThreadLocal<>();
+
   FileGdbRecordStore(final File file) {
     this.fileName = FileUtil.getCanonicalPath(file);
-    setConnectionProperties(JsonObject.hash("url", FileUtil.toUrl(file).toString()));
+    setConnectionProperties(JsonObject.hash("url", FileUtil.toUrl(file)
+      .toString()));
     setCreateMissingRecordStore(true);
     setCreateMissingTables(true);
     addSqlQueryAppender(EnvelopeIntersects.class, this::appendFakeTrue);
@@ -190,7 +203,8 @@ public class FileGdbRecordStore extends AbstractRecordStore {
       sql.append("'");
       if (value != null) {
         final String string = DataTypes.toString(value);
-        sql.append(string.toUpperCase().replaceAll("'", "''"));
+        sql.append(string.toUpperCase()
+          .replaceAll("'", "''"));
       }
       sql.append("'");
     } else {
@@ -275,9 +289,9 @@ public class FileGdbRecordStore extends AbstractRecordStore {
     synchronized (this.geodatabase) {
       try {
         if (!isClosed()) {
-          final Writer<Record> writer = getThreadProperty("writer");
+          final Writer<Record> writer = this.threadWriter.get();
           if (writer != null) {
-            setThreadProperty("writer", null);
+            this.threadWriter.set(null);
             writer.close();
           }
           for (final TableReference table : this.tableByCatalogPath.values()) {
@@ -391,7 +405,7 @@ public class FileGdbRecordStore extends AbstractRecordStore {
         } else {
           final StringBuilderSqlAppendable sql = SqlAppendable.stringBuilder();
           sql.append("SELECT OBJECTID FROM ");
-          sql.append(JdbcUtils.getTableName(typePath.toString()));
+          sql.append(PathUtil.getName(typePath.toString()));
           if (whereClause.length() > 0) {
             sql.append(" WHERE ");
             sql.append(whereClause);
@@ -416,7 +430,7 @@ public class FileGdbRecordStore extends AbstractRecordStore {
         } else {
           final StringBuilderSqlAppendable sql = SqlAppendable.stringBuilder();
           sql.append("SELECT " + geometryField.getName() + " FROM ");
-          sql.append(JdbcUtils.getTableName(typePath.toString()));
+          sql.append(PathUtil.getName(typePath.toString()));
           if (whereClause.length() > 0) {
             sql.append(" WHERE ");
             sql.append(whereClause);
@@ -687,7 +701,6 @@ public class FileGdbRecordStore extends AbstractRecordStore {
     return null;
   }
 
-  @Override
   public FileGdbQueryIterator newIterator(final Query query, final Map<String, Object> properties) {
     PathName pathName = query.getTablePath();
     final RecordDefinition recordDefinition = query.getRecordDefinition();
@@ -713,7 +726,7 @@ public class FileGdbRecordStore extends AbstractRecordStore {
       sql.append("SELECT ");
       query.appendSelect(sql);
       sql.append(" FROM ");
-      sql.append(JdbcUtils.getTableName(catalogPath));
+      sql.append(PathUtil.getName(catalogPath));
       if (whereClause.length() > 0) {
         sql.append(" WHERE ");
         sql.append(whereClause.toString());
@@ -725,7 +738,8 @@ public class FileGdbRecordStore extends AbstractRecordStore {
         if (field instanceof ColumnReference) {
           final ColumnReference column = (ColumnReference)field;
           final String fieldName = column.getAliasName();
-          if (order.isAscending() && fieldName.toString().equals("OBJECTID")) {
+          if (order.isAscending() && fieldName.toString()
+            .equals("OBJECTID")) {
             useOrderBy = false;
           }
         }
@@ -784,18 +798,18 @@ public class FileGdbRecordStore extends AbstractRecordStore {
         } else if (!idFieldName.equals("OBJECTID")) {
           AtomicLong idGenerator = this.idGenerators.get(typePath);
           if (idGenerator == null) {
-            long maxId = 0;
-            for (final Record record : getRecords(typePath)) {
+            final AtomicLong maxId = new AtomicLong();
+            newQuery(typePath).forEachRecord(record -> {
               final Identifier id = record.getIdentifier();
               final Object firstId = id.getValue(0);
               if (firstId instanceof Number) {
                 final Number number = (Number)firstId;
-                if (number.longValue() > maxId) {
-                  maxId = number.longValue();
+                if (number.longValue() > maxId.get()) {
+                  maxId.set(number.longValue());
                 }
               }
-            }
-            idGenerator = new AtomicLong(maxId);
+            });
+            idGenerator = maxId;
             this.idGenerators.put(typePath, idGenerator);
           }
           return Identifier.newIdentifier(idGenerator.incrementAndGet());
@@ -813,10 +827,10 @@ public class FileGdbRecordStore extends AbstractRecordStore {
 
   @Override
   public FileGdbWriter newRecordWriter(final boolean throwExceptions) {
-    FileGdbWriter writer = getThreadProperty("writer");
+    FileGdbWriter writer = this.threadWriter.get();
     if (writer == null || writer.isClosed()) {
       writer = new FileGdbWriter(this);
-      setThreadProperty("writer", writer);
+      this.threadWriter.set(writer);
     }
     return writer;
   }
@@ -941,7 +955,8 @@ public class FileGdbRecordStore extends AbstractRecordStore {
     if (table == null) {
       return null;
     } else {
-      return table.connect().wrap();
+      return table.connect()
+        .wrap();
     }
   }
 

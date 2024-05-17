@@ -22,7 +22,7 @@ import java.net.URI;
 import java.util.List;
 
 public abstract class AbstractEntityCollection extends AbstractODataObject
-  implements Iterable<Entity> {
+  implements Iterable<ODataEntity> {
   public abstract Integer getCount();
 
   public abstract URI getDeltaLink();

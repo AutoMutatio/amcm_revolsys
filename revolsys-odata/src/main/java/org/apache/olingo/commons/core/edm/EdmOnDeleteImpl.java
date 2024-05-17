@@ -32,7 +32,8 @@ public class EdmOnDeleteImpl extends AbstractEdmAnnotatable implements EdmOnDele
 
   @Override
   public String getAction() {
-    return this.csdlOnDelete.getAction().name();
+    return this.csdlOnDelete.getAction()
+      .name();
   }
 
 }

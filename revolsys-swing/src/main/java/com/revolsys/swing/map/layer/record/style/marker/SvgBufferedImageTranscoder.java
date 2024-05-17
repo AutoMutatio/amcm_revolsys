@@ -52,7 +52,7 @@ public class SvgBufferedImageTranscoder extends ImageTranscoder {
       transcode(transcoderInput, null);
       return this.image;
     } catch (final TranscoderException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 

@@ -16,7 +16,6 @@ import org.springframework.dao.DataAccessException;
 import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.io.IoFactory;
-import com.revolsys.jdbc.JdbcUtils;
 import com.revolsys.logging.Logs;
 import com.revolsys.record.io.RecordStoreFactory;
 import com.revolsys.record.schema.FieldDefinition;
@@ -40,11 +39,6 @@ public interface JdbcDatabaseFactory extends RecordStoreFactory {
 
   static List<JdbcDatabaseFactory> databaseFactories() {
     return IoFactory.factories(JdbcDatabaseFactory.class);
-  }
-
-  static JdbcDatabaseFactory databaseFactory(final DataSource dataSource) {
-    final String productName = JdbcUtils.getProductName(dataSource);
-    return databaseFactory(productName);
   }
 
   static JdbcDatabaseFactory databaseFactory(final Map<String, ? extends Object> config) {
@@ -81,12 +75,6 @@ public interface JdbcDatabaseFactory extends RecordStoreFactory {
     config.put("user", username);
     config.put("password", password);
     return dataSource(config);
-  }
-
-  static DataAccessException translateException(final DataSource dataSource, final String task,
-    final String sql, final SQLException exception) {
-    final JdbcDatabaseFactory databaseFactory = databaseFactory(dataSource);
-    return databaseFactory.translateException(task, sql, exception);
   }
 
   @Override

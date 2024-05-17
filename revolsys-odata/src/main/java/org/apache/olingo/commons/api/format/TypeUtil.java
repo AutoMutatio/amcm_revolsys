@@ -72,7 +72,8 @@ final class TypeUtil {
     if (parameter.isEmpty()) {
       throw new IllegalArgumentException("An empty parameter is not allowed.");
     }
-    final String[] keyValue = parameter.strip().split(PARAMETER_KEY_VALUE_SEPARATOR);
+    final String[] keyValue = parameter.strip()
+      .split(PARAMETER_KEY_VALUE_SEPARATOR);
     if (keyValue.length != 2) {
       throw new IllegalArgumentException("Parameter '" + parameter + "' must have exactly one '"
         + PARAMETER_KEY_VALUE_SEPARATOR + "' that separates the name and the value.");
