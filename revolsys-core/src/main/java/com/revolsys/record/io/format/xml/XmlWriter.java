@@ -150,8 +150,10 @@ public class XmlWriter extends Writer {
           default:
             // Reject all other control characters
             if (ch < 32) {
-              throw new IllegalStateException(
-                "character " + Integer.toString(ch) + " is not allowed in output");
+              if (i > index) {
+                out.write(buffer, index, i - index);
+              }
+              index = i + 1;
             }
           break;
         }
@@ -538,7 +540,8 @@ public class XmlWriter extends Writer {
               prefix = "p" + ++this.prefixNum;
             }
             this.namespacePrefixMap.put(namespaceUri, prefix);
-            this.elementStack.getFirst().addFieldDefinedNamespace(namespaceUri);
+            this.elementStack.getFirst()
+              .addFieldDefinedNamespace(namespaceUri);
             writeNamespaceAttribute(namespaceUri, prefix);
           }
         }
