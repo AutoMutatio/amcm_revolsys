@@ -182,11 +182,12 @@ public class JsonWriter implements BaseCloseable {
     value(value);
   }
 
-  public void labelValueNotEmpty(final String key, final Object value) {
+  public JsonWriter labelValueNotEmpty(final String key, final Object value) {
     if (Property.hasValue(value)) {
       label(key);
       value(value);
     }
+    return this;
   }
 
   public void list(final Iterable<?> values) throws IOException {
