@@ -255,7 +255,7 @@ public class JdbcDataSourceImpl extends JdbcDataSource implements BaseCloseable 
 
   private SemaphoreEx poolSizeSemaphore;
 
-  private final AtomicReference<DataSourceStateState> state = new AtomicReference<>(
+  private final AtomicReference<DataSourceStateState>  = new AtomicReference<>(
       DataSourceStateState.NEW);
 
   private final CountDownLatch initLatch = new CountDownLatch(1);
