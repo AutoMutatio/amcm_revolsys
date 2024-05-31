@@ -8,7 +8,7 @@ import java.util.concurrent.locks.Condition;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import com.revolsys.collection.iterator.BaseIterable;
+import com.revolsys.collection.iterator.Iterables;
 import com.revolsys.collection.list.ListEx;
 import com.revolsys.collection.list.Lists;
 import com.revolsys.exception.Exceptions;
@@ -18,6 +18,16 @@ import com.revolsys.util.Cancellable;
 public class StructuredTaskScopeEx<V> extends StructuredTaskScope<V> implements Cancellable {
   @SuppressWarnings("unchecked")
   public static <I> void forEach(final Consumer<I> action, final I... values) {
+    try (var scope = new StructuredTaskScopeEx<Void>()) {
+      scope.fork(value -> {
+        action.accept(value);
+        return null;
+      }, values);
+      scope.join();
+    }
+  }
+
+  public static <I> void forEach(final Consumer<I> action, final Iterable<I> values) {
     try (var scope = new StructuredTaskScopeEx<Void>()) {
       scope.fork(value -> {
         action.accept(value);
@@ -69,13 +79,13 @@ public class StructuredTaskScopeEx<V> extends StructuredTaskScope<V> implements 
     }
   }
 
-  public <U extends V, I> ListEx<Subtask<U>> fork(final Function<I, U> task, final BaseIterable<I> values) {
-    return values.cancellable(this).map(v -> fork(() -> task.apply(v))).toList();
-  }
-
   @SuppressWarnings("unchecked")
   public <U extends V, I> ListEx<Subtask<U>> fork(final Function<I, U> task, final I... values) {
     return Lists.<I>newArray(values).cancellable(this).map(v -> fork(() -> task.apply(v))).toList();
+  }
+
+  public <U extends V, I> ListEx<Subtask<U>> fork(final Function<I, U> task, final Iterable<I> values) {
+    return Iterables.fromIterable(values).cancellable(this).map(v -> fork(() -> task.apply(v))).toList();
   }
 
   public void fork(final int count, final Callable<V> task) {

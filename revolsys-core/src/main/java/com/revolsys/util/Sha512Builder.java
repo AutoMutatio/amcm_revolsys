@@ -16,7 +16,7 @@ public class Sha512Builder {
       final var digest = digester.digest(s.getBytes(StandardCharsets.UTF_8));
       final var chars = new char[length];
       for (int i = 0; i < length; i++) {
-        final var b = digest[i % digest.length];
+        final var b = digest[i % digest.length] & 0xFF;
         final char c = (char) ('a' + b % 26);
         chars[i] = c;
       }

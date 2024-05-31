@@ -36,8 +36,8 @@ public class ODataJsonQueryIterator<V> extends AbstractIterator<V> {
   private int pageCount = 0;
 
   public ODataJsonQueryIterator(final HttpRequestBuilderFactory requestFactory,
-    final HttpRequestBuilder request, final Function<JsonObject, V> converter,
-    final String queryLabel, final int pageLimit) {
+      final HttpRequestBuilder request, final Function<JsonObject, V> converter,
+      final String queryLabel, final int pageLimit) {
     this.requestFactory = requestFactory;
     this.converter = converter;
     this.request = request;
@@ -50,14 +50,21 @@ public class ODataJsonQueryIterator<V> extends AbstractIterator<V> {
     if (json == null) {
       this.nextURI = null;
       this.results = Collections.emptyIterator();
+      return;
     } else {
       if (this.count == -1) {
         this.count = json.getInteger("@odata.count", -1);
 
       }
-      this.nextURI = json.getURI("@odata.nextLink");
+      if (json.hasValue("@odata.nextLink")) {
+        this.nextURI = json.getURI("@odata.nextLink");
+      } else if (json.hasValue("nextLink")) {
+        this.nextURI = json.getURI("nextLink");
+      } else {
+        this.nextURI = null;
+      }
 
-      this.results = json.<JsonObject> getList("value").iterator();
+      this.results = json.<JsonObject>getList("value").iterator();
     }
   }
 
@@ -73,10 +80,9 @@ public class ODataJsonQueryIterator<V> extends AbstractIterator<V> {
     if (this.readCount >= this.limit) {
       throw new NoSuchElementException();
     }
-    final Iterator<JsonObject> results = this.results;
     do {
-      if (results != null && results.hasNext()) {
-        final JsonObject recordJson = results.next();
+      if (this.results != null && this.results.hasNext()) {
+        final JsonObject recordJson = this.results.next();
         this.readCount++;
         return this.converter.apply(recordJson);
       }
@@ -87,7 +93,7 @@ public class ODataJsonQueryIterator<V> extends AbstractIterator<V> {
 
         executeRequest();
       }
-    } while (results != null);
+    } while (this.results != null);
     throw new NoSuchElementException();
   }
 
