@@ -20,20 +20,22 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Executor;
-
-import javax.sql.DataSource;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.springframework.dao.DataAccessException;
 
 public class JdbcConnection implements Connection {
-  private final Connection connection;
+
+  private final AtomicBoolean closed = new AtomicBoolean();
+
+  private Connection connection;
 
   private final JdbcDataSource dataSource;
 
   private final boolean close;
 
-  JdbcConnection(final JdbcDataSource dataSource, final Connection connection,
-    final boolean close) {
+  JdbcConnection(final JdbcDataSource dataSource, final Connection connection, final boolean close)
+    throws SQLException {
     this.dataSource = dataSource;
     this.connection = connection;
     this.close = close;
@@ -52,7 +54,17 @@ public class JdbcConnection implements Connection {
   @Override
   public void close() throws SQLException {
     if (this.close) {
-      this.connection.close();
+      closeInternal();
+    }
+  }
+
+  private void closeInternal() throws SQLException {
+    if (this.closed.compareAndSet(false, true)) {
+      try {
+        preClose();
+      } finally {
+        this.connection = null;
+      }
     }
   }
 
@@ -156,7 +168,7 @@ public class JdbcConnection implements Connection {
     return getConnection().getClientInfo(name);
   }
 
-  public Connection getConnection() throws SQLException {
+  protected Connection getConnection() throws SQLException {
     if (this.connection == null) {
       throw new SQLException("connection is closed", "08003");
     } else {
@@ -164,7 +176,7 @@ public class JdbcConnection implements Connection {
     }
   }
 
-  public DataSource getDataSource() {
+  public JdbcDataSource getDataSource() {
     return this.dataSource;
   }
 
@@ -208,6 +220,10 @@ public class JdbcConnection implements Connection {
     return getConnection().getWarnings();
   }
 
+  public boolean hasConnection() {
+    return this.connection != null;
+  }
+
   @Override
   public boolean isClosed() throws SQLException {
     final Connection connection = this.connection;
@@ -236,6 +252,10 @@ public class JdbcConnection implements Connection {
   @Override
   public String nativeSQL(final String sql) throws SQLException {
     return getConnection().nativeSQL(sql);
+  }
+
+  protected void preClose() throws SQLException {
+    this.connection.close();
   }
 
   @Override

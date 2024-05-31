@@ -13,6 +13,7 @@ import jakarta.annotation.PreDestroy;
 
 import org.springframework.dao.DataAccessException;
 
+import com.revolsys.data.identifier.Identifier;
 import com.revolsys.exception.Exceptions;
 import com.revolsys.io.AbstractRecordWriter;
 import com.revolsys.io.PathName;
@@ -70,8 +71,8 @@ public class JdbcRecordWriter extends AbstractRecordWriter {
   private final Map<JdbcRecordDefinition, LongCounter> typeCountMap = new HashMap<>();
 
   public JdbcRecordWriter(final AbstractJdbcRecordStore recordStore,
-    final RecordDefinitionProxy recordDefinition, final int batchSize,
-    final JdbcConnection connection) {
+      final RecordDefinitionProxy recordDefinition, final int batchSize,
+      final JdbcConnection connection) {
     super(recordDefinition);
     this.recordStore = recordStore;
     this.connection = connection;
@@ -93,7 +94,7 @@ public class JdbcRecordWriter extends AbstractRecordWriter {
       }
       idField.appendColumnName(sqlBuffer, this.quoteColumnNames);
       sqlBuffer.append(" = ");
-      ((JdbcFieldDefinition)idField).addStatementPlaceHolder(sqlBuffer);
+      ((JdbcFieldDefinition) idField).addStatementPlaceHolder(sqlBuffer);
     }
   }
 
@@ -168,8 +169,35 @@ public class JdbcRecordWriter extends AbstractRecordWriter {
     flush();
   }
 
+  public void deleteRecord(final Identifier id) {
+    final JdbcRecordDefinition recordDefinition = (JdbcRecordDefinition) getRecordDefinition();
+    deleteRecord(recordDefinition, id);
+  }
+
+  public void deleteRecord(final JdbcRecordDefinition recordDefinition, final Identifier id) {
+    try {
+      flushIfRequired(recordDefinition);
+      JdbcRecordWriterTypeData data = this.typeDeleteData.get(recordDefinition);
+      if (data == null) {
+        final String sql = getDeleteSql(recordDefinition);
+        try {
+          final PreparedStatement statement = this.connection.prepareStatement(sql);
+          data = new JdbcRecordWriterTypeData(this, recordDefinition, sql, statement, false);
+          this.typeDeleteData.put(recordDefinition, data);
+        } catch (final SQLException e) {
+          this.connection.getException("Prepare Delete SQL", sql, e);
+        }
+      }
+      final PreparedStatement statement = data.getStatement();
+      setIdEqualsValues(statement, 1, recordDefinition, id);
+      data.executeUpdate();
+    } catch (final SQLException e) {
+      throw Exceptions.toRuntimeException(e);
+    }
+  }
+
   private void deleteRecord(final JdbcRecordDefinition recordDefinition, final Record record)
-    throws SQLException {
+      throws SQLException {
     flushIfRequired(recordDefinition);
     JdbcRecordWriterTypeData data = this.typeDeleteData.get(recordDefinition);
     if (data == null) {
@@ -280,7 +308,7 @@ public class JdbcRecordWriter extends AbstractRecordWriter {
   @SuppressWarnings("unchecked")
   @Override
   public <R extends RecordStore> R getRecordStore() {
-    return (R)this.recordStore;
+    return (R) this.recordStore;
   }
 
   public String getSqlPrefix() {
@@ -292,7 +320,7 @@ public class JdbcRecordWriter extends AbstractRecordWriter {
   }
 
   protected void insert(final JdbcRecordDefinition recordDefinition, final Record record)
-    throws SQLException {
+      throws SQLException {
     flushIfRequired(recordDefinition);
 
     GlobalIdProperty.setIdentifier(record);
@@ -320,17 +348,17 @@ public class JdbcRecordWriter extends AbstractRecordWriter {
   }
 
   protected void insert(final Record record, final JdbcRecordDefinition recordDefinition)
-    throws SQLException {
+      throws SQLException {
     final JdbcRecordWriterTypeData data = insertStatementGet(recordDefinition, this.typeInsertData,
-      false, recordDefinition.isHasGeneratedFields());
+        false, recordDefinition.isHasGeneratedFields());
     if (data != null) {
       final PreparedStatement statement = data.getStatement();
       int parameterIndex = 1;
       for (final FieldDefinition fieldDefinition : recordDefinition.getFields()) {
-        final JdbcFieldDefinition jdbcField = (JdbcFieldDefinition)fieldDefinition;
+        final JdbcFieldDefinition jdbcField = (JdbcFieldDefinition) fieldDefinition;
         if (!jdbcField.isGenerated()) {
           parameterIndex = jdbcField.setInsertPreparedStatementValue(statement, parameterIndex,
-            record);
+              record);
         }
       }
       data.insertRecord(record);
@@ -338,9 +366,9 @@ public class JdbcRecordWriter extends AbstractRecordWriter {
   }
 
   private void insertRecordSequence(final Record record,
-    final JdbcRecordDefinition recordDefinition) throws SQLException {
+      final JdbcRecordDefinition recordDefinition) throws SQLException {
     final JdbcRecordWriterTypeData data = insertStatementGet(recordDefinition,
-      this.typeInsertSequenceData, true, true);
+        this.typeInsertSequenceData, true, true);
     if (data != null) {
       final PreparedStatement statement = data.getStatement();
       insertSetValuesNonId(record, recordDefinition, statement);
@@ -349,9 +377,9 @@ public class JdbcRecordWriter extends AbstractRecordWriter {
   }
 
   private void insertRowId(final Record record, final JdbcRecordDefinition recordDefinition)
-    throws SQLException {
+      throws SQLException {
     final JdbcRecordWriterTypeData data = insertStatementGet(recordDefinition,
-      this.typeInsertRowIdData, false, true);
+        this.typeInsertRowIdData, false, true);
     if (data != null) {
       final PreparedStatement statement = data.getStatement();
       insertSetValuesNonId(record, recordDefinition, statement);
@@ -360,28 +388,28 @@ public class JdbcRecordWriter extends AbstractRecordWriter {
   }
 
   private void insertSetValuesNonId(final Record record,
-    final JdbcRecordDefinition recordDefinition, final PreparedStatement statement)
-    throws SQLException {
+      final JdbcRecordDefinition recordDefinition, final PreparedStatement statement)
+      throws SQLException {
     int parameterIndex = 1;
     for (final FieldDefinition fieldDefinition : recordDefinition.getFields()) {
       if (!fieldDefinition.isIdField()) {
-        parameterIndex = ((JdbcFieldDefinition)fieldDefinition)
-          .setInsertPreparedStatementValue(statement, parameterIndex, record);
+        parameterIndex = ((JdbcFieldDefinition) fieldDefinition)
+            .setInsertPreparedStatementValue(statement, parameterIndex, record);
       }
     }
   }
 
   private JdbcRecordWriterTypeData insertStatementGet(final JdbcRecordDefinition recordDefinition,
-    final Map<JdbcRecordDefinition, JdbcRecordWriterTypeData> typeDataMap,
-    final boolean generatePrimaryKey, final boolean returnGeneratedKeys) {
+      final Map<JdbcRecordDefinition, JdbcRecordWriterTypeData> typeDataMap,
+      final boolean generatePrimaryKey, final boolean returnGeneratedKeys) {
 
     JdbcRecordWriterTypeData data = typeDataMap.get(recordDefinition);
     if (data == null) {
       final String sql = this.recordStore.getInsertSql(recordDefinition, generatePrimaryKey);
       final PreparedStatement statement = this.recordStore.prepareInsertStatement(this.connection,
-        recordDefinition, returnGeneratedKeys, sql);
+          recordDefinition, returnGeneratedKeys, sql);
       data = new JdbcRecordWriterTypeData(this, recordDefinition, sql, statement,
-        returnGeneratedKeys);
+          returnGeneratedKeys);
       typeDataMap.put(recordDefinition, data);
     }
     return data;
@@ -404,11 +432,22 @@ public class JdbcRecordWriter extends AbstractRecordWriter {
   }
 
   private int setIdEqualsValues(final PreparedStatement statement, int parameterIndex,
-    final JdbcRecordDefinition recordDefinition, final Record record) throws SQLException {
+      final JdbcRecordDefinition recordDefinition, final Identifier id) throws SQLException {
+    int i = 0;
+    for (final FieldDefinition idField : recordDefinition.getIdFields()) {
+      final Object value = id.getValue(i++);
+      parameterIndex = ((JdbcFieldDefinition) idField).setPreparedStatementValue(statement,
+          parameterIndex++, value);
+    }
+    return parameterIndex;
+  }
+
+  private int setIdEqualsValues(final PreparedStatement statement, int parameterIndex,
+      final JdbcRecordDefinition recordDefinition, final Record record) throws SQLException {
     for (final FieldDefinition idField : recordDefinition.getIdFields()) {
       final Object value = record.getValue(idField);
-      parameterIndex = ((JdbcFieldDefinition)idField).setPreparedStatementValue(statement,
-        parameterIndex++, value);
+      parameterIndex = ((JdbcFieldDefinition) idField).setPreparedStatementValue(statement,
+          parameterIndex++, value);
     }
     return parameterIndex;
   }
@@ -443,7 +482,7 @@ public class JdbcRecordWriter extends AbstractRecordWriter {
   }
 
   private void updateRecord(final JdbcRecordDefinition recordDefinition, final Record record)
-    throws SQLException {
+      throws SQLException {
     flushIfRequired(recordDefinition);
     JdbcRecordWriterTypeData data = this.typeUpdateData.get(recordDefinition);
     if (data == null) {
@@ -460,15 +499,15 @@ public class JdbcRecordWriter extends AbstractRecordWriter {
     int parameterIndex = 1;
     for (final FieldDefinition fieldDefinition : recordDefinition.getFields()) {
       if (!fieldDefinition.isIdField()) {
-        final JdbcFieldDefinition jdbcFieldDefinition = (JdbcFieldDefinition)fieldDefinition;
+        final JdbcFieldDefinition jdbcFieldDefinition = (JdbcFieldDefinition) fieldDefinition;
         if (!jdbcFieldDefinition.isGenerated()) {
           parameterIndex = jdbcFieldDefinition.setInsertPreparedStatementValue(statement,
-            parameterIndex, record);
+              parameterIndex, record);
         }
       }
     }
     parameterIndex = this.recordStore.setIdEqualsValues(statement, parameterIndex, recordDefinition,
-      record);
+        record);
     data.executeUpdate();
     this.recordStore.addStatistic("Update", record);
   }
@@ -486,16 +525,16 @@ public class JdbcRecordWriter extends AbstractRecordWriter {
         switch (state) {
           case NEW:
             insert(recordDefinition, record);
-          break;
+            break;
           case MODIFIED:
             updateRecord(recordDefinition, record);
-          break;
+            break;
           case PERSISTED:
-          // No action required
-          break;
+            // No action required
+            break;
           case DELETED:
             deleteRecord(recordDefinition, record);
-          break;
+            break;
           default:
             throw new IllegalStateException("State not known");
         }
