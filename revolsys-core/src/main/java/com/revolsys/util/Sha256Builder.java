@@ -53,7 +53,8 @@ public class Sha256Builder {
     final var size = Math.min(length, digest.length);
     final var c = new char[size];
     for (int i = 0; i < size; i++) {
-      c[i] = (char)('a' + digest[i] % 26);
+      final var b = digest[i] & 0xFF;
+      c[i] = (char)('a' + b % 26);
     }
     return new String(c);
   }
