@@ -21,7 +21,7 @@ public class OgrVrtWriter {
     try (
       XmlWriter writer = new XmlWriter(new FileWriter(file))) {
       writer.setIndent(true);
-      writer.startDocument("UTF-8", "1.0");
+      writer.startDocument("UTF-8", "1.1");
       writer.startTag("OGRVRTDataSource");
       writer.startTag("OGRVRTLayer");
       final String typeName = recordDefinition.getName();
