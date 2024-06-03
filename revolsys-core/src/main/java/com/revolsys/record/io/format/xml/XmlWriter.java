@@ -126,6 +126,9 @@ public class XmlWriter extends Writer {
       for (int i = 0; i < lastIndex; i++) {
         final char ch = buffer.charAt(index);
         switch (ch) {
+          case 0:
+            escapeString = "";
+          break;
           case '&':
             escapeString = "&amp;";
           break;
@@ -148,12 +151,8 @@ public class XmlWriter extends Writer {
             escapeString = "&#13;";
           break;
           default:
-            // Reject all other control characters
             if (ch < 32) {
-              if (i > index) {
-                out.write(buffer, index, i - index);
-              }
-              index = i + 1;
+              escapeString = "&#x00" + Integer.toHexString(ch) + ";";
             }
           break;
         }
@@ -184,7 +183,7 @@ public class XmlWriter extends Writer {
         final char ch = buffer[i];
         switch (ch) {
           case '0':
-          // Ignore null
+            escapeString = "";
           break;
           case '&':
             escapeString = "&amp;";
@@ -201,7 +200,6 @@ public class XmlWriter extends Writer {
           // Accept these control characters
           break;
           default:
-            // Reject all other control characters
             if (ch < 32) {
               escapeString = "&#x00" + Integer.toHexString(ch) + ";";
             }
@@ -239,6 +237,9 @@ public class XmlWriter extends Writer {
       for (int i = index; i < lastIndex; i++) {
         final char ch = buffer.charAt(i);
         switch (ch) {
+          case 0:
+            escapeString = "";
+          break;
           case '&':
             escapeString = "&amp;";
           break;
@@ -254,10 +255,8 @@ public class XmlWriter extends Writer {
           // Accept these control characters
           break;
           default:
-            // Reject all other control characters
             if (ch < 32) {
-              throw new IllegalStateException(
-                "character " + Integer.toString(ch) + " is not allowed in output");
+              escapeString = "&#x00" + Integer.toHexString(ch) + ";";
             }
           break;
         }
