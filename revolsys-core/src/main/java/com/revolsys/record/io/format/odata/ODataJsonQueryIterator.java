@@ -41,7 +41,9 @@ public class ODataJsonQueryIterator<V> extends AbstractIterator<V> {
     this.requestFactory = requestFactory;
     this.converter = converter;
     this.request = request;
-    this.queryLabel = queryLabel != null ? queryLabel : request.getUri().toString();
+    this.queryLabel = queryLabel != null ? queryLabel
+      : request.getUri()
+        .toString();
     this.pageLimit = pageLimit;
   }
 

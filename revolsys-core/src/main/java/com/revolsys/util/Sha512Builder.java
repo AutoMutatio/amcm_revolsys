@@ -17,7 +17,7 @@ public class Sha512Builder {
       final var chars = new char[length];
       for (int i = 0; i < length; i++) {
         final var b = digest[i % digest.length] & 0xFF;
-        final char c = (char) ('a' + b % 26);
+        final char c = (char)('a' + b % 26);
         chars[i] = c;
       }
       return new String(chars);
@@ -50,7 +50,7 @@ public class Sha512Builder {
 
   public Sha512Builder append(final Object value) {
     if (value instanceof String) {
-      append((String) value);
+      append((String)value);
     } else if (value != null) {
       final String string = DataTypes.toString(value);
       append(string);
@@ -70,7 +70,7 @@ public class Sha512Builder {
     final var size = Math.min(length, digest.length);
     final var c = new char[size];
     for (int i = 0; i < size; i++) {
-      c[i] = (char) ('a' + digest[i] % 26);
+      c[i] = (char)('a' + digest[i] % 26);
     }
     return new String(c);
   }
