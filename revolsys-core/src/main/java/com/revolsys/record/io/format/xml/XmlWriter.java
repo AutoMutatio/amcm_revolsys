@@ -183,6 +183,9 @@ public class XmlWriter extends Writer {
       for (int i = index; i < lastIndex; i++) {
         final char ch = buffer[i];
         switch (ch) {
+          case '0':
+          // Ignore null
+          break;
           case '&':
             escapeString = "&amp;";
           break;
@@ -200,8 +203,7 @@ public class XmlWriter extends Writer {
           default:
             // Reject all other control characters
             if (ch < 32) {
-              throw new IllegalStateException(
-                "character " + Integer.toString(ch) + " is not allowed in output");
+              escapeString = "&#x00" + Integer.toHexString(ch) + ";";
             }
           break;
         }
@@ -1149,7 +1151,7 @@ public class XmlWriter extends Writer {
    * @throws IOException If there was a problem writing the XML Declaration.
    */
   public void startDocument() {
-    startDocument(null, null, null);
+    startDocument(null, "1.1", null);
   }
 
   /**
@@ -1159,7 +1161,7 @@ public class XmlWriter extends Writer {
    * @throws IOException If there was a problem writing the XML Declaration.
    */
   public void startDocument(final String encoding) {
-    startDocument(encoding, null, null);
+    startDocument(encoding, "1.1", null);
   }
 
   /**

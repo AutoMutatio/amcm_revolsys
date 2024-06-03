@@ -163,14 +163,18 @@ public class EsriGeodatabaseXmlRecordWriter extends AbstractRecordWriter
     this.out.text("<metadata xml:lang=\"en\">");
     this.out.text("<Esri>");
     this.out.text("<MetaID>{");
-    this.out.text(UUID.randomUUID().toString().toUpperCase());
+    this.out.text(UUID.randomUUID()
+      .toString()
+      .toUpperCase());
     this.out.text("}</MetaID>");
     this.out.text("<CreaDate>");
     final Instant date = Instant.now();
-    this.out.text(Dates.yyyyMMdd.withZone(ZoneId.systemDefault()).format(date));
+    this.out.text(Dates.yyyyMMdd.withZone(ZoneId.systemDefault())
+      .format(date));
     this.out.text("</CreaDate>");
     this.out.text("<CreaTime>");
-    this.out.text(Dates.HHmmssSS.withZone(ZoneId.systemDefault()).format(date));
+    this.out.text(Dates.HHmmssSS.withZone(ZoneId.systemDefault())
+      .format(date));
     this.out.text("</CreaTime>");
     this.out.text("<SyncOnce>TRUE</SyncOnce>");
     this.out.text("</Esri>");
@@ -314,7 +318,7 @@ public class EsriGeodatabaseXmlRecordWriter extends AbstractRecordWriter
 
   private void writeHeader(final Geometry geometry) {
     this.opened = true;
-    this.out.startDocument("UTF-8", "1.0");
+    this.out.startDocument("UTF-8", "1.1");
     this.out.startTag(WORKSPACE);
     this.out.setPrefix(XsiConstants.PREFIX, XsiConstants.NAMESPACE_URI);
     this.out.setPrefix(XmlConstants.XML_SCHEMA_NAMESPACE_PREFIX,

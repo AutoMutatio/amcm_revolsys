@@ -36,7 +36,7 @@ public class GpxRecordWriter extends AbstractRecordWriter implements GpxAttribut
     super(recordDefinition);
     this.out = new XmlWriter(new BufferedWriter(writer));
     this.out.setIndent(false);
-    this.out.startDocument("UTF-8", "1.0");
+    this.out.startDocument("UTF-8", "1.1");
     startTag(GPX);
     this.out.attribute(VERSION, "1.1");
     this.out.attribute(CREATOR, "Revolution Systems Inc. - GIS");
