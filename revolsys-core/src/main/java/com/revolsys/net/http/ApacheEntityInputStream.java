@@ -12,10 +12,17 @@ public class ApacheEntityInputStream extends DelegatingInputStream {
 
   private final CloseableHttpClient client;
 
+  private HttpEntity entity;
+
   public ApacheEntityInputStream(final CloseableHttpClient client, final HttpEntity entity)
     throws IOException {
     super(entity.getContent());
     this.client = client;
+    this.entity = entity;
+  }
+
+  public long length() {
+    return entity.getContentLength();
   }
 
   @Override
