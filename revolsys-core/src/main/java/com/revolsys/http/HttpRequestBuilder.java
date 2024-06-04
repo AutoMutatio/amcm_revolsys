@@ -710,7 +710,7 @@ public class HttpRequestBuilder {
     }
   }
 
-  public InputStream newInputStream() {
+  public ApacheEntityInputStream newInputStream() {
     // try (
     // var client = newHttpClient()) {
     // final var request = buildJdk();
