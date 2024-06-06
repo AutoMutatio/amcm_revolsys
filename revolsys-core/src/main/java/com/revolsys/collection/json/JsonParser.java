@@ -138,6 +138,15 @@ public class JsonParser implements Iterator<JsonParser.EventType>, Closeable {
             throw new IllegalStateException("Extra content at end of file: " + parser);
           }
           return (V)value;
+        } else if (event == EventType.startArray) {
+          final Object value = parser.getValue();
+          if (value instanceof EventType) {
+            return null;
+          }
+          if (parser.hasNext() && parser.next() != EventType.endDocument) {
+            throw new IllegalStateException("Extra content at end of file: " + parser);
+          }
+          return (V)value;
         }
       }
       return null;
