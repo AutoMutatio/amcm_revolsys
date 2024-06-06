@@ -10,6 +10,8 @@ public class BearerToken {
 
   private long expireTime;
 
+  private long refreshAfterTime;
+
   private String scope;
 
   private String returnedScope;
@@ -62,16 +64,38 @@ public class BearerToken {
 
   public boolean isExpired() {
     final var time = System.currentTimeMillis();
-    return time >= this.expireTime;
+    if (this.refreshAfterTime > 0) {
+      if (time >= this.refreshAfterTime) {
+        return true;
+      }
+    } else {
+      if (time >= this.expireTime) {
+        return true;
+      }
+    }
+    return false;
   }
 
   public boolean isValid() {
     final var time = System.currentTimeMillis();
-    return time < this.expireTime;
+    if (this.refreshAfterTime > 0) {
+      if (time > this.refreshAfterTime) {
+        return false;
+      }
+    } else {
+      if (time > this.expireTime) {
+        return false;
+      }
+    }
+    return true;
   }
 
   protected void setExpireTime(final long expireTime) {
     this.expireTime = expireTime;
+  }
+
+  public void setRefreshAfterTime(final long refreshAfterTime) {
+    this.refreshAfterTime = refreshAfterTime;
   }
 
   public void setScope(final String scope, final String returnedScope) {

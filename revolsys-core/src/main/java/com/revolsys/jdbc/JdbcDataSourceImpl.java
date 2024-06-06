@@ -41,14 +41,17 @@ public class JdbcDataSourceImpl extends JdbcDataSource implements BaseCloseable 
   private class ConnectionEntry {
     private static final AtomicInteger INDEX = new AtomicInteger();
 
-    private final AtomicReference<ConnectionEntryState> state = new AtomicReference<>(
-      ConnectionEntryState.IDLE);
-
     private Connection connection;
+
+    private final long expiryMillis = System.currentTimeMillis()
+      + JdbcDataSourceImpl.this.maxAgeMillis;
 
     private final int index = INDEX.incrementAndGet();
 
     private Instant returnedInstant = Instant.EPOCH;
+
+    private final AtomicReference<ConnectionEntryState> state = new AtomicReference<>(
+      ConnectionEntryState.IDLE);
 
     private ConnectionEntry(final Connection connection) {
       this.connection = connection;
@@ -93,6 +96,14 @@ public class JdbcDataSourceImpl extends JdbcDataSource implements BaseCloseable 
       return this.state.get() == ConnectionEntryState.CLOSED;
     }
 
+    public boolean isExpired(final long time) {
+      if (time > this.expiryMillis) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+
     private void release() throws SQLException {
       if (this.state.compareAndSet(ConnectionEntryState.ACQUIRED, ConnectionEntryState.IDLE)) {
         this.returnedInstant = Instant.now();
@@ -116,7 +127,8 @@ public class JdbcDataSourceImpl extends JdbcDataSource implements BaseCloseable 
         } finally {
           final int maxIdle = getMaxIdle();
           final var dataSource = JdbcDataSourceImpl.this;
-          if (isClosed() || maxIdle > -1 && maxIdle <= dataSource.idleCount.get()) {
+          if (isClosed() || maxIdle > -1 && maxIdle <= dataSource.idleCount.get()
+            || isExpired(this.returnedInstant.toEpochMilli())) {
             close();
           } else if (!isClosed()) {
             dataSource.idleCount.incrementAndGet();
@@ -249,6 +261,10 @@ public class JdbcDataSourceImpl extends JdbcDataSource implements BaseCloseable 
 
   private Duration minEvictableIdle;
 
+  private Duration maxAge = Duration.ofHours(1);
+
+  private long maxAgeMillis = this.maxAge.toMillis();
+
   private int evictDelaySeconds;
 
   private Future<?> evictor;
@@ -305,19 +321,24 @@ public class JdbcDataSourceImpl extends JdbcDataSource implements BaseCloseable 
   }
 
   private void evict() {
+    final long time = System.currentTimeMillis();
     int count = 0;
     final var iterator = this.idleConnections.iterator();
     while (iterator.hasNext() && count++ < this.numTestsPerEvictionRun && !isClosed()) {
       final var entry = iterator.next();
-      final int idleCount = this.idleCount.get();
-      final Duration idleDuration = entry.getIdleDuration();
-      final var idleSoftEvict = getIdleSoftEvictDuration();
-      final var idleEvict = getIdleEvictDuration();
-      if (idleSoftEvict.compareTo(idleDuration) < 0 && getMinIdle() < idleCount
-        || idleEvict.compareTo(idleDuration) < 0) {
+      if (entry.isExpired(time)) {
         removeEntry(entry);
-      } else if (entry.isClosed()) {
-        removeEntry(entry);
+      } else {
+        final int idleCount = this.idleCount.get();
+        final Duration idleDuration = entry.getIdleDuration();
+        final var idleSoftEvict = getIdleSoftEvictDuration();
+        final var idleEvict = getIdleEvictDuration();
+        if (idleSoftEvict.compareTo(idleDuration) < 0 && getMinIdle() < idleCount
+          || idleEvict.compareTo(idleDuration) < 0) {
+          removeEntry(entry);
+        } else if (entry.isClosed()) {
+          removeEntry(entry);
+        }
       }
     }
   }
@@ -576,11 +597,18 @@ public class JdbcDataSourceImpl extends JdbcDataSource implements BaseCloseable 
   }
 
   private ConnectionEntry nextEntry() {
-    final ConnectionEntry entry = this.idleConnections.pollFirst();
-    if (entry != null) {
-      this.idleCount.decrementAndGet();
+    final long time = System.currentTimeMillis();
+    while (true) {
+      final ConnectionEntry entry = this.idleConnections.pollFirst();
+      if (entry == null) {
+        return null;
+      } else if (entry.isExpired(time)) {
+        removeEntry(entry);
+      } else {
+        this.idleCount.decrementAndGet();
+        return entry;
+      }
     }
-    return entry;
   }
 
   private void removeEntry(final ConnectionEntry entry) {
@@ -646,6 +674,12 @@ public class JdbcDataSourceImpl extends JdbcDataSource implements BaseCloseable 
   @Override
   public void setLogWriter(final PrintWriter logWriter) {
     this.logWriter = logWriter;
+  }
+
+  public JdbcDataSourceImpl setMaxAge(final Duration maxAge) {
+    this.maxAge = maxAge;
+    this.maxAgeMillis = maxAge.toMillis();
+    return this;
   }
 
   public JdbcDataSourceImpl setMaxIdle(final int maxIdle) {

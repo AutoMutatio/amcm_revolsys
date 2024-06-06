@@ -39,7 +39,7 @@ public interface JdbcDatabaseFactory extends RecordStoreFactory {
   }
 
   static JdbcDatabaseFactory databaseFactory(final Map<String, ? extends Object> config) {
-    final String url = (String) config.get("url");
+    final String url = (String)config.get("url");
     if (url == null) {
       throw new IllegalArgumentException("The url parameter must be specified");
     } else {
@@ -55,7 +55,7 @@ public interface JdbcDatabaseFactory extends RecordStoreFactory {
   static JdbcDatabaseFactory databaseFactory(final String productName) {
     for (final JdbcDatabaseFactory databaseFactory : databaseFactories()) {
       if (databaseFactory.getProductName()
-          .equals(productName)) {
+        .equals(productName)) {
         return databaseFactory;
       }
     }
@@ -111,7 +111,7 @@ public interface JdbcDatabaseFactory extends RecordStoreFactory {
 
   @Override
   Class<? extends RecordStore> getRecordStoreInterfaceClass(
-      Map<String, ? extends Object> connectionProperties);
+    Map<String, ? extends Object> connectionProperties);
 
   @Override
   default List<Pattern> getUrlPatterns() {
@@ -126,13 +126,24 @@ public interface JdbcDatabaseFactory extends RecordStoreFactory {
   }
 
   @SuppressWarnings({
-      "unchecked"
+    "unchecked"
   })
   default JdbcDataSource newDataSource(final Map<String, ? extends Object> config) {
     try {
       final MapEx newConfig = JsonObject.hash(config);
-      final String url = (String) newConfig.remove("url");
+      final String url = (String)newConfig.remove("url");
 
+      Duration maxAge = Duration.ofMinutes(60);
+      {
+        final var age = newConfig.remove("maxAge");
+        if (age instanceof final Duration duration) {
+          maxAge = duration;
+        } else if (age instanceof final Number number) {
+          maxAge = Duration.ofSeconds(number.longValue());
+        } else {
+          throw new IllegalArgumentException("maxAge must be a number or a Duration");
+        }
+      }
       final int minPoolSize = newConfig.getInteger("minPoolSize", -1);
       newConfig.remove("minPoolSize");
       final int maxPoolSize = newConfig.getInteger("maxPoolSize", 10);
@@ -170,17 +181,18 @@ public interface JdbcDatabaseFactory extends RecordStoreFactory {
       @SuppressWarnings("resource")
       final var dataSource = new JdbcDataSourceImpl();
       return dataSource//
-          .setDriverClassName(getDriverClassName())
-          .setUrl(url)
-          .setMinIdle(minPoolSize)
-          .setMaxIdle(maxIdle)
-          .setMaxPoolSize(maxPoolSize)
-          .setMaxWait(Duration.ofMillis(maxWaitMillis))
-          .setMinEvictableIdle(Duration.ofSeconds(inactivityTimeout))
-          .setDurationBetweenEvictionRuns(Duration.ofSeconds(inactivityTimeout))
-          .setUserSupplier(userSupplier)
-          .setPasswordSupplier(passwordSupplier)
-          .setConfig(newConfig);
+        .setDriverClassName(getDriverClassName())
+        .setUrl(url)
+        .setMinIdle(minPoolSize)
+        .setMaxIdle(maxIdle)
+        .setMaxPoolSize(maxPoolSize)
+        .setMaxWait(Duration.ofMillis(maxWaitMillis))
+        .setMaxAge(maxAge)
+        .setMinEvictableIdle(Duration.ofSeconds(inactivityTimeout))
+        .setDurationBetweenEvictionRuns(Duration.ofSeconds(inactivityTimeout))
+        .setUserSupplier(userSupplier)
+        .setPasswordSupplier(passwordSupplier)
+        .setConfig(newConfig);
     } catch (final Throwable e) {
       throw new IllegalArgumentException("Unable to create data source for " + config, e);
     }
