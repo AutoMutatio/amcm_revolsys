@@ -52,7 +52,7 @@ public interface ListEx<T> extends List<T>, Cloneable, BaseIterable<T> {
 
     @Override
     public boolean equals(final Object o) {
-      return o instanceof List && ((List<?>) o).isEmpty();
+      return o instanceof List && ((List<?>)o).isEmpty();
     }
 
     @Override
@@ -176,12 +176,13 @@ public interface ListEx<T> extends List<T>, Cloneable, BaseIterable<T> {
   }
 
   default Double getDouble(final int index, final double defaultValue) {
-    final Double value = getDouble(index);
-    if (value == null) {
-      return defaultValue;
-    } else {
-      return value;
+    if (index < size()) {
+      final var value = getDouble(index);
+      if (value != null) {
+        return value;
+      }
     }
+    return defaultValue;
   }
 
   @Override
@@ -223,7 +224,7 @@ public interface ListEx<T> extends List<T>, Cloneable, BaseIterable<T> {
   }
 
   default <Q extends Quantity<Q>> Quantity<Q> getQuantity(final int index, final Unit<Q> unit,
-      final Quantity<Q> defaultValue) {
+    final Quantity<Q> defaultValue) {
     final Quantity<Q> value = getQuantity(index, unit);
     if (value == null) {
       return defaultValue;
@@ -254,7 +255,7 @@ public interface ListEx<T> extends List<T>, Cloneable, BaseIterable<T> {
 
   @SuppressWarnings("unchecked")
   default <V> V getValue(final int index) {
-    return (V) get(index);
+    return (V)get(index);
   }
 
   default <V extends Object> V getValue(final int index, final DataType dataType) {
