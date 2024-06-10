@@ -181,6 +181,14 @@ public class ActiveTransactionContext implements TransactionContext {
     }
   }
 
+  @Override
+  public <V> V setRollbackOnly(final Throwable e) {
+    for (final var resource : this.resources.values()) {
+      resource.setHasError();
+    }
+    return TransactionContext.super.setRollbackOnly(e);
+  }
+
   BaseCloseable suspend() {
     for (final var r : this.resources.values()) {
       try {

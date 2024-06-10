@@ -1150,7 +1150,7 @@ public class XmlWriter extends Writer {
    * @throws IOException If there was a problem writing the XML Declaration.
    */
   public void startDocument() {
-    startDocument(null, "1.1", null);
+    startDocument("UTF-8", "1.1", null);
   }
 
   /**
