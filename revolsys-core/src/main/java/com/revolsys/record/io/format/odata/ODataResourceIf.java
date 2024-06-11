@@ -64,4 +64,8 @@ public interface ODataResourceIf {
   }
 
   ODataResourceIf parent();
+
+  default ODataQuery query() {
+    return new ODataQuery(this);
+  }
 }
