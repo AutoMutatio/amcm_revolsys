@@ -150,7 +150,7 @@ public interface JdbcDatabaseFactory extends RecordStoreFactory {
       newConfig.remove("maxPoolSize");
       final int maxIdle = newConfig.getInteger("maxIdle", Math.max(minPoolSize, maxPoolSize));
       newConfig.remove("maxIdle");
-      final int maxWaitMillis = newConfig.getInteger("waitTimeout", 10);
+      final int maxWaitMillis = newConfig.getInteger("waitTimeout", 1000);
       newConfig.remove("waitTimeout");
       final int inactivityTimeout = newConfig.getInteger("inactivityTimeout", 60);
       newConfig.remove("inactivityTimeout");

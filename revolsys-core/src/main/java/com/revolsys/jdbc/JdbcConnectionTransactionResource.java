@@ -8,7 +8,6 @@ import com.revolsys.parallel.ReentrantLockEx;
 import com.revolsys.transaction.Isolation;
 import com.revolsys.transaction.TransactionContext;
 import com.revolsys.transaction.TransactionableResource;
-import com.revolsys.util.Debug;
 
 public abstract class JdbcConnectionTransactionResource implements TransactionableResource {
   private final ReentrantLockEx lock = new ReentrantLockEx();
@@ -18,6 +17,8 @@ public abstract class JdbcConnectionTransactionResource implements Transactionab
   private final TransactionContext context;
 
   private ConnectionConsumer connectionInitializer = ConnectionConsumer.EMPTY;
+
+  private boolean hasError = false;
 
   public JdbcConnectionTransactionResource(final TransactionContext context) {
     this.context = context;
@@ -51,7 +52,7 @@ public abstract class JdbcConnectionTransactionResource implements Transactionab
         try {
           connection.setReadOnly(false);
         } catch (final SQLException e) {
-          Debug.noOp();
+          this.hasError = true;
         }
       }
       try {
@@ -121,6 +122,10 @@ public abstract class JdbcConnectionTransactionResource implements Transactionab
     this.connectionInitializer.accept(connection);
   }
 
+  public boolean isHasError() {
+    return this.hasError;
+  }
+
   protected abstract Connection newConnection() throws SQLException;
 
   protected abstract JdbcConnection newJdbcConnection(Connection connection) throws SQLException;
@@ -139,6 +144,11 @@ public abstract class JdbcConnectionTransactionResource implements Transactionab
         throw getDataSource().getException("rollback", null, e);
       }
     }
+  }
+
+  @Override
+  public void setHasError() {
+    this.hasError = true;
   }
 
   @Override

@@ -15,6 +15,8 @@ public interface TransactionableResource {
 
   void rollback();
 
+  void setHasError();
+
   default void suspend() {
   }
 }

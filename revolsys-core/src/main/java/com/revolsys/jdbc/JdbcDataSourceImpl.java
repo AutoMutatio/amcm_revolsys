@@ -21,6 +21,7 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
 
+import org.springframework.dao.DataAccessException;
 import org.springframework.dao.TransientDataAccessResourceException;
 import org.springframework.jdbc.CannotGetJdbcConnectionException;
 import org.springframework.jdbc.support.SQLErrorCodeSQLExceptionTranslator;
@@ -71,6 +72,9 @@ public class JdbcDataSourceImpl extends JdbcDataSource implements BaseCloseable 
     }
 
     private void close() {
+      if (this.state.compareAndSet(ConnectionEntryState.ACQUIRED, ConnectionEntryState.IDLE)) {
+        JdbcDataSourceImpl.this.poolSizeSemaphore.release();
+      }
       final var oldState = this.state.get();
       if (oldState != ConnectionEntryState.CLOSED
         && this.state.compareAndSet(oldState, ConnectionEntryState.CLOSED)) {
@@ -106,8 +110,10 @@ public class JdbcDataSourceImpl extends JdbcDataSource implements BaseCloseable 
 
     private void release() throws SQLException {
       if (this.state.compareAndSet(ConnectionEntryState.ACQUIRED, ConnectionEntryState.IDLE)) {
-        this.returnedInstant = Instant.now();
+        @SuppressWarnings("resource")
+        final var dataSource = JdbcDataSourceImpl.this;
         try {
+          this.returnedInstant = Instant.now();
           final var connection = this.connection;
           if (connection != null) {
             final boolean connAutoCommit = connection.getAutoCommit();
@@ -126,17 +132,15 @@ public class JdbcDataSourceImpl extends JdbcDataSource implements BaseCloseable 
           throw e;
         } finally {
           final int maxIdle = getMaxIdle();
-          final var dataSource = JdbcDataSourceImpl.this;
-          if (isClosed() || maxIdle > -1 && maxIdle <= dataSource.idleCount.get()
+          if (maxIdle > -1 && maxIdle <= dataSource.idleCount.get()
             || isExpired(this.returnedInstant.toEpochMilli())) {
             close();
-          } else if (!isClosed()) {
+          } else if (dataSource.isClosed()) {
+            close();
+          } else {
             dataSource.idleCount.incrementAndGet();
             dataSource.idleConnections.addLast(this);
             dataSource.poolSizeSemaphore.release();
-          }
-          if (isClosed()) {
-            clear();
           }
         }
       } else {
@@ -186,6 +190,9 @@ public class JdbcDataSourceImpl extends JdbcDataSource implements BaseCloseable 
     @Override
     protected void closeConnection() throws SQLException {
       this.entry.release();
+      if (isHasError()) {
+        removeEntry(this.entry);
+      }
       this.entry = null;
     }
 
@@ -362,40 +369,47 @@ public class JdbcDataSourceImpl extends JdbcDataSource implements BaseCloseable 
         throw Exceptions.toRuntimeException(e);
       }
     }
-    if (this.poolSizeSemaphore.tryAcquire(this.maxWait)) {
-      var entry = nextEntry();
-      if (entry == null) {
-        try {
-          final var connection = newConnectionDo();
-          if (connection == null) {
-            throw new CannotGetJdbcConnectionException(
-              "JDBC driver doesn't support connection URL");
-          }
+    if (!isClosed()) {
+      if (this.poolSizeSemaphore.tryAcquire(this.maxWait)) {
+        var entry = nextEntry();
+        if (entry == null) {
           try {
-            for (final Consumer<Connection> callback : JdbcDataSourceImpl.this.connectionInitCallbacks) {
-              callback.accept(connection);
+            final var connection = newConnectionDo();
+            if (connection == null) {
+              throw new CannotGetJdbcConnectionException(
+                "JDBC driver doesn't support connection URL");
             }
-          } catch (final RuntimeException | Error e) {
-            BaseCloseable.closeSilent(connection);
+            try {
+              for (final Consumer<Connection> callback : JdbcDataSourceImpl.this.connectionInitCallbacks) {
+                callback.accept(connection);
+              }
+            } catch (final RuntimeException | Error e) {
+              BaseCloseable.closeSilent(connection);
+              throw e;
+            }
+            entry = new ConnectionEntry(connection);
+          } catch (final DataAccessException e) {
+            this.poolSizeSemaphore.release();
+            throw e;
+          } catch (final SQLException e) {
+            this.poolSizeSemaphore.release();
+            throw getException("New connection", null, e);
+          } catch (RuntimeException | Error e) {
+            this.poolSizeSemaphore.release();
             throw e;
           }
-          entry = new ConnectionEntry(connection);
-        } catch (final SQLException e) {
-          this.poolSizeSemaphore.release();
-          throw getException("New connection", null, e);
-        } catch (RuntimeException | Error e) {
-          this.poolSizeSemaphore.release();
-          throw e;
         }
-      }
-      if (isClosed()) {
-        entry.close();
-        throw new IllegalStateException("Data source closed");
-      } else {
-        return entry;
+        if (isClosed()) {
+          entry.close();
+        } else {
+          return entry;
+        }
+      } else if (!isClosed()) {
+        throw new TransientDataAccessResourceException("Pool size wait timeout");
       }
     }
-    throw new TransientDataAccessResourceException("Connect timeout");
+    throw new IllegalStateException("Data source closed");
+
   }
 
   public Duration getDefaultQueryTimeoutDuration() {
@@ -612,9 +626,7 @@ public class JdbcDataSourceImpl extends JdbcDataSource implements BaseCloseable 
   }
 
   private void removeEntry(final ConnectionEntry entry) {
-    if (this.idleConnections.remove(entry)) {
-      entry.close();
-    }
+    entry.close();
   }
 
   public JdbcDataSourceImpl setConfig(final MapEx newConfig) {
