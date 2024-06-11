@@ -6,55 +6,62 @@ import java.net.URI;
 import com.revolsys.http.HttpMethod;
 import com.revolsys.http.HttpRequestBuilder;
 import com.revolsys.http.HttpRequestBuilderFactory;
+import com.revolsys.util.UriBuilder;
 
 public interface ODataResourceIf {
-
-  default ODataRequestBuilder deleteBuilder() {
-    return request(HttpMethod.DELETE);
-  }
-
-  default ODataRequestBuilder get() {
-    return request(HttpMethod.GET);
-  }
-
-  HttpRequestBuilderFactory getFactory();
-
-  default InputStream getInputStream() {
-    return get().newInputStream();
-  }
-
-  URI getUri();
-
-  default ODataRequestBuilder head() {
-    return request(HttpMethod.HEAD);
-  }
-
-  default ODataRequestBuilder options() {
-    return request(HttpMethod.OPTIONS);
-  }
-
-  default ODataRequestBuilder patch() {
-    return request(HttpMethod.PATCH);
-  }
-
-  default ODataRequestBuilder post() {
-    return request(HttpMethod.POST);
-  }
-
-  default ODataRequestBuilder put() {
-    return request(HttpMethod.PUT);
-  }
-
-  default ODataRequestBuilder request(final HttpMethod method) {
-    return new ODataRequestBuilder(createHttpRequest(method));
-  }
+  <V extends ODataResourceIf> V child(final String segment);
 
   default HttpRequestBuilder createHttpRequest(final HttpMethod method) {
     return getFactory().create(method, getUri());
   }
 
-  default ODataRequestBuilder trace() {
-    final HttpMethod method = HttpMethod.TRACE;
-    return request(method);
+  HttpRequestBuilderFactory getFactory();
+
+  default InputStream getInputStream() {
+    return odataGet().newInputStream();
   }
+
+  URI getUri();
+
+  default String lastSegment() {
+    return new UriBuilder(getUri()).lastPathSegment();
+  }
+
+  default ODataRequestBuilder odataDelete() {
+    return odataRequest(HttpMethod.DELETE);
+  }
+
+  default ODataRequestBuilder odataGet() {
+    return odataRequest(HttpMethod.GET);
+  }
+
+  default ODataRequestBuilder odataHead() {
+    return odataRequest(HttpMethod.HEAD);
+  }
+
+  default ODataRequestBuilder odataOptions() {
+    return odataRequest(HttpMethod.OPTIONS);
+  }
+
+  default ODataRequestBuilder odataPatch() {
+    return odataRequest(HttpMethod.PATCH);
+  }
+
+  default ODataRequestBuilder odataPost() {
+    return odataRequest(HttpMethod.POST);
+  }
+
+  default ODataRequestBuilder odataPut() {
+    return odataRequest(HttpMethod.PUT);
+  }
+
+  default ODataRequestBuilder odataRequest(final HttpMethod method) {
+    return new ODataRequestBuilder(createHttpRequest(method));
+  }
+
+  default ODataRequestBuilder odataTrace() {
+    return odataRequest(HttpMethod.TRACE);
+  }
+
+  ODataResourceIf parent();
 }

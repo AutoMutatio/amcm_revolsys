@@ -7,11 +7,12 @@ import java.util.NoSuchElementException;
 import java.util.function.Function;
 
 import com.revolsys.collection.iterator.AbstractIterator;
+import com.revolsys.collection.iterator.IterableWithCount;
 import com.revolsys.collection.json.JsonObject;
 import com.revolsys.http.HttpRequestBuilder;
 import com.revolsys.http.HttpRequestBuilderFactory;
 
-public class ODataJsonQueryIterator<V> extends AbstractIterator<V> {
+public class ODataJsonQueryIterator<V> extends AbstractIterator<V> implements IterableWithCount<V> {
 
   private final String queryLabel;
 
@@ -36,8 +37,8 @@ public class ODataJsonQueryIterator<V> extends AbstractIterator<V> {
   private int pageCount = 0;
 
   public ODataJsonQueryIterator(final HttpRequestBuilderFactory requestFactory,
-      final HttpRequestBuilder request, final Function<JsonObject, V> converter,
-      final String queryLabel, final int pageLimit) {
+    final HttpRequestBuilder request, final Function<JsonObject, V> converter,
+    final String queryLabel, final int pageLimit) {
     this.requestFactory = requestFactory;
     this.converter = converter;
     this.request = request;
@@ -56,7 +57,6 @@ public class ODataJsonQueryIterator<V> extends AbstractIterator<V> {
     } else {
       if (this.count == -1) {
         this.count = json.getInteger("@odata.count", -1);
-
       }
       if (json.hasValue("@odata.nextLink")) {
         this.nextURI = json.getURI("@odata.nextLink");
@@ -66,11 +66,13 @@ public class ODataJsonQueryIterator<V> extends AbstractIterator<V> {
         this.nextURI = null;
       }
 
-      this.results = json.<JsonObject>getList("value").iterator();
+      this.results = json.<JsonObject> getList("value")
+        .iterator();
     }
   }
 
-  public int getCount() {
+  @Override
+  public long getCount() {
     if (this.count == -1) {
       init();
     }
@@ -82,9 +84,10 @@ public class ODataJsonQueryIterator<V> extends AbstractIterator<V> {
     if (this.readCount >= this.limit) {
       throw new NoSuchElementException();
     }
+    final Iterator<JsonObject> results = this.results;
     do {
-      if (this.results != null && this.results.hasNext()) {
-        final JsonObject recordJson = this.results.next();
+      if (results != null && results.hasNext()) {
+        final JsonObject recordJson = results.next();
         this.readCount++;
         return this.converter.apply(recordJson);
       }
@@ -95,7 +98,7 @@ public class ODataJsonQueryIterator<V> extends AbstractIterator<V> {
 
         executeRequest();
       }
-    } while (this.results != null);
+    } while (results != null);
     throw new NoSuchElementException();
   }
 

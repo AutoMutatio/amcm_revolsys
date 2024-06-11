@@ -1,6 +1,7 @@
 package com.revolsys.record.io.format.odata;
 
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 import com.revolsys.collection.json.JsonObject;
@@ -9,6 +10,7 @@ import com.revolsys.record.query.ColumnReference;
 import com.revolsys.record.query.OrderBy;
 import com.revolsys.record.query.Query;
 import com.revolsys.record.query.QueryValue;
+import com.revolsys.util.Cancellable;
 
 public class ODataQuery extends Query {
 
@@ -48,7 +50,7 @@ public class ODataQuery extends Query {
         }
         final QueryValue orderField = orderBy.getField();
         if (orderField instanceof ColumnReference) {
-          final ColumnReference column = (ColumnReference) orderField;
+          final ColumnReference column = (ColumnReference)orderField;
           order.append(column.getName());
         }
         if (!orderBy.isAscending()) {
@@ -65,7 +67,7 @@ public class ODataQuery extends Query {
       final StringBuilder select = new StringBuilder();
       for (final QueryValue selectItem : selectValues) {
         if (selectItem instanceof ColumnReference) {
-          final ColumnReference column = (ColumnReference) selectItem;
+          final ColumnReference column = (ColumnReference)selectItem;
           if (select.length() > 0) {
             select.append(',');
           }
@@ -78,30 +80,35 @@ public class ODataQuery extends Query {
     }
   }
 
+  public int forEach(final Cancellable cancellable, final Consumer<JsonObject> action) {
+    throw new UnsupportedOperationException();
+  }
+
   public <V> V getFirst(final Function<JsonObject, V> converter) {
     throw new UnsupportedOperationException();
   }
 
   private ODataRequestBuilder initRequest() {
-    return this.resource.get().withBuilder(request -> {
-      if (this.format != null) {
-        request.setParameter(ODataRecordStore.FORMAT_JSON);
-      }
-      addSelectTo(request);
-      addFilterTo(request);
-      addOrderByTo(request);
-      if (this.count) {
-        request.setParameter("$count", true);
-      }
-      final int offset = getOffset();
-      if (offset > 0) {
-        request.setParameter("$skip", offset);
-      }
-      final int limit = getLimit();
-      if (limit > 0 && limit < Integer.MAX_VALUE) {
-        request.setParameter("$top", limit);
-      }
-    });
+    return this.resource.odataGet()
+      .withBuilder(request -> {
+        if (this.format != null) {
+          request.setParameter(ODataRecordStore.FORMAT_JSON);
+        }
+        addSelectTo(request);
+        addFilterTo(request);
+        addOrderByTo(request);
+        if (this.count) {
+          request.setParameter("$count", true);
+        }
+        final int offset = getOffset();
+        if (offset > 0) {
+          request.setParameter("$skip", offset);
+        }
+        final int limit = getLimit();
+        if (limit > 0 && limit < Integer.MAX_VALUE) {
+          request.setParameter("$top", limit);
+        }
+      });
   }
 
   public ODataJsonQueryIterator<JsonObject> reader() {
@@ -110,7 +117,7 @@ public class ODataQuery extends Query {
 
   public <V> ODataJsonQueryIterator<V> reader(final Function<JsonObject, V> converter) {
     return new ODataJsonQueryIterator<>(this.resource.getFactory(), initRequest().request(),
-        converter, toString(), this.pageLimit);
+      converter, toString(), this.pageLimit);
   }
 
   public ODataQuery setCount(final boolean count) {
