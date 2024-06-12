@@ -118,8 +118,13 @@ public class SemaphoreEx extends Semaphore {
         acquire();
         return true;
       } else {
+        final var seconds = duration.getSeconds();
         final var nano = duration.getNano();
-        return tryAcquire(permits, nano, TimeUnit.NANOSECONDS);
+        if (nano == 0 || seconds > 9223372034L) {
+          return tryAcquire(permits, seconds, TimeUnit.SECONDS);
+        } else {
+          return tryAcquire(permits, duration.toNanos(), TimeUnit.NANOSECONDS);
+        }
       }
     } catch (final InterruptedException e) {
       throw Exceptions.toRuntimeException(e);

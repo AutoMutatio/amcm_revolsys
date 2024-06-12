@@ -132,28 +132,10 @@ public interface JdbcDatabaseFactory extends RecordStoreFactory {
     try {
       final MapEx newConfig = JsonObject.hash(config);
       final String url = (String)newConfig.remove("url");
-
-      Duration maxAge = Duration.ofMinutes(60);
-      {
-        final var age = newConfig.remove("maxAge");
-        if (age instanceof final Duration duration) {
-          maxAge = duration;
-        } else if (age instanceof final Number number) {
-          maxAge = Duration.ofSeconds(number.longValue());
-        } else {
-          throw new IllegalArgumentException("maxAge must be a number or a Duration");
-        }
-      }
-      final int minPoolSize = newConfig.getInteger("minPoolSize", -1);
-      newConfig.remove("minPoolSize");
-      final int maxPoolSize = newConfig.getInteger("maxPoolSize", 10);
-      newConfig.remove("maxPoolSize");
-      final int maxIdle = newConfig.getInteger("maxIdle", Math.max(minPoolSize, maxPoolSize));
-      newConfig.remove("maxIdle");
-      final int maxWaitMillis = newConfig.getInteger("waitTimeout", 1000);
-      newConfig.remove("waitTimeout");
-      final int inactivityTimeout = newConfig.getInteger("inactivityTimeout", 60);
-      newConfig.remove("inactivityTimeout");
+      final Duration maxAge = removeDuration(newConfig, "maxAge", Duration.ofMinutes(60));
+      final int maxPoolSize = removeInteger(newConfig, "maxPoolSize", 10);
+      final int maxIdle = removeInteger(newConfig, "maxIdle", maxPoolSize);
+      final Duration maxWait = removeDuration(newConfig, "maxWait", Duration.ofSeconds(1));
       Supplier<String> userSupplier;
       final var user = newConfig.remove("user");
       {
@@ -183,13 +165,10 @@ public interface JdbcDatabaseFactory extends RecordStoreFactory {
       return dataSource//
         .setDriverClassName(getDriverClassName())
         .setUrl(url)
-        .setMinIdle(minPoolSize)
         .setMaxIdle(maxIdle)
         .setMaxPoolSize(maxPoolSize)
-        .setMaxWait(Duration.ofMillis(maxWaitMillis))
+        .setMaxWait(maxWait)
         .setMaxAge(maxAge)
-        .setMinEvictableIdle(Duration.ofSeconds(inactivityTimeout))
-        .setDurationBetweenEvictionRuns(Duration.ofSeconds(inactivityTimeout))
         .setUserSupplier(userSupplier)
         .setPasswordSupplier(passwordSupplier)
         .setConfig(newConfig);
@@ -213,6 +192,27 @@ public interface JdbcDatabaseFactory extends RecordStoreFactory {
       recordStore.initialize();
     }
     return recordStore;
+  }
+
+  default Duration removeDuration(final MapEx config, final String key,
+    final Duration defaultValue) {
+    final var value = config.remove(key);
+    if (value == null) {
+      return defaultValue;
+    } else if (value instanceof final Duration duration) {
+      return duration;
+    } else if (value instanceof final Number number) {
+      return Duration.ofSeconds(number.longValue());
+    } else {
+      throw new IllegalArgumentException(
+        key + " must be a number or a Duration not " + value.getClass());
+    }
+  }
+
+  default int removeInteger(final MapEx newConfig, final String key, final int defaultValue) {
+    final int value = newConfig.getInteger(key, defaultValue);
+    newConfig.remove(key);
+    return value;
   }
 
   DataAccessException translateException(String message, String sql, SQLException exception);
