@@ -120,7 +120,7 @@ public class JsonWriter implements BaseCloseable {
 
   public void endAttribute() {
     if (this.state != JsonWriterState.END_ATTRIBUTE
-        && this.state != JsonWriterState.START_DOCUMENT) {
+      && this.state != JsonWriterState.START_DOCUMENT) {
       try {
         this.out.append(',');
         setState(JsonWriterState.END_ATTRIBUTE);
@@ -184,6 +184,15 @@ public class JsonWriter implements BaseCloseable {
   public void labelValue(final String key, final Object value) {
     label(key);
     value(value);
+  }
+
+  public JsonWriter labelValueNotEmpty(final String key, final JsonObject object) {
+    return labelValueNotEmpty(key, object.getValue(key));
+  }
+
+  public JsonWriter labelValueNotEmpty(final String label, final JsonObject object,
+    final String key) {
+    return labelValueNotEmpty(label, object.getValue(key));
   }
 
   public JsonWriter labelValueNotEmpty(final String key, final Object value) {
@@ -277,7 +286,7 @@ public class JsonWriter implements BaseCloseable {
         indent();
       }
     } else if (this.state == JsonWriterState.START_DOCUMENT
-        || this.state == JsonWriterState.LABEL) {
+      || this.state == JsonWriterState.LABEL) {
     } else {
       endAttribute();
       if (this.indent) {
@@ -380,7 +389,7 @@ public class JsonWriter implements BaseCloseable {
         this.encodingOut.append(string);
         this.out.append('"');
       } else if (value.getClass()
-          .isArray()) {
+        .isArray()) {
         final List<? extends Object> list = Lists.arrayToList(value);
         list(list);
       } else {
@@ -480,8 +489,7 @@ public class JsonWriter implements BaseCloseable {
 
 enum JsonWriterState {
   START_DOCUMENT, START_OBJECT('{', '}'), END_OBJECT('}'), START_LIST('[',
-      ']'),
-  END_LIST(']'), VALUE, LABEL, END_ATTRIBUTE;
+    ']'), END_LIST(']'), VALUE, LABEL, END_ATTRIBUTE;
 
   private char c;
 

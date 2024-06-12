@@ -1,6 +1,5 @@
 package com.revolsys.http;
 
-import java.io.InputStream;
 import java.net.URI;
 import java.util.Map;
 import java.util.function.BiFunction;
@@ -16,11 +15,11 @@ import com.revolsys.util.UriBuilder;
 public class HttpRequestBuilderFactory {
   public record Builder(HttpRequestBuilderFactory factory, URI uri) {
 
-    public final HttpRequestBuilder delete() {
+    public final HttpRequestBuilder httpDelete() {
       return request(HttpMethod.DELETE);
     }
 
-    public final HttpRequestBuilder get() {
+    public final HttpRequestBuilder httpGet() {
       return request(HttpMethod.GET);
     }
 
@@ -45,31 +44,27 @@ public class HttpRequestBuilderFactory {
       return new Builder(this.factory, newUri);
     }
 
-    public InputStream getInputStream() {
-      return get().newInputStream();
-    }
-
-    public final HttpRequestBuilder head() {
+    public final HttpRequestBuilder httpHead() {
       return request(HttpMethod.HEAD);
     }
 
-    public final HttpRequestBuilder patch() {
+    public final HttpRequestBuilder httpPatch() {
       return request(HttpMethod.PATCH);
     }
 
-    public final HttpRequestBuilder options() {
+    public final HttpRequestBuilder httpOptions() {
       return request(HttpMethod.OPTIONS);
     }
 
-    public final HttpRequestBuilder post() {
+    public final HttpRequestBuilder httpPost() {
       return request(HttpMethod.POST);
     }
 
-    public final HttpRequestBuilder put() {
+    public final HttpRequestBuilder httpPut() {
       return request(HttpMethod.PUT);
     }
 
-    public final HttpRequestBuilder trace() {
+    public final HttpRequestBuilder httpTrace() {
       final HttpMethod method = HttpMethod.TRACE;
       return request(method);
     }

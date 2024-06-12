@@ -110,13 +110,17 @@ public class ODataRecordStore extends AbstractRecordStore {
       final EnvelopeIntersects i = (EnvelopeIntersects)value;
       final Value v = i.getRight();
       final BoundingBox boundingBox = (BoundingBox)v.getValue();
-      final Polygon polygon = boundingBox
-        .toPolygon(boundingBox.getGeometryFactory().convertAxisCount(2), 1, 1);
+      final Polygon polygon = boundingBox.toPolygon(boundingBox.getGeometryFactory()
+        .convertAxisCount(2), 1, 1);
       final String geometryPrefix = getGeometryPrefix(boundingBox);
 
       filter.append("geo.intersects(");
       appendQueryValue(filter, i.getLeft());
-      filter.append(", ").append(geometryPrefix).append('\'').append(polygon.toEwkt()).append("')");
+      filter.append(", ")
+        .append(geometryPrefix)
+        .append('\'')
+        .append(polygon.toEwkt())
+        .append("')");
     });
     HANDLERS.put(WithinDistance.class, (filter, value) -> {
       final WithinDistance wd = (WithinDistance)value;
@@ -184,7 +188,8 @@ public class ODataRecordStore extends AbstractRecordStore {
       filter.append("contains(toupper(");
       filter.append(column.getName());
       filter.append("),toupper('");
-      String text = value.getValue().toString();
+      String text = value.getValue()
+        .toString();
       if (text.startsWith("%")) {
         text = text.substring(1);
       }
@@ -209,7 +214,8 @@ public class ODataRecordStore extends AbstractRecordStore {
       filter.append("contains(");
       filter.append(column.getName());
       filter.append(',');
-      String text = value.getValue().toString();
+      String text = value.getValue()
+        .toString();
       if (text.startsWith("%")) {
         text = text.substring(1);
       }
@@ -280,20 +286,25 @@ public class ODataRecordStore extends AbstractRecordStore {
       filter.append(v);
     } else if (v instanceof UUID) {
       final UUID uuid = (UUID)v;
-      filter.append(uuid.toString().toUpperCase());
+      filter.append(uuid.toString()
+        .toUpperCase());
     } else if (v instanceof Geometry) {
       final Geometry geometry = (Geometry)v;
       final String geometryPrefix = getGeometryPrefix(geometry);
       filter.append(geometryPrefix)
         .append('\'')
-        .append(geometry.convertAxisCount(2).toEwkt())
+        .append(geometry.convertAxisCount(2)
+          .toEwkt())
         .append('\'');
     } else {
-      filter.append('\'').append(v.toString().replace("'", "''")).append('\'');
+      filter.append('\'')
+        .append(v.toString()
+          .replace("'", "''"))
+        .append('\'');
     }
   }
 
-  protected static void appendQueryValue(final StringBuilder filter, final QueryValue value) {
+  public static void appendQueryValue(final StringBuilder filter, final QueryValue value) {
     final Class<? extends QueryValue> valueClass = value.getClass();
 
     for (Class<?> clazz = valueClass; clazz != Object.class; clazz = clazz.getSuperclass()) {
@@ -308,7 +319,8 @@ public class ODataRecordStore extends AbstractRecordStore {
   }
 
   private static String getGeometryPrefix(final GeometryFactoryProxy spatial) {
-    if (spatial.getGeometryFactory().isGeographic()) {
+    if (spatial.getGeometryFactory()
+      .isGeographic()) {
       return "geography";
     } else {
       return "geometry";
@@ -330,7 +342,8 @@ public class ODataRecordStore extends AbstractRecordStore {
 
   ODataRecordStore(final OData databaseFactory, final MapEx connectionProperties) {
     final URI uri = connectionProperties.getURI("url");
-    if (uri.getScheme().equals("odata")) {
+    if (uri.getScheme()
+      .equals("odata")) {
       final String serviceUrl = uri.getSchemeSpecificPart();
       this.uri = URI.create(serviceUrl);
     } else {
@@ -347,7 +360,8 @@ public class ODataRecordStore extends AbstractRecordStore {
   private ODataRecordStoreSchema createSchema(final String namespace) {
     ODataRecordStoreSchema schema = getRootSchema();
     for (final var name : namespace.split("\\.")) {
-      final var childPath = schema.getPathName().newChild(name);
+      final var childPath = schema.getPathName()
+        .newChild(name);
       ODataRecordStoreSchema childSchema = schema.getSchema(childPath);
       if (childSchema == null) {
         childSchema = new ODataRecordStoreSchema(schema, childPath);
@@ -367,18 +381,22 @@ public class ODataRecordStore extends AbstractRecordStore {
     if (idValue instanceof Number) {
       idString = idValue.toString();
     } else {
-      idString = "'" + idValue.toString().replace("'", "''") + "'";
+      idString = "'" + idValue.toString()
+        .replace("'", "''") + "'";
     }
-    final URI uri = new UriBuilder(baseUri).appendPathSegments(name + "(" + idString + ")").build();
+    final URI uri = new UriBuilder(baseUri).appendPathSegments(name + "(" + idString + ")")
+      .build();
 
     final HttpRequestBuilder request = this.requestFactory.delete(uri)
       .setParameter(ODataRecordStore.FORMAT_JSON);
-    final JsonObject result = request.getJson();
+    final JsonObject result = request.responseAsJson();
     return result.isTrue("deleted");
   }
 
   JsonObject getJson(final URI uri) {
-    return this.requestFactory.get(uri).setParameter(FORMAT_JSON).getJson();
+    return this.requestFactory.get(uri)
+      .setParameter(FORMAT_JSON)
+      .responseAsJson();
   }
 
   public ODataTypeDefinition getODataType(final String type) {
@@ -407,7 +425,7 @@ public class ODataRecordStore extends AbstractRecordStore {
     query.clearOrderBy();
     final HttpRequestBuilder request = newRequest(query);
     request.setParameter("$count", "true");
-    final JsonObject result = request.getJson();
+    final JsonObject result = request.responseAsJson();
     return result.getInteger("@odata.count", 0);
   }
 
@@ -423,13 +441,15 @@ public class ODataRecordStore extends AbstractRecordStore {
     if (idValue instanceof Number) {
       idString = idValue.toString();
     } else {
-      idString = "'" + idValue.toString().replace("'", "''") + "'";
+      idString = "'" + idValue.toString()
+        .replace("'", "''") + "'";
     }
-    final URI uri = new UriBuilder(baseUri).appendPathSegments(name + "(" + idString + ")").build();
+    final URI uri = new UriBuilder(baseUri).appendPathSegments(name + "(" + idString + ")")
+      .build();
     final HttpRequestBuilder request = this.requestFactory.get(uri)
       .setParameter(ODataRecordStore.FORMAT_JSON);
 
-    final JsonObject result = request.getJson();
+    final JsonObject result = request.responseAsJson();
     return recordDefinition.newRecord(result);
   }
 
@@ -449,15 +469,17 @@ public class ODataRecordStore extends AbstractRecordStore {
 
   @Override
   public Record insertRecord(final Record record) {
-    final String name = record.getPathName().getName();
+    final String name = record.getPathName()
+      .getName();
     final URI baseUri = getUri();
-    final URI uri = new UriBuilder(baseUri).appendPathSegments(name).build();
+    final URI uri = new UriBuilder(baseUri).appendPathSegments(name)
+      .build();
 
     final JsonObject json = record.toJson();
     final HttpRequestBuilder request = this.requestFactory.post(uri)
       .setParameter(ODataRecordStore.FORMAT_JSON)
       .setJsonEntity(json);
-    final JsonObject result = request.getJson();
+    final JsonObject result = request.responseAsJson();
     record.setValues(result);
     return record;
   }
@@ -471,7 +493,8 @@ public class ODataRecordStore extends AbstractRecordStore {
       for (final var definition : definitions) {
         final String name = definition.getString("Name");
         final var fullName = namespace + "." + name;
-        final var path = schema.getPathName().newChild(name);
+        final var path = schema.getPathName()
+          .newChild(name);
         final var recordDefinition = new ODataRecordDefinition(schema, path, definition, fullName);
         this.odataTypeByName.put(fullName, recordDefinition);
 
@@ -512,7 +535,8 @@ public class ODataRecordStore extends AbstractRecordStore {
   private JsonObject loadMetaData() {
     final var uri = UrlUtil.appendPath(this.uri, "$metadata");
     try (
-      var in = this.requestFactory.get(uri).newInputStream()) {
+      var in = this.requestFactory.get(uri)
+        .responseAsInputStream()) {
       final JsonObject metadata = SCHEMA_XML_TO_JSON.process(in);
       final var dataServices = metadata.getJsonObject("DataServices");
       final List<JsonObject> schemaList = dataServices.getList("Schema");
@@ -532,7 +556,8 @@ public class ODataRecordStore extends AbstractRecordStore {
           }
         }
       }
-      this.odataTypeByName.values().forEach(ODataTypeDefinition::odataInitialize);
+      this.odataTypeByName.values()
+        .forEach(ODataTypeDefinition::odataInitialize);
       return metadata;
     } catch (final IOException e) {
       return Exceptions.throwUncheckedException(e);
@@ -545,9 +570,11 @@ public class ODataRecordStore extends AbstractRecordStore {
   }
 
   public HttpRequestBuilder newRequest(final Query query) {
-    final String name = query.getTablePath().getName();
+    final String name = query.getTablePath()
+      .getName();
     final URI baseUri = getUri();
-    final URI uri = new UriBuilder(baseUri).appendPathSegments(name).build();
+    final URI uri = new UriBuilder(baseUri).appendPathSegments(name)
+      .build();
     final HttpRequestBuilder request = this.requestFactory.get(uri)
       .setParameter(ODataRecordStore.FORMAT_JSON);
     newRequestSelect(query, request);

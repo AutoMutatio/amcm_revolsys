@@ -40,7 +40,7 @@ public class OpenIdConnectClientV1 extends OpenIdConnectClient {
 
   private OpenIdBearerToken getOpenIdBearerToken(final HttpRequestBuilder requestBuilder,
     final OpenIdScope resource) {
-    final var response = requestBuilder.getJson();
+    final var response = requestBuilder.responseAsJson();
     return new OpenIdBearerToken(this, response, resource);
   }
 

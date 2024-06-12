@@ -18,6 +18,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
+import com.revolsys.collection.iterator.Reader;
 import com.revolsys.collection.json.Json;
 import com.revolsys.collection.list.ListEx;
 import com.revolsys.collection.list.Lists;
@@ -1139,6 +1140,12 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
       addOrderBy(orderByItem);
     }
     return this;
+  }
+
+  @SuppressWarnings("unchecked")
+  public <R extends Reader<V>, V> R reader() {
+    return (R)getRecordDefinition().getRecordStore()
+      .getRecords(this);
   }
 
   public Query readerConsume(final Consumer<RecordReader> action) {

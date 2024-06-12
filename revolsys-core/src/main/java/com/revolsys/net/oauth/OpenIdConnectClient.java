@@ -169,7 +169,7 @@ public class OpenIdConnectClient extends BaseObjectWithProperties implements Bea
     if (scope != null) {
       requestBuilder.addParameter("scope", scope);
     }
-    final JsonObject response = requestBuilder.getJson();
+    final JsonObject response = requestBuilder.responseAsJson();
     return new DeviceCodeResponse(this, response, scope);
   }
 
@@ -208,7 +208,7 @@ public class OpenIdConnectClient extends BaseObjectWithProperties implements Bea
   private OpenIdBearerToken getOpenIdBearerToken(final HttpRequestBuilder requestBuilder,
     final String scope) {
     try {
-      final JsonObject response = requestBuilder.getJson();
+      final JsonObject response = requestBuilder.responseAsJson();
       return new OpenIdBearerToken(this, response, scope);
     } catch (final ApacheHttpException e) {
       if (e.getStatusCode() == 400) {

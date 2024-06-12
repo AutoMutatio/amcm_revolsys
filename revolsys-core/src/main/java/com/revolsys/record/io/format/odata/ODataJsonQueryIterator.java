@@ -49,7 +49,7 @@ public class ODataJsonQueryIterator<V> extends AbstractIterator<V> implements It
   }
 
   void executeRequest() {
-    final JsonObject json = this.request.getJson();
+    final JsonObject json = this.request.responseAsJson();
     if (json == null) {
       this.nextURI = null;
       this.results = Collections.emptyIterator();
