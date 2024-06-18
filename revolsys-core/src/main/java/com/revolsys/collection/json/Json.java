@@ -97,12 +97,12 @@ public class Json {
     protected Object toObjectDo(final Object value) {
       if (value instanceof JsonList) {
         return value;
-      } else if (value instanceof Jsonable) {
-        return ((Jsonable)value).asJson();
-      } else if (value instanceof Collection<?>) {
-        return JsonList.array((Collection<?>)value);
+      } else if (value instanceof final Jsonable jsonable) {
+        return jsonable.asJson();
+      } else if (value instanceof final Collection<?> collection) {
+        return JsonList.array(collection);
       } else {
-        final Object json = JsonParser.read(value);
+        final Object json = JsonParser.read(value.toString());
         if (json instanceof JsonList) {
           return json;
         } else {

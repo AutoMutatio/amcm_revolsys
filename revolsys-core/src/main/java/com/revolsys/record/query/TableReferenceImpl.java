@@ -62,7 +62,7 @@ public class TableReferenceImpl implements TableReference {
     final QueryValue queryValue) {
     final RecordDefinition recordDefinition = this.recordDefinition;
     if (recordDefinition == null) {
-      queryValue.appendSelect(query, null, sql);
+      queryValue.appendSelect(query, query.getRecordStore(), sql);
     } else {
       recordDefinition.appendSelect(query, sql, queryValue);
     }
