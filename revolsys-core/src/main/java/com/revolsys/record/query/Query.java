@@ -202,6 +202,8 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
 
   private final List<WithQuery> withQueries = new ArrayList<>();
 
+  private RecordStore recordStore;
+
   private Union union;
 
   private Condition having = Condition.ALL;
@@ -637,8 +639,7 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
   }
 
   public int deleteRecords() {
-    return getRecordDefinition().getRecordStore()
-      .deleteRecords(this);
+    return getRecordStore().deleteRecords(this);
   }
 
   public boolean exists() {
@@ -736,8 +737,7 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
   }
 
   public long getRecordCount() {
-    return getRecordDefinition().getRecordStore()
-      .getRecordCount(this);
+    return getRecordStore().getRecordCount(this);
   }
 
   public RecordDefinition getRecordDefinition() {
@@ -754,8 +754,7 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
   }
 
   public RecordReader getRecordReader() {
-    return getRecordDefinition().getRecordStore()
-      .getRecords(this);
+    return getRecordStore().getRecords(this);
   }
 
   public ListEx<Record> getRecords() {
@@ -765,7 +764,11 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
   }
 
   public RecordStore getRecordStore() {
-    return getRecordDefinition().getRecordStore();
+    if (this.recordStore == null) {
+      return getRecordDefinition().getRecordStore();
+    } else {
+      return this.recordStore;
+    }
   }
 
   public List<QueryValue> getSelect() {
@@ -909,8 +912,7 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
       if (newRecord == null) {
         return null;
       } else {
-        getRecordDefinition().getRecordStore()
-          .insertRecord(newRecord);
+        getRecordStore().insertRecord(newRecord);
         return newRecord;
       }
     } else {
@@ -1154,6 +1156,11 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
       var reader = getRecordReader()) {
       return action.apply(reader);
     }
+  }
+
+  public Query recordStore(final RecordStore recordStore) {
+    this.recordStore = recordStore;
+    return this;
   }
 
   public void removeSelect(final String name) {
@@ -1473,8 +1480,7 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
       return null;
     } else {
       updateAction.accept(record);
-      getRecordDefinition().getRecordStore()
-        .updateRecord(record);
+      getRecordStore().updateRecord(record);
       return record;
     }
   }
