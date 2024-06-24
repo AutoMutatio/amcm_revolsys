@@ -22,7 +22,11 @@ public record ProblemDetailBuilder(ProblemDetail problem) {
   }
 
   public static ProblemDetailBuilder notFound(final String title) {
-    return forStatus(HttpStatus.NOT_FOUND).title(title);
+    return notFound().title(title);
+  }
+
+  public static ProblemDetailBuilder notFound() {
+    return forStatus(HttpStatus.NOT_FOUND);
   }
 
   public static ProblemDetailBuilder forStatus(final int status) {

@@ -587,6 +587,14 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     }
   }
 
+  @SuppressWarnings({
+    "unchecked", "hiding"
+  })
+  public <Q extends Query> Query apply(final Consumer<Q> configurer) {
+    configurer.accept((Q)this);
+    return this;
+  }
+
   public Exists asExists() {
     return new Exists(this);
   }
