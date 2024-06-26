@@ -587,14 +587,6 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     }
   }
 
-  @SuppressWarnings({
-    "unchecked", "hiding"
-  })
-  public <Q extends Query> Query apply(final Consumer<Q> configurer) {
-    configurer.accept((Q)this);
-    return this;
-  }
-
   public Exists asExists() {
     return new Exists(this);
   }
@@ -774,7 +766,12 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
 
   public RecordStore getRecordStore() {
     if (this.recordStore == null) {
-      return getRecordDefinition().getRecordStore();
+      final var recordDefinition = getRecordDefinition();
+      if (recordDefinition == null) {
+        return null;
+      } else {
+        return recordDefinition.getRecordStore();
+      }
     } else {
       return this.recordStore;
     }

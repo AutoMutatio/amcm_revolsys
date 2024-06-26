@@ -708,13 +708,17 @@ public class HttpRequestBuilder {
   }
 
   public JsonObject responseAsJson() {
-    setHeader("Accept", "application/json");
+    if (!this.headerNames.contains("Accept")) {
+      setHeader("Accept", "application/json");
+    }
     final Function<HttpResponse, JsonObject> function = HttpRequestBuilder::getJson;
     return execute(function);
   }
 
   public JsonList responseAsJsonList() {
-    setHeader("Accept", "application/json");
+    if (!this.headerNames.contains("Accept")) {
+      setHeader("Accept", "application/json");
+    }
     final Function<HttpResponse, JsonList> function = HttpRequestBuilder::getJsonList;
     return execute(function);
   }

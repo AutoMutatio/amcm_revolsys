@@ -351,8 +351,8 @@ public final class UrlUtil {
         final int equalsIndex = part.indexOf("=");
         if (equalsIndex > -1) {
           final String name = part.substring(0, equalsIndex);
-          final String value = percentDecode(
-            part.substring(equalsIndex + 1).replaceAll("\\+", " "));
+          final String value = percentDecode(part.substring(equalsIndex + 1)
+            .replaceAll("\\+", " "));
           if (map.containsKey(name)) {
             final Object existingValue = map.get(name);
             if (existingValue instanceof List) {
@@ -496,7 +496,8 @@ public final class UrlUtil {
   }
 
   public static boolean isValidEmail(final String email) {
-    return EMAIL_PATTERN.matcher(email).matches();
+    return EMAIL_PATTERN.matcher(email)
+      .matches();
   }
 
   public static Map<String, String> parseMatrixParams(final String matrixParams) {
