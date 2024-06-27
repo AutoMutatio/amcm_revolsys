@@ -31,12 +31,12 @@ import com.revolsys.data.type.DataTypes;
 import com.revolsys.util.Property;
 
 public interface MapDefault<K, KA, V, M extends MapDefault<K, KA, V, M>>
-  extends Map<K, V>, Cloneable {
+    extends Map<K, V>, Cloneable {
   @SuppressWarnings("unchecked")
   default M add(final KA key, final V value) {
     final var k = toK(key);
     put(k, value);
-    return (M)this;
+    return (M) this;
   }
 
   @SuppressWarnings("unchecked")
@@ -46,7 +46,7 @@ public interface MapDefault<K, KA, V, M extends MapDefault<K, KA, V, M>>
       final var value = entry.getValue();
       addValue(key, value);
     }
-    return (M)this;
+    return (M) this;
   }
 
   default M addFieldValue(final KA key, final Map<? extends KA, ? extends V> source) {
@@ -55,14 +55,14 @@ public interface MapDefault<K, KA, V, M extends MapDefault<K, KA, V, M>>
   }
 
   default <SK> M addFieldValue(final KA key, final Map<SK, ? extends V> source,
-    final SK sourceKey) {
+      final SK sourceKey) {
     final var value = source.get(sourceKey);
     return addValue(key, value);
   }
 
   @SuppressWarnings("unchecked")
   default M addFieldValues(final MapDefault<?, KA, ? extends V, ?> source, final DataType dataType,
-    final KA... fieldNames) {
+      final KA... fieldNames) {
     for (final KA fieldName : fieldNames) {
       final V value = source.getTypedValue(fieldName, dataType);
       if (value == null) {
@@ -73,21 +73,21 @@ public interface MapDefault<K, KA, V, M extends MapDefault<K, KA, V, M>>
         addValue(fieldName, value);
       }
     }
-    return (M)this;
+    return (M) this;
   }
 
   @SuppressWarnings("unchecked")
   default M addValue(final KA key, final V value) {
     final K k = toK(key);
     put(k, value);
-    return (M)this;
+    return (M) this;
   }
 
   @SuppressWarnings("unchecked")
   default M addValue(final KA key, V value, final DataType dataType) {
     value = dataType.toObject(value);
     addValue(key, value);
-    return (M)this;
+    return (M) this;
   }
 
   @Override
@@ -135,7 +135,7 @@ public interface MapDefault<K, KA, V, M extends MapDefault<K, KA, V, M>>
   }
 
   default int compareValue(final MapDefault<?, KA, ?, ?> map, final KA fieldName,
-    final boolean nullsFirst) {
+      final boolean nullsFirst) {
     final Comparable<Object> value1 = getValue(fieldName);
     Object value2;
     if (map == null) {
@@ -189,7 +189,7 @@ public interface MapDefault<K, KA, V, M extends MapDefault<K, KA, V, M>>
   }
 
   default <T extends V> T ensureValue(final KA key, final DataTypeProxy dataType,
-    final Supplier<T> supplier) {
+      final Supplier<T> supplier) {
     final Object value = getValue(key);
     if (value == null) {
       final T newValue = supplier.get();
@@ -215,7 +215,7 @@ public interface MapDefault<K, KA, V, M extends MapDefault<K, KA, V, M>>
       value = supplier.get();
       addValue(key, value);
     }
-    return (T)value;
+    return (T) value;
   }
 
   default boolean equalValue(final KA fieldName, final Object value) {
@@ -255,7 +255,7 @@ public interface MapDefault<K, KA, V, M extends MapDefault<K, KA, V, M>>
     if (value == null) {
       return defaultValue;
     } else if (value instanceof Boolean) {
-      return (Boolean)value;
+      return (Boolean) value;
     } else {
       return Boolean.parseBoolean(value.toString());
     }
@@ -353,7 +353,7 @@ public interface MapDefault<K, KA, V, M extends MapDefault<K, KA, V, M>>
   }
 
   default JsonList getJsonList(final KA name) {
-    return getTypeValue(name, Json.JSON_LIST, JsonList.EMPTY);
+    return getTypedValue(name, Json.JSON_LIST, JsonList.EMPTY);
   }
 
   default JsonList getJsonList(final KA name, final JsonList defaultValue) {
@@ -366,7 +366,7 @@ public interface MapDefault<K, KA, V, M extends MapDefault<K, KA, V, M>>
   }
 
   default JsonObject getJsonObject(final KA name) {
-    return getTypeValue(name, Json.JSON_OBJECT, JsonObject.EMPTY);
+    return getTypedValue(name, Json.JSON_OBJECT, JsonObject.EMPTY);
   }
 
   default JsonObject getJsonObject(final KA name, final JsonObject defaultValue) {
@@ -379,7 +379,7 @@ public interface MapDefault<K, KA, V, M extends MapDefault<K, KA, V, M>>
   }
 
   default <T extends V> ListEx<T> getList(final KA name) {
-    return getTypeValue(name, DataTypes.LIST, ListEx.empty());
+    return getTypedValue(name, DataTypes.LIST, ListEx.empty());
   }
 
   default Long getLong(final KA name) {
@@ -415,9 +415,9 @@ public interface MapDefault<K, KA, V, M extends MapDefault<K, KA, V, M>>
     } else if (value instanceof String) {
       return value.toString();
     } else if (value instanceof Clob) {
-      final Clob clob = (Clob)value;
+      final Clob clob = (Clob) value;
       try {
-        return clob.getSubString(1, (int)clob.length());
+        return clob.getSubString(1, (int) clob.length());
       } catch (final SQLException e) {
         throw new RuntimeException("Unable to read clob", e);
       }
@@ -440,8 +440,8 @@ public interface MapDefault<K, KA, V, M extends MapDefault<K, KA, V, M>>
     return dataType.toObject(value);
   }
 
-  default <T extends Object> T getTypeValue(final KA name, final DataType dataType,
-    final T defaultValue) {
+  default <T extends Object> T getTypedValue(final KA name, final DataType dataType,
+      final T defaultValue) {
     final T value = getTypedValue(name, dataType);
     if (value == null) {
       return defaultValue;
@@ -479,12 +479,12 @@ public interface MapDefault<K, KA, V, M extends MapDefault<K, KA, V, M>>
       return null;
     } else {
       final var k = toK(key);
-      return (T)get(k);
+      return (T) get(k);
     }
   }
 
   default <T extends Object> T getValue(final KA name,
-    final DataTypeValueFactory<T> defaultValueFactory) {
+      final DataTypeValueFactory<T> defaultValueFactory) {
     final DataType dataType = defaultValueFactory.getDataType();
     final T value = getTypedValue(name, dataType);
     if (value == null) {
@@ -724,7 +724,7 @@ public interface MapDefault<K, KA, V, M extends MapDefault<K, KA, V, M>>
     for (final Iterator<?> iterator = entries.iterator(); iterator.hasNext();) {
       final Object value = iterator.next();
       if (value instanceof JsonType) {
-        final JsonType jsonValue = (JsonType)value;
+        final JsonType jsonValue = (JsonType) value;
         jsonValue.removeEmptyProperties();
         if (jsonValue.isEmpty()) {
           iterator.remove();
@@ -743,7 +743,7 @@ public interface MapDefault<K, KA, V, M extends MapDefault<K, KA, V, M>>
     if (name == null) {
       return null;
     } else {
-      return (T)remove(name.toString());
+      return (T) remove(name.toString());
     }
   }
 
@@ -784,7 +784,7 @@ public interface MapDefault<K, KA, V, M extends MapDefault<K, KA, V, M>>
     for (final var name : keys) {
       removeValue(name);
     }
-    return (M)this;
+    return (M) this;
   }
 
   @SuppressWarnings("unchecked")
@@ -793,7 +793,7 @@ public interface MapDefault<K, KA, V, M extends MapDefault<K, KA, V, M>>
       final V value = removeValue(oldName);
       addValue(newName, value);
     }
-    return (M)this;
+    return (M) this;
   }
 
   @SuppressWarnings("unchecked")
@@ -802,7 +802,7 @@ public interface MapDefault<K, KA, V, M extends MapDefault<K, KA, V, M>>
       final var value = removeValue(oldName, dataType);
       addValue(newName, value);
     }
-    return (M)this;
+    return (M) this;
   }
 
   @Override
@@ -858,4 +858,5 @@ public interface MapDefault<K, KA, V, M extends MapDefault<K, KA, V, M>>
       }
     };
   }
+
 }

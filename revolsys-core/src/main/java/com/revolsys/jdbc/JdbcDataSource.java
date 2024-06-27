@@ -14,8 +14,9 @@ import com.revolsys.collection.value.ValueHolder;
 import com.revolsys.transaction.ActiveTransactionContext;
 import com.revolsys.transaction.Transaction;
 import com.revolsys.transaction.TransactionContext;
+import com.revolsys.transaction.Transactionable;
 
-public abstract class JdbcDataSource implements DataSource {
+public abstract class JdbcDataSource implements DataSource, Transactionable {
 
   public static interface ConnectionConsumer {
     static ConnectionConsumer EMPTY = t -> {
@@ -40,7 +41,7 @@ public abstract class JdbcDataSource implements DataSource {
   private final Object key = new Object();
 
   protected final ValueHolder<SQLErrorCodeSQLExceptionTranslator> exceptionTranslator = ValueHolder
-      .lazy(this::newExceptionTranslator);
+    .lazy(this::newExceptionTranslator);
 
   private final Function<ActiveTransactionContext, JdbcConnectionTransactionResource> resourceConstructor = this::newConnectionTransactionResource;
 
@@ -48,9 +49,9 @@ public abstract class JdbcDataSource implements DataSource {
   }
 
   public void addConnectionInitializer(final ActiveTransactionContext activeContext,
-      final ConnectionConsumer connection) {
+    final ConnectionConsumer connection) {
     activeContext.getResource(this.key, this.resourceConstructor)
-        .addConnectionInitializer(connection);
+      .addConnectionInitializer(connection);
   }
 
   @Override
@@ -65,8 +66,8 @@ public abstract class JdbcDataSource implements DataSource {
     final TransactionContext context = Transaction.getContext();
     if (context instanceof final ActiveTransactionContext activeContext) {
       return activeContext.getResource(this.key, this.resourceConstructor)
-          .addConnectionInitializer(initializer)
-          .getJdbcConnection();
+        .addConnectionInitializer(initializer)
+        .getJdbcConnection();
     } else {
       final JdbcConnection connection = newJdbcConnection();
       if (connection.hasConnection()) {
@@ -82,14 +83,14 @@ public abstract class JdbcDataSource implements DataSource {
 
   @Override
   public Connection getConnection(final String username, final String password)
-      throws SQLException {
+    throws SQLException {
     throw new UnsupportedOperationException("Username/password connections are not supported");
   }
 
   public DataAccessException getException(final String task, final String sql,
-      final SQLException e) {
+    final SQLException e) {
     final var translatedException = this.exceptionTranslator.getValue()
-        .translate(task, sql, e);
+      .translate(task, sql, e);
     if (translatedException == null) {
       return new UncategorizedSQLException(task, sql, e);
     } else {
@@ -98,7 +99,7 @@ public abstract class JdbcDataSource implements DataSource {
   }
 
   protected abstract JdbcConnectionTransactionResource newConnectionTransactionResource(
-      final ActiveTransactionContext context);
+    final ActiveTransactionContext context);
 
   protected abstract SQLErrorCodeSQLExceptionTranslator newExceptionTranslator();
 

@@ -29,19 +29,19 @@ import com.revolsys.record.query.TableReference;
 import com.revolsys.util.CaseConverter;
 
 public interface RecordDefinition extends Cloneable, GeometryFactoryProxy, RecordStoreSchemaElement,
-  MapSerializer, RecordDefinitionProxy, RecordFactory<Record>, TableReference {
+    MapSerializer, RecordDefinitionProxy, RecordFactory<Record>, TableReference {
 
   static RecordDefinitionBuilder builder() {
     return new RecordDefinitionBuilder();
   }
 
   static RecordDefinition newRecordDefinition(final GeometryFactory geometryFactory,
-    final DataType dataType) {
+      final DataType dataType) {
     final String name = dataType.getName();
     return new RecordDefinitionBuilder(name) //
-      .addField(dataType) //
-      .setGeometryFactory(geometryFactory) //
-      .getRecordDefinition() //
+        .addField(dataType) //
+        .setGeometryFactory(geometryFactory) //
+        .getRecordDefinition() //
     ;
   }
 
@@ -58,14 +58,14 @@ public interface RecordDefinition extends Cloneable, GeometryFactoryProxy, Recor
 
   @Override
   default void appendQueryValue(final Query query, final SqlAppendable sql,
-    final QueryValue queryValue) {
+      final QueryValue queryValue) {
     final RecordStore recordStore = getRecordStore();
     queryValue.appendSql(query, recordStore, sql);
   }
 
   @Override
   default void appendSelect(final Query query, final SqlAppendable sql,
-    final QueryValue queryValue) {
+      final QueryValue queryValue) {
     final RecordStore recordStore = getRecordStore();
     queryValue.appendSelect(query, recordStore, sql);
   }

@@ -70,7 +70,7 @@ public class ODataPrimitiveProcessor extends AbstractProcessor implements Primit
       } else {
         final ODataSerializer serializer = ODataSerializer.createSerializer(responseFormat);
 
-        final ContextURL contextUrl = newContextUrl()//
+        final ContextURL contextUrl = newContextUrl(request)//
           .entitySet(edmEntitySet)
           .navOrPropertyPath(name)
           .build();

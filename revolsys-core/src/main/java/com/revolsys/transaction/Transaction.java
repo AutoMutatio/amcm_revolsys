@@ -15,6 +15,7 @@ public class Transaction {
     <V> V call(Callable<V> action);
 
     void run(RunAction action);
+
   }
 
   static class MandatoryBuilder implements Builder {
@@ -119,14 +120,7 @@ public class Transaction {
           return Exceptions.throwUncheckedException(e);
         }
       } else {
-        try (
-          var context = new ActiveTransactionContext(this.initializers)) {
-          try {
-            return ScopedValue.where(CONTEXT, context).call(action);
-          } catch (final Throwable t) {
-            return context.setRollbackOnly(t);
-          }
-        }
+        return scopedCall(action, this.initializers);
       }
     }
 
@@ -139,11 +133,7 @@ public class Transaction {
           Exceptions.throwUncheckedException(e);
         }
       } else {
-        try (
-          var context = new ActiveTransactionContext(this.initializers)) {
-          final Runnable runnable = runnable(context, action);
-          ScopedValue.where(CONTEXT, context).run(runnable);
-        }
+        scopedRun(action, this.initializers);
       }
     }
 
@@ -161,23 +151,16 @@ public class Transaction {
     @Override
     public <V> V call(final Callable<V> action) {
       try (
-        var s = suspend();
-        ActiveTransactionContext context = new ActiveTransactionContext(this, this.initializers)) {
-        try {
-          return ScopedValue.where(CONTEXT, context).call(action);
-        } catch (final Throwable t) {
-          return context.setRollbackOnly(t);
-        }
+        var s = suspend()) {
+        return scopedCall(action, this.initializers);
       }
     }
 
     @Override
     public void run(final RunAction action) {
       try (
-        var s = suspend();
-        ActiveTransactionContext context = new ActiveTransactionContext(this, this.initializers)) {
-        final Runnable runnable = runnable(context, action);
-        ScopedValue.where(CONTEXT, context).run(runnable);
+        var s = suspend()) {
+        scopedRun(action, this.initializers);
       }
     }
   }
@@ -233,7 +216,8 @@ public class Transaction {
   }
 
   public static boolean isActive() {
-    return hasContext() && CONTEXT.get().isActive();
+    return hasContext() && CONTEXT.get()
+      .isActive();
   }
 
   public static void rollback() {
@@ -254,6 +238,33 @@ public class Transaction {
         context.setRollbackOnly(t);
       }
     };
+  }
+
+  private static <V> V scopedCall(final Callable<V> action,
+    final List<Consumer<ActiveTransactionContext>> initializers) {
+    try (
+      var context = new ActiveTransactionContext(initializers)) {
+      try {
+        return ScopedValue.where(CONTEXT, context)
+          .call(action);
+      } catch (final Throwable t) {
+        return context.setRollbackOnly(t);
+      }
+    }
+  }
+
+  private static void scopedRun(final RunAction action,
+    final List<Consumer<ActiveTransactionContext>> initializers) {
+    try (
+      var context = new ActiveTransactionContext(initializers)) {
+      try {
+        final Runnable runnable = runnable(context, action);
+        ScopedValue.where(CONTEXT, context)
+          .run(runnable);
+      } catch (final Throwable t) {
+        context.setRollbackOnly(t);
+      }
+    }
   }
 
   private static BaseCloseable suspend() {

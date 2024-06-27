@@ -23,9 +23,10 @@ public class ThreadUtil {
         condition.await();
         return true;
       } else {
+        final var seconds = duration.getSeconds();
         final var nano = duration.getNano();
-        if (nano == 0) {
-          return condition.await(duration.toSeconds(), TimeUnit.SECONDS);
+        if (nano == 0 || seconds > 9223372034L) {
+          return condition.await(seconds, TimeUnit.SECONDS);
         } else {
           return condition.await(duration.toNanos(), TimeUnit.NANOSECONDS);
         }

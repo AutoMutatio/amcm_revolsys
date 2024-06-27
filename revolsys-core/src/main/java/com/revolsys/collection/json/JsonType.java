@@ -48,6 +48,15 @@ public interface JsonType extends DataTypedValue, Jsonable, BaseCloneable {
   Appendable appendJson(Appendable appendable);
 
   @Override
+  default Appendable appendJsonFormatted(final Appendable appendable) {
+    try (
+      JsonWriter jsonWriter = new JsonWriter(appendable, true)) {
+      jsonWriter.value(this);
+    }
+    return appendable;
+  }
+
+  @Override
   default JsonType asJson() {
     return this;
   }
@@ -63,5 +72,4 @@ public interface JsonType extends DataTypedValue, Jsonable, BaseCloneable {
   default JsonType toJson() {
     return clone();
   }
-
 }

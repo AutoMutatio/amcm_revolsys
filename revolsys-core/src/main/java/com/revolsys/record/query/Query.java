@@ -1054,10 +1054,10 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
 
   public QueryValue newSelectClause(final Object select) {
     QueryValue selectExpression;
-    if (select instanceof QueryValue) {
-      selectExpression = (QueryValue)select;
-    } else if (select instanceof CharSequence) {
-      final String name = ((CharSequence)select).toString();
+    if (select instanceof final QueryValue queryValue) {
+      selectExpression = queryValue;
+    } else if (select instanceof final CharSequence chars) {
+      final String name = chars.toString();
       final int dotIndex = name.indexOf('.');
       if (dotIndex == -1) {
         if (this.table.hasColumn(name)) {

@@ -36,8 +36,8 @@ public class ODataJsonQueryIterator<V> extends AbstractIterator<V> {
   private int pageCount = 0;
 
   public ODataJsonQueryIterator(final HttpRequestBuilderFactory requestFactory,
-    final HttpRequestBuilder request, final Function<JsonObject, V> converter,
-    final String queryLabel, final int pageLimit) {
+      final HttpRequestBuilder request, final Function<JsonObject, V> converter,
+      final String queryLabel, final int pageLimit) {
     this.requestFactory = requestFactory;
     this.converter = converter;
     this.request = request;
@@ -66,8 +66,7 @@ public class ODataJsonQueryIterator<V> extends AbstractIterator<V> {
         this.nextURI = null;
       }
 
-      this.results = json.<JsonObject> getList("value")
-        .iterator();
+      this.results = json.<JsonObject>getList("value").iterator();
     }
   }
 

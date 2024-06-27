@@ -12,8 +12,6 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
@@ -30,7 +28,6 @@ import com.revolsys.collection.list.ListEx;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.exception.Exceptions;
 import com.revolsys.logging.Logs;
-import com.revolsys.parallel.ExecutorServiceFactory;
 import com.revolsys.parallel.SemaphoreEx;
 import com.revolsys.transaction.ActiveTransactionContext;
 import com.revolsys.transaction.TransactionContext;
@@ -41,14 +38,17 @@ public class JdbcDataSourceImpl extends JdbcDataSource implements BaseCloseable 
   private class ConnectionEntry {
     private static final AtomicInteger INDEX = new AtomicInteger();
 
-    private final AtomicReference<ConnectionEntryState> state = new AtomicReference<>(
-      ConnectionEntryState.IDLE);
-
     private Connection connection;
+
+    private final long expiryMillis = System.currentTimeMillis()
+      + JdbcDataSourceImpl.this.maxAgeMillis;
 
     private final int index = INDEX.incrementAndGet();
 
     private Instant returnedInstant = Instant.EPOCH;
+
+    private final AtomicReference<ConnectionEntryState> state = new AtomicReference<>(
+      ConnectionEntryState.IDLE);
 
     private ConnectionEntry(final Connection connection) {
       this.connection = connection;
@@ -59,29 +59,24 @@ public class JdbcDataSourceImpl extends JdbcDataSource implements BaseCloseable 
       if (this.state.compareAndSet(ConnectionEntryState.IDLE, ConnectionEntryState.ACQUIRED)) {
         return connection;
       } else {
-        final var state = this.state.get();
-        if (state == ConnectionEntryState.ACQUIRED) {
-          throw new IllegalStateException("Cannot aquire connection as it is not idle:  " + state);
-        }
+        throw new IllegalStateException(
+          "Cannot aquire connection as it is not idle: " + this.state);
       }
-      return null;
     }
 
     private void close() {
-      final var oldState = this.state.get();
-      if (oldState != ConnectionEntryState.CLOSED
-        && this.state.compareAndSet(oldState, ConnectionEntryState.CLOSED)) {
+      if (this.state.compareAndSet(ConnectionEntryState.ACQUIRED, ConnectionEntryState.IDLE)) {
+        decrementPoolSize();
+      }
+      if (this.state.compareAndSet(ConnectionEntryState.IDLE, ConnectionEntryState.CLOSED)) {
         final var connection = this.connection;
         this.connection = null;
-        if (JdbcDataSourceImpl.this.idleConnections.remove(this)) {
-          JdbcDataSourceImpl.this.idleCount.decrementAndGet();
-        }
         BaseCloseable.closeSilent(connection);
       }
     }
 
-    public Duration getIdleDuration() {
-      return Duration.between(this.returnedInstant, Instant.now());
+    public Connection getConnection() {
+      return this.connection;
     }
 
     @Override
@@ -93,10 +88,23 @@ public class JdbcDataSourceImpl extends JdbcDataSource implements BaseCloseable 
       return this.state.get() == ConnectionEntryState.CLOSED;
     }
 
-    private void release() throws SQLException {
+    public boolean isExpired(final long time) {
+      if (isClosed()) {
+        return true;
+      } else if (time > this.expiryMillis) {
+        close();
+        return true;
+      } else {
+        return false;
+      }
+    }
+
+    private void release(final boolean hasError) throws SQLException {
       if (this.state.compareAndSet(ConnectionEntryState.ACQUIRED, ConnectionEntryState.IDLE)) {
-        this.returnedInstant = Instant.now();
+        @SuppressWarnings("resource")
+        final var dataSource = JdbcDataSourceImpl.this;
         try {
+          this.returnedInstant = Instant.now();
           final var connection = this.connection;
           if (connection != null) {
             final boolean connAutoCommit = connection.getAutoCommit();
@@ -114,17 +122,16 @@ public class JdbcDataSourceImpl extends JdbcDataSource implements BaseCloseable 
           close();
           throw e;
         } finally {
-          final int maxIdle = getMaxIdle();
-          final var dataSource = JdbcDataSourceImpl.this;
-          if (isClosed() || maxIdle > -1 && maxIdle <= dataSource.idleCount.get()) {
-            close();
-          } else if (!isClosed()) {
-            dataSource.idleCount.incrementAndGet();
-            dataSource.idleConnections.addLast(this);
-            dataSource.poolSizeSemaphore.release();
-          }
-          if (isClosed()) {
-            clear();
+          try {
+            if (isExpired(this.returnedInstant.toEpochMilli()) || !canIdle()) {
+              close();
+            } else if (dataSource.isClosed()) {
+              close();
+            } else {
+              dataSource.idleConnections.addLast(this);
+            }
+          } finally {
+            decrementPoolSize();
           }
         }
       } else {
@@ -143,7 +150,7 @@ public class JdbcDataSourceImpl extends JdbcDataSource implements BaseCloseable 
   }
 
   private enum ConnectionEntryState {
-    IDLE, ACQUIRED, CLOSED
+    ACQUIRED, CLOSED, IDLE
   }
 
   private class ConnectionImpl extends JdbcConnection {
@@ -158,7 +165,7 @@ public class JdbcDataSourceImpl extends JdbcDataSource implements BaseCloseable 
 
     @Override
     protected void preClose() throws SQLException {
-      this.entry.release();
+      this.entry.release(false);
       this.entry = null;
     }
 
@@ -173,7 +180,7 @@ public class JdbcDataSourceImpl extends JdbcDataSource implements BaseCloseable 
 
     @Override
     protected void closeConnection() throws SQLException {
-      this.entry.release();
+      this.entry.release(isHasError());
       this.entry = null;
     }
 
@@ -186,10 +193,7 @@ public class JdbcDataSourceImpl extends JdbcDataSource implements BaseCloseable 
     protected Connection newConnection() throws SQLException {
       final var entry = getConnectionEntry();
       try {
-        final var connection = entry.aquire();
-        if (connection == null) {
-          throw new CannotGetJdbcConnectionException("Connection was null");
-        }
+        final var connection = entry.getConnection();
         initializeConnection(connection);
         this.entry = entry;
         return connection;
@@ -206,67 +210,49 @@ public class JdbcDataSourceImpl extends JdbcDataSource implements BaseCloseable 
   }
 
   private enum DataSourceStateState {
-    NEW, INITIALIZING, INITIALIZED, CLOSED
+    CLOSED, INITIALIZED, INITIALIZING, NEW
   }
-
-  private static final Duration MAX_DURATION = Duration.ofMillis(Long.MAX_VALUE);
 
   private final AtomicBoolean closed = new AtomicBoolean();
 
   private volatile ListEx<Consumer<Connection>> connectionInitCallbacks = ListEx.empty();
 
-  private String url;
-
-  private Duration defaultQueryTimeoutDuration;
+  private final Properties connectionProperties = new Properties();
 
   private Driver driver;
 
-  private ClassLoader driverClassLoader;
-
   private String driverClassName;
 
-  private boolean rollbackOnReturn = true;
+  private final ConcurrentLinkedDeque<ConnectionEntry> idleConnections = new ConcurrentLinkedDeque<>();
 
-  private int minPoolSize = 0;
+  private final CountDownLatch initLatch = new CountDownLatch(1);
+
+  private SemaphoreEx limitIdle;
+
+  private SemaphoreEx limitLeases;
+
+  private PrintWriter logWriter;
+
+  private Duration maxAge = Duration.ofHours(1);
+
+  private long maxAgeMillis = this.maxAge.toMillis();
+
+  private int maxIdle = 2;
 
   private int maxPoolSize = 8;
 
   private Duration maxWait = Duration.ofSeconds(-1);
 
-  private final ConcurrentLinkedDeque<ConnectionEntry> idleConnections = new ConcurrentLinkedDeque<>();
+  private Supplier<String> passwordSupplier;
 
-  private final int numTestsPerEvictionRun = 10;
-
-  private PrintWriter logWriter;
-
-  private final Duration idleEvictDuration = MAX_DURATION;
-
-  private final Duration idleSoftEvictDuration = MAX_DURATION;
-
-  private int minIdle = 0;
-
-  private int maxIdle = 2;
-
-  private Duration minEvictableIdle;
-
-  private int evictDelaySeconds;
-
-  private Future<?> evictor;
-
-  private SemaphoreEx poolSizeSemaphore;
+  private boolean rollbackOnReturn = true;
 
   private final AtomicReference<DataSourceStateState> state = new AtomicReference<>(
     DataSourceStateState.NEW);
 
-  private final CountDownLatch initLatch = new CountDownLatch(1);
-
-  private final AtomicInteger idleCount = new AtomicInteger();
+  private String url;
 
   private Supplier<String> userSupplier;
-
-  private Supplier<String> passwordSupplier;
-
-  private final Properties connectionProperties = new Properties();
 
   public JdbcDataSourceImpl() {
   }
@@ -283,42 +269,30 @@ public class JdbcDataSourceImpl extends JdbcDataSource implements BaseCloseable 
     }
   }
 
-  public void clear() {
-    while (!this.idleConnections.isEmpty()) {
-      final var entry = nextEntry();
-      if (entry != null) {
-        entry.close();
-      }
+  public boolean canIdle() {
+    if (this.limitIdle == null || isClosed()) {
+      return false;
+    } else {
+      return this.limitIdle.tryAcquire();
     }
   }
 
   @Override
   public void close() {
     if (!this.closed.compareAndSet(false, true)) {
-      clear();
-      this.poolSizeSemaphore.release(this.poolSizeSemaphore.availablePermits());
-      final var evictor = this.evictor;
-      if (evictor != null) {
-        evictor.cancel(true);
+      while (!this.idleConnections.isEmpty()) {
+        final var entry = nextEntry();
+        if (entry != null) {
+          entry.close();
+        }
       }
+      this.limitLeases.release(this.maxPoolSize - this.limitLeases.availablePermits());
     }
   }
 
-  private void evict() {
-    int count = 0;
-    final var iterator = this.idleConnections.iterator();
-    while (iterator.hasNext() && count++ < this.numTestsPerEvictionRun && !isClosed()) {
-      final var entry = iterator.next();
-      final int idleCount = this.idleCount.get();
-      final Duration idleDuration = entry.getIdleDuration();
-      final var idleSoftEvict = getIdleSoftEvictDuration();
-      final var idleEvict = getIdleEvictDuration();
-      if (idleSoftEvict.compareTo(idleDuration) < 0 && getMinIdle() < idleCount
-        || idleEvict.compareTo(idleDuration) < 0) {
-        removeEntry(entry);
-      } else if (entry.isClosed()) {
-        removeEntry(entry);
-      }
+  private void decrementPoolSize() {
+    if (!isClosed()) {
+      this.limitLeases.release();
     }
   }
 
@@ -341,64 +315,43 @@ public class JdbcDataSourceImpl extends JdbcDataSource implements BaseCloseable 
         throw Exceptions.toRuntimeException(e);
       }
     }
-    if (this.poolSizeSemaphore.tryAcquire(this.maxWait)) {
+    if (!isClosed() && this.limitLeases.tryAcquire(this.maxWait) && !isClosed()) {
       var entry = nextEntry();
       if (entry == null) {
+        Connection connection = null;
         try {
-          final var connection = newConnectionDo();
+          try {
+            connection = newConnectionDo();
+          } catch (final SQLException e) {
+            throw getException("New connection", null, e);
+          }
           if (connection == null) {
             throw new CannotGetJdbcConnectionException(
               "JDBC driver doesn't support connection URL");
           }
-          try {
-            for (final Consumer<Connection> callback : JdbcDataSourceImpl.this.connectionInitCallbacks) {
-              callback.accept(connection);
-            }
-          } catch (final RuntimeException | Error e) {
-            BaseCloseable.closeSilent(connection);
-            throw e;
+          for (final Consumer<Connection> callback : JdbcDataSourceImpl.this.connectionInitCallbacks) {
+            callback.accept(connection);
           }
           entry = new ConnectionEntry(connection);
-        } catch (final SQLException e) {
-          this.poolSizeSemaphore.release();
-          throw getException("New connection", null, e);
         } catch (RuntimeException | Error e) {
-          this.poolSizeSemaphore.release();
+          BaseCloseable.closeSilent(connection);
+          decrementPoolSize();
           throw e;
         }
       }
-      if (isClosed()) {
-        entry.close();
-        throw new IllegalStateException("Data source closed");
-      } else {
-        return entry;
-      }
+      entry.aquire();
+      return entry;
     }
-    throw new TransientDataAccessResourceException("Connect timeout");
-  }
+    if (isClosed()) {
+      throw new IllegalStateException("Data source closed");
+    } else {
+      throw new TransientDataAccessResourceException("Pool size wait timeout");
+    }
 
-  public Duration getDefaultQueryTimeoutDuration() {
-    return this.defaultQueryTimeoutDuration;
-  }
-
-  public Driver getDriver() {
-    return this.driver;
-  }
-
-  public ClassLoader getDriverClassLoader() {
-    return this.driverClassLoader;
   }
 
   public String getDriverClassName() {
     return this.driverClassName;
-  }
-
-  public Duration getIdleEvictDuration() {
-    return this.idleEvictDuration;
-  }
-
-  public Duration getIdleSoftEvictDuration() {
-    return this.idleSoftEvictDuration;
   }
 
   @Override
@@ -411,56 +364,23 @@ public class JdbcDataSourceImpl extends JdbcDataSource implements BaseCloseable 
     return this.logWriter;
   }
 
-  public int getMaxIdle() {
-    return this.maxIdle;
-  }
-
-  public int getMaxPoolSize() {
-    return this.maxPoolSize;
-  }
-
-  public Duration getMaxWait() {
-    return this.maxWait;
-  }
-
-  public Duration getMinEvictableIdle() {
-    return this.minEvictableIdle;
-  }
-
-  public int getMinIdle() {
-    return this.minIdle;
-  }
-
-  public int getMinPoolSize() {
-    return this.minPoolSize;
-  }
-
   @Override
   public Logger getParentLogger() throws SQLFeatureNotSupportedException {
     throw new SQLFeatureNotSupportedException();
-  }
-
-  public String getUrl() {
-    return this.url;
   }
 
   private void initialize() {
     try {
       if (this.driver == null) {
         final String driverClassName = getDriverClassName();
-        final ClassLoader driverClassLoader = getDriverClassLoader();
-        final String url = getUrl();
-        Class<?> driverFromCCL = null;
+        final String url = this.url;
+        Class<?> driver = null;
         if (driverClassName != null) {
           try {
             try {
-              if (driverClassLoader == null) {
-                driverFromCCL = Class.forName(driverClassName);
-              } else {
-                driverFromCCL = Class.forName(driverClassName, true, driverClassLoader);
-              }
+              driver = Class.forName(driverClassName);
             } catch (final ClassNotFoundException cnfe) {
-              driverFromCCL = Thread.currentThread()
+              driver = Thread.currentThread()
                 .getContextClassLoader()
                 .loadClass(driverClassName);
             }
@@ -471,14 +391,10 @@ public class JdbcDataSourceImpl extends JdbcDataSource implements BaseCloseable 
         }
 
         try {
-          if (driverFromCCL == null) {
+          if (driver == null) {
             this.driver = DriverManager.getDriver(url);
           } else {
-            // Usage of DriverManager is not possible, as it does not
-            // respect the ContextClassLoader
-            // N.B. This cast may cause ClassCastException which is
-            // handled below
-            this.driver = (Driver)driverFromCCL.getConstructor()
+            this.driver = (Driver)driver.getConstructor()
               .newInstance();
             if (!this.driver.acceptsURL(url)) {
               throw new SQLException("No suitable driver", "08001");
@@ -493,10 +409,11 @@ public class JdbcDataSourceImpl extends JdbcDataSource implements BaseCloseable 
     } catch (final SQLException e) {
       throw Exceptions.toRuntimeException(e);
     }
-    this.poolSizeSemaphore = new SemaphoreEx(this.maxPoolSize);
-    this.evictor = ExecutorServiceFactory.getScheduledVirtual()
-      .scheduleWithFixedDelay(this::evict, this.evictDelaySeconds, this.evictDelaySeconds,
-        TimeUnit.SECONDS);
+    this.limitLeases = new SemaphoreEx(this.maxPoolSize);
+    final var maxIdle = Math.min(this.maxIdle, this.maxPoolSize);
+    if (maxIdle > 0) {
+      this.limitIdle = new SemaphoreEx(maxIdle);
+    }
     if (this.state.compareAndSet(DataSourceStateState.INITIALIZING,
       DataSourceStateState.INITIALIZED)) {
       this.initLatch.countDown();
@@ -517,7 +434,7 @@ public class JdbcDataSourceImpl extends JdbcDataSource implements BaseCloseable 
   }
 
   private Connection newConnectionDo() throws SQLException {
-    final var url = getUrl();
+    final var url = this.url;
     final var connectionProperties = new Properties(this.connectionProperties);
     if (this.userSupplier != null) {
       final var user = this.userSupplier.get();
@@ -568,24 +485,22 @@ public class JdbcDataSourceImpl extends JdbcDataSource implements BaseCloseable 
   @Override
   protected JdbcConnection newJdbcConnection() throws SQLException {
     final var entry = getConnectionEntry();
-    final var connection = entry.aquire();
-    if (connection == null) {
-      throw new CannotGetJdbcConnectionException("Connection was null");
-    }
+    final var connection = entry.getConnection();
     return new ConnectionImpl(this, entry, connection, true);
   }
 
   private ConnectionEntry nextEntry() {
-    final ConnectionEntry entry = this.idleConnections.pollFirst();
-    if (entry != null) {
-      this.idleCount.decrementAndGet();
-    }
-    return entry;
-  }
-
-  private void removeEntry(final ConnectionEntry entry) {
-    if (this.idleConnections.remove(entry)) {
-      entry.close();
+    final long time = System.currentTimeMillis();
+    while (true) {
+      final ConnectionEntry entry = this.idleConnections.pollFirst();
+      if (entry == null) {
+        return null;
+      } else {
+        this.limitIdle.release();
+        if (!entry.isExpired(time)) {
+          return entry;
+        }
+      }
     }
   }
 
@@ -611,41 +526,25 @@ public class JdbcDataSourceImpl extends JdbcDataSource implements BaseCloseable 
     return this;
   }
 
-  public JdbcDataSourceImpl setDefaultQueryTimeout(final Duration defaultQueryTimeoutDuration) {
-    this.defaultQueryTimeoutDuration = defaultQueryTimeoutDuration;
-    return this;
-  }
-
-  public JdbcDataSourceImpl setDriver(final Driver driver) {
-    this.driver = driver;
-    return this;
-  }
-
-  public JdbcDataSourceImpl setDriverClassLoader(final ClassLoader driverClassLoader) {
-    this.driverClassLoader = driverClassLoader;
-    return this;
-  }
-
   public JdbcDataSourceImpl setDriverClassName(final String driverClassName) {
     this.driverClassName = driverClassName;
     return this;
   }
 
-  public JdbcDataSourceImpl setDurationBetweenEvictionRuns(final Duration duration) {
-    this.evictDelaySeconds = Math.max(1, (int)duration.toSeconds());
-    return this;
-  }
-
   @Override
   public void setLoginTimeout(final int loginTimeout) throws SQLException {
-    // This method isn't supported by the PoolingDataSource returned by the
-    // createDataSource
-    throw new UnsupportedOperationException("Not supported by BasicDataSource");
+    throw new UnsupportedOperationException("Not supported by JdbcDataSourceImpl");
   }
 
   @Override
   public void setLogWriter(final PrintWriter logWriter) {
     this.logWriter = logWriter;
+  }
+
+  public JdbcDataSourceImpl setMaxAge(final Duration maxAge) {
+    this.maxAge = maxAge;
+    this.maxAgeMillis = maxAge.toMillis();
+    return this;
   }
 
   public JdbcDataSourceImpl setMaxIdle(final int maxIdle) {
@@ -665,21 +564,6 @@ public class JdbcDataSourceImpl extends JdbcDataSource implements BaseCloseable 
 
   public JdbcDataSourceImpl setMaxWait(final Duration maxWait) {
     this.maxWait = maxWait;
-    return this;
-  }
-
-  public final JdbcDataSourceImpl setMinEvictableIdle(final Duration minEvictableIdle) {
-    this.minEvictableIdle = minEvictableIdle;
-    return this;
-  }
-
-  public JdbcDataSourceImpl setMinIdle(final int minIdle) {
-    this.minIdle = minIdle;
-    return this;
-  }
-
-  public JdbcDataSourceImpl setMinPoolSize(final int minPoolSize) {
-    this.minPoolSize = minPoolSize;
     return this;
   }
 
@@ -710,5 +594,4 @@ public class JdbcDataSourceImpl extends JdbcDataSource implements BaseCloseable 
     }
     throw new SQLException(this + " is not a wrapper for " + iface);
   }
-
 }

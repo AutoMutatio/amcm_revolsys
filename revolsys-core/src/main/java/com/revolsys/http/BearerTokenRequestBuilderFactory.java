@@ -28,6 +28,17 @@ public class BearerTokenRequestBuilderFactory extends HttpRequestBuilderFactory 
     }
   }
 
+  public boolean hasValidToken() {
+    if (this.token == null || this.token.isExpired()) {
+      this.token = this.tokenRefresh.refreshBearerToken(this.token);
+    }
+    if (this.token == null) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
   protected String getAuthorizationHeader() {
     final String accessToken = getAccessToken();
     return "Bearer " + accessToken;

@@ -22,7 +22,7 @@ public class LazyValueHolder<T> implements ValueHolder<T>, BaseCloseable {
     }
 
     public Builder<V> cacheTime(final Duration duration) {
-      final var expireTime = new AtomicReference<Instant>(Instant.MAX);
+      final var expireTime = new AtomicReference<>(Instant.MAX);
       this.holder.validator = v -> Instant.now()
         .isBefore(expireTime.get());
       this.holder.loadCallback = b -> expireTime.set(Instant.now()
@@ -214,7 +214,7 @@ public class LazyValueHolder<T> implements ValueHolder<T>, BaseCloseable {
 
   public boolean isInitialized() {
     return this.valueRef.get()
-      .isLoaded();
+        .isLoaded();
   }
 
   public void refresh() {
@@ -249,7 +249,7 @@ public class LazyValueHolder<T> implements ValueHolder<T>, BaseCloseable {
       return updateRef.setValue(value);
     } else {
       return this.valueRef.get()
-        .getValue();
+          .getValue();
     }
   }
 
@@ -259,16 +259,22 @@ public class LazyValueHolder<T> implements ValueHolder<T>, BaseCloseable {
 
   @Override
   public <V> ValueHolder<V> then(final Function<T, V> converter) {
-    final var timestamp = new AtomicReference<Instant>(Instant.MIN);
-    return new Builder<V>().validator(v -> !getValueReference().timestamp()
-      .equals(timestamp.get()))
-      .valueSupplier(() -> {
-        final var ref = getValueReference();
-        final var value = getValue();
-        timestamp.set(ref.timestamp());
-        return converter.apply(value);
-      })
-      .build();
+    final var timestamp = new AtomicReference<>(Instant.MIN);
+    final Predicate<V> validator = v -> {
+      final var valueTimestamp = getValueReference().timestamp();
+      final var cacheTimestamp = timestamp.get();
+      return valueTimestamp
+          .equals(cacheTimestamp);
+    };
+    final Supplier<V> supplier = () -> {
+      final var ref = getValueReference();
+      final var value = getValue();
+      timestamp.set(ref.timestamp());
+      return converter.apply(value);
+    };
+    return new Builder<V>().validator(validator)
+        .valueSupplier(supplier)
+        .build();
   }
 
   @Override

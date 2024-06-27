@@ -19,6 +19,8 @@ import javax.measure.Quantity;
 import javax.measure.Unit;
 
 import com.revolsys.collection.iterator.BaseIterable;
+import com.revolsys.collection.json.Json;
+import com.revolsys.collection.json.JsonType;
 import com.revolsys.data.type.DataType;
 import com.revolsys.data.type.DataTypes;
 import com.revolsys.util.Property;
@@ -174,12 +176,13 @@ public interface ListEx<T> extends List<T>, Cloneable, BaseIterable<T> {
   }
 
   default Double getDouble(final int index, final double defaultValue) {
-    final Double value = getDouble(index);
-    if (value == null) {
-      return defaultValue;
-    } else {
-      return value;
+    if (index < size()) {
+      final var value = getDouble(index);
+      if (value != null) {
+        return value;
+      }
     }
+    return defaultValue;
   }
 
   @Override
@@ -275,6 +278,30 @@ public interface ListEx<T> extends List<T>, Cloneable, BaseIterable<T> {
     return List.super.parallelStream();
   }
 
+  default boolean removeEmptyProperties() {
+    boolean removed = false;
+    for (final Iterator<T> iterator = iterator(); iterator.hasNext();) {
+      final Object value = iterator.next();
+      if (value instanceof final JsonType jsonValue) {
+        jsonValue.removeEmptyProperties();
+        if (jsonValue.isEmpty()) {
+          iterator.remove();
+          removed = true;
+        }
+      } else if (value instanceof final ListEx list) {
+        list.removeEmptyProperties();
+        if (list.isEmpty()) {
+          iterator.remove();
+          removed = true;
+        }
+      } else if (!Property.hasValue(value)) {
+        iterator.remove();
+        removed = true;
+      }
+    }
+    return removed;
+  }
+
   @Override
   default T removeLast() {
     if (size() > 0) {
@@ -316,5 +343,9 @@ public interface ListEx<T> extends List<T>, Cloneable, BaseIterable<T> {
       array[i] = width;
     }
     return array;
+  }
+
+  default String toJsonString(final boolean indent) {
+    return Json.toString(this, indent);
   }
 }

@@ -4,6 +4,7 @@ import java.io.File;
 import java.nio.file.Path;
 import java.sql.Array;
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -36,6 +37,7 @@ import com.revolsys.record.io.RecordReader;
 import com.revolsys.record.io.RecordStoreConnection;
 import com.revolsys.record.io.RecordStoreFactory;
 import com.revolsys.record.io.RecordWriter;
+import com.revolsys.record.query.ColumnIndexes;
 import com.revolsys.record.query.Condition;
 import com.revolsys.record.query.DeleteStatement;
 import com.revolsys.record.query.InsertStatement;
@@ -98,6 +100,7 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
 
   /**
    * Construct a new initialized record store.
+   *
    * @param connectionProperties
    * @return
    */
@@ -481,6 +484,12 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
   String getUrl();
 
   String getUsername();
+
+  default Object getValueFromResultSet(final RecordDefinition recordDefinition,
+    final String dataType, final ResultSet resultSet, final ColumnIndexes indexes,
+    final boolean internStrings) {
+    throw new UnsupportedOperationException();
+  }
 
   default boolean hasSchema(final PathName schemaName) {
     return getSchema(schemaName) != null;

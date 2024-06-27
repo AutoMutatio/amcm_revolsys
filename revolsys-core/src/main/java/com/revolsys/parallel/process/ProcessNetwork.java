@@ -47,16 +47,20 @@ public class ProcessNetwork {
   public static <V> void forEach(final int processCount, final Iterable<V> values,
     final Consumer<V> action) {
     final Iterator<V> iterator = values.iterator();
+    final var lock = new ReentrantLockEx();
     if (iterator.hasNext()) {
       final ProcessNetwork processNetwork = new ProcessNetwork();
       for (int i = 0; i < processCount; i++) {
         processNetwork.addProcess(() -> {
           while (true) {
             V value;
-            if (iterator.hasNext()) {
-              value = iterator.next();
-            } else {
-              return;
+            try (
+              var l = lock.lockX()) {
+              if (iterator.hasNext()) {
+                value = iterator.next();
+              } else {
+                return;
+              }
             }
             action.accept(value);
           }
@@ -114,6 +118,11 @@ public class ProcessNetwork {
   }
 
   public static void startAndWait(final Process... processes) {
+    final ProcessNetwork processNetwork = new ProcessNetwork(processes);
+    processNetwork.startAndWait();
+  }
+
+  public static void startAndWait(final Runnable... processes) {
     final ProcessNetwork processNetwork = new ProcessNetwork(processes);
     processNetwork.startAndWait();
   }
