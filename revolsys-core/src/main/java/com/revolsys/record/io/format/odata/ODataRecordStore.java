@@ -56,6 +56,7 @@ import com.revolsys.record.query.Or;
 import com.revolsys.record.query.OrderBy;
 import com.revolsys.record.query.Query;
 import com.revolsys.record.query.QueryValue;
+import com.revolsys.record.query.SqlCondition;
 import com.revolsys.record.query.Subtract;
 import com.revolsys.record.query.Value;
 import com.revolsys.record.query.functions.EnvelopeIntersects;
@@ -105,6 +106,9 @@ public class ODataRecordStore extends AbstractRecordStore {
     HANDLERS.put(ColumnAlias.class, ODataRecordStore::addColumn);
     HANDLERS.put(FieldDefinition.class, ODataRecordStore::addColumn);
     HANDLERS.put(AcceptAllCondition.class, (filter, value) -> {
+    });
+    HANDLERS.put(SqlCondition.class, (filter, value) -> {
+      filter.append(((SqlCondition)value).getSql());
     });
     HANDLERS.put(EnvelopeIntersects.class, (filter, value) -> {
       final EnvelopeIntersects i = (EnvelopeIntersects)value;
