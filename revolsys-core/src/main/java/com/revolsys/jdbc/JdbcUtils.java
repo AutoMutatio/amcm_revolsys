@@ -33,21 +33,14 @@ import com.revolsys.record.query.Query;
 import com.revolsys.record.query.QueryValue;
 import com.revolsys.record.query.SqlAppendable;
 import com.revolsys.record.query.StringBuilderSqlAppendable;
-import com.revolsys.record.schema.RecordDefinition;
-import com.revolsys.record.schema.RecordStore;
 import com.revolsys.util.Property;
 
 public final class JdbcUtils {
 
   public static void appendQueryValue(final SqlAppendable sql, final Query query,
     final QueryValue queryValue) {
-    final RecordDefinition recordDefinition = query.getRecordDefinition();
-    if (recordDefinition == null) {
-      queryValue.appendSql(query, null, sql);
-    } else {
-      final RecordStore recordStore = recordDefinition.getRecordStore();
-      queryValue.appendSql(query, recordStore, sql);
-    }
+    final var recordStore = query.getRecordStore();
+    queryValue.appendSql(query, recordStore, sql);
   }
 
   public static void appendWhere(final SqlAppendable sql, final Query query,
