@@ -1,9 +1,16 @@
 package com.revolsys.net.oauth;
 
+import java.awt.Desktop;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
+import java.io.IOException;
 import java.net.URI;
 import java.util.Collection;
 import java.util.function.Function;
 import java.util.function.Supplier;
+
+import javax.swing.SwingUtilities;
 
 import org.apache.http.client.methods.RequestBuilder;
 
@@ -312,10 +319,30 @@ public class OpenIdConnectClient extends BaseObjectWithProperties implements Bea
 
   public OpenIdBearerToken tokenDeviceCode(final String deviceCode, final String scope) {
     final String grantType = "urn:ietf:params:oauth:grant-type:device_code";
-    final var requestBuilder = tokenBuilder(grantType, false) //
+    final var requestBuilder = tokenBuilder(grantType, true) //
       .addParameter("device_code", deviceCode);
 
     return getOpenIdBearerToken(requestBuilder, scope);
+  }
+
+  public BearerTokenFactory tokenFactoryDeviceCode() {
+    return s -> {
+      final var deviceCodeResponse = deviceCode(s.toString());
+      SwingUtilities.invokeLater(() -> {
+        try {
+          final Toolkit toolkit = Toolkit.getDefaultToolkit();
+          final Clipboard clipboard = toolkit.getSystemClipboard();
+          final var transferable = new StringSelection(deviceCodeResponse.getUserCode());
+          clipboard.setContents(transferable, null);
+          Desktop.getDesktop()
+            .browse(URI.create(deviceCodeResponse.getVerificationUri()));
+        } catch (final IOException e) {
+          // TODO Auto-generated catch block
+          e.printStackTrace();
+        }
+      });
+      return deviceCodeResponse.getToken();
+    };
   }
 
   public OpenIdBearerToken tokenPassword(final String username, final String password,

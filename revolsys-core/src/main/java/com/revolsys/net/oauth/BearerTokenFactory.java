@@ -5,8 +5,10 @@ import com.revolsys.http.HttpRequestBuilderFactory;
 
 public interface BearerTokenFactory {
   default ValueHolder<BearerToken> lazyValue(final OpenIdScope scope) {
-    return ValueHolder.<BearerToken>lazy().valueRefresh(token -> refreshBearerToken(scope, token))
-        .validator(BearerToken::isValid).build();
+    return ValueHolder.<BearerToken> lazy()
+      .valueRefresh(token -> refreshBearerToken(scope, token))
+      .validator(BearerToken::isValid)
+      .build();
   }
 
   default HttpRequestBuilderFactory newHttpRequestBuilderFactory(final OpenIdScope scope) {
@@ -15,7 +17,9 @@ public interface BearerTokenFactory {
 
   BearerToken newToken(OpenIdScope resource);
 
-  BearerTokenRefresher newTokenRefresh(OpenIdScope scope);
+  default BearerTokenRefresher newTokenRefresh(final OpenIdScope scope) {
+    return t -> newToken(scope);
+  }
 
   default BearerToken refreshBearerToken(final OpenIdScope scope, final BearerToken token) {
     return newToken(scope);

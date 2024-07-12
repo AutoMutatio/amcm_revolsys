@@ -1,11 +1,14 @@
 package com.revolsys.record.query;
 
+import java.sql.PreparedStatement;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
+import com.revolsys.collection.map.MapEx;
 import com.revolsys.data.identifier.Identifier;
 import com.revolsys.data.type.DataType;
 import com.revolsys.data.type.DataTypes;
@@ -326,6 +329,11 @@ public class Q {
     return new In(left, collectionValue);
   }
 
+  public static In in(final String name, final Object... values) {
+    final List<Object> list = Arrays.asList(values);
+    return new In(name, list);
+  }
+
   public static In in(final TableReferenceProxy table, final CharSequence fieldName,
     final Object... values) {
     final var column = table.getColumn(fieldName);
@@ -511,6 +519,39 @@ public class Q {
 
   public static Or or(final List<? extends Condition> conditions) {
     return new Or(conditions);
+  }
+
+  public static Condition predicate(final Predicate<MapEx> predicate) {
+    return new Condition() {
+      @Override
+      public void appendDefaultSql(final Query query, final RecordStore recordStore,
+        final SqlAppendable sql) {
+        throw new UnsupportedOperationException(
+          "Predicate conditions cannot be used to create a SQL expression");
+      }
+
+      @Override
+      public int appendParameters(final int index, final PreparedStatement statement) {
+        throw new UnsupportedOperationException(
+          "Predicate conditions cannot be used to append SQL parameters");
+      }
+
+      @Override
+      public Condition clone() {
+        return this;
+      }
+
+      @Override
+      public Condition clone(final TableReference oldTable, final TableReference newTable) {
+        return this;
+      }
+
+      @Override
+      public boolean test(final MapEx record) {
+        return predicate.test(record);
+      }
+    };
+
   }
 
   public static void setValue(final int index, final Condition condition, final Object value) {
