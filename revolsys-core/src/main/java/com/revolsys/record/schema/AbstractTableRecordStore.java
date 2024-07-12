@@ -392,6 +392,11 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
   }
 
   public Query newQuery(final TableRecordStoreConnection connection,
+    final Consumer<Query> configurer) {
+    return newQuery(connection).accept(configurer);
+  }
+
+  public Query newQuery(final TableRecordStoreConnection connection,
     final HttpServletRequest request, final int maxSize) {
     final String select = request.getParameter("$select");
     final String filter = request.getParameter("$filter");
@@ -441,11 +446,11 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     applySearchCondition(query, search);
   }
 
-  public Record newRecord(TableRecordStoreConnection connection) {
+  public Record newRecord(final TableRecordStoreConnection connection) {
     return getRecordDefinition().newRecord();
   }
 
-  public Record newRecord(TableRecordStoreConnection connection, final MapEx values) {
+  public Record newRecord(final TableRecordStoreConnection connection, final MapEx values) {
     if (values == null) {
       return null;
     } else {
