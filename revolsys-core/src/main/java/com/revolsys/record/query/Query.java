@@ -237,6 +237,11 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     setWhereCondition(whereCondition);
   }
 
+  public Query accept(final Consumer<Query> action) {
+    action.accept(this);
+    return this;
+  }
+
   public Query addGroupBy(final Object groupByItem) {
     if (groupByItem instanceof QueryValue) {
       final QueryValue queryValue = (QueryValue)groupByItem;
@@ -385,6 +390,12 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
       setWhereCondition(whereCondition);
     }
     return this;
+  }
+
+  public Query and(final QueryValue fieldName,
+    final BiFunction<QueryValue, QueryValue, Condition> operator, final Object value) {
+    final Condition condition = newCondition(fieldName, operator, value);
+    return and(condition);
   }
 
   public Query and(final String fieldName,
@@ -763,11 +774,22 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     return records;
   }
 
-  public RecordStore getRecordStore() {
+  @SuppressWarnings("unchecked")
+  @Override
+  public <R extends RecordStore> R getRecordStore() {
     if (this.recordStore == null) {
-      return getRecordDefinition().getRecordStore();
+      final var recordDefinition = getRecordDefinition();
+      if (recordDefinition == null) {
+        if (this.from == null) {
+          return null;
+        } else {
+          return this.from.getRecordStore();
+        }
+      } else {
+        return recordDefinition.getRecordStore();
+      }
     } else {
-      return this.recordStore;
+      return (R)this.recordStore;
     }
   }
 
@@ -1273,19 +1295,19 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
   }
 
   public Query setFrom(final From from, final String alias) {
-    this.from = new FromAlias(from, alias);
-    return this;
+    final var fromAlias = new FromAlias(from, alias);
+    return setFrom(fromAlias);
   }
 
   public Query setFrom(final String from) {
-    this.from = new FromSql(from);
-    return this;
+    final var fromSql = new FromSql(from);
+    return setFrom(fromSql);
   }
 
   public Query setFrom(final String from, final String alias) {
     final FromSql fromSql = new FromSql(from);
-    this.from = new FromAlias(fromSql, alias);
-    return this;
+    final var fromAlias = new FromAlias(fromSql, alias);
+    return setFrom(fromAlias);
   }
 
   public Query setGroupBy(final List<?> groupBy) {
@@ -1365,6 +1387,7 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
   public Query setRecordDefinition(final RecordDefinition recordDefinition) {
     if (this.table == null) {
       this.table = recordDefinition;
+
     }
     if (this.whereCondition != null) {
       this.whereCondition.changeRecordDefinition(getRecordDefinition(), recordDefinition);
