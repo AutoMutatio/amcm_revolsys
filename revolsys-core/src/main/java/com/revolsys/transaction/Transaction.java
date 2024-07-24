@@ -169,6 +169,43 @@ public class Transaction {
     void run() throws Exception;
   }
 
+  public static class SavedBuilder extends TransactionDefinition<SavedBuilder> implements Builder {
+
+    private final TransactionContext context;
+
+    public SavedBuilder(TransactionContext context) {
+      super();
+      this.context = context;
+    }
+
+    @Override
+    public <V> V call(final Callable<V> action) {
+      try (
+        var s = suspend()) {
+        try {
+          return ScopedValue.where(CONTEXT, this.context)
+            .call(action);
+        } catch (final Throwable t) {
+          return this.context.setRollbackOnly(t);
+        }
+      }
+    }
+
+    @Override
+    public void run(final RunAction action) {
+      try (
+        var s = suspend()) {
+        try {
+          final Runnable runnable = runnable(this.context, action);
+          ScopedValue.where(CONTEXT, this.context)
+            .run(runnable);
+        } catch (final Throwable t) {
+          this.context.setRollbackOnly(t);
+        }
+      }
+    }
+  }
+
   static class SupportsBuilder implements Builder {
 
     @Override
@@ -238,6 +275,10 @@ public class Transaction {
         context.setRollbackOnly(t);
       }
     };
+  }
+
+  public static SavedBuilder save() {
+    return new SavedBuilder(getContext());
   }
 
   private static <V> V scopedCall(final Callable<V> action,
