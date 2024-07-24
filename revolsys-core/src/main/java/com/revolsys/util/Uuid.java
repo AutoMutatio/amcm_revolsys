@@ -2,16 +2,41 @@ package com.revolsys.util;
 
 import java.security.SecureRandom;
 import java.util.Base64;
+import java.util.Comparator;
 import java.util.UUID;
 
 import com.revolsys.collection.list.Lists;
 
 public class Uuid {
+  public static final Comparator<UUID> COMPARATOR = Uuid::compare;
+
   public static final UUID NIL = new UUID(0, 0);
 
   public static final UUID MAX = new UUID(0xFFFFFFFFFFFFFFFFL, 0xFFFFFFFFFFFFFFFFL);
 
   private static final SecureRandom numberGenerator = new SecureRandom();
+
+  public static int compare(UUID uuid1, Object object2) {
+    if (object2 instanceof final UUID uuid2) {
+      return compare(uuid1, uuid2);
+    } else if (uuid1 == null) {
+      if (object2 == null) {
+        return 0;
+      } else {
+        return 1;
+      }
+    } else if (object2 == null) {
+      return -1;
+    } else {
+      return uuid1.toString()
+        .compareTo(object2.toString());
+    }
+  }
+
+  public static int compare(final UUID uuid1, final UUID uuid2) {
+    return uuid1.toString()
+      .compareTo(uuid2.toString());
+  }
 
   public static Iterable<UUID> fromString(final String... ids) {
     return Lists.newArray(ids)

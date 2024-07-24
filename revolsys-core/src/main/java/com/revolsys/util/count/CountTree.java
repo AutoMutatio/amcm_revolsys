@@ -15,6 +15,7 @@ public class CountTree implements Jsonable {
   private final Map<String, CountTree> counterByKey = new TreeMap<>();
 
   private final ReentrantLockEx lock = new ReentrantLockEx();
+
   private final AtomicLong counter = new AtomicLong();
 
   private final ListEx<String> path;
@@ -34,7 +35,7 @@ public class CountTree implements Jsonable {
   public long addCount(final String... path) {
     var counter = this;
     for (final String key : path) {
-      counter = getCounter(key);
+      counter = counter.getCounter(key);
     }
     return counter.addCount();
   }
@@ -69,7 +70,10 @@ public class CountTree implements Jsonable {
 
   public void appendString(final StringBuilder s) {
     if (this.counter.get() > 0) {
-      s.append(this.path.join("\t")).append('\t').append(this.counter.get()).append('\n');
+      s.append(this.path.join("\t"))
+        .append('\t')
+        .append(this.counter.get())
+        .append('\n');
     }
     for (final var counter : this.counterByKey.values()) {
       counter.appendString(s);
@@ -79,10 +83,12 @@ public class CountTree implements Jsonable {
   public CountTree getCounter(final String key) {
     var counter = this.counterByKey.get(key);
     if (counter == null) {
-      try (var l = this.lock.lockX()) {
+      try (
+        var l = this.lock.lockX()) {
         counter = this.counterByKey.get(key);
         if (counter == null) {
-          counter = new CountTree(this.path.clone().addValue(key));
+          counter = new CountTree(this.path.clone()
+            .addValue(key));
           this.counterByKey.put(key, counter);
         }
       }
