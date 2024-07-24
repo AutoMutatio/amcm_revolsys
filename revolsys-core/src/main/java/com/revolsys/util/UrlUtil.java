@@ -107,7 +107,7 @@ public final class UrlUtil {
     if (path == null || path.length() == 0) {
       return uri;
     } else {
-      final String originalPath = uri.getPath();
+      final String originalPath = uri.getRawPath();
       final String newPath = appendPath(originalPath, path);
       return uri.resolve(newPath);
     }

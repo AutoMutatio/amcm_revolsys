@@ -3,15 +3,16 @@ package com.revolsys.collection.iterator;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 public interface Iterables {
   static BaseIterable<?> EMPTY = Collections::emptyIterator;
 
   @SuppressWarnings({
-      "unchecked", "rawtypes"
+    "unchecked", "rawtypes"
   })
   static <V> BaseIterable<V> empty() {
-    return (BaseIterable) EMPTY;
+    return (BaseIterable)EMPTY;
   }
 
   /**
@@ -38,6 +39,17 @@ public interface Iterables {
    */
   static <V> BaseIterable<V> fromIterator(final Iterator<V> iterator) {
     return () -> iterator;
+  }
+
+  /**
+   * Create an iterable that returns the iterator.
+   *
+   * @param <V>      The type of data returned.
+   * @param iterator The iterator.
+   * @return The iterable.
+   */
+  static <V> BaseIterable<V> fromStream(final Stream<V> stream) {
+    return stream::iterator;
   }
 
   /**
