@@ -80,6 +80,10 @@ public class CountTree implements Jsonable {
     }
   }
 
+  public long getCount() {
+    return this.counter.get();
+  }
+
   public CountTree getCounter(final String key) {
     var counter = this.counterByKey.get(key);
     if (counter == null) {
