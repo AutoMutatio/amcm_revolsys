@@ -5,9 +5,7 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpClient.Redirect;
-import java.net.http.HttpClient.Version;
 import java.net.http.HttpRequest.BodyPublisher;
-import java.net.http.HttpRequest.BodyPublishers;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
@@ -459,61 +457,6 @@ public class HttpRequestBuilder {
     return result;
   }
 
-  public java.net.http.HttpRequest buildJdk() {
-    getFactory().preBuild(this);
-    setConfig(RequestConfig.custom()
-      .setConnectTimeout((int)CONNECT_TIMEOUT)
-      .build());
-    URI uri = this.uri;
-    if (uri == null) {
-      uri = URI.create("/");
-    }
-    var body = this.body;
-    if (this.parameters != null && !this.parameters.isEmpty()) {
-      if (body == null
-        && ("POST".equalsIgnoreCase(this.method) || "PUT".equalsIgnoreCase(this.method))) {
-        final var paramString = URLEncodedUtils.format(this.parameters,
-          this.charset != null ? this.charset : HTTP.DEF_CONTENT_CHARSET);
-        body = BodyPublishers.ofString(paramString, this.charset);
-      } else {
-        uri = new UriBuilder(uri).setCharset(this.charset)
-          .addParameters(this.parameters)
-          .build();
-      }
-    }
-    final var request = java.net.http.HttpRequest.newBuilder(uri);
-    if (this.version != null) {
-      request.version(this.version.getMajor() == 2 ? Version.HTTP_2 : Version.HTTP_1_1);
-    }
-
-    if ("GET".equalsIgnoreCase(this.method)) {
-      request.GET();
-    } else if ("HEAD".equalsIgnoreCase(this.method)) {
-      request.HEAD();
-    } else if ("POST".equalsIgnoreCase(this.method)) {
-      request.POST(body);
-    } else if ("PUT".equalsIgnoreCase(this.method)) {
-      request.PUT(body);
-    } else if ("DELETE".equalsIgnoreCase(this.method)) {
-      request.DELETE();
-    } else if ("PACTH".equalsIgnoreCase(this.method)) {
-      request.method("PATCH", body);
-    } else {
-      throw new UnsupportedOperationException(this.method);
-      // CONNECT
-      // OPTIONS
-      // TRACE
-    }
-    if (this.headerGroup != null) {
-      for (final var header : this.headerGroup.getAllHeaders()) {
-        final String name = header.getName();
-        final String value = header.getValue();
-        request.header(name, value);
-      }
-    }
-    return request.build();
-  }
-
   protected void configureClient(final HttpClientBuilder builder) {
     if (this.factory != null) {
       this.factory.configureClient(builder);
@@ -612,18 +555,6 @@ public class HttpRequestBuilder {
     return this.headerGroup != null ? this.headerGroup.getHeaders(name) : null;
   }
 
-  public JsonObject getJson() {
-    setHeader("Accept", "application/json");
-    final Function<HttpResponse, JsonObject> function = HttpRequestBuilder::getJson;
-    return execute(function);
-  }
-
-  public JsonList getJsonList() {
-    setHeader("Accept", "application/json");
-    final Function<HttpResponse, JsonList> function = HttpRequestBuilder::getJsonList;
-    return execute(function);
-  }
-
   public Header getLastHeader(final String name) {
     return this.headerGroup != null ? this.headerGroup.getLastHeader(name) : null;
   }
@@ -632,7 +563,7 @@ public class HttpRequestBuilder {
     "unchecked", "rawtypes"
   })
   public <V> ListEx<V> getList() {
-    return (ListEx)getJsonList();
+    return (ListEx)responseAsJsonList();
   }
 
   public String getMethod() {
@@ -662,11 +593,6 @@ public class HttpRequestBuilder {
     }
   }
 
-  public String getString() {
-    final Function<HttpResponse, String> function = HttpRequestBuilder::getString;
-    return execute(function);
-  }
-
   public URI getUri() {
     return this.uri;
   }
@@ -681,7 +607,7 @@ public class HttpRequestBuilder {
 
   public Single<JsonObject> jsonObject() {
     try {
-      final JsonObject json = getJson();
+      final JsonObject json = responseAsJson();
       return Single.ofNullable(json);
     } catch (final ApacheHttpException e) {
       final int code = e.getStatusCode();
@@ -710,7 +636,39 @@ public class HttpRequestBuilder {
     }
   }
 
-  public ApacheEntityInputStream newInputStream() {
+  public HttpRequestBuilder removeHeader(final Header header) {
+    if (this.headerGroup != null) {
+      this.headerGroup.removeHeader(header);
+    }
+    return this;
+  }
+
+  public HttpRequestBuilder removeHeaders(final String name) {
+    if (name != null && this.headerGroup != null) {
+      this.headerNames.remove(name);
+      for (final HeaderIterator i = this.headerGroup.iterator(); i.hasNext();) {
+        final Header header = i.nextHeader();
+        if (name.equalsIgnoreCase(header.getName())) {
+          i.remove();
+        }
+      }
+    }
+    return this;
+  }
+
+  public HttpRequestBuilder removeParameters(final String name) {
+    if (name != null && this.parameters != null) {
+      for (final Iterator<NameValuePair> i = this.parameters.iterator(); i.hasNext();) {
+        final NameValuePair parameter = i.next();
+        if (name.equalsIgnoreCase(parameter.getName())) {
+          i.remove();
+        }
+      }
+    }
+    return this;
+  }
+
+  public ApacheEntityInputStream responseAsInputStream() {
     // try (
     // var client = newHttpClient()) {
     // final var request = buildJdk();
@@ -749,36 +707,25 @@ public class HttpRequestBuilder {
     }
   }
 
-  public HttpRequestBuilder removeHeader(final Header header) {
-    if (this.headerGroup != null) {
-      this.headerGroup.removeHeader(header);
+  public JsonObject responseAsJson() {
+    if (!this.headerNames.contains("Accept")) {
+      setHeader("Accept", "application/json");
     }
-    return this;
+    final Function<HttpResponse, JsonObject> function = HttpRequestBuilder::getJson;
+    return execute(function);
   }
 
-  public HttpRequestBuilder removeHeaders(final String name) {
-    if (name != null && this.headerGroup != null) {
-      this.headerNames.remove(name);
-      for (final HeaderIterator i = this.headerGroup.iterator(); i.hasNext();) {
-        final Header header = i.nextHeader();
-        if (name.equalsIgnoreCase(header.getName())) {
-          i.remove();
-        }
-      }
+  public JsonList responseAsJsonList() {
+    if (!this.headerNames.contains("Accept")) {
+      setHeader("Accept", "application/json");
     }
-    return this;
+    final Function<HttpResponse, JsonList> function = HttpRequestBuilder::getJsonList;
+    return execute(function);
   }
 
-  public HttpRequestBuilder removeParameters(final String name) {
-    if (name != null && this.parameters != null) {
-      for (final Iterator<NameValuePair> i = this.parameters.iterator(); i.hasNext();) {
-        final NameValuePair parameter = i.next();
-        if (name.equalsIgnoreCase(parameter.getName())) {
-          i.remove();
-        }
-      }
-    }
-    return this;
+  public String responseAsString() {
+    final Function<HttpResponse, String> function = HttpRequestBuilder::getString;
+    return execute(function);
   }
 
   public HttpRequestBuilder setBody(final BodyPublisher body) {

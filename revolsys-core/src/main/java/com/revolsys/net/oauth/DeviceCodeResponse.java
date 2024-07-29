@@ -7,6 +7,7 @@ import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.json.JsonParser;
 import com.revolsys.exception.Exceptions;
 import com.revolsys.net.http.ApacheHttpException;
+import com.revolsys.net.http.exception.AuthenticationException;
 import com.revolsys.parallel.ReentrantLockEx;
 
 public class DeviceCodeResponse {
@@ -71,6 +72,11 @@ public class DeviceCodeResponse {
       }
       try {
         return this.client.tokenDeviceCode(this.deviceCode, this.scope);
+      } catch (final AuthenticationException e) {
+        if (e.getMessage()
+          .startsWith("AADSTS70016")) {
+          // wait and try again
+        }
       } catch (final ApacheHttpException e) {
         final String errorText = e.getContent();
         try {
