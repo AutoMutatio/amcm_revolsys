@@ -85,7 +85,12 @@ public class JdbcDataSourceImpl extends JdbcDataSource implements BaseCloseable 
     }
 
     public boolean isClosed() {
-      return this.state.get() == ConnectionEntryState.CLOSED;
+      try {
+        return this.state.get() == ConnectionEntryState.CLOSED
+          || this.connection != null && !this.connection.isClosed();
+      } catch (final SQLException e) {
+        return true;
+      }
     }
 
     public boolean isExpired(final long time) {
