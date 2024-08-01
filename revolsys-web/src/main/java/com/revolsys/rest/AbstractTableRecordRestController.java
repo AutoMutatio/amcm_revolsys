@@ -65,6 +65,9 @@ public class AbstractTableRecordRestController extends AbstractWebController {
     final HttpServletRequest request, final HttpServletResponse response,
     final CharSequence tablePath) throws IOException {
     final JsonObject json = readJsonBody(request);
+    if (json == null) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+    }
     final Record record = connection.newRecord(tablePath, json);
     final Record savedRecord = connection.transactionNewCall(() -> connection.insertRecord(record));
     responseRecordJson(response, savedRecord);
@@ -120,12 +123,15 @@ public class AbstractTableRecordRestController extends AbstractWebController {
     if (query == null) {
       responseJson(response, JsonObject.hash("value", JsonList.array()));
     }
-    connection.transaction().requiresNew().readOnly().run(() -> {
-      try (
-        final RecordReader records = query.getRecordReader()) {
-        responseRecords(connection, request, response, query, records, count);
-      }
-    });
+    connection.transaction()
+      .requiresNew()
+      .readOnly()
+      .run(() -> {
+        try (
+          final RecordReader records = query.getRecordReader()) {
+          responseRecords(connection, request, response, query, records, count);
+        }
+      });
   }
 
   protected void responseRecords(final TableRecordStoreConnection connection,
@@ -143,12 +149,15 @@ public class AbstractTableRecordRestController extends AbstractWebController {
   public void responseRecordsJson(final TableRecordStoreConnection connection,
     final HttpServletRequest request, final HttpServletResponse response, final Query query,
     final Long count, final JsonObject extraData) throws IOException {
-    connection.transaction().requiresNew().readOnly().run(() -> {
-      try (
-        final RecordReader records = query.getRecordReader()) {
-        responseRecordsJson(connection, request, response, query, records, count, extraData);
-      }
-    });
+    connection.transaction()
+      .requiresNew()
+      .readOnly()
+      .run(() -> {
+        try (
+          final RecordReader records = query.getRecordReader()) {
+          responseRecordsJson(connection, request, response, query, records, count, extraData);
+        }
+      });
   }
 
   protected void responseRecordsJson(final TableRecordStoreConnection connection,
