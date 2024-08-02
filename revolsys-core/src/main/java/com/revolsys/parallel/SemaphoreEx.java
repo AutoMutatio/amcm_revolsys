@@ -5,6 +5,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.StructuredTaskScope;
 import java.util.concurrent.TimeUnit;
@@ -49,6 +50,8 @@ public class SemaphoreEx extends Semaphore {
               action.accept(value);
               release();
             });
+          } catch (final RejectedExecutionException e) {
+            // Ignore as shutdown
           } catch (final InterruptedException e) {
             throw Exceptions.toRuntimeException(e);
           }
@@ -56,6 +59,7 @@ public class SemaphoreEx extends Semaphore {
       });
     }
     return 0;
+
   }
 
   public <V> void forEach(final StructuredTaskScope<?> scope, final BaseIterable<V> values,
@@ -143,17 +147,4 @@ public class SemaphoreEx extends Semaphore {
     }
   }
 
-  // TODO can this be done as a builder
-  public <V> void virtualForEach(final BaseIterable<V> values, final Consumer<V> action,
-    final Consumer<ExecutorService> executorCallback) {
-    if (values != null && action != null) {
-      try (
-        final var executor = Executors.newVirtualThreadPerTaskExecutor()) {
-        if (executorCallback != null) {
-          executorCallback.accept(executor);
-        }
-        forEach(executor, values, action);
-      }
-    }
-  }
 }
