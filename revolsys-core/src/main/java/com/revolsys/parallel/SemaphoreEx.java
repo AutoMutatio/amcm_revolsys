@@ -37,6 +37,9 @@ public class SemaphoreEx extends Semaphore {
 
   public <V> long forEach(final ExecutorService executor, final BaseIterable<V> values,
     final Consumer<V> action) {
+    if (action == null) {
+      throw new NullPointerException("action");
+    }
     if (values != null) {
       return values.forEachCount(value -> {
         if (!executor.isShutdown()) {
@@ -132,7 +135,7 @@ public class SemaphoreEx extends Semaphore {
   }
 
   public <V> void virtualForEach(final BaseIterable<V> values, final Consumer<V> action) {
-    if (values != null) {
+    if (values != null && action != null) {
       try (
         final var executor = Executors.newVirtualThreadPerTaskExecutor()) {
         forEach(executor, values, action);
@@ -140,4 +143,17 @@ public class SemaphoreEx extends Semaphore {
     }
   }
 
+  // TODO can this be done as a builder
+  public <V> void virtualForEach(final BaseIterable<V> values, final Consumer<V> action,
+    final Consumer<ExecutorService> executorCallback) {
+    if (values != null && action != null) {
+      try (
+        final var executor = Executors.newVirtualThreadPerTaskExecutor()) {
+        if (executorCallback != null) {
+          executorCallback.accept(executor);
+        }
+        forEach(executor, values, action);
+      }
+    }
+  }
 }
