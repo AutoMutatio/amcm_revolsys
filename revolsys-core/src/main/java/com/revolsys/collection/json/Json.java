@@ -288,6 +288,25 @@ public class Json {
 
   public static final String MIME_TYPE_UTF8 = "application/json;charset=utf-8";
 
+  public static Appendable appendJson(final Collection<?> collection, final Appendable appendable) {
+    try {
+      appendable.append('[');
+      boolean first = true;
+      for (final Object value : collection) {
+        if (first) {
+          first = false;
+        } else {
+          appendable.append(',');
+        }
+        JsonWriterUtil.appendValue(appendable, value);
+      }
+      appendable.append(']');
+      return appendable;
+    } catch (final IOException e) {
+      throw Exceptions.toRuntimeException(e);
+    }
+  }
+
   public static JsonObject clone(final JsonObject object) {
     if (object == null) {
       return null;
