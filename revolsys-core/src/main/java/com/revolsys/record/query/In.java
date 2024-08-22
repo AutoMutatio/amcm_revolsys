@@ -3,6 +3,7 @@ package com.revolsys.record.query;
 import java.util.Arrays;
 import java.util.Collection;
 
+import com.revolsys.collection.list.Lists;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.data.type.DataTypes;
 import com.revolsys.record.schema.RecordStore;
@@ -94,13 +95,35 @@ public class In extends AbstractBinaryQueryValue implements Condition {
 
   @Override
   public boolean test(final MapEx record) {
-    final QueryValue right = getValues();
-    if (right instanceof final CollectionValue collection) {
-      final QueryValue left = getLeft();
-      final Object value = left.getValue(record);
-      return collection.containsValue(value);
-    } else {
+    final QueryValue left = getLeft();
+    final QueryValue right = getRight();
+
+    final var list1 = toCollection(left, record);
+    final var list2 = toCollection(right, record);
+
+    if (list1.isEmpty() || list2.isEmpty()) {
       return false;
+    }
+    for (final Object v1 : list1) {
+      if (list2.contains(v1)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  @SuppressWarnings("unchecked")
+  private Collection<Object> toCollection(final QueryValue queryValue, final MapEx record) {
+    if (queryValue instanceof final CollectionValue collectionValue) {
+      return collectionValue.getValues();
+    }
+    final var value = queryValue.getValue(record);
+    if (value == null) {
+      return Lists.empty();
+    } else if (value instanceof final Collection collection) {
+      return collection;
+    } else {
+      return Lists.newArray(value);
     }
   }
 
