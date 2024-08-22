@@ -33,6 +33,7 @@ import java.util.TreeMap;
 
 import com.revolsys.io.AbstractRecordWriter;
 import com.revolsys.io.FileUtil;
+import com.revolsys.io.IoUtil;
 import com.revolsys.io.PathUtil;
 import com.revolsys.io.ZipUtil;
 import com.revolsys.logging.Logs;
@@ -301,7 +302,7 @@ public class SaifWriter extends AbstractRecordWriter {
       if (this.schemaResource != null) {
         final InputStream in = getClass().getResourceAsStream(this.schemaResource);
         if (in != null) {
-          FileUtil.copy(in, new File(this.tempDirectory, "clasdefs.csn"));
+          IoUtil.copy(in, new File(this.tempDirectory, "clasdefs.csn"));
         }
       }
       if (this.schemaFileNames != null) {
@@ -314,7 +315,7 @@ public class SaifWriter extends AbstractRecordWriter {
               final SaifSchemaReader reader = new SaifSchemaReader();
               setRecordDefinitionFactory(reader.loadSchemas(this.schemaFileNames));
               try {
-                FileUtil.copy(in, out);
+                IoUtil.copy(in, out);
               } finally {
                 in.close();
               }
@@ -354,7 +355,7 @@ public class SaifWriter extends AbstractRecordWriter {
       if (!parentDir.exists()) {
         parentDir.mkdirs();
       }
-      String fileName = FileUtil.getFileName(file);
+      String fileName = IoUtil.getFileName(file);
       String filePrefix = fileName;
       final int extensionIndex = fileName.lastIndexOf('.');
       if (extensionIndex != -1) {

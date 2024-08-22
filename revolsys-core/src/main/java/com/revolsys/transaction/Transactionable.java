@@ -1,77 +1,27 @@
 package com.revolsys.transaction;
 
 import java.util.concurrent.Callable;
-import java.util.function.Consumer;
-import java.util.function.Function;
 
-import org.springframework.transaction.PlatformTransactionManager;
-
-import com.revolsys.exception.Exceptions;
+import com.revolsys.transaction.Transaction.RunAction;
 
 public interface Transactionable {
-  PlatformTransactionManager getTransactionManager();
-
-  /**
-   * Construct a new {@link Transaction} with {@link TransactionOptions#DEFAULT}.
-   * @return The transaction.
-   */
-  default Transaction newTransaction() {
-    return newTransaction(TransactionOptions.DEFAULT);
+  default TransactionBuilder transaction() {
+    return TransactionBuilder.BUILDER;
   }
 
-  /**
-   * Construct a new {@link Transaction} with the specified {@link TransactionOption}.
-   *
-   * Default values are
-   *
-   * <dl>
-   * <dt>{@link Propagation}</dt>
-   * <dd>{@link Propagation#REQUIRES_NEW}</dd>
-   * <dt>{@link Isolation}</dt>
-   * <dd>{@link Isolation#DEFAULT}</dd>
-   * </dl>
-   *
-   * @param options The transaction options.
-   * @return The transaction.
-   * @see TransactionOption
-   * @see TransactionOptions
-   * @see Propagation
-   * @see Isolation
-   */
-  default Transaction newTransaction(final TransactionOption... options) {
-    final PlatformTransactionManager transactionManager = getTransactionManager();
-    return new Transaction(transactionManager, options);
-  }
-
-  default void transactionExecute(final Consumer<Transaction> action,
-    final TransactionOption... options) {
-    try (
-      Transaction transaction = newTransaction(options)) {
-      transaction.execute(action);
-    }
-  }
-
-  default <V> V transactionExecute(final Function<Transaction, V> action,
-    final TransactionOption... options) {
-    try (
-      Transaction transaction = newTransaction(options)) {
-      return transaction.execute(action);
-    }
+  default <V> V transactionCall(final Callable<V> action) {
+    return transaction().required().call(action);
   }
 
   default <V> V transactionNewCall(final Callable<V> action) {
-    try (
-      var t = newTransaction()) {
-      return action.call();
-    } catch (final Exception e) {
-      return Exceptions.throwUncheckedException(e);
-    }
+    return transaction().requiresNew().call(action);
   }
 
-  default void transactionNewRun(final Runnable action) {
-    try (
-      var t = newTransaction()) {
-      action.run();
-    }
+  default void transactionNewRun(final RunAction action) {
+    transaction().requiresNew().run(action);
+  }
+
+  default void transactionRun(final RunAction action) {
+    transaction().required().run(action);
   }
 }

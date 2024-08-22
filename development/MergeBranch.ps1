@@ -1,7 +1,7 @@
 param(
   [Parameter(Mandatory = $false, HelpMessage = "The branch name to merge (e.g. feature/new-ui)")] 
   [string]$BranchName,
-  [Parameter(Mandatory = $false, HelpMessage = "The name of the remote to fetch and merge the branch from (e.g. upstream)")] 
+  [Parameter(Mandatory = $false, HelpMessage = "The name of the remote to fetch and merge the branch from (e.g. origin)")] 
   [string]$RemoteName
 )
 
@@ -23,7 +23,7 @@ try {
     }
     else {
       if ( !($RemoteName)) {
-        $RemoteName = 'upstream'
+        $RemoteName = 'origin'
       }
       git -C $repository.path fetch $RemoteName
       git -C $repository.path merge "$RemoteName/main"

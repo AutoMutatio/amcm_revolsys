@@ -6,6 +6,7 @@ import java.util.Map;
 
 import com.revolsys.data.identifier.Identifier;
 import com.revolsys.data.type.DataType;
+import com.revolsys.parallel.ReentrantLockEx;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
 
@@ -21,6 +22,8 @@ public class ArrayChangeTrackRecord extends ArrayRecord implements ChangeTrackRe
   private Identifier identifier;
 
   protected Map<String, Object> originalValues = EMPTY_ORIGINAL_VALUES;
+
+  private final ReentrantLockEx lock = new ReentrantLockEx();
 
   public ArrayChangeTrackRecord(final Record record) {
     super(record);
@@ -60,12 +63,15 @@ public class ArrayChangeTrackRecord extends ArrayRecord implements ChangeTrackRe
 
   @Override
   @SuppressWarnings("unchecked")
-  public synchronized <T> T getOriginalValue(final String name) {
-    final Map<String, Object> originalValues = this.originalValues;
-    if (originalValues.containsKey(name)) {
-      return (T)originalValues.get(name);
+  public <T> T getOriginalValue(final String name) {
+    try (
+      var l = this.lock.lockX()) {
+      final Map<String, Object> originalValues = this.originalValues;
+      if (originalValues.containsKey(name)) {
+        return (T)originalValues.get(name);
+      }
+      return (T)getValue(name);
     }
-    return (T)getValue(name);
   }
 
   @Override
@@ -101,53 +107,56 @@ public class ArrayChangeTrackRecord extends ArrayRecord implements ChangeTrackRe
   }
 
   @Override
-  protected synchronized boolean setValue(final FieldDefinition field, final Object value) {
-    boolean updated = false;
-    final int fieldIndex = field.getIndex();
-    final String fieldName = field.getName();
+  protected boolean setValue(final FieldDefinition field, final Object value) {
+    try (
+      var l = this.lock.lockX()) {
+      boolean updated = false;
+      final int fieldIndex = field.getIndex();
+      final String fieldName = field.getName();
 
-    final Object newValue = field.toFieldValue(value);
-    final Object oldValue = getValue(fieldIndex);
-    RecordState newState = null;
-    if (!DataType.equal(oldValue, newValue)) {
-      final RecordState state = getState();
-      switch (state) {
-        case INITIALIZING:
-        // Allow modification on initialization
-        break;
-        case NEW:
-        break;
-        case DELETED:
-        break;
-        case PERSISTED:
-        case MODIFIED:
-          final Object originalValue = getOriginalValue(fieldName);
-          Map<String, Object> originalValues = this.originalValues;
-          if (field.equals(originalValue, newValue)) {
-            if (originalValues != EMPTY_ORIGINAL_VALUES) {
-              originalValues = removeOriginalValue(originalValues, fieldName);
-              if (originalValues.isEmpty()) {
-                newState = RecordState.PERSISTED;
+      final Object newValue = field.toFieldValue(value);
+      final Object oldValue = getValue(fieldIndex);
+      RecordState newState = null;
+      if (!DataType.equal(oldValue, newValue)) {
+        final RecordState state = getState();
+        switch (state) {
+          case INITIALIZING:
+          // Allow modification on initialization
+          break;
+          case NEW:
+          break;
+          case DELETED:
+          break;
+          case PERSISTED:
+          case MODIFIED:
+            final Object originalValue = getOriginalValue(fieldName);
+            Map<String, Object> originalValues = this.originalValues;
+            if (field.equals(originalValue, newValue)) {
+              if (originalValues != EMPTY_ORIGINAL_VALUES) {
+                originalValues = removeOriginalValue(originalValues, fieldName);
+                if (originalValues.isEmpty()) {
+                  newState = RecordState.PERSISTED;
+                }
+              }
+            } else {
+              if (originalValues == EMPTY_ORIGINAL_VALUES) {
+                originalValues = new HashMap<>();
+              }
+              originalValues.put(fieldName, originalValue);
+              if (RecordState.INITIALIZING != state) {
+                newState = RecordState.MODIFIED;
               }
             }
-          } else {
-            if (originalValues == EMPTY_ORIGINAL_VALUES) {
-              originalValues = new HashMap<>();
-            }
-            originalValues.put(fieldName, originalValue);
-            if (RecordState.INITIALIZING != state) {
-              newState = RecordState.MODIFIED;
-            }
-          }
-          this.originalValues = originalValues;
-        break;
-      }
-      updated |= super.setValue(field, newValue);
-      if (newState != null) {
-        setState(newState);
-      }
+            this.originalValues = originalValues;
+          break;
+        }
+        updated |= super.setValue(field, newValue);
+        if (newState != null) {
+          setState(newState);
+        }
 
+      }
+      return updated;
     }
-    return updated;
   }
 }

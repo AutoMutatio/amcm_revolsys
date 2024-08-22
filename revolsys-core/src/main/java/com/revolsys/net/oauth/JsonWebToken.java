@@ -86,7 +86,7 @@ public class JsonWebToken implements Principal {
     return getTime("iat");
   }
 
-  private String getIssuer() {
+  public String getIssuer() {
     return getString("iss");
   }
 
@@ -138,13 +138,10 @@ public class JsonWebToken implements Principal {
   }
 
   public boolean isValid() {
-    final String issuer = getIssuer();
     try {
+      final var issuer = getIssuer();
       if (!this.header.equalValue("typ", "JWT") && this.header.hasValue("typ")
-        || !this.header.equalValue("alg", "RS256")) {
-        return false;
-      }
-      if (!this.header.hasValue("kid")) {
+        || !this.header.equalValue("alg", "RS256") || !this.header.hasValue("kid")) {
         return false;
       }
       final Instant now = Instant.now();
@@ -201,11 +198,17 @@ public class JsonWebToken implements Principal {
   }
 
   public boolean isValid(final String issuer) {
-    final String iss = getIssuer();
-    if (!issuer.equals(iss)) {
+    try {
+      final String iss = getIssuer();
+      if (!issuer.equals(iss)
+        || !this.header.equalValue("typ", "JWT") && this.header.hasValue("typ")
+        || !this.header.equalValue("alg", "RS256")) {
+        return false;
+      }
+      return isValid();
+    } catch (final Exception e) {
       return false;
     }
-    return isValid();
   }
 
   @Override

@@ -42,9 +42,13 @@ public class CsdlPropertyValue implements CsdlAbstractEdmItem, CsdlAnnotatable {
     if (csdlPropertyValueAnnot == null) {
       return false;
     }
-    if (this.getAnnotations().size() == csdlPropertyValueAnnot.size()) {
-      for (int i = 0; i < this.getAnnotations().size(); i++) {
-        if (!this.getAnnotations().get(i).equals(csdlPropertyValueAnnot.get(i))) {
+    if (this.getAnnotations()
+      .size() == csdlPropertyValueAnnot.size()) {
+      for (int i = 0; i < this.getAnnotations()
+        .size(); i++) {
+        if (!this.getAnnotations()
+          .get(i)
+          .equals(csdlPropertyValueAnnot.get(i))) {
           return false;
         }
       }
@@ -62,9 +66,11 @@ public class CsdlPropertyValue implements CsdlAbstractEdmItem, CsdlAnnotatable {
     final CsdlPropertyValue csdlPropertyValue = (CsdlPropertyValue)obj;
 
     return (this.getProperty() == null ? csdlPropertyValue.getProperty() == null
-      : this.getProperty().equalsIgnoreCase(csdlPropertyValue.getProperty()))
+      : this.getProperty()
+        .equalsIgnoreCase(csdlPropertyValue.getProperty()))
       && (this.getValue() == null ? csdlPropertyValue.getValue() == null
-        : this.getValue().equals(csdlPropertyValue.getValue()))
+        : this.getValue()
+          .equals(csdlPropertyValue.getValue()))
       && (this.getAnnotations() == null ? csdlPropertyValue.getAnnotations() == null
         : checkAnnotations(csdlPropertyValue.getAnnotations()));
   }

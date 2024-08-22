@@ -31,7 +31,7 @@ public class TempFileMappedIntDataBuffer extends DataBuffer {
       this.byteBuffer = this.channel.map(MapMode.READ_WRITE, 0, size * 4);
       this.intBuffer = this.byteBuffer.asIntBuffer();
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 

@@ -84,4 +84,6 @@ jobs:
 #### Build ####
     - name: Build
       working-directory: ./revolsys
-      run: mvn -B -ntp install -DskipTests
+      run: |
+        mvn wrapper:wrapper "-Dmaven=3.9.5" 
+        ./mvnw -B -ntp install -DskipTests

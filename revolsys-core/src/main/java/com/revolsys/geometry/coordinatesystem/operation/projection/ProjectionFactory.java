@@ -22,34 +22,32 @@ public final class ProjectionFactory {
     final CoordinateOperationMethod coordinateOperationMethod = coordinateSystem
       .getCoordinateOperationMethod();
     final String projectionName = coordinateOperationMethod.getNormalizedName();
-    synchronized (projectionClasses) {
-      final Class<? extends CoordinatesProjection> projectionClass = projectionClasses
-        .get(projectionName);
-      if (projectionClass == null) {
-        return null;
-      } else {
-        try {
-          final Constructor<? extends CoordinatesProjection> constructor = projectionClass
-            .getConstructor(ProjectedCoordinateSystem.class);
-          final CoordinatesProjection coordinateProjection = constructor
-            .newInstance(coordinateSystem);
-          return coordinateProjection;
-        } catch (final NoSuchMethodException e) {
-          throw new IllegalArgumentException("Constructor " + projectionClass + "("
-            + ProjectedCoordinateSystem.class.getName() + ") does not exist");
-        } catch (final InstantiationException e) {
-          throw new IllegalArgumentException(projectionClass + " cannot be instantiated", e);
-        } catch (final IllegalAccessException e) {
-          throw new IllegalArgumentException(projectionClass + " cannot be instantiated", e);
-        } catch (final InvocationTargetException e) {
-          final Throwable cause = e.getCause();
-          if (cause instanceof RuntimeException) {
-            throw (RuntimeException)cause;
-          } else if (cause instanceof Error) {
-            throw (Error)cause;
-          } else {
-            throw new IllegalArgumentException(projectionClass + " cannot be instantiated", cause);
-          }
+    final Class<? extends CoordinatesProjection> projectionClass = projectionClasses
+      .get(projectionName);
+    if (projectionClass == null) {
+      return null;
+    } else {
+      try {
+        final Constructor<? extends CoordinatesProjection> constructor = projectionClass
+          .getConstructor(ProjectedCoordinateSystem.class);
+        final CoordinatesProjection coordinateProjection = constructor
+          .newInstance(coordinateSystem);
+        return coordinateProjection;
+      } catch (final NoSuchMethodException e) {
+        throw new IllegalArgumentException("Constructor " + projectionClass + "("
+          + ProjectedCoordinateSystem.class.getName() + ") does not exist");
+      } catch (final InstantiationException e) {
+        throw new IllegalArgumentException(projectionClass + " cannot be instantiated", e);
+      } catch (final IllegalAccessException e) {
+        throw new IllegalArgumentException(projectionClass + " cannot be instantiated", e);
+      } catch (final InvocationTargetException e) {
+        final Throwable cause = e.getCause();
+        if (cause instanceof RuntimeException) {
+          throw (RuntimeException)cause;
+        } else if (cause instanceof Error) {
+          throw (Error)cause;
+        } else {
+          throw new IllegalArgumentException(projectionClass + " cannot be instantiated", cause);
         }
       }
     }

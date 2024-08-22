@@ -91,7 +91,7 @@ public class Join implements QueryValue, TableReferenceProxy {
       join.condition = this.condition.clone();
       return join;
     } catch (final CloneNotSupportedException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 

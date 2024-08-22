@@ -40,9 +40,13 @@ public class CsdlLabeledElement extends CsdlDynamicExpression implements CsdlAnn
     if (csdlLabelledEleAnnotations == null) {
       return false;
     }
-    if (this.getAnnotations().size() == csdlLabelledEleAnnotations.size()) {
-      for (int i = 0; i < this.getAnnotations().size(); i++) {
-        if (!this.getAnnotations().get(i).equals(csdlLabelledEleAnnotations.get(i))) {
+    if (this.getAnnotations()
+      .size() == csdlLabelledEleAnnotations.size()) {
+      for (int i = 0; i < this.getAnnotations()
+        .size(); i++) {
+        if (!this.getAnnotations()
+          .get(i)
+          .equals(csdlLabelledEleAnnotations.get(i))) {
           return false;
         }
       }
@@ -59,9 +63,11 @@ public class CsdlLabeledElement extends CsdlDynamicExpression implements CsdlAnn
     }
     final CsdlLabeledElement csdlLabelledEle = (CsdlLabeledElement)obj;
     return (this.getName() == null ? csdlLabelledEle.getName() == null
-      : this.getName().equals(csdlLabelledEle.getName()))
+      : this.getName()
+        .equals(csdlLabelledEle.getName()))
       && (this.getValue() == null ? csdlLabelledEle.getValue() == null
-        : this.getValue().equals(csdlLabelledEle.getValue()))
+        : this.getValue()
+          .equals(csdlLabelledEle.getValue()))
       && (this.getAnnotations() == null ? csdlLabelledEle.getAnnotations() == null
         : checkAnnotations(csdlLabelledEle.getAnnotations()));
   }

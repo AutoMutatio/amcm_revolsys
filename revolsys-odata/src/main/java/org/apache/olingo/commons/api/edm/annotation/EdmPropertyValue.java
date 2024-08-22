@@ -19,6 +19,7 @@
 package org.apache.olingo.commons.api.edm.annotation;
 
 import org.apache.olingo.commons.api.edm.EdmAnnotatable;
+import org.apache.olingo.commons.core.edm.annotation.EdmRecord;
 
 /**
  * The edm:PropertyValue element supplies a value to a property on the type instantiated by an

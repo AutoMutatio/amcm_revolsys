@@ -36,7 +36,7 @@ public class Link extends Annotatable {
 
   private String mediaETag;
 
-  private Entity entity;
+  private ODataEntity entity;
 
   private EntityCollection entitySet;
 
@@ -97,7 +97,7 @@ public class Link extends Annotatable {
    *
    * @return in-line entity.
    */
-  public Entity getInlineEntity() {
+  public ODataEntity getInlineEntity() {
     return this.entity;
   }
 
@@ -191,7 +191,7 @@ public class Link extends Annotatable {
    *
    * @param entity entity.
    */
-  public void setInlineEntity(final Entity entity) {
+  public void setInlineEntity(final ODataEntity entity) {
     this.entity = entity;
   }
 

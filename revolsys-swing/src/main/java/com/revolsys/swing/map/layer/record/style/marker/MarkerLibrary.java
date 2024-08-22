@@ -27,15 +27,9 @@ public class MarkerLibrary extends MarkerGroup {
   }
 
   public static void factoryInit() {
-    MapObjectFactoryRegistry.newFactory("markerLibrary", config -> {
-      return new MarkerLibrary(config);
-    });
-    MapObjectFactoryRegistry.newFactory("markerGroup", config -> {
-      return new MarkerGroup(config);
-    });
-    MapObjectFactoryRegistry.newFactory("markerSvg", config -> {
-      return new SvgMarker(config);
-    });
+    MapObjectFactoryRegistry.newFactory("markerLibrary", MarkerLibrary::new);
+    MapObjectFactoryRegistry.newFactory("markerGroup", MarkerGroup::new);
+    MapObjectFactoryRegistry.newFactory("markerSvg", SvgMarker::new);
   }
 
   public static Marker findMarker(final String name) {

@@ -97,14 +97,15 @@ public class FileBackedOutputStreamBuffer extends OutputStream implements Append
 
   @Override
   public Appendable append(final CharSequence s, final int start, final int end) {
-    return append(s.subSequence(start, end).toString());
+    return append(s.subSequence(start, end)
+      .toString());
   }
 
   public Appendable append(final String s) {
     try {
       write(s);
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
     return this;
   }
@@ -136,7 +137,7 @@ public class FileBackedOutputStreamBuffer extends OutputStream implements Append
         this.out = null;
       }
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 
@@ -147,7 +148,7 @@ public class FileBackedOutputStreamBuffer extends OutputStream implements Append
         try {
           this.out.flush();
         } catch (final IOException e) {
-          throw Exceptions.wrap(e);
+          throw Exceptions.toRuntimeException(e);
         }
       }
     }
@@ -183,7 +184,7 @@ public class FileBackedOutputStreamBuffer extends OutputStream implements Append
   }
 
   @Override
-  public synchronized void write(final byte[] source, int offset, int length) throws IOException {
+  public void write(final byte[] source, int offset, int length) throws IOException {
 
     if (this.closed) {
       throw new IOException("Closed");
@@ -207,7 +208,7 @@ public class FileBackedOutputStreamBuffer extends OutputStream implements Append
   }
 
   @Override
-  public synchronized void write(final int b) throws IOException {
+  public void write(final int b) throws IOException {
     if (this.closed) {
       throw new IOException("Closed");
     } else {
@@ -223,7 +224,7 @@ public class FileBackedOutputStreamBuffer extends OutputStream implements Append
     }
   }
 
-  public synchronized void write(final String s) throws IOException {
+  public void write(final String s) throws IOException {
     if (s != null) {
       final var bytes = s.getBytes(StandardCharsets.UTF_8);
       write(bytes);

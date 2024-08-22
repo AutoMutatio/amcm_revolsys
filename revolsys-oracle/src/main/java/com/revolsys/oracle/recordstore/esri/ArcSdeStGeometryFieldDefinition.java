@@ -140,7 +140,7 @@ public class ArcSdeStGeometryFieldDefinition extends JdbcFieldDefinition {
           geometryType, numPoints, xOffset, yOffset, xyScale, zOffset, zScale, mOffset, mScale);
         return geometry;
       } catch (final IOException e) {
-        throw Exceptions.wrap(e);
+        throw Exceptions.toRuntimeException(e);
       }
     }
   }

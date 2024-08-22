@@ -5,7 +5,7 @@ import java.util.Map;
 
 import com.revolsys.awt.WebColors;
 import com.revolsys.collection.json.JsonObject;
-import com.revolsys.io.map.MapSerializer;
+import com.revolsys.io.MapSerializer;
 import com.revolsys.properties.BaseObjectWithProperties;
 
 public class GradientStop extends BaseObjectWithProperties

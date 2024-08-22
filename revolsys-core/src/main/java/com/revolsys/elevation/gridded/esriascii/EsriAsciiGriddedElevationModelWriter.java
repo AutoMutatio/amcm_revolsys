@@ -20,6 +20,7 @@ import com.revolsys.io.FileUtil;
 import com.revolsys.number.Doubles;
 import com.revolsys.number.Integers;
 import com.revolsys.spring.resource.Resource;
+import com.revolsys.util.BaseCloseable;
 
 public class EsriAsciiGriddedElevationModelWriter extends AbstractWriter<GriddedElevationModel>
   implements GriddedElevationModelWriter {
@@ -37,7 +38,7 @@ public class EsriAsciiGriddedElevationModelWriter extends AbstractWriter<Gridded
     super.close();
     flush();
     if (this.writer != null) {
-      FileUtil.closeSilent(this.writer);
+      BaseCloseable.closeSilent(this.writer);
       this.writer = null;
     }
     this.resource = null;

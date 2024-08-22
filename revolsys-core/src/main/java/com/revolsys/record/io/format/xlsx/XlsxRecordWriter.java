@@ -36,7 +36,6 @@ import org.xlsx4j.sml.Worksheet;
 import com.revolsys.exception.Exceptions;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.io.AbstractRecordWriter;
-import com.revolsys.io.FileUtil;
 import com.revolsys.logging.Logs;
 import com.revolsys.number.Doubles;
 import com.revolsys.record.Record;
@@ -44,6 +43,7 @@ import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordDefinitionProxy;
 import com.revolsys.spring.resource.Resource;
+import com.revolsys.util.BaseCloseable;
 
 public class XlsxRecordWriter extends AbstractRecordWriter {
   private static final ObjectFactory smlObjectFactory = Context.getsmlObjectFactory();
@@ -140,7 +140,7 @@ public class XlsxRecordWriter extends AbstractRecordWriter {
       this.sheetRows = this.sheetData.getRow();
 
     } catch (final Docx4JException | JAXBException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 
@@ -246,9 +246,9 @@ public class XlsxRecordWriter extends AbstractRecordWriter {
         } catch (final IOException e) {
         }
       } catch (final Docx4JException e) {
-        throw Exceptions.wrap(e);
+        throw Exceptions.toRuntimeException(e);
       } finally {
-        FileUtil.closeSilent(this.out);
+        BaseCloseable.closeSilent(this.out);
         this.out = null;
         this.sheet = null;
         this.sheetData = null;

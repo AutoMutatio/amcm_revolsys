@@ -50,7 +50,7 @@ public class GzipResource extends AbstractResource {
     try {
       return new GZIPInputStream(in);
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 
@@ -79,7 +79,7 @@ public class GzipResource extends AbstractResource {
     try {
       return new GZIPOutputStream(out);
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 

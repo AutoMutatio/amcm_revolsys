@@ -503,7 +503,7 @@ public interface Property {
   }
 
   static String getFirstName(final String name) {
-    if (hasValue(name)) {
+    if (Property.hasValue(name)) {
       final int index = name.indexOf(".");
       if (index == -1) {
         return name;
@@ -552,7 +552,7 @@ public interface Property {
         final Annotation annotation = (Annotation)object;
         return (T)AnnotationUtils.getValue(annotation, key);
       } else {
-        return getSimple(object, key);
+        return Property.getSimple(object, key);
       }
     }
   }
@@ -625,7 +625,7 @@ public interface Property {
   }
 
   static String getSubName(final String name) {
-    if (hasValue(name)) {
+    if (Property.hasValue(name)) {
       final int index = name.indexOf(".");
       if (index == -1) {
         return "";
@@ -718,7 +718,7 @@ public interface Property {
       return false;
     } else {
       for (final Object value : values) {
-        if (!hasValue(value)) {
+        if (!Property.hasValue(value)) {
           return false;
         }
       }
@@ -731,7 +731,7 @@ public interface Property {
       return false;
     } else {
       for (final Object value : values) {
-        if (hasValue(value)) {
+        if (Property.hasValue(value)) {
           return true;
         }
       }
@@ -1048,7 +1048,7 @@ public interface Property {
         final Map<String, Object> map = (Map<String, Object>)object;
         map.put(propertyName, value);
       } else {
-        setSimple(object, propertyName, value);
+        Property.setSimple(object, propertyName, value);
       }
     }
   }
@@ -1061,8 +1061,7 @@ public interface Property {
    * @param value
    * @return True if the property existed.
    */
-  public static boolean setSimple(final Object object, final String propertyName,
-    final Object value) {
+  static boolean setSimple(final Object object, final String propertyName, final Object value) {
     final PropertyDescriptor propertyDescriptor = PropertyDescriptorCache
       .getPropertyDescriptor(object, propertyName);
     if (propertyDescriptor != null) {

@@ -37,7 +37,7 @@ public class EndianOutputStream extends OutputStream implements EndianOutput {
     try {
       this.out.close();
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 
@@ -46,7 +46,7 @@ public class EndianOutputStream extends OutputStream implements EndianOutput {
     try {
       this.out.flush();
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 
@@ -66,7 +66,7 @@ public class EndianOutputStream extends OutputStream implements EndianOutput {
       this.out.write(b);
       this.written += b.length;
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 
@@ -76,7 +76,7 @@ public class EndianOutputStream extends OutputStream implements EndianOutput {
       this.out.write(b, off, len);
       this.written += len;
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 
@@ -86,7 +86,7 @@ public class EndianOutputStream extends OutputStream implements EndianOutput {
       this.out.write(b);
       this.written++;
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 

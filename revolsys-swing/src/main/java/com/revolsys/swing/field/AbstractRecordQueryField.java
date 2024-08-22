@@ -47,6 +47,7 @@ import org.jdesktop.swingx.decorator.HighlighterFactory;
 
 import com.revolsys.awt.WebColors;
 import com.revolsys.collection.map.LruMap;
+import com.revolsys.collection.value.ThreadBooleanValue;
 import com.revolsys.data.identifier.Identifier;
 import com.revolsys.data.type.DataType;
 import com.revolsys.io.PathName;
@@ -73,7 +74,6 @@ import com.revolsys.swing.menu.MenuFactory;
 import com.revolsys.swing.parallel.Invoke;
 import com.revolsys.util.BaseCloseable;
 import com.revolsys.util.Property;
-import com.revolsys.value.ThreadBooleanValue;
 
 public abstract class AbstractRecordQueryField extends ValueField
   implements DocumentListener, KeyListener, MouseListener, FocusListener, ListDataListener,

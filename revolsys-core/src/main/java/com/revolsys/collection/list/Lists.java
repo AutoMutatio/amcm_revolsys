@@ -44,7 +44,7 @@ public interface Lists {
     }
   }
 
-  static <V> void addListsAll(final List<V> list, final Iterable<? extends Iterable<V>> lists) {
+  static <V> void addListsAll(final ListEx<V> list, final Iterable<? extends Iterable<V>> lists) {
     if (lists != null) {
       for (final Iterable<V> values : lists) {
         for (final V value : values) {
@@ -60,7 +60,7 @@ public interface Lists {
   * @param value
   * @return
   */
-  static <V> boolean addNotContains(final List<V> list, final int index, final V value) {
+  static <V> boolean addNotContains(final ListEx<V> list, final int index, final V value) {
     if (Property.hasValue(value)) {
       if (!list.contains(value)) {
         list.add(index, value);
@@ -76,7 +76,7 @@ public interface Lists {
    * @param value
    * @return
    */
-  static <V> boolean addNotContains(final List<V> list, final V value) {
+  static <V> boolean addNotContains(final ListEx<V> list, final V value) {
     if (Property.hasValue(value)) {
       if (!list.contains(value)) {
         return list.add(value);
@@ -91,9 +91,10 @@ public interface Lists {
    * @param value
    * @return
    */
-  static <V> boolean addNotContainsLast(final List<V> list, final V value) {
+  static <V> boolean addNotContainsLast(final ListEx<V> list, final V value) {
     if (Property.hasValue(value)) {
-      if (list.isEmpty() || !list.get(list.size() - 1).equals(value)) {
+      if (list.isEmpty() || !list.get(list.size() - 1)
+        .equals(value)) {
         list.add(value);
         return true;
       }
@@ -107,7 +108,7 @@ public interface Lists {
    * @param value
    * @return
    */
-  static <V> boolean addNotEmpty(final List<V> list, final int index, final V value) {
+  static <V> boolean addNotEmpty(final ListEx<V> list, final int index, final V value) {
     if (Property.hasValue(value)) {
       list.add(index, value);
       return true;
@@ -122,7 +123,7 @@ public interface Lists {
    * @param value
    * @return
    */
-  static <V> boolean addNotEmpty(final List<V> list, final V value) {
+  static <V> boolean addNotEmpty(final ListEx<V> list, final V value) {
     if (list != null && Property.hasValue(value)) {
       return list.add(value);
     } else {
@@ -130,8 +131,8 @@ public interface Lists {
     }
   }
 
-  static List<? extends Object> arrayToList(final Object value) {
-    final List<Object> list = new ArrayListEx<>();
+  static ListEx<? extends Object> arrayToList(final Object value) {
+    final ListEx<Object> list = new ArrayListEx<>();
     if (value instanceof boolean[]) {
       for (final Object item : (boolean[])value) {
         list.add(item);
@@ -174,7 +175,7 @@ public interface Lists {
     return new ListBuilder<>(new ArrayListEx<>());
   }
 
-  static <T> boolean containsReference(final List<WeakReference<T>> list, final T object) {
+  static <T> boolean containsReference(final ListEx<WeakReference<T>> list, final T object) {
     for (int i = 0; i < list.size(); i++) {
       final WeakReference<T> reference = list.get(i);
       final T value = reference.get();
@@ -187,7 +188,12 @@ public interface Lists {
     return false;
   }
 
-  static boolean equalsNotNull(final List<?> list1, final List<?> list2) {
+  static <V> ListEx<V> empty() {
+    // TODO empty
+    return Lists.newArray();
+  }
+
+  static boolean equalsNotNull(final ListEx<?> list1, final ListEx<?> list2) {
     if (list1.size() != list2.size()) {
       return false;
     } else {
@@ -202,7 +208,7 @@ public interface Lists {
     return true;
   }
 
-  static boolean equalsNotNull(final List<?> list1, final List<?> list2,
+  static boolean equalsNotNull(final ListEx<?> list1, final ListEx<?> list2,
     final Collection<? extends CharSequence> exclude) {
     if (list1.size() != list2.size()) {
       return false;
@@ -276,7 +282,7 @@ public interface Lists {
     }
   }
 
-  static int getClassCount(final List<?> list, final Class<?> clazz) {
+  static int getClassCount(final ListEx<?> list, final Class<?> clazz) {
     int count = 0;
     for (int i = 0; i < list.size(); i++) {
       final Object value = list.get(i);
@@ -289,7 +295,7 @@ public interface Lists {
     return count++;
   }
 
-  static <T> int getReferenceClassCount(final List<WeakReference<T>> list, final Class<?> clazz) {
+  static <T> int getReferenceClassCount(final ListEx<WeakReference<T>> list, final Class<?> clazz) {
     int count = 0;
     for (int i = 0; i < list.size(); i++) {
       final WeakReference<?> reference = list.get(i);
@@ -303,8 +309,8 @@ public interface Lists {
     return count++;
   }
 
-  static <T> List<T> getReferences(final List<WeakReference<T>> list) {
-    final List<T> values = new ArrayListEx<>();
+  static <T> ListEx<T> getReferences(final ListEx<WeakReference<T>> list) {
+    final ListEx<T> values = new ArrayListEx<>();
     for (int i = 0; i < list.size(); i++) {
       final WeakReference<T> reference = list.get(i);
       final T value = reference.get();
@@ -324,11 +330,11 @@ public interface Lists {
   }
 
   @SafeVarargs
-  static <IN, OUT> List<OUT> map(final Function<? super IN, OUT> converter, final IN... list) {
+  static <IN, OUT> ListEx<OUT> map(final Function<? super IN, OUT> converter, final IN... list) {
     if (list == null) {
       return ListEx.empty();
     } else {
-      final List<OUT> newList = new ArrayListEx<>();
+      final ListEx<OUT> newList = new ArrayListEx<>();
       for (final IN value : list) {
         final OUT newValue = converter.apply(value);
         newList.add(newValue);
@@ -368,11 +374,11 @@ public interface Lists {
     return list;
   }
 
-  static List<Double> newArray(final double... values) {
+  static ListEx<Double> newArray(final double... values) {
     if (values == null) {
       return ListEx.empty();
     } else {
-      final List<Double> list = new ArrayListEx<>();
+      final ListEx<Double> list = new ArrayListEx<>();
       for (final double value : values) {
         list.add(value);
       }
@@ -380,11 +386,11 @@ public interface Lists {
     }
   }
 
-  static List<Integer> newArray(final int... values) {
+  static ListEx<Integer> newArray(final int... values) {
     if (values == null) {
       return ListEx.empty();
     } else {
-      final List<Integer> list = new ArrayListEx<>();
+      final ListEx<Integer> list = new ArrayListEx<>();
       for (final int value : values) {
         list.add(value);
       }
@@ -398,11 +404,11 @@ public interface Lists {
     return list;
   }
 
-  static List<Double> newArrayDouble(final double... values) {
+  static ListEx<Double> newArrayDouble(final double... values) {
     if (values == null) {
       return ListEx.empty();
     } else {
-      final List<Double> list = new ArrayListEx<>();
+      final ListEx<Double> list = new ArrayListEx<>();
       for (final double value : values) {
         list.add(value);
       }
@@ -410,11 +416,11 @@ public interface Lists {
     }
   }
 
-  static List<Integer> newArrayInt(final int... values) {
+  static ListEx<Integer> newArrayInt(final int... values) {
     if (values == null) {
       return ListEx.empty();
     } else {
-      final List<Integer> list = new ArrayListEx<>();
+      final ListEx<Integer> list = new ArrayListEx<>();
       for (final int value : values) {
         list.add(value);
       }
@@ -430,7 +436,7 @@ public interface Lists {
     return values;
   }
 
-  static <T> void removeReference(final List<WeakReference<T>> list, final T object) {
+  static <T> void removeReference(final ListEx<WeakReference<T>> list, final T object) {
     for (int i = 0; i < list.size(); i++) {
       final WeakReference<T> reference = list.get(i);
       final T value = reference.get();
@@ -463,8 +469,8 @@ public interface Lists {
     return list;
   }
 
-  static <T> List<T> toArray(final Iterable<T> iterable, final int size) {
-    final List<T> list = new ArrayListEx<>(size);
+  static <T> ListEx<T> toArray(final Iterable<T> iterable, final int size) {
+    final ListEx<T> list = new ArrayListEx<>(size);
     int i = 0;
     for (final T value : iterable) {
       if (i < size) {
@@ -514,7 +520,7 @@ public interface Lists {
     }
   }
 
-  static <V> ListEx<V> toArrayThreadSafe(final List<? extends V> values) {
+  static <V> ListEx<V> toArrayThreadSafe(final ListEx<? extends V> values) {
     final ListEx<V> list = new ArrayListEx<>(values.size());
     for (int i = 0; i < values.size(); i++) {
       try {

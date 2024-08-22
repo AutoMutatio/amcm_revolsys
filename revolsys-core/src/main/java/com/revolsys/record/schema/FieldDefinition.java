@@ -25,7 +25,7 @@ import com.revolsys.data.type.DataTypes;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.geometry.operation.valid.IsValidOp;
-import com.revolsys.io.map.MapSerializer;
+import com.revolsys.io.MapSerializer;
 import com.revolsys.properties.BaseObjectWithProperties;
 import com.revolsys.record.Record;
 import com.revolsys.record.RecordState;
@@ -509,7 +509,8 @@ public class FieldDefinition extends BaseObjectWithProperties implements CharSeq
     } else if (CharSequence.class.isAssignableFrom(getTypeClass())) {
       typeName = "CHARACTER";
     } else {
-      typeName = this.type.getName().toUpperCase();
+      typeName = this.type.getName()
+        .toUpperCase();
     }
     string.append(typeName);
     if (this.length > 0) {

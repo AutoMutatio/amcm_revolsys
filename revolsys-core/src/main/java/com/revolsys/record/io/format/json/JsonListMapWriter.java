@@ -7,7 +7,7 @@ import java.util.Map;
 import com.revolsys.collection.json.JsonWriterUtil;
 import com.revolsys.exception.Exceptions;
 import com.revolsys.io.AbstractMapWriter;
-import com.revolsys.io.FileUtil;
+import com.revolsys.util.BaseCloseable;
 
 public class JsonListMapWriter extends AbstractMapWriter {
 
@@ -21,7 +21,7 @@ public class JsonListMapWriter extends AbstractMapWriter {
     try {
       this.out.write('[');
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 
@@ -35,7 +35,7 @@ public class JsonListMapWriter extends AbstractMapWriter {
         this.out.write("\n]\n");
       } catch (final IOException e) {
       } finally {
-        FileUtil.closeSilent(this.out);
+        BaseCloseable.closeSilent(this.out);
         this.out = null;
       }
     }
@@ -60,7 +60,7 @@ public class JsonListMapWriter extends AbstractMapWriter {
       this.out.write('\n');
       JsonWriterUtil.write(this.out, values, null, isWriteNulls());
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 }

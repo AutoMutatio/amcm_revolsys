@@ -102,7 +102,8 @@ public final class PreferencesApplied {
 
     /** Sets the value of the applied preference <code>return</code>. */
     public Builder returnRepresentation(final Return returnRepresentation) {
-      add(PreferenceName.RETURN.getName(), returnRepresentation.name().toLowerCase(Locale.ROOT));
+      add(PreferenceName.RETURN.getName(), returnRepresentation.name()
+        .toLowerCase(Locale.ROOT));
       return this;
     }
 
@@ -164,7 +165,8 @@ public final class PreferencesApplied {
     final StringBuilder result = new StringBuilder();
     for (final Map.Entry<String, String> entry : this.applied.entrySet()) {
       if (result.length() > 0) {
-        result.append(',').append(' ');
+        result.append(',')
+          .append(' ');
       }
       final String key = entry.getKey();
       result.append(key);
@@ -172,7 +174,8 @@ public final class PreferencesApplied {
         final boolean safe = isSafe(key);
         result.append('=')
           .append(safe ? "" : '"')
-          .append(entry.getValue().replaceAll("\\\\|\"", "\\\\$0"))
+          .append(entry.getValue()
+            .replaceAll("\\\\|\"", "\\\\$0"))
           .append(safe ? "" : '"');
       }
     }

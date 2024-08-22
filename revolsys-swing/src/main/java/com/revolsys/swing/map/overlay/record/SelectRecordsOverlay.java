@@ -22,6 +22,7 @@ import java.util.function.Consumer;
 import javax.swing.SwingUtilities;
 
 import com.revolsys.awt.WebColors;
+import com.revolsys.collection.value.ThreadBooleanValue;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryFactory;
@@ -58,7 +59,6 @@ import com.revolsys.swing.table.TablePanel;
 import com.revolsys.util.BaseCloseable;
 import com.revolsys.util.Cancellable;
 import com.revolsys.util.Property;
-import com.revolsys.value.ThreadBooleanValue;
 
 public class SelectRecordsOverlay extends AbstractOverlay {
   public static final String ACTION_SELECT_RECORDS = "Select Records";
@@ -572,7 +572,7 @@ public class SelectRecordsOverlay extends AbstractOverlay {
   private void unSelectRecords(final LayerGroup group, final BoundingBox boundingBox) {
 
     final double scale = getViewportScale();
-    group.forEachReverse((layer) -> {
+    group.forEachReverse(layer -> {
       if (layer instanceof LayerGroup) {
         final LayerGroup childGroup = (LayerGroup)layer;
         unSelectRecords(childGroup, boundingBox);

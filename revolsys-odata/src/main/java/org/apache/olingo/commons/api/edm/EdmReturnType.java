@@ -18,35 +18,71 @@
  */
 package org.apache.olingo.commons.api.edm;
 
-import org.apache.olingo.commons.api.edm.geo.SRID;
+import org.apache.olingo.commons.api.edm.provider.CsdlReturnType;
+import org.apache.olingo.commons.core.edm.Edm;
+import org.apache.olingo.commons.core.edm.EdmTypeInfo;
 
 /**
  * An {@link EdmReturnType} of an {@link EdmOperation}.
  */
-public interface EdmReturnType extends EdmTyped {
+public class EdmReturnType implements EdmTyped {
 
-  /**
-   * @return the maximum length as an Integer or null if not specified
-   */
-  Integer getMaxLength();
+  private final CsdlReturnType returnType;
 
-  /**
-   * @return the precision as an Integer or null if not specified
-   */
-  Integer getPrecision();
+  private final Edm edm;
 
-  /**
-   * @return the scale as an Integer or null if not specified
-   */
-  Integer getScale();
+  private EdmType typeImpl;
 
-  /**
-   * @return a non-negative integer or the special value <tt>variable</tt>
-   */
-  SRID getSrid();
+  public EdmReturnType(final Edm edm, final CsdlReturnType returnType) {
+    this.edm = edm;
+    this.returnType = returnType;
+  }
 
-  /**
-   * @return true if nullable or not specified
-   */
-  boolean isNullable();
+  public Integer getMaxLength() {
+    return this.returnType.getMaxLength();
+  }
+
+  public Integer getPrecision() {
+    return this.returnType.getPrecision();
+  }
+
+  public Integer getScale() {
+    return this.returnType.getScale();
+  }
+
+  public int getSrid() {
+    return this.returnType.getSrid();
+  }
+
+  @Override
+  public EdmType getType() {
+    if (this.typeImpl == null) {
+      if (this.returnType.getType() == null) {
+        throw new EdmException("Return types must hava a full qualified type.");
+      }
+      this.typeImpl = new EdmTypeInfo.Builder().setEdm(this.edm)
+        .setTypeExpression(this.returnType.getType())
+        .build()
+        .getType();
+      if (this.typeImpl == null) {
+        throw new EdmException("Cannot find type with name: " + this.returnType.getType());
+      }
+    }
+
+    return this.typeImpl;
+  }
+
+  @Override
+  public boolean isCollection() {
+    return this.returnType.isCollection();
+  }
+
+  public boolean isNullable() {
+    return this.returnType.isNullable();
+  }
+
+  @Override
+  public String toString() {
+    return this.returnType.toString();
+  }
 }

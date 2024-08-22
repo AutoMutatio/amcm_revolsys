@@ -10,19 +10,15 @@ public class LazyValueMap<K, V> extends DelegatingMap<K, V> {
 
   private final Function<K, V> loadFunction;
 
-  private Map<K, V> map;
+  private final Map<K, V> map;
 
-  private Map<K, V> externalMap;
+  private final Map<K, V> externalMap;
 
   private final ReentrantLock lock = new ReentrantLock();
 
   public LazyValueMap(final Function<K, V> loadFunction) {
-    this(new LinkedHashMap<>(), loadFunction);
-  }
-
-  public LazyValueMap(final Map<K, V> map, final Function<K, V> loadFunction) {
-    this.map = map;
-    this.externalMap = Collections.unmodifiableMap(map);
+    this.map = new LinkedHashMap<>();
+    this.externalMap = Collections.unmodifiableMap(this.map);
     this.loadFunction = loadFunction;
   }
 

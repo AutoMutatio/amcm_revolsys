@@ -50,7 +50,7 @@ public class ChannelReader extends AbstractDataReader implements BaseCloseable {
       try {
         this.channel.close();
       } catch (final IOException e) {
-        throw Exceptions.wrap(e);
+        throw Exceptions.toRuntimeException(e);
       } finally {
         super.close();
       }
@@ -76,7 +76,7 @@ public class ChannelReader extends AbstractDataReader implements BaseCloseable {
           return subBytes;
         }
       } catch (final IOException e) {
-        throw Exceptions.wrap(e);
+        throw Exceptions.toRuntimeException(e);
       }
     } else {
       return super.getBytes(offset, byteCount);
@@ -104,7 +104,7 @@ public class ChannelReader extends AbstractDataReader implements BaseCloseable {
       try {
         return channel.position() - getAvailable();
       } catch (final IOException e) {
-        throw Exceptions.wrap(e);
+        throw Exceptions.toRuntimeException(e);
       }
     } else {
       return super.position();
@@ -119,7 +119,7 @@ public class ChannelReader extends AbstractDataReader implements BaseCloseable {
       try {
         getChannel().read(buffer);
       } catch (final IOException e) {
-        throw Exceptions.wrap(e);
+        throw Exceptions.toRuntimeException(e);
       }
     } while (buffer.hasRemaining());
     seek(position);
@@ -146,7 +146,7 @@ public class ChannelReader extends AbstractDataReader implements BaseCloseable {
         super.seek(position);
       }
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 
@@ -161,7 +161,7 @@ public class ChannelReader extends AbstractDataReader implements BaseCloseable {
         throw new IllegalArgumentException("Seek not supported");
       }
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 }

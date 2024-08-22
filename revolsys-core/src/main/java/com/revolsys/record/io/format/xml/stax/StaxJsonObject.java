@@ -87,7 +87,7 @@ public class StaxJsonObject implements Jsonable {
   }
 
   public <V> ListEx<V> getList(final CharSequence name) {
-    return this.properties.getTypeValue(name, DataTypes.LIST, ListEx.empty());
+    return this.properties.getTypedValue(name, DataTypes.LIST, ListEx.empty());
   }
 
   public <V> V getValue(final String name) {

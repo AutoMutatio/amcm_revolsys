@@ -113,10 +113,10 @@ public interface Paths {
       if (Files.isSymbolicLink(path)) {
         return path;
       } else {
-        throw Exceptions.wrap(e);
+        throw Exceptions.toRuntimeException(e);
       }
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 
@@ -251,7 +251,7 @@ public interface Paths {
       } catch (final NoSuchFileException e) {
         return Collections.emptyList();
       } catch (final IOException e) {
-        throw Exceptions.wrap(e);
+        throw Exceptions.toRuntimeException(e);
       }
     } else {
       return Collections.emptyList();
@@ -272,7 +272,7 @@ public interface Paths {
       } catch (final NoSuchFileException e) {
         return Collections.emptyList();
       } catch (final IOException e) {
-        throw Exceptions.wrap(e);
+        throw Exceptions.toRuntimeException(e);
       }
     } else {
       return Collections.emptyList();
@@ -468,7 +468,7 @@ public interface Paths {
     } catch (final NoSuchFileException e) {
       return Stream.empty();
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 
@@ -488,7 +488,7 @@ public interface Paths {
       } catch (final NoSuchFileException e) {
         return Collections.emptyList();
       } catch (final IOException e) {
-        throw Exceptions.wrap(e);
+        throw Exceptions.toRuntimeException(e);
       }
     } else {
       return Collections.emptyList();
@@ -512,7 +512,7 @@ public interface Paths {
     try {
       return Files.newBufferedWriter(path, StandardCharsets.UTF_8);
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 
@@ -520,7 +520,7 @@ public interface Paths {
     try {
       return Files.newOutputStream(path, OPEN_OPTIONS_NONE);
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 
@@ -532,7 +532,7 @@ public interface Paths {
     try {
       return path.toUri().toURL();
     } catch (final MalformedURLException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 
@@ -564,7 +564,7 @@ public interface Paths {
       Files.writeString(file, text, StandardOpenOption.CREATE,
         StandardOpenOption.TRUNCATE_EXISTING);
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 

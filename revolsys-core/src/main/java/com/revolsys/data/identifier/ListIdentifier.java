@@ -31,7 +31,7 @@ public class ListIdentifier extends AbstractIdentifier {
   @Override
   public boolean equals(final Identifier identifier) {
     if (identifier instanceof ListIdentifier) {
-      final ListIdentifier listIdentifier = (ListIdentifier)identifier;
+      final ListIdentifier listIdentifier = (ListIdentifier) identifier;
       return DataType.equal(this.values, listIdentifier.values);
     }
     return false;
@@ -40,7 +40,7 @@ public class ListIdentifier extends AbstractIdentifier {
   @SuppressWarnings("unchecked")
   @Override
   public <V> V getValue(final int index) {
-    return (V)this.values.get(0);
+    return (V) this.values.get(index);
   }
 
   @Override

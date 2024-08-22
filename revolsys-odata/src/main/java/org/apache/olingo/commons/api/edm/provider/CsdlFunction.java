@@ -18,12 +18,10 @@
  */
 package org.apache.olingo.commons.api.edm.provider;
 
-import java.util.List;
-
 /**
  * The type Csdl function.
  */
-public class CsdlFunction extends CsdlOperation {
+public class CsdlFunction extends CsdlOperation<CsdlFunction> {
 
   private boolean isComposable = false;
 
@@ -34,18 +32,6 @@ public class CsdlFunction extends CsdlOperation {
    */
   public boolean isComposable() {
     return this.isComposable;
-  }
-
-  @Override
-  public CsdlFunction setAnnotations(final List<CsdlAnnotation> annotations) {
-    this.annotations = annotations;
-    return this;
-  }
-
-  @Override
-  public CsdlFunction setBound(final boolean isBound) {
-    this.isBound = isBound;
-    return this;
   }
 
   /**
@@ -59,27 +45,4 @@ public class CsdlFunction extends CsdlOperation {
     return this;
   }
 
-  @Override
-  public CsdlFunction setEntitySetPath(final String entitySetPath) {
-    this.entitySetPath = entitySetPath;
-    return this;
-  }
-
-  @Override
-  public CsdlFunction setName(final String name) {
-    this.name = name;
-    return this;
-  }
-
-  @Override
-  public CsdlFunction setParameters(final List<CsdlParameter> parameters) {
-    this.parameters = parameters;
-    return this;
-  }
-
-  @Override
-  public CsdlFunction setReturnType(final CsdlReturnType returnType) {
-    this.returnType = returnType;
-    return this;
-  }
 }

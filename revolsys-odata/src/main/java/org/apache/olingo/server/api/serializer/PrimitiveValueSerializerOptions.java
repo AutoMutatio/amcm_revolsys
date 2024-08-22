@@ -43,7 +43,6 @@ public class PrimitiveValueSerializerOptions {
       this.options.maxLength = property.getMaxLength();
       this.options.precision = property.getPrecision();
       this.options.scale = property.getScale();
-      this.options.isUnicode = property.isUnicode();
       return this;
     }
 
@@ -71,12 +70,6 @@ public class PrimitiveValueSerializerOptions {
       return this;
     }
 
-    /** Sets the unicode facet. */
-    public Builder unicode(final Boolean isUnicode) {
-      this.options.isUnicode = isUnicode;
-      return this;
-    }
-
     /** set the replacement string for xml 1.0 unicode controlled characters that are not allowed */
     public Builder xml10InvalidCharReplacement(final String replacement) {
       this.options.xml10InvalidCharReplacement = replacement;
@@ -96,8 +89,6 @@ public class PrimitiveValueSerializerOptions {
   private Integer precision;
 
   private Integer scale;
-
-  private Boolean isUnicode;
 
   private String xml10InvalidCharReplacement;
 
@@ -122,11 +113,6 @@ public class PrimitiveValueSerializerOptions {
   /** Gets the nullable facet. */
   public Boolean isNullable() {
     return this.isNullable;
-  }
-
-  /** Gets the unicode facet. */
-  public Boolean isUnicode() {
-    return this.isUnicode;
   }
 
   /** Gets the replacement string for unicode characters, that is not allowed in XML 1.0 */

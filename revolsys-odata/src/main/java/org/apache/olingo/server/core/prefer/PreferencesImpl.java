@@ -45,11 +45,15 @@ public class PreferencesImpl implements Preferences {
   @Override
   public URI getCallback() {
     if (this.preferences.containsKey(PreferenceName.CALLBACK.getName())
-      && this.preferences.get(PreferenceName.CALLBACK.getName()).getParameters() != null
-      && this.preferences.get(PreferenceName.CALLBACK.getName()).getParameters().get(URL) != null) {
+      && this.preferences.get(PreferenceName.CALLBACK.getName())
+        .getParameters() != null
+      && this.preferences.get(PreferenceName.CALLBACK.getName())
+        .getParameters()
+        .get(URL) != null) {
       try {
-        return URI
-          .create(this.preferences.get(PreferenceName.CALLBACK.getName()).getParameters().get(URL));
+        return URI.create(this.preferences.get(PreferenceName.CALLBACK.getName())
+          .getParameters()
+          .get(URL));
       } catch (final IllegalArgumentException e) {
         return null;
       }
@@ -63,9 +67,11 @@ public class PreferencesImpl implements Preferences {
   }
 
   private Integer getNonNegativeIntegerPreference(final String name) {
-    if (this.preferences.containsKey(name) && this.preferences.get(name).getValue() != null) {
+    if (this.preferences.containsKey(name) && this.preferences.get(name)
+      .getValue() != null) {
       try {
-        final Integer result = Integer.valueOf(this.preferences.get(name).getValue());
+        final Integer result = Integer.valueOf(this.preferences.get(name)
+          .getValue());
         return result < 0 ? null : result;
       } catch (final NumberFormatException e) {
         return null;
@@ -82,10 +88,15 @@ public class PreferencesImpl implements Preferences {
   @Override
   public Return getReturn() {
     if (this.preferences.containsKey(PreferenceName.RETURN.getName())) {
-      final String value = this.preferences.get(PreferenceName.RETURN.getName()).getValue();
-      if (Return.REPRESENTATION.toString().toLowerCase(Locale.ROOT).equals(value)) {
+      final String value = this.preferences.get(PreferenceName.RETURN.getName())
+        .getValue();
+      if (Return.REPRESENTATION.toString()
+        .toLowerCase(Locale.ROOT)
+        .equals(value)) {
         return Return.REPRESENTATION;
-      } else if (Return.MINIMAL.toString().toLowerCase(Locale.ROOT).equals(value)) {
+      } else if (Return.MINIMAL.toString()
+        .toLowerCase(Locale.ROOT)
+        .equals(value)) {
         return Return.MINIMAL;
       }
     }

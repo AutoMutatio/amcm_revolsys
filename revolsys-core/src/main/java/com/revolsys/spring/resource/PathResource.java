@@ -143,11 +143,11 @@ public class PathResource extends AbstractResource implements WritableResource {
             }
             return true;
           } catch (final IOException e) {
-            throw Exceptions.wrap(e);
+            throw Exceptions.toRuntimeException(e);
           }
         }
       } catch (final IOException e) {
-        throw Exceptions.wrap(e);
+        throw Exceptions.toRuntimeException(e);
       }
     }
   }
@@ -161,7 +161,7 @@ public class PathResource extends AbstractResource implements WritableResource {
         WritableByteChannel out = target.newWritableByteChannel()) {
         return copyTo(out);
       } catch (final IOException e) {
-        throw Exceptions.wrap(e);
+        throw Exceptions.toRuntimeException(e);
       }
     }
   }
@@ -179,7 +179,7 @@ public class PathResource extends AbstractResource implements WritableResource {
           return true;
         }
       } catch (final IOException e) {
-        throw Exceptions.wrap(e);
+        throw Exceptions.toRuntimeException(e);
       }
     }
   }
@@ -208,7 +208,7 @@ public class PathResource extends AbstractResource implements WritableResource {
     } catch (final DirectoryNotEmptyException e) {
       return false;
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 
@@ -266,7 +266,7 @@ public class PathResource extends AbstractResource implements WritableResource {
     } catch (final FileSystemException e) {
       throw Exceptions.wrap("Error opening file: " + getPath(), e);
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 
@@ -276,7 +276,7 @@ public class PathResource extends AbstractResource implements WritableResource {
     try {
       return Files.getLastModifiedTime(path).toInstant();
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 
@@ -288,7 +288,7 @@ public class PathResource extends AbstractResource implements WritableResource {
     } catch (final FileSystemException e) {
       throw Exceptions.wrap("Error opening file: " + getPath(), e);
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 
@@ -334,7 +334,7 @@ public class PathResource extends AbstractResource implements WritableResource {
     try {
       return this.path.toUri().toURL();
     } catch (final MalformedURLException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 
@@ -394,7 +394,7 @@ public class PathResource extends AbstractResource implements WritableResource {
     } catch (final FileSystemException e) {
       throw Exceptions.wrap("Error opening file: " + getPath(), e);
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 
@@ -408,7 +408,7 @@ public class PathResource extends AbstractResource implements WritableResource {
     } catch (final FileSystemException e) {
       return null;
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 
@@ -429,7 +429,7 @@ public class PathResource extends AbstractResource implements WritableResource {
     } catch (final FileSystemException e) {
       throw Exceptions.wrap("Error opening file: " + getPath(), e);
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 
@@ -444,7 +444,7 @@ public class PathResource extends AbstractResource implements WritableResource {
       final File file = getFile();
       return new FileWriter(file, charset);
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 

@@ -10,6 +10,7 @@ import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.io.FileUtil;
 import com.revolsys.io.map.MapReader;
+import com.revolsys.util.BaseCloseable;
 
 public class JsonMapReader extends AbstractReader<MapEx> implements MapReader {
   private final java.io.Reader in;
@@ -33,7 +34,7 @@ public class JsonMapReader extends AbstractReader<MapEx> implements MapReader {
 
   @Override
   public void close() {
-    FileUtil.closeSilent(this.in);
+    BaseCloseable.closeSilent(this.in);
   }
 
   @SuppressWarnings({

@@ -32,7 +32,7 @@ public class OrderBy implements Cloneable {
     try {
       return (OrderBy)super.clone();
     } catch (final CloneNotSupportedException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 

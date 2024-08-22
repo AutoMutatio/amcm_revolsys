@@ -21,7 +21,7 @@ public class GeographicCoordinateSystemGridShiftOperation implements Coordinates
     this.targetCoordinateSystem = targetCoordinateSystem;
   }
 
-  public synchronized void addOperation(final HorizontalShiftOperation operation) {
+  void addOperation(final HorizontalShiftOperation operation) {
     if (!this.operations.contains(operation)) {
       this.operations.add(operation);
     }

@@ -57,7 +57,7 @@ public class Distance implements Function {
     try {
       return (Distance)super.clone();
     } catch (final CloneNotSupportedException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 

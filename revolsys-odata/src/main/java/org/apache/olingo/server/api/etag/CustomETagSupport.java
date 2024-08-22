@@ -18,7 +18,7 @@
  */
 package org.apache.olingo.server.api.etag;
 
-import org.apache.olingo.commons.api.edm.EdmBindingTarget;
+import org.apache.olingo.commons.core.edm.EdmBindingTarget;
 import org.apache.olingo.server.api.OlingoExtension;
 
 /**

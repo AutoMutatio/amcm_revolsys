@@ -1,13 +1,19 @@
 package com.revolsys.parallel.channel;
 
 import java.util.Iterator;
+import java.util.concurrent.locks.Condition;
+
+import com.revolsys.parallel.ReentrantLockEx;
+import com.revolsys.util.BaseCloseable;
 
 public abstract class AbstractChannelInput<T> implements ChannelInput<T> {
   /** Flag indicating if the channel has been closed. */
   private boolean closed = false;
 
   /** The monitor reads must synchronize on */
-  private final Object monitor = new Object();
+  private final ReentrantLockEx lock = new ReentrantLockEx();
+
+  private final Condition lockCondition = this.lock.newCondition();
 
   /** The name of the channel. */
   private String name;
@@ -16,7 +22,7 @@ public abstract class AbstractChannelInput<T> implements ChannelInput<T> {
   private int numReaders = 0;
 
   /** The monitor reads must synchronize on */
-  private final Object readMonitor = new Object();
+  private final ReentrantLockEx readLock = new ReentrantLockEx();
 
   public AbstractChannelInput() {
 
@@ -52,8 +58,10 @@ public abstract class AbstractChannelInput<T> implements ChannelInput<T> {
    */
   @Override
   public T read() {
-    synchronized (this.readMonitor) {
-      synchronized (this.monitor) {
+    try (
+      var rl = this.readLock.lockX()) {
+      try (
+        var l = this.lock.lockX()) {
         if (isClosed()) {
           throw new ClosedException();
         }
@@ -73,8 +81,10 @@ public abstract class AbstractChannelInput<T> implements ChannelInput<T> {
    */
   @Override
   public T read(final long timeout) {
-    synchronized (this.readMonitor) {
-      synchronized (this.monitor) {
+    try (
+      var rl = this.readLock.lockX()) {
+      try (
+        var l = this.lock.lockX()) {
         if (isClosed()) {
           throw new ClosedException();
         }
@@ -84,25 +94,27 @@ public abstract class AbstractChannelInput<T> implements ChannelInput<T> {
   }
 
   @Override
-  public void readConnect() {
-    synchronized (this.monitor) {
+  public BaseCloseable readConnect() {
+    try (
+      var l = this.lock.lockX()) {
       if (isClosed()) {
         throw new IllegalStateException("Cannot connect to a closed channel");
       } else {
         this.numReaders++;
       }
-
     }
+    return this::readDisconnect;
   }
 
   @Override
   public void readDisconnect() {
-    synchronized (this.monitor) {
+    try (
+      var l = this.lock.lockX()) {
       if (!this.closed) {
         this.numReaders--;
         if (this.numReaders <= 0) {
           close();
-          this.monitor.notifyAll();
+          this.lockCondition.signalAll();
         }
       }
 

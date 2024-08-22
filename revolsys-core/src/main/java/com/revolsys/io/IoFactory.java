@@ -150,7 +150,7 @@ public interface IoFactory extends Available {
       } else if (source instanceof Path) {
         fileName = Paths.getFileName((Path)source);
       } else if (source instanceof File) {
-        fileName = FileUtil.getFileName((File)source);
+        fileName = IoUtil.getFileName((File)source);
       } else if (source instanceof URL) {
         fileName = UrlUtil.getFileName((URL)source);
       } else if (source instanceof URI) {

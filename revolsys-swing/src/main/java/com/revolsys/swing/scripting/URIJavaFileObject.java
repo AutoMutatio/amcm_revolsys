@@ -9,6 +9,7 @@ import java.net.URI;
 import javax.tools.SimpleJavaFileObject;
 
 import com.revolsys.io.FileUtil;
+import com.revolsys.io.IoUtil;
 
 public class URIJavaFileObject extends SimpleJavaFileObject {
   public URIJavaFileObject(final File file, final Kind kind) {
@@ -22,7 +23,7 @@ public class URIJavaFileObject extends SimpleJavaFileObject {
   @Override
   public CharSequence getCharContent(final boolean ignoreEncodingErrors) throws IOException {
     final InputStream inputStream = openInputStream();
-    return FileUtil.getString(inputStream);
+    return IoUtil.getString(inputStream);
   }
 
   @Override

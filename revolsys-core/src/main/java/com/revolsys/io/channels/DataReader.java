@@ -45,7 +45,7 @@ public interface DataReader extends BaseCloseable {
       buffer.flip();
       return bufferPosition;
     } catch (final Exception e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 

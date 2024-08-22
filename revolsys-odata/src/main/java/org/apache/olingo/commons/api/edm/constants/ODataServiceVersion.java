@@ -111,11 +111,16 @@ public enum ODataServiceVersion {
     final Matcher matcher = DATASERVICEVERSIONPATTERN.matcher(version);
     if (matcher.matches()) {
       final String possibleDataServiceVersion = matcher.group(1);
-      return V10.toString().equals(possibleDataServiceVersion)
-        || V20.toString().equals(possibleDataServiceVersion)
-        || V30.toString().equals(possibleDataServiceVersion)
-        || V40.toString().equals(possibleDataServiceVersion)
-        || V401.toString().equals(possibleDataServiceVersion);
+      return V10.toString()
+        .equals(possibleDataServiceVersion)
+        || V20.toString()
+          .equals(possibleDataServiceVersion)
+        || V30.toString()
+          .equals(possibleDataServiceVersion)
+        || V40.toString()
+          .equals(possibleDataServiceVersion)
+        || V401.toString()
+          .equals(possibleDataServiceVersion);
     } else {
       throw new IllegalArgumentException(version);
     }

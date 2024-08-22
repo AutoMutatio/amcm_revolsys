@@ -50,7 +50,7 @@ public class PasswordField extends JPasswordField implements Field, FocusListene
     setText(text);
     addFocusListener(new WeakFocusListener(this));
     MenuFactory.getPopupMenuFactory(this);
-    EventQueue.addAction(this, () -> updateFieldValue());
+    EventQueue.addAction(this, this::updateFieldValue);
   }
 
   public PasswordField(final String fieldName, final Object fieldValue, final int columns) {

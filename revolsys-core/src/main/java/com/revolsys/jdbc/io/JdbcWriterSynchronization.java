@@ -3,6 +3,8 @@ package com.revolsys.jdbc.io;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
+import com.revolsys.record.schema.AbstractRecordStore;
+
 public class JdbcWriterSynchronization extends TransactionSynchronizationAdapter {
 
   private boolean holderActive = true;
@@ -11,7 +13,7 @@ public class JdbcWriterSynchronization extends TransactionSynchronizationAdapter
 
   private final JdbcWriterResourceHolder writerHolder;
 
-  public JdbcWriterSynchronization(final AbstractJdbcRecordStore recordStore,
+  public JdbcWriterSynchronization(final AbstractRecordStore recordStore,
     final JdbcWriterResourceHolder writerHolder, final Object key) {
     this.writerHolder = writerHolder;
     this.key = key;

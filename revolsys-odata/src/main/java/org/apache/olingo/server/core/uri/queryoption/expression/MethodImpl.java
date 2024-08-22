@@ -31,7 +31,6 @@ import org.apache.olingo.server.api.uri.queryoption.expression.ExpressionVisitor
 import org.apache.olingo.server.api.uri.queryoption.expression.Method;
 import org.apache.olingo.server.api.uri.queryoption.expression.MethodKind;
 import org.apache.olingo.server.api.uri.queryoption.expression.TypeLiteral;
-import org.apache.olingo.server.core.ODataImpl;
 
 public class MethodImpl implements Method {
 
@@ -134,10 +133,7 @@ public class MethodImpl implements Method {
       case COMPUTE_AGGREGATE:
         kind = null;
     }
-    final EdmPrimitiveTypeKind kind1 = kind;
-    final ODataImpl r = new ODataImpl();
-
-    return kind == null ? null : kind1.getInstance();
+    return kind == null ? null : kind.getInstance();
   }
 
   @Override

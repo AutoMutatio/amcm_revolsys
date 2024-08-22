@@ -18,17 +18,17 @@
  */
 package org.apache.olingo.server.core.etag;
 
-import org.apache.olingo.commons.api.edm.EdmBindingTarget;
 import org.apache.olingo.commons.api.edm.EdmFunctionImport;
 import org.apache.olingo.commons.api.edm.EdmNavigationProperty;
+import org.apache.olingo.commons.core.edm.EdmBindingTarget;
 import org.apache.olingo.server.api.etag.CustomETagSupport;
 import org.apache.olingo.server.api.etag.PreconditionException;
 import org.apache.olingo.server.api.uri.UriInfo;
-import org.apache.olingo.server.api.uri.UriResource;
-import org.apache.olingo.server.api.uri.UriResourceEntitySet;
-import org.apache.olingo.server.api.uri.UriResourceFunction;
-import org.apache.olingo.server.api.uri.UriResourceNavigation;
-import org.apache.olingo.server.api.uri.UriResourceSingleton;
+import org.apache.olingo.server.core.uri.UriResource;
+import org.apache.olingo.server.core.uri.UriResourceEntitySet;
+import org.apache.olingo.server.core.uri.UriResourceFunction;
+import org.apache.olingo.server.core.uri.UriResourceNavigationProperty;
+import org.apache.olingo.server.core.uri.UriResourceSingleton;
 
 public class PreconditionsValidator {
 
@@ -55,7 +55,7 @@ public class PreconditionsValidator {
         break;
         case navigationProperty:
           lastFoundEntitySetOrSingleton = getEntitySetFromNavigation(lastFoundEntitySetOrSingleton,
-            (UriResourceNavigation)uriResourcePart);
+            (UriResourceNavigationProperty)uriResourcePart);
         break;
         case primitiveProperty:
         case complexProperty:
@@ -64,7 +64,8 @@ public class PreconditionsValidator {
         case action:
           // This should not be possible since the URI Parser validates this but
           // to be sure we throw an exception.
-          if (counter != uriInfo.getUriResourceParts().size() - 1) {
+          if (counter != uriInfo.getUriResourceParts()
+            .size() - 1) {
             throw new PreconditionException("$value or Action must be the last segment in the URI.",
               PreconditionException.MessageKeys.INVALID_URI);
           }
@@ -98,7 +99,7 @@ public class PreconditionsValidator {
 
   private EdmBindingTarget getEntitySetFromNavigation(
     final EdmBindingTarget lastFoundEntitySetOrSingleton,
-    final UriResourceNavigation uriResourceNavigation) {
+    final UriResourceNavigationProperty uriResourceNavigation) {
     if (lastFoundEntitySetOrSingleton != null && !uriResourceNavigation.isCollection()) {
       final EdmNavigationProperty navProp = uriResourceNavigation.getProperty();
       return lastFoundEntitySetOrSingleton.getRelatedBindingTarget(navProp.getName());

@@ -13,13 +13,13 @@ import com.revolsys.data.type.DataType;
 import com.revolsys.data.type.DataTypes;
 import com.revolsys.exception.Exceptions;
 import com.revolsys.io.AbstractRecordWriter;
-import com.revolsys.io.FileUtil;
 import com.revolsys.io.IoConstants;
 import com.revolsys.number.Numbers;
 import com.revolsys.record.Record;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordDefinitionProxy;
+import com.revolsys.util.BaseCloseable;
 
 public class JsonRecordWriter extends AbstractRecordWriter {
 
@@ -80,7 +80,7 @@ public class JsonRecordWriter extends AbstractRecordWriter {
       }
     } catch (final IOException e) {
     } finally {
-      FileUtil.closeSilent(this.out);
+      BaseCloseable.closeSilent(this.out);
       this.out = null;
     }
   }
@@ -133,7 +133,7 @@ public class JsonRecordWriter extends AbstractRecordWriter {
     final Writer out = this.out;
     indent();
     out.write('"');
-    this.encodingOut.write(key);
+    this.encodingOut.append(key);
     out.write('"');
     out.write(':');
     if (isIndent()) {
@@ -196,7 +196,7 @@ public class JsonRecordWriter extends AbstractRecordWriter {
   private void string(final String string) throws IOException {
     final Writer out = this.out;
     out.write('"');
-    this.encodingOut.write(string);
+    this.encodingOut.append(string);
     out.write('"');
   }
 
@@ -211,21 +211,21 @@ public class JsonRecordWriter extends AbstractRecordWriter {
     if (value == null) {
       out.write("null");
     } else if (value instanceof Boolean) {
-      if ((Boolean)value) {
+      if ((Boolean) value) {
         out.write("true");
       } else {
         out.write("false");
       }
     } else if (value instanceof Number) {
-      out.write(Numbers.toString((Number)value));
+      out.write(Numbers.toString((Number) value));
     } else if (value instanceof List) {
-      final List<? extends Object> list = (List<? extends Object>)value;
+      final List<? extends Object> list = (List<? extends Object>) value;
       list(list);
     } else if (value instanceof Map) {
-      final Map<String, ? extends Object> map = (Map<String, ? extends Object>)value;
+      final Map<String, ? extends Object> map = (Map<String, ? extends Object>) value;
       write(map);
     } else if (value instanceof CharSequence) {
-      final CharSequence string = (CharSequence)value;
+      final CharSequence string = (CharSequence) value;
       string(string.toString());
     } else if (dataType == null) {
       string(value.toString());
@@ -254,7 +254,7 @@ public class JsonRecordWriter extends AbstractRecordWriter {
       }
       endObject();
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 
@@ -298,12 +298,12 @@ public class JsonRecordWriter extends AbstractRecordWriter {
       }
       endObject();
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 
   private boolean writeExtraValues(final JsonObject values, boolean hasPrevious)
-    throws IOException {
+      throws IOException {
     final Writer out = this.out;
     if (values != null) {
       for (final String name : values.keySet()) {

@@ -25,21 +25,21 @@ public class OData extends AbstractIoFactory implements RecordStoreFactory {
   private static Map<String, DataType> DATA_TYPE_BY_EDM_STRING = new HashMap<>();
 
   static {
-    // addDataType("Edm.Binary, DataTypes.BOOLEAN);
+    addDataType("Edm.Binary", OdataBinaryHexDataType.INSTANCE);
     addDataType("Edm.Boolean", DataTypes.BOOLEAN);
     addDataType("Edm.Byte", DataTypes.UBYTE);
     addDataType("Edm.Date", DataTypes.SQL_DATE);
     addDataType("Edm.DateTimeOffset", DataTypes.INSTANT);
     addDataType("Edm.Decimal", DataTypes.DECIMAL);
     addDataType("Edm.Double", DataTypes.DOUBLE);
-    // addDataType("Edm.Duration",DataTypes.DOUBLE);
+    addDataType("Edm.Duration", DataTypes.DURATION);
     addDataType("Edm.Guid", DataTypes.UUID);
     addDataType("Edm.Int16", DataTypes.SHORT);
     addDataType("Edm.Int32", DataTypes.INT);
     addDataType("Edm.Int64", DataTypes.LONG);
     addDataType("Edm.SByte", DataTypes.BYTE);
     addDataType("Edm.Single", DataTypes.FLOAT);
-    // addDataType("Edm.Stream",DataTypes.STRING);
+    addDataType("Edm.Stream", DataTypes.STRING); // I think it is a URL
     addDataType("Edm.String", DataTypes.STRING);
     addDataType("Edm.TimeOfDay", DataTypes.TIME);
     addDataType("Edm.Geometry", GeometryDataTypes.GEOMETRY);

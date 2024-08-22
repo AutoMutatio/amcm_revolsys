@@ -39,7 +39,7 @@ public class FileField extends ValueField implements Field {
     this.fileName = new TextField(fieldName, 70);
     add(this.fileName);
     this.browseButton.setText("Browse...");
-    EventQueue.addAction(this.browseButton, () -> browseClick());
+    EventQueue.addAction(this.browseButton, this::browseClick);
     add(this.browseButton);
     GroupLayouts.makeColumns(this, 2, false, true);
     setFileSelectionMode(fileSelectionMode);

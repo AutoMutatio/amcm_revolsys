@@ -18,23 +18,23 @@
  */
 package org.apache.olingo.commons.api.edm.provider;
 
-import org.apache.olingo.commons.api.edm.FullQualifiedName;
+import com.revolsys.io.PathName;
 
 /**
  * The type Csdl entity container info.
  */
 public class CsdlEntityContainerInfo {
 
-  private FullQualifiedName containerName;
+  private PathName containerName;
 
-  private FullQualifiedName extendsContainer;
+  private PathName extendsContainer;
 
   /**
    * Gets container name.
    *
    * @return the container name
    */
-  public FullQualifiedName getContainerName() {
+  public PathName getContainerName() {
     return this.containerName;
   }
 
@@ -43,7 +43,7 @@ public class CsdlEntityContainerInfo {
    *
    * @return the extends container
    */
-  public FullQualifiedName getExtendsContainer() {
+  public PathName getExtendsContainer() {
     return this.extendsContainer;
   }
 
@@ -53,7 +53,7 @@ public class CsdlEntityContainerInfo {
    * @param containerName the container name
    * @return the container name
    */
-  public CsdlEntityContainerInfo setContainerName(final FullQualifiedName containerName) {
+  public CsdlEntityContainerInfo setContainerName(final PathName containerName) {
     this.containerName = containerName;
     return this;
   }
@@ -64,7 +64,7 @@ public class CsdlEntityContainerInfo {
    * @param extendsContainer the extends container
    * @return the extends container
    */
-  public CsdlEntityContainerInfo setExtendsContainer(final FullQualifiedName extendsContainer) {
+  public CsdlEntityContainerInfo setExtendsContainer(final PathName extendsContainer) {
     this.extendsContainer = extendsContainer;
     return this;
   }

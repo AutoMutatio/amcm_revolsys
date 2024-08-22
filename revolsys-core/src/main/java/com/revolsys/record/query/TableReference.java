@@ -2,6 +2,7 @@ package com.revolsys.record.query;
 
 import java.util.List;
 
+import com.revolsys.collection.list.ListEx;
 import com.revolsys.io.PathName;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
@@ -77,7 +78,7 @@ public interface TableReference extends From, TableReferenceProxy {
   @Override
   ColumnReference getColumn(final CharSequence name);
 
-  List<FieldDefinition> getFields();
+  ListEx<FieldDefinition> getFields();
 
   String getQualifiedTableName();
 

@@ -18,10 +18,11 @@
  */
 package org.apache.olingo.commons.api.edm.provider;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.olingo.commons.api.edm.provider.annotation.CsdlExpression;
+
+import com.revolsys.collection.list.Lists;
 
 /**
  * Represents a CSDL annotation
@@ -32,25 +33,7 @@ public class CsdlAnnotation implements CsdlAbstractEdmItem, CsdlAnnotatable {
 
   private String qualifier;
 
-  private List<CsdlAnnotation> annotations = new ArrayList<>();
-
   private CsdlExpression annotationExpression;
-
-  private boolean checkAnnotations(final List<CsdlAnnotation> csdlAnnots) {
-    if (csdlAnnots == null) {
-      return false;
-    }
-    if (this.getAnnotations().size() == csdlAnnots.size()) {
-      for (int i = 0; i < this.getAnnotations().size(); i++) {
-        if (!this.getAnnotations().get(i).equals(csdlAnnots.get(i))) {
-          return false;
-        }
-      }
-    } else {
-      return false;
-    }
-    return true;
-  }
 
   @Override
   public boolean equals(final Object obj) {
@@ -58,19 +41,16 @@ public class CsdlAnnotation implements CsdlAbstractEdmItem, CsdlAnnotatable {
       return false;
     }
     final CsdlAnnotation csdlAnnot = (CsdlAnnotation)obj;
-    return (this.getTerm() == null ? csdlAnnot.getTerm() == null
-      : this.getTerm().equals(csdlAnnot.getTerm()))
-      && (this.getQualifier() == null ? csdlAnnot.getQualifier() == null
-        : this.getQualifier().equals(csdlAnnot.getQualifier()))
-      && (this.getExpression() == null ? csdlAnnot.getExpression() == null
-        : this.getExpression().equals(csdlAnnot.getExpression()))
-      && (this.getAnnotations() == null ? csdlAnnot.getAnnotations() == null
-        : checkAnnotations(csdlAnnot.getAnnotations()));
+    return (getTerm() == null ? csdlAnnot.getTerm() == null : getTerm().equals(csdlAnnot.getTerm()))
+      && (getQualifier() == null ? csdlAnnot.getQualifier() == null
+        : getQualifier().equals(csdlAnnot.getQualifier()))
+      && (this.annotationExpression == null ? csdlAnnot.annotationExpression == null
+        : this.annotationExpression.equals(csdlAnnot.annotationExpression));
   }
 
   @Override
   public List<CsdlAnnotation> getAnnotations() {
-    return this.annotations;
+    return Lists.empty();
   }
 
   /**
@@ -105,18 +85,7 @@ public class CsdlAnnotation implements CsdlAbstractEdmItem, CsdlAnnotatable {
     result = prime * result + (this.qualifier == null ? 0 : this.qualifier.hashCode());
     result = prime * result
       + (this.annotationExpression == null ? 0 : this.annotationExpression.hashCode());
-    result = prime * result + (this.annotations == null ? 0 : this.annotations.hashCode());
     return result;
-  }
-
-  /**
-   * Sets a list of annotations
-   * @param annotations list of annotations
-   * @return this instance
-   */
-  public CsdlAnnotation setAnnotations(final List<CsdlAnnotation> annotations) {
-    this.annotations = annotations;
-    return this;
   }
 
   /**

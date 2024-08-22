@@ -27,7 +27,8 @@ import org.apache.olingo.commons.api.edm.EdmProperty;
 import org.apache.olingo.commons.api.edm.EdmTerm;
 import org.apache.olingo.commons.api.edm.EdmType;
 import org.apache.olingo.commons.api.edm.constants.EdmTypeKind;
-import org.apache.olingo.commons.api.edm.geo.SRID;
+
+import com.revolsys.data.type.DataType;
 
 /** A dynamic EDM property containing an aggregation. */
 public class DynamicProperty implements EdmProperty {
@@ -56,6 +57,11 @@ public class DynamicProperty implements EdmProperty {
   @Override
   public List<EdmAnnotation> getAnnotations() {
     return Collections.emptyList();
+  }
+
+  @Override
+  public DataType getDataType() {
+    return null;
   }
 
   @Override
@@ -99,8 +105,8 @@ public class DynamicProperty implements EdmProperty {
   }
 
   @Override
-  public SRID getSrid() {
-    return null;
+  public int getSrid() {
+    return 0;
   }
 
   @Override
@@ -126,11 +132,6 @@ public class DynamicProperty implements EdmProperty {
   @Override
   public boolean isPrimitive() {
     return this.propertyType != null && this.propertyType.getKind() == EdmTypeKind.PRIMITIVE;
-  }
-
-  @Override
-  public boolean isUnicode() {
-    return true;
   }
 
   public DynamicProperty setPrecision(final Integer precision) {

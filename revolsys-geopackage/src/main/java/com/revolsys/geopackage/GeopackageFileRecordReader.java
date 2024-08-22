@@ -1,15 +1,16 @@
 package com.revolsys.geopackage;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.geometry.model.ClockDirection;
 import com.revolsys.record.Record;
 import com.revolsys.record.RecordFactory;
 import com.revolsys.record.io.RecordReader;
-import com.revolsys.record.io.RecordStoreQueryReader;
 import com.revolsys.record.query.Query;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.spring.resource.Resource;
@@ -18,7 +19,7 @@ public class GeopackageFileRecordReader implements RecordReader {
 
   private final GeoPackageRecordStore recordStore;
 
-  private final RecordStoreQueryReader reader;
+  // private final RecordStoreQueryReader reader;
 
   public GeopackageFileRecordReader(final Resource resource,
     final RecordFactory<? extends Record> factory, final MapEx properties) {
@@ -32,20 +33,20 @@ public class GeopackageFileRecordReader implements RecordReader {
         .setOrderByFieldNames(recordDefinition.getIdFieldNames());
       queries.add(query);
     }
-    this.reader = new RecordStoreQueryReader(this.recordStore);
-    this.reader.setProperties(properties);
-    this.reader.setQueries(queries);
+    // this.reader = new RecordStoreQueryReader(this.recordStore);
+    // this.reader.setProperties(properties);
+    // this.reader.setQueries(queries);
   }
 
   @Override
   public void cancel() {
-    this.reader.cancel();
+    // this.reader.cancel();
   }
 
   @Override
   public void close() {
     try {
-      this.reader.close();
+      // this.reader.close();
     } finally {
       this.recordStore.close();
     }
@@ -58,27 +59,27 @@ public class GeopackageFileRecordReader implements RecordReader {
 
   @Override
   public MapEx getProperties() {
-    return this.reader.getProperties();
+    return JsonObject.EMPTY;// this.reader.getProperties();
   }
 
   @Override
   public RecordDefinition getRecordDefinition() {
-    return this.reader.getRecordDefinition();
+    return null;// this.reader.getRecordDefinition();
   }
 
   @Override
   public boolean isCancelled() {
-    return this.reader.isCancelled();
+    return false;// this.reader.isCancelled();
   }
 
   @Override
   public Iterator<Record> iterator() {
-    return this.reader.iterator();
+    return Collections.emptyIterator();// this.reader.iterator();
   }
 
-  @Override
-  public void open() {
-    this.reader.open();
-  }
+  // @Override
+  // public void open() {
+  // this.reader.open();
+  // }
 
 }

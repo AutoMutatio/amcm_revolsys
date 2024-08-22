@@ -34,7 +34,7 @@ public abstract class AbstractEdmAnnotatable implements EdmAnnotatable {
 
   private List<EdmAnnotation> annotations;
 
-  protected final Edm edm;
+  private final Edm edm;
 
   public AbstractEdmAnnotatable(final Edm edm, final CsdlAnnotatable annotatable) {
     this.edm = edm;
@@ -45,7 +45,9 @@ public abstract class AbstractEdmAnnotatable implements EdmAnnotatable {
   public EdmAnnotation getAnnotation(final EdmTerm term, final String qualifier) {
     EdmAnnotation result = null;
     for (final EdmAnnotation annotation : getAnnotations()) {
-      if (term.getFullQualifiedName().equals(annotation.getTerm().getFullQualifiedName())
+      if (term.getPathName()
+        .equals(annotation.getTerm()
+          .getPathName())
         && qualifierEqual(qualifier, annotation.getQualifier())) {
         result = annotation;
         break;
@@ -60,13 +62,17 @@ public abstract class AbstractEdmAnnotatable implements EdmAnnotatable {
       final List<EdmAnnotation> annotationsLocal = new ArrayList<>();
       if (this.annotatable != null) {
         for (final CsdlAnnotation annotation : this.annotatable.getAnnotations()) {
-          annotationsLocal.add(new EdmAnnotationImpl(this.edm, annotation));
+          annotationsLocal.add(new EdmAnnotationImpl(getEdm(), annotation));
         }
 
         this.annotations = Collections.unmodifiableList(annotationsLocal);
       }
     }
     return this.annotations;
+  }
+
+  public Edm getEdm() {
+    return this.edm;
   }
 
   private boolean qualifierEqual(final String qualifier, final String annotationQualifier) {

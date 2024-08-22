@@ -37,18 +37,6 @@ public interface EdmExpression {
   }
 
   /**
-   * Casts the expression to {@link EdmConstantExpression}
-   * @return Constant Expression
-   */
-  EdmConstantExpression asConstant();
-
-  /**
-   * Cast the expression to {@link EdmDynamicExpression}
-   * @return Dynamic Expression
-   */
-  EdmDynamicExpression asDynamic();
-
-  /**
    * Will return the name of the expression e.g. Apply or Cast.
    * @return the name of the expression
    */
@@ -60,15 +48,4 @@ public interface EdmExpression {
    */
   EdmExpressionType getExpressionType();
 
-  /**
-   * Return true if the expression is constant
-   * @return true if the expression is constant
-   */
-  boolean isConstant();
-
-  /**
-   * Return true if the expression is dynamic
-   * @return true if the expression is dynamic
-   */
-  boolean isDynamic();
 }

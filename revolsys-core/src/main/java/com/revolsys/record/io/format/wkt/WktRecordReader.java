@@ -7,7 +7,6 @@ import java.util.NoSuchElementException;
 import com.revolsys.geometry.model.ClockDirection;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryFactory;
-import com.revolsys.io.FileUtil;
 import com.revolsys.record.Record;
 import com.revolsys.record.RecordFactory;
 import com.revolsys.record.Records;
@@ -15,6 +14,7 @@ import com.revolsys.record.io.AbstractRecordReader;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.spring.resource.Resource;
+import com.revolsys.util.BaseCloseable;
 
 public class WktRecordReader extends AbstractRecordReader {
 
@@ -33,7 +33,7 @@ public class WktRecordReader extends AbstractRecordReader {
   @Override
   protected void closeDo() {
     super.closeDo();
-    FileUtil.closeSilent(this.in);
+    BaseCloseable.closeSilent(this.in);
     this.in = null;
     this.wktParser = null;
   }

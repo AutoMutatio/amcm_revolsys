@@ -15,7 +15,7 @@ public interface BaseCloseable extends Closeable {
     try {
       resource.close();
     } catch (final Exception e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   };
 
@@ -68,7 +68,19 @@ public interface BaseCloseable extends Closeable {
       try {
         closeable.close();
       } catch (final Exception e) {
-        Exceptions.throwUncheckedException(e);
+        throw Exceptions.toRuntimeException(e);
+      }
+    }
+  }
+
+  static void closeValueSilent(final Object v) {
+    if (v instanceof final BaseCloseable closeable) {
+      closeable.close();
+    } else if (v instanceof final AutoCloseable closeable) {
+      try {
+        closeable.close();
+      } catch (final Exception e) {
+
       }
     }
   }
@@ -81,7 +93,7 @@ public interface BaseCloseable extends Closeable {
         try {
           closeable.close();
         } catch (final Exception e) {
-          Exceptions.throwUncheckedException(e);
+          throw Exceptions.toRuntimeException(e);
         }
       };
     } else {

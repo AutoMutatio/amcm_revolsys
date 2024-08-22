@@ -18,6 +18,7 @@ import com.revolsys.function.Consumer3;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.io.PathName;
 import com.revolsys.logging.Logs;
+import com.revolsys.parallel.ReentrantLockEx;
 import com.revolsys.properties.BaseObjectWithProperties;
 import com.revolsys.record.ArrayRecord;
 import com.revolsys.record.Record;
@@ -71,6 +72,8 @@ public abstract class AbstractRecordStore extends BaseObjectWithProperties imple
   private final Map<String, Map<String, Object>> typeRecordDefinitionProperties = new HashMap<>();
 
   private boolean initialized = false;
+
+  protected ReentrantLockEx lock = new ReentrantLockEx();
 
   protected AbstractRecordStore() {
     this(ArrayRecord.FACTORY);
@@ -297,7 +300,8 @@ public abstract class AbstractRecordStore extends BaseObjectWithProperties imple
 
   @Override
   public final void initialize() {
-    synchronized (this) {
+    try (
+      var l = this.lock.lockX()) {
       if (!this.initialized) {
         this.initialized = true;
         initializeDo();

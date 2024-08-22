@@ -18,17 +18,12 @@ public abstract class Single<T> {
     }
 
     @Override
-    public Single<V> filter(final Predicate<? super V> predicate) {
-      return this;
-    }
-
-    @Override
     public V get() {
       throw new NoSuchElementException("No value present");
     }
 
     @Override
-    public V getOrDefault(final Supplier<? extends V> supplier) {
+    public <R> R getOrDefault(final Supplier<R> supplier) {
       return supplier.get();
     }
 
@@ -169,9 +164,10 @@ public abstract class Single<T> {
       return this.value;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public V getOrDefault(final Supplier<? extends V> supplier) {
-      return this.value;
+    public <R> R getOrDefault(final Supplier<R> supplier) {
+      return (R)this.value;
     }
 
     @Override
@@ -313,11 +309,13 @@ public abstract class Single<T> {
   private Single() {
   }
 
-  public abstract Single<T> filter(final Predicate<? super T> predicate);
+  public Single<T> filter(final Predicate<? super T> predicate) {
+    return this;
+  }
 
   public abstract T get();
 
-  public abstract T getOrDefault(final Supplier<? extends T> supplier);
+  public abstract <R> R getOrDefault(final Supplier<R> supplier);
 
   public abstract T getOrDefault(final T other);
 
@@ -326,14 +324,17 @@ public abstract class Single<T> {
   public abstract <X extends Throwable> T getOrThrow(final Supplier<? extends X> exceptionSupplier)
     throws X;
 
-  public abstract void ifPresent(final Consumer<? super T> action);
+  public void ifPresent(final Consumer<? super T> action) {
+  }
 
   public abstract void ifPresentOrElse(final Consumer<? super T> action,
     final Runnable emptyAction);
 
   public abstract boolean isEmpty();
 
-  public abstract boolean isPresent();
+  public boolean isPresent() {
+    return false;
+  }
 
   public abstract <U> Single<U> map(final Function<? super T, ? extends U> mapper);
 
@@ -356,7 +357,9 @@ public abstract class Single<T> {
 
   public abstract Stream<T> stream();
 
-  public abstract Single<T> tap(Consumer<? super T> action);
+  public Single<T> tap(final Consumer<? super T> action) {
+    return this;
+  }
 
   public abstract Optional<T> toOptional();
 

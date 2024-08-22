@@ -1,6 +1,8 @@
 package com.revolsys.jdbc.io;
 
 import com.revolsys.io.PathName;
+import com.revolsys.parallel.ReentrantLockEx;
+import com.revolsys.record.schema.AbstractRecordStore;
 import com.revolsys.record.schema.RecordStoreSchema;
 
 public class JdbcRecordStoreSchema extends RecordStoreSchema {
@@ -11,7 +13,9 @@ public class JdbcRecordStoreSchema extends RecordStoreSchema {
 
   private boolean quoteName;
 
-  public JdbcRecordStoreSchema(final AbstractJdbcRecordStore recordStore) {
+  protected ReentrantLockEx lock = new ReentrantLockEx();
+
+  public JdbcRecordStoreSchema(final AbstractRecordStore recordStore) {
     super(recordStore);
   }
 

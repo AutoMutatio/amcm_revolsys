@@ -50,6 +50,7 @@ import com.revolsys.record.schema.RecordDefinitionFactory;
 import com.revolsys.record.schema.RecordDefinitionFactoryImpl;
 import com.revolsys.spring.resource.ClassPathResource;
 import com.revolsys.spring.resource.Resource;
+import com.revolsys.util.BaseCloseable;
 
 /**
  * <p>
@@ -511,7 +512,7 @@ public class SaifReader extends AbstractReader<Record>
     try {
       this.declaredRecordDefinitionFactory = parser.loadSchema("clasdefs.csn", in);
     } finally {
-      FileUtil.closeSilent(in);
+      BaseCloseable.closeSilent(in);
     }
     if (this.recordDefinitionFactory == null) {
       setRecordDefinitionFactory(this.declaredRecordDefinitionFactory);

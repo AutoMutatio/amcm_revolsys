@@ -21,7 +21,6 @@ package org.apache.olingo.commons.api.edm.provider.annotation;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.olingo.commons.api.edm.geo.SRID;
 import org.apache.olingo.commons.api.edm.provider.CsdlAnnotatable;
 import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
 
@@ -39,7 +38,7 @@ public class CsdlIsOf extends CsdlDynamicExpression implements CsdlAnnotatable {
 
   private Integer scale;
 
-  private SRID srid;
+  private int srid;
 
   private CsdlExpression value;
 
@@ -49,9 +48,10 @@ public class CsdlIsOf extends CsdlDynamicExpression implements CsdlAnnotatable {
     if (csdlIsOfannot == null) {
       return false;
     }
-    if (this.getAnnotations().size() == csdlIsOfannot.size()) {
-      for (int i = 0; i < this.getAnnotations().size(); i++) {
-        if (!this.getAnnotations().get(i).equals(csdlIsOfannot.get(i))) {
+    if (getAnnotations().size() == csdlIsOfannot.size()) {
+      for (int i = 0; i < getAnnotations().size(); i++) {
+        if (!getAnnotations().get(i)
+          .equals(csdlIsOfannot.get(i))) {
           return false;
         }
       }
@@ -67,19 +67,15 @@ public class CsdlIsOf extends CsdlDynamicExpression implements CsdlAnnotatable {
       return false;
     }
     final CsdlIsOf csdlIsOf = (CsdlIsOf)obj;
-    return (this.getType() == null ? csdlIsOf.getType() == null
-      : this.getType().equals(csdlIsOf.getType()))
-      && (this.getMaxLength() == null ? csdlIsOf.getMaxLength() == null
-        : this.getMaxLength().equals(csdlIsOf.getMaxLength()))
-      && (this.getPrecision() == null ? csdlIsOf.getPrecision() == null
-        : this.getPrecision().equals(csdlIsOf.getPrecision()))
-      && (this.getScale() == null ? csdlIsOf.getScale() == null
-        : this.getScale().equals(csdlIsOf.getScale()))
-      && (this.getSrid() == null ? csdlIsOf.getSrid() == null
-        : this.getSrid().equals(csdlIsOf.getSrid()))
-      && (this.getValue() == null ? csdlIsOf.getValue() == null
-        : this.getValue().equals(csdlIsOf.getValue()))
-      && (this.getAnnotations() == null ? csdlIsOf.getAnnotations() == null
+    return (getType() == null ? csdlIsOf.getType() == null : getType().equals(csdlIsOf.getType()))
+      && (getMaxLength() == null ? csdlIsOf.getMaxLength() == null
+        : getMaxLength().equals(csdlIsOf.getMaxLength()))
+      && (getPrecision() == null ? csdlIsOf.getPrecision() == null
+        : getPrecision().equals(csdlIsOf.getPrecision()))
+      && (getScale() == null ? csdlIsOf.getScale() == null : getScale().equals(csdlIsOf.getScale()))
+      && getSrid() == csdlIsOf.getSrid()
+      && (getValue() == null ? csdlIsOf.getValue() == null : getValue().equals(csdlIsOf.getValue()))
+      && (getAnnotations() == null ? csdlIsOf.getAnnotations() == null
         : checkAnnotations(csdlIsOf.getAnnotations()));
   }
 
@@ -113,10 +109,10 @@ public class CsdlIsOf extends CsdlDynamicExpression implements CsdlAnnotatable {
   }
 
   /**
-   * Facet SRID
-   * @return facet SRID
+   * Facet int
+   * @return facet int
    */
-  public SRID getSrid() {
+  public int getSrid() {
     return this.srid;
   }
 
@@ -144,7 +140,7 @@ public class CsdlIsOf extends CsdlDynamicExpression implements CsdlAnnotatable {
     result = prime * result + (this.maxLength == null ? 0 : this.maxLength.hashCode());
     result = prime * result + (this.precision == null ? 0 : this.precision.hashCode());
     result = prime * result + (this.scale == null ? 0 : this.scale.hashCode());
-    result = prime * result + (this.srid == null ? 0 : this.srid.hashCode());
+    result = prime * result + Integer.hashCode(this.srid);
     result = prime * result + (this.value == null ? 0 : this.value.hashCode());
     result = prime * result + (this.annotations == null ? 0 : this.annotations.hashCode());
     return result;
@@ -170,7 +166,7 @@ public class CsdlIsOf extends CsdlDynamicExpression implements CsdlAnnotatable {
     return this;
   }
 
-  public CsdlIsOf setSrid(final SRID srid) {
+  public CsdlIsOf setSrid(final int srid) {
     this.srid = srid;
     return this;
   }

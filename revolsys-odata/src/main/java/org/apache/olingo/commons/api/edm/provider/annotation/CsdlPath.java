@@ -34,7 +34,8 @@ public class CsdlPath extends CsdlDynamicExpression {
     }
     final CsdlPath csdlPath = (CsdlPath)obj;
     return this.getValue() == null ? csdlPath.getValue() == null
-      : this.getValue().equals(csdlPath.getValue());
+      : this.getValue()
+        .equals(csdlPath.getValue());
   }
 
   /**

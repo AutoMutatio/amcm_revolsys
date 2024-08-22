@@ -39,9 +39,7 @@ public interface Predicates {
   }
 
   static <T> Predicate<T> all() {
-    return (t) -> {
-      return true;
-    };
+    return t -> true;
   }
 
   static <V> int count(final Collection<V> values, final Predicate<? super V> filter) {
@@ -92,7 +90,7 @@ public interface Predicates {
     if (filter == null) {
       return consumer;
     } else {
-      return (value) -> {
+      return value -> {
         if (filter.test(value)) {
           consumer.accept(value);
         }
@@ -101,7 +99,7 @@ public interface Predicates {
   }
 
   static <T> Predicate<T> noException(final Predicate<T> filter) {
-    return (v) -> {
+    return v -> {
       try {
         return filter.test(v);
       } catch (final Exception e) {
@@ -111,9 +109,7 @@ public interface Predicates {
   }
 
   static <T> Predicate<T> none() {
-    return (t) -> {
-      return false;
-    };
+    return t -> false;
   }
 
   static <T> void retain(final Collection<T> collection, final Predicate<? super T> filter) {

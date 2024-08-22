@@ -21,7 +21,6 @@ package org.apache.olingo.commons.api.edm.provider.annotation;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.olingo.commons.api.edm.geo.SRID;
 import org.apache.olingo.commons.api.edm.provider.CsdlAnnotatable;
 import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
 
@@ -39,7 +38,7 @@ public class CsdlCast extends CsdlDynamicExpression implements CsdlAnnotatable {
 
   private Integer scale;
 
-  private SRID srid;
+  private int srid;
 
   private CsdlExpression value;
 
@@ -49,9 +48,10 @@ public class CsdlCast extends CsdlDynamicExpression implements CsdlAnnotatable {
     if (csdlCastAnnotations == null) {
       return false;
     }
-    if (this.getAnnotations().size() == csdlCastAnnotations.size()) {
-      for (int i = 0; i < this.getAnnotations().size(); i++) {
-        if (!this.getAnnotations().get(i).equals(csdlCastAnnotations.get(i))) {
+    if (getAnnotations().size() == csdlCastAnnotations.size()) {
+      for (int i = 0; i < getAnnotations().size(); i++) {
+        if (!getAnnotations().get(i)
+          .equals(csdlCastAnnotations.get(i))) {
           return false;
         }
       }
@@ -67,19 +67,16 @@ public class CsdlCast extends CsdlDynamicExpression implements CsdlAnnotatable {
       return false;
     }
     final CsdlCast csdlCast = (CsdlCast)obj;
-    return (this.getValue() == null ? csdlCast.getValue() == null
-      : this.getValue().equals(csdlCast.getValue()))
-      && (this.getType() == null ? csdlCast.getType() == null
-        : this.getType().equals(csdlCast.getType()))
-      && (this.getMaxLength() == null ? csdlCast.getMaxLength() == null
-        : this.getMaxLength().equals(csdlCast.getMaxLength()))
-      && (this.getPrecision() == null ? csdlCast.getPrecision() == null
-        : this.getPrecision().equals(csdlCast.getPrecision()))
-      && (this.getScale() == null ? csdlCast.getScale() == null
-        : this.getScale().equals(csdlCast.getScale()))
-      && (this.getSrid() == null ? csdlCast.getSrid() == null
-        : String.valueOf(this.getSrid()).equals(String.valueOf(csdlCast.getSrid())))
-      && (this.getAnnotations() == null ? csdlCast.getAnnotations() == null
+    return (getValue() == null ? csdlCast.getValue() == null
+      : getValue().equals(csdlCast.getValue()))
+      && (getType() == null ? csdlCast.getType() == null : getType().equals(csdlCast.getType()))
+      && (getMaxLength() == null ? csdlCast.getMaxLength() == null
+        : getMaxLength().equals(csdlCast.getMaxLength()))
+      && (getPrecision() == null ? csdlCast.getPrecision() == null
+        : getPrecision().equals(csdlCast.getPrecision()))
+      && (getScale() == null ? csdlCast.getScale() == null : getScale().equals(csdlCast.getScale()))
+      && getSrid() == csdlCast.getSrid()
+      && (getAnnotations() == null ? csdlCast.getAnnotations() == null
         : checkAnnotations(csdlCast.getAnnotations()));
   }
 
@@ -113,10 +110,10 @@ public class CsdlCast extends CsdlDynamicExpression implements CsdlAnnotatable {
   }
 
   /**
-   * Returns the facet attribute SRID
-   * @return Returns the facet attribute SRID
+   * Returns the facet attribute int
+   * @return Returns the facet attribute int
    */
-  public SRID getSrid() {
+  public int getSrid() {
     return this.srid;
   }
 
@@ -144,7 +141,7 @@ public class CsdlCast extends CsdlDynamicExpression implements CsdlAnnotatable {
     result = prime * result + (this.maxLength == null ? 0 : this.maxLength.hashCode());
     result = prime * result + (this.precision == null ? 0 : this.precision.hashCode());
     result = prime * result + (this.scale == null ? 0 : this.scale.hashCode());
-    result = prime * result + (this.srid == null ? 0 : this.srid.hashCode());
+    result = prime * result + Integer.hashCode(this.srid);
     result = prime * result + (this.value == null ? 0 : this.value.hashCode());
     result = prime * result + (this.annotations == null ? 0 : this.annotations.hashCode());
     return result;
@@ -170,7 +167,7 @@ public class CsdlCast extends CsdlDynamicExpression implements CsdlAnnotatable {
     return this;
   }
 
-  public CsdlCast setSrid(final SRID srid) {
+  public CsdlCast setSrid(final int srid) {
     this.srid = srid;
     return this;
   }

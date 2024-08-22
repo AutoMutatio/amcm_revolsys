@@ -11,7 +11,6 @@ import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryDataTypes;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.io.EndOfFileException;
-import com.revolsys.io.FileUtil;
 import com.revolsys.io.IoConstants;
 import com.revolsys.io.PathName;
 import com.revolsys.io.endian.EndianInput;
@@ -27,6 +26,7 @@ import com.revolsys.record.io.format.xbase.XbaseRecordReader;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordDefinitionImpl;
 import com.revolsys.spring.resource.Resource;
+import com.revolsys.util.BaseCloseable;
 import com.revolsys.util.Property;
 
 public class ShapefileRecordReader extends AbstractIterator<Record> implements RecordReader {
@@ -73,7 +73,7 @@ public class ShapefileRecordReader extends AbstractIterator<Record> implements R
   }
 
   public void forceClose() {
-    FileUtil.closeSilent(this.in, this.indexIn);
+    BaseCloseable.closeSilent(this.in, this.indexIn);
     if (this.xbaseRecordReader != null) {
       this.xbaseRecordReader.forceClose();
     }
@@ -166,7 +166,7 @@ public class ShapefileRecordReader extends AbstractIterator<Record> implements R
         final Resource xbaseResource = this.resource.newResourceChangeExtension("dbf");
         if (xbaseResource != null && xbaseResource.exists()) {
           this.xbaseRecordReader = new XbaseRecordReader(xbaseResource, this.recordFactory,
-            () -> updateRecordDefinition());
+            this::updateRecordDefinition);
           this.xbaseRecordReader.setTypeName(this.typeName);
           this.xbaseRecordReader.setCloseFile(this.closeFile);
         }

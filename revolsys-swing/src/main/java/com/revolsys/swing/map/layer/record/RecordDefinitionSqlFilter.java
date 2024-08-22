@@ -9,7 +9,7 @@ import java.util.function.Predicate;
 import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.json.JsonObjectHash;
 import com.revolsys.collection.map.MapEx;
-import com.revolsys.io.map.MapSerializer;
+import com.revolsys.io.MapSerializer;
 import com.revolsys.logging.Logs;
 import com.revolsys.record.query.Condition;
 import com.revolsys.record.query.QueryValue;

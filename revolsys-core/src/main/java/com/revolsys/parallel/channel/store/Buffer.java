@@ -68,7 +68,7 @@ public class Buffer<T> extends ChannelValueStore<T> {
   /**
    * Empty the buffer.
    */
-  public synchronized void clear() {
+  public void clear() {
     this.buffer.clear();
   }
 
@@ -100,7 +100,7 @@ public class Buffer<T> extends ChannelValueStore<T> {
    * @return The next available Object from the Buffer
    */
   @Override
-  protected synchronized T get() {
+  protected T get() {
     return this.buffer.remove();
   }
 
@@ -111,7 +111,7 @@ public class Buffer<T> extends ChannelValueStore<T> {
    * @return The current state of the Buffer (EMPTY, NONEMPTYFULL or FULL)
    */
   @Override
-  protected synchronized int getState() {
+  protected int getState() {
     if (this.buffer.isEmpty()) {
       return EMPTY;
     } else if (!this.discardIfFull && this.maxSize > 0 && this.buffer.size() == this.maxSize) {
@@ -133,7 +133,7 @@ public class Buffer<T> extends ChannelValueStore<T> {
    * @param value The object to put in the Buffer
    */
   @Override
-  protected synchronized void put(final T value) {
+  protected void put(final T value) {
     if (this.maxSize == 0 || this.buffer.size() < this.maxSize) {
       this.buffer.offer(value);
     }

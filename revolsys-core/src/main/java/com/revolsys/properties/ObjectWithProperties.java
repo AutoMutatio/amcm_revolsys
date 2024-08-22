@@ -3,16 +3,12 @@ package com.revolsys.properties;
 import java.lang.ref.Reference;
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import jakarta.annotation.PreDestroy;
-
 import com.revolsys.collection.map.MapEx;
-import com.revolsys.collection.map.ThreadSharedProperties;
 import com.revolsys.data.type.DataType;
-import com.revolsys.io.map.MapObjectFactory;
+import com.revolsys.io.MapSerializer;
 import com.revolsys.logging.Logs;
 import com.revolsys.util.Property;
 
@@ -77,7 +73,6 @@ public interface ObjectWithProperties {
     properties.clear();
   }
 
-  @PreDestroy
   default void close() {
     clearProperties();
   }
@@ -101,22 +96,6 @@ public interface ObjectWithProperties {
     } else {
       return value;
     }
-  }
-
-  default Map<String, Object> getThreadProperties() {
-    Map<String, Object> properties = ThreadSharedProperties.getProperty(this);
-    if (properties == null) {
-      properties = new HashMap<>();
-      ThreadSharedProperties.setProperty(this, properties);
-    }
-    return properties;
-  }
-
-  @SuppressWarnings("unchecked")
-  default <T> T getThreadProperty(final String name) {
-    final Map<String, Object> properties = getThreadProperties();
-    final T value = (T)properties.get(name);
-    return value;
   }
 
   default boolean hasProperty(final String name) {
@@ -148,7 +127,7 @@ public interface ObjectWithProperties {
     try {
       if (!Property.setSimple(this, name, value)) {
         final Map<String, Object> properties = getProperties();
-        if (!MapObjectFactory.TYPE.equals(name)) {
+        if (!MapSerializer.TYPE.equals(name)) {
           properties.put(name, value);
         }
       }
@@ -169,8 +148,4 @@ public interface ObjectWithProperties {
     setProperty(name, new WeakReference<>(value));
   }
 
-  default void setThreadProperty(final String name, final Object value) {
-    final Map<String, Object> properties = getThreadProperties();
-    properties.put(name, value);
-  }
 }

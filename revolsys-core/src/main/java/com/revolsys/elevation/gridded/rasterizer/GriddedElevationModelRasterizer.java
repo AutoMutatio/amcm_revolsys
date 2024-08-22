@@ -7,7 +7,7 @@ import java.awt.image.Raster;
 import com.revolsys.beans.PropertyChangeSupportProxy;
 import com.revolsys.elevation.gridded.GriddedElevationModel;
 import com.revolsys.geometry.model.BoundingBoxProxy;
-import com.revolsys.io.map.MapSerializer;
+import com.revolsys.io.MapSerializer;
 import com.revolsys.properties.ObjectWithProperties;
 import com.revolsys.raster.BufferedGeoreferencedImage;
 import com.revolsys.util.IconNameProxy;

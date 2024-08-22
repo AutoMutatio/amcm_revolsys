@@ -18,7 +18,6 @@
  */
 package org.apache.olingo.server.api.processor;
 
-import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.ServiceMetadata;
 
 /**
@@ -30,9 +29,8 @@ public interface Processor {
 
   /**
    * Initializes the processor for each HTTP request - response cycle.
-   * @param odata Olingo's root object, acting as a factory for various object types
    * @param serviceMetadata metadata of the OData service like the EDM that have to be created
    * before the OData request handling takes place
    */
-  void init(OData odata, ServiceMetadata serviceMetadata);
+  void init(ServiceMetadata serviceMetadata);
 }

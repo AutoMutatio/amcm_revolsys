@@ -81,7 +81,7 @@ public abstract class AbstractPolygon implements Polygon {
     try {
       return (Polygon)super.clone();
     } catch (final CloneNotSupportedException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 

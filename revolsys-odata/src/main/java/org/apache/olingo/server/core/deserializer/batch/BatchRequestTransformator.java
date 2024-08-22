@@ -56,7 +56,7 @@ public class BatchRequestTransformator {
 
     validateForbiddenHeader(operation);
 
-    final ODataRequest request = new ODataRequest();
+    final ODataRequest request = new ODataRequest(null);
     request.setBody(bodyStream);
     request.setMethod(statusLine.getMethod());
     request.setRawBaseUri(statusLine.getRawBaseUri());
@@ -75,7 +75,8 @@ public class BatchRequestTransformator {
   private InputStream getBodyStream(final BatchQueryOperation operation,
     final HttpRequestStatusLine statusLine, final Charset charset)
     throws BatchDeserializerException {
-    if (statusLine.getMethod().equals(HttpMethod.GET)) {
+    if (statusLine.getMethod()
+      .equals(HttpMethod.GET)) {
       return new ByteArrayInputStream(new byte[0]);
     } else {
       final int contentLength = BatchTransformatorCommon.getContentLength(operation.getHeaders());
@@ -90,13 +91,13 @@ public class BatchRequestTransformator {
   }
 
   private Charset getCharset(final BatchQueryOperation operation) {
-    final ContentType contentType = ContentType
-      .parse(operation.getHeaders().getHeader(HttpHeader.CONTENT_TYPE));
+    final ContentType contentType = ContentType.parse(operation.getHeaders()
+      .getHeader(HttpHeader.CONTENT_TYPE));
     if (contentType != null) {
       final String charsetValue = contentType.getParameter(ContentType.PARAMETER_CHARSET);
       if (charsetValue == null) {
-        if (contentType.isCompatible(ContentType.APPLICATION_JSON)
-          || contentType.getSubtype().contains("xml")) {
+        if (contentType.isCompatible(ContentType.APPLICATION_JSON) || contentType.getSubtype()
+          .contains("xml")) {
           return Charset.forName("UTF-8");
         }
       } else {
@@ -112,7 +113,8 @@ public class BatchRequestTransformator {
       .getHeaderField(HttpHeader.CONTENT_ID);
 
     if (contentIdHeader != null) {
-      if (contentIdHeader.getValues().size() == 1) {
+      if (contentIdHeader.getValues()
+        .size() == 1) {
         return contentIdHeader;
       } else {
         throw new BatchDeserializerException("Invalid Content-ID header",
@@ -130,15 +132,24 @@ public class BatchRequestTransformator {
 
     if (contentIdChangeRequestPart == null && contentIdRequest == null) {
       throw new BatchDeserializerException("Missing content id", MessageKeys.MISSING_CONTENT_ID,
-        Integer.toString(changeRequestPart.getHeaders().getLineNumber()));
+        Integer.toString(changeRequestPart.getHeaders()
+          .getLineNumber()));
     } else if (contentIdChangeRequestPart != null) {
-      request.getHeaders().replaceHeaderField(contentIdChangeRequestPart);
+      request.getHeaders()
+        .replaceHeaderField(contentIdChangeRequestPart);
     }
   }
 
   private boolean isInvalidGetRequestBody(final BatchQueryOperation operation) {
-    return operation.getBody().size() > 1 || operation.getBody().size() == 1
-      && !operation.getBody().get(0).toString().strip().isEmpty();
+    return operation.getBody()
+      .size() > 1
+      || operation.getBody()
+        .size() == 1
+        && !operation.getBody()
+          .get(0)
+          .toString()
+          .strip()
+          .isEmpty();
   }
 
   private ODataRequest processQueryOperation(final BatchBodyPart bodyPart, final String baseUri,
@@ -172,7 +183,8 @@ public class BatchRequestTransformator {
 
   private void validateBody(final HttpRequestStatusLine statusLine,
     final BatchQueryOperation operation) throws BatchDeserializerException {
-    if (statusLine.getMethod().equals(HttpMethod.GET) && isInvalidGetRequestBody(operation)) {
+    if (statusLine.getMethod()
+      .equals(HttpMethod.GET) && isInvalidGetRequestBody(operation)) {
       throw new BatchDeserializerException("Invalid request line", MessageKeys.INVALID_CONTENT,
         Integer.toString(statusLine.getLineNumber()));
     }

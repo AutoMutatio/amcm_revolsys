@@ -45,12 +45,13 @@ public abstract class AbstractAction extends javax.swing.AbstractAction {
     }
     if (name instanceof I18nCharSequence) {
       final I18nCharSequence i18nName = (I18nCharSequence)name;
-      i18nName.getI18n().addPropertyChangeListener("locale", new PropertyChangeListener() {
-        @Override
-        public void propertyChange(final PropertyChangeEvent evt) {
-          putValue(NAME, name.toString());
-        }
-      });
+      i18nName.getI18n()
+        .addPropertyChangeListener("locale", new PropertyChangeListener() {
+          @Override
+          public void propertyChange(final PropertyChangeEvent evt) {
+            putValue(NAME, name.toString());
+          }
+        });
     }
   }
 
@@ -190,20 +191,19 @@ public abstract class AbstractAction extends javax.swing.AbstractAction {
     }
   }
 
-  public void setIcon(final Icon icon) {
+  public AbstractAction setIcon(final Icon icon) {
     putValue(SMALL_ICON, icon);
+    return this;
   }
 
   public AbstractAction setIconName(final String iconName) {
     final Icon icon = Icons.getIcon(iconName);
-    setIcon(icon);
-    return this;
+    return setIcon(icon);
   }
 
   public AbstractAction setIconName(final String iconName, final String badgeName) {
     final Icon icon = Icons.getIconWithBadge(iconName, badgeName);
-    setIcon(icon);
-    return this;
+    return setIcon(icon);
   }
 
   public void setMnemonicKey(final int key) {

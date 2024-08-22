@@ -149,7 +149,7 @@ public class WktWriter {
         }
       }
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 
@@ -158,7 +158,7 @@ public class WktWriter {
     try {
       write(out, lineal, axisCount);
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
 
   }
@@ -188,7 +188,7 @@ public class WktWriter {
     try {
       write(out, line, axisCount);
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
 
   }
@@ -209,7 +209,7 @@ public class WktWriter {
     try {
       write(out, line, axisCount);
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
 
   }
@@ -239,7 +239,7 @@ public class WktWriter {
     try {
       write(out, point, axisCount);
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
 
   }
@@ -261,7 +261,7 @@ public class WktWriter {
     try {
       write(out, polygon, axisCount);
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
 
   }
@@ -281,7 +281,7 @@ public class WktWriter {
     try {
       write(out, polygonal, axisCount);
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
 
   }
@@ -310,7 +310,7 @@ public class WktWriter {
     try {
       write(out, punctual, axisCount);
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
 
   }
@@ -358,7 +358,7 @@ public class WktWriter {
     try {
       writeGeometryCollection(out, multiGeometry, axisCount);
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
 
   }

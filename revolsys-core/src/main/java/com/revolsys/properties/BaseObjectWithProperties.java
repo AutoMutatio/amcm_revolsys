@@ -1,7 +1,5 @@
 package com.revolsys.properties;
 
-import jakarta.annotation.PreDestroy;
-
 import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.collection.map.Maps;
@@ -31,7 +29,6 @@ public class BaseObjectWithProperties implements ObjectWithProperties {
   }
 
   @Override
-  @PreDestroy
   public void close() {
     clearProperties();
   }

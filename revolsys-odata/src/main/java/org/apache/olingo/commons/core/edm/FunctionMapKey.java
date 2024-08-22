@@ -23,21 +23,21 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.olingo.commons.api.edm.EdmException;
-import org.apache.olingo.commons.api.edm.FullQualifiedName;
+
+import com.revolsys.io.PathName;
 
 public final class FunctionMapKey {
 
-  private final FullQualifiedName functionName;
+  private final PathName functionName;
 
-  private final FullQualifiedName bindingParameterTypeName;
+  private final PathName bindingParameterTypeName;
 
   private final Boolean isBindingParameterCollection;
 
   private final List<String> parameterNames;
 
-  public FunctionMapKey(final FullQualifiedName functionName,
-    final FullQualifiedName bindingParameterTypeName, final Boolean isBindingParameterCollection,
-    final List<String> parameterNames) {
+  public FunctionMapKey(final PathName functionName, final PathName bindingParameterTypeName,
+    final Boolean isBindingParameterCollection, final List<String> parameterNames) {
 
     this.functionName = functionName;
     if (bindingParameterTypeName != null && isBindingParameterCollection == null) {

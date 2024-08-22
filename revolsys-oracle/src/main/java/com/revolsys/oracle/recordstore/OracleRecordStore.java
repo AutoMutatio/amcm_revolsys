@@ -11,7 +11,6 @@ import javax.sql.DataSource;
 
 import jakarta.annotation.PostConstruct;
 
-import com.revolsys.collection.ResultPager;
 import com.revolsys.collection.map.IntHashMap;
 import com.revolsys.data.identifier.Identifier;
 import com.revolsys.data.type.DataTypes;
@@ -38,7 +37,6 @@ import com.revolsys.oracle.recordstore.field.OracleSdoGeometryJdbcFieldDefinitio
 import com.revolsys.record.ArrayRecord;
 import com.revolsys.record.Record;
 import com.revolsys.record.RecordFactory;
-import com.revolsys.record.io.RecordIterator;
 import com.revolsys.record.property.ShortNameProperty;
 import com.revolsys.record.query.Column;
 import com.revolsys.record.query.ILike;
@@ -52,8 +50,6 @@ import com.revolsys.record.query.functions.GeometryEqual2d;
 import com.revolsys.record.query.functions.WithinDistance;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
-import com.revolsys.transaction.Transaction;
-import com.revolsys.transaction.TransactionOptions;
 import com.revolsys.util.Property;
 
 public class OracleRecordStore extends AbstractJdbcRecordStore {
@@ -267,26 +263,29 @@ public class OracleRecordStore extends AbstractJdbcRecordStore {
     }
   }
 
-  public synchronized CoordinateSystem getCoordinateSystem(final int oracleSrid) {
-    CoordinateSystem coordinateSystem = this.oracleCoordinateSystems.get(oracleSrid);
-    if (coordinateSystem == null) {
-      try {
-        final Map<String, Object> result = selectMap(
-          "SELECT * FROM MDSYS.SDO_CS_SRS WHERE SRID = ?", oracleSrid);
-        if (result == null) {
-          coordinateSystem = EpsgCoordinateSystems.getCoordinateSystem(oracleSrid);
-        } else {
-          final String wkt = (String)result.get("WKTEXT");
-          coordinateSystem = WktCsParser.read(wkt);
-          coordinateSystem = EpsgCoordinateSystems.getCoordinateSystem(coordinateSystem);
+  public CoordinateSystem getCoordinateSystem(final int oracleSrid) {
+    try (
+      var l = this.lock.lockX()) {
+      CoordinateSystem coordinateSystem = this.oracleCoordinateSystems.get(oracleSrid);
+      if (coordinateSystem == null) {
+        try {
+          final Map<String, Object> result = selectMap(
+            "SELECT * FROM MDSYS.SDO_CS_SRS WHERE SRID = ?", oracleSrid);
+          if (result == null) {
+            coordinateSystem = EpsgCoordinateSystems.getCoordinateSystem(oracleSrid);
+          } else {
+            final String wkt = (String)result.get("WKTEXT");
+            coordinateSystem = WktCsParser.read(wkt);
+            coordinateSystem = EpsgCoordinateSystems.getCoordinateSystem(coordinateSystem);
+          }
+        } catch (final Throwable e) {
+          Logs.error(this, "Unable to load coordinate system: " + oracleSrid, e);
+          return null;
         }
-      } catch (final Throwable e) {
-        Logs.error(this, "Unable to load coordinate system: " + oracleSrid, e);
-        return null;
+        this.oracleCoordinateSystems.put(oracleSrid, coordinateSystem);
       }
-      this.oracleCoordinateSystems.put(oracleSrid, coordinateSystem);
+      return coordinateSystem;
     }
-    return coordinateSystem;
   }
 
   @Override
@@ -325,35 +324,54 @@ public class OracleRecordStore extends AbstractJdbcRecordStore {
       query.clearOrderBy();
       final String sql = "select count(mainquery.rowid) from (" + query.getSelectSql()
         + ") mainquery";
-      try (
-        Transaction transaction = newTransaction(TransactionOptions.REQUIRED);
-        JdbcConnection connection = getJdbcConnection()) {
+      final Query query1 = query;
+      return transactionCall(() -> {
         try (
-          final PreparedStatement statement = connection.prepareStatement(sql)) {
-          final Query query1 = query;
-          query1.appendParameters(1, statement);
+          JdbcConnection connection = getJdbcConnection()) {
           try (
-            final ResultSet resultSet = statement.executeQuery()) {
-            if (resultSet.next()) {
-              final int rowCount = resultSet.getInt(1);
-              return rowCount;
-            } else {
-              return 0;
+            final PreparedStatement statement = connection.prepareStatement(sql)) {
+            query1.appendParameters(1, statement);
+            try (
+              final ResultSet resultSet = statement.executeQuery()) {
+              if (resultSet.next()) {
+                final int rowCount = resultSet.getInt(1);
+                return rowCount;
+              } else {
+                return 0;
+              }
             }
+          } catch (final SQLException e) {
+            throw connection.getException("getRecordCount", sql, e);
+          } catch (final IllegalArgumentException e) {
+            Logs.error(this, "Cannot get row count: " + query1, e);
+            return 0;
           }
-        } catch (final SQLException e) {
-          throw connection.getException("getRecordCount", sql, e);
-        } catch (final IllegalArgumentException e) {
-          Logs.error(this, "Cannot get row count: " + query, e);
-          return 0;
         }
-      }
+      });
     }
   }
 
   @Override
   public String getRecordStoreType() {
     return "Oracle";
+  }
+
+  @Override
+  protected String getSelectSql(final Query query) {
+    String sql = super.getSelectSql(query);
+    final int offset = query.getOffset();
+    final int limit = query.getLimit();
+    if (offset > 0 || limit >= 0 && limit < Integer.MAX_VALUE) {
+      final int startRowNum = offset + 1;
+      final int endRowNum = offset + limit;
+      sql = "SELECT * FROM (" //
+        + "SELECT V.*,ROWNUM \"RNUM\" FROM ("//
+        + sql + //
+        ") V  "//
+        + "WHERE ROWNUM <=  " + endRowNum + ")"//
+        + "WHERE RNUM >= " + startRowNum;
+    }
+    return sql;
   }
 
   @Override
@@ -472,18 +490,8 @@ public class OracleRecordStore extends AbstractJdbcRecordStore {
   }
 
   @Override
-  public RecordIterator newIterator(final Query query, final Map<String, Object> properties) {
-    return new OracleJdbcQueryIterator(this, query, properties);
-  }
-
-  @Override
   protected JdbcFieldDefinition newRowIdFieldDefinition() {
     return new OracleJdbcRowIdFieldDefinition();
-  }
-
-  @Override
-  public ResultPager<Record> page(final Query query) {
-    return new OracleJdbcQueryResultPager(this, getProperties(), query);
   }
 
   public void setUseSchemaSequencePrefix(final boolean useSchemaSequencePrefix) {

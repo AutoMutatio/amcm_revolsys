@@ -99,7 +99,7 @@ public class ScaledIntegerPointCloudGeometryWriter extends AbstractWriter<Geomet
       final int zInt = geometryFactory.toIntZ(z);
       writer.putInt(zInt);
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 

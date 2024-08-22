@@ -5,12 +5,12 @@ import java.net.URI;
 import java.util.List;
 
 import com.revolsys.io.AbstractRecordWriter;
-import com.revolsys.io.FileUtil;
 import com.revolsys.io.IoConstants;
 import com.revolsys.record.Record;
 import com.revolsys.record.io.format.xml.XmlWriter;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinitionProxy;
+import com.revolsys.util.BaseCloseable;
 import com.revolsys.util.CaseConverter;
 import com.revolsys.util.HtmlAttr;
 import com.revolsys.util.HtmlElem;
@@ -48,7 +48,7 @@ public class XhtmlRecordWriter extends AbstractRecordWriter {
         this.out.flush();
       } finally {
         if (this.wrap) {
-          FileUtil.closeSilent(this.out);
+          BaseCloseable.closeSilent(this.out);
         }
         this.out = null;
       }
@@ -141,7 +141,7 @@ public class XhtmlRecordWriter extends AbstractRecordWriter {
   private void writeHeader() {
     setIndent(isIndent());
     if (this.wrap) {
-      this.out.startDocument("UTF-8", "1.0");
+      this.out.startDocument("UTF-8", "1.1");
       this.out.startTag(HtmlElem.HTML);
 
       this.out.startTag(HtmlElem.HEAD);

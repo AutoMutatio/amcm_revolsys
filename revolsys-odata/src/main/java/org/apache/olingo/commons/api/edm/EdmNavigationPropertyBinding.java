@@ -21,18 +21,22 @@ package org.apache.olingo.commons.api.edm;
 /**
  * A navigation property binding which binds entity sets or singletons with each other.
  */
-public interface EdmNavigationPropertyBinding {
+public class EdmNavigationPropertyBinding {
 
-  /**
-   * A path contains the full qualified name of the type it is referring to as a first segment. If it is a type
-   * nested inside another type the path is separated by forward slashes.
-   * @return path which leads to the target.
-   */
-  String getPath();
+  private final String path;
 
-  /**
-   * @return the entity set or singleton this binding refers to.
-   */
-  String getTarget();
+  private final String target;
 
+  public EdmNavigationPropertyBinding(final String path, final String target) {
+    this.path = path;
+    this.target = target;
+  }
+
+  public String getPath() {
+    return this.path;
+  }
+
+  public String getTarget() {
+    return this.target;
+  }
 }

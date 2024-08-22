@@ -51,6 +51,7 @@ import com.revolsys.awt.WebColors;
 import com.revolsys.beans.PropertyChangeSupport;
 import com.revolsys.beans.PropertyChangeSupportProxy;
 import com.revolsys.collection.map.Maps;
+import com.revolsys.collection.value.ThreadBooleanValue;
 import com.revolsys.data.identifier.Identifier;
 import com.revolsys.data.type.DataType;
 import com.revolsys.data.type.DataTypes;
@@ -97,7 +98,6 @@ import com.revolsys.swing.undo.UndoManager;
 import com.revolsys.util.BaseCloseable;
 import com.revolsys.util.Property;
 import com.revolsys.util.Strings;
-import com.revolsys.value.ThreadBooleanValue;
 
 public class LayerRecordForm extends JPanel implements PropertyChangeListener, CellEditorListener,
   FocusListener, PropertyChangeSupportProxy, WindowListener {

@@ -35,9 +35,13 @@ public class CsdlNull extends CsdlDynamicExpression implements CsdlAnnotatable {
     if (csdlNullAnnot == null) {
       return false;
     }
-    if (this.getAnnotations().size() == csdlNullAnnot.size()) {
-      for (int i = 0; i < this.getAnnotations().size(); i++) {
-        if (!this.getAnnotations().get(i).equals(csdlNullAnnot.get(i))) {
+    if (this.getAnnotations()
+      .size() == csdlNullAnnot.size()) {
+      for (int i = 0; i < this.getAnnotations()
+        .size(); i++) {
+        if (!this.getAnnotations()
+          .get(i)
+          .equals(csdlNullAnnot.get(i))) {
           return false;
         }
       }

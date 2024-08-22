@@ -6,6 +6,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Condition;
 import java.util.function.Consumer;
 
 import com.revolsys.collection.json.JsonObject;
@@ -17,6 +19,7 @@ import com.revolsys.date.Dates;
 import com.revolsys.exception.Exceptions;
 import com.revolsys.io.PathName;
 import com.revolsys.logging.Logs;
+import com.revolsys.parallel.ReentrantLockEx;
 import com.revolsys.record.Record;
 import com.revolsys.record.query.And;
 import com.revolsys.record.query.Q;
@@ -47,6 +50,10 @@ public class SingleValueRecordStoreCodeTable extends AbstractSingleValueCodeTabl
   private boolean loading = false;
 
   private boolean loadMissingCodes = true;
+
+  private final ReentrantLockEx lock = new ReentrantLockEx();
+
+  private final Condition lockCondition = this.lock.newCondition();
 
   private String modificationTimestampFieldName;
 
@@ -245,67 +252,73 @@ public class SingleValueRecordStoreCodeTable extends AbstractSingleValueCodeTabl
   }
 
   @Override
-  public synchronized void loadAll() {
-    final long time = System.currentTimeMillis();
-    if (this.threadLoading.get() != Boolean.TRUE) {
-      if (this.loading) {
-        while (this.loading) {
+  public void loadAll() {
+    try (
+      var l = this.lock.lockX()) {
+      final long time = System.currentTimeMillis();
+      if (this.threadLoading.get() != Boolean.TRUE) {
+        if (this.loading) {
+          while (this.loading) {
+            try {
+              this.lockCondition.await(1, TimeUnit.SECONDS);
+            } catch (final InterruptedException e) {
+              throw Exceptions.toRuntimeException(e);
+            }
+          }
+          return;
+        } else {
+          this.threadLoading.set(Boolean.TRUE);
+          this.loading = true;
           try {
-            wait(1000);
-          } catch (final InterruptedException e) {
-            Exceptions.throwUncheckedException(e);
+            if (this.recordStore != null) {
+              newQuery()//
+                .forEachRecord(this::addValueDo);
+            }
+          } finally {
+            this.loading = false;
+            this.loaded = true;
+            this.threadLoading.set(null);
+            this.lockCondition.signalAll();
           }
+          Property.firePropertyChange(this, "valuesChanged", false, true);
         }
-        return;
-      } else {
-        this.threadLoading.set(Boolean.TRUE);
-        this.loading = true;
-        try {
-          if (this.recordStore != null) {
-            newQuery()//
-              .forEachRecord(this::addValueDo);
-          }
-        } finally {
-          this.loading = false;
-          this.loaded = true;
-          this.threadLoading.set(null);
-          notifyAll();
-        }
-        Property.firePropertyChange(this, "valuesChanged", false, true);
       }
+      Dates.debugEllapsedTime(this, "Load All: " + getTypePath(), time);
     }
-    Dates.debugEllapsedTime(this, "Load All: " + getTypePath(), time);
   }
 
   @Override
-  protected synchronized Identifier loadId(final Object value, final boolean createId) {
-    if (this.loadAll && !this.loadMissingCodes && !isEmpty()) {
-      return null;
-    }
-    Identifier id = null;
-    if (createId && this.loadAll && !isLoaded()) {
-      loadAll();
-      id = getIdentifier(value, false);
-    } else {
-      final Query query = this.recordStore.newQuery(this.typePath);
-      final And and = new And();
-      if (value == null) {
-        and.and(Q.isNull(this.valueFieldName));
-      } else {
-        final FieldDefinition idField = this.recordDefinition.getField(this.idFieldName);
-        final FieldDefinition valueField = this.recordDefinition.getField(this.valueFieldName);
-        and.and(Q.or(Q.equal(idField, value), Q.equal(valueField, value)));
+  protected Identifier loadId(final Object value, final boolean createId) {
+    try (
+      var l = this.lock.lockX()) {
+      if (this.loadAll && !this.loadMissingCodes && !isEmpty()) {
+        return null;
       }
-      query.setWhereCondition(and);
-      query.forEachRecord(this::addValueDo);
+      Identifier id = null;
+      if (createId && this.loadAll && !isLoaded()) {
+        loadAll();
+        id = getIdentifier(value, false);
+      } else {
+        final Query query = this.recordStore.newQuery(this.typePath);
+        final And and = new And();
+        if (value == null) {
+          and.and(Q.isNull(this.valueFieldName));
+        } else {
+          final FieldDefinition idField = this.recordDefinition.getField(this.idFieldName);
+          final FieldDefinition valueField = this.recordDefinition.getField(this.valueFieldName);
+          and.and(Q.or(Q.equal(idField, value), Q.equal(valueField, value)));
+        }
+        query.setWhereCondition(and);
+        query.forEachRecord(this::addValueDo);
 
-      id = getIdByValue(value);
-      Property.firePropertyChange(this, "valuesChanged", false, true);
-    }
-    if (createId && id == null) {
-      return newIdentifier(value);
-    } else {
-      return id;
+        id = getIdByValue(value);
+        Property.firePropertyChange(this, "valuesChanged", false, true);
+      }
+      if (createId && id == null) {
+        return newIdentifier(value);
+      } else {
+        return id;
+      }
     }
   }
 
@@ -333,37 +346,42 @@ public class SingleValueRecordStoreCodeTable extends AbstractSingleValueCodeTabl
     return getValueById(id);
   }
 
-  protected synchronized Identifier newIdentifier(final Object value) {
-    if (this.createMissingCodes) {
-      // TODO prevent duplicates from other threads/processes
-      final Record code = this.recordStore.newRecord(this.typePath);
-      final RecordDefinition recordDefinition = code.getRecordDefinition();
-      Identifier id = this.recordStore.newPrimaryIdentifier(this.typePath);
-      if (id == null) {
-        final FieldDefinition idField = recordDefinition.getIdField();
-        if (idField != null) {
-          if (Number.class.isAssignableFrom(idField.getDataType().getJavaClass())) {
-            id = Identifier.newIdentifier(getNextId());
-          } else {
-            id = Identifier.newIdentifier(UUID.randomUUID().toString());
+  protected Identifier newIdentifier(final Object value) {
+    try (
+      var l = this.lock.lockX()) {
+      if (this.createMissingCodes) {
+        // TODO prevent duplicates from other threads/processes
+        final Record code = this.recordStore.newRecord(this.typePath);
+        final RecordDefinition recordDefinition = code.getRecordDefinition();
+        Identifier id = this.recordStore.newPrimaryIdentifier(this.typePath);
+        if (id == null) {
+          final FieldDefinition idField = recordDefinition.getIdField();
+          if (idField != null) {
+            if (Number.class.isAssignableFrom(idField.getDataType()
+              .getJavaClass())) {
+              id = Identifier.newIdentifier(getNextId());
+            } else {
+              id = Identifier.newIdentifier(UUID.randomUUID()
+                .toString());
+            }
           }
         }
-      }
-      code.setIdentifier(id);
-      code.setValue(this.valueFieldName, value);
+        code.setIdentifier(id);
+        code.setValue(this.valueFieldName, value);
 
-      final Instant now = Instant.now();
-      if (this.creationTimestampFieldName != null) {
-        code.setValue(this.creationTimestampFieldName, now);
-      }
-      if (this.modificationTimestampFieldName != null) {
-        code.setValue(this.modificationTimestampFieldName, now);
-      }
+        final Instant now = Instant.now();
+        if (this.creationTimestampFieldName != null) {
+          code.setValue(this.creationTimestampFieldName, now);
+        }
+        if (this.modificationTimestampFieldName != null) {
+          code.setValue(this.modificationTimestampFieldName, now);
+        }
 
-      this.recordStore.insertRecord(code);
-      return code.getIdentifier();
-    } else {
-      return null;
+        this.recordStore.insertRecord(code);
+        return code.getIdentifier();
+      } else {
+        return null;
+      }
     }
   }
 
@@ -376,12 +394,15 @@ public class SingleValueRecordStoreCodeTable extends AbstractSingleValueCodeTabl
   }
 
   @Override
-  public synchronized void refresh() {
-    clearCaches();
-    super.refresh();
-    if (isLoadAll()) {
-      this.loaded = false;
-      loadAll();
+  public void refresh() {
+    try (
+      var l = this.lock.lockX()) {
+      clearCaches();
+      super.refresh();
+      if (isLoadAll()) {
+        this.loaded = false;
+        loadAll();
+      }
     }
   }
 

@@ -150,7 +150,7 @@ public class GmlRecordWriter extends AbstractRecordWriter {
   private void writeHeader() {
     this.out.setIndent(isIndent());
     this.opened = true;
-    this.out.startDocument("UTF-8", "1.0");
+    this.out.startDocument("UTF-8", "1.1");
 
     this.out.startTag(Gml.FEATURE_COLLECTION);
     if (this.geometryFactory != null) {

@@ -22,8 +22,9 @@ import org.apache.olingo.commons.api.edm.EdmEntityContainer;
 import org.apache.olingo.commons.api.edm.EdmEntitySet;
 import org.apache.olingo.commons.api.edm.EdmException;
 import org.apache.olingo.commons.api.edm.EdmOperationImport;
-import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.provider.CsdlOperationImport;
+
+import com.revolsys.io.PathName;
 
 public abstract class AbstractEdmOperationImport extends AbstractEdmNamed
   implements EdmOperationImport {
@@ -51,14 +52,15 @@ public abstract class AbstractEdmOperationImport extends AbstractEdmNamed
   }
 
   @Override
-  public FullQualifiedName getFullQualifiedName() {
-    return new FullQualifiedName(this.container.getNamespace(), getName());
+  public PathName getPathName() {
+    return this.container.getNamespace()
+      .newChild(getName());
   }
 
   @Override
   public EdmEntitySet getReturnedEntitySet() {
     if (this.entitySet != null && this.returnedEntitySet == null) {
-      final EdmEntityContainer entityContainer = this.edm
+      final EdmEntityContainer entityContainer = getEdm()
         .getEntityContainer(this.entitySet.getEntityContainer());
       if (entityContainer == null) {
         throw new EdmException(

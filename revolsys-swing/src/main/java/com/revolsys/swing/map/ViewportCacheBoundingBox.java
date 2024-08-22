@@ -200,7 +200,7 @@ public class ViewportCacheBoundingBox implements BoundingBoxProxy, Cancellable {
           try {
             return worker.get();
           } catch (final InterruptedException e) {
-            Exceptions.throwUncheckedException(e);
+            throw Exceptions.toRuntimeException(e);
           } catch (final ExecutionException e) {
 
           }

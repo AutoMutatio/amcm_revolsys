@@ -53,7 +53,7 @@ public class Project extends LayerGroupImpl {
   private static WeakReference<Project> projectReference = new WeakReference<>(null);
 
   static {
-    MenuFactory.addMenuInitializer(Project.class, (menu) -> {
+    MenuFactory.addMenuInitializer(Project.class, menu -> {
       menu.deleteMenuItem("layer", "Delete");
     });
   }
@@ -206,7 +206,7 @@ public class Project extends LayerGroupImpl {
         try {
           Files.createDirectories(directory);
         } catch (final IOException e) {
-          throw Exceptions.wrap(e);
+          throw Exceptions.toRuntimeException(e);
         }
       }
       if (Files.isDirectory(directory)) {

@@ -15,12 +15,18 @@ public class UpdateStatement implements RecordDefinitionProxy {
     public void appendSql(final UpdateStatement update, final SqlAppendable sql) {
       this.column.appendColumnName(sql);
       sql.append(" = ");
-      this.value.appendSql(null, update.getRecordStore(), sql);
+      if (this.value == null) {
+        sql.append("null");
+      } else {
+        this.value.appendSql(null, update.getRecordStore(), sql);
+      }
     }
 
     public int appendParameters(int index, final PreparedStatement statement) {
       index = this.column.appendParameters(index, statement);
-      index = this.value.appendParameters(index, statement);
+      if (this.value != null) {
+        index = this.value.appendParameters(index, statement);
+      }
       return index;
     }
   }
@@ -115,6 +121,14 @@ public class UpdateStatement implements RecordDefinitionProxy {
     return this;
   }
 
+  public UpdateStatement setNull(final CharSequence name) {
+    return set(name, null);
+  }
+
+  public UpdateStatement setNull(final ColumnReference column) {
+    return set(column, null);
+  }
+
   public String toSql() {
     final StringBuilderSqlAppendable sql = newSqlAppendable();
     appendSql(sql);
@@ -141,6 +155,22 @@ public class UpdateStatement implements RecordDefinitionProxy {
   public UpdateStatement where(final Consumer<WhereConditionBuilder> action) {
     final WhereConditionBuilder builder = new WhereConditionBuilder(getFrom());
     this.where = builder.build(action);
+    return this;
+  }
+
+  public UpdateStatement where(final String fieldName, final Object value) {
+    final ColumnReference left = this.table.getColumn(fieldName);
+    if (value == null) {
+      this.where = new IsNull(left);
+    } else {
+      QueryValue right;
+      if (value instanceof final QueryValue queryValue) {
+        right = queryValue;
+      } else {
+        right = new Value(left, value);
+      }
+      this.where = new Equal(left, right);
+    }
     return this;
   }
 

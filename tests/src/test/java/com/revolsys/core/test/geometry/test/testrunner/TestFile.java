@@ -44,7 +44,7 @@ import com.revolsys.collection.json.JsonObjectHash;
 import com.revolsys.core.test.geometry.test.geomop.GeometryOperation;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.io.FileUtil;
-import com.revolsys.io.map.MapSerializer;
+import com.revolsys.io.MapSerializer;
 import com.revolsys.util.Property;
 
 import junit.framework.Test;

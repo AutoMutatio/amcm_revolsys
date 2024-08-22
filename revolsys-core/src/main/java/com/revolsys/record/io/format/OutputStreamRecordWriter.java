@@ -6,6 +6,7 @@ import java.io.OutputStream;
 
 import com.revolsys.io.DelegatingWriter;
 import com.revolsys.io.FileUtil;
+import com.revolsys.io.IoUtil;
 import com.revolsys.logging.Logs;
 import com.revolsys.record.Record;
 import com.revolsys.record.io.RecordWriter;
@@ -46,7 +47,7 @@ public class OutputStreamRecordWriter extends DelegatingWriter<Record> implement
     } finally {
       try {
         try {
-          FileUtil.copy(this.tempFile, this.out);
+          IoUtil.copy(this.tempFile, this.out);
         } finally {
           this.out.close();
         }

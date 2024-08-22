@@ -56,7 +56,7 @@ public abstract class AbstractMultiQueryValue implements QueryValue {
     try {
       return (AbstractMultiQueryValue)super.clone();
     } catch (final CloneNotSupportedException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 

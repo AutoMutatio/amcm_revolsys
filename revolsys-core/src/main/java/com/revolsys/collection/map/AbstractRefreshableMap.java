@@ -3,7 +3,6 @@ package com.revolsys.collection.map;
 import java.util.Collections;
 import java.util.Map;
 
-import com.revolsys.data.refresh.RefreshableValueHolder;
 import com.revolsys.data.refresh.SupplierRefreshableValueHolder;
 
 public abstract class AbstractRefreshableMap<K, V> extends AbstractDelegatingMap<K, V>
@@ -11,7 +10,7 @@ public abstract class AbstractRefreshableMap<K, V> extends AbstractDelegatingMap
 
   private String label;
 
-  private final RefreshableValueHolder<Map<K, V>> value = new SupplierRefreshableValueHolder<>(
+  private final SupplierRefreshableValueHolder<Map<K, V>> value = new SupplierRefreshableValueHolder<>(
     this::loadValue);
 
   private boolean valueLoaded;
@@ -21,7 +20,7 @@ public abstract class AbstractRefreshableMap<K, V> extends AbstractDelegatingMap
   }
 
   @Override
-  public synchronized void clearValue() {
+  public void clearValue() {
     this.value.clear();
   }
 
@@ -47,15 +46,13 @@ public abstract class AbstractRefreshableMap<K, V> extends AbstractDelegatingMap
   protected abstract Map<K, V> loadValue();
 
   @Override
-  public synchronized void refresh() {
-    this.value.get();
+  public void refresh() {
+    this.value.reload();
   }
 
   @Override
-  public synchronized void refreshIfNeeded() {
-    if (!this.valueLoaded) {
-      refresh();
-    }
+  public void refreshIfNeeded() {
+    this.value.refreshIfNeeded();
   }
 
   public AbstractRefreshableMap<K, V> setLabel(final String label) {

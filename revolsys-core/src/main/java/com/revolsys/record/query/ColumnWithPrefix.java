@@ -18,7 +18,11 @@ public class ColumnWithPrefix implements QueryValue, ColumnReference {
   private final ColumnReference column;
 
   public ColumnWithPrefix(final CharSequence columnPrefix, final ColumnReference column) {
-    this.columnPrefix = columnPrefix.toString();
+    if (columnPrefix == null) {
+      this.columnPrefix = null;
+    } else {
+      this.columnPrefix = columnPrefix.toString();
+    }
     this.column = column;
   }
 

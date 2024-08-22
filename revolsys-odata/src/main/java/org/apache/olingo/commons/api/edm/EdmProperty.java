@@ -18,7 +18,7 @@
  */
 package org.apache.olingo.commons.api.edm;
 
-import org.apache.olingo.commons.api.edm.geo.SRID;
+import com.revolsys.data.type.DataType;
 
 /**
  * A CSDL Property element.
@@ -26,6 +26,8 @@ import org.apache.olingo.commons.api.edm.geo.SRID;
  * EdmProperty defines a simple type or a complex type.
  */
 public interface EdmProperty extends EdmElement, EdmMappable, EdmAnnotatable {
+
+  DataType getDataType();
 
   /**
    * @return the default value as a String or null if not specified
@@ -62,7 +64,7 @@ public interface EdmProperty extends EdmElement, EdmMappable, EdmAnnotatable {
   /**
    * @return a non-negative integer or the special value <tt>variable</tt>
    */
-  SRID getSrid();
+  int getSrid();
 
   /**
    * See {@link EdmType} for more information about possible types.
@@ -83,8 +85,4 @@ public interface EdmProperty extends EdmElement, EdmMappable, EdmAnnotatable {
    */
   boolean isPrimitive();
 
-  /**
-   * @return true if unicode or not specified
-   */
-  boolean isUnicode();
 }

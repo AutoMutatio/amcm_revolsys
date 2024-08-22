@@ -20,16 +20,23 @@ package org.apache.olingo.commons.api.edm.provider;
 
 import java.util.List;
 
-import org.apache.olingo.commons.api.edm.FullQualifiedName;
+import com.revolsys.record.schema.RecordDefinition;
 
 /**
  * The type Csdl entity type.
  */
-public class CsdlEntityType extends CsdlStructuralType {
+public class CsdlEntityType extends CsdlStructuralType<CsdlEntityType> {
 
   private List<CsdlPropertyRef> key;
 
   private boolean hasStream = false;
+
+  public CsdlEntityType() {
+  }
+
+  public CsdlEntityType(final RecordDefinition recordDefinition) {
+    setRecordDefinition(recordDefinition);
+  }
 
   /**
    * Gets key.
@@ -59,30 +66,6 @@ public class CsdlEntityType extends CsdlStructuralType {
     return this.hasStream;
   }
 
-  @Override
-  public CsdlEntityType setAbstract(final boolean isAbstract) {
-    this.isAbstract = isAbstract;
-    return this;
-  }
-
-  @Override
-  public CsdlEntityType setAnnotations(final List<CsdlAnnotation> annotations) {
-    this.annotations = annotations;
-    return this;
-  }
-
-  @Override
-  public CsdlEntityType setBaseType(final FullQualifiedName baseType) {
-    this.baseType = baseType;
-    return this;
-  }
-
-  @Override
-  public CsdlEntityType setBaseType(final String baseType) {
-    this.baseType = new FullQualifiedName(baseType);
-    return this;
-  }
-
   /**
    * Sets has stream.
    *
@@ -105,28 +88,4 @@ public class CsdlEntityType extends CsdlStructuralType {
     return this;
   }
 
-  @Override
-  public CsdlEntityType setName(final String name) {
-    this.name = name;
-    return this;
-  }
-
-  @Override
-  public CsdlEntityType setNavigationProperties(
-    final List<CsdlNavigationProperty> navigationProperties) {
-    this.navigationProperties = navigationProperties;
-    return this;
-  }
-
-  @Override
-  public CsdlEntityType setOpenType(final boolean isOpenType) {
-    this.isOpenType = isOpenType;
-    return this;
-  }
-
-  @Override
-  public CsdlEntityType setProperties(final List<CsdlProperty> properties) {
-    this.properties = properties;
-    return this;
-  }
 }

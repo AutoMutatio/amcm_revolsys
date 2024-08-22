@@ -7,9 +7,12 @@ import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.record.Record;
 import com.revolsys.record.query.Query;
-import com.revolsys.transaction.Transaction;
+import com.revolsys.transaction.Transactionable;
 
-public abstract class InsertUpdateBuilder {
+public abstract class InsertUpdateBuilder<R extends Record> {
+
+  public record Result<R2 extends Record>(boolean inserted, R2 record) {
+  }
 
   private final Query query;
 
@@ -28,6 +31,10 @@ public abstract class InsertUpdateBuilder {
 
   private Supplier<Record> newRecordSupplier;
 
+  private boolean insert = true;
+
+  private boolean update = true;
+
   public InsertUpdateBuilder(final Query query) {
     this.query = query;
     this.newRecordSupplier = query::newRecord;
@@ -41,39 +48,30 @@ public abstract class InsertUpdateBuilder {
    * @param commonAction
    * @return
    */
-  public InsertUpdateBuilder common(final Consumer<Record> commonAction) {
+  public InsertUpdateBuilder<R> common(final Consumer<Record> commonAction) {
     this.commonAction = commonAction;
     return this;
   }
 
-  public InsertUpdateBuilder common(final MapEx values) {
+  public InsertUpdateBuilder<R> common(final MapEx values) {
     this.commonAction = r -> r.addValues(values);
     return this;
   }
 
   public final Record execute() {
-    return execute(this::newTransaction);
+    return getTransactionable().transactionCall(() -> {
+      preExecute();
+      return executeDo();
+    });
   }
 
-  public Record execute(final Supplier<Transaction> transactionSupplier) {
-    if (this.searchValues.isEmpty() && this.queryAction == null) {
-      throw new IllegalStateException(
-        "At least one search value or query modifier must be specfied");
-    }
-    if (this.queryAction != null) {
-      this.queryAction.accept(this.query);
-    }
-    for (final String key : this.searchValues.keySet()) {
-      final Object value = this.searchValues.getValue(key);
-      this.query.and(key, value);
-
-    }
-    return executeDo(transactionSupplier);
-  }
-
-  public abstract Record executeDo(Supplier<Transaction> transactionSupplier);
+  public abstract Record executeDo();
 
   public Query getQuery() {
+    return this.query;
+  }
+
+  public Transactionable getTransactionable() {
     return this.query;
   }
 
@@ -83,12 +81,12 @@ public abstract class InsertUpdateBuilder {
    * @param insertAction
    * @return
    */
-  public InsertUpdateBuilder insert(final Consumer<Record> insertAction) {
+  public InsertUpdateBuilder<R> insert(final Consumer<Record> insertAction) {
     this.insertAction = insertAction;
     return this;
   }
 
-  public InsertUpdateBuilder insert(final MapEx values) {
+  public InsertUpdateBuilder<R> insert(final MapEx values) {
     this.insertAction = r -> r.addValues(values);
     return this;
   }
@@ -106,16 +104,37 @@ public abstract class InsertUpdateBuilder {
     return record;
   }
 
+  public boolean isInsert() {
+    return this.insert;
+  }
+
+  public boolean isUpdate() {
+    return this.update;
+  }
+
   protected Record newRecord() {
     return this.newRecordSupplier.get();
   }
 
-  public InsertUpdateBuilder newRecord(final Supplier<Record> newRecordSupplier) {
+  public InsertUpdateBuilder<R> newRecord(final Supplier<Record> newRecordSupplier) {
     this.newRecordSupplier = newRecordSupplier;
     return this;
   }
 
-  protected abstract Transaction newTransaction();
+  protected void preExecute() {
+    if (this.searchValues.isEmpty() && this.queryAction == null) {
+      throw new IllegalStateException(
+        "At least one search value or query modifier must be specfied");
+    }
+    if (this.queryAction != null) {
+      this.queryAction.accept(this.query);
+    }
+    for (final String key : this.searchValues.keySet()) {
+      final Object value = this.searchValues.getValue(key);
+      this.query.and(key, value);
+
+    }
+  }
 
   /**
    * Full customization of query to find the record to update. {@link #search(Consumer)} is preferred
@@ -124,7 +143,7 @@ public abstract class InsertUpdateBuilder {
    * @param queryAction
    * @return
    */
-  public InsertUpdateBuilder query(final Consumer<Query> queryAction) {
+  public InsertUpdateBuilder<R> query(final Consumer<Query> queryAction) {
     this.queryAction = queryAction;
     return this;
   }
@@ -136,13 +155,23 @@ public abstract class InsertUpdateBuilder {
    * @param configurer
    * @return
    */
-  public InsertUpdateBuilder search(final Consumer<JsonObject> configurer) {
+  public InsertUpdateBuilder<R> search(final Consumer<JsonObject> configurer) {
     configurer.accept(this.searchValues);
     return this;
   }
 
-  public InsertUpdateBuilder search(final String key, final Object value) {
+  public InsertUpdateBuilder<R> search(final String key, final Object value) {
     this.searchValues.addValue(key, value);
+    return this;
+  }
+
+  public InsertUpdateBuilder<R> setInsert(final boolean insert) {
+    this.insert = insert;
+    return this;
+  }
+
+  public InsertUpdateBuilder<R> setUpdate(final boolean update) {
+    this.update = update;
     return this;
   }
 
@@ -152,12 +181,12 @@ public abstract class InsertUpdateBuilder {
    * @param commonAction
    * @return
    */
-  public InsertUpdateBuilder update(final Consumer<Record> updateAction) {
+  public InsertUpdateBuilder<R> update(final Consumer<Record> updateAction) {
     this.updateAction = updateAction;
     return this;
   }
 
-  public InsertUpdateBuilder update(final MapEx values) {
+  public InsertUpdateBuilder<R> update(final MapEx values) {
     this.updateAction = r -> r.addValues(values);
     return this;
   }

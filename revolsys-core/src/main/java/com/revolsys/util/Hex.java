@@ -3,6 +3,18 @@ package com.revolsys.util;
 import java.security.MessageDigest;
 
 public class Hex {
+  public static int fromHex(final int b) {
+    if ('0' <= b && b <= '9') {
+      return b - '0';
+    } else if ('a' <= b && b <= 'f') {
+      return 10 + b - 'a';
+    } else if ('A' <= b && b <= 'F') {
+      return 10 + b - 'A';
+    } else {
+      return -1;
+    }
+  }
+
   public static byte[] toDecimalBytes(final String hexString) {
     final byte[] bytes = new byte[hexString.length() / 2];
     for (int i = 0; i < bytes.length; i++) {

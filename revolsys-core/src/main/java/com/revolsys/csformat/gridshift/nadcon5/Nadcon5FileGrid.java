@@ -88,7 +88,7 @@ public class Nadcon5FileGrid {
       try {
         this.channel.close();
       } catch (final IOException e) {
-        throw Exceptions.wrap(e);
+        throw Exceptions.toRuntimeException(e);
       }
       this.channel = null;
     }
@@ -209,7 +209,7 @@ public class Nadcon5FileGrid {
         }
       }
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 

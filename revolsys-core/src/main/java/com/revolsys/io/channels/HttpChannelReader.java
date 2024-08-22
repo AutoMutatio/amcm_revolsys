@@ -24,7 +24,7 @@ public class HttpChannelReader extends ChannelReader {
       connection.addRequestProperty("Range", range);
       return connection.getInputStream();
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 }

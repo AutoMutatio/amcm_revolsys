@@ -27,11 +27,11 @@ import com.revolsys.elevation.tin.quadedge.QuadEdgeDelaunayTinBuilder;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.geometry.model.Point;
+import com.revolsys.io.MapSerializer;
 import com.revolsys.io.StringWriter;
 import com.revolsys.io.ZipUtil;
 import com.revolsys.io.channels.ChannelReader;
 import com.revolsys.io.channels.DataReader;
-import com.revolsys.io.map.MapSerializer;
 import com.revolsys.properties.BaseObjectWithProperties;
 import com.revolsys.record.io.format.html.HtmlWriter;
 import com.revolsys.spring.resource.Resource;
@@ -275,7 +275,7 @@ public class LasPointCloud extends BaseObjectWithProperties
   public TriangulatedIrregularNetwork newTriangulatedIrregularNetwork() {
     final GeometryFactory geometryFactory = getGeometryFactory();
     final QuadEdgeDelaunayTinBuilder tinBuilder = new QuadEdgeDelaunayTinBuilder(geometryFactory);
-    forEachPoint((lasPoint) -> {
+    forEachPoint(lasPoint -> {
       tinBuilder.insertVertex(lasPoint);
     });
     final TriangulatedIrregularNetwork tin = tinBuilder.newTriangulatedIrregularNetwork();

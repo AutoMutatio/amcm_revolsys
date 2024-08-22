@@ -32,6 +32,11 @@ public class Md5 {
     }
   }
 
+  public static MessageDigestEx getMessageDigestEx() {
+    final var digest = getMessageDigest();
+    return new MessageDigestEx(digest);
+  }
+
   public static DigestInputStream inputStream(final InputStream in) {
     final MessageDigest messageDigest = getMessageDigest();
     return new DigestInputStream(in, messageDigest);
@@ -63,17 +68,20 @@ public class Md5 {
 
   public static String md5Base64(final byte[] data) {
     final byte[] md5 = md5(data);
-    return Base64.getEncoder().encodeToString(md5);
+    return Base64.getEncoder()
+      .encodeToString(md5);
   }
 
   public static String md5Base64(final InputStream data) throws IOException {
     final byte[] md5 = md5(data);
-    return Base64.getEncoder().encodeToString(md5);
+    return Base64.getEncoder()
+      .encodeToString(md5);
   }
 
   public static String md5Base64(final String data) {
     final byte[] md5 = md5(data);
-    return Base64.getEncoder().encodeToString(md5);
+    return Base64.getEncoder()
+      .encodeToString(md5);
   }
 
   public static String md5Hex(final byte[] data) {

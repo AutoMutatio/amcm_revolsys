@@ -7,9 +7,10 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import com.revolsys.exception.Exceptions;
-import com.revolsys.io.FileUtil;
+import com.revolsys.io.IoUtil;
 import com.revolsys.spring.resource.PathResource;
 import com.revolsys.spring.resource.Resource;
+import com.revolsys.util.BaseCloseable;
 
 public class ResourceEndianOutput implements EndianOutput {
   private final File file;
@@ -36,16 +37,16 @@ public class ResourceEndianOutput implements EndianOutput {
     try {
       this.out.close();
     } catch (final Throwable e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     } finally {
       if (!(this.resource instanceof PathResource)) {
         try {
-          FileUtil.copy(this.file, this.resourceOut);
+          IoUtil.copy(this.file, this.resourceOut);
           this.resourceOut.flush();
         } catch (final Throwable e) {
-          throw Exceptions.wrap(e);
+          throw Exceptions.toRuntimeException(e);
         } finally {
-          FileUtil.closeSilent(this.resourceOut);
+          BaseCloseable.closeSilent(this.resourceOut);
           if (!(this.resource instanceof PathResource)) {
             this.file.delete();
           }

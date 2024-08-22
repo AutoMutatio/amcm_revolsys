@@ -27,7 +27,7 @@ public class IntPair implements Cloneable, Comparable<IntPair> {
     try {
       return (IntPair)super.clone();
     } catch (final CloneNotSupportedException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 

@@ -33,7 +33,8 @@ public class CsdlLabeledElementReference extends CsdlDynamicExpression {
     }
     final CsdlLabeledElementReference csdlLabelledEleRef = (CsdlLabeledElementReference)obj;
     return this.getValue() == null ? csdlLabelledEleRef.getValue() == null
-      : this.getValue().equals(csdlLabelledEleRef.getValue());
+      : this.getValue()
+        .equals(csdlLabelledEleRef.getValue());
   }
 
   /**

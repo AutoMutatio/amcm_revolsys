@@ -107,7 +107,7 @@ public final class UrlUtil {
     if (path == null || path.length() == 0) {
       return uri;
     } else {
-      final String originalPath = uri.getPath();
+      final String originalPath = uri.getRawPath();
       final String newPath = appendPath(originalPath, path);
       return uri.resolve(newPath);
     }
@@ -351,8 +351,8 @@ public final class UrlUtil {
         final int equalsIndex = part.indexOf("=");
         if (equalsIndex > -1) {
           final String name = part.substring(0, equalsIndex);
-          final String value = percentDecode(
-            part.substring(equalsIndex + 1).replaceAll("\\+", " "));
+          final String value = percentDecode(part.substring(equalsIndex + 1)
+            .replaceAll("\\+", " "));
           if (map.containsKey(name)) {
             final Object existingValue = map.get(name);
             if (existingValue instanceof List) {
@@ -496,7 +496,8 @@ public final class UrlUtil {
   }
 
   public static boolean isValidEmail(final String email) {
-    return EMAIL_PATTERN.matcher(email).matches();
+    return EMAIL_PATTERN.matcher(email)
+      .matches();
   }
 
   public static Map<String, String> parseMatrixParams(final String matrixParams) {
@@ -636,7 +637,7 @@ public final class UrlUtil {
       final Path path = Paths.get(uri);
       return path.toFile();
     } catch (final URISyntaxException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 
@@ -661,7 +662,7 @@ public final class UrlUtil {
         return URI.create(string);
       }
     } catch (final Throwable e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 

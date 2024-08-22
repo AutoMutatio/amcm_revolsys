@@ -70,9 +70,11 @@ public class AcceptCharset {
 
     if (result.isEmpty()) {
       if (exceptionList.get(0) instanceof UnsupportedCharsetException) {
-        throw new UnsupportedCharsetException(exceptionList.get(0).getMessage());
+        throw new UnsupportedCharsetException(exceptionList.get(0)
+          .getMessage());
       } else if (exceptionList.get(0) instanceof IllegalArgumentException) {
-        throw new IllegalArgumentException(exceptionList.get(0).getMessage());
+        throw new IllegalArgumentException(exceptionList.get(0)
+          .getMessage());
       }
     }
     for (final Exception ex : exceptionList) {
@@ -97,11 +99,15 @@ public class AcceptCharset {
     Collections.sort(toSort, new Comparator<AcceptCharset>() {
       @Override
       public int compare(final AcceptCharset a1, final AcceptCharset a2) {
-        final int compare = a2.getQuality().compareTo(a1.getQuality());
+        final int compare = a2.getQuality()
+          .compareTo(a1.getQuality());
         if (compare != 0) {
           return compare;
         }
-        return a2.getParameters().size() - a1.getParameters().size();
+        return a2.getParameters()
+          .size()
+          - a1.getParameters()
+            .size();
       }
     });
   }
@@ -119,7 +125,8 @@ public class AcceptCharset {
     if (!UTF8_CHARSET.equalsIgnoreCase(this.charset)
       && !UTF8_CHARSET1.equalsIgnoreCase(this.charset)
       && !TypeUtil.MEDIA_TYPE_WILDCARD.equals(this.charset)) {
-      if (CHARSET_PATTERN.matcher(this.charset).matches()) {
+      if (CHARSET_PATTERN.matcher(this.charset)
+        .matches()) {
         throw new UnsupportedCharsetException(
           "Unsupported charset in accept charset header:" + charset);
       } else {
@@ -127,7 +134,8 @@ public class AcceptCharset {
       }
     }
     for (final Entry<String, String> param : this.parameters.entrySet()) {
-      if (!param.getKey().equals(TypeUtil.PARAMETER_Q)) {
+      if (!param.getKey()
+        .equals(TypeUtil.PARAMETER_Q)) {
         throw new IllegalArgumentException(
           "Illegal parameters in accept charset header:" + charset);
       }
@@ -135,7 +143,8 @@ public class AcceptCharset {
     final String q = this.parameters.get(TypeUtil.PARAMETER_Q);
     if (q == null) {
       this.quality = 1F;
-    } else if (Q_PATTERN.matcher(q).matches()) {
+    } else if (Q_PATTERN.matcher(q)
+      .matches()) {
       this.quality = Float.valueOf(q);
     } else {
       throw new IllegalArgumentException(
@@ -172,7 +181,10 @@ public class AcceptCharset {
     final StringBuilder result = new StringBuilder();
     result.append(this.charset);
     for (final Map.Entry<String, String> entry : this.parameters.entrySet()) {
-      result.append(';').append(entry.getKey()).append('=').append(entry.getValue());
+      result.append(';')
+        .append(entry.getKey())
+        .append('=')
+        .append(entry.getValue());
     }
 
     return result.toString();

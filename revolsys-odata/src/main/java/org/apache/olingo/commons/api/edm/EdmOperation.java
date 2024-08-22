@@ -20,6 +20,8 @@ package org.apache.olingo.commons.api.edm;
 
 import java.util.List;
 
+import com.revolsys.io.PathName;
+
 /**
  * A EdmOperation can either be an {@link EdmAction} or an {@link EdmFunction}.
  */
@@ -28,7 +30,7 @@ public interface EdmOperation extends EdmType, EdmAnnotatable {
   /**
    * @return the fullqualified type name of the binding parameter
    */
-  FullQualifiedName getBindingParameterTypeFqn();
+  PathName getBindingParameterTypePathName();
 
   /**
    * @return the entity set path as a String or null if not present

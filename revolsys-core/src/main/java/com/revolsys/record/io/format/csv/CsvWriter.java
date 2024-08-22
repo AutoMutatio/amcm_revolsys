@@ -5,7 +5,6 @@ import java.io.Writer;
 import java.util.Collection;
 
 import com.revolsys.exception.Exceptions;
-import com.revolsys.io.FileUtil;
 import com.revolsys.util.BaseCloseable;
 
 public class CsvWriter implements BaseCloseable {
@@ -32,7 +31,7 @@ public class CsvWriter implements BaseCloseable {
   @Override
   public void close() {
     flush();
-    FileUtil.closeSilent(this.out);
+    BaseCloseable.closeSilent(this.out);
   }
 
   public void flush() {
@@ -92,7 +91,7 @@ public class CsvWriter implements BaseCloseable {
       }
       out.write(this.newLine);
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 }

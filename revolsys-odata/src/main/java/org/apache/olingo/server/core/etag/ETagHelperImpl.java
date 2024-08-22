@@ -32,8 +32,8 @@ public class ETagHelperImpl implements ETagHelper {
     if (eTag != null) {
       final ETagInformation ifMatch = createETagInformation(ifMatchHeaders);
       final ETagInformation ifNoneMatch = createETagInformation(ifNoneMatchHeaders);
-      if (!ifMatch.isMatchedBy(eTag) && !ifMatch.getETags().isEmpty()
-        || ifNoneMatch.isMatchedBy(eTag)) {
+      if (!ifMatch.isMatchedBy(eTag) && !ifMatch.getETags()
+        .isEmpty() || ifNoneMatch.isMatchedBy(eTag)) {
         throw new PreconditionException("The preconditions are not fulfilled.",
           PreconditionException.MessageKeys.FAILED);
       }
@@ -45,7 +45,8 @@ public class ETagHelperImpl implements ETagHelper {
     final Collection<String> ifNoneMatchHeaders) throws PreconditionException {
     if (eTag != null) {
       final ETagInformation ifMatch = createETagInformation(ifMatchHeaders);
-      if (!ifMatch.isMatchedBy(eTag) && !ifMatch.getETags().isEmpty()) {
+      if (!ifMatch.isMatchedBy(eTag) && !ifMatch.getETags()
+        .isEmpty()) {
         throw new PreconditionException("The If-Match precondition is not fulfilled.",
           PreconditionException.MessageKeys.FAILED);
       }
@@ -63,7 +64,8 @@ public class ETagHelperImpl implements ETagHelper {
    */
   protected ETagInformation createETagInformation(final Collection<String> values) {
     final Collection<String> eTags = ETagParser.parse(values);
-    final boolean isAll = eTags.size() == 1 && "*".equals(eTags.iterator().next());
+    final boolean isAll = eTags.size() == 1 && "*".equals(eTags.iterator()
+      .next());
     return new ETagInformation(isAll,
       isAll ? Collections.<String> emptySet() : Collections.unmodifiableCollection(eTags));
   }

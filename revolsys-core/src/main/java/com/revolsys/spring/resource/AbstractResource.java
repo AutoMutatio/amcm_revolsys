@@ -34,7 +34,7 @@ public abstract class AbstractResource extends org.springframework.core.io.Abstr
       final Path path = Paths.get(uri);
       return path.toFile();
     } catch (final URISyntaxException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 

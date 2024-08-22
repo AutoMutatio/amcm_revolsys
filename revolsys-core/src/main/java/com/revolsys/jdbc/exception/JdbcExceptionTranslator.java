@@ -11,7 +11,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.support.SQLErrorCodeSQLExceptionTranslator;
 import org.springframework.jdbc.support.SQLErrorCodesFactory;
 
-import com.revolsys.jdbc.io.DataSourceImpl;
+import com.revolsys.jdbc.JdbcDataSourceImpl;
 import com.revolsys.log.LogbackUtil;
 import com.revolsys.util.Property;
 
@@ -39,8 +39,8 @@ public class JdbcExceptionTranslator extends SQLErrorCodeSQLExceptionTranslator 
       setDataSource(dataSource);
     } catch (final Exception e) {
     }
-    if (dataSource instanceof DataSourceImpl) {
-      final DataSourceImpl dataSourceImpl = (DataSourceImpl)dataSource;
+    if (dataSource instanceof JdbcDataSourceImpl) {
+      final JdbcDataSourceImpl dataSourceImpl = (JdbcDataSourceImpl)dataSource;
       this.driverClassName = dataSourceImpl.getDriverClassName();
     }
   }

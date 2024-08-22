@@ -104,9 +104,13 @@ public class CsdlLogicalOrComparisonExpression extends CsdlDynamicExpression
     if (csdlLogCompAnnot == null) {
       return false;
     }
-    if (this.getAnnotations().size() == csdlLogCompAnnot.size()) {
-      for (int i = 0; i < this.getAnnotations().size(); i++) {
-        if (!this.getAnnotations().get(i).equals(csdlLogCompAnnot.get(i))) {
+    if (this.getAnnotations()
+      .size() == csdlLogCompAnnot.size()) {
+      for (int i = 0; i < this.getAnnotations()
+        .size(); i++) {
+        if (!this.getAnnotations()
+          .get(i)
+          .equals(csdlLogCompAnnot.get(i))) {
           return false;
         }
       }
@@ -123,11 +127,14 @@ public class CsdlLogicalOrComparisonExpression extends CsdlDynamicExpression
     }
     final CsdlLogicalOrComparisonExpression csdlLogComp = (CsdlLogicalOrComparisonExpression)obj;
     return (this.getLeft() == null ? csdlLogComp.getLeft() == null
-      : this.getLeft().equals(csdlLogComp.getLeft()))
+      : this.getLeft()
+        .equals(csdlLogComp.getLeft()))
       && (this.getRight() == null ? csdlLogComp.getRight() == null
-        : this.getRight().equals(csdlLogComp.getRight()))
+        : this.getRight()
+          .equals(csdlLogComp.getRight()))
       && (this.getType() == null ? csdlLogComp.getType() == null
-        : this.getType().equals(csdlLogComp.getType()))
+        : this.getType()
+          .equals(csdlLogComp.getType()))
       && (this.getAnnotations() == null ? csdlLogComp.getAnnotations() == null
         : checkAnnotations(csdlLogComp.getAnnotations()));
   }

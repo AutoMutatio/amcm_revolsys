@@ -17,7 +17,6 @@ import com.revolsys.io.PathUtil;
 import com.revolsys.io.filter.ExtensionFilenameFilter;
 import com.revolsys.properties.ObjectWithProperties;
 import com.revolsys.record.Record;
-import com.revolsys.record.io.RecordIterator;
 import com.revolsys.record.io.RecordReader;
 import com.revolsys.record.io.RecordWriter;
 import com.revolsys.record.query.Query;
@@ -31,6 +30,7 @@ import com.revolsys.record.schema.RecordStoreSchema;
 import com.revolsys.record.schema.RecordStoreSchemaElement;
 import com.revolsys.spring.resource.PathResource;
 import com.revolsys.spring.resource.Resource;
+import com.revolsys.util.BaseCloseable;
 
 public class DirectoryRecordStore extends AbstractRecordStore {
 
@@ -78,7 +78,7 @@ public class DirectoryRecordStore extends AbstractRecordStore {
     synchronized (this.writers) {
       writer = this.writers.remove(typeName);
     }
-    FileUtil.closeSilent(writer);
+    BaseCloseable.closeSilent(writer);
   }
 
   @Override
@@ -132,7 +132,7 @@ public class DirectoryRecordStore extends AbstractRecordStore {
   }
 
   @Override
-  public RecordReader getRecords(final PathName path) {
+  public RecordReader getRecordReader(final PathName path) {
     final RecordDefinition recordDefinition = getRecordDefinition(path);
     final Resource resource = getResource(path.toString(), recordDefinition);
     final RecordReader reader = RecordReader.newRecordReader(resource);
@@ -144,6 +144,14 @@ public class DirectoryRecordStore extends AbstractRecordStore {
       reader.setProperty("typePath", typePath);
       return reader;
     }
+  }
+
+  @Override
+  public RecordReader getRecords(final Query query) {
+    final PathName path = query.getTablePath();
+    final RecordReader reader = getRecordReader(path);
+    reader.setProperties(getProperties());
+    return new RecordReaderQueryIterator(reader, query);
   }
 
   @Override
@@ -228,14 +236,6 @@ public class DirectoryRecordStore extends AbstractRecordStore {
       }
       return recordDefinition;
     }
-  }
-
-  @Override
-  public RecordIterator newIterator(final Query query, final Map<String, Object> properties) {
-    final PathName path = query.getTablePath();
-    final RecordReader reader = getRecords(path);
-    reader.setProperties(properties);
-    return new RecordReaderQueryIterator(reader, query);
   }
 
   @Override

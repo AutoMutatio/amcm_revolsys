@@ -53,7 +53,8 @@ public class ETagParser {
     final Set<String> result = new HashSet<>();
     for (final String value : values) {
       final Collection<String> part = parse(value);
-      if (part.size() == 1 && "*".equals(part.iterator().next())) {
+      if (part.size() == 1 && "*".equals(part.iterator()
+        .next())) {
         return part;
       } else {
         result.addAll(part);

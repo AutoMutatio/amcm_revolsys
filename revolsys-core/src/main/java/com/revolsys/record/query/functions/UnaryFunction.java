@@ -11,7 +11,7 @@ import com.revolsys.record.query.QueryValue;
 import com.revolsys.record.query.SqlAppendable;
 import com.revolsys.record.schema.RecordStore;
 
-public abstract class UnaryFunction extends AbstractUnaryQueryValue implements Function {
+public class UnaryFunction extends AbstractUnaryQueryValue implements Function {
 
   private final String name;
 

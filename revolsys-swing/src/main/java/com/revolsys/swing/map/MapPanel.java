@@ -37,6 +37,7 @@ import org.jdesktop.swingx.JXBusyLabel;
 
 import com.revolsys.awt.WebColors;
 import com.revolsys.collection.map.Maps;
+import com.revolsys.collection.value.GlobalBooleanValue;
 import com.revolsys.data.type.DataType;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.BoundingBoxProxy;
@@ -98,7 +99,6 @@ import com.revolsys.util.CaseConverter;
 import com.revolsys.util.Pair;
 import com.revolsys.util.Preferences;
 import com.revolsys.util.Property;
-import com.revolsys.value.GlobalBooleanValue;
 
 public class MapPanel extends JPanel implements GeometryFactoryProxy, PropertyChangeListener {
   public static final String MAP_PANEL = "INTERNAL_layeredPanel";

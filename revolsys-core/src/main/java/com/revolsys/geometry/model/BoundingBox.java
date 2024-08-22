@@ -899,7 +899,7 @@ public interface BoundingBox
 
   default <Q extends Quantity<Q>> Quantity<Q> getMaximum(final int axisIndex) {
     final Unit<Q> unit = getUnit();
-    final double max = this.getMax(axisIndex);
+    final double max = getMax(axisIndex);
     return Quantities.getQuantity(max, unit);
   }
 
@@ -941,7 +941,7 @@ public interface BoundingBox
 
   default <Q extends Quantity<Q>> Quantity<Q> getMinimum(final int axisIndex) {
     final Unit<Q> unit = getUnit();
-    final double min = this.getMin(axisIndex);
+    final double min = getMin(axisIndex);
     return Quantities.getQuantity(min, unit);
   }
 

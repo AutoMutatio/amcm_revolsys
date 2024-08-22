@@ -50,6 +50,18 @@ public final class PathName implements Comparable<PathName>, CharSequence {
     }
   }
 
+  public static PathName fromDotSeparated(final String path) {
+    var pathName = ROOT;
+    for (var part : path.strip()
+      .split("(\\.+)")) {
+      part = part.strip();
+      if (part.length() > 0) {
+        pathName = pathName.newChild(part);
+      }
+    }
+    return pathName;
+  }
+
   private static String getName(final String path) {
     if (path == null) {
       return null;
@@ -76,7 +88,8 @@ public final class PathName implements Comparable<PathName>, CharSequence {
       if (name.length() == 0) {
         return "/";
       } else {
-        return name.reverse().toString();
+        return name.reverse()
+          .toString();
       }
     }
   }
@@ -129,12 +142,20 @@ public final class PathName implements Comparable<PathName>, CharSequence {
     } else if (object instanceof PathName) {
       return equals((PathName)object);
     } else {
-      final String upperPath = object.toString().toUpperCase();
+      final String upperPath = object.toString()
+        .toUpperCase();
       return this.upperPath.equals(upperPath);
     }
   }
 
   public boolean equals(final PathName pathName) {
+    if (pathName != null) {
+      return this.upperPath.equals(pathName.upperPath);
+    }
+    return false;
+  }
+
+  public boolean equalsIgnoreCase(final PathName pathName) {
     if (pathName != null) {
       return this.upperPath.equals(pathName.upperPath);
     }
@@ -344,6 +365,15 @@ public final class PathName implements Comparable<PathName>, CharSequence {
   @Override
   public CharSequence subSequence(final int start, final int end) {
     return this.path.subSequence(start, end);
+  }
+
+  public String toDotSeparated() {
+    if (this.path.length() <= 1) {
+      return "";
+    } else {
+      return this.path.substring(1)
+        .replace('/', '.');
+    }
   }
 
   @Override

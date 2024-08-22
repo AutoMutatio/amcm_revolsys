@@ -30,7 +30,6 @@ import org.apache.olingo.commons.api.edm.EdmActionImport;
 import org.apache.olingo.commons.api.edm.EdmAnnotatable;
 import org.apache.olingo.commons.api.edm.EdmAnnotation;
 import org.apache.olingo.commons.api.edm.EdmAnnotations;
-import org.apache.olingo.commons.api.edm.EdmBindingTarget;
 import org.apache.olingo.commons.api.edm.EdmComplexType;
 import org.apache.olingo.commons.api.edm.EdmEntityContainer;
 import org.apache.olingo.commons.api.edm.EdmEntitySet;
@@ -42,47 +41,47 @@ import org.apache.olingo.commons.api.edm.EdmFunctionImport;
 import org.apache.olingo.commons.api.edm.EdmKeyPropertyRef;
 import org.apache.olingo.commons.api.edm.EdmMember;
 import org.apache.olingo.commons.api.edm.EdmNavigationProperty;
-import org.apache.olingo.commons.api.edm.EdmNavigationPropertyBinding;
 import org.apache.olingo.commons.api.edm.EdmOperation;
 import org.apache.olingo.commons.api.edm.EdmParameter;
 import org.apache.olingo.commons.api.edm.EdmProperty;
 import org.apache.olingo.commons.api.edm.EdmReferentialConstraint;
 import org.apache.olingo.commons.api.edm.EdmReturnType;
 import org.apache.olingo.commons.api.edm.EdmSchema;
-import org.apache.olingo.commons.api.edm.EdmSingleton;
 import org.apache.olingo.commons.api.edm.EdmStructuredType;
 import org.apache.olingo.commons.api.edm.EdmTerm;
 import org.apache.olingo.commons.api.edm.EdmType;
 import org.apache.olingo.commons.api.edm.EdmTypeDefinition;
-import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.TargetType;
-import org.apache.olingo.commons.api.edm.annotation.EdmApply;
-import org.apache.olingo.commons.api.edm.annotation.EdmCast;
-import org.apache.olingo.commons.api.edm.annotation.EdmConstantExpression;
-import org.apache.olingo.commons.api.edm.annotation.EdmDynamicExpression;
 import org.apache.olingo.commons.api.edm.annotation.EdmExpression;
-import org.apache.olingo.commons.api.edm.annotation.EdmIf;
-import org.apache.olingo.commons.api.edm.annotation.EdmIsOf;
-import org.apache.olingo.commons.api.edm.annotation.EdmLabeledElement;
-import org.apache.olingo.commons.api.edm.annotation.EdmLabeledElementReference;
-import org.apache.olingo.commons.api.edm.annotation.EdmLogicalOrComparisonExpression;
-import org.apache.olingo.commons.api.edm.annotation.EdmNavigationPropertyPath;
-import org.apache.olingo.commons.api.edm.annotation.EdmNot;
-import org.apache.olingo.commons.api.edm.annotation.EdmNull;
-import org.apache.olingo.commons.api.edm.annotation.EdmPath;
-import org.apache.olingo.commons.api.edm.annotation.EdmPropertyPath;
 import org.apache.olingo.commons.api.edm.annotation.EdmPropertyValue;
-import org.apache.olingo.commons.api.edm.annotation.EdmRecord;
-import org.apache.olingo.commons.api.edm.annotation.EdmUrlRef;
 import org.apache.olingo.commons.api.edm.constants.EdmTypeKind;
 import org.apache.olingo.commons.api.edmx.EdmxReference;
 import org.apache.olingo.commons.api.edmx.EdmxReferenceInclude;
 import org.apache.olingo.commons.api.edmx.EdmxReferenceIncludeAnnotation;
+import org.apache.olingo.commons.core.edm.EdmBindingTarget;
+import org.apache.olingo.commons.core.edm.EdmSingleton;
+import org.apache.olingo.commons.core.edm.annotation.AbstractEdmDynamicExpression;
+import org.apache.olingo.commons.core.edm.annotation.EdmApply;
+import org.apache.olingo.commons.core.edm.annotation.EdmCast;
+import org.apache.olingo.commons.core.edm.annotation.EdmConstantExpression;
+import org.apache.olingo.commons.core.edm.annotation.EdmIf;
+import org.apache.olingo.commons.core.edm.annotation.EdmIsOf;
+import org.apache.olingo.commons.core.edm.annotation.EdmLabeledElement;
+import org.apache.olingo.commons.core.edm.annotation.EdmLabeledElementReference;
+import org.apache.olingo.commons.core.edm.annotation.EdmLogicalOrComparisonExpression;
+import org.apache.olingo.commons.core.edm.annotation.EdmNavigationPropertyPath;
+import org.apache.olingo.commons.core.edm.annotation.EdmNot;
+import org.apache.olingo.commons.core.edm.annotation.EdmNull;
+import org.apache.olingo.commons.core.edm.annotation.EdmPath;
+import org.apache.olingo.commons.core.edm.annotation.EdmPropertyPath;
+import org.apache.olingo.commons.core.edm.annotation.EdmRecord;
+import org.apache.olingo.commons.core.edm.annotation.EdmUrlRef;
 import org.apache.olingo.server.api.ServiceMetadata;
 import org.apache.olingo.server.api.serializer.Kind;
 import org.apache.olingo.server.api.serializer.SerializerException;
 
 import com.revolsys.collection.json.JsonWriter;
+import com.revolsys.io.PathName;
 
 public class MetadataDocumentJsonSerializer {
 
@@ -134,8 +133,6 @@ public class MetadataDocumentJsonSerializer {
 
   private static final String NULLABLE = DOLLAR + "Nullable";
 
-  private static final String UNICODE = DOLLAR + "Unicode";
-
   private static final String DEFAULT_VALUE = DOLLAR + "DefaultValue";
 
   private static final String PARTNER = DOLLAR + "Partner";
@@ -178,7 +175,7 @@ public class MetadataDocumentJsonSerializer {
 
   private final ServiceMetadata serviceMetadata;
 
-  private final Map<String, String> namespaceToAlias = new HashMap<>();
+  private final Map<PathName, PathName> namespaceToAlias = new HashMap<>();
 
   public MetadataDocumentJsonSerializer(final ServiceMetadata serviceMetadata)
     throws SerializerException {
@@ -190,16 +187,17 @@ public class MetadataDocumentJsonSerializer {
   }
 
   private void appendActionImports(final JsonWriter json, final List<EdmActionImport> actionImports,
-    final String containerNamespace) throws SerializerException, IOException {
+    final PathName containerNamespace) throws SerializerException, IOException {
     for (final EdmActionImport actionImport : actionImports) {
       json.label(actionImport.getName());
       json.startObject();
       json.labelValue(KIND, Kind.ActionImport.name());
       json.labelValue(DOLLAR + Kind.Action.name(),
-        getAliasedFullQualifiedName(actionImport.getUnboundAction()));
+        getAliasedPathName(actionImport.getUnboundAction()));
       if (actionImport.getReturnedEntitySet() != null) {
         json.labelValue(DOLLAR + Kind.EntitySet.name(),
-          containerNamespace + "." + actionImport.getReturnedEntitySet().getName());
+          containerNamespace.toDotSeparated() + "." + actionImport.getReturnedEntitySet()
+            .getName());
       }
       appendAnnotations(json, actionImport, null);
       json.endObject();
@@ -277,8 +275,8 @@ public class MetadataDocumentJsonSerializer {
       for (final EdmAnnotation annotation : annotations) {
         String termName = memberName != null ? memberName : "";
         if (annotation.getTerm() != null) {
-          termName += "@"
-            + getAliasedFullQualifiedName(annotation.getTerm().getFullQualifiedName());
+          termName += "@" + getAliasedPathName(annotation.getTerm()
+            .getPathName());
         }
         if (annotation.getQualifier() != null) {
           termName += "#" + annotation.getQualifier();
@@ -301,7 +299,7 @@ public class MetadataDocumentJsonSerializer {
 
       json.labelValue(KIND, Kind.ComplexType.name());
       if (complexType.getBaseType() != null) {
-        json.labelValue(BASE_TYPE, getAliasedFullQualifiedName(complexType.getBaseType()));
+        json.labelValue(BASE_TYPE, getAliasedPathName(complexType.getBaseType()));
       }
 
       if (complexType.isAbstract()) {
@@ -402,200 +400,182 @@ public class MetadataDocumentJsonSerializer {
   }
 
   private void appendDataServices(final JsonWriter json) throws SerializerException, IOException {
-    for (final EdmSchema schema : this.serviceMetadata.getEdm().getSchemas()) {
+    for (final EdmSchema schema : this.serviceMetadata.getEdm()
+      .getSchemas()) {
       appendSchema(json, schema);
     }
   }
 
-  private void appendDynamicExpression(final JsonWriter json, final EdmDynamicExpression dynExp,
-    final String termName) throws SerializerException, IOException {
+  private void appendDynamicExpression(final JsonWriter json,
+    final AbstractEdmDynamicExpression dynExp, final String termName)
+    throws SerializerException, IOException {
     if (termName != null) {
       json.label(termName);
     }
-    switch (dynExp.getExpressionType()) {
-      // Logical
-      case And:
-        appendLogicalOrComparisonExpression(json, dynExp.asAnd());
-      break;
-      case Or:
-        appendLogicalOrComparisonExpression(json, dynExp.asOr());
-      break;
-      case Not:
-        appendNotExpression(json, dynExp.asNot());
-      break;
-      // Comparison
-      case Eq:
-        appendLogicalOrComparisonExpression(json, dynExp.asEq());
-      break;
-      case Ne:
-        appendLogicalOrComparisonExpression(json, dynExp.asNe());
-      break;
-      case Gt:
-        appendLogicalOrComparisonExpression(json, dynExp.asGt());
-      break;
-      case Ge:
-        appendLogicalOrComparisonExpression(json, dynExp.asGe());
-      break;
-      case Lt:
-        appendLogicalOrComparisonExpression(json, dynExp.asLt());
-      break;
-      case Le:
-        appendLogicalOrComparisonExpression(json, dynExp.asLe());
-      break;
-      case AnnotationPath:
-        json.startObject();
-        json.labelValue(ANNOTATION_PATH, dynExp.asAnnotationPath().getValue());
-        json.endObject();
-      break;
-      case Apply:
-        final EdmApply asApply = dynExp.asApply();
-        json.startObject();
-        json.label(DOLLAR + asApply.getExpressionName());
-        json.startList();
-        for (final EdmExpression parameter : asApply.getParameters()) {
-          appendExpression(json, parameter, null);
-        }
-        json.endList();
-        json.labelValue(DOLLAR + Kind.Function.name(), asApply.getFunction());
-
-        appendAnnotations(json, asApply, null);
-        json.endObject();
-      break;
-      case Cast:
-        final EdmCast asCast = dynExp.asCast();
-        json.startObject();
-        appendExpression(json, asCast.getValue(), DOLLAR + asCast.getExpressionName());
-        json.labelValue(TYPE, getAliasedFullQualifiedName(asCast.getType()));
-
-        if (asCast.getMaxLength() != null) {
-          json.labelValue(MAX_LENGTH, asCast.getMaxLength());
-        }
-
-        if (asCast.getPrecision() != null) {
-          json.labelValue(PRECISION, asCast.getPrecision());
-        }
-
-        if (asCast.getScale() != null) {
-          json.labelValue(SCALE, asCast.getScale());
-        }
-        appendAnnotations(json, asCast, null);
-        json.endObject();
-      break;
-      case Collection:
-        json.startList();
-        for (final EdmExpression item : dynExp.asCollection().getItems()) {
-          appendExpression(json, item, null);
-        }
-        json.endList();
-      break;
-      case If:
-        final EdmIf asIf = dynExp.asIf();
-        json.startObject();
-        json.label(DOLLAR + asIf.getExpressionName());
-        json.startList();
-        appendExpression(json, asIf.getGuard(), null);
-        appendExpression(json, asIf.getThen(), null);
-        appendExpression(json, asIf.getElse(), null);
-        json.endList();
-        appendAnnotations(json, asIf, null);
-        json.endObject();
-      break;
-      case IsOf:
-        final EdmIsOf asIsOf = dynExp.asIsOf();
-        json.startObject();
-        appendExpression(json, asIsOf.getValue(), DOLLAR + asIsOf.getExpressionName());
-
-        json.labelValue(TYPE, getAliasedFullQualifiedName(asIsOf.getType()));
-
-        if (asIsOf.getMaxLength() != null) {
-          json.labelValue(MAX_LENGTH, asIsOf.getMaxLength());
-        }
-
-        if (asIsOf.getPrecision() != null) {
-          json.labelValue(PRECISION, asIsOf.getPrecision());
-        }
-
-        if (asIsOf.getScale() != null) {
-          json.labelValue(SCALE, asIsOf.getScale());
-        }
-        appendAnnotations(json, asIsOf, null);
-        json.endObject();
-      break;
-      case LabeledElement:
-        final EdmLabeledElement asLabeledElement = dynExp.asLabeledElement();
-        json.startObject();
-        appendExpression(json, asLabeledElement.getValue(),
-          DOLLAR + asLabeledElement.getExpressionName());
-        json.labelValue(NAME, asLabeledElement.getName());
-        appendAnnotations(json, asLabeledElement, null);
-        json.endObject();
-      break;
-      case LabeledElementReference:
-        final EdmLabeledElementReference asLabeledElementReference = dynExp
-          .asLabeledElementReference();
-        json.startObject();
-        json.labelValue(DOLLAR + asLabeledElementReference.getExpressionName(),
-          asLabeledElementReference.getValue());
-        json.endObject();
-      break;
-      case Null:
-        final EdmNull asNull = dynExp.asNull();
-        json.startObject();
-        json.labelValue(DOLLAR + asNull.getExpressionName(), null);
-        appendAnnotations(json, dynExp.asNull(), null);
-        json.endObject();
-      break;
-      case NavigationPropertyPath:
-        final EdmNavigationPropertyPath asNavigationPropertyPath = dynExp
-          .asNavigationPropertyPath();
-        json.startObject();
-        json.labelValue(DOLLAR + asNavigationPropertyPath.getExpressionName(),
-          asNavigationPropertyPath.getValue());
-        json.endObject();
-      break;
-      case Path:
-        final EdmPath asPath = dynExp.asPath();
-        json.startObject();
-        json.labelValue(DOLLAR + asPath.getExpressionName(), asPath.getValue());
-        json.endObject();
-      break;
-      case PropertyPath:
-        final EdmPropertyPath asPropertyPath = dynExp.asPropertyPath();
-        json.startObject();
-        json.labelValue(DOLLAR + asPropertyPath.getExpressionName(), asPropertyPath.getValue());
-        json.endObject();
-      break;
-      case Record:
-        final EdmRecord asRecord = dynExp.asRecord();
-        json.startObject();
-        try {
-          final EdmStructuredType structuredType = asRecord.getType();
-          if (structuredType != null) {
-            json.labelValue(TYPE, getAliasedFullQualifiedName(structuredType));
+    if (dynExp instanceof final EdmLogicalOrComparisonExpression logical) {
+      appendLogicalOrComparisonExpression(json, logical);
+    } else {
+      switch (dynExp.getExpressionType()) {
+        case Not:
+          appendNotExpression(json, (EdmNot)dynExp);
+        break;
+        case AnnotationPath:
+          json.startObject();
+          json.labelValue(ANNOTATION_PATH, dynExp.asAnnotationPath()
+            .getValue());
+          json.endObject();
+        break;
+        case Apply:
+          final EdmApply asApply = dynExp.asApply();
+          json.startObject();
+          json.label(DOLLAR + asApply.getExpressionName());
+          json.startList();
+          for (final EdmExpression parameter : asApply.getParameters()) {
+            appendExpression(json, parameter, null);
           }
-        } catch (final EdmException e) {
-          final FullQualifiedName type = asRecord.getTypeFQN();
-          if (type != null) {
-            json.labelValue(TYPE, getAliasedFullQualifiedName(type));
+          json.endList();
+          json.labelValue(DOLLAR + Kind.Function.name(), asApply.getFunction());
+
+          appendAnnotations(json, asApply, null);
+          json.endObject();
+        break;
+        case Cast:
+          final EdmCast asCast = dynExp.asCast();
+          json.startObject();
+          appendExpression(json, asCast.getValue(), DOLLAR + asCast.getExpressionName());
+          json.labelValue(TYPE, getAliasedPathName(asCast.getType()));
+
+          if (asCast.getMaxLength() != null) {
+            json.labelValue(MAX_LENGTH, asCast.getMaxLength());
           }
-        }
-        for (final EdmPropertyValue propValue : asRecord.getPropertyValues()) {
-          appendExpression(json, propValue.getValue(), propValue.getProperty());
-          appendAnnotations(json, propValue, propValue.getProperty());
-        }
-        appendAnnotations(json, asRecord, null);
-        json.endObject();
-      break;
-      case UrlRef:
-        final EdmUrlRef asUrlRef = dynExp.asUrlRef();
-        json.startObject();
-        appendExpression(json, asUrlRef.getValue(), DOLLAR + asUrlRef.getExpressionName());
-        appendAnnotations(json, asUrlRef, null);
-        json.endObject();
-      break;
-      default:
-        throw new IllegalArgumentException(
-          "Unkown ExpressionType for dynamic expression: " + dynExp.getExpressionType());
+
+          if (asCast.getPrecision() != null) {
+            json.labelValue(PRECISION, asCast.getPrecision());
+          }
+
+          if (asCast.getScale() != null) {
+            json.labelValue(SCALE, asCast.getScale());
+          }
+          appendAnnotations(json, asCast, null);
+          json.endObject();
+        break;
+        case Collection:
+          json.startList();
+          for (final EdmExpression item : dynExp.asCollection()
+            .getItems()) {
+            appendExpression(json, item, null);
+          }
+          json.endList();
+        break;
+        case If:
+          final EdmIf asIf = dynExp.asIf();
+          json.startObject();
+          json.label(DOLLAR + asIf.getExpressionName());
+          json.startList();
+          appendExpression(json, asIf.getGuard(), null);
+          appendExpression(json, asIf.getThen(), null);
+          appendExpression(json, asIf.getElse(), null);
+          json.endList();
+          appendAnnotations(json, asIf, null);
+          json.endObject();
+        break;
+        case IsOf:
+          final EdmIsOf asIsOf = dynExp.asIsOf();
+          json.startObject();
+          appendExpression(json, asIsOf.getValue(), DOLLAR + asIsOf.getExpressionName());
+
+          json.labelValue(TYPE, getAliasedPathName(asIsOf.getType()));
+
+          if (asIsOf.getMaxLength() != null) {
+            json.labelValue(MAX_LENGTH, asIsOf.getMaxLength());
+          }
+
+          if (asIsOf.getPrecision() != null) {
+            json.labelValue(PRECISION, asIsOf.getPrecision());
+          }
+
+          if (asIsOf.getScale() != null) {
+            json.labelValue(SCALE, asIsOf.getScale());
+          }
+          appendAnnotations(json, asIsOf, null);
+          json.endObject();
+        break;
+        case LabeledElement:
+          final EdmLabeledElement asLabeledElement = dynExp.asLabeledElement();
+          json.startObject();
+          appendExpression(json, asLabeledElement.getValue(),
+            DOLLAR + asLabeledElement.getExpressionName());
+          json.labelValue(NAME, asLabeledElement.getName());
+          appendAnnotations(json, asLabeledElement, null);
+          json.endObject();
+        break;
+        case LabeledElementReference:
+          final EdmLabeledElementReference asLabeledElementReference = dynExp
+            .asLabeledElementReference();
+          json.startObject();
+          json.labelValue(DOLLAR + asLabeledElementReference.getExpressionName(),
+            asLabeledElementReference.getValue());
+          json.endObject();
+        break;
+        case Null:
+          final EdmNull asNull = dynExp.asNull();
+          json.startObject();
+          json.labelValue(DOLLAR + asNull.getExpressionName(), null);
+          appendAnnotations(json, dynExp.asNull(), null);
+          json.endObject();
+        break;
+        case NavigationPropertyPath:
+          final EdmNavigationPropertyPath asNavigationPropertyPath = dynExp
+            .asNavigationPropertyPath();
+          json.startObject();
+          json.labelValue(DOLLAR + asNavigationPropertyPath.getExpressionName(),
+            asNavigationPropertyPath.getValue());
+          json.endObject();
+        break;
+        case Path:
+          final EdmPath asPath = dynExp.asPath();
+          json.startObject();
+          json.labelValue(DOLLAR + asPath.getExpressionName(), asPath.getValue());
+          json.endObject();
+        break;
+        case PropertyPath:
+          final EdmPropertyPath asPropertyPath = dynExp.asPropertyPath();
+          json.startObject();
+          json.labelValue(DOLLAR + asPropertyPath.getExpressionName(), asPropertyPath.getValue());
+          json.endObject();
+        break;
+        case Record:
+          final EdmRecord asRecord = dynExp.asRecord();
+          json.startObject();
+          try {
+            final EdmStructuredType structuredType = asRecord.getType();
+            if (structuredType != null) {
+              json.labelValue(TYPE, getAliasedPathName(structuredType));
+            }
+          } catch (final EdmException e) {
+            final var type = asRecord.getTypePathName();
+            if (type != null) {
+              json.labelValue(TYPE, getAliasedPathName(type));
+            }
+          }
+          for (final EdmPropertyValue propValue : asRecord.getPropertyValues()) {
+            appendExpression(json, propValue.getValue(), propValue.getProperty());
+            appendAnnotations(json, propValue, propValue.getProperty());
+          }
+          appendAnnotations(json, asRecord, null);
+          json.endObject();
+        break;
+        case UrlRef:
+          final EdmUrlRef asUrlRef = dynExp.asUrlRef();
+          json.startObject();
+          appendExpression(json, asUrlRef.getValue(), DOLLAR + asUrlRef.getExpressionName());
+          appendAnnotations(json, asUrlRef, null);
+          json.endObject();
+        break;
+        default:
+          throw new IllegalArgumentException(
+            "Unkown ExpressionType for dynamic expression: " + dynExp.getExpressionType());
+      }
     }
   }
 
@@ -605,14 +585,14 @@ public class MetadataDocumentJsonSerializer {
       json.label(container.getName());
       json.startObject();
       json.labelValue(KIND, Kind.EntityContainer.name());
-      final FullQualifiedName parentContainerName = container.getParentContainerName();
+      final var parentContainerName = container.getParentContainerName();
       if (parentContainerName != null) {
         String parentContainerNameString;
-        if (this.namespaceToAlias.get(parentContainerName.getNamespace()) != null) {
-          parentContainerNameString = this.namespaceToAlias.get(parentContainerName.getNamespace())
+        if (this.namespaceToAlias.get(parentContainerName.getParent()) != null) {
+          parentContainerNameString = this.namespaceToAlias.get(parentContainerName.getParent())
             + "." + parentContainerName.getName();
         } else {
-          parentContainerNameString = parentContainerName.getFullQualifiedNameAsString();
+          parentContainerNameString = parentContainerName.toDotSeparated();
         }
         json.label(Kind.Extending.name());
         json.startObject();
@@ -624,7 +604,7 @@ public class MetadataDocumentJsonSerializer {
       // EntitySets
       appendEntitySets(json, container.getEntitySets());
 
-      String containerNamespace;
+      PathName containerNamespace;
       if (this.namespaceToAlias.get(container.getNamespace()) != null) {
         containerNamespace = this.namespaceToAlias.get(container.getNamespace());
       } else {
@@ -653,7 +633,7 @@ public class MetadataDocumentJsonSerializer {
       json.label(entitySet.getName());
       json.startObject();
       json.labelValue(KIND, Kind.EntitySet.name());
-      json.labelValue(TYPE, getAliasedFullQualifiedName(entitySet.getEntityType()));
+      json.labelValue(TYPE, getAliasedPathName(entitySet.getEntityType()));
       if (!entitySet.isIncludeInServiceDocument()) {
         json.labelValue(INCLUDE_IN_SERV_DOC, entitySet.isIncludeInServiceDocument());
       }
@@ -675,7 +655,7 @@ public class MetadataDocumentJsonSerializer {
       }
 
       if (entityType.getBaseType() != null) {
-        json.labelValue(BASE_TYPE, getAliasedFullQualifiedName(entityType.getBaseType()));
+        json.labelValue(BASE_TYPE, getAliasedPathName(entityType.getBaseType()));
       }
 
       if (entityType.isAbstract()) {
@@ -701,7 +681,7 @@ public class MetadataDocumentJsonSerializer {
       json.startObject();
       json.labelValue(KIND, Kind.EnumType.name());
       json.labelValue(IS_FLAGS, enumType.isFlags());
-      json.labelValue(UNDERLYING_TYPE, getFullQualifiedName(enumType.getUnderlyingType()));
+      json.labelValue(UNDERLYING_TYPE, getPathName(enumType.getUnderlyingType()));
 
       for (final String memberName : enumType.getMemberNames()) {
 
@@ -721,17 +701,17 @@ public class MetadataDocumentJsonSerializer {
     if (expression == null) {
       return;
     }
-    if (expression.isConstant()) {
-      appendConstantExpression(json, expression.asConstant(), termName);
-    } else if (expression.isDynamic()) {
-      appendDynamicExpression(json, expression.asDynamic(), termName);
+    if (expression instanceof final EdmConstantExpression constant) {
+      appendConstantExpression(json, constant, termName);
+    } else if (expression instanceof final AbstractEdmDynamicExpression dynamic) {
+      appendDynamicExpression(json, dynamic, termName);
     } else {
       throw new IllegalArgumentException("Unkown expressiontype in metadata");
     }
   }
 
   private void appendFunctionImports(final JsonWriter json,
-    final List<EdmFunctionImport> functionImports, final String containerNamespace)
+    final List<EdmFunctionImport> functionImports, final PathName containerNamespace)
     throws SerializerException, IOException {
     for (final EdmFunctionImport functionImport : functionImports) {
       json.label(functionImport.getName());
@@ -739,19 +719,19 @@ public class MetadataDocumentJsonSerializer {
 
       json.labelValue(KIND, Kind.FunctionImport.name());
       String functionFQNString;
-      final FullQualifiedName functionFqn = functionImport.getFunctionFqn();
-      if (this.namespaceToAlias.get(functionFqn.getNamespace()) != null) {
-        functionFQNString = this.namespaceToAlias.get(functionFqn.getNamespace()) + "."
+      final var functionFqn = functionImport.getFunctionPathName();
+      if (this.namespaceToAlias.get(functionFqn.getParent()) != null) {
+        functionFQNString = this.namespaceToAlias.get(functionFqn.getParent()) + "."
           + functionFqn.getName();
       } else {
-        functionFQNString = functionFqn.getFullQualifiedNameAsString();
+        functionFQNString = functionFqn.toDotSeparated();
       }
       json.labelValue(DOLLAR + Kind.Function.name(), functionFQNString);
 
       final EdmEntitySet returnedEntitySet = functionImport.getReturnedEntitySet();
       if (returnedEntitySet != null) {
         json.labelValue(DOLLAR + Kind.EntitySet.name(),
-          containerNamespace + "." + returnedEntitySet.getName());
+          containerNamespace.toDotSeparated() + "." + returnedEntitySet.getName());
       }
       // Default is false and we do not write the default
       if (functionImport.isIncludeInServiceDocument()) {
@@ -852,7 +832,8 @@ public class MetadataDocumentJsonSerializer {
       // Resolve Base Type key as it is shown in derived type
       final EdmEntityType baseType = entityType.getBaseType();
       if (baseType != null && baseType.getKeyPropertyRefs() != null
-        && !baseType.getKeyPropertyRefs().isEmpty()) {
+        && !baseType.getKeyPropertyRefs()
+          .isEmpty()) {
         return;
       }
       json.label(KEY);
@@ -887,7 +868,8 @@ public class MetadataDocumentJsonSerializer {
     throws SerializerException, IOException {
     final List<String> navigationPropertyNames = new ArrayList<>(type.getNavigationPropertyNames());
     if (type.getBaseType() != null) {
-      navigationPropertyNames.removeAll(type.getBaseType().getNavigationPropertyNames());
+      navigationPropertyNames.removeAll(type.getBaseType()
+        .getNavigationPropertyNames());
     }
     for (final String navigationPropertyName : navigationPropertyNames) {
       final EdmNavigationProperty navigationProperty = type
@@ -896,7 +878,7 @@ public class MetadataDocumentJsonSerializer {
       json.startObject();
       json.labelValue(KIND, Kind.NavigationProperty.name());
 
-      json.labelValue(TYPE, getAliasedFullQualifiedName(navigationProperty.getType()));
+      json.labelValue(TYPE, getAliasedPathName(navigationProperty.getType()));
       if (navigationProperty.isCollection()) {
         json.labelValue(COLLECTION, navigationProperty.isCollection());
       }
@@ -930,7 +912,8 @@ public class MetadataDocumentJsonSerializer {
       if (navigationProperty.getOnDelete() != null) {
         json.label(ON_DELETE);
         json.startObject();
-        json.labelValue(ON_DELETE_PROPERTY, navigationProperty.getOnDelete().getAction());
+        json.labelValue(ON_DELETE_PROPERTY, navigationProperty.getOnDelete()
+          .getAction());
         appendAnnotations(json, navigationProperty.getOnDelete(), null);
         json.endObject();
       }
@@ -944,12 +927,12 @@ public class MetadataDocumentJsonSerializer {
   private void appendNavigationPropertyBindings(final JsonWriter json,
     final EdmBindingTarget bindingTarget) throws SerializerException, IOException {
     if (bindingTarget.getNavigationPropertyBindings() != null
-      && !bindingTarget.getNavigationPropertyBindings().isEmpty()) {
+      && !bindingTarget.getNavigationPropertyBindings()
+        .isEmpty()) {
       json.label(NAVIGATION_PROPERTY_BINDING);
       json.startObject();
-      for (final EdmNavigationPropertyBinding binding : bindingTarget
-        .getNavigationPropertyBindings()) {
-        json.labelValue(binding.getPath(), binding.getTarget());
+      for (final var binding : bindingTarget.getNavigationPropertyBindings()) {
+        json.labelValue(binding.path(), binding.target());
       }
       json.endObject();
     }
@@ -965,7 +948,8 @@ public class MetadataDocumentJsonSerializer {
 
   private void appendOperationParameters(final JsonWriter json, final EdmOperation operation)
     throws SerializerException, IOException {
-    if (!operation.getParameterNames().isEmpty()) {
+    if (!operation.getParameterNames()
+      .isEmpty()) {
       json.label(PARAMETER);
       json.startList();
     }
@@ -974,10 +958,11 @@ public class MetadataDocumentJsonSerializer {
       json.startObject();
       json.labelValue(PARAMETER_NAME, parameterName);
       String typeFqnString;
-      if (EdmTypeKind.PRIMITIVE.equals(parameter.getType().getKind())) {
-        typeFqnString = getFullQualifiedName(parameter.getType());
+      if (EdmTypeKind.PRIMITIVE.equals(parameter.getType()
+        .getKind())) {
+        typeFqnString = getPathName(parameter.getType());
       } else {
-        typeFqnString = getAliasedFullQualifiedName(parameter.getType());
+        typeFqnString = getAliasedPathName(parameter.getType()).toDotSeparated();
       }
       json.labelValue(TYPE, typeFqnString);
       if (parameter.isCollection()) {
@@ -989,7 +974,8 @@ public class MetadataDocumentJsonSerializer {
       appendAnnotations(json, parameter, null);
       json.endObject();
     }
-    if (!operation.getParameterNames().isEmpty()) {
+    if (!operation.getParameterNames()
+      .isEmpty()) {
       json.endList();
     }
   }
@@ -1001,10 +987,11 @@ public class MetadataDocumentJsonSerializer {
       json.label(RETURN_TYPE);
       json.startObject();
       String returnTypeFqnString;
-      if (EdmTypeKind.PRIMITIVE.equals(returnType.getType().getKind())) {
-        returnTypeFqnString = getFullQualifiedName(returnType.getType());
+      if (EdmTypeKind.PRIMITIVE.equals(returnType.getType()
+        .getKind())) {
+        returnTypeFqnString = getPathName(returnType.getType());
       } else {
-        returnTypeFqnString = getAliasedFullQualifiedName(returnType.getType());
+        returnTypeFqnString = getAliasedPathName(returnType.getType()).toDotSeparated();
       }
       json.labelValue(TYPE, returnTypeFqnString);
       if (returnType.isCollection()) {
@@ -1036,7 +1023,8 @@ public class MetadataDocumentJsonSerializer {
     throws SerializerException, IOException {
     final List<String> propertyNames = new ArrayList<>(type.getPropertyNames());
     if (type.getBaseType() != null) {
-      propertyNames.removeAll(type.getBaseType().getPropertyNames());
+      propertyNames.removeAll(type.getBaseType()
+        .getPropertyNames());
     }
     for (final String propertyName : propertyNames) {
       final EdmProperty property = type.getStructuralProperty(propertyName);
@@ -1044,9 +1032,9 @@ public class MetadataDocumentJsonSerializer {
       json.startObject();
       String fqnString;
       if (property.isPrimitive()) {
-        fqnString = getFullQualifiedName(property.getType());
+        fqnString = getPathName(property.getType());
       } else {
-        fqnString = getAliasedFullQualifiedName(property.getType());
+        fqnString = getAliasedPathName(property.getType()).toDotSeparated();
       }
       json.labelValue(TYPE, fqnString);
       if (property.isCollection()) {
@@ -1056,10 +1044,6 @@ public class MetadataDocumentJsonSerializer {
       // Facets
       if (!property.isNullable()) {
         json.labelValue(NULLABLE, property.isNullable());
-      }
-
-      if (!property.isUnicode()) {
-        json.labelValue(UNICODE, property.isUnicode());
       }
 
       if (property.getDefaultValue() != null) {
@@ -1078,7 +1062,7 @@ public class MetadataDocumentJsonSerializer {
         json.labelValue(SCALE, property.getScale());
       }
 
-      if (property.getSrid() != null) {
+      if (property.getSrid() > 0) {
         json.labelValue(SRID, "" + property.getSrid());
       }
 
@@ -1091,7 +1075,8 @@ public class MetadataDocumentJsonSerializer {
     json.label(REFERENCES);
     json.startObject();
     for (final EdmxReference reference : this.serviceMetadata.getReferences()) {
-      json.label(reference.getUri().toASCIIString());
+      json.label(reference.getUri()
+        .toASCIIString());
       json.startObject();
 
       final List<EdmxReferenceInclude> includes = reference.getIncludes();
@@ -1127,7 +1112,8 @@ public class MetadataDocumentJsonSerializer {
 
   private void appendSchema(final JsonWriter json, final EdmSchema schema)
     throws SerializerException, IOException {
-    json.label(schema.getNamespace());
+    json.label(schema.getNamespace()
+      .toDotSeparated());
     json.startObject();
     if (schema.getAlias() != null) {
       json.labelValue(ALIAS, schema.getAlias());
@@ -1171,7 +1157,7 @@ public class MetadataDocumentJsonSerializer {
       json.label(singleton.getName());
       json.startObject();
       json.labelValue(KIND, Kind.Singleton.name());
-      json.labelValue(TYPE, getAliasedFullQualifiedName(singleton.getEntityType()));
+      json.labelValue(TYPE, getAliasedPathName(singleton.getEntityType()));
 
       appendNavigationPropertyBindings(json, singleton);
       appendAnnotations(json, singleton, null);
@@ -1186,14 +1172,15 @@ public class MetadataDocumentJsonSerializer {
       json.startObject();
       json.labelValue(KIND, Kind.Term.name());
 
-      json.labelValue(TYPE, getAliasedFullQualifiedName(term.getType()));
+      json.labelValue(TYPE, getAliasedPathName(term.getType()));
 
       if (term.getBaseTerm() != null) {
-        json.labelValue(BASE_TERM,
-          getAliasedFullQualifiedName(term.getBaseTerm().getFullQualifiedName()));
+        json.labelValue(BASE_TERM, getAliasedPathName(term.getBaseTerm()
+          .getPathName()).toDotSeparated());
       }
 
-      if (term.getAppliesTo() != null && !term.getAppliesTo().isEmpty()) {
+      if (term.getAppliesTo() != null && !term.getAppliesTo()
+        .isEmpty()) {
         String appliesToString = "";
         boolean first = true;
         for (final TargetType target : term.getAppliesTo()) {
@@ -1239,8 +1226,9 @@ public class MetadataDocumentJsonSerializer {
     for (final EdmTypeDefinition definition : typeDefinitions) {
       json.label(definition.getName());
       json.startObject();
-      json.labelValue(KIND, definition.getKind().name());
-      json.labelValue(UNDERLYING_TYPE, getFullQualifiedName(definition.getUnderlyingType()));
+      json.labelValue(KIND, definition.getKind()
+        .name());
+      json.labelValue(UNDERLYING_TYPE, getPathName(definition.getUnderlyingType()));
 
       // Facets
       if (definition.getMaxLength() != null) {
@@ -1255,7 +1243,7 @@ public class MetadataDocumentJsonSerializer {
         json.labelValue(SCALE, "" + definition.getScale());
       }
 
-      if (definition.getSrid() != null) {
+      if (definition.getSrid() > 0) {
         json.labelValue(SRID, "" + definition.getSrid());
       }
 
@@ -1264,30 +1252,31 @@ public class MetadataDocumentJsonSerializer {
     }
   }
 
-  private String getAliasedFullQualifiedName(final EdmType type) {
-    final FullQualifiedName fqn = type.getFullQualifiedName();
-    return getAliasedFullQualifiedName(fqn);
+  private PathName getAliasedPathName(final EdmType type) {
+    final var fqn = type.getPathName();
+    return getAliasedPathName(fqn);
   }
 
-  private String getAliasedFullQualifiedName(final FullQualifiedName fqn) {
-    final String name;
-    if (this.namespaceToAlias.get(fqn.getNamespace()) != null) {
-      name = this.namespaceToAlias.get(fqn.getNamespace()) + "." + fqn.getName();
+  private PathName getAliasedPathName(final PathName type) {
+    final var parent = type.getParent();
+    final var alias = this.namespaceToAlias.get(parent);
+    if (alias != null) {
+      return alias.newChild(type.getName());
     } else {
-      name = fqn.getFullQualifiedNameAsString();
+      return type;
     }
-
-    return name;
   }
 
-  private String getFullQualifiedName(final EdmType type) {
-    return type.getFullQualifiedName().getFullQualifiedNameAsString();
+  private String getPathName(final EdmType type) {
+    return type.getPathName()
+      .toString();
   }
 
   public void writeMetadataDocument(final JsonWriter json) throws SerializerException, IOException {
     json.startObject();
     json.labelValue(VERSION, "4.01");
-    if (!this.serviceMetadata.getReferences().isEmpty()) {
+    if (!this.serviceMetadata.getReferences()
+      .isEmpty()) {
       appendReference(json);
     }
     appendDataServices(json);

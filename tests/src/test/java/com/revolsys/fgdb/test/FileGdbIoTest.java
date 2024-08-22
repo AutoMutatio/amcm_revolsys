@@ -18,7 +18,6 @@ import com.revolsys.io.IoConstants;
 import com.revolsys.io.PathName;
 import com.revolsys.io.Writer;
 import com.revolsys.record.Record;
-import com.revolsys.record.io.RecordReader;
 import com.revolsys.record.schema.RecordDefinitionImpl;
 import com.revolsys.testapi.GeometryAssert;
 
@@ -72,21 +71,18 @@ public class FileGdbIoTest {
         record.setGeometryValue(geometry);
         writer.write(record);
       }
-      try (
-        RecordReader reader = recordStore.getRecords(typePath)) {
-        final List<Record> objects = reader.toList();
-        Assert.assertEquals("Geometry Count", 1, objects.size());
-        final Geometry actual = objects.get(0).getGeometry();
-        Assert.assertEquals("Empty", geometry.isEmpty(), actual.isEmpty());
-        if (!geometry.isEmpty()) {
-          final int geometryAxisCount = geometry.getAxisCount();
-          Assert.assertEquals("Axis Count", geometryAxisCount, actual.getAxisCount());
-          if (!actual.equals(geometryAxisCount, geometry)) {
-            // Allow for conversion of multi part to single part
-            if (geometry.getGeometryCount() != 1
-              || !actual.equals(geometryAxisCount, geometry.getGeometry(0))) {
-              GeometryAssert.failNotEquals("Geometry Equal Exact", geometry, actual);
-            }
+      final List<Record> objects = recordStore.newQuery(typePath).getRecords();
+      Assert.assertEquals("Geometry Count", 1, objects.size());
+      final Geometry actual = objects.get(0).getGeometry();
+      Assert.assertEquals("Empty", geometry.isEmpty(), actual.isEmpty());
+      if (!geometry.isEmpty()) {
+        final int geometryAxisCount = geometry.getAxisCount();
+        Assert.assertEquals("Axis Count", geometryAxisCount, actual.getAxisCount());
+        if (!actual.equals(geometryAxisCount, geometry)) {
+          // Allow for conversion of multi part to single part
+          if (geometry.getGeometryCount() != 1
+            || !actual.equals(geometryAxisCount, geometry.getGeometry(0))) {
+            GeometryAssert.failNotEquals("Geometry Equal Exact", geometry, actual);
           }
         }
       }

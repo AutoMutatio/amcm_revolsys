@@ -1,17 +1,21 @@
 package com.revolsys.parallel.channel;
 
 import com.revolsys.collection.map.ThreadLocalMap;
+import com.revolsys.parallel.ReentrantLockEx;
 
 public class ChannelThreadConnection {
 
-  private static final ThreadLocalMap<ChannelOutput<?>, ChannelThreadConnection> connections = new ThreadLocalMap<>();
+  private static final ReentrantLockEx LOCK = new ReentrantLockEx();
+
+  private static final ThreadLocalMap<ChannelOutput<?>, ChannelThreadConnection> CONNECTIONS = new ThreadLocalMap<>();
 
   public static void writeConnect(final ChannelOutput<?> channel) {
-    synchronized (connections) {
-      ChannelThreadConnection connection = connections.get(channel);
+    try (
+      var l = LOCK.lockX()) {
+      ChannelThreadConnection connection = CONNECTIONS.get(channel);
       if (connection == null) {
         connection = new ChannelThreadConnection(channel);
-        connections.put(channel, connection);
+        CONNECTIONS.put(channel, connection);
         channel.writeConnect();
       }
     }

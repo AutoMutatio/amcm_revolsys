@@ -9,8 +9,8 @@ import javax.xml.namespace.QName;
 
 import com.revolsys.collection.NameProxy;
 import com.revolsys.io.AbstractMapWriter;
-import com.revolsys.io.FileUtil;
 import com.revolsys.io.IoConstants;
+import com.revolsys.util.BaseCloseable;
 
 public class XmlMapWriter extends AbstractMapWriter {
 
@@ -39,7 +39,7 @@ public class XmlMapWriter extends AbstractMapWriter {
           this.out.endDocument();
         }
       } finally {
-        FileUtil.closeSilent(this.out);
+        BaseCloseable.closeSilent(this.out);
         this.out = null;
       }
     }
@@ -114,7 +114,7 @@ public class XmlMapWriter extends AbstractMapWriter {
   }
 
   private void writeHeader() {
-    this.out.startDocument("UTF-8", "1.0");
+    this.out.startDocument("UTF-8", "1.1");
     this.singleObject = Boolean.TRUE.equals(getProperty(IoConstants.SINGLE_OBJECT_PROPERTY));
     if (!this.singleObject) {
       this.out.startTag(new QName("items"));

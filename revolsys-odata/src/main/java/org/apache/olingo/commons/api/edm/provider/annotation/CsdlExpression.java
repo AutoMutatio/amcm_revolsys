@@ -18,7 +18,9 @@
  */
 package org.apache.olingo.commons.api.edm.provider.annotation;
 
+import org.apache.olingo.commons.api.edm.annotation.EdmExpression;
 import org.apache.olingo.commons.api.edm.provider.CsdlAbstractEdmItem;
+import org.apache.olingo.commons.core.edm.Edm;
 
 public abstract class CsdlExpression implements CsdlAbstractEdmItem {
 
@@ -53,4 +55,6 @@ public abstract class CsdlExpression implements CsdlAbstractEdmItem {
   public boolean isDynamic() {
     return this instanceof CsdlDynamicExpression;
   }
+
+  public abstract EdmExpression toEdm(Edm edm);
 }

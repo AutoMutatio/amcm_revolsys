@@ -25,7 +25,7 @@ public class IntersectionTest extends TestCase {
       try {
         return reader.read(WKBReader.hexToBytes(geometryText));
       } catch (final ParseException e) {
-        throw Exceptions.wrap(e);
+        throw Exceptions.toRuntimeException(e);
       }
     } else {
       return geometryFactory.geometry(geometryText);
@@ -40,7 +40,8 @@ public class IntersectionTest extends TestCase {
         new ClassPathResource("/com/revolsys/jts/test/geometry/operation/intersection.tsv"))) {
       for (final MapEx map : reader) {
         index++;
-        if (map.getString("active").equalsIgnoreCase("true")) {
+        if (map.getString("active")
+          .equalsIgnoreCase("true")) {
           final String description = map.getString("description");
           final int srid = map.getInteger("srid", 0);
           final int axisCount = map.getInteger("axisCount", 2);

@@ -71,7 +71,8 @@ public class Header implements Iterable<HeaderField>, Cloneable {
     clone.lineNumber = this.lineNumber;
     clone.headers = new HashMap<>();
     for (final Map.Entry<String, HeaderField> entries : this.headers.entrySet()) {
-      clone.headers.put(entries.getKey(), entries.getValue().clone());
+      clone.headers.put(entries.getKey(), entries.getValue()
+        .clone());
     }
 
     return clone;
@@ -80,7 +81,8 @@ public class Header implements Iterable<HeaderField>, Cloneable {
   public boolean exists(final String name) {
     final HeaderField field = this.headers.get(name.toLowerCase(Locale.ENGLISH));
 
-    return field != null && !field.getValues().isEmpty();
+    return field != null && !field.getValues()
+      .isEmpty();
   }
 
   public String getHeader(final String name) {
@@ -116,7 +118,8 @@ public class Header implements Iterable<HeaderField>, Cloneable {
   @Override
   public Iterator<HeaderField> iterator() {
     return new Iterator<>() {
-      Iterator<String> keyIterator = Header.this.headers.keySet().iterator();
+      Iterator<String> keyIterator = Header.this.headers.keySet()
+        .iterator();
 
       @Override
       public boolean hasNext() {
@@ -140,7 +143,8 @@ public class Header implements Iterable<HeaderField>, Cloneable {
   }
 
   public void replaceHeaderField(final HeaderField headerField) {
-    this.headers.put(headerField.getFieldName().toLowerCase(Locale.ENGLISH), headerField);
+    this.headers.put(headerField.getFieldName()
+      .toLowerCase(Locale.ENGLISH), headerField);
   }
 
   public Map<String, List<String>> toMultiMap() {

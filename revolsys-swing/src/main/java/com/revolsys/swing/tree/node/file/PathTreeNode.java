@@ -64,7 +64,7 @@ public class PathTreeNode extends LazyLoadTreeNode implements UrlProxy {
   public static final LazyMenuFactory MENU = new LazyMenuFactory("File");
 
   static {
-    MENU.addInitializer((menu) -> {
+    MENU.addInitializer(menu -> {
       addRefreshMenuItem(menu);
 
       TreeNodes
@@ -203,7 +203,7 @@ public class PathTreeNode extends LazyLoadTreeNode implements UrlProxy {
         final URL url = path.toUri().toURL();
         return url;
       } catch (final MalformedURLException e) {
-        throw Exceptions.wrap(e);
+        throw Exceptions.toRuntimeException(e);
       }
     }
   }
@@ -222,7 +222,7 @@ public class PathTreeNode extends LazyLoadTreeNode implements UrlProxy {
 
   public static BaseTreeNode newFileSystemsTreeNode() {
     final BaseTreeNode fileSystems = new FunctionChildrenTreeNode(FileSystems.getDefault(),
-      "File Systems", getIconFolder("drive"), (fileSystem) -> {
+      "File Systems", getIconFolder("drive"), fileSystem -> {
         final Iterable<Path> roots = ((FileSystem)fileSystem).getRootDirectories();
         return getPathNodes(roots, true);
       });

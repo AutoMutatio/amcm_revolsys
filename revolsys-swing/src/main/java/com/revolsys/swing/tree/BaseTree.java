@@ -114,7 +114,7 @@ public class BaseTree extends JTree implements ObjectWithProperties {
   }
 
   public void expandOpenNodes() {
-    final BaseTreeNode root = this.getRootNode();
+    final BaseTreeNode root = getRootNode();
     expandOpenNode(root);
   }
 
@@ -131,8 +131,7 @@ public class BaseTree extends JTree implements ObjectWithProperties {
 
   public MenuFactory getMenuFactory(final TreePath path) {
     final Object node = path.getLastPathComponent();
-    if (node instanceof BaseTreeNode) {
-      final BaseTreeNode treeNode = (BaseTreeNode)node;
+    if (node instanceof final BaseTreeNode treeNode) {
       return treeNode.getMenu();
     } else {
       return null;

@@ -21,7 +21,7 @@ package org.apache.olingo.commons.api.edm.provider;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.olingo.commons.api.edm.FullQualifiedName;
+import com.revolsys.io.PathName;
 
 /**
  * The type Csdl navigation property.
@@ -30,7 +30,7 @@ public class CsdlNavigationProperty implements CsdlAbstractEdmItem, CsdlNamed, C
 
   private String name;
 
-  private FullQualifiedName type;
+  private PathName type;
 
   private boolean isCollection;
 
@@ -91,7 +91,7 @@ public class CsdlNavigationProperty implements CsdlAbstractEdmItem, CsdlNamed, C
    */
   public String getType() {
     if (this.type != null) {
-      return this.type.getFullQualifiedNameAsString();
+      return this.type.toString();
     }
     return null;
   }
@@ -101,7 +101,7 @@ public class CsdlNavigationProperty implements CsdlAbstractEdmItem, CsdlNamed, C
    *
    * @return the type fQN
    */
-  public FullQualifiedName getTypeFQN() {
+  public PathName getTypePathName() {
     return this.type;
   }
 
@@ -226,7 +226,7 @@ public class CsdlNavigationProperty implements CsdlAbstractEdmItem, CsdlNamed, C
    * @param type the type
    * @return the type
    */
-  public CsdlNavigationProperty setType(final FullQualifiedName type) {
+  public CsdlNavigationProperty setType(final PathName type) {
     this.type = type;
     return this;
   }
@@ -238,7 +238,7 @@ public class CsdlNavigationProperty implements CsdlAbstractEdmItem, CsdlNamed, C
    * @return the type
    */
   public CsdlNavigationProperty setType(final String type) {
-    this.type = new FullQualifiedName(type);
+    this.type = PathName.fromDotSeparated(type);
     return this;
   }
 }

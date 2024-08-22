@@ -19,8 +19,9 @@
 package org.apache.olingo.server.api.uri.queryoption;
 
 import org.apache.olingo.commons.api.edm.EdmType;
-import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.server.api.uri.UriInfoResource;
+
+import com.revolsys.io.PathName;
 
 /**
  * Represents a single select item information
@@ -31,7 +32,7 @@ public interface SelectItem {
   /**
    * @return Namespace when a star is used in combination with an namespace
    */
-  FullQualifiedName getAllOperationsInSchemaNameSpace();
+  PathName getAllOperationsInSchemaNameSpace();
 
   /**
    * @return A {@link UriInfoResource} object containing the resource path segments to be selected

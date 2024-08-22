@@ -1,5 +1,7 @@
 package com.revolsys.parallel.channel;
 
+import com.revolsys.util.BaseCloseable;
+
 public interface ChannelOutput<T> {
   /**
    * Writes an Object to the Channel. This method also ensures only one of the
@@ -10,7 +12,7 @@ public interface ChannelOutput<T> {
    */
   void write(final T value);
 
-  void writeConnect();
+  BaseCloseable writeConnect();
 
   void writeDisconnect();
 }

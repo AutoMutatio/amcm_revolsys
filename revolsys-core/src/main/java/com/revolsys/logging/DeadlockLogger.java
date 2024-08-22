@@ -7,29 +7,32 @@ import java.lang.management.MonitorInfo;
 import java.lang.management.ThreadInfo;
 import java.lang.management.ThreadMXBean;
 
+import com.revolsys.collection.value.LazyValueHolder;
+
 public class DeadlockLogger implements Runnable {
   private static final int WAIT_TIME = 60000;
 
-  private static Thread thread;
+  private static LazyValueHolder<Thread> thread = new LazyValueHolder<>(() -> {
+    final DeadlockLogger deadlockLogger = new DeadlockLogger();
+    final Thread thread = new Thread(deadlockLogger, "Deadlock-detection");
+    thread.setDaemon(true);
+    thread.start();
+    return thread;
 
-  public static synchronized void initialize() {
-    if (thread == null || !thread.isAlive()) {
-      final DeadlockLogger deadlockLogger = new DeadlockLogger();
-      final Thread thread = new Thread(deadlockLogger, "Deadlock-detection");
-      thread.setDaemon(true);
-      thread.start();
-      DeadlockLogger.thread = thread;
-    }
+  });
+
+  public static void initialize() {
+    thread.getValue();
   }
 
   @Override
   public void run() {
-    final ThreadMXBean mbean = ManagementFactory.getThreadMXBean();
+    try {
+      final ThreadMXBean mbean = ManagementFactory.getThreadMXBean();
 
-    while (true) {
-      synchronized (this) {
+      while (true) {
         try {
-          wait(WAIT_TIME);
+          Thread.sleep(WAIT_TIME);
         } catch (final InterruptedException e) {
           return;
         }
@@ -51,6 +54,8 @@ public class DeadlockLogger implements Runnable {
         }
 
       }
+    } finally {
+      thread.clear();
     }
   }
 

@@ -12,9 +12,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.zip.CRC32;
 
+import com.revolsys.collection.value.ThreadBooleanValue;
 import com.revolsys.io.FileUtil;
+import com.revolsys.io.IoUtil;
 import com.revolsys.util.BaseCloseable;
-import com.revolsys.value.ThreadBooleanValue;
 
 public class FileResponseCache extends ResponseCache {
   private static final ThreadBooleanValue enabled = new ThreadBooleanValue(true);
@@ -98,7 +99,7 @@ public class FileResponseCache extends ResponseCache {
           if (extension.length() > 0) {
             fileName = FileUtil.getFileNamePrefix(file);
           } else {
-            fileName = FileUtil.getFileName(file);
+            fileName = IoUtil.getFileName(file);
           }
           file = file.getParentFile();
         }

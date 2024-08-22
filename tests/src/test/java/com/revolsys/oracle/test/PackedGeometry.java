@@ -47,7 +47,7 @@ public class PackedGeometry {
         throw new RuntimeException("Geometry not equal");
       }
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 

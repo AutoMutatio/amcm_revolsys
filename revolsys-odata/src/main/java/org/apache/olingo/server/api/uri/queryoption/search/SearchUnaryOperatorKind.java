@@ -22,6 +22,7 @@ public enum SearchUnaryOperatorKind {
   NOT;
 
   public static SearchUnaryOperatorKind get(final String operator) {
-    return NOT.name().equals(operator) ? NOT : null;
+    return NOT.name()
+      .equals(operator) ? NOT : null;
   }
 }

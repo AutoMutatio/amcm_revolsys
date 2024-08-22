@@ -33,6 +33,7 @@ import com.revolsys.geometry.coordinatesystem.model.unit.Metre;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.io.FileUtil;
+import com.revolsys.io.IoUtil;
 import com.revolsys.properties.BaseObjectWithProperties;
 import com.revolsys.spring.resource.InputStreamResource;
 import com.revolsys.spring.resource.NoSuchResourceException;
@@ -82,7 +83,7 @@ public class UsgsGriddedElevationReader extends BaseObjectWithProperties
     try {
       this.channel.close();
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 
@@ -123,8 +124,8 @@ public class UsgsGriddedElevationReader extends BaseObjectWithProperties
           final String name = zipEntry.getName();
           if (name.equals(projName)) {
             if (this.geometryFactory != GeometryFactory.DEFAULT_3D) {
-              final String wkt = FileUtil
-                .getString(new InputStreamReader(in, StandardCharsets.UTF_8), false);
+              final String wkt = IoUtil.getString(new InputStreamReader(in, StandardCharsets.UTF_8),
+                false);
               final GeometryFactory geometryFactory = GeometryFactory.floating3d(wkt);
               if (geometryFactory.isHasHorizontalCoordinateSystem()) {
                 this.geometryFactory = geometryFactory;
@@ -358,7 +359,7 @@ public class UsgsGriddedElevationReader extends BaseObjectWithProperties
 
       return elevationModel;
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 
@@ -562,7 +563,7 @@ public class UsgsGriddedElevationReader extends BaseObjectWithProperties
         close();
       } catch (final Exception e1) {
       }
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 

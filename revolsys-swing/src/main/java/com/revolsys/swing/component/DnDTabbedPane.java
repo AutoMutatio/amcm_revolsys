@@ -38,9 +38,9 @@ import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
-import com.revolsys.io.FileUtil;
 import com.revolsys.swing.TabbedPane;
 import com.revolsys.swing.parallel.Invoke;
+import com.revolsys.util.BaseCloseable;
 
 public class DnDTabbedPane extends TabbedPane {
   class CDropTargetListener implements DropTargetListener {
@@ -597,7 +597,7 @@ public class DnDTabbedPane extends TabbedPane {
     final Component component = getComponentAt(index);
     superRemove(index);
     if (component instanceof AutoCloseable) {
-      FileUtil.closeSilent((AutoCloseable)component);
+      BaseCloseable.closeSilent((AutoCloseable)component);
     }
   }
 

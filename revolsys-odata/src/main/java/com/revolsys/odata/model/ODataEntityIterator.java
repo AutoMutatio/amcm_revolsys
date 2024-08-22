@@ -3,36 +3,48 @@ package com.revolsys.odata.model;
 import java.net.URI;
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.Consumer;
 
 import org.apache.olingo.commons.api.data.AbstractEntityCollection;
-import org.apache.olingo.commons.api.data.Entity;
+import org.apache.olingo.commons.api.data.ODataEntity;
 import org.apache.olingo.commons.api.data.Operation;
-import org.apache.olingo.commons.api.edm.EdmEntitySet;
+import org.apache.olingo.commons.api.edm.EdmEntityType;
 import org.apache.olingo.commons.api.ex.ODataNotSupportedException;
 import org.apache.olingo.server.api.ODataApplicationException;
 import org.apache.olingo.server.api.ODataRequest;
 import org.apache.olingo.server.api.uri.UriInfo;
 import org.apache.olingo.server.api.uri.queryoption.CountOption;
 
+import com.revolsys.collection.iterator.BaseIterable;
 import com.revolsys.record.Record;
-import com.revolsys.record.io.RecordReader;
 import com.revolsys.record.query.Query;
 import com.revolsys.record.schema.RecordStore;
-import com.revolsys.record.schema.TableRecordStoreConnection;
-import com.revolsys.transaction.Transaction;
+import com.revolsys.transaction.TransactionBuilder;
+import com.revolsys.transaction.Transactionable;
 import com.revolsys.util.BaseCloseable;
 import com.revolsys.util.UriBuilder;
 
 public class ODataEntityIterator extends AbstractEntityCollection
-  implements BaseCloseable, Iterator<Entity> {
+  implements BaseCloseable, Iterator<ODataEntity>, Transactionable {
 
-  private Transaction transaction;
+  public static class Options {
+    private boolean useMaxLimit = true;
 
-  private RecordReader reader;
+    public boolean isUseMaxLimit() {
+      return this.useMaxLimit;
+    }
+
+    public Options useMaxLimit(final boolean useMaxLimit) {
+      this.useMaxLimit = useMaxLimit;
+      return this;
+    }
+  }
+
+  private BaseIterable<Record> reader;
 
   private Iterator<Record> iterator;
 
-  private final ODataEntityType entityType;
+  private final EdmEntityType entityType;
 
   private final int skip;
 
@@ -46,57 +58,53 @@ public class ODataEntityIterator extends AbstractEntityCollection
 
   private final Query query;
 
-  private Query countQuery;
-
-  private final TableRecordStoreConnection connection;
-
   private boolean countLoaded;
 
   private Integer count;
 
-  public ODataEntityIterator(final ODataRequest request, final UriInfo uriInfo,
-    final EdmEntitySet edmEntitySet, final ODataEntityType entityType,
-    final TableRecordStoreConnection connection) throws ODataApplicationException {
+  private EdmEntityType resultEntityType;
+
+  public ODataEntityIterator(final EdmEntityType entityType, final ODataRequest request,
+    final UriInfo uriInfo, final Options options) throws ODataApplicationException {
     this.request = request;
     this.uriInfo = uriInfo;
     this.entityType = entityType;
-    this.connection = connection;
-    final Query query = entityType.newQuery(uriInfo);
+    this.resultEntityType = entityType;
+    final Query query = entityType.newQuery(request, uriInfo, options);
 
     final CountOption countOption = this.uriInfo.getCountOption();
     if (countOption == null) {
       this.countLoaded = true;
     } else {
-      this.countQuery = query.clone();
       this.countLoaded = !countOption.getValue();
     }
     this.query = query;
-    this.entityType.addLimits(this.query, this.uriInfo);
+    final ODataEntityType odataEntityType = entityType.getEntityType();
+    odataEntityType.addLimits(this.query, this.uriInfo, options);
     this.skip = query.getOffset();
     this.limit = query.getLimit();
   }
 
   @Override
   public void close() {
-    if (this.reader != null) {
-      try {
-        this.reader.close();
-      } finally {
-        this.transaction.close();
-      }
-    }
+    BaseCloseable.closeValueSilent(this.reader);
+  }
+
+  public ODataEntityIterator count(final boolean count) {
+    this.countLoaded = !count;
+    return this;
   }
 
   @Override
   public Integer getCount() {
     if (!this.countLoaded) {
       this.countLoaded = true;
-      try (
-        Transaction transaction = this.connection.newTransaction()) {
-        final RecordStore recordStore = this.entityType.getRecordStore();
-        final Integer count = recordStore.getRecordCount(this.countQuery);
-        this.count = count;
-      }
+      this.request.getConnection()
+        .transactionRun(() -> {
+          final RecordStore recordStore = this.entityType.getRecordStore();
+          final Integer count = recordStore.getRecordCount(this.query.clone());
+          this.count = count;
+        });
     }
     return this.count;
   }
@@ -111,11 +119,18 @@ public class ODataEntityIterator extends AbstractEntityCollection
     throw new ODataNotSupportedException("Entity Iterator does not support getDeltaLink()");
   }
 
+  public EdmEntityType getEdmEntityType() {
+    return this.resultEntityType;
+  }
+
   private Iterator<Record> getIterator() {
     if (this.reader == null) {
-      this.transaction = this.connection.newTransaction();
-      final RecordStore recordStore = this.entityType.getRecordStore();
-      this.reader = recordStore.getRecords(this.query);
+      this.reader = this.request.getConnection()
+        .transactionCall(() -> this.entityType.getRecordStore()
+          .getRecords(this.query));
+      if (this.resultEntityType != this.entityType) {
+        this.reader = this.reader.map(r -> this.resultEntityType.newRecord(r));
+      }
       this.iterator = this.reader.iterator();
     }
     return this.iterator;
@@ -136,7 +151,8 @@ public class ODataEntityIterator extends AbstractEntityCollection
     }
 
     final String uri = this.request.getRawRequestUri();
-    return new UriBuilder(uri).setParameter("$skip", totalRead).build();
+    return new UriBuilder(uri).setParameter("$skip", totalRead)
+      .build();
   }
 
   /**
@@ -165,20 +181,25 @@ public class ODataEntityIterator extends AbstractEntityCollection
    * {@inheritDoc}
    */
   @Override
-  public Iterator<Entity> iterator() {
+  public Iterator<ODataEntity> iterator() {
     return this;
   }
 
   @Override
-  public Entity next() {
-    try {
-      final Iterator<Record> iterator = getIterator();
-      final Record record = iterator.next();
-      this.readCount++;
-      return this.entityType.newEntity(record);
-    } catch (final RuntimeException e) {
-      throw e;
-    }
+  public ODataEntity next() {
+    final Iterator<Record> iterator = getIterator();
+    final Record record = iterator.next();
+    this.readCount++;
+    return this.resultEntityType.newEntity(record);
+  }
+
+  public ODataEntityIterator query(final Consumer<Query> query) {
+    query.accept(this.query);
+    return this;
+  }
+
+  public Iterable<Record> records() {
+    return this::getIterator;
   }
 
   /**
@@ -192,8 +213,18 @@ public class ODataEntityIterator extends AbstractEntityCollection
     throw new ODataNotSupportedException("Entity Iterator does not support remove()");
   }
 
+  public ODataEntityIterator setResultEntityType(final EdmEntityType resultEntityType) {
+    this.resultEntityType = resultEntityType;
+    return this;
+  }
+
   @Override
   public String toString() {
     return this.query.toString();
+  }
+
+  @Override
+  public TransactionBuilder transaction() {
+    return this.query.transaction();
   }
 }

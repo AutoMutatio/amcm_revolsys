@@ -614,7 +614,7 @@ public final class EpsgCoordinateSystemsLoader {
   }
 
   private RecordReader newReader(final String path) {
-    return this.recordStore.getRecords(PathName.newPathName(path));
+    return this.recordStore.newQuery(PathName.newPathName(path)).getRecordReader();
   }
 
   private RecordReader newReader(final String path, final String... orderByFieldNames) {

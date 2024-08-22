@@ -23,30 +23,64 @@ import org.apache.olingo.server.api.uri.queryoption.expression.Expression;
 /**
  * Represents a function parameter or key predicate when used in the URI.
  */
-public interface UriParameter {
+public class UriParameter {
+  private String name;
 
-  /**
-   * @return Alias name if the parameter's value is an alias, otherwise null
-   */
-  String getAlias();
+  private String text;
 
-  /**
-   * @return Expression if the parameter's value is an expression, otherwise null
-   */
-  Expression getExpression();
+  private String alias;
 
-  /**
-   * @return Name of the parameter
-   */
-  String getName();
+  private Expression expression;
 
-  /**
-   * @return Name of the referenced property when referential constraints are used
-   */
-  String getReferencedProperty();
+  private String referencedProperty;
 
-  /**
-   * @return Text of the parameter's value
-   */
-  String getText();
+  public String getAlias() {
+    return this.alias;
+  }
+
+  public Expression getExpression() {
+    return this.expression;
+  }
+
+  public String getName() {
+    return this.name;
+  }
+
+  public String getReferencedProperty() {
+    return this.referencedProperty;
+  }
+
+  public String getText() {
+    return this.text;
+  }
+
+  public UriParameter setAlias(final String alias) {
+    this.alias = alias;
+    return this;
+  }
+
+  public UriParameter setExpression(final Expression expression) {
+    this.expression = expression;
+    return this;
+  }
+
+  public UriParameter setName(final String name) {
+    this.name = name;
+    return this;
+  }
+
+  public UriParameter setReferencedProperty(final String referencedProperty) {
+    this.referencedProperty = referencedProperty;
+    return this;
+  }
+
+  public UriParameter setText(final String text) {
+    this.text = text;
+    return this;
+  }
+
+  @Override
+  public String toString() {
+    return this.name;
+  }
 }

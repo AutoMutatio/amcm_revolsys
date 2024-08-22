@@ -99,7 +99,8 @@ public final class JavaProcess implements Runnable {
     final List<String> inputArguments = runtimeMXBean.getInputArguments();
     for (final String inputArgument : inputArguments) {
       if (!inputArgument.startsWith("-agentlib") && !inputArgument.startsWith("-XX:OnError")
-        && !Arrays.asList("abort", "exit").contains(inputArgument)) {
+        && !Arrays.asList("abort", "exit")
+          .contains(inputArgument)) {
         params.add(inputArgument);
       }
     }
@@ -114,7 +115,8 @@ public final class JavaProcess implements Runnable {
     final ProcessBuilder builder = new ProcessBuilder(params);
     if (this.logFile != null) {
       this.logFile = FileUtil.getFile(this.logFile);
-      this.logFile.getParentFile().mkdirs();
+      this.logFile.getParentFile()
+        .mkdirs();
       builder.redirectErrorStream(true);
       builder.redirectOutput(this.logFile);
     }
@@ -189,7 +191,7 @@ public final class JavaProcess implements Runnable {
     try {
       process.waitFor();
     } catch (final InterruptedException e) {
-      Exceptions.throwUncheckedException(e);
+      throw Exceptions.toRuntimeException(e);
     }
     return process.exitValue();
   }

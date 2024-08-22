@@ -8,9 +8,10 @@ import com.revolsys.jdbc.io.AbstractJdbcRecordStore;
 import com.revolsys.jdbc.io.JdbcRecordDefinition;
 import com.revolsys.jdbc.io.JdbcRecordStoreSchema;
 import com.revolsys.logging.Logs;
+import com.revolsys.record.schema.AbstractRecordStore;
 
 public class ArcSdeStGeometryFieldAdder extends JdbcFieldAdder {
-  public ArcSdeStGeometryFieldAdder(final AbstractJdbcRecordStore recordStore) {
+  public ArcSdeStGeometryFieldAdder(final AbstractRecordStore recordStore) {
 
   }
 

@@ -28,7 +28,7 @@ import java.util.List;
  */
 public class EntityCollection extends AbstractEntityCollection {
 
-  private final List<Entity> entities = new ArrayList<>();
+  private final List<ODataEntity> entities = new ArrayList<>();
 
   private Integer count;
 
@@ -76,7 +76,7 @@ public class EntityCollection extends AbstractEntityCollection {
    *
    * @return entries.
    */
-  public List<Entity> getEntities() {
+  public List<ODataEntity> getEntities() {
     return this.entities;
   }
 
@@ -111,7 +111,7 @@ public class EntityCollection extends AbstractEntityCollection {
   }
 
   @Override
-  public Iterator<Entity> iterator() {
+  public Iterator<ODataEntity> iterator() {
     return this.entities.iterator();
   }
 

@@ -1,7 +1,14 @@
 package com.revolsys.date;
 
+import static java.time.temporal.ChronoField.DAY_OF_MONTH;
+import static java.time.temporal.ChronoField.DAY_OF_WEEK;
+import static java.time.temporal.ChronoField.HOUR_OF_DAY;
 import static java.time.temporal.ChronoField.INSTANT_SECONDS;
+import static java.time.temporal.ChronoField.MINUTE_OF_HOUR;
+import static java.time.temporal.ChronoField.MONTH_OF_YEAR;
 import static java.time.temporal.ChronoField.NANO_OF_SECOND;
+import static java.time.temporal.ChronoField.SECOND_OF_MINUTE;
+import static java.time.temporal.ChronoField.YEAR;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -10,17 +17,22 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.DayOfWeek;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
+import java.time.format.SignStyle;
 import java.time.temporal.ChronoField;
 import java.time.temporal.TemporalAccessor;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.TreeSet;
@@ -32,12 +44,21 @@ import com.revolsys.logging.Logs;
 
 public interface Dates {
   public static class Timer {
-    private final long startTime = System.currentTimeMillis();
+    private long startTime = System.currentTimeMillis();
 
     private long stepStartTime = this.startTime;
 
     private Timer() {
 
+    }
+
+    public void clear() {
+      this.startTime = System.currentTimeMillis();
+      this.stepStartTime = this.startTime;
+    }
+
+    public Duration duration() {
+      return Duration.between(Instant.now(), Instant.ofEpochMilli(this.startTime));
     }
 
     public void printStep(final String message) {
@@ -49,6 +70,8 @@ public interface Dates {
       printEllapsedTime(message, this.startTime);
     }
   }
+
+  public static final DateTimeFormatter RFC_1123_DATE_TIME = newRfc1123();
 
   DateTimeFormatter yyyyMMdd = DateTimeFormatter.ofPattern("yyyyMMdd");
 
@@ -137,7 +160,8 @@ public interface Dates {
     if (date == null) {
       return null;
     } else {
-      return DateTimeFormatter.ofPattern(pattern).format(date);
+      return DateTimeFormatter.ofPattern(pattern)
+        .format(date);
     }
   }
 
@@ -155,7 +179,8 @@ public interface Dates {
         final Calendar calendar = new GregorianCalendar(year, month, day, hour, minute, second);
         if (millisecond != 0) {
           BigDecimal number = new BigDecimal("0." + millisecond);
-          number = number.multiply(BigDecimal.valueOf(100)).setScale(0, RoundingMode.HALF_DOWN);
+          number = number.multiply(BigDecimal.valueOf(100))
+            .setScale(0, RoundingMode.HALF_DOWN);
           millisecond = number.intValue();
           calendar.set(Calendar.MILLISECOND, millisecond);
         }
@@ -222,7 +247,8 @@ public interface Dates {
         final Calendar calendar = new GregorianCalendar(year, month, day, hour, minute, second);
         if (millisecond != 0) {
           BigDecimal number = new BigDecimal("0." + millisecond);
-          number = number.multiply(BigDecimal.valueOf(1000)).setScale(0, RoundingMode.HALF_DOWN);
+          number = number.multiply(BigDecimal.valueOf(1000))
+            .setScale(0, RoundingMode.HALF_DOWN);
           millisecond = number.intValue();
           calendar.set(Calendar.MILLISECOND, millisecond);
         }
@@ -262,7 +288,8 @@ public interface Dates {
     } else if (value instanceof LocalDate) {
       final LocalDate date = (LocalDate)value;
       final ZoneId zoneId = ZoneId.systemDefault();
-      return date.atStartOfDay(zoneId).toInstant();
+      return date.atStartOfDay(zoneId)
+        .toInstant();
     } else if (value instanceof TemporalAccessor) {
       final TemporalAccessor temporal = (TemporalAccessor)value;
       return Instant.from(temporal);
@@ -395,7 +422,8 @@ public interface Dates {
       return (LocalDate)value;
     } else if (value instanceof Instant) {
       final Instant instant = (Instant)value;
-      return instant.atZone(UTC).toLocalDate();
+      return instant.atZone(UTC)
+        .toLocalDate();
     } else if (value instanceof java.sql.Date) {
       final java.sql.Date date = (java.sql.Date)value;
       return date.toLocalDate();
@@ -425,7 +453,8 @@ public interface Dates {
       return date;
     } else if (value instanceof Instant) {
       final Instant instant = (Instant)value;
-      final LocalDate date = instant.atZone(UTC).toLocalDate();
+      final LocalDate date = instant.atZone(UTC)
+        .toLocalDate();
       return getSqlDate(date);
     } else if (value instanceof LocalDate) {
       final LocalDate date = (LocalDate)value;
@@ -453,7 +482,8 @@ public interface Dates {
         final Calendar calendar = new GregorianCalendar(year, month, day);
         if (millisecond != 0) {
           BigDecimal number = new BigDecimal("0." + millisecond);
-          number = number.multiply(BigDecimal.valueOf(1000)).setScale(0, RoundingMode.HALF_DOWN);
+          number = number.multiply(BigDecimal.valueOf(1000))
+            .setScale(0, RoundingMode.HALF_DOWN);
           millisecond = number.intValue();
           calendar.set(Calendar.MILLISECOND, millisecond);
         }
@@ -539,6 +569,55 @@ public interface Dates {
     final String timeString = toEllapsedTime(startTime, endTime);
     Logs.info(object, message + " " + timeString);
     return endTime;
+  }
+
+  private static DateTimeFormatter newRfc1123() {
+    // manually code maps to ensure correct data always used
+    // (locale data can be changed by application code)
+    final Map<Long, String> dow = new HashMap<>();
+    dow.put(1L, "Mon");
+    dow.put(2L, "Tue");
+    dow.put(3L, "Wed");
+    dow.put(4L, "Thu");
+    dow.put(5L, "Fri");
+    dow.put(6L, "Sat");
+    dow.put(7L, "Sun");
+    final Map<Long, String> moy = new HashMap<>();
+    moy.put(1L, "Jan");
+    moy.put(2L, "Feb");
+    moy.put(3L, "Mar");
+    moy.put(4L, "Apr");
+    moy.put(5L, "May");
+    moy.put(6L, "Jun");
+    moy.put(7L, "Jul");
+    moy.put(8L, "Aug");
+    moy.put(9L, "Sep");
+    moy.put(10L, "Oct");
+    moy.put(11L, "Nov");
+    moy.put(12L, "Dec");
+    return new DateTimeFormatterBuilder().parseCaseInsensitive()
+      .parseLenient()
+      .optionalStart()
+      .appendText(DAY_OF_WEEK, dow)
+      .appendLiteral(", ")
+      .optionalEnd()
+      .appendValue(DAY_OF_MONTH, 2, 2, SignStyle.NOT_NEGATIVE)
+      .appendLiteral(' ')
+      .appendText(MONTH_OF_YEAR, moy)
+      .appendLiteral(' ')
+      .appendValue(YEAR, 4) // 2 digit year not handled
+      .appendLiteral(' ')
+      .appendValue(HOUR_OF_DAY, 2)
+      .appendLiteral(':')
+      .appendValue(MINUTE_OF_HOUR, 2)
+      .optionalStart()
+      .appendLiteral(':')
+      .appendValue(SECOND_OF_MINUTE, 2)
+      .optionalEnd()
+      .appendLiteral(' ')
+      .appendOffset("+HHMM", "GMT") // should handle
+                                    // UT/Z/EST/EDT/CST/CDT/MST/MDT/PST/MDT
+      .toFormatter(Locale.getDefault(Locale.Category.FORMAT));
   }
 
   static long printEllapsedTime(final long startTime) {

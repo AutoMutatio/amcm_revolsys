@@ -6,7 +6,6 @@ import java.io.IOException;
 import com.revolsys.elevation.tin.CompactTriangulatedIrregularNetwork;
 import com.revolsys.elevation.tin.TriangulatedIrregularNetwork;
 import com.revolsys.geometry.model.GeometryFactory;
-import com.revolsys.io.FileUtil;
 import com.revolsys.number.Doubles;
 import com.revolsys.number.Integers;
 import com.revolsys.spring.resource.Resource;
@@ -28,7 +27,7 @@ public class AsciiTinReader implements BaseCloseable {
 
   @Override
   public void close() {
-    FileUtil.closeSilent(this.in);
+    BaseCloseable.closeSilent(this.in);
   }
 
   public TriangulatedIrregularNetwork read() {

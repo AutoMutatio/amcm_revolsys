@@ -14,7 +14,6 @@ import com.revolsys.record.query.Query;
 import com.revolsys.record.schema.AbstractTableRecordStore;
 import com.revolsys.record.schema.TableRecordStoreConnection;
 import com.revolsys.record.schema.TableRecordStoreFactory;
-import com.revolsys.transaction.Transaction;
 
 public class BaseTableRecordRestController extends AbstractTableRecordRestController {
 
@@ -54,11 +53,8 @@ public class BaseTableRecordRestController extends AbstractTableRecordRestContro
   protected void handleUpdateRecordDo(final TableRecordStoreConnection connection,
     final HttpServletResponse response, final Identifier id, final JsonObject values)
     throws IOException {
-    final Record record;
-    try (
-      Transaction transaction = connection.newTransaction()) {
-      record = connection.updateRecord(this.tablePath, id, values);
-    }
+    final Record record = connection
+      .transactionNewCall(() -> connection.updateRecord(this.tablePath, id, values));
     responseRecordJson(response, record);
   }
 

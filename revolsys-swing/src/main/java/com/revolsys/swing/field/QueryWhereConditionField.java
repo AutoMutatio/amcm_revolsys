@@ -119,9 +119,7 @@ public class QueryWhereConditionField extends ValueField
     final List<FieldDefinition> fieldDefinitions = this.recordDefinition.getFields();
 
     this.fieldNamesList = ComboBox.newComboBox("fieldNames", fieldDefinitions,
-      (final Object field) -> {
-        return ((FieldDefinition)field).getTitle();
-      });
+      (final Object field) -> ((FieldDefinition)field).getTitle());
     this.fieldNamesList.setShowErrorIcon(false);
     this.fieldNamesList.addItemListener(this);
     this.fieldNamesList.addMouseListener(this);

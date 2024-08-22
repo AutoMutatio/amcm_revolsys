@@ -20,6 +20,7 @@ import com.revolsys.exception.Exceptions;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.io.FileUtil;
+import com.revolsys.io.IoUtil;
 import com.revolsys.io.channels.DataReader;
 import com.revolsys.properties.BaseObjectWithProperties;
 import com.revolsys.spring.resource.InputStreamResource;
@@ -115,7 +116,7 @@ public class ImgGriddedElevationReader extends BaseObjectWithProperties
           .getNextEntry()) {
           final String name = zipEntry.getName();
           if (name.equals(projName)) {
-            final String wkt = FileUtil.getString(new InputStreamReader(in, StandardCharsets.UTF_8),
+            final String wkt = IoUtil.getString(new InputStreamReader(in, StandardCharsets.UTF_8),
               false);
             final GeometryFactory geometryFactory = GeometryFactory.floating3d(wkt);
             if (geometryFactory.isHasHorizontalCoordinateSystem()) {

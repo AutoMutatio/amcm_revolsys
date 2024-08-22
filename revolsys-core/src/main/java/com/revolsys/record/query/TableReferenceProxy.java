@@ -3,6 +3,7 @@ package com.revolsys.record.query;
 import java.util.function.BiFunction;
 
 import com.revolsys.record.schema.FieldDefinition;
+import com.revolsys.record.schema.RecordStore;
 
 public interface TableReferenceProxy {
   default void appendColumnPrefix(final SqlAppendable string) {
@@ -29,6 +30,11 @@ public interface TableReferenceProxy {
       return (FieldDefinition)column;
     }
     return null;
+  }
+
+  default <R extends RecordStore> R getRecordStore() {
+    return getTableReference().getRecordDefinition()
+      .getRecordStore();
   }
 
   default String getTableAlias() {

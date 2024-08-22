@@ -94,7 +94,8 @@ public class BatchReferenceRewriter {
 
   private void replaceContentIdReference(final ODataRequest request, final String contentId,
     final String resourceUri) {
-    final String newUri = request.getRawODataPath().replace("/$" + contentId, resourceUri);
+    final String newUri = request.getRawODataPath()
+      .replace("/$" + contentId, resourceUri);
     request.setRawODataPath(newUri);
     request.setRawRequestUri(request.getRawBaseUri() + "/" + newUri);
   }

@@ -11,10 +11,11 @@ public class CloseableWrapper implements BaseCloseable {
   }
 
   @Override
-  public synchronized void close() {
-    if (this.closeable != null) {
-      this.closeable.close();
-      this.closeable = null;
+  public void close() {
+    final BaseCloseable closeable = this.closeable;
+    this.closeable = null;
+    if (closeable != null) {
+      closeable.close();
     }
   }
 

@@ -131,7 +131,7 @@ public class Edge extends GraphComponent implements DelegatingLineString {
     try {
       return (Edge)super.clone();
     } catch (final CloneNotSupportedException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 

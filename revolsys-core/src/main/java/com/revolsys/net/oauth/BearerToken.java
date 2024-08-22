@@ -10,9 +10,13 @@ public class BearerToken {
 
   private long expireTime;
 
+  private long refreshAfterTime;
+
   private String scope;
 
   private String returnedScope;
+
+  private JsonWebToken jwt;
 
   public BearerToken(final JsonObject config) {
     this(config, null);
@@ -35,6 +39,17 @@ public class BearerToken {
     return Instant.ofEpochMilli(this.expireTime);
   }
 
+  protected JsonWebToken getJwt() {
+    if (this.jwt == null) {
+      this.jwt = initJwt();
+    }
+    return this.jwt;
+  }
+
+  public String getName() {
+    return this.jwt.getName();
+  }
+
   public String getReturnedScope() {
     return this.returnedScope;
   }
@@ -43,12 +58,53 @@ public class BearerToken {
     return this.scope;
   }
 
+  public String getStringClaim(final String name) {
+    return getJwt().getString(name);
+  }
+
+  @Override
+  public int hashCode() {
+    return this.jwt.hashCode();
+  }
+
+  protected JsonWebToken initJwt() {
+    return new JsonWebToken(this.accessToken);
+  }
+
   public boolean isExpired() {
-    return System.currentTimeMillis() >= this.expireTime;
+    final var time = System.currentTimeMillis();
+    if (this.refreshAfterTime > 0) {
+      if (time >= this.refreshAfterTime) {
+        return true;
+      }
+    } else {
+      if (time >= this.expireTime) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  public boolean isValid() {
+    final var time = System.currentTimeMillis();
+    if (this.refreshAfterTime > 0) {
+      if (time > this.refreshAfterTime) {
+        return false;
+      }
+    } else {
+      if (time > this.expireTime) {
+        return false;
+      }
+    }
+    return true;
   }
 
   protected void setExpireTime(final long expireTime) {
     this.expireTime = expireTime;
+  }
+
+  public void setRefreshAfterTime(final long refreshAfterTime) {
+    this.refreshAfterTime = refreshAfterTime;
   }
 
   public void setScope(final String scope, final String returnedScope) {
@@ -66,11 +122,19 @@ public class BearerToken {
       return "No Token";
     } else {
       try {
-        return new JsonWebToken(this.accessToken).toString();
+        return getJwt().toString();
       } catch (final Exception e) {
         return this.accessToken;
       }
     }
+  }
+
+  public String toStringDump() {
+    return this.jwt.toStringDump();
+  }
+
+  public String toStringJwt() {
+    return this.jwt.toString();
   }
 
 }

@@ -21,7 +21,6 @@ import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -29,21 +28,15 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.io.Reader;
-import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.channels.Channels;
-import java.nio.channels.FileChannel;
-import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -105,41 +98,6 @@ public final class FileUtil {
   }
 
   /**
-   * Close the writer without throwing an I/O exception if the close failed. The
-   * error will be logged instead.
-   *
-   * @param closeables The closables to close.
-   */
-  public static void closeSilent(final AutoCloseable... closeables) {
-    for (final AutoCloseable closeable : closeables) {
-      closeSilent(closeable);
-    }
-  }
-
-  public static void closeSilent(final AutoCloseable closeable) {
-    if (closeable != null) {
-      try {
-        closeable.close();
-      } catch (final IOException e) {
-      } catch (final Exception e) {
-        Logs.error(FileUtil.class, e.getMessage(), e);
-      }
-    }
-  }
-
-  /**
-   * Close the writer without throwing an I/O exception if the close failed. The
-   * error will be logged instead.
-   *
-   * @param closeables The closables to close.
-   */
-  public static void closeSilent(final Collection<? extends AutoCloseable> closeables) {
-    for (final AutoCloseable closeable : closeables) {
-      closeSilent(closeable);
-    }
-  }
-
-  /**
    * Convert the path containing UNIX or Windows file separators to the local
    * {@link File#separator} character.
    *
@@ -156,262 +114,6 @@ public final class FileUtil {
       return path.replace(UNIX_FILE_SEPARATOR, separator)
         .replace(WINDOWS_FILE_SEPARATOR, separator);
     }
-  }
-
-  public static void copy(final File src, final File dest) {
-    if (src.isDirectory()) {
-      dest.mkdirs();
-      final File[] files = src.listFiles();
-      if (files != null) {
-        for (final File file : files) {
-          final String name = getFileName(file);
-          final File destFile = new File(dest, name);
-          copy(file, destFile);
-        }
-      }
-    } else {
-      try {
-        final FileInputStream in = new FileInputStream(src);
-        File destFile;
-        if (dest.isDirectory()) {
-          final String name = getFileName(src);
-          destFile = new File(dest, name);
-        } else {
-          destFile = dest;
-        }
-        copy(in, destFile);
-      } catch (final FileNotFoundException e) {
-        Exceptions.throwUncheckedException(e);
-      }
-    }
-  }
-
-  /**
-   * Copy the contents of the file to the output stream. The output stream will
-   * need to be closed manually after invoking this method.
-   *
-   * @param file The file to read the contents from.
-   * @param out The output stream to write the contents to.
-   * @throws IOException If an I/O error occurs.
-   */
-  public static long copy(final File file, final OutputStream out) throws IOException {
-    final FileInputStream in = new FileInputStream(file);
-    try {
-      return copy(in, out);
-    } finally {
-      in.close();
-    }
-  }
-
-  /**
-   * Copy the contents of the file to the writer. The writer will need to be
-   * closed manually after invoking this method.
-   *
-   * @param file The file to read the contents from.
-   * @param out The writer to write the contents to.
-   * @throws IOException If an I/O error occurs.
-   */
-  public static long copy(final File file, final Writer out) throws IOException {
-    final FileReader in = getReader(file);
-    try {
-      return copy(in, out);
-    } finally {
-      in.close();
-    }
-  }
-
-  /**
-   * Copy the contents of the input stream to the file. The input stream will
-   * need to be closed manually after invoking this method.
-   *
-   * @param in The input stream to read the contents from.
-   * @param file The file to write the contents to.
-   * @throws IOException If an I/O error occurs.
-   */
-  public static long copy(final InputStream in, final File file) {
-    try {
-      file.getParentFile().mkdirs();
-      try (
-        final FileOutputStream out = new FileOutputStream(file)) {
-        return in.transferTo(out);
-      }
-    } catch (final IOException e) {
-      throw Exceptions.wrap("Unable to open file: " + file, e);
-    }
-  }
-
-  /**
-   * Writes the content of a zip entry to a file using NIO.
-   *
-   * @param zin input stream from zip file
-   * @param file file path where this entry will be saved
-   * @param sz file size
-   * @throws IOException if an i/o error
-   */
-  public static void copy(final InputStream zin, final File file, final long sz)
-    throws IOException {
-
-    ReadableByteChannel rc = null;
-    FileOutputStream out = null;
-
-    try {
-      rc = Channels.newChannel(zin);
-      out = new FileOutputStream(file);
-      final FileChannel fc = out.getChannel();
-
-      // read into the buffer
-      long count = 0;
-      int attempts = 0;
-      while (count < sz) {
-        final long written = fc.transferFrom(rc, count, sz);
-        count += written;
-
-        if (written == 0) {
-          attempts++;
-          if (attempts > 100) {
-            throw new IOException("Error writing to file " + file);
-          }
-        } else {
-          attempts = 0;
-        }
-      }
-
-      out.close();
-      out = null;
-    } finally {
-      if (out != null) {
-        FileUtil.closeSilent(out);
-      }
-    }
-  }
-
-  /**
-   * Copy the contents of the input stream to the output stream. The input
-   * stream and output stream will need to be closed manually after invoking
-   * this method.
-   *
-   * @param in The input stream to read the contents from.
-   * @param out The output stream to write the contents to.
-   */
-  public static long copy(final InputStream in, final OutputStream out) {
-    if (in == null) {
-      return 0;
-    } else {
-      try {
-        return in.transferTo(out);
-      } catch (final IOException e) {
-        return (Long)Exceptions.throwUncheckedException(e);
-      }
-    }
-  }
-
-  /**
-   * Copy the contents of the input stream to the output stream. The input
-   * stream and output stream will need to be closed manually after invoking
-   * this method.
-   *
-   * @param in The input stream to read the contents from.
-   * @param out The output stream to write the contents to.
-   */
-  public static long copy(final InputStream in, final OutputStream out, final long length) {
-    if (in == null) {
-      return 0;
-    } else {
-      try {
-        final byte[] buffer = new byte[4096];
-        long totalBytes = 0;
-        int readBytes;
-        while (totalBytes < length && (readBytes = in.read(buffer)) > -1) {
-          if (totalBytes + readBytes > length) {
-            readBytes = (int)(length - totalBytes);
-          }
-          totalBytes += readBytes;
-          out.write(buffer, 0, readBytes);
-        }
-        return totalBytes;
-      } catch (final IOException e) {
-        return (Long)Exceptions.throwUncheckedException(e);
-      }
-    }
-  }
-
-  /**
-   * Copy the contents of the reader to the file. The reader will need to be
-   * closed manually after invoking this method.
-   *
-   * @param in The reader to read the contents from.
-   * @param file The file to write the contents to.
-   * @throws IOException If an I/O error occurs.
-   */
-  public static void copy(final Reader in, final File file) {
-    try {
-      final FileWriter out = new FileWriter(file);
-      try {
-        copy(in, out);
-      } finally {
-        closeSilent(in);
-        closeSilent(out);
-      }
-    } catch (final IOException e) {
-      throw new IllegalArgumentException("Unable to write to " + file);
-    }
-  }
-
-  /**
-   * Copy the contents of the reader to the writer. The reader and writer will
-   * need to be closed manually after invoking this method.
-   *
-   * @param in The reader to read the contents from.
-   * @param out The writer to write the contents to.
-   * @throws IOException If an I/O error occurs.
-   */
-  public static long copy(final Reader in, final Writer out) {
-    try {
-      final char[] buffer = new char[4906];
-      long numBytes = 0;
-      int count;
-      while ((count = in.read(buffer)) > -1) {
-        out.write(buffer, 0, count);
-        numBytes += count;
-      }
-      return numBytes;
-    } catch (final IOException e) {
-      throw Exceptions.wrap(e);
-    }
-  }
-
-  /**
-   * Copy the contents of the reader to the writer. The input
-   * stream and output stream will need to be closed manually after invoking
-   * this method.
-   *
-   * @param in The input stream to read the contents from.
-   * @param out The output stream to write the contents to.
-   */
-  public static long copy(final Reader in, final Writer out, final long length) {
-    if (in == null) {
-      return 0;
-    } else {
-      try {
-        final char[] buffer = new char[4096];
-        long totalBytes = 0;
-        int readBytes;
-        while (totalBytes < length && (readBytes = in.read(buffer)) > -1) {
-          if (totalBytes + readBytes > length) {
-            readBytes = (int)(length - totalBytes);
-          }
-          totalBytes += readBytes;
-          out.write(buffer, 0, readBytes);
-        }
-        return totalBytes;
-      } catch (final IOException e) {
-        return (Long)Exceptions.throwUncheckedException(e);
-      }
-    }
-  }
-
-  public static void copy(final String text, final File file) {
-    copy(new StringReader(text), file);
   }
 
   public static void createParentDirectories(final File file) {
@@ -491,7 +193,7 @@ public final class FileUtil {
     if (files != null) {
       for (final File file2 : files) {
         final File file = file2;
-        if (file.exists() && filter.accept(directory, getFileName(file))) {
+        if (file.exists() && filter.accept(directory, IoUtil.getFileName(file))) {
           if (file.isDirectory()) {
             deleteDirectory(file, true);
           } else {
@@ -605,7 +307,7 @@ public final class FileUtil {
   }
 
   public static String getBaseName(final File file) {
-    final String fileName = getFileName(file);
+    final String fileName = IoUtil.getFileName(file);
     return getBaseName(fileName);
   }
 
@@ -671,7 +373,7 @@ public final class FileUtil {
     if (files != null) {
       for (final File file : files) {
         if (file.isDirectory()) {
-          final String fileName = getFileName(file);
+          final String fileName = IoUtil.getFileName(file);
           directories.add(fileName);
         }
       }
@@ -700,7 +402,7 @@ public final class FileUtil {
       final String fileName = resource.getFilename();
       final String ext = getFileNameExtension(fileName);
       final File file = newTempFile(fileName, "." + ext);
-      copy(resource.getInputStream(), file);
+      IoUtil.copy(resource.getInputStream(), file);
       file.deleteOnExit();
       return file;
     }
@@ -760,7 +462,7 @@ public final class FileUtil {
   public static String getFileAsString(final File file) {
     final StringWriter out = new StringWriter();
     try {
-      copy(file, out);
+      IoUtil.copy(file, out);
     } catch (final IOException e) {
       throw new RuntimeException("Unable to copy file: " + file);
     }
@@ -783,18 +485,6 @@ public final class FileUtil {
     return names;
   }
 
-  public static String getFileName(final File file) {
-    if (file == null) {
-      return null;
-    } else {
-      String fileName = file.getName();
-      if (!Property.hasValue(fileName)) {
-        fileName = file.getPath().replaceAll("\\\\$", "");
-      }
-      return fileName;
-    }
-  }
-
   public static String getFileName(String fileName) {
     fileName = fileName.replaceAll("\\+", "/");
     final int slashIndex = fileName.lastIndexOf('/');
@@ -806,7 +496,7 @@ public final class FileUtil {
   }
 
   public static String getFileNameExtension(final File file) {
-    final String fileName = getFileName(file);
+    final String fileName = IoUtil.getFileName(file);
     return getFileNameExtension(fileName);
   }
 
@@ -847,7 +537,7 @@ public final class FileUtil {
   }
 
   public static String getFileNamePrefix(final File file) {
-    final String fileName = getFileName(file);
+    final String fileName = IoUtil.getFileName(file);
     return getBaseName(fileName);
   }
 
@@ -856,7 +546,7 @@ public final class FileUtil {
     final File[] files = directory.listFiles(filter);
     if (files != null) {
       for (final File file : files) {
-        final String name = getFileName(file);
+        final String name = IoUtil.getFileName(file);
         names.add(name);
       }
     }
@@ -917,14 +607,6 @@ public final class FileUtil {
     }
   }
 
-  public static FileReader getReader(final File file) {
-    try {
-      return new FileReader(file);
-    } catch (final FileNotFoundException e) {
-      throw new IllegalArgumentException("File not found: " + file, e);
-    }
-  }
-
   /**
    * Return the relative path of the file from the parentDirectory. For example
    * the relative path of c:\Data\Files\file1.txt and c:\Data would be
@@ -952,52 +634,6 @@ public final class FileUtil {
 
   public static String getSafeFileName(final String name) {
     return name.replaceAll("[^a-zA-Z0-9\\-_ \\.]", "_");
-  }
-
-  public static String getString(final File file) {
-    if (file.exists()) {
-      final FileReader in = getReader(file);
-      return getString(in);
-    } else {
-      return null;
-    }
-  }
-
-  public static String getString(final InputStream in) {
-    final Reader reader = FileUtil.newUtf8Reader(in);
-    return getString(reader);
-  }
-
-  public static String getString(final Reader reader) {
-    try {
-      final StringWriter out = new StringWriter();
-      copy(reader, out);
-      return out.toString();
-    } finally {
-      closeSilent(reader);
-    }
-  }
-
-  public static String getString(final Reader reader, final boolean close) {
-    try {
-      final StringWriter out = new StringWriter();
-      copy(reader, out);
-      return out.toString();
-    } finally {
-      if (close) {
-        closeSilent(reader);
-      }
-    }
-  }
-
-  public static String getString(final Reader reader, final int count) {
-    try {
-      final StringWriter out = new StringWriter();
-      copy(reader, out, count);
-      return out.toString();
-    } finally {
-      closeSilent(reader);
-    }
   }
 
   public static File getUrlFile(final String url) {
@@ -1123,7 +759,7 @@ public final class FileUtil {
     try {
       return new FileOutputStream(file);
     } catch (final FileNotFoundException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 

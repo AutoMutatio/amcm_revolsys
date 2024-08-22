@@ -8,7 +8,6 @@ import com.revolsys.collection.map.MapEx;
 import com.revolsys.data.type.DataTypedValue;
 import com.revolsys.exception.Exceptions;
 import com.revolsys.util.BaseCloneable;
-import com.revolsys.util.JavaBeanUtil;
 
 public interface JsonType extends DataTypedValue, Jsonable, BaseCloneable {
 
@@ -18,22 +17,24 @@ public interface JsonType extends DataTypedValue, Jsonable, BaseCloneable {
       return null;
     } else if (value instanceof MapEx) {
       final MapEx map = (MapEx)value;
-      return (V)JsonObject.hash().addValuesClone(map);
+      return (V)JsonObject.hash()
+        .addValuesClone(map);
     } else if (value instanceof Map) {
       final Map<String, Object> map = (Map)value;
       return (V)map;
     } else if (value instanceof List) {
       final List<?> list = (List<?>)value;
-      return (V)JsonList.array().addValuesClone(list);
+      return (V)JsonList.array()
+        .addValuesClone(list);
     } else if (value instanceof BaseCloneable) {
       return (V)((BaseCloneable)value).clone();
     } else if (value instanceof Cloneable) {
       try {
         final Class<? extends Object> valueClass = value.getClass();
         if (!valueClass.isArray()) {
-          final Method method = valueClass.getMethod("clone", JavaBeanUtil.ARRAY_CLASS_0);
+          final Method method = valueClass.getMethod("clone", BaseCloneable.ARRAY_CLASS_0);
           if (method != null) {
-            return (V)method.invoke(value, JavaBeanUtil.ARRAY_OBJECT_0);
+            return (V)method.invoke(value, BaseCloneable.ARRAY_OBJECT_0);
           }
         }
       } catch (final Throwable e) {
@@ -45,6 +46,15 @@ public interface JsonType extends DataTypedValue, Jsonable, BaseCloneable {
 
   @Override
   Appendable appendJson(Appendable appendable);
+
+  @Override
+  default Appendable appendJsonFormatted(final Appendable appendable) {
+    try (
+      JsonWriter jsonWriter = new JsonWriter(appendable, true)) {
+      jsonWriter.value(this);
+    }
+    return appendable;
+  }
 
   @Override
   default JsonType asJson() {
@@ -62,5 +72,4 @@ public interface JsonType extends DataTypedValue, Jsonable, BaseCloneable {
   default JsonType toJson() {
     return clone();
   }
-
 }

@@ -54,14 +54,16 @@ public final class ContentNegotiator {
   private static final List<ContentType> DEFAULT_SUPPORTED_CONTENT_TYPES = Collections
     .unmodifiableList(Arrays.asList(ContentType.JSON, ContentType.JSON_NO_METADATA,
       ContentType.APPLICATION_JSON, ContentType.JSON_FULL_METADATA,
-      ContentType.APPLICATION_ATOM_XML, ContentType.APPLICATION_XML));
+      ContentType.APPLICATION_ATOM_XML, ContentType.APPLICATION_XML, ContentType.TEXT_CSV));
 
   public static void checkSupport(final ContentType contentType,
     final CustomContentTypeSupport customContentTypeSupport,
     final RepresentationType representationType) throws ContentNegotiatorException {
     for (final ContentType supportedContentType : getSupportedContentTypes(customContentTypeSupport,
       representationType)) {
-      if (AcceptType.fromContentType(supportedContentType).get(0).matches(contentType)) {
+      if (AcceptType.fromContentType(supportedContentType)
+        .get(0)
+        .matches(contentType)) {
         return;
       }
     }
@@ -76,19 +78,18 @@ public final class ContentNegotiator {
     final List<ContentType> supportedContentTypes = getSupportedContentTypes(
       customContentTypeSupport, representationType);
     final List<String> acceptHeaderValueList = request.getHeaders(HttpHeader.ACCEPT);
-    final String acceptHeaderValue = acceptHeaderValueList != null
-      ? acceptHeaderValueList.stream().collect(Collectors.joining(", "))
-      : null;
+    final String acceptHeaderValue = acceptHeaderValueList != null ? acceptHeaderValueList.stream()
+      .collect(Collectors.joining(", ")) : null;
     final List<String> acceptCharsetValueList = request.getHeaders(HttpHeader.ACCEPT_CHARSET);
-    final String acceptCharset = acceptCharsetValueList != null
-      ? acceptCharsetValueList.stream().collect(Collectors.joining(", "))
-      : null;
+    final String acceptCharset = acceptCharsetValueList != null ? acceptCharsetValueList.stream()
+      .collect(Collectors.joining(", ")) : null;
     List<AcceptCharset> charsets = null;
 
     ContentType result = null;
 
     if (formatOption != null && formatOption.getFormat() != null) {
-      final String formatString = formatOption.getFormat().strip();
+      final String formatString = formatOption.getFormat()
+        .strip();
       final ContentType contentType = mapContentType(formatString, representationType);
       boolean isCharsetInFormat = false;
       List<AcceptType> formatTypes = null;
@@ -100,7 +101,8 @@ public final class ContentNegotiator {
           AcceptHeaderContentNegotiatorException.MessageKeys.UNSUPPORTED_FORMAT_OPTION,
           formatString);
       }
-      final Map<String, String> formatParameters = formatTypes.get(0).getParameters();
+      final Map<String, String> formatParameters = formatTypes.get(0)
+        .getParameters();
       if (!formatParameters.isEmpty()
         && null != formatParameters.get(ContentType.PARAMETER_CHARSET)) {
         isCharsetInFormat = true;
@@ -137,7 +139,9 @@ public final class ContentNegotiator {
       } catch (final IllegalArgumentException e) {
         throw new AcceptHeaderContentNegotiatorException(e.getMessage(), e,
           AcceptHeaderContentNegotiatorException.MessageKeys.UNSUPPORTED_ACCEPT_TYPES,
-          e.getMessage().substring(e.getMessage().lastIndexOf(COLON) + 1));
+          e.getMessage()
+            .substring(e.getMessage()
+              .lastIndexOf(COLON) + 1));
       }
       if (result == null) {
         final List<AcceptType> types = AcceptType.create(acceptHeaderValue);
@@ -177,12 +181,15 @@ public final class ContentNegotiator {
         charsets = AcceptCharset.create(acceptCharset);
       } catch (final UnsupportedCharsetException e) {
         throw new ContentNegotiatorException(e.getMessage(), e,
-          ContentNegotiatorException.MessageKeys.UNSUPPORTED_ACCEPT_CHARSET,
-          e.getMessage().substring(e.getMessage().lastIndexOf(COLON) + 1));
+          ContentNegotiatorException.MessageKeys.UNSUPPORTED_ACCEPT_CHARSET, e.getMessage()
+            .substring(e.getMessage()
+              .lastIndexOf(COLON) + 1));
       } catch (final IllegalArgumentException e) {
         throw new AcceptHeaderContentNegotiatorException(e.getMessage(), e,
           AcceptHeaderContentNegotiatorException.MessageKeys.UNSUPPORTED_ACCEPT_CHARSET_HEADER_OPTIONS,
-          e.getMessage().substring(e.getMessage().lastIndexOf(COLON) + 1));
+          e.getMessage()
+            .substring(e.getMessage()
+              .lastIndexOf(COLON) + 1));
       }
     }
     return charsets;
@@ -219,7 +226,8 @@ public final class ContentNegotiator {
           if ("utf8".equalsIgnoreCase(charSetValue) || "utf-8".equalsIgnoreCase(charSetValue)) {
             contentType = ContentType.create(contentType, ContentType.PARAMETER_CHARSET, "utf-8");
           } else {
-            if (CHARSET_PATTERN.matcher(charSetValue).matches()) {
+            if (CHARSET_PATTERN.matcher(charSetValue)
+              .matches()) {
               throw new ContentNegotiatorException(
                 "Unsupported accept-header-charset = " + charSetValue,
                 ContentNegotiatorException.MessageKeys.UNSUPPORTED_ACCEPT_HEADER_CHARSET,
@@ -294,7 +302,9 @@ public final class ContentNegotiator {
 
     for (final ContentType supportedContentType : getSupportedContentTypes(customContentTypeSupport,
       representationType)) {
-      if (AcceptType.fromContentType(supportedContentType).get(0).matches(contentType)) {
+      if (AcceptType.fromContentType(supportedContentType)
+        .get(0)
+        .matches(contentType)) {
         return true;
       }
     }
@@ -303,7 +313,8 @@ public final class ContentNegotiator {
 
   private static ContentType mapContentType(final String formatString,
     final RepresentationType representationType) {
-    if (representationType.name().equals(METADATA)) {
+    if (representationType.name()
+      .equals(METADATA)) {
       return JSON.equalsIgnoreCase(formatString) || APPLICATION_JSON.equalsIgnoreCase(formatString)
         ? ContentType.APPLICATION_JSON
         : XML.equalsIgnoreCase(formatString) ? ContentType.APPLICATION_XML

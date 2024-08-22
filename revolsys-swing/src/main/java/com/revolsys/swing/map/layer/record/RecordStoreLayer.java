@@ -17,6 +17,7 @@ import javax.swing.SwingWorker;
 import com.revolsys.collection.iterator.Iterables;
 import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.map.MapEx;
+import com.revolsys.collection.value.Single;
 import com.revolsys.data.identifier.Identifier;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.Geometry;
@@ -48,8 +49,6 @@ import com.revolsys.swing.layout.GroupLayouts;
 import com.revolsys.swing.map.ViewportCacheBoundingBox;
 import com.revolsys.swing.map.layer.record.table.model.RecordLayerErrors;
 import com.revolsys.swing.parallel.Invoke;
-import com.revolsys.transaction.Propagation;
-import com.revolsys.transaction.Transaction;
 import com.revolsys.util.BaseCloseable;
 import com.revolsys.util.Property;
 import com.revolsys.util.count.LabelCountMap;
@@ -137,7 +136,8 @@ public class RecordStoreLayer extends AbstractRecordLayer {
   }
 
   @Override
-  protected void forEachRecordInternal(Query query, final Consumer<? super LayerRecord> consumer) {
+  protected void forEachRecordInternal(final Query query,
+    final Consumer<? super LayerRecord> consumer) {
     if (isExists()) {
       try {
         final RecordStore recordStore = getRecordStore();
@@ -150,44 +150,45 @@ public class RecordStoreLayer extends AbstractRecordLayer {
           changedRecords.addAll(getRecordsModified());
           Records.filterAndSort(changedRecords, filter, orderBy);
           final Iterator<LayerRecord> changedIterator = changedRecords.iterator();
-          LayerRecord currentChangedRecord = Iterables.next(changedIterator);
 
           final RecordDefinition internalRecordDefinition = getInternalRecordDefinition();
-          query = query.newQuery(internalRecordDefinition);
+          final Query query2 = query.newQuery(internalRecordDefinition);
           final Comparator<Record> comparator = Records.newComparatorOrderBy(orderBy);
-          try (
-            final BaseCloseable booleanValueCloseable = eventsDisabled();
-            Transaction transaction = recordStore.newTransaction();
-            final RecordReader reader = newRecordStoreRecordReader(query);) {
-            transaction.setRollbackOnly();
-            for (LayerRecord record : reader.<LayerRecord> i()) {
-              boolean write = true;
-              final Identifier identifier = record.getIdentifier();
-              if (identifier == null) {
-                record = newProxyLayerRecordNoId(record);
-              } else {
-                final LayerRecord cachedRecord = findCachedRecord(record);
-                if (cachedRecord != null) {
-                  record = cachedRecord;
-                  if (record.isChanged() || isDeleted(record) || isModified(record)) {
-                    write = false;
+          transactionNewRun(() -> {
+            LayerRecord currentChangedRecord = Iterables.next(changedIterator);
+            try (
+              final BaseCloseable booleanValueCloseable = eventsDisabled();
+              final RecordReader reader = newRecordStoreRecordReader(query2);) {
+              com.revolsys.transaction.Transaction.rollback();
+              for (LayerRecord record : reader.<LayerRecord> i()) {
+                boolean write = true;
+                final Identifier identifier = record.getIdentifier();
+                if (identifier == null) {
+                  record = newProxyLayerRecordNoId(record);
+                } else {
+                  final LayerRecord cachedRecord = findCachedRecord(record);
+                  if (cachedRecord != null) {
+                    record = cachedRecord;
+                    if (record.isChanged() || isDeleted(record) || isModified(record)) {
+                      write = false;
+                    }
                   }
                 }
-              }
-              if (!isDeleted(record) && write) {
-                while (currentChangedRecord != null
-                  && comparator.compare(currentChangedRecord, record) < 0) {
-                  consumer.accept(currentChangedRecord);
-                  currentChangedRecord = Iterables.next(changedIterator);
+                if (!isDeleted(record) && write) {
+                  while (currentChangedRecord != null
+                    && comparator.compare(currentChangedRecord, record) < 0) {
+                    consumer.accept(currentChangedRecord);
+                    currentChangedRecord = Iterables.next(changedIterator);
+                  }
+                  consumer.accept(record);
                 }
-                consumer.accept(record);
+              }
+              while (currentChangedRecord != null) {
+                consumer.accept(currentChangedRecord);
+                currentChangedRecord = Iterables.next(changedIterator);
               }
             }
-            while (currentChangedRecord != null) {
-              consumer.accept(currentChangedRecord);
-              currentChangedRecord = Iterables.next(changedIterator);
-            }
-          }
+          });
         }
       } catch (final CancellationException e) {
       } catch (final RuntimeException e) {
@@ -205,33 +206,34 @@ public class RecordStoreLayer extends AbstractRecordLayer {
     if (query != null && isExists()) {
       final RecordStore recordStore = getRecordStore();
       if (recordStore != null) {
-        try (
-          final BaseCloseable booleanValueCloseable = eventsDisabled();
-          Transaction transaction = recordStore.newTransaction();
-          final RecordReader reader = newRecordStoreRecordReader(query);) {
-          transaction.setRollbackOnly();
-          final LabelCountMap labelCountMap = query.getProperty("statistics");
-          for (final LayerRecord record : reader.<LayerRecord> i()) {
-            final Identifier identifier = record.getIdentifier();
-            R proxyRecord = null;
-            if (identifier == null) {
-              proxyRecord = (R)newProxyLayerRecordNoId(record);
-            } else {
-              synchronized (getSync()) {
-                final LayerRecord cachedRecord = getCachedRecord(identifier, record, true);
-                if (!cachedRecord.isDeleted()) {
-                  proxyRecord = (R)cachedRecord.getRecordProxy();
+        transactionNewRun(() -> {
+          try (
+            final BaseCloseable booleanValueCloseable = eventsDisabled();
+            final RecordReader reader = newRecordStoreRecordReader(query);) {
+            com.revolsys.transaction.Transaction.rollback();
+            final LabelCountMap labelCountMap = query.getProperty("statistics");
+            for (final LayerRecord record : reader.<LayerRecord> i()) {
+              final Identifier identifier = record.getIdentifier();
+              R proxyRecord = null;
+              if (identifier == null) {
+                proxyRecord = (R)newProxyLayerRecordNoId(record);
+              } else {
+                synchronized (getSync()) {
+                  final LayerRecord cachedRecord = getCachedRecord(identifier, record, true);
+                  if (!cachedRecord.isDeleted()) {
+                    proxyRecord = (R)cachedRecord.getRecordProxy();
+                  }
+                }
+              }
+              if (proxyRecord != null) {
+                consumer.accept(proxyRecord);
+                if (labelCountMap != null) {
+                  labelCountMap.addCount(record);
                 }
               }
             }
-            if (proxyRecord != null) {
-              consumer.accept(proxyRecord);
-              if (labelCountMap != null) {
-                labelCountMap.addCount(record);
-              }
-            }
           }
-        }
+        });
       }
     }
   }
@@ -254,7 +256,7 @@ public class RecordStoreLayer extends AbstractRecordLayer {
   protected <R extends LayerRecord> R getCachedRecord(final Identifier identifier) {
     final RecordDefinition recordDefinition = getInternalRecordDefinition();
     synchronized (this.recordReferences) {
-      LayerRecord record = this.recordReferences.getRecord(identifier);
+      final LayerRecord record = this.recordReferences.getRecord(identifier);
       if (record == null) {
         final List<String> idFieldNames = recordDefinition.getIdFieldNames();
         if (idFieldNames.isEmpty()) {
@@ -264,15 +266,21 @@ public class RecordStoreLayer extends AbstractRecordLayer {
           final Query query = new Query(recordDefinition, where);
           final RecordStore recordStore = this.recordStore;
           if (recordStore != null) {
-            try (
-              Transaction transaction = recordStore.newTransaction(Propagation.REQUIRED);
-              RecordReader reader = newRecordStoreRecordReader(query)) {
-              transaction.setRollbackOnly();
-              record = (R)reader.getFirst();
-              if (record != null) {
-                addCachedRecord(identifier, record);
+            return transactionCall(() -> {
+              try (
+                RecordReader reader = newRecordStoreRecordReader(query)) {
+                com.revolsys.transaction.Transaction.rollback();
+                // final R savedRecord = (R)
+                final Single<Record> first = reader.first();
+                if (first.isPresent()) {
+                  final R savedRecord = (R)first.get();
+                  addCachedRecord(identifier, savedRecord);
+                  return savedRecord;
+                } else {
+                  return null;
+                }
               }
-            }
+            });
           }
         }
       }
@@ -401,11 +409,7 @@ public class RecordStoreLayer extends AbstractRecordLayer {
     if (isExists()) {
       final RecordStore recordStore = getRecordStore();
       if (recordStore != null) {
-        try (
-          Transaction transaction = recordStore.newTransaction()) {
-          transaction.setRollbackOnly();
-          return recordStore.getRecordCount(query);
-        }
+        return transactionCall(() -> recordStore.getRecordCount(query));
       }
     }
     return 0;
@@ -810,56 +814,51 @@ public class RecordStoreLayer extends AbstractRecordLayer {
 
   @Override
   protected boolean saveChangesDo(final RecordLayerErrors errors, final LayerRecord record) {
-    boolean deleted = super.isDeleted(record);
 
     if (isExists()) {
       final RecordStore recordStore = getRecordStore();
       if (recordStore == null) {
         return true;
       } else {
-        try (
-          Transaction transaction = recordStore.newTransaction()) {
-          try {
-            Identifier identifier = record.getIdentifier();
-            try (
-              final Writer<Record> writer = recordStore.newRecordWriter()) {
-              if (this.recordCacheDeleted.containsRecord(record) || super.isDeleted(record)) {
-                preDeleteRecord(record);
-                record.setState(RecordState.DELETED);
-                writeDelete(writer, record);
-                deleted = true;
-              } else {
-                final RecordDefinition recordDefinition = getRecordDefinition();
-                if (super.isNew(record)) {
-                  final List<String> idFieldNames = recordDefinition.getIdFieldNames();
-                  if (identifier == null && !idFieldNames.isEmpty()) {
-                    identifier = recordStore.newPrimaryIdentifier(this.typePath);
-                    if (identifier != null) {
-                      identifier.setIdentifier(record, idFieldNames);
-                    }
+        return recordStore.transactionNewCall(() -> {
+          boolean deleted = super.isDeleted(record);
+          Identifier identifier = record.getIdentifier();
+          try (
+            final Writer<Record> writer = recordStore.newRecordWriter()) {
+            if (this.recordCacheDeleted.containsRecord(record) || super.isDeleted(record)) {
+              preDeleteRecord(record);
+              record.setState(RecordState.DELETED);
+              writeDelete(writer, record);
+              deleted = true;
+            } else {
+              final RecordDefinition recordDefinition = getRecordDefinition();
+              if (super.isNew(record)) {
+                final List<String> idFieldNames = recordDefinition.getIdFieldNames();
+                if (identifier == null && !idFieldNames.isEmpty()) {
+                  identifier = recordStore.newPrimaryIdentifier(this.typePath);
+                  if (identifier != null) {
+                    identifier.setIdentifier(record, idFieldNames);
                   }
                 }
-                final int fieldCount = recordDefinition.getFieldCount();
-                for (int fieldIndex = 0; fieldIndex < fieldCount; fieldIndex++) {
-                  record.validateField(fieldIndex);
-                }
-                if (super.isModified(record)) {
-                  writeUpdate(writer, record);
-                } else if (super.isNew(record)) {
-                  writer.write(record);
-                }
+              }
+              final int fieldCount = recordDefinition.getFieldCount();
+              for (int fieldIndex = 0; fieldIndex < fieldCount; fieldIndex++) {
+                record.validateField(fieldIndex);
+              }
+              if (super.isModified(record)) {
+                writeUpdate(writer, record);
+              } else if (super.isNew(record)) {
+                writer.write(record);
               }
             }
-            if (!deleted) {
-              record.setState(RecordState.PERSISTED);
-            }
-            final Identifier identifier1 = identifier;
-            this.recordReferences.removeIdentifier(identifier1);
-            return true;
-          } catch (final Throwable e) {
-            throw transaction.setRollbackOnly(e);
           }
-        }
+          if (!deleted) {
+            record.setState(RecordState.PERSISTED);
+          }
+          final Identifier identifier1 = identifier;
+          this.recordReferences.removeIdentifier(identifier1);
+          return true;
+        });
       }
     } else {
       return true;
@@ -940,17 +939,18 @@ public class RecordStoreLayer extends AbstractRecordLayer {
   }
 
   private void updateCachedRecords(final RecordStore recordStore, final Query query) {
-    try (
-      Transaction transaction = recordStore.newTransaction();
-      RecordReader reader = recordStore.getRecords(query)) {
-      for (final Record record : reader) {
-        final Identifier identifier = record.getIdentifier();
-        final RecordStoreLayerRecord cachedRecord = this.recordReferences.getRecord(identifier);
-        if (cachedRecord != null) {
-          cachedRecord.refreshFromRecordStore(record);
+    recordStore.transactionRun(() -> {
+      try (
+        final RecordReader reader = recordStore.getRecords(query)) {
+        for (final Record record : reader) {
+          final Identifier identifier = record.getIdentifier();
+          final RecordStoreLayerRecord cachedRecord = this.recordReferences.getRecord(identifier);
+          if (cachedRecord != null) {
+            cachedRecord.refreshFromRecordStore(record);
+          }
         }
       }
-    }
+    });
   }
 
   protected void writeDelete(final Writer<Record> writer, final LayerRecord record) {

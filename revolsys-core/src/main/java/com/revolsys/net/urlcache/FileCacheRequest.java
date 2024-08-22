@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.CacheRequest;
 
-import com.revolsys.io.FileUtil;
+import com.revolsys.util.BaseCloseable;
 
 public class FileCacheRequest extends CacheRequest {
 
@@ -23,7 +23,7 @@ public class FileCacheRequest extends CacheRequest {
 
   @Override
   public void abort() {
-    FileUtil.closeSilent(this.out);
+    BaseCloseable.closeSilent(this.out);
     this.file.delete();
   }
 

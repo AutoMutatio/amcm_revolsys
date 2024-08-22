@@ -23,6 +23,7 @@ import com.revolsys.io.IoConstants;
 import com.revolsys.properties.BaseObjectWithProperties;
 import com.revolsys.record.Record;
 import com.revolsys.record.RecordFactory;
+import com.revolsys.util.BaseCloseable;
 
 public class MoepBinaryIterator extends BaseObjectWithProperties implements Iterator<Record> {
   private static final int COMPLEX_LINE = 3;
@@ -108,7 +109,7 @@ public class MoepBinaryIterator extends BaseObjectWithProperties implements Iter
 
   @Override
   public void close() {
-    FileUtil.closeSilent(this.in);
+    BaseCloseable.closeSilent(this.in);
   }
 
   private String getMapsheetFromFileName(final String fileName) {

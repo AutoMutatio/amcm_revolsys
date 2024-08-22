@@ -63,8 +63,8 @@ public class Channels {
 
   public static long copy(final ReadableByteChannel in, final WritableByteChannel out,
     final long size) throws IOException {
-    if (in instanceof FileChannel) {
-      copy(in, out, size);
+    if (in instanceof FileChannel fileChannel) {
+      copy(fileChannel, out);
       return size;
     } else {
       final ByteBuffer buffer = ByteBuffer.allocateDirect(8192);

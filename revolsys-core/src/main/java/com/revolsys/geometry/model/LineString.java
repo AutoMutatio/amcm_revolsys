@@ -1521,8 +1521,8 @@ public interface LineString extends Lineal {
 
   @Override
   default Point getPointWithin() {
-    final GeometryFactory geometryFactory = this.getGeometryFactory();
-    if (this.isEmpty()) {
+    final GeometryFactory geometryFactory = getGeometryFactory();
+    if (isEmpty()) {
       return geometryFactory.point();
     } else {
       final int numPoints = getVertexCount();
@@ -2133,7 +2133,7 @@ public interface LineString extends Lineal {
   @Override
   default LineString newGeometry(final GeometryFactory geometryFactory) {
     if (geometryFactory == null) {
-      return this.clone();
+      return clone();
     } else if (isEmpty()) {
       return newLineStringEmpty(geometryFactory);
     } else {
@@ -2568,7 +2568,7 @@ public interface LineString extends Lineal {
     if (isClockwise()) {
       return (G)this;
     } else {
-      return (G)this.reverse();
+      return (G)reverse();
     }
   }
 
@@ -2576,7 +2576,7 @@ public interface LineString extends Lineal {
   @SuppressWarnings("unchecked")
   default <G extends Geometry> G toCounterClockwise() {
     if (isClockwise()) {
-      return (G)this.reverse();
+      return (G)reverse();
     } else {
       return (G)this;
     }

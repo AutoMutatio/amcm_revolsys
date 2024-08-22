@@ -41,7 +41,8 @@ public enum UnaryOperatorKind {
    */
   public static UnaryOperatorKind get(final String operator) {
     for (final UnaryOperatorKind op : UnaryOperatorKind.values()) {
-      if (op.toString().equals(operator)) {
+      if (op.toString()
+        .equals(operator)) {
         return op;
       }
     }

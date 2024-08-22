@@ -1,6 +1,7 @@
 package com.revolsys.record;
 
 import com.revolsys.collection.json.JsonObject;
+import com.revolsys.parallel.ReentrantLockEx;
 import com.revolsys.record.schema.FieldDefinition;
 
 public class ChangeTrackRecordImpl extends BaseRecord implements ChangeTrackRecord {
@@ -23,6 +24,8 @@ public class ChangeTrackRecordImpl extends BaseRecord implements ChangeTrackReco
   private final Object[] changedValues;
 
   private final Record originalRecord;
+
+  private final ReentrantLockEx lock = new ReentrantLockEx();
 
   protected ChangeTrackRecordImpl(final Record originalRecord) {
     super(originalRecord.getRecordDefinition());
@@ -58,14 +61,17 @@ public class ChangeTrackRecordImpl extends BaseRecord implements ChangeTrackReco
 
   @SuppressWarnings("unchecked")
   @Override
-  public synchronized <T> T getValue(final int fieldIndex) {
-    if (fieldIndex >= 0) {
-      if (this.changedFlags[fieldIndex]) {
-        return (T)this.changedValues[fieldIndex];
+  public <T> T getValue(final int fieldIndex) {
+    try (
+      var l = this.lock.lockX()) {
+      if (fieldIndex >= 0) {
+        if (this.changedFlags[fieldIndex]) {
+          return (T)this.changedValues[fieldIndex];
+        }
+        return getOriginalValue(fieldIndex);
+      } else {
+        return null;
       }
-      return getOriginalValue(fieldIndex);
-    } else {
-      return null;
     }
   }
 
@@ -79,14 +85,17 @@ public class ChangeTrackRecordImpl extends BaseRecord implements ChangeTrackReco
   }
 
   @Override
-  public synchronized boolean isModified(final int fieldIndex) {
-    if (this.changedFlags[fieldIndex]) {
-      final FieldDefinition field = getRecordDefinition().getField(fieldIndex);
-      final Object changedValue = this.changedValues[fieldIndex];
-      final Object originalValue = getOriginalValue(fieldIndex);
-      return !field.equals(changedValue, originalValue);
+  public boolean isModified(final int fieldIndex) {
+    try (
+      var l = this.lock.lockX()) {
+      if (this.changedFlags[fieldIndex]) {
+        final FieldDefinition field = getRecordDefinition().getField(fieldIndex);
+        final Object changedValue = this.changedValues[fieldIndex];
+        final Object originalValue = getOriginalValue(fieldIndex);
+        return !field.equals(changedValue, originalValue);
+      }
+      return false;
     }
-    return false;
   }
 
   @Override
@@ -95,31 +104,34 @@ public class ChangeTrackRecordImpl extends BaseRecord implements ChangeTrackReco
   }
 
   @Override
-  protected synchronized boolean setValue(final FieldDefinition field, final Object value) {
-    final RecordState state = getState();
-    if (state.isDeleted()) {
-      throw new IllegalStateException("Cannot modify a deleted record\n" + toString());
-    } else {
-      final int fieldIndex = field.getIndex();
+  protected boolean setValue(final FieldDefinition field, final Object value) {
+    try (
+      var l = this.lock.lockX()) {
+      final RecordState state = getState();
+      if (state.isDeleted()) {
+        throw new IllegalStateException("Cannot modify a deleted record\n" + toString());
+      } else {
+        final int fieldIndex = field.getIndex();
 
-      final Object newValue = field.toFieldValue(value);
-      final Object oldValue = getValue(fieldIndex);
-      if (!field.equals(oldValue, newValue)) {
+        final Object newValue = field.toFieldValue(value);
+        final Object oldValue = getValue(fieldIndex);
+        if (!field.equals(oldValue, newValue)) {
 
-        final Object originalValue = getOriginalValue(fieldIndex);
-        final boolean valueEqual = field.equals(originalValue, newValue);
-        this.changedFlags[fieldIndex] = !valueEqual;
-        if (valueEqual) {
-          this.changedValues[fieldIndex] = null;
-        } else {
-          this.changedValues[fieldIndex] = newValue;
+          final Object originalValue = getOriginalValue(fieldIndex);
+          final boolean valueEqual = field.equals(originalValue, newValue);
+          this.changedFlags[fieldIndex] = !valueEqual;
+          if (valueEqual) {
+            this.changedValues[fieldIndex] = null;
+          } else {
+            this.changedValues[fieldIndex] = newValue;
+          }
+          if (getState() != RecordState.INITIALIZING) {
+            setState(RecordState.MODIFIED);
+          }
+          return true;
         }
-        if (getState() != RecordState.INITIALIZING) {
-          setState(RecordState.MODIFIED);
-        }
-        return true;
+        return false;
       }
-      return false;
     }
   }
 }

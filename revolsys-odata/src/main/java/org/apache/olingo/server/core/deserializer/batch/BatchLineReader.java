@@ -219,9 +219,8 @@ public class BatchLineReader {
         if (contentType != null) {
           final String charsetString = contentType.getParameter(ContentType.PARAMETER_CHARSET);
           this.currentCharset = charsetString == null
-            ? contentType.isCompatible(ContentType.APPLICATION_JSON)
-              || contentType.getSubtype().contains("xml") ? Charset.forName("UTF-8")
-                : DEFAULT_CHARSET
+            ? contentType.isCompatible(ContentType.APPLICATION_JSON) || contentType.getSubtype()
+              .contains("xml") ? Charset.forName("UTF-8") : DEFAULT_CHARSET
             : Charset.forName(charsetString);
 
           final String boundary = contentType.getParameter(BOUNDARY);

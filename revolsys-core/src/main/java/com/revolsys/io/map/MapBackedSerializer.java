@@ -8,6 +8,7 @@ import java.util.TreeMap;
 import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.json.JsonObjectHash;
 import com.revolsys.collection.map.DelegatingMap;
+import com.revolsys.io.MapSerializer;
 
 public class MapBackedSerializer extends DelegatingMap<String, Object> implements MapSerializer {
   public static MapBackedSerializer hash() {

@@ -18,7 +18,6 @@ import com.revolsys.data.type.DataType;
 import com.revolsys.data.type.DataTypes;
 import com.revolsys.date.Dates;
 import com.revolsys.io.Buffers;
-import com.revolsys.io.FileUtil;
 import com.revolsys.io.PathName;
 import com.revolsys.logging.Logs;
 import com.revolsys.record.Record;
@@ -26,6 +25,7 @@ import com.revolsys.record.RecordFactory;
 import com.revolsys.record.io.RecordReader;
 import com.revolsys.record.schema.RecordDefinitionImpl;
 import com.revolsys.spring.resource.Resource;
+import com.revolsys.util.BaseCloseable;
 
 public class XbaseRecordReader extends AbstractIterator<Record> implements RecordReader {
   public static final char CHARACTER_TYPE = 'C';
@@ -119,7 +119,7 @@ public class XbaseRecordReader extends AbstractIterator<Record> implements Recor
   }
 
   public void forceClose() {
-    FileUtil.closeSilent(this.in);
+    BaseCloseable.closeSilent(this.in);
     this.recordFactory = null;
     this.in = null;
     this.initCallback = null;

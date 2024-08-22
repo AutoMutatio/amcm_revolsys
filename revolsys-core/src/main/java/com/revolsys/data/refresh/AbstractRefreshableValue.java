@@ -7,7 +7,7 @@ public abstract class AbstractRefreshableValue<V> implements RefreshableValue<V>
   private String label;
 
   @Override
-  public synchronized void clearValue() {
+  public void clearValue() {
     this.value.clear();
   }
 
@@ -32,17 +32,17 @@ public abstract class AbstractRefreshableValue<V> implements RefreshableValue<V>
   protected abstract V loadValue();
 
   @Override
-  public synchronized void refreshIfNeeded() {
+  public void refreshIfNeeded() {
     refreshValueIfNeeded();
   }
 
   @Override
-  public synchronized V refreshValue() {
+  public V refreshValue() {
     return this.value.reload();
   }
 
   @Override
-  public synchronized V refreshValueIfNeeded() {
+  public V refreshValueIfNeeded() {
     return this.value.get();
   }
 

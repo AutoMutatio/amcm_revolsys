@@ -19,9 +19,13 @@
 package org.apache.olingo.commons.api.edm.provider;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import org.apache.olingo.commons.api.edm.FullQualifiedName;
+import com.revolsys.collection.list.Lists;
+import com.revolsys.collection.map.Maps;
+import com.revolsys.io.PathName;
 
 /**
  * The type Csdl entity container.
@@ -30,7 +34,7 @@ public class CsdlEntityContainer implements CsdlAbstractEdmItem, CsdlNamed, Csdl
 
   private String name;
 
-  private FullQualifiedName extendsContainer;
+  private PathName extendsContainer;
 
   private List<CsdlEntitySet> entitySets = new ArrayList<>();
 
@@ -38,9 +42,19 @@ public class CsdlEntityContainer implements CsdlAbstractEdmItem, CsdlNamed, Csdl
 
   private List<CsdlFunctionImport> functionImports = new ArrayList<>();
 
+  private final Map<String, List<CsdlFunctionImport>> functionImportByName = new HashMap<>();
+
   private List<CsdlSingleton> singletons = new ArrayList<>();
 
   private List<CsdlAnnotation> annotations = new ArrayList<>();
+
+  public CsdlEntityContainer addFunctionImport(final CsdlFunction function) {
+    final var functionImport = new CsdlFunctionImport(function);
+    final var name = function.getName();
+    this.functionImports.add(functionImport);
+    Maps.addToList(this.functionImportByName, name, functionImport);
+    return this;
+  }
 
   /**
    * Gets the first action import with given name.
@@ -103,7 +117,7 @@ public class CsdlEntityContainer implements CsdlAbstractEdmItem, CsdlNamed, Csdl
    */
   public String getExtendsContainer() {
     if (this.extendsContainer != null) {
-      return this.extendsContainer.getFullQualifiedNameAsString();
+      return this.extendsContainer.toDotSeparated();
     }
     return null;
   }
@@ -113,7 +127,7 @@ public class CsdlEntityContainer implements CsdlAbstractEdmItem, CsdlNamed, Csdl
    *
    * @return the extends container fQN
    */
-  public FullQualifiedName getExtendsContainerFQN() {
+  public PathName getExtendsContainerPathName() {
     return this.extendsContainer;
   }
 
@@ -124,7 +138,12 @@ public class CsdlEntityContainer implements CsdlAbstractEdmItem, CsdlNamed, Csdl
    * @return function import.
    */
   public CsdlFunctionImport getFunctionImport(final String name) {
-    return getOneByName(name, getFunctionImports());
+    final var imports = getFunctionImports(name);
+    if (imports.isEmpty()) {
+      return null;
+    } else {
+      return imports.get(0);
+    }
   }
 
   /**
@@ -143,7 +162,7 @@ public class CsdlEntityContainer implements CsdlAbstractEdmItem, CsdlNamed, Csdl
    * @return function imports.
    */
   public List<CsdlFunctionImport> getFunctionImports(final String name) {
-    return getAllByName(name, getFunctionImports());
+    return this.functionImportByName.getOrDefault(name, Lists.empty());
   }
 
   // Annotations
@@ -205,7 +224,7 @@ public class CsdlEntityContainer implements CsdlAbstractEdmItem, CsdlNamed, Csdl
    * @return the extends container
    */
   public CsdlEntityContainer setExtendsContainer(final String extendsContainer) {
-    this.extendsContainer = new FullQualifiedName(extendsContainer);
+    this.extendsContainer = PathName.fromDotSeparated(extendsContainer);
     return this;
   }
 

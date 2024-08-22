@@ -10,6 +10,7 @@ import java.util.LinkedHashSet;
 import org.springframework.beans.factory.config.AbstractFactoryBean;
 
 import com.revolsys.io.FileUtil;
+import com.revolsys.io.IoUtil;
 import com.revolsys.io.filter.DirectoryFilenameFilter;
 import com.revolsys.io.filter.ExtensionFilenameFilter;
 
@@ -42,7 +43,7 @@ public class ClassLoaderFactoryBean extends AbstractFactoryBean<ClassLoader> {
     final Collection<URL> urls = new LinkedHashSet<>();
     if (file.isDirectory()) {
       addJars(urls, file);
-    } else if (JAR_FILTER.accept(file.getParentFile(), FileUtil.getFileName(file))) {
+    } else if (JAR_FILTER.accept(file.getParentFile(), IoUtil.getFileName(file))) {
       urls.add(FileUtil.toUrl(file));
     }
     return newClassLoader(parentClassLoader, urls);

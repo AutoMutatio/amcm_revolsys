@@ -59,7 +59,7 @@ public interface JsonList extends ListEx<Object>, JsonType {
 
     @Override
     public boolean equals(final Object object,
-      final Collection<? extends CharSequence> excludeFieldNames) {
+        final Collection<? extends CharSequence> excludeFieldNames) {
       return false;
     }
 
@@ -172,7 +172,7 @@ public interface JsonList extends ListEx<Object>, JsonType {
   }
 
   default boolean addIfNotContains(final Object value,
-    final Collection<? extends CharSequence> excludeFieldNames) {
+      final Collection<? extends CharSequence> excludeFieldNames) {
     final boolean notContains = !contains(value, excludeFieldNames);
     if (notContains) {
       add(value);
@@ -206,20 +206,20 @@ public interface JsonList extends ListEx<Object>, JsonType {
       appendable.append(']');
       return appendable;
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 
   @Override
   default JsonList asJson() {
-    return (JsonList)JsonType.super.asJson();
+    return (JsonList) JsonType.super.asJson();
   }
 
   @Override
   JsonList clone();
 
   default boolean contains(final Object value,
-    final Collection<? extends CharSequence> excludeFieldNames) {
+      final Collection<? extends CharSequence> excludeFieldNames) {
     final int size = size();
     for (int i = 0; i < size; i++) {
       final Object listValue = get(i);
@@ -231,9 +231,9 @@ public interface JsonList extends ListEx<Object>, JsonType {
   }
 
   default boolean equals(final Object value1, final Object value2,
-    final Collection<? extends CharSequence> excludeFieldNames) {
-    final List<?> list1 = (List<?>)value1;
-    final List<?> list2 = (List<?>)value2;
+      final Collection<? extends CharSequence> excludeFieldNames) {
+    final List<?> list1 = (List<?>) value1;
+    final List<?> list2 = (List<?>) value2;
     if (list1.size() != list2.size()) {
       return false;
     } else {
@@ -250,22 +250,22 @@ public interface JsonList extends ListEx<Object>, JsonType {
 
   default <T> void forEachType(final Consumer<T> action) {
     ListEx.super.forEach(value -> {
-      action.accept((T)value);
+      action.accept((T) value);
     });
   }
 
   @SuppressWarnings({
-    "unchecked", "rawtypes"
+      "unchecked", "rawtypes"
   })
   default <T> Iterable<T> iterable() {
-    return (Iterable)this;
+    return (Iterable) this;
   }
 
   @SuppressWarnings({
-    "unchecked", "rawtypes"
+      "unchecked", "rawtypes"
   })
   default Reader<JsonObject> jsonObjects() {
-    return (Reader)Reader.wrap(iterator());
+    return (Reader) Reader.wrap(iterator());
   }
 
   @Override
@@ -274,7 +274,7 @@ public interface JsonList extends ListEx<Object>, JsonType {
     for (final Iterator<Object> iterator = iterator(); iterator.hasNext();) {
       final Object value = iterator.next();
       if (value instanceof JsonType) {
-        final JsonType jsonValue = (JsonType)value;
+        final JsonType jsonValue = (JsonType) value;
         jsonValue.removeEmptyProperties();
         if (jsonValue.isEmpty()) {
           iterator.remove();
@@ -290,7 +290,7 @@ public interface JsonList extends ListEx<Object>, JsonType {
 
   @Override
   default JsonList toJson() {
-    return (JsonList)JsonType.super.toJson();
+    return (JsonList) JsonType.super.toJson();
   }
 
   @Override

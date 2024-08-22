@@ -20,6 +20,24 @@ package org.apache.olingo.commons.api.edm.provider.annotation;
 
 import java.util.Collection;
 
+import org.apache.olingo.commons.core.edm.Edm;
+import org.apache.olingo.commons.core.edm.annotation.AbstractEdmDynamicExpression;
+import org.apache.olingo.commons.core.edm.annotation.EdmAnnotationPath;
+import org.apache.olingo.commons.core.edm.annotation.EdmApply;
+import org.apache.olingo.commons.core.edm.annotation.EdmCast;
+import org.apache.olingo.commons.core.edm.annotation.EdmCollection;
+import org.apache.olingo.commons.core.edm.annotation.EdmIf;
+import org.apache.olingo.commons.core.edm.annotation.EdmIsOf;
+import org.apache.olingo.commons.core.edm.annotation.EdmLabeledElement;
+import org.apache.olingo.commons.core.edm.annotation.EdmLabeledElementReference;
+import org.apache.olingo.commons.core.edm.annotation.EdmLogicalOrComparisonExpression;
+import org.apache.olingo.commons.core.edm.annotation.EdmNavigationPropertyPath;
+import org.apache.olingo.commons.core.edm.annotation.EdmNull;
+import org.apache.olingo.commons.core.edm.annotation.EdmPath;
+import org.apache.olingo.commons.core.edm.annotation.EdmPropertyPath;
+import org.apache.olingo.commons.core.edm.annotation.EdmRecord;
+import org.apache.olingo.commons.core.edm.annotation.EdmUrlRef;
+
 public abstract class CsdlDynamicExpression extends CsdlExpression {
 
   /**
@@ -260,5 +278,60 @@ public abstract class CsdlDynamicExpression extends CsdlExpression {
    */
   public boolean isUrlRef() {
     return this instanceof CsdlUrlRef;
+  }
+
+  @Override
+  public AbstractEdmDynamicExpression toEdm(final Edm edm) {
+    if (isLogicalOrComparison()) {
+      final CsdlLogicalOrComparisonExpression expLocal = asLogicalOrComparison();
+      return switch (asLogicalOrComparison().getType()) {
+        case Not -> new EdmLogicalOrComparisonExpression(edm, expLocal);
+        case And -> new EdmLogicalOrComparisonExpression(edm, expLocal);
+
+        case Or -> new EdmLogicalOrComparisonExpression(edm, expLocal);
+
+        case Eq -> new EdmLogicalOrComparisonExpression(edm, expLocal);
+
+        case Ne -> new EdmLogicalOrComparisonExpression(edm, expLocal);
+
+        case Ge -> new EdmLogicalOrComparisonExpression(edm, expLocal);
+
+        case Gt -> new EdmLogicalOrComparisonExpression(edm, expLocal);
+
+        case Le -> new EdmLogicalOrComparisonExpression(edm, expLocal);
+        case Lt -> new EdmLogicalOrComparisonExpression(edm, expLocal);
+
+        default -> null;
+      };
+    } else if (isAnnotationPath()) {
+      return new EdmAnnotationPath(edm, asAnnotationPath());
+    } else if (isApply()) {
+      return new EdmApply(edm, asApply());
+    } else if (isCast()) {
+      return new EdmCast(edm, asCast());
+    } else if (isCollection()) {
+      return new EdmCollection(edm, asCollection());
+    } else if (isIf()) {
+      return new EdmIf(edm, asIf());
+    } else if (isIsOf()) {
+      return new EdmIsOf(edm, asIsOf());
+    } else if (isLabeledElement()) {
+      return new EdmLabeledElement(edm, asLabeledElement());
+    } else if (isLabeledElementReference()) {
+      return new EdmLabeledElementReference(edm, asLabeledElementReference());
+    } else if (isNull()) {
+      return new EdmNull(edm, asNull());
+    } else if (isNavigationPropertyPath()) {
+      return new EdmNavigationPropertyPath(edm, asNavigationPropertyPath());
+    } else if (isPath()) {
+      return new EdmPath(edm, asPath());
+    } else if (isPropertyPath()) {
+      return new EdmPropertyPath(edm, asPropertyPath());
+    } else if (isRecord()) {
+      return new EdmRecord(edm, asRecord());
+    } else if (isUrlRef()) {
+      return new EdmUrlRef(edm, asUrlRef());
+    }
+    return null;
   }
 }

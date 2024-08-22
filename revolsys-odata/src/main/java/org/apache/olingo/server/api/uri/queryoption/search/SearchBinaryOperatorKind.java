@@ -22,9 +22,11 @@ public enum SearchBinaryOperatorKind {
   AND, OR;
 
   public static SearchBinaryOperatorKind get(final String operator) {
-    if (AND.name().equals(operator)) {
+    if (AND.name()
+      .equals(operator)) {
       return AND;
-    } else if (OR.name().equals(operator)) {
+    } else if (OR.name()
+      .equals(operator)) {
       return OR;
     } else {
       return null;

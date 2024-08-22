@@ -76,7 +76,6 @@ public class TriangulationVisualization {
           g2.setPaint(WebColors.White);
           g2.fillRect(0, 0, 800, 800);
           g2.transform(transform);
-          synchronized (tin) {
             g2.setStroke(new BasicStroke((float)(1 / pixelsPerXUnit)));
             tin.forEachTriangle((triangle) -> {
               g2.setPaint(WebColors.newAlpha(WebColors.Aqua, 25));
@@ -119,7 +118,6 @@ public class TriangulationVisualization {
                 g2.setColor(WebColors.Red);
                 g2.draw(ellipse);
               });
-            }
             // for (int vertexIndex = 0; vertexIndex < tin.getVertexCount();
             // vertexIndex++) {
             // final Point point = tin.getVertex(vertexIndex);

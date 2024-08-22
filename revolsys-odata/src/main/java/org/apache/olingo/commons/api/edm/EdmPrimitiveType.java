@@ -18,6 +18,9 @@
  */
 package org.apache.olingo.commons.api.edm;
 
+import com.revolsys.data.type.DataType;
+import com.revolsys.io.PathName;
+
 /**
  * EdmPrimitiveType is a primitive type as defined in the Entity Data Model (EDM).
  * <br/>
@@ -71,20 +74,22 @@ package org.apache.olingo.commons.api.edm;
  */
 public interface EdmPrimitiveType extends EdmType {
 
-  String EDM_NAMESPACE = "Edm";
+  PathName EDM_NAMESPACE = PathName.newPathName("Edm");
 
   /**
-   * Converts URI literal representation to default literal representation.
-   * <p>
-   * Returns <code>null</code> if the literal is <code>null</code>. Checks the presence of a required prefix and of
-   * required surrounding quotation marks but does not perform any further validation.
-   * </p>
-   *
-   * @param literal the literal in URI representation
-   * @return default literal representation as String
-   * @throws EdmPrimitiveTypeException if a required prefix or required surrounding quotation marks are missing
-   */
+  * Converts URI literal representation to default literal representation.
+  * <p>
+  * Returns <code>null</code> if the literal is <code>null</code>. Checks the presence of a required prefix and of
+  * required surrounding quotation marks but does not perform any further validation.
+  * </p>
+  *
+  * @param literal the literal in URI representation
+  * @return default literal representation as String
+  * @throws EdmPrimitiveTypeException if a required prefix or required surrounding quotation marks are missing
+  */
   String fromUriLiteral(String literal) throws EdmPrimitiveTypeException;
+
+  DataType getDataType();
 
   /**
    * Returns the default Java type for this EDM primitive type as described in the documentation of
@@ -101,6 +106,18 @@ public interface EdmPrimitiveType extends EdmType {
    * @return <code>true</code> if the provided type is compatible to this type
    */
   boolean isCompatible(EdmPrimitiveType primitiveType);
+
+  default boolean isEnum() {
+    return false;
+  }
+
+  default boolean isGeospatial() {
+    return false;
+  }
+
+  default boolean isPrimitive() {
+    return false;
+  }
 
   /**
    * Converts default literal representation to URI literal representation.
@@ -121,11 +138,10 @@ public interface EdmPrimitiveType extends EdmType {
    * @param maxLength the maximum length
    * @param precision the precision
    * @param scale the scale
-   * @param isUnicode whether non-ASCII characters are allowed (relevant only for Edm.String)
    * @return <code>true</code> if the validation is successful
    */
   boolean validate(String value, Boolean isNullable, Integer maxLength, Integer precision,
-    Integer scale, Boolean isUnicode);
+    Integer scale);
 
   /**
    * Validates literal value for Decimal values in V4.01
@@ -135,11 +151,10 @@ public interface EdmPrimitiveType extends EdmType {
    * @param maxLength the maximum length
    * @param precision the precision
    * @param scale the scale (could be variable or floating)
-   * @param isUnicode whether non-ASCII characters are allowed (relevant only for Edm.String)
    * @return <code>true</code> if the validation is successful
    */
   default boolean validateDecimals(final String value, final Boolean isNullable,
-    final Integer maxLength, final Integer precision, final String scale, final Boolean isUnicode) {
+    final Integer maxLength, final Integer precision, final String scale) {
     return false;
   }
 
@@ -151,31 +166,22 @@ public interface EdmPrimitiveType extends EdmType {
    * @param maxLength the maximum length
    * @param precision the precision
    * @param scale the scale
-   * @param isUnicode whether non-ASCII characters are allowed (relevant only for Edm.String)
-   * @param returnType the class of the returned value; it must be one of the list in the documentation of
-   * {@link EdmPrimitiveType}
    * @throws EdmPrimitiveTypeException
    * @return the value as an instance of the class the parameter <code>returnType</code> indicates
    */
-  <T> T valueOfString(String value, Boolean isNullable, Integer maxLength, Integer precision,
-    Integer scale, Boolean isUnicode, Class<T> returnType) throws EdmPrimitiveTypeException;
+  Object valueOfString(String value, Boolean isNullable, Integer maxLength, Integer precision,
+    Integer scale) throws EdmPrimitiveTypeException;
 
   /**
-   * Converts system data type to literal representation of value.
-   * <p>
-   * Returns <code>null</code> if value is <code>null</code> and <code>null</code> is an allowed value.
-   * </p>
-   *
-   * @param value the Java value as Object; its type must be one of the list in the documentation of
-   * {@link EdmPrimitiveType}
-   * @param isNullable whether the <code>null</code> value is allowed
-   * @param maxLength the maximum length
-   * @param precision the precision
-   * @param scale the scale
-   * @param isUnicode whether non-ASCII characters are allowed (relevant only for Edm.String)
-   * @throws EdmPrimitiveTypeException
-   * @return literal representation as String
-   */
-  String valueToString(Object value, Boolean isNullable, Integer maxLength, Integer precision,
-    Integer scale, Boolean isUnicode) throws EdmPrimitiveTypeException;
+  * Converts system data type to literal representation of value.
+  * <p>
+  * Returns <code>null</code> if value is <code>null</code> and <code>null</code> is an allowed value.
+  * </p>
+  *
+  * @param value the Java value as Object; its type must be one of the list in the documentation of
+  * {@link EdmPrimitiveType}
+  * @throws EdmPrimitiveTypeException
+  * @return literal representation as String
+  */
+  String valueToString(Object value) throws EdmPrimitiveTypeException;
 }

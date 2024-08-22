@@ -57,9 +57,7 @@ public class BaseTreeNode implements TreeNode, Iterable<BaseTreeNode>, PropertyC
     final Function<Path, BaseTreeNode> pathFactory = PathTreeNode::newTreeNode;
     addNodeFactory(Path.class, pathFactory);
 
-    addNodeFactory(BaseTreeNode.class, (object) -> {
-      return (BaseTreeNode)object;
-    });
+    addNodeFactory(BaseTreeNode.class, object -> ((BaseTreeNode)object));
   }
 
   @SuppressWarnings({
@@ -69,8 +67,8 @@ public class BaseTreeNode implements TreeNode, Iterable<BaseTreeNode>, PropertyC
     NODE_FACTORY_REGISTRY.put(clazz, (Function)factory);
   }
 
-  public static void addNodeFactory(final Class<?> clazz, final Function<?, BaseTreeNode> factory,
-    final Icon icon) {
+  public static <C> void addNodeFactory(final Class<C> clazz,
+    final Function<C, BaseTreeNode> factory, final Icon icon) {
     addNodeFactory(clazz, factory);
     addNodeIcon(clazz, icon);
   }
@@ -110,6 +108,8 @@ public class BaseTreeNode implements TreeNode, Iterable<BaseTreeNode>, PropertyC
     }
     return node;
   }
+
+  private MenuFactory menu;
 
   private boolean open;
 
@@ -192,13 +192,14 @@ public class BaseTreeNode implements TreeNode, Iterable<BaseTreeNode>, PropertyC
   @Override
   public int compareTo(final BaseTreeNode other) {
     final String name1 = getName().toLowerCase();
-    final String name2 = other.getName().toLowerCase();
+    final String name2 = other.getName()
+      .toLowerCase();
     return name1.compareTo(name2);
   }
 
   public final void delete() {
     try {
-      final List<BaseTreeNode> children = this.getChildren();
+      final List<BaseTreeNode> children = getChildren();
       delete(children);
       closeDo();
       removeListener();
@@ -250,7 +251,8 @@ public class BaseTreeNode implements TreeNode, Iterable<BaseTreeNode>, PropertyC
       return true;
     } else if (object == userObject) {
       return true;
-    } else if (object.getClass().equals(getClass())) {
+    } else if (object.getClass()
+      .equals(getClass())) {
       final BaseTreeNode node = (BaseTreeNode)object;
       final Object otherUserObject1 = node.getUserObject();
       if (DataType.equal(userObject, otherUserObject1)) {
@@ -376,12 +378,15 @@ public class BaseTreeNode implements TreeNode, Iterable<BaseTreeNode>, PropertyC
   }
 
   public MenuFactory getMenu() {
-    final Object object = getUserObject();
-    if (object == null) {
-      return null;
-    } else {
-      return MenuFactory.getMenu(object);
+    if (this.menu == null) {
+      final Object object = getUserObject();
+      if (object == null) {
+        this.menu = new MenuFactory();
+      } else {
+        this.menu = MenuFactory.getMenu(object);
+      }
     }
+    return this.menu;
   }
 
   public String getName() {

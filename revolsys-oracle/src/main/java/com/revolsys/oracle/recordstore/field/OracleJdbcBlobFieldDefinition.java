@@ -77,7 +77,7 @@ public class OracleJdbcBlobFieldDefinition extends JdbcFieldDefinition {
           InputStream in = openInputStream(value)) {
           statement.setBinaryStream(parameterIndex, in);
         } catch (final IOException e) {
-          throw Exceptions.wrap(e);
+          throw Exceptions.toRuntimeException(e);
         }
       }
     }

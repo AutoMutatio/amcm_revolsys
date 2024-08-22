@@ -24,7 +24,7 @@ import java.util.List;
 /**
  * Data representation for a linked object.
  */
-public abstract class Linked extends AbstractODataObject {
+public abstract class Linked extends AbstractODataObject implements ODataLinked {
 
   private final List<Link> associationLinks = new ArrayList<>();
 
@@ -34,9 +34,10 @@ public abstract class Linked extends AbstractODataObject {
 
   @Override
   public boolean equals(final Object o) {
-    return super.equals(o) && this.associationLinks.equals(((Linked)o).associationLinks)
-      && this.navigationLinks.equals(((Linked)o).navigationLinks)
-      && this.bindingLinks.equals(((Linked)o).bindingLinks);
+    final var linked = (Linked)o;
+    return super.equals(o) && this.associationLinks.equals(linked.associationLinks)
+      && this.navigationLinks.equals(linked.navigationLinks)
+      && this.bindingLinks.equals(linked.bindingLinks);
   }
 
   /**
@@ -45,6 +46,7 @@ public abstract class Linked extends AbstractODataObject {
    * @param name candidate link name
    * @return association link with given name, if available, otherwise <tt>null</tt>
    */
+  @Override
   public Link getAssociationLink(final String name) {
     return getOneByTitle(name, this.associationLinks);
   }
@@ -54,6 +56,7 @@ public abstract class Linked extends AbstractODataObject {
    *
    * @return association links.
    */
+  @Override
   public List<Link> getAssociationLinks() {
     return this.associationLinks;
   }
@@ -63,6 +66,7 @@ public abstract class Linked extends AbstractODataObject {
    * @param name candidate link name
    * @return binding link with given name, if available, otherwise <tt>null</tt>
    */
+  @Override
   public Link getNavigationBinding(final String name) {
     return getOneByTitle(name, this.bindingLinks);
   }
@@ -72,6 +76,7 @@ public abstract class Linked extends AbstractODataObject {
    *
    * @return links.
    */
+  @Override
   public List<Link> getNavigationBindings() {
     return this.bindingLinks;
   }
@@ -82,6 +87,7 @@ public abstract class Linked extends AbstractODataObject {
    * @param name candidate link name
    * @return navigation link with given name, if available, otherwise <tt>null</tt>
    */
+  @Override
   public Link getNavigationLink(final String name) {
     return getOneByTitle(name, this.navigationLinks);
   }
@@ -91,6 +97,7 @@ public abstract class Linked extends AbstractODataObject {
    *
    * @return links.
    */
+  @Override
   public List<Link> getNavigationLinks() {
     return this.navigationLinks;
   }

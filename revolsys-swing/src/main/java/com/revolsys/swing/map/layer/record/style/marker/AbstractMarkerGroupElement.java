@@ -3,7 +3,7 @@ package com.revolsys.swing.map.layer.record.style.marker;
 import java.util.Map;
 
 import com.revolsys.collection.json.JsonObject;
-import com.revolsys.io.map.MapSerializer;
+import com.revolsys.io.MapSerializer;
 import com.revolsys.properties.AbstractNameTitle;
 
 public abstract class AbstractMarkerGroupElement extends AbstractNameTitle

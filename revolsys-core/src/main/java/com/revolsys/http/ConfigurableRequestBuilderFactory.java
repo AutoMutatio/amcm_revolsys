@@ -45,11 +45,7 @@ public class ConfigurableRequestBuilderFactory extends HttpRequestBuilderFactory
   }
 
   @Override
-  public HttpRequestBuilder newRequestBuilder() {
-    return new ConfigurableRequestBuilder(this);
-  }
-
-  public void preBuild(final ConfigurableRequestBuilder requestBuilder) {
+  public void preBuild(final HttpRequestBuilder requestBuilder) {
     for (final Header header : this.headers) {
       requestBuilder.addHeader(header);
     }

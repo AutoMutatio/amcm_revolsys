@@ -243,7 +243,7 @@ public class CoordinateOperationMethod
     }
   }
 
-  public synchronized CoordinatesProjection newCoordinatesProjection(
+  public CoordinatesProjection newCoordinatesProjection(
     final ProjectedCoordinateSystem coordinateSystem) {
     if (this.coordinatesProjectionFactory == null) {
       return ProjectionFactory.newCoordinatesProjection(coordinateSystem);

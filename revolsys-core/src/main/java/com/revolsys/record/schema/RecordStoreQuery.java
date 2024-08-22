@@ -8,10 +8,8 @@ import com.revolsys.record.Record;
 import com.revolsys.record.io.RecordReader;
 import com.revolsys.record.query.Query;
 import com.revolsys.record.query.StringBuilderSqlAppendable;
-import com.revolsys.transaction.Transaction;
-import com.revolsys.transaction.TransactionOption;
-import com.revolsys.transaction.TransactionOptions;
-import com.revolsys.transaction.TransactionRecordReader;
+import com.revolsys.record.query.TableReferenceProxy;
+import com.revolsys.transaction.TransactionBuilder;
 
 public class RecordStoreQuery extends Query {
 
@@ -21,44 +19,35 @@ public class RecordStoreQuery extends Query {
     this.recordStore = recordStore;
   }
 
+  public RecordStoreQuery(final RecordStore recordStore, final TableReferenceProxy table) {
+    super(table);
+    this.recordStore = recordStore;
+  }
+
   @Override
   public int deleteRecords() {
-    try (
-      Transaction transaction = this.recordStore.newTransaction(TransactionOptions.REQUIRED)) {
-      return this.recordStore.deleteRecords(this);
-    }
+    return transactionCall(() -> this.recordStore.deleteRecords(this));
   }
 
   @SuppressWarnings("unchecked")
   @Override
   public <R extends Record> R getRecord() {
-    return (R)this.recordStore.getRecord(this);
+    return transactionCall(() -> (R)this.recordStore.getRecord(this));
   }
 
   @Override
   public long getRecordCount() {
-    return this.recordStore.getRecordCount(this);
+    return transactionCall(() -> this.recordStore.getRecordCount(this));
   }
 
   @Override
   public RecordReader getRecordReader() {
-    final Transaction transaction = this.recordStore.newTransaction(TransactionOptions.REQUIRED);
-    final RecordReader reader = this.recordStore.getRecords(this);
-    return new TransactionRecordReader(reader, transaction);
-  }
-
-  @Override
-  public RecordReader getRecordReader(Transaction transaction) {
-    if (transaction == null) {
-      transaction = this.recordStore.newTransaction(TransactionOptions.REQUIRED);
-    }
-    final RecordReader reader = this.recordStore.getRecords(this);
-    return new TransactionRecordReader(reader, transaction);
+    return this.recordStore.getRecords(this);
   }
 
   @Override
   public Record insertRecord(final Supplier<Record> newRecordSupplier) {
-    return this.recordStore.insertRecord(this, newRecordSupplier);
+    return transactionCall(() -> this.recordStore.insertRecord(this, newRecordSupplier));
   }
 
   @Override
@@ -69,22 +58,17 @@ public class RecordStoreQuery extends Query {
   }
 
   @Override
-  public Transaction newTransaction() {
-    return this.recordStore.newTransaction();
-  }
-
-  @Override
-  public Transaction newTransaction(final TransactionOption... options) {
-    return this.recordStore.newTransaction(options);
+  public TransactionBuilder transaction() {
+    return this.recordStore.transaction();
   }
 
   @Override
   public Record updateRecord(final Consumer<Record> updateAction) {
-    return this.recordStore.updateRecord(this, updateAction);
+    return transactionCall(() -> this.recordStore.updateRecord(this, updateAction));
   }
 
   @Override
   public int updateRecords(final Consumer<? super ChangeTrackRecord> updateAction) {
-    return this.recordStore.updateRecords(this, updateAction);
+    return transactionCall(() -> this.recordStore.updateRecords(this, updateAction));
   }
 }

@@ -31,9 +31,11 @@ public class BatchTransformatorCommon {
   public static int getContentLength(final Header headers) throws BatchDeserializerException {
     final HeaderField contentLengthField = headers.getHeaderField(HttpHeader.CONTENT_LENGTH);
 
-    if (contentLengthField != null && contentLengthField.getValues().size() == 1) {
+    if (contentLengthField != null && contentLengthField.getValues()
+      .size() == 1) {
       try {
-        final int contentLength = Integer.parseInt(contentLengthField.getValues().get(0));
+        final int contentLength = Integer.parseInt(contentLengthField.getValues()
+          .get(0));
 
         if (contentLength < 0) {
           throw new BatchDeserializerException("Invalid content length",
@@ -81,9 +83,13 @@ public class BatchTransformatorCommon {
     throws BatchDeserializerException {
     final HeaderField hostField = headers.getHeaderField(HttpHeader.HOST);
 
-    if (hostField != null && (hostField.getValues().size() > 1 || !URI.create(baseUri)
-      .getAuthority()
-      .equalsIgnoreCase(hostField.getValues().get(0).strip()))) {
+    if (hostField != null && (hostField.getValues()
+      .size() > 1
+      || !URI.create(baseUri)
+        .getAuthority()
+        .equalsIgnoreCase(hostField.getValues()
+          .get(0)
+          .strip()))) {
       throw new BatchDeserializerException("Invalid Host header", MessageKeys.INVALID_HOST,
         Integer.toString(headers.getLineNumber()));
     }

@@ -33,16 +33,16 @@ import org.apache.olingo.commons.api.edm.EdmStructuredType;
 import org.apache.olingo.commons.core.Encoder;
 import org.apache.olingo.server.api.serializer.SerializerException;
 import org.apache.olingo.server.api.uri.UriParameter;
-import org.apache.olingo.server.api.uri.UriResource;
-import org.apache.olingo.server.api.uri.UriResourceAction;
-import org.apache.olingo.server.api.uri.UriResourceComplexProperty;
-import org.apache.olingo.server.api.uri.UriResourceFunction;
-import org.apache.olingo.server.api.uri.UriResourceNavigation;
-import org.apache.olingo.server.api.uri.UriResourceProperty;
 import org.apache.olingo.server.api.uri.queryoption.ExpandItem;
 import org.apache.olingo.server.api.uri.queryoption.ExpandOption;
 import org.apache.olingo.server.api.uri.queryoption.SelectItem;
 import org.apache.olingo.server.api.uri.queryoption.SelectOption;
+import org.apache.olingo.server.core.uri.UriResource;
+import org.apache.olingo.server.core.uri.UriResourceAction;
+import org.apache.olingo.server.core.uri.UriResourceComplexProperty;
+import org.apache.olingo.server.core.uri.UriResourceFunction;
+import org.apache.olingo.server.core.uri.UriResourceNavigationProperty;
+import org.apache.olingo.server.core.uri.UriResourceProperty;
 
 public final class ContextURLHelper {
 
@@ -63,7 +63,8 @@ public final class ContextURLHelper {
     if (keys == null || keys.isEmpty()) {
       return null;
     } else if (keys.size() == 1) {
-      return Encoder.encode(keys.get(0).getText());
+      return Encoder.encode(keys.get(0)
+        .getText());
     } else {
       final StringBuilder result = new StringBuilder();
       for (final UriParameter key : keys) {
@@ -81,7 +82,8 @@ public final class ContextURLHelper {
   private static String buildPropertyPath(final List<String> path) {
     final StringBuilder result = new StringBuilder();
     for (final String segment : path) {
-      result.append(result.length() == 0 ? "" : '/').append(Encoder.encode(segment)); //$NON-NLS-1$
+      result.append(result.length() == 0 ? "" : '/') //$NON-NLS-1$
+        .append(Encoder.encode(segment));
     }
     return result.length() == 0 ? null : result.toString();
   }
@@ -142,9 +144,11 @@ public final class ContextURLHelper {
           }
           final int position = getPositionToAddProperty(selectItems, propertyName, selectedPaths);
           if (position == -1) {
-            complexSelectedPaths.get(0).add(propertyName);
+            complexSelectedPaths.get(0)
+              .add(propertyName);
           } else {
-            complexSelectedPaths.get(0).add(position, propertyName);
+            complexSelectedPaths.get(0)
+              .add(position, propertyName);
           }
         }
 
@@ -189,35 +193,37 @@ public final class ContextURLHelper {
   private static void constructSelectItemListForActionsAndFunctions(final EdmStructuredType type,
     final StringBuilder result, final List<SelectItem> selectItems) {
     for (final SelectItem item : selectItems) {
-      final UriResource resource = item.getResourcePath().getUriResourceParts().get(0);
+      final UriResource resource = item.getResourcePath()
+        .getUriResourceParts()
+        .get(0);
       if (resource instanceof UriResourceAction) {
         final EdmAction action = ((UriResourceAction)resource).getAction();
         if (action != null && action.isBound()) {
-          final String actionBindingParamType = action.getBindingParameterTypeFqn()
-            .getFullQualifiedNameAsString();
-          if (type.getFullQualifiedName()
-            .getFullQualifiedNameAsString()
+          final String actionBindingParamType = action.getBindingParameterTypePathName()
+            .toString();
+          if (type.getPathName()
+            .toString()
             .equalsIgnoreCase(actionBindingParamType)) {
             if (result.length() > 0) {
               result.append(',');
             }
-            result
-              .append(Encoder.encode(action.getFullQualifiedName().getFullQualifiedNameAsString()));
+            result.append(Encoder.encode(action.getPathName()
+              .toString()));
           }
         }
       } else if (resource instanceof UriResourceFunction) {
         final EdmFunction function = ((UriResourceFunction)resource).getFunction();
         if (function != null && function.isBound()) {
-          final String functionBindingParamType = function.getBindingParameterTypeFqn()
-            .getFullQualifiedNameAsString();
-          if (type.getFullQualifiedName()
-            .getFullQualifiedNameAsString()
+          final String functionBindingParamType = function.getBindingParameterTypePathName()
+            .toString();
+          if (type.getPathName()
+            .toString()
             .equalsIgnoreCase(functionBindingParamType)) {
             if (result.length() > 0) {
               result.append(',');
             }
-            result.append(
-              Encoder.encode(function.getFullQualifiedName().getFullQualifiedNameAsString()));
+            result.append(Encoder.encode(function.getPathName()
+              .toString()));
           }
         }
       }
@@ -233,8 +239,9 @@ public final class ContextURLHelper {
     for (final List<String> pathSel : selectedPaths) {
       int i = 0;
       for (final String sel : pathSel) {
-        if (sel.equalsIgnoreCase(
-          part.getComplexTypeFilter().getFullQualifiedName().getFullQualifiedNameAsString())) {
+        if (sel.equalsIgnoreCase(part.getComplexTypeFilter()
+          .getPathName()
+          .toString())) {
           return i;
         }
         i++;
@@ -298,7 +305,8 @@ public final class ContextURLHelper {
   private static int getPositionToAddProperty(final List<SelectItem> selectItems,
     final String propertyName, final Set<List<String>> selectedPaths) {
     for (final SelectItem item : selectItems) {
-      final List<UriResource> parts = item.getResourcePath().getUriResourceParts();
+      final List<UriResource> parts = item.getResourcePath()
+        .getUriResourceParts();
       int i = 0;
       for (final UriResource part : parts) {
         if (part instanceof UriResourceComplexProperty
@@ -310,8 +318,10 @@ public final class ContextURLHelper {
           } else {
             return i;
           }
-        } else if (part instanceof UriResourceNavigation
-          && ((UriResourceNavigation)part).getProperty().getName().equalsIgnoreCase(propertyName)) {
+        } else if (part instanceof UriResourceNavigationProperty
+          && ((UriResourceNavigationProperty)part).getProperty()
+            .getName()
+            .equalsIgnoreCase(propertyName)) {
           return -1;
         }
         i++;
@@ -324,7 +334,8 @@ public final class ContextURLHelper {
     final List<String> result = new LinkedList<>();
     int index = 1;
     while (index < path.size() && path.get(index) instanceof UriResourceProperty) {
-      result.add(((UriResourceProperty)path.get(index)).getProperty().getName());
+      result.add(((UriResourceProperty)path.get(index)).getProperty()
+        .getName());
       index++;
     }
     return result;
@@ -360,9 +371,8 @@ public final class ContextURLHelper {
         if (ExpandSelectHelper.hasExpand(expandItem.getExpandOption())
           && !(null != ExpandSelectHelper.getExpandAll(expandItem.getExpandOption()))
           || ExpandSelectHelper.hasSelect(expandItem.getSelectOption())) {
-          final String innerSelectList = buildSelectList(
-            type.getNavigationProperty(propertyName).getType(), expandItem.getExpandOption(),
-            expandItem.getSelectOption());
+          final String innerSelectList = buildSelectList(type.getNavigationProperty(propertyName)
+            .getType(), expandItem.getExpandOption(), expandItem.getSelectOption());
           if (innerSelectList != null) {
             if (result.length() > 0) {
               result.append(',');
@@ -382,7 +392,8 @@ public final class ContextURLHelper {
             final List<String> path = getPropertyPath(resourceParts);
             final String propertyPath = buildPropertyPath(path);
             result.append(Encoder.encode(propertyName));
-            result.append("/").append(propertyPath);
+            result.append("/")
+              .append(propertyPath);
           } else {
             appendExpandedProperty(result, propertyName);
           }

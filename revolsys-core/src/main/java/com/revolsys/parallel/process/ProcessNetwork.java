@@ -8,13 +8,13 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.locks.Condition;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 
-import com.revolsys.collection.map.ThreadSharedProperties;
 import com.revolsys.exception.Exceptions;
 import com.revolsys.exception.WrappedInterruptedException;
 import com.revolsys.logging.Logs;
@@ -47,13 +47,15 @@ public class ProcessNetwork {
   public static <V> void forEach(final int processCount, final Iterable<V> values,
     final Consumer<V> action) {
     final Iterator<V> iterator = values.iterator();
+    final var lock = new ReentrantLockEx();
     if (iterator.hasNext()) {
       final ProcessNetwork processNetwork = new ProcessNetwork();
       for (int i = 0; i < processCount; i++) {
         processNetwork.addProcess(() -> {
           while (true) {
             V value;
-            synchronized (values) {
+            try (
+              var l = lock.lockX()) {
               if (iterator.hasNext()) {
                 value = iterator.next();
               } else {
@@ -115,7 +117,17 @@ public class ProcessNetwork {
     processNetwork.startAndWait();
   }
 
+  public static void startAndWait(final Iterable<Runnable> processes) {
+    final ProcessNetwork processNetwork = new ProcessNetwork(processes);
+    processNetwork.startAndWait();
+  }
+
   public static void startAndWait(final Process... processes) {
+    final ProcessNetwork processNetwork = new ProcessNetwork(processes);
+    processNetwork.startAndWait();
+  }
+
+  public static void startAndWait(final Runnable... processes) {
     final ProcessNetwork processNetwork = new ProcessNetwork(processes);
     processNetwork.startAndWait();
   }
@@ -146,14 +158,16 @@ public class ProcessNetwork {
 
   private boolean stopping = false;
 
-  private final Object sync = new Object();
+  private final ReentrantLockEx lock = new ReentrantLockEx();
+
+  private final Condition lockCondition = this.lock.newCondition();
 
   private ThreadGroup threadGroup;
 
   public ProcessNetwork() {
   }
 
-  public ProcessNetwork(final Collection<? extends Runnable> processes) {
+  public ProcessNetwork(final Iterable<? extends Runnable> processes) {
     for (final Runnable runnable : processes) {
       if (runnable instanceof Process) {
         final Process process = (Process)runnable;
@@ -189,7 +203,8 @@ public class ProcessNetwork {
   }
 
   public ProcessNetwork addProcess(final Process process) {
-    synchronized (this.sync) {
+    try (
+      var l = this.lock.lockX()) {
       if (this.stopping) {
         return this;
       } else {
@@ -248,7 +263,8 @@ public class ProcessNetwork {
   }
 
   private void finishRunning() {
-    synchronized (this.sync) {
+    try (
+      var l = this.lock.lockX()) {
       this.running = false;
       this.processes.clear();
     }
@@ -275,7 +291,7 @@ public class ProcessNetwork {
   }
 
   protected Object getSync() {
-    return this.sync;
+    return this.lock;
   }
 
   public ThreadGroup getThreadGroup() {
@@ -290,7 +306,6 @@ public class ProcessNetwork {
   public void init() {
     if (this.parent == null) {
       this.threadGroup = new ThreadGroup(this.name);
-      ThreadSharedProperties.initialiseThreadGroup(this.threadGroup);
     }
   }
 
@@ -299,7 +314,8 @@ public class ProcessNetwork {
   }
 
   void removeProcess(final Process process) {
-    synchronized (this.sync) {
+    try (
+      var l = this.lock.lockX()) {
       if (this.processes != null) {
         this.processes.remove(process);
         this.count--;
@@ -311,7 +327,7 @@ public class ProcessNetwork {
         }
         if (this.count == 0) {
           finishRunning();
-          this.sync.notifyAll();
+          this.lockCondition.signalAll();
         }
       } else {
         this.parent.removeProcess(process);
@@ -339,7 +355,8 @@ public class ProcessNetwork {
 
   public ProcessNetwork start() {
     if (this.parent == null) {
-      synchronized (this.sync) {
+      try (
+        var l = this.lock.lockX()) {
         this.running = true;
         if (this.processes != null) {
           for (final Process process : new ArrayList<>(this.processes.keySet())) {
@@ -353,41 +370,44 @@ public class ProcessNetwork {
   }
 
   private synchronized void start(final Process process) {
-    if (this.parent == null) {
-      if (this.processes != null) {
-        Thread thread = this.processes.get(process);
-        if (thread == null) {
-          final Process runProcess;
-          if (process instanceof TargetBeanProcess) {
-            final TargetBeanProcess targetBeanProcess = (TargetBeanProcess)process;
-            runProcess = targetBeanProcess.getProcess();
-            this.processes.remove(process);
-          } else {
-            runProcess = process;
-          }
-          final String name = runProcess.toString();
-          final Runnable runnable = () -> {
-            try {
-              runProcess.run();
-            } catch (final Throwable e) {
-              Logs.error(this, e);
-            } finally {
-              try {
-                removeProcess(runProcess);
-              } finally {
-                runProcess.close();
-              }
+    try (
+      var l = this.lock.lockX()) {
+      if (this.parent == null) {
+        if (this.processes != null) {
+          Thread thread = this.processes.get(process);
+          if (thread == null) {
+            final Process runProcess;
+            if (process instanceof TargetBeanProcess) {
+              final TargetBeanProcess targetBeanProcess = (TargetBeanProcess)process;
+              runProcess = targetBeanProcess.getProcess();
+              this.processes.remove(process);
+            } else {
+              runProcess = process;
             }
-          };
-          if (name == null) {
-            thread = new Thread(this.threadGroup, runnable);
-          } else {
-            thread = new Thread(this.threadGroup, runnable, name);
-          }
-          this.processes.put(runProcess, thread);
-          if (!thread.isAlive()) {
-            thread.start();
-            this.count++;
+            final String name = runProcess.toString();
+            final Runnable runnable = () -> {
+              try {
+                runProcess.run();
+              } catch (final Throwable e) {
+                Logs.error(this, e);
+              } finally {
+                try {
+                  removeProcess(runProcess);
+                } finally {
+                  runProcess.close();
+                }
+              }
+            };
+            if (name == null) {
+              thread = new Thread(this.threadGroup, runnable);
+            } else {
+              thread = new Thread(this.threadGroup, runnable, name);
+            }
+            this.processes.put(runProcess, thread);
+            if (!thread.isAlive()) {
+              thread.start();
+              this.count++;
+            }
           }
         }
       }
@@ -395,19 +415,20 @@ public class ProcessNetwork {
   }
 
   public void startAndWait() {
-    synchronized (this.sync) {
+    try (
+      var l = this.lock.lockX()) {
       start();
       waitTillFinished();
     }
   }
 
-  @SuppressWarnings("deprecation")
   @PreDestroy
   public void stop() {
     final List<Thread> threads;
-    synchronized (this.sync) {
+    try (
+      var l = this.lock.lockX()) {
       this.stopping = true;
-      this.sync.notifyAll();
+      this.lockCondition.signalAll();
       threads = new ArrayList<>(this.processes.values());
     }
     boolean interrupted = false;
@@ -442,7 +463,8 @@ public class ProcessNetwork {
         }
       }
       if (interrupted) {
-        Thread.currentThread().interrupt();
+        Thread.currentThread()
+          .interrupt();
       }
     } finally {
       finishRunning();
@@ -456,13 +478,14 @@ public class ProcessNetwork {
 
   public void waitTillFinished() {
     if (this.parent == null) {
-      synchronized (this.sync) {
+      try (
+        var l = this.lock.lockX()) {
         try {
           while (!this.stopping && this.count > 0) {
             try {
-              this.sync.wait();
+              this.lockCondition.await();
             } catch (final InterruptedException e) {
-              Exceptions.throwUncheckedException(e);
+              throw Exceptions.toRuntimeException(e);
             }
           }
         } finally {

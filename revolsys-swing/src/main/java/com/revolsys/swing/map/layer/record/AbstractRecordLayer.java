@@ -45,7 +45,6 @@ import org.springframework.expression.EvaluationContext;
 import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
-import org.springframework.transaction.PlatformTransactionManager;
 
 import com.revolsys.collection.EmptyReference;
 import com.revolsys.collection.json.JsonObject;
@@ -70,7 +69,6 @@ import com.revolsys.geometry.model.LineString;
 import com.revolsys.geometry.model.Point;
 import com.revolsys.geometry.model.editor.BoundingBoxEditor;
 import com.revolsys.geometry.util.RectangleUtil;
-import com.revolsys.io.FileUtil;
 import com.revolsys.io.PathName;
 import com.revolsys.io.map.MapObjectFactory;
 import com.revolsys.logging.Logs;
@@ -93,7 +91,6 @@ import com.revolsys.record.query.Query;
 import com.revolsys.record.query.QueryValue;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
-import com.revolsys.record.schema.RecordStore;
 import com.revolsys.spring.resource.ByteArrayResource;
 import com.revolsys.spring.resource.PathResource;
 import com.revolsys.spring.resource.Resource;
@@ -152,6 +149,7 @@ import com.revolsys.swing.preferences.PreferenceFields;
 import com.revolsys.swing.table.BaseJTable;
 import com.revolsys.swing.undo.MultipleUndo;
 import com.revolsys.swing.undo.SetRecordFieldValueUndo;
+import com.revolsys.transaction.TransactionBuilder;
 import com.revolsys.transaction.Transactionable;
 import com.revolsys.util.BaseCloseable;
 import com.revolsys.util.PreferenceKey;
@@ -1390,7 +1388,7 @@ public abstract class AbstractRecordLayer extends AbstractLayer implements
               }
             }
           } finally {
-            FileUtil.closeSilent(reader);
+            BaseCloseable.closeSilent(reader);
           }
           if (geometry == null) {
             if (alert) {
@@ -1739,16 +1737,6 @@ public abstract class AbstractRecordLayer extends AbstractLayer implements
 
   public Collection<String> getSnapLayerPaths() {
     return getProperty("snapLayers", Collections.<String> emptyList());
-  }
-
-  @Override
-  public PlatformTransactionManager getTransactionManager() {
-    final RecordStore recordStore = getRecordStore();
-    if (recordStore == null) {
-      return null;
-    } else {
-      return recordStore.getTransactionManager();
-    }
   }
 
   public Collection<String> getUserReadOnlyFieldNames() {
@@ -3529,6 +3517,11 @@ public abstract class AbstractRecordLayer extends AbstractLayer implements
       addToMap(map, "filter", filter);
     }
     return map;
+  }
+
+  @Override
+  public TransactionBuilder transaction() {
+    return getRecordStore().transaction();
   }
 
   public void unHighlightRecords(final Collection<? extends LayerRecord> records) {

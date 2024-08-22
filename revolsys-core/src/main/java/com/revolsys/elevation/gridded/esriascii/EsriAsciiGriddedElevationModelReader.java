@@ -22,6 +22,7 @@ import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.geometry.model.Point;
 import com.revolsys.io.FileUtil;
+import com.revolsys.io.IoUtil;
 import com.revolsys.io.Readers;
 import com.revolsys.number.Doubles;
 import com.revolsys.number.Numbers;
@@ -97,8 +98,8 @@ public class EsriAsciiGriddedElevationModelReader extends AbstractIterator<Point
           final String name = zipEntry.getName();
           if (name.equals(projName)) {
             if (this.geometryFactory != GeometryFactory.DEFAULT_3D) {
-              final String wkt = FileUtil
-                .getString(new InputStreamReader(in, StandardCharsets.UTF_8), false);
+              final String wkt = IoUtil.getString(new InputStreamReader(in, StandardCharsets.UTF_8),
+                false);
               final GeometryFactory geometryFactory = GeometryFactory.floating3d(wkt);
               if (geometryFactory.isHasHorizontalCoordinateSystem()) {
                 this.geometryFactory = geometryFactory;

@@ -20,8 +20,6 @@ import com.revolsys.jdbc.io.JdbcRecordStoreSchema;
 import com.revolsys.logging.Logs;
 import com.revolsys.oracle.recordstore.OracleRecordStore;
 import com.revolsys.record.schema.RecordStoreSchema;
-import com.revolsys.transaction.Propagation;
-import com.revolsys.transaction.Transaction;
 
 public class OracleSdoGeometryFieldAdder extends JdbcFieldAdder {
 
@@ -126,63 +124,64 @@ public class OracleSdoGeometryFieldAdder extends JdbcFieldAdder {
 
   @Override
   public void initialize(final JdbcRecordStoreSchema schema) {
-    try (
-      Transaction transaction = this.recordStore.newTransaction(Propagation.REQUIRED);
-      final JdbcConnection connection = this.recordStore.getJdbcConnection()) {
-      final String schemaName = schema.getDbName();
-      final String sridSql = "select M.TABLE_NAME, M.COLUMN_NAME, M.SRID, M.DIMINFO, C.GEOMETRY_TYPE "
-        + "from ALL_SDO_GEOM_METADATA M "
-        + "LEFT OUTER JOIN ALL_GEOMETRY_COLUMNS C ON (M.OWNER = C.F_TABLE_SCHEMA AND M.TABLE_NAME = C.F_TABLE_NAME AND M.COLUMN_NAME = C.F_GEOMETRY_COLUMN) "
-        + "where OWNER = ?";
+    this.recordStore.transactionRun(() -> {
       try (
-        final PreparedStatement statement = connection.prepareStatement(sridSql)) {
-        statement.setString(1, schemaName);
+        final JdbcConnection connection = this.recordStore.getJdbcConnection()) {
+        final String schemaName = schema.getDbName();
+        final String sridSql = "select M.TABLE_NAME, M.COLUMN_NAME, M.SRID, M.DIMINFO, C.GEOMETRY_TYPE "
+          + "from ALL_SDO_GEOM_METADATA M "
+          + "LEFT OUTER JOIN ALL_GEOMETRY_COLUMNS C ON (M.OWNER = C.F_TABLE_SCHEMA AND M.TABLE_NAME = C.F_TABLE_NAME AND M.COLUMN_NAME = C.F_GEOMETRY_COLUMN) "
+          + "where OWNER = ?";
         try (
-          final ResultSet resultSet = statement.executeQuery()) {
-          while (resultSet.next()) {
-            final String tableName = resultSet.getString(1);
-            final String columnName = resultSet.getString(2);
-            final PathName typePath = schema.getPathName().newChild(tableName);
+          final PreparedStatement statement = connection.prepareStatement(sridSql)) {
+          statement.setString(1, schemaName);
+          try (
+            final ResultSet resultSet = statement.executeQuery()) {
+            while (resultSet.next()) {
+              final String tableName = resultSet.getString(1);
+              final String columnName = resultSet.getString(2);
+              final PathName typePath = schema.getPathName().newChild(tableName);
 
-            int srid = resultSet.getInt(3);
-            if (resultSet.wasNull() || srid < 0) {
-              srid = 0;
-            }
-            final Object[] dimInfo = (Object[])resultSet.getArray("DIMINFO").getArray();
-            int axisCount = dimInfo.length;
-            setColumnProperty(schema, typePath, columnName, AXIS_COUNT, axisCount);
-            if (axisCount < 2) {
-              axisCount = 2;
-            } else if (axisCount > 4) {
-              axisCount = 4;
-            }
-            final double[] scales = new double[axisCount];
-            for (int i = 0; i < scales.length; i++) {
-              scales[i] = getScale(dimInfo, i);
-            }
-            final GeometryFactory geometryFactory = this.recordStore.getGeometryFactory(srid,
-              axisCount, scales);
-            setColumnProperty(schema, typePath, columnName, GEOMETRY_FACTORY, geometryFactory);
-
-            setColumnProperty(schema, typePath, columnName, ORACLE_SRID, srid);
-
-            final int geometryType = resultSet.getInt(5);
-            DataType geometryDataType;
-            if (resultSet.wasNull()) {
-              geometryDataType = GeometryDataTypes.GEOMETRY;
-            } else {
-              geometryDataType = ID_TO_DATA_TYPE.get(geometryType);
-              if (geometryDataType == null) {
-                geometryDataType = GeometryDataTypes.GEOMETRY;
+              int srid = resultSet.getInt(3);
+              if (resultSet.wasNull() || srid < 0) {
+                srid = 0;
               }
+              final Object[] dimInfo = (Object[])resultSet.getArray("DIMINFO").getArray();
+              int axisCount = dimInfo.length;
+              setColumnProperty(schema, typePath, columnName, AXIS_COUNT, axisCount);
+              if (axisCount < 2) {
+                axisCount = 2;
+              } else if (axisCount > 4) {
+                axisCount = 4;
+              }
+              final double[] scales = new double[axisCount];
+              for (int i = 0; i < scales.length; i++) {
+                scales[i] = getScale(dimInfo, i);
+              }
+              final GeometryFactory geometryFactory = this.recordStore.getGeometryFactory(srid,
+                axisCount, scales);
+              setColumnProperty(schema, typePath, columnName, GEOMETRY_FACTORY, geometryFactory);
+
+              setColumnProperty(schema, typePath, columnName, ORACLE_SRID, srid);
+
+              final int geometryType = resultSet.getInt(5);
+              DataType geometryDataType;
+              if (resultSet.wasNull()) {
+                geometryDataType = GeometryDataTypes.GEOMETRY;
+              } else {
+                geometryDataType = ID_TO_DATA_TYPE.get(geometryType);
+                if (geometryDataType == null) {
+                  geometryDataType = GeometryDataTypes.GEOMETRY;
+                }
+              }
+              setColumnProperty(schema, typePath, columnName, GEOMETRY_TYPE, geometryDataType);
             }
-            setColumnProperty(schema, typePath, columnName, GEOMETRY_TYPE, geometryDataType);
           }
+        } catch (final SQLException e) {
+          Logs.error(this, "Unable to initialize", e);
         }
-      } catch (final SQLException e) {
-        Logs.error(this, "Unable to initialize", e);
       }
-    }
+    });
   }
 
   @Override

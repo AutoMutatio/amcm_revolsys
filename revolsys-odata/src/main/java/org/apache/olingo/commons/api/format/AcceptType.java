@@ -125,21 +125,29 @@ public final class AcceptType {
     Collections.sort(toSort, new Comparator<AcceptType>() {
       @Override
       public int compare(final AcceptType a1, final AcceptType a2) {
-        int compare = a2.getQuality().compareTo(a1.getQuality());
+        int compare = a2.getQuality()
+          .compareTo(a1.getQuality());
         if (compare != 0) {
           return compare;
         }
-        compare = (a1.getType().equals(TypeUtil.MEDIA_TYPE_WILDCARD) ? 1 : 0)
-          - (a2.getType().equals(TypeUtil.MEDIA_TYPE_WILDCARD) ? 1 : 0);
+        compare = (a1.getType()
+          .equals(TypeUtil.MEDIA_TYPE_WILDCARD) ? 1 : 0)
+          - (a2.getType()
+            .equals(TypeUtil.MEDIA_TYPE_WILDCARD) ? 1 : 0);
         if (compare != 0) {
           return compare;
         }
-        compare = (a1.getSubtype().equals(TypeUtil.MEDIA_TYPE_WILDCARD) ? 1 : 0)
-          - (a2.getSubtype().equals(TypeUtil.MEDIA_TYPE_WILDCARD) ? 1 : 0);
+        compare = (a1.getSubtype()
+          .equals(TypeUtil.MEDIA_TYPE_WILDCARD) ? 1 : 0)
+          - (a2.getSubtype()
+            .equals(TypeUtil.MEDIA_TYPE_WILDCARD) ? 1 : 0);
         if (compare != 0) {
           return compare;
         }
-        return a2.getParameters().size() - a1.getParameters().size();
+        return a2.getParameters()
+          .size()
+          - a1.getParameters()
+            .size();
       }
     });
   }
@@ -169,7 +177,8 @@ public final class AcceptType {
     final String q = this.parameters.get(TypeUtil.PARAMETER_Q);
     if (q == null) {
       this.quality = 1F;
-    } else if (Q_PATTERN.matcher(q).matches()) {
+    } else if (Q_PATTERN.matcher(q)
+      .matches()) {
       this.quality = Float.valueOf(q);
     } else {
       throw new IllegalArgumentException(
@@ -232,15 +241,16 @@ public final class AcceptType {
     }
     final Map<String, String> compareParameters = contentType.getParameters();
     for (final Map.Entry<String, String> entry : this.parameters.entrySet()) {
-      if (entry.getKey().equalsIgnoreCase(ContentType.PARAMETER_CHARSET)
+      if (entry.getKey()
+        .equalsIgnoreCase(ContentType.PARAMETER_CHARSET)
         && compareParameters.containsKey(entry.getKey())) {
         continue;
       } else {
         if (compareParameters.containsKey(entry.getKey())
           || TypeUtil.PARAMETER_Q.equalsIgnoreCase(entry.getKey())) {
           final String compare = compareParameters.get(entry.getKey());
-          if (!entry.getValue().equalsIgnoreCase(compare)
-            && !TypeUtil.PARAMETER_Q.equalsIgnoreCase(entry.getKey())) {
+          if (!entry.getValue()
+            .equalsIgnoreCase(compare) && !TypeUtil.PARAMETER_Q.equalsIgnoreCase(entry.getKey())) {
             return false;
           }
         } else {
@@ -254,9 +264,14 @@ public final class AcceptType {
   @Override
   public String toString() {
     final StringBuilder result = new StringBuilder();
-    result.append(this.type).append('/').append(this.subtype);
+    result.append(this.type)
+      .append('/')
+      .append(this.subtype);
     for (final Map.Entry<String, String> entry : this.parameters.entrySet()) {
-      result.append(';').append(entry.getKey()).append('=').append(entry.getValue());
+      result.append(';')
+        .append(entry.getKey())
+        .append('=')
+        .append(entry.getValue());
     }
 
     return result.toString();
