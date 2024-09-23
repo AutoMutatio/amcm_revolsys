@@ -13,7 +13,7 @@ import com.revolsys.geometry.model.GeometryFactoryProxy;
 import com.revolsys.geometry.model.LineString;
 import com.revolsys.geometry.model.Point;
 import com.revolsys.geometry.model.impl.PointDoubleXY;
-import com.revolsys.io.map.MapSerializer;
+import com.revolsys.io.MapSerializer;
 
 public class MappedLocation extends AbstractPropertyChangeSupportProxy
   implements GeometryFactoryProxy, MapSerializer {

@@ -61,7 +61,7 @@ public abstract class AbstractPoint implements Point {
     try {
       return (Point)super.clone();
     } catch (final CloneNotSupportedException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 

@@ -21,8 +21,7 @@ package org.apache.olingo.commons.api.edm.provider;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.olingo.commons.api.edm.FullQualifiedName;
-import org.apache.olingo.commons.api.edm.geo.SRID;
+import com.revolsys.io.PathName;
 
 /**
  * The type Csdl type definition.
@@ -31,7 +30,7 @@ public class CsdlTypeDefinition implements CsdlAbstractEdmItem, CsdlNamed, CsdlA
 
   private String name;
 
-  private FullQualifiedName underlyingType;
+  private PathName underlyingType;
 
   // Facets
   private Integer maxLength;
@@ -40,9 +39,7 @@ public class CsdlTypeDefinition implements CsdlAbstractEdmItem, CsdlNamed, CsdlA
 
   private Integer scale;
 
-  private boolean unicode = true;
-
-  private SRID srid;
+  private int srid;
 
   private List<CsdlAnnotation> annotations = new ArrayList<>();
 
@@ -88,7 +85,7 @@ public class CsdlTypeDefinition implements CsdlAbstractEdmItem, CsdlNamed, CsdlA
    *
    * @return the srid
    */
-  public SRID getSrid() {
+  public int getSrid() {
     return this.srid;
   }
 
@@ -99,18 +96,9 @@ public class CsdlTypeDefinition implements CsdlAbstractEdmItem, CsdlNamed, CsdlA
    */
   public String getUnderlyingType() {
     if (this.underlyingType != null) {
-      return this.underlyingType.getFullQualifiedNameAsString();
+      return this.underlyingType.toString();
     }
     return null;
-  }
-
-  /**
-   * Is unicode.
-   *
-   * @return the boolean
-   */
-  public boolean isUnicode() {
-    return this.unicode;
   }
 
   /**
@@ -173,7 +161,7 @@ public class CsdlTypeDefinition implements CsdlAbstractEdmItem, CsdlNamed, CsdlA
    * @param srid the srid
    * @return the srid
    */
-  public CsdlTypeDefinition setSrid(final SRID srid) {
+  public CsdlTypeDefinition setSrid(final int srid) {
     this.srid = srid;
     return this;
   }
@@ -184,7 +172,7 @@ public class CsdlTypeDefinition implements CsdlAbstractEdmItem, CsdlNamed, CsdlA
    * @param underlyingType the underlying type
    * @return the underlying type
    */
-  public CsdlTypeDefinition setUnderlyingType(final FullQualifiedName underlyingType) {
+  public CsdlTypeDefinition setUnderlyingType(final PathName underlyingType) {
     this.underlyingType = underlyingType;
     return this;
   }
@@ -196,18 +184,8 @@ public class CsdlTypeDefinition implements CsdlAbstractEdmItem, CsdlNamed, CsdlA
    * @return the underlying type
    */
   public CsdlTypeDefinition setUnderlyingType(final String underlyingType) {
-    this.underlyingType = new FullQualifiedName(underlyingType);
+    this.underlyingType = PathName.fromDotSeparated(underlyingType);
     return this;
   }
 
-  /**
-   * Sets unicode.
-   *
-   * @param unicode the unicode
-   * @return the unicode
-   */
-  public CsdlTypeDefinition setUnicode(final boolean unicode) {
-    this.unicode = unicode;
-    return this;
-  }
 }

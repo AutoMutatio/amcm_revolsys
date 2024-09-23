@@ -25,12 +25,27 @@ public interface Collectors {
     return map(Maps.factoryLinkedHash(), keyFunction);
   }
 
+  static <IN, K, V> Collector<IN, Map<K, V>> map(final Function<IN, K> keyFunction,
+      final Function<IN, V> valueFunction) {
+    return map(Maps.factoryLinkedHash(), keyFunction, valueFunction);
+  }
+
   static <K, V> Collector<V, Map<K, V>> map(final Function<V, K> keyFunction) {
     return map(Maps.factoryLinkedHash(), keyFunction);
   }
 
+  static <IN, K, V, M extends Map<K, V>> Collector<IN, M> map(final Supplier<M> supplier,
+      final Function<IN, K> keyFunction, final Function<IN, V> valueFunction) {
+    final BiConsumer<M, IN> collect = (map, in) -> {
+      final var key = keyFunction.apply(in);
+      final var value = valueFunction.apply(in);
+      map.put(key, value);
+    };
+    return new SimpleCollector<>(supplier, collect);
+  }
+
   static <K, V, M extends Map<K, V>> Collector<V, M> map(final Supplier<M> supplier,
-    final Function<V, K> keyFunction) {
+      final Function<V, K> keyFunction) {
     final BiConsumer<M, V> collect = (map, value) -> {
       final var key = keyFunction.apply(value);
       map.put(key, value);
@@ -39,13 +54,13 @@ public interface Collectors {
   }
 
   static <K, V, C extends Collection<V>> Collector<V, Map<K, C>> mapCollection(
-    final Supplier<C> collectionSuppier, final Function<V, K> keyFunction) {
+      final Supplier<C> collectionSuppier, final Function<V, K> keyFunction) {
     return mapCollection(Maps.factoryLinkedHash(), collectionSuppier, keyFunction);
   }
 
   static <K, V, C extends Collection<V>, M extends Map<K, C>> Collector<V, M> mapCollection(
-    final Supplier<M> mapSupplier, final Supplier<C> collectionSuppier,
-    final Function<V, K> keyFunction) {
+      final Supplier<M> mapSupplier, final Supplier<C> collectionSuppier,
+      final Function<V, K> keyFunction) {
     final BiConsumer<M, V> collect = (map, value) -> {
       final var key = keyFunction.apply(value);
       var c = map.get(key);

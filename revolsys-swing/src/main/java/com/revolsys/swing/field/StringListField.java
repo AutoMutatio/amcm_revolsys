@@ -79,7 +79,7 @@ public class StringListField extends ValueField {
     updateFields();
 
     final EventQueueRunnableListener updateFieldListener = EventQueue.addDocument(this.valueEntry,
-      () -> updateFields());
+      this::updateFields);
 
     this.valuesField.addListSelectionListener(updateFieldListener);
 

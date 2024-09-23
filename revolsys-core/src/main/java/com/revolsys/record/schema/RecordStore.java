@@ -4,7 +4,7 @@ import java.io.File;
 import java.nio.file.Path;
 import java.sql.Array;
 import java.sql.Connection;
-import java.util.ArrayList;
+import java.sql.ResultSet;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -14,10 +14,7 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import org.springframework.beans.DirectFieldAccessor;
-import org.springframework.transaction.PlatformTransactionManager;
 
-import com.revolsys.collection.ListResultPager;
-import com.revolsys.collection.ResultPager;
 import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.data.identifier.Identifier;
@@ -36,13 +33,11 @@ import com.revolsys.record.Record;
 import com.revolsys.record.RecordFactory;
 import com.revolsys.record.RecordState;
 import com.revolsys.record.code.CodeTable;
-import com.revolsys.record.io.ListRecordReader;
-import com.revolsys.record.io.RecordIterator;
 import com.revolsys.record.io.RecordReader;
 import com.revolsys.record.io.RecordStoreConnection;
 import com.revolsys.record.io.RecordStoreFactory;
-import com.revolsys.record.io.RecordStoreQueryReader;
 import com.revolsys.record.io.RecordWriter;
+import com.revolsys.record.query.ColumnIndexes;
 import com.revolsys.record.query.Condition;
 import com.revolsys.record.query.DeleteStatement;
 import com.revolsys.record.query.InsertStatement;
@@ -50,10 +45,8 @@ import com.revolsys.record.query.Q;
 import com.revolsys.record.query.Query;
 import com.revolsys.record.query.QueryValue;
 import com.revolsys.record.query.SqlAppendable;
+import com.revolsys.record.query.TableReferenceImpl;
 import com.revolsys.record.query.UpdateStatement;
-import com.revolsys.transaction.Propagation;
-import com.revolsys.transaction.Transaction;
-import com.revolsys.transaction.TransactionOptions;
 import com.revolsys.transaction.Transactionable;
 import com.revolsys.util.BaseCloseable;
 import com.revolsys.util.Property;
@@ -71,8 +64,11 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
       final Number number = (Number)queryValue;
       sql.append(DataTypes.toString(number));
     } else {
-      final String string = DataTypes.toString(queryValue).replaceAll("'", "''");
-      sql.append('\'').append(string).append('\'');
+      final String string = DataTypes.toString(queryValue)
+        .replaceAll("'", "''");
+      sql.append('\'')
+        .append(string)
+        .append('\'');
     }
   }
 
@@ -104,6 +100,7 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
 
   /**
    * Construct a new initialized record store.
+   *
    * @param connectionProperties
    * @return
    */
@@ -119,7 +116,8 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
   }
 
   static <T extends RecordStore> T newRecordStore(final Path file) {
-    return newRecordStore(file.toUri().toString());
+    return newRecordStore(file.toUri()
+      .toString());
   }
 
   @SuppressWarnings("unchecked")
@@ -296,6 +294,10 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
     return count;
   }
 
+  default DeleteStatement deleteStatement(final PathName pathName) {
+    return new DeleteStatement().from(getRecordDefinition(pathName));
+  }
+
   default RecordDefinition findRecordDefinition(final PathName typePath) {
     final PathName schemaName = typePath.getParent();
     final RecordStoreSchema schema = getSchema(schemaName);
@@ -442,40 +444,11 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
     }
   }
 
-  default RecordReader getRecords(final Collection<Query> queries) {
-    final RecordStoreQueryReader reader = newRecordReader();
-    for (final Query query : queries) {
-      if (query != null) {
-        reader.addQuery(query);
-      }
-    }
-    return reader;
+  default RecordReader getRecordReader(final PathName path) {
+    return newQuery().getRecordReader();
   }
 
-  default RecordReader getRecords(final PathName path) {
-    final RecordStoreSchemaElement element = getRootSchema().getElement(path);
-    if (element instanceof RecordDefinition) {
-      final RecordDefinition recordDefinition = (RecordDefinition)element;
-      final Query query = new Query(recordDefinition);
-      return getRecords(query);
-    } else if (element instanceof RecordStoreSchema) {
-      final RecordStoreSchema schema = (RecordStoreSchema)element;
-      final List<Query> queries = new ArrayList<>();
-      for (final RecordDefinition recordDefinition : schema.getRecordDefinitions()) {
-        final Query query = new Query(recordDefinition);
-        queries.add(query);
-      }
-      return getRecords(queries);
-    } else {
-      return new ListRecordReader(null, Collections.emptyList());
-    }
-  }
-
-  default RecordReader getRecords(final Query query) {
-    final RecordStoreQueryReader reader = newRecordReader();
-    reader.addQuery(query);
-    return reader;
-  }
+  RecordReader getRecords(final Query query);
 
   @SuppressWarnings("unchecked")
   default <R extends RecordStore> R getRecordStore() {
@@ -508,14 +481,15 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
     }
   }
 
-  @Override
-  default PlatformTransactionManager getTransactionManager() {
-    return null;
-  }
-
   String getUrl();
 
   String getUsername();
+
+  default Object getValueFromResultSet(final RecordDefinition recordDefinition,
+    final String dataType, final ResultSet resultSet, final ColumnIndexes indexes,
+    final boolean internStrings) {
+    throw new UnsupportedOperationException();
+  }
 
   default boolean hasSchema(final PathName schemaName) {
     return getSchema(schemaName) != null;
@@ -600,7 +574,15 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
     }
   }
 
-  RecordIterator newIterator(final Query query, Map<String, Object> properties);
+  default <R extends Record> InsertUpdateBuilder<R> newInsert(final PathName pathName) {
+    return this.<R> newInsertUpdate(pathName)
+      .setUpdate(false);
+  }
+
+  default <R extends Record> InsertUpdateBuilder<R> newInsertUpdate(final PathName pathName) {
+    final Query query = newQuery(pathName);
+    return new RecordStoreInsertUpdateBuilder<>(this, query);
+  }
 
   default Identifier newPrimaryIdentifier(final PathName typePath) {
     return null;
@@ -621,7 +603,8 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
 
   default Query newQuery(final String typeName) {
     final PathName typePath = PathName.newPathName(typeName);
-    return new Query(typePath);
+    final TableReferenceImpl table = new TableReferenceImpl(typePath);
+    return new RecordStoreQuery(this, table);
   }
 
   default Query newQuery(final String typePath, final String whereClause,
@@ -719,10 +702,6 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
     }
   }
 
-  default RecordStoreQueryReader newRecordReader() {
-    return new RecordStoreQueryReader(this);
-  }
-
   default Record newRecordWithIdentifier(final RecordDefinition recordDefinition) {
     final Record record = newRecord(recordDefinition);
     if (record != null) {
@@ -751,10 +730,9 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
     return newRecordWriter();
   }
 
-  default ResultPager<Record> page(final Query query) {
-    final RecordReader results = getRecords(query);
-    final List<Record> list = results.toList();
-    return new ListResultPager<>(list);
+  default <R extends Record> InsertUpdateBuilder<R> newUpdate(final PathName pathName) {
+    return this.<R> newInsertUpdate(pathName)
+      .setInsert(false);
   }
 
   default void refreshCodeTable(final PathName pathName) {
@@ -780,8 +758,7 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
   }
 
   default Record updateRecord(final Query query, final Consumer<Record> updateAction) {
-    try (
-      Transaction transaction = newTransaction(TransactionOptions.REQUIRED)) {
+    return transactionCall(() -> {
       query.setRecordFactory(ArrayChangeTrackRecord.FACTORY);
       final ChangeTrackRecord record = query.getRecord();
       if (record == null) {
@@ -793,7 +770,7 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
         }
         return record.newRecord();
       }
-    }
+    });
   }
 
   default void updateRecord(final Record record) {
@@ -828,22 +805,15 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
   }
 
   default void write(final Record record, final RecordState state) {
-    try (
-      Transaction transaction = newTransaction(com.revolsys.transaction.Propagation.REQUIRED)) {
+    transactionRun(() -> {
       // It's important to have this in an inner try. Otherwise the exceptions
       // won't get caught on closing the writer and the transaction won't get
       // rolled back.
       try (
         RecordWriter writer = newRecordWriter(true)) {
         write(writer, record, state);
-      } catch (final RuntimeException e) {
-        transaction.setRollbackOnly();
-        throw e;
-      } catch (final Error e) {
-        transaction.setRollbackOnly();
-        throw e;
       }
-    }
+    });
   }
 
   default Record write(final RecordWriter writer, Record record, final RecordState state) {
@@ -859,9 +829,9 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
   }
 
   default int writeAll(final Iterable<? extends Record> records, final RecordState state) {
-    int count = 0;
-    try (
-      Transaction transaction = newTransaction(Propagation.REQUIRED)) {
+    return transactionCall(() -> {
+      int count = 0;
+
       // It's important to have this in an inner try. Otherwise the exceptions
       // won't get caught on closing the writer and the transaction won't get
       // rolled back.
@@ -871,14 +841,8 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
           write(writer, record, state);
           count++;
         }
-      } catch (final RuntimeException e) {
-        transaction.setRollbackOnly();
-        throw e;
-      } catch (final Error e) {
-        transaction.setRollbackOnly();
-        throw e;
       }
-    }
-    return count;
+      return count;
+    });
   }
 }

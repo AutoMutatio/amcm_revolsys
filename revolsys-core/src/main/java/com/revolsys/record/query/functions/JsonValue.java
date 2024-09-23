@@ -25,6 +25,8 @@ public class JsonValue extends SimpleFunction {
 
   private String displayPath;
 
+  private boolean text = true;
+
   public JsonValue(final List<QueryValue> parameters) {
     super(NAME, 2, parameters);
     final QueryValue pathParameter = parameters.get(1);
@@ -95,6 +97,15 @@ public class JsonValue extends SimpleFunction {
     final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings)
     throws SQLException {
     return resultSet.getObject(indexes.incrementAndGet());
+  }
+
+  public boolean isText() {
+    return this.text;
+  }
+
+  public JsonValue setText(final boolean text) {
+    this.text = text;
+    return this;
   }
 
   @Override

@@ -9,12 +9,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.revolsys.geometry.model.GeometryFactory;
-import com.revolsys.jdbc.io.AbstractJdbcRecordStore;
+import com.revolsys.parallel.ReentrantLockEx;
+import com.revolsys.record.schema.AbstractRecordStore;
 import com.revolsys.record.schema.RecordStoreSchema;
 
 public class ArcSdeSpatialReferenceCache {
 
-  public static ArcSdeSpatialReferenceCache get(final AbstractJdbcRecordStore recordStore) {
+  public static ArcSdeSpatialReferenceCache get(final AbstractRecordStore recordStore) {
     ArcSdeSpatialReferenceCache spatialReferences = recordStore
       .getProperty("esriSpatialReferences");
     if (spatialReferences == null) {
@@ -25,7 +26,7 @@ public class ArcSdeSpatialReferenceCache {
   }
 
   public static ArcSdeSpatialReferenceCache get(final RecordStoreSchema schema) {
-    final AbstractJdbcRecordStore recordStore = (AbstractJdbcRecordStore)schema.getRecordStore();
+    final AbstractRecordStore recordStore = (AbstractRecordStore)schema.getRecordStore();
     return get(recordStore);
 
   }
@@ -38,23 +39,28 @@ public class ArcSdeSpatialReferenceCache {
 
   private final Map<Integer, ArcSdeSpatialReference> spatialReferences = new HashMap<>();
 
+  private final ReentrantLockEx lock = new ReentrantLockEx();
+
   public ArcSdeSpatialReferenceCache() {
   }
 
-  protected synchronized ArcSdeSpatialReference getSpatialReference(final Connection connection,
+  protected ArcSdeSpatialReference getSpatialReference(final Connection connection,
     final int esriSrid) {
-    ArcSdeSpatialReference spatialReference = this.spatialReferences.get(esriSrid);
-    if (spatialReference == null) {
-      spatialReference = getSpatialReference(connection,
-        "SELECT SRID, SR_NAME, X_OFFSET, Y_OFFSET, Z_OFFSET, M_OFFSET, XYUNITS, Z_SCALE, M_SCALE, CS_ID, DEFINITION FROM SDE.ST_SPATIAL_REFERENCES WHERE SRID = ?",
-        esriSrid);
+    try (
+      var l = this.lock.lockX()) {
+      ArcSdeSpatialReference spatialReference = this.spatialReferences.get(esriSrid);
       if (spatialReference == null) {
         spatialReference = getSpatialReference(connection,
-          "SELECT SRID, DESCRIPTION, FALSEX, FALSEY, FALSEZ, FALSEM, XYUNITS, ZUNITS, MUNITS, AUTH_SRID, SRTEXT FROM SDE.SPATIAL_REFERENCES WHERE SRID = ?",
+          "SELECT SRID, SR_NAME, X_OFFSET, Y_OFFSET, Z_OFFSET, M_OFFSET, XYUNITS, Z_SCALE, M_SCALE, CS_ID, DEFINITION FROM SDE.ST_SPATIAL_REFERENCES WHERE SRID = ?",
           esriSrid);
+        if (spatialReference == null) {
+          spatialReference = getSpatialReference(connection,
+            "SELECT SRID, DESCRIPTION, FALSEX, FALSEY, FALSEZ, FALSEM, XYUNITS, ZUNITS, MUNITS, AUTH_SRID, SRTEXT FROM SDE.SPATIAL_REFERENCES WHERE SRID = ?",
+            esriSrid);
+        }
       }
+      return spatialReference;
     }
-    return spatialReference;
   }
 
   protected ArcSdeSpatialReference getSpatialReference(final Connection connection,

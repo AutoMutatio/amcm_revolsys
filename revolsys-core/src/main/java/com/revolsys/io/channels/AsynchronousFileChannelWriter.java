@@ -125,7 +125,7 @@ public class AsynchronousFileChannelWriter extends AbstractChannelWriter impleme
         try {
           channel.close();
         } catch (final IOException e) {
-          throw Exceptions.wrap(e);
+          throw Exceptions.toRuntimeException(e);
         }
       }
     }
@@ -153,7 +153,7 @@ public class AsynchronousFileChannelWriter extends AbstractChannelWriter impleme
         this.available = this.capacity;
       }
     } catch (final Exception e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 }

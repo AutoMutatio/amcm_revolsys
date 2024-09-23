@@ -7,12 +7,12 @@ import java.util.NoSuchElementException;
 import java.util.function.Function;
 
 import com.revolsys.collection.iterator.AbstractIterator;
+import com.revolsys.collection.iterator.IterableWithCount;
 import com.revolsys.collection.json.JsonObject;
-import com.revolsys.data.type.DataTypes;
 import com.revolsys.http.HttpRequestBuilder;
 import com.revolsys.http.HttpRequestBuilderFactory;
 
-public class ODataJsonQueryIterator<V> extends AbstractIterator<V> {
+public class ODataJsonQueryIterator<V> extends AbstractIterator<V> implements IterableWithCount<V> {
 
   private final String queryLabel;
 
@@ -49,23 +49,30 @@ public class ODataJsonQueryIterator<V> extends AbstractIterator<V> {
   }
 
   void executeRequest() {
-    final JsonObject json = this.request.getJson();
+    final JsonObject json = this.request.responseAsJson();
     if (json == null) {
       this.nextURI = null;
       this.results = Collections.emptyIterator();
+      return;
     } else {
       if (this.count == -1) {
         this.count = json.getInteger("@odata.count", -1);
-
       }
-      this.nextURI = json.getTypedValue("@odata.nextLink", DataTypes.ANY_URI);
+      if (json.hasValue("@odata.nextLink")) {
+        this.nextURI = json.getURI("@odata.nextLink");
+      } else if (json.hasValue("nextLink")) {
+        this.nextURI = json.getURI("nextLink");
+      } else {
+        this.nextURI = null;
+      }
 
       this.results = json.<JsonObject> getList("value")
         .iterator();
     }
   }
 
-  public int getCount() {
+  @Override
+  public long getCount() {
     if (this.count == -1) {
       init();
     }

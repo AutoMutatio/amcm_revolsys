@@ -14,6 +14,7 @@ import org.apache.olingo.server.api.processor.MetadataProcessor;
 import org.apache.olingo.server.api.processor.ServiceDocumentProcessor;
 import org.apache.olingo.server.api.serializer.ODataSerializer;
 import org.apache.olingo.server.api.uri.UriInfo;
+import org.apache.olingo.server.core.etag.ETagHelperImpl;
 
 import com.revolsys.odata.model.ODataEdmProvider;
 
@@ -34,7 +35,7 @@ public class ODataServiceDocumentMetadataProcessor extends AbstractProcessor
       .getServiceMetadataETagSupport();
     if (eTagSupport != null && eTagSupport.getMetadataETag() != null) {
       response.setHeader(HttpHeader.ETAG, eTagSupport.getMetadataETag());
-      final ETagHelper eTagHelper = this.odata.createETagHelper();
+      final ETagHelper eTagHelper = new ETagHelperImpl();
       isNotModified = eTagHelper.checkReadPreconditions(eTagSupport.getMetadataETag(),
         request.getHeaders(HttpHeader.IF_MATCH), request.getHeaders(HttpHeader.IF_NONE_MATCH));
     }
@@ -47,8 +48,9 @@ public class ODataServiceDocumentMetadataProcessor extends AbstractProcessor
       if (HttpMethod.HEAD == request.getMethod()) {
         response.setStatusCode(HttpStatusCode.OK.getStatusCode());
       } else {
-        final ODataSerializer serializer = this.odata.createSerializer(requestedContentType);
-        response.setContent(serializer.metadataDocument(this.serviceMetadata).getContent());
+        final ODataSerializer serializer = ODataSerializer.createSerializer(requestedContentType);
+        response.setContent(serializer.metadataDocument(this.serviceMetadata)
+          .getContent());
         response.setStatusCode(HttpStatusCode.OK.getStatusCode());
         response.setHeader(HttpHeader.CONTENT_TYPE, requestedContentType.toContentTypeString());
       }
@@ -65,7 +67,7 @@ public class ODataServiceDocumentMetadataProcessor extends AbstractProcessor
     if (eTagSupport != null && eTagSupport.getServiceDocumentETag() != null) {
       // Set application etag at response
       response.setHeader(HttpHeader.ETAG, eTagSupport.getServiceDocumentETag());
-      final ETagHelper eTagHelper = this.odata.createETagHelper();
+      final ETagHelper eTagHelper = new ETagHelperImpl();
       isNotModified = eTagHelper.checkReadPreconditions(eTagSupport.getServiceDocumentETag(),
         request.getHeaders(HttpHeader.IF_MATCH), request.getHeaders(HttpHeader.IF_NONE_MATCH));
     }
@@ -78,9 +80,10 @@ public class ODataServiceDocumentMetadataProcessor extends AbstractProcessor
       if (HttpMethod.HEAD == request.getMethod()) {
         response.setStatusCode(HttpStatusCode.OK.getStatusCode());
       } else {
-        final ODataSerializer serializer = this.odata.createSerializer(requestedContentType);
-        response.setContent(
-          serializer.serviceDocument(this.serviceMetadata, this.serviceRoot).getContent());
+        final ODataSerializer serializer = ODataSerializer.createSerializer(requestedContentType);
+        final String serviceRoot = request.getAttribute("serviceRoot");
+        response.setContent(serializer.serviceDocument(this.serviceMetadata, serviceRoot)
+          .getContent());
         response.setStatusCode(HttpStatusCode.OK.getStatusCode());
         response.setHeader(HttpHeader.CONTENT_TYPE, requestedContentType.toContentTypeString());
       }

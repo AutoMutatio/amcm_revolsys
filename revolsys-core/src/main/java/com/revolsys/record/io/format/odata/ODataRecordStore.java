@@ -108,6 +108,9 @@ public class ODataRecordStore extends AbstractRecordStore {
     HANDLERS.put(FieldDefinition.class, ODataRecordStore::addColumn);
     HANDLERS.put(AcceptAllCondition.class, (filter, value) -> {
     });
+    HANDLERS.put(SqlCondition.class, (filter, value) -> {
+      filter.append(((SqlCondition)value).getSql());
+    });
     HANDLERS.put(EnvelopeIntersects.class, (filter, value) -> {
       final EnvelopeIntersects i = (EnvelopeIntersects)value;
       final Value v = i.getRight();
@@ -306,7 +309,7 @@ public class ODataRecordStore extends AbstractRecordStore {
     }
   }
 
-  protected static void appendQueryValue(final StringBuilder filter, final QueryValue value) {
+  public static void appendQueryValue(final StringBuilder filter, final QueryValue value) {
     final Class<? extends QueryValue> valueClass = value.getClass();
 
     for (Class<?> clazz = valueClass; clazz != Object.class; clazz = clazz.getSuperclass()) {
@@ -391,14 +394,14 @@ public class ODataRecordStore extends AbstractRecordStore {
 
     final HttpRequestBuilder request = this.requestFactory.delete(uri)
       .setParameter(ODataRecordStore.FORMAT_JSON);
-    final JsonObject result = request.getJson();
+    final JsonObject result = request.responseAsJson();
     return result.isTrue("deleted");
   }
 
   JsonObject getJson(final URI uri) {
     return this.requestFactory.get(uri)
       .setParameter(FORMAT_JSON)
-      .getJson();
+      .responseAsJson();
   }
 
   public ODataTypeDefinition getODataType(final String type) {
@@ -427,7 +430,7 @@ public class ODataRecordStore extends AbstractRecordStore {
     query.clearOrderBy();
     final HttpRequestBuilder request = newRequest(query);
     request.setParameter("$count", "true");
-    final JsonObject result = request.getJson();
+    final JsonObject result = request.responseAsJson();
     return result.getInteger("@odata.count", 0);
   }
 
@@ -451,7 +454,7 @@ public class ODataRecordStore extends AbstractRecordStore {
     final HttpRequestBuilder request = this.requestFactory.get(uri)
       .setParameter(ODataRecordStore.FORMAT_JSON);
 
-    final JsonObject result = request.getJson();
+    final JsonObject result = request.responseAsJson();
     return recordDefinition.newRecord(result);
   }
 
@@ -481,7 +484,7 @@ public class ODataRecordStore extends AbstractRecordStore {
     final HttpRequestBuilder request = this.requestFactory.post(uri)
       .setParameter(ODataRecordStore.FORMAT_JSON)
       .setJsonEntity(json);
-    final JsonObject result = request.getJson();
+    final JsonObject result = request.responseAsJson();
     record.setValues(result);
     return record;
   }
@@ -538,7 +541,7 @@ public class ODataRecordStore extends AbstractRecordStore {
     final var uri = UrlUtil.appendPath(this.uri, "$metadata");
     try (
       var in = this.requestFactory.get(uri)
-        .newInputStream()) {
+        .responseAsInputStream()) {
       final JsonObject metadata = SCHEMA_XML_TO_JSON.process(in);
       final var dataServices = metadata.getJsonObject("DataServices");
       final List<JsonObject> schemaList = dataServices.getList("Schema");
@@ -564,11 +567,6 @@ public class ODataRecordStore extends AbstractRecordStore {
     } catch (final IOException e) {
       return Exceptions.throwUncheckedException(e);
     }
-  }
-
-  @Override
-  public ODataQueryIterator newIterator(final Query query, final Map<String, Object> properties) {
-    return new ODataQueryIterator(this, this.requestFactory, query, properties);
   }
 
   @Override

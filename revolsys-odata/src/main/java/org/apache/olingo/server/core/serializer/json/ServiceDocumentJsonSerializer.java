@@ -24,7 +24,7 @@ import org.apache.olingo.commons.api.Constants;
 import org.apache.olingo.commons.api.edm.EdmEntityContainer;
 import org.apache.olingo.commons.api.edm.EdmEntitySet;
 import org.apache.olingo.commons.api.edm.EdmFunctionImport;
-import org.apache.olingo.commons.api.edm.EdmSingleton;
+import org.apache.olingo.commons.core.edm.EdmSingleton;
 import org.apache.olingo.server.api.ServiceMetadata;
 import org.apache.olingo.server.api.serializer.SerializerException;
 
@@ -99,16 +99,18 @@ public class ServiceDocumentJsonSerializer {
       gen.labelValue(Constants.JSON_CONTEXT, metadataUri);
 
       if (this.metadata != null && this.metadata.getServiceMetadataETagSupport() != null
-        && this.metadata.getServiceMetadataETagSupport().getMetadataETag() != null) {
-        gen.labelValue(Constants.JSON_METADATA_ETAG,
-          this.metadata.getServiceMetadataETagSupport().getMetadataETag());
+        && this.metadata.getServiceMetadataETagSupport()
+          .getMetadataETag() != null) {
+        gen.labelValue(Constants.JSON_METADATA_ETAG, this.metadata.getServiceMetadataETagSupport()
+          .getMetadataETag());
       }
     }
 
     gen.label(Constants.VALUE);
     gen.startList();
     if (this.metadata != null) {
-      final EdmEntityContainer container = this.metadata.getEdm().getEntityContainer();
+      final EdmEntityContainer container = this.metadata.getEdm()
+        .getEntityContainer();
       if (container != null) {
         writeEntitySets(gen, container);
         writeFunctionImports(gen, container);

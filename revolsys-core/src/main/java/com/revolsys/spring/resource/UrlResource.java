@@ -80,7 +80,7 @@ public class UrlResource extends AbstractResource {
       initUrl(new URL(urlString));
       this.cleanedUrl = getCleanedUrl(this.url, urlString);
     } catch (final Throwable ex) {
-      throw Exceptions.wrap(ex);
+      throw Exceptions.toRuntimeException(ex);
     }
   }
 
@@ -99,7 +99,7 @@ public class UrlResource extends AbstractResource {
       initUrl(new URL(urlString));
       this.cleanedUrl = getCleanedUrl(this.url, urlString);
     } catch (final Throwable ex) {
-      throw Exceptions.wrap(ex);
+      throw Exceptions.toRuntimeException(ex);
     }
   }
 
@@ -137,7 +137,7 @@ public class UrlResource extends AbstractResource {
       initUrl(uri.toURL());
       this.cleanedUrl = getCleanedUrl(this.url, uri.toString());
     } catch (final Throwable ex) {
-      throw Exceptions.wrap(ex);
+      throw Exceptions.toRuntimeException(ex);
     }
   }
 
@@ -344,7 +344,7 @@ public class UrlResource extends AbstractResource {
         }
       }
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
 
   }
@@ -428,11 +428,11 @@ public class UrlResource extends AbstractResource {
             final HttpURLConnection httpUrlConnection = (HttpURLConnection)con;
             httpUrlConnection.disconnect();
           }
-          throw Exceptions.wrap(e);
+          throw Exceptions.toRuntimeException(e);
         }
       }
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 

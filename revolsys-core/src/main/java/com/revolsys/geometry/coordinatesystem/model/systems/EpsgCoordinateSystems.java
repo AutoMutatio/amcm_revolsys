@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.slf4j.LoggerFactory;
 
@@ -133,6 +134,8 @@ public final class EpsgCoordinateSystems {
 
   private static final Map<String, UnitOfMeasure> UNIT_BY_NAME = new TreeMap<>();
 
+  private static ReentrantLock lock = new ReentrantLock();
+
   private static void addCoordinateSystem(final CoordinateSystem coordinateSystem) {
     if (coordinateSystem != null) {
       final Integer id = coordinateSystem.getCoordinateSystemId();
@@ -155,12 +158,17 @@ public final class EpsgCoordinateSystems {
     COORDINATE_SYSTEM_BY_ID.put(id, worldMercator);
   }
 
-  public static synchronized void clear() {
-    initialized = false;
-    coordinateSystems = null;
-    COORDINATE_SYSTEMS_BY_HASH_CODE.clear();
-    COORDINATE_SYSTEM_BY_ID.clear();
-    COORDINATE_SYSTEM_BY_NAME.clear();
+  public static void clear() {
+    lock.lock();
+    try {
+      initialized = false;
+      coordinateSystems = null;
+      COORDINATE_SYSTEMS_BY_HASH_CODE.clear();
+      COORDINATE_SYSTEM_BY_ID.clear();
+      COORDINATE_SYSTEM_BY_NAME.clear();
+    } finally {
+      lock.unlock();
+    }
   }
 
   public static AxisName getAxisName(final String name) {
@@ -208,85 +216,90 @@ public final class EpsgCoordinateSystems {
   }
 
   @SuppressWarnings("unchecked")
-  public synchronized static <C extends CoordinateSystem> C getCoordinateSystem(
-    final C coordinateSystem) {
-    initialize();
-    if (coordinateSystem == null) {
-      return null;
-    } else {
-      int srid = coordinateSystem.getCoordinateSystemId();
-      CoordinateSystem matchedCoordinateSystem = COORDINATE_SYSTEM_BY_ID.get(srid);
-      if (matchedCoordinateSystem == null) {
-        matchedCoordinateSystem = COORDINATE_SYSTEM_BY_NAME
-          .get(coordinateSystem.getCoordinateSystemName());
+  public static <C extends CoordinateSystem> C getCoordinateSystem(final C coordinateSystem) {
+    lock.lock();
+    try {
+      initialize();
+      if (coordinateSystem == null) {
+        return null;
+      } else {
+        int srid = coordinateSystem.getCoordinateSystemId();
+        CoordinateSystem matchedCoordinateSystem = COORDINATE_SYSTEM_BY_ID.get(srid);
         if (matchedCoordinateSystem == null) {
-          final int hashCode = coordinateSystem.hashCode();
-          int matchCoordinateSystemId = EsriCoordinateSystems.getIdUsingDigest(coordinateSystem);
-          if (matchCoordinateSystemId > 0) {
-            matchedCoordinateSystem = getCoordinateSystem(matchCoordinateSystemId);
-          } else {
-            final List<CoordinateSystem> coordinateSystems = COORDINATE_SYSTEMS_BY_HASH_CODE
-              .get(hashCode);
-            if (coordinateSystems != null) {
-              for (final CoordinateSystem coordinateSystem3 : coordinateSystems) {
-                if (coordinateSystem3.equals(coordinateSystem)) {
-                  final int srid3 = coordinateSystem3.getCoordinateSystemId();
-                  if (matchedCoordinateSystem == null) {
-                    matchedCoordinateSystem = coordinateSystem3;
-                    matchCoordinateSystemId = srid3;
-                  } else if (srid3 < matchCoordinateSystemId) {
-                    if (!coordinateSystem3.isDeprecated()
-                      || matchedCoordinateSystem.isDeprecated()) {
+          matchedCoordinateSystem = COORDINATE_SYSTEM_BY_NAME
+            .get(coordinateSystem.getCoordinateSystemName());
+          if (matchedCoordinateSystem == null) {
+            final int hashCode = coordinateSystem.hashCode();
+            int matchCoordinateSystemId = EsriCoordinateSystems.getIdUsingDigest(coordinateSystem);
+            if (matchCoordinateSystemId > 0) {
+              matchedCoordinateSystem = getCoordinateSystem(matchCoordinateSystemId);
+            } else {
+              final List<CoordinateSystem> coordinateSystems = COORDINATE_SYSTEMS_BY_HASH_CODE
+                .get(hashCode);
+              if (coordinateSystems != null) {
+                for (final CoordinateSystem coordinateSystem3 : coordinateSystems) {
+                  if (coordinateSystem3.equals(coordinateSystem)) {
+                    final int srid3 = coordinateSystem3.getCoordinateSystemId();
+                    if (matchedCoordinateSystem == null) {
                       matchedCoordinateSystem = coordinateSystem3;
                       matchCoordinateSystemId = srid3;
+                    } else if (srid3 < matchCoordinateSystemId) {
+                      if (!coordinateSystem3.isDeprecated()
+                        || matchedCoordinateSystem.isDeprecated()) {
+                        matchedCoordinateSystem = coordinateSystem3;
+                        matchCoordinateSystemId = srid3;
+                      }
                     }
                   }
                 }
               }
             }
-          }
-
-          if (matchedCoordinateSystem == null) {
-            if (srid <= 0) {
-              srid = nextSrid++;
+            if (matchedCoordinateSystem == null) {
+              if (srid <= 0) {
+                srid = nextSrid++;
+              }
+              final String name = coordinateSystem.getCoordinateSystemName();
+              final List<Axis> axis = coordinateSystem.getAxis();
+              final Area area = coordinateSystem.getArea();
+              final Authority authority = coordinateSystem.getAuthority();
+              final boolean deprecated = coordinateSystem.isDeprecated();
+              if (coordinateSystem instanceof GeographicCoordinateSystem) {
+                final GeographicCoordinateSystem geographicCs = (GeographicCoordinateSystem)coordinateSystem;
+                final GeodeticDatum geodeticDatum = geographicCs.getGeodeticDatum();
+                final PrimeMeridian primeMeridian = geographicCs.getPrimeMeridian();
+                final CoordinateSystem sourceCoordinateSystem = geographicCs
+                  .getSourceCoordinateSystem();
+                final CoordinateOperation coordinateOperation = geographicCs
+                  .getCoordinateOperation();
+                final GeographicCoordinateSystem newCs = new GeographicCoordinateSystem(srid, name,
+                  geodeticDatum, primeMeridian, axis, area, sourceCoordinateSystem,
+                  coordinateOperation, deprecated);
+                addCoordinateSystem(newCs);
+                return (C)newCs;
+              } else if (coordinateSystem instanceof ProjectedCoordinateSystem) {
+                final ProjectedCoordinateSystem projectedCs = (ProjectedCoordinateSystem)coordinateSystem;
+                GeographicCoordinateSystem geographicCs = projectedCs
+                  .getGeographicCoordinateSystem();
+                geographicCs = getCoordinateSystem(geographicCs);
+                final CoordinateOperationMethod coordinateOperationMethod = projectedCs
+                  .getCoordinateOperationMethod();
+                final Map<ParameterName, ParameterValue> parameters = projectedCs
+                  .getParameterValues();
+                final LinearUnit linearUnit = projectedCs.getLinearUnit();
+                final ProjectedCoordinateSystem newCs = new ProjectedCoordinateSystem(srid, name,
+                  geographicCs, area, coordinateOperationMethod, parameters, linearUnit, axis,
+                  authority, deprecated);
+                addCoordinateSystem(newCs);
+                return (C)newCs;
+              }
+              return coordinateSystem;
             }
-            final String name = coordinateSystem.getCoordinateSystemName();
-            final List<Axis> axis = coordinateSystem.getAxis();
-            final Area area = coordinateSystem.getArea();
-            final Authority authority = coordinateSystem.getAuthority();
-            final boolean deprecated = coordinateSystem.isDeprecated();
-            if (coordinateSystem instanceof GeographicCoordinateSystem) {
-              final GeographicCoordinateSystem geographicCs = (GeographicCoordinateSystem)coordinateSystem;
-              final GeodeticDatum geodeticDatum = geographicCs.getGeodeticDatum();
-              final PrimeMeridian primeMeridian = geographicCs.getPrimeMeridian();
-              final CoordinateSystem sourceCoordinateSystem = geographicCs
-                .getSourceCoordinateSystem();
-              final CoordinateOperation coordinateOperation = geographicCs.getCoordinateOperation();
-              final GeographicCoordinateSystem newCs = new GeographicCoordinateSystem(srid, name,
-                geodeticDatum, primeMeridian, axis, area, sourceCoordinateSystem,
-                coordinateOperation, deprecated);
-              addCoordinateSystem(newCs);
-              return (C)newCs;
-            } else if (coordinateSystem instanceof ProjectedCoordinateSystem) {
-              final ProjectedCoordinateSystem projectedCs = (ProjectedCoordinateSystem)coordinateSystem;
-              GeographicCoordinateSystem geographicCs = projectedCs.getGeographicCoordinateSystem();
-              geographicCs = getCoordinateSystem(geographicCs);
-              final CoordinateOperationMethod coordinateOperationMethod = projectedCs
-                .getCoordinateOperationMethod();
-              final Map<ParameterName, ParameterValue> parameters = projectedCs
-                .getParameterValues();
-              final LinearUnit linearUnit = projectedCs.getLinearUnit();
-              final ProjectedCoordinateSystem newCs = new ProjectedCoordinateSystem(srid, name,
-                geographicCs, area, coordinateOperationMethod, parameters, linearUnit, axis,
-                authority, deprecated);
-              addCoordinateSystem(newCs);
-              return (C)newCs;
-            }
-            return coordinateSystem;
           }
         }
+        return (C)matchedCoordinateSystem;
       }
-      return (C)matchedCoordinateSystem;
+    } finally {
+      lock.unlock();
     }
   }
 
@@ -442,35 +455,40 @@ public final class EpsgCoordinateSystems {
     return coordinateSystems;
   }
 
-  public synchronized static void initialize() {
-    if (!initialized) {
-      initialized = true;
-      try {
-        loadUnitOfMeasure();
-        loadCoordinateAxisNames();
-        final Map<Integer, List<Axis>> axisMap = loadCoordinateAxis();
-        loadArea();
-        loadPrimeMeridians();
-        loadDatum();
-        loadCoordOperationParam();
-        final Map<Integer, List<ParameterName>> paramOrderByMethodId = new HashMap<>();
-        final Map<Integer, List<Byte>> paramReversalByMethodId = new HashMap<>();
-        loadCoordOperationParamUsage(paramOrderByMethodId, paramReversalByMethodId);
-        final Map<Integer, CoordinateOperationMethod> methodById = loadCoordOperationMethod(
-          paramOrderByMethodId, paramReversalByMethodId);
-        final Map<Integer, Map<ParameterName, ParameterValue>> operationParameters = new HashMap<>();
-        loadCoordOperationParamValue(methodById, operationParameters, paramReversalByMethodId);
-        loadCoordOperation(methodById, operationParameters, paramReversalByMethodId);
-        loadCoordinateSystem();
-        loadCoordinateReferenceSystem(axisMap);
+  public static void initialize() {
+    lock.lock();
+    try {
+      if (!initialized) {
+        initialized = true;
+        try {
+          loadUnitOfMeasure();
+          loadCoordinateAxisNames();
+          final Map<Integer, List<Axis>> axisMap = loadCoordinateAxis();
+          loadArea();
+          loadPrimeMeridians();
+          loadDatum();
+          loadCoordOperationParam();
+          final Map<Integer, List<ParameterName>> paramOrderByMethodId = new HashMap<>();
+          final Map<Integer, List<Byte>> paramReversalByMethodId = new HashMap<>();
+          loadCoordOperationParamUsage(paramOrderByMethodId, paramReversalByMethodId);
+          final Map<Integer, CoordinateOperationMethod> methodById = loadCoordOperationMethod(
+            paramOrderByMethodId, paramReversalByMethodId);
+          final Map<Integer, Map<ParameterName, ParameterValue>> operationParameters = new HashMap<>();
+          loadCoordOperationParamValue(methodById, operationParameters, paramReversalByMethodId);
+          loadCoordOperation(methodById, operationParameters, paramReversalByMethodId);
+          loadCoordinateSystem();
+          loadCoordinateReferenceSystem(axisMap);
 
-        addCoordinateSystemAlias(42102, 3005);
-        addCoordinateSystemAlias(900913, 3857);
-        coordinateSystems = Collections
-          .unmodifiableSet(new LinkedHashSet<>(COORDINATE_SYSTEM_BY_ID.values()));
-      } catch (final Throwable t) {
-        t.printStackTrace();
+          addCoordinateSystemAlias(42102, 3005);
+          addCoordinateSystemAlias(900913, 3857);
+          coordinateSystems = Collections
+            .unmodifiableSet(new LinkedHashSet<>(COORDINATE_SYSTEM_BY_ID.values()));
+        } catch (final Throwable t) {
+          t.printStackTrace();
+        }
       }
+    } finally {
+      lock.unlock();
     }
   }
 

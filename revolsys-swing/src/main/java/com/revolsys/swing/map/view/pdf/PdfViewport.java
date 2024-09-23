@@ -112,7 +112,7 @@ public class PdfViewport extends Viewport2D implements BaseCloseable {
     try {
       this.contentStream.close();
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 

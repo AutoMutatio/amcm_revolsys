@@ -11,6 +11,6 @@ public class TableRecordStoreDeleteStatement extends DeleteStatement {
 
   @Override
   public int deleteRecords() {
-    return this.connection.transactionExecute(t -> (Integer)super.deleteRecords());
+    return this.connection.transactionCall(super::deleteRecords);
   }
 }

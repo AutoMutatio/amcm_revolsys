@@ -595,7 +595,7 @@ public abstract class AbstractTiffImage extends AbstractGeoreferencedImage imple
         y++;
       }
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 
@@ -623,7 +623,7 @@ public abstract class AbstractTiffImage extends AbstractGeoreferencedImage imple
         y++;
       }
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 

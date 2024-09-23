@@ -35,12 +35,13 @@ import org.apache.olingo.commons.api.edm.EdmParameter;
 import org.apache.olingo.commons.api.edm.EdmSchema;
 import org.apache.olingo.commons.api.edm.EdmTerm;
 import org.apache.olingo.commons.api.edm.EdmTypeDefinition;
-import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.provider.CsdlAnnotation;
+
+import com.revolsys.io.PathName;
 
 public abstract class AbstractEdm {
 
-  protected Map<String, EdmSchema> schemas;
+  protected Map<PathName, EdmSchema> schemas;
 
   protected List<EdmSchema> schemaList;
 
@@ -50,25 +51,24 @@ public abstract class AbstractEdm {
 
   private boolean isPreviousES;
 
-  private final Map<FullQualifiedName, EdmEntityContainer> entityContainers = Collections
+  private final Map<PathName, EdmEntityContainer> entityContainers = Collections
     .synchronizedMap(new HashMap<>());
 
-  private final Map<FullQualifiedName, EdmEnumType> enumTypes = Collections
+  private final Map<PathName, EdmEnumType> enumTypes = Collections.synchronizedMap(new HashMap<>());
+
+  private final Map<PathName, EdmTypeDefinition> typeDefinitions = Collections
     .synchronizedMap(new HashMap<>());
 
-  private final Map<FullQualifiedName, EdmTypeDefinition> typeDefinitions = Collections
+  private final Map<PathName, EdmEntityType> entityTypes = Collections
     .synchronizedMap(new HashMap<>());
 
-  private final Map<FullQualifiedName, EdmEntityType> entityTypes = Collections
+  private final Map<PathName, EdmComplexType> complexTypes = Collections
     .synchronizedMap(new HashMap<>());
 
-  private final Map<FullQualifiedName, EdmComplexType> complexTypes = Collections
+  private final Map<PathName, EdmAction> unboundActions = Collections
     .synchronizedMap(new HashMap<>());
 
-  private final Map<FullQualifiedName, EdmAction> unboundActions = Collections
-    .synchronizedMap(new HashMap<>());
-
-  private final Map<FullQualifiedName, List<EdmFunction>> unboundFunctionsByName = Collections
+  private final Map<PathName, List<EdmFunction>> unboundFunctionsByName = Collections
     .synchronizedMap(new HashMap<>());
 
   private final Map<FunctionMapKey, EdmFunction> unboundFunctionsByKey = Collections
@@ -80,71 +80,68 @@ public abstract class AbstractEdm {
   private final Map<FunctionMapKey, EdmFunction> boundFunctions = Collections
     .synchronizedMap(new HashMap<>());
 
-  private final Map<FullQualifiedName, EdmTerm> terms = Collections
-    .synchronizedMap(new HashMap<>());
+  private final Map<PathName, EdmTerm> terms = Collections.synchronizedMap(new HashMap<>());
 
   private final Map<TargetQualifierMapKey, EdmAnnotations> annotationGroups = Collections
     .synchronizedMap(new HashMap<>());
 
-  private Map<String, String> aliasToNamespaceInfo = null;
+  private Map<PathName, PathName> aliasToNamespaceInfo = null;
 
-  private final Map<FullQualifiedName, EdmEntityType> entityTypesWithAnnotations = Collections
+  private final Map<PathName, EdmEntityType> entityTypesWithAnnotations = Collections
     .synchronizedMap(new HashMap<>());
 
-  private final Map<FullQualifiedName, EdmEntityType> entityTypesDerivedFromES = Collections
+  private final Map<PathName, EdmEntityType> entityTypesDerivedFromES = Collections
     .synchronizedMap(new HashMap<>());
 
-  private final Map<FullQualifiedName, EdmComplexType> complexTypesWithAnnotations = Collections
+  private final Map<PathName, EdmComplexType> complexTypesWithAnnotations = Collections
     .synchronizedMap(new HashMap<>());
 
-  private final Map<FullQualifiedName, EdmComplexType> complexTypesDerivedFromES = Collections
+  private final Map<PathName, EdmComplexType> complexTypesDerivedFromES = Collections
     .synchronizedMap(new HashMap<>());
 
   private final Map<String, List<CsdlAnnotation>> annotationMap = new HashMap<>();
 
-  public void cacheAction(final FullQualifiedName actionName, final EdmAction action) {
+  public void cacheAction(final PathName actionName, final EdmAction action) {
     if (action.isBound()) {
-      final ActionMapKey key = new ActionMapKey(actionName, action.getBindingParameterTypeFqn(),
-        action.isBindingParameterTypeCollection());
+      final ActionMapKey key = new ActionMapKey(actionName,
+        action.getBindingParameterTypePathName(), action.isBindingParameterTypeCollection());
       this.boundActions.put(key, action);
     } else {
       this.unboundActions.put(actionName, action);
     }
   }
 
-  public void cacheAliasNamespaceInfo(final String alias, final String namespace) {
+  public void cacheAliasNamespaceInfo(final PathName alias, final PathName namespace) {
     this.aliasToNamespaceInfo.put(alias, namespace);
   }
 
-  public void cacheAnnotationGroup(final FullQualifiedName targetName,
+  public void cacheAnnotationGroup(final PathName targetName,
     final EdmAnnotations annotationsGroup) {
     final TargetQualifierMapKey key = new TargetQualifierMapKey(targetName,
       annotationsGroup.getQualifier());
     this.annotationGroups.put(key, annotationsGroup);
   }
 
-  public void cacheComplexType(final FullQualifiedName compelxTypeName,
-    final EdmComplexType complexType) {
+  public void cacheComplexType(final PathName compelxTypeName, final EdmComplexType complexType) {
     this.complexTypes.put(compelxTypeName, complexType);
   }
 
-  public void cacheEntityContainer(final FullQualifiedName containerFQN,
+  public void cacheEntityContainer(final PathName containerFQN,
     final EdmEntityContainer container) {
     this.entityContainers.put(containerFQN, container);
   }
 
-  public void cacheEntityType(final FullQualifiedName entityTypeName,
-    final EdmEntityType entityType) {
+  public void cacheEntityType(final PathName entityTypeName, final EdmEntityType entityType) {
     this.entityTypes.put(entityTypeName, entityType);
   }
 
-  public void cacheEnumType(final FullQualifiedName enumName, final EdmEnumType enumType) {
+  public void cacheEnumType(final PathName enumName, final EdmEnumType enumType) {
     this.enumTypes.put(enumName, enumType);
   }
 
-  public void cacheFunction(final FullQualifiedName functionName, final EdmFunction function) {
+  public void cacheFunction(final PathName functionName, final EdmFunction function) {
     final FunctionMapKey key = new FunctionMapKey(functionName,
-      function.getBindingParameterTypeFqn(), function.isBindingParameterTypeCollection(),
+      function.getBindingParameterTypePathName(), function.isBindingParameterTypeCollection(),
       function.getParameterNames());
 
     if (function.isBound()) {
@@ -153,57 +150,55 @@ public abstract class AbstractEdm {
       if (!this.unboundFunctionsByName.containsKey(functionName)) {
         this.unboundFunctionsByName.put(functionName, new ArrayList<>());
       }
-      this.unboundFunctionsByName.get(functionName).add(function);
+      this.unboundFunctionsByName.get(functionName)
+        .add(function);
 
       this.unboundFunctionsByKey.put(key, function);
     }
   }
 
-  public void cacheTerm(final FullQualifiedName termName, final EdmTerm term) {
+  public void cacheTerm(final PathName termName, final EdmTerm term) {
     this.terms.put(termName, term);
   }
 
-  public void cacheTypeDefinition(final FullQualifiedName typeDefName,
-    final EdmTypeDefinition typeDef) {
+  public void cacheTypeDefinition(final PathName typeDefName, final EdmTypeDefinition typeDef) {
     this.typeDefinitions.put(typeDefName, typeDef);
   }
 
-  protected abstract Map<String, String> createAliasToNamespaceInfo();
+  protected abstract Map<PathName, PathName> createAliasToNamespaceInfo();
 
-  protected abstract EdmAnnotations createAnnotationGroup(FullQualifiedName targetName,
-    String qualifier);
+  protected abstract EdmAnnotations createAnnotationGroup(PathName targetName, String qualifier);
 
-  protected abstract EdmAction createBoundAction(FullQualifiedName actionName,
-    FullQualifiedName bindingParameterTypeName, Boolean isBindingParameterCollection);
+  protected abstract EdmAction createBoundAction(PathName actionName,
+    PathName bindingParameterTypeName, Boolean isBindingParameterCollection);
 
-  protected abstract EdmFunction createBoundFunction(FullQualifiedName functionName,
-    FullQualifiedName bindingParameterTypeName, Boolean isBindingParameterCollection,
+  protected abstract EdmFunction createBoundFunction(PathName functionName,
+    PathName bindingParameterTypeName, Boolean isBindingParameterCollection,
     List<String> parameterNames);
 
-  protected abstract EdmComplexType createComplexType(FullQualifiedName complexTypeName);
+  protected abstract EdmComplexType createComplexType(PathName complexTypeName);
 
-  protected abstract EdmEntityContainer createEntityContainer(FullQualifiedName containerName);
+  protected abstract EdmEntityContainer createEntityContainer(PathName containerName);
 
-  protected abstract EdmEntityType createEntityType(FullQualifiedName entityTypeName);
+  protected abstract EdmEntityType createEntityType(PathName entityTypeName);
 
-  protected abstract EdmEnumType createEnumType(FullQualifiedName enumName);
+  protected abstract EdmEnumType createEnumType(PathName enumName);
 
-  protected abstract Map<String, EdmSchema> createSchemas();
+  protected abstract Map<PathName, EdmSchema> createSchemas();
 
-  protected abstract EdmTerm createTerm(FullQualifiedName termName);
+  protected abstract EdmTerm createTerm(PathName termName);
 
-  protected abstract EdmTypeDefinition createTypeDefinition(FullQualifiedName typeDefinitionName);
+  protected abstract EdmTypeDefinition createTypeDefinition(PathName typeDefinitionName);
 
-  protected abstract EdmAction createUnboundAction(FullQualifiedName actionName);
+  protected abstract EdmAction createUnboundAction(PathName actionName);
 
-  protected abstract EdmFunction createUnboundFunction(FullQualifiedName functionName,
+  protected abstract EdmFunction createUnboundFunction(PathName functionName,
     List<String> parameterNames);
 
-  protected abstract List<EdmFunction> createUnboundFunctions(FullQualifiedName functionName);
+  protected abstract List<EdmFunction> createUnboundFunctions(PathName functionName);
 
-  public EdmAnnotations getAnnotationGroup(final FullQualifiedName targetName,
-    final String qualifier) {
-    final FullQualifiedName fqn = resolvePossibleAlias(targetName);
+  public EdmAnnotations getAnnotationGroup(final PathName targetName, final String qualifier) {
+    final var fqn = resolvePossibleAlias(targetName);
     final TargetQualifierMapKey key = new TargetQualifierMapKey(fqn, qualifier);
     EdmAnnotations _annotations = this.annotationGroups.get(key);
     if (_annotations == null) {
@@ -219,12 +214,11 @@ public abstract class AbstractEdm {
     return this.annotationMap;
   }
 
-  public EdmAction getBoundAction(final FullQualifiedName actionName,
-    final FullQualifiedName bindingParameterTypeName, final Boolean isBindingParameterCollection) {
+  public EdmAction getBoundAction(final PathName actionName,
+    final PathName bindingParameterTypeName, final Boolean isBindingParameterCollection) {
 
-    final FullQualifiedName actionFqn = resolvePossibleAlias(actionName);
-    final FullQualifiedName bindingParameterTypeFqn = resolvePossibleAlias(
-      bindingParameterTypeName);
+    final var actionFqn = resolvePossibleAlias(actionName);
+    final var bindingParameterTypeFqn = resolvePossibleAlias(bindingParameterTypeName);
     final ActionMapKey key = new ActionMapKey(actionFqn, bindingParameterTypeFqn,
       isBindingParameterCollection);
     EdmAction action = this.boundActions.get(key);
@@ -238,14 +232,16 @@ public abstract class AbstractEdm {
     return action;
   }
 
-  public EdmAction getBoundActionWithBindingType(final FullQualifiedName bindingParameterTypeName,
+  public EdmAction getBoundActionWithBindingType(final PathName bindingParameterTypeName,
     final Boolean isBindingParameterCollection) {
     for (final EdmSchema schema : getSchemas()) {
       for (final EdmAction action : schema.getActions()) {
         if (action.isBound()) {
-          final EdmParameter bindingParameter = action
-            .getParameter(action.getParameterNames().get(0));
-          if (bindingParameter.getType().getFullQualifiedName().equals(bindingParameterTypeName)
+          final EdmParameter bindingParameter = action.getParameter(action.getParameterNames()
+            .get(0));
+          if (bindingParameter.getType()
+            .getPathName()
+            .equals(bindingParameterTypeName)
             && bindingParameter.isCollection() == isBindingParameterCollection) {
             return action;
           }
@@ -255,13 +251,12 @@ public abstract class AbstractEdm {
     return null;
   }
 
-  public EdmFunction getBoundFunction(final FullQualifiedName functionName,
-    final FullQualifiedName bindingParameterTypeName, final Boolean isBindingParameterCollection,
+  public EdmFunction getBoundFunction(final PathName functionName,
+    final PathName bindingParameterTypeName, final Boolean isBindingParameterCollection,
     final List<String> parameterNames) {
 
-    final FullQualifiedName functionFqn = resolvePossibleAlias(functionName);
-    final FullQualifiedName bindingParameterTypeFqn = resolvePossibleAlias(
-      bindingParameterTypeName);
+    final var functionFqn = resolvePossibleAlias(functionName);
+    final var bindingParameterTypeFqn = resolvePossibleAlias(bindingParameterTypeName);
     final FunctionMapKey key = new FunctionMapKey(functionFqn, bindingParameterTypeFqn,
       isBindingParameterCollection, parameterNames);
     EdmFunction function = this.boundFunctions.get(key);
@@ -276,15 +271,17 @@ public abstract class AbstractEdm {
     return function;
   }
 
-  public List<EdmFunction> getBoundFunctionsWithBindingType(
-    final FullQualifiedName bindingParameterTypeName, final Boolean isBindingParameterCollection) {
+  public List<EdmFunction> getBoundFunctionsWithBindingType(final PathName bindingParameterTypeName,
+    final Boolean isBindingParameterCollection) {
     final List<EdmFunction> functions = new ArrayList<>();
     for (final EdmSchema schema : getSchemas()) {
       for (final EdmFunction function : schema.getFunctions()) {
         if (function.isBound()) {
-          final EdmParameter bindingParameter = function
-            .getParameter(function.getParameterNames().get(0));
-          if (bindingParameter.getType().getFullQualifiedName().equals(bindingParameterTypeName)
+          final EdmParameter bindingParameter = function.getParameter(function.getParameterNames()
+            .get(0));
+          if (bindingParameter.getType()
+            .getPathName()
+            .equals(bindingParameterTypeName)
             && bindingParameter.isCollection() == isBindingParameterCollection) {
             functions.add(function);
           }
@@ -294,8 +291,8 @@ public abstract class AbstractEdm {
     return functions;
   }
 
-  public EdmComplexType getComplexType(final FullQualifiedName namespaceOrAliasFQN) {
-    final FullQualifiedName fqn = resolvePossibleAlias(namespaceOrAliasFQN);
+  public EdmComplexType getComplexType(final PathName namespaceOrAliasFQN) {
+    final var fqn = resolvePossibleAlias(namespaceOrAliasFQN);
     EdmComplexType complexType = this.complexTypes.get(fqn);
     if (complexType == null) {
       complexType = createComplexType(fqn);
@@ -306,8 +303,8 @@ public abstract class AbstractEdm {
     return complexType;
   }
 
-  public EdmComplexType getComplexTypeWithAnnotations(final FullQualifiedName namespaceOrAliasFQN) {
-    final FullQualifiedName fqn = resolvePossibleAlias(namespaceOrAliasFQN);
+  public EdmComplexType getComplexTypeWithAnnotations(final PathName namespaceOrAliasFQN) {
+    final var fqn = resolvePossibleAlias(namespaceOrAliasFQN);
     EdmComplexType complexType = this.complexTypesWithAnnotations.get(fqn);
     if (complexType == null) {
       complexType = createComplexType(fqn);
@@ -319,10 +316,10 @@ public abstract class AbstractEdm {
     return complexType;
   }
 
-  protected EdmComplexType getComplexTypeWithAnnotations(
-    final FullQualifiedName namespaceOrAliasFQN, final boolean isComplexDerivedFromES) {
+  protected EdmComplexType getComplexTypeWithAnnotations(final PathName namespaceOrAliasFQN,
+    final boolean isComplexDerivedFromES) {
     this.isComplexDerivedFromES = isComplexDerivedFromES;
-    final FullQualifiedName fqn = resolvePossibleAlias(namespaceOrAliasFQN);
+    final var fqn = resolvePossibleAlias(namespaceOrAliasFQN);
     if (!isPreviousES() && getEntityContainer() != null) {
       getEntityContainer().getEntitySetsWithAnnotations();
     }
@@ -341,24 +338,24 @@ public abstract class AbstractEdm {
     return getEntityContainer(null);
   }
 
-  public EdmEntityContainer getEntityContainer(final FullQualifiedName namespaceOrAliasFQN) {
-    final FullQualifiedName fqn = resolvePossibleAlias(namespaceOrAliasFQN);
-    EdmEntityContainer container = this.entityContainers.get(fqn);
+  public EdmEntityContainer getEntityContainer(final PathName pathName) {
+    final var aliasName = resolvePossibleAlias(pathName);
+    EdmEntityContainer container = this.entityContainers.get(aliasName);
     if (container == null) {
-      container = createEntityContainer(fqn);
+      container = createEntityContainer(aliasName);
       if (container != null) {
-        this.entityContainers.put(fqn, container);
-        if (fqn == null) {
-          this.entityContainers
-            .put(new FullQualifiedName(container.getNamespace(), container.getName()), container);
+        this.entityContainers.put(aliasName, container);
+        if (aliasName == null) {
+          this.entityContainers.put(container.getNamespace()
+            .newChild(container.getName()), container);
         }
       }
     }
     return container;
   }
 
-  public EdmEntityType getEntityType(final FullQualifiedName namespaceOrAliasFQN) {
-    final FullQualifiedName fqn = resolvePossibleAlias(namespaceOrAliasFQN);
+  public EdmEntityType getEntityType(final PathName namespaceOrAliasFQN) {
+    final var fqn = resolvePossibleAlias(namespaceOrAliasFQN);
     EdmEntityType entityType = this.entityTypes.get(fqn);
     if (entityType == null) {
       entityType = createEntityType(fqn);
@@ -369,8 +366,8 @@ public abstract class AbstractEdm {
     return entityType;
   }
 
-  public EdmEntityType getEntityTypeWithAnnotations(final FullQualifiedName namespaceOrAliasFQN) {
-    final FullQualifiedName fqn = resolvePossibleAlias(namespaceOrAliasFQN);
+  public EdmEntityType getEntityTypeWithAnnotations(final PathName namespaceOrAliasFQN) {
+    final var fqn = resolvePossibleAlias(namespaceOrAliasFQN);
     EdmEntityType entityType = this.entityTypesWithAnnotations.get(fqn);
     if (entityType == null) {
       entityType = createEntityType(fqn);
@@ -382,10 +379,10 @@ public abstract class AbstractEdm {
     return entityType;
   }
 
-  protected EdmEntityType getEntityTypeWithAnnotations(final FullQualifiedName namespaceOrAliasFQN,
+  protected EdmEntityType getEntityTypeWithAnnotations(final PathName namespaceOrAliasFQN,
     final boolean isEntityDerivedFromES) {
     this.isEntityDerivedFromES = isEntityDerivedFromES;
-    final FullQualifiedName fqn = resolvePossibleAlias(namespaceOrAliasFQN);
+    final var fqn = resolvePossibleAlias(namespaceOrAliasFQN);
     if (!isPreviousES() && getEntityContainer() != null) {
       getEntityContainer().getEntitySetsWithAnnotations();
     }
@@ -400,8 +397,8 @@ public abstract class AbstractEdm {
     return entityType;
   }
 
-  public EdmEnumType getEnumType(final FullQualifiedName namespaceOrAliasFQN) {
-    final FullQualifiedName fqn = resolvePossibleAlias(namespaceOrAliasFQN);
+  public EdmEnumType getEnumType(final PathName namespaceOrAliasFQN) {
+    final var fqn = resolvePossibleAlias(namespaceOrAliasFQN);
     EdmEnumType enumType = this.enumTypes.get(fqn);
     if (enumType == null) {
       enumType = createEnumType(fqn);
@@ -412,7 +409,7 @@ public abstract class AbstractEdm {
     return enumType;
   }
 
-  public EdmSchema getSchema(final String namespace) {
+  public EdmSchema getSchema(final PathName namespace) {
     if (this.schemas == null) {
       initSchemas();
     }
@@ -431,8 +428,8 @@ public abstract class AbstractEdm {
     return this.schemaList;
   }
 
-  public EdmTerm getTerm(final FullQualifiedName termName) {
-    final FullQualifiedName fqn = resolvePossibleAlias(termName);
+  public EdmTerm getTerm(final PathName termName) {
+    final var fqn = resolvePossibleAlias(termName);
     EdmTerm term = this.terms.get(fqn);
     if (term == null) {
       term = createTerm(fqn);
@@ -443,8 +440,8 @@ public abstract class AbstractEdm {
     return term;
   }
 
-  public EdmTypeDefinition getTypeDefinition(final FullQualifiedName namespaceOrAliasFQN) {
-    final FullQualifiedName fqn = resolvePossibleAlias(namespaceOrAliasFQN);
+  public EdmTypeDefinition getTypeDefinition(final PathName namespaceOrAliasFQN) {
+    final var fqn = resolvePossibleAlias(namespaceOrAliasFQN);
     EdmTypeDefinition typeDefinition = this.typeDefinitions.get(fqn);
     if (typeDefinition == null) {
       typeDefinition = createTypeDefinition(fqn);
@@ -455,8 +452,8 @@ public abstract class AbstractEdm {
     return typeDefinition;
   }
 
-  public EdmAction getUnboundAction(final FullQualifiedName actionName) {
-    final FullQualifiedName fqn = resolvePossibleAlias(actionName);
+  public EdmAction getUnboundAction(final PathName actionName) {
+    final var fqn = resolvePossibleAlias(actionName);
     EdmAction action = this.unboundActions.get(fqn);
     if (action == null) {
       action = createUnboundAction(fqn);
@@ -468,9 +465,9 @@ public abstract class AbstractEdm {
     return action;
   }
 
-  public EdmFunction getUnboundFunction(final FullQualifiedName functionName,
+  public EdmFunction getUnboundFunction(final PathName functionName,
     final List<String> parameterNames) {
-    final FullQualifiedName functionFqn = resolvePossibleAlias(functionName);
+    final var functionFqn = resolvePossibleAlias(functionName);
 
     final FunctionMapKey key = new FunctionMapKey(functionFqn, null, null, parameterNames);
     EdmFunction function = this.unboundFunctionsByKey.get(key);
@@ -484,8 +481,8 @@ public abstract class AbstractEdm {
     return function;
   }
 
-  public List<EdmFunction> getUnboundFunctions(final FullQualifiedName functionName) {
-    final FullQualifiedName functionFqn = resolvePossibleAlias(functionName);
+  public List<EdmFunction> getUnboundFunctions(final PathName functionName) {
+    final var functionFqn = resolvePossibleAlias(functionName);
 
     List<EdmFunction> functions = this.unboundFunctionsByName.get(functionFqn);
     if (functions == null) {
@@ -494,10 +491,9 @@ public abstract class AbstractEdm {
         this.unboundFunctionsByName.put(functionFqn, functions);
 
         for (final EdmFunction unbound : functions) {
-          final FunctionMapKey key = new FunctionMapKey(
-            new FullQualifiedName(unbound.getNamespace(), unbound.getName()),
-            unbound.getBindingParameterTypeFqn(), unbound.isBindingParameterTypeCollection(),
-            unbound.getParameterNames());
+          final FunctionMapKey key = new FunctionMapKey(unbound.getNamespace()
+            .newChild(unbound.getName()), unbound.getBindingParameterTypePathName(),
+            unbound.isBindingParameterTypeCollection(), unbound.getParameterNames());
           this.unboundFunctionsByKey.put(key, unbound);
         }
       }
@@ -508,7 +504,7 @@ public abstract class AbstractEdm {
 
   private void initSchemas() {
     loadAliasToNamespaceInfo();
-    final Map<String, EdmSchema> localSchemas = createSchemas();
+    final Map<PathName, EdmSchema> localSchemas = createSchemas();
     this.schemas = Collections.synchronizedMap(localSchemas);
 
     this.schemaList = Collections.unmodifiableList(new ArrayList<>(this.schemas.values()));
@@ -527,22 +523,22 @@ public abstract class AbstractEdm {
   }
 
   private void loadAliasToNamespaceInfo() {
-    final Map<String, String> localAliasToNamespaceInfo = createAliasToNamespaceInfo();
+    final Map<PathName, PathName> localAliasToNamespaceInfo = createAliasToNamespaceInfo();
     this.aliasToNamespaceInfo = Collections.synchronizedMap(localAliasToNamespaceInfo);
   }
 
-  private FullQualifiedName resolvePossibleAlias(final FullQualifiedName namespaceOrAliasFQN) {
+  private PathName resolvePossibleAlias(final PathName namespaceOrAliasFQN) {
     if (this.aliasToNamespaceInfo == null) {
       loadAliasToNamespaceInfo();
     }
-    FullQualifiedName finalFQN = null;
+    PathName finalFQN = null;
     if (namespaceOrAliasFQN != null) {
-      final String namespace = this.aliasToNamespaceInfo.get(namespaceOrAliasFQN.getNamespace());
+      final var namespace = this.aliasToNamespaceInfo.get(namespaceOrAliasFQN.getParent());
       // If not contained in info it must be a namespace
       if (namespace == null) {
         finalFQN = namespaceOrAliasFQN;
       } else {
-        finalFQN = new FullQualifiedName(namespace, namespaceOrAliasFQN.getName());
+        finalFQN = namespace.newChild(namespaceOrAliasFQN.getName());
       }
     }
     return finalFQN;

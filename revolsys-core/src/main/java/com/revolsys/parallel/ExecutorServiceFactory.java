@@ -2,31 +2,23 @@ package com.revolsys.parallel;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
-import com.revolsys.collection.map.ThreadSharedProperties;
+import com.revolsys.collection.value.LazyValueHolder;
+import com.revolsys.collection.value.ValueHolder;
 
 public class ExecutorServiceFactory {
-  private static final String KEY = ExecutorServiceFactory.class.getName() + ".key";
+  private static LazyValueHolder<ExecutorService> EXECUTOR = ValueHolder
+      .lazy(Executors::newCachedThreadPool);
 
-  private static final Object SYNC = new Object();
+  private static LazyValueHolder<ScheduledExecutorService> SCHEDULED_VIRTUAL = ValueHolder
+      .lazy(() -> Executors.newScheduledThreadPool(0, Thread.ofVirtual().name("rssched", 0).factory()));
 
   public static ExecutorService getExecutorService() {
-    synchronized (SYNC) {
-      ExecutorService executorService = ThreadSharedProperties.getProperty(KEY);
-      if (executorService == null) {
-        executorService = Executors.newCachedThreadPool();
-        ThreadSharedProperties.setDefaultProperty(KEY, executorService);
-      }
-      return executorService;
-
-    }
+    return EXECUTOR.getValue();
   }
 
-  public static void setDefaultExecutorService(final ExecutorService executorService) {
-    ThreadSharedProperties.setDefaultProperty(KEY, executorService);
-  }
-
-  public static void setThreadExecutorService(final ExecutorService executorService) {
-    ThreadSharedProperties.setProperty(KEY, executorService);
+  public static ScheduledExecutorService getScheduledVirtual() {
+    return SCHEDULED_VIRTUAL.getValue();
   }
 }

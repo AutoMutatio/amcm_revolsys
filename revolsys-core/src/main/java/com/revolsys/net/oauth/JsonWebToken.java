@@ -24,7 +24,8 @@ import com.revolsys.collection.json.JsonParser;
 public class JsonWebToken {
 
   public static JsonObject decodeJson(final String base64) {
-    final byte[] decoded = Base64.getDecoder().decode(base64);
+    final byte[] decoded = Base64.getDecoder()
+      .decode(base64);
     final String string = new String(decoded, StandardCharsets.UTF_8);
     return JsonParser.read(string);
   }
@@ -95,7 +96,7 @@ public class JsonWebToken {
     return getTime("iat");
   }
 
-  private String getIssuer() {
+  public String getIssuer() {
     return getString("iss");
   }
 
@@ -132,24 +133,11 @@ public class JsonWebToken {
     return this.token;
   }
 
-  public boolean isValid(final Iterable<String> issuers) {
-    for (final String issuer : issuers) {
-      if (isValid(issuer)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  public boolean isValid(final String issuer) {
+  public boolean isValid() {
     try {
-      final String iss = getIssuer();
-      if (!issuer.equals(iss)
-        || !this.header.equalValue("typ", "JWT") && this.header.hasValue("typ")
-        || !this.header.equalValue("alg", "RS256")) {
-        return false;
-      }
-      if (!this.header.hasValue("kid")) {
+      final var issuer = getIssuer();
+      if (!this.header.equalValue("typ", "JWT") && this.header.hasValue("typ")
+        || !this.header.equalValue("alg", "RS256") || !this.header.hasValue("kid")) {
         return false;
       }
       final Instant now = Instant.now();
@@ -187,8 +175,10 @@ public class JsonWebToken {
           final String n = key.getString("n");
           final String e = key.getString("e");
           if (n != null && e != null) {
-            final byte exponentB[] = Base64.getUrlDecoder().decode(e);
-            final byte modulusB[] = Base64.getUrlDecoder().decode(n);
+            final byte exponentB[] = Base64.getUrlDecoder()
+              .decode(e);
+            final byte modulusB[] = Base64.getUrlDecoder()
+              .decode(n);
             final BigInteger bigExponent = new BigInteger(1, exponentB);
             final BigInteger bigModulus = new BigInteger(1, modulusB);
             final PublicKey publicKey = KeyFactory.getInstance("RSA")
@@ -198,7 +188,8 @@ public class JsonWebToken {
             }
           }
           for (final String certBase64 : key.<String> getList("x5c")) {
-            final byte[] cert = Base64.getDecoder().decode(certBase64);
+            final byte[] cert = Base64.getDecoder()
+              .decode(certBase64);
             final CertificateFactory factory = CertificateFactory.getInstance("X.509");
             final X509Certificate x509 = (X509Certificate)factory
               .generateCertificate(new ByteArrayInputStream(cert));
@@ -210,11 +201,34 @@ public class JsonWebToken {
           return false;
         }
       }
+      return false;
+    } catch (final Exception e) {
+      return false;
+    }
+  }
+
+  public boolean isValid(final Iterable<String> issuers) {
+    for (final String issuer : issuers) {
+      if (isValid(issuer)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  public boolean isValid(final String issuer) {
+    try {
+      final String iss = getIssuer();
+      if (!issuer.equals(iss)
+        || !this.header.equalValue("typ", "JWT") && this.header.hasValue("typ")
+        || !this.header.equalValue("alg", "RS256")) {
+        return false;
+      }
+      return isValid();
     } catch (final Exception e) {
       return false;
     }
 
-    return false;
   }
 
   @Override

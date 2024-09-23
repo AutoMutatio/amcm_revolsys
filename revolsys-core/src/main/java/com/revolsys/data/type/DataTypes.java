@@ -66,11 +66,17 @@ public final class DataTypes {
         }
       }
     } catch (final Throwable e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   });
 
   public static final DataType BASE64_BINARY = new SimpleDataType("base64Binary", byte[].class);
+
+  public static final DataType BASE64_URL_BINARY = new FunctionDataType("base64UrlBinary",
+    byte[].class, s -> Base64.getUrlDecoder()
+      .decode(s.toString()),
+    v -> Base64.getUrlEncoder()
+      .encodeToString((byte[])v));
 
   public static final DataType BINARY = new SimpleDataType("binary", byte[].class);
 
@@ -122,9 +128,6 @@ public final class DataTypes {
         return ByteBuffer.wrap(bytes);
       } else if (v instanceof final ByteBuffer buffer) {
         return buffer;
-      } else if (v instanceof final String string) {
-        final var bytes = Base64.getDecoder().decode(string);
-        return ByteBuffer.wrap(bytes);
       } else {
         return v;
       }
@@ -222,7 +225,8 @@ public final class DataTypes {
     } else if (value instanceof Path) {
       final Path path = (Path)value;
       try {
-        return path.toUri().toURL();
+        return path.toUri()
+          .toURL();
       } catch (final MalformedURLException e) {
         throw new IllegalArgumentException("Cannot get url " + path, e);
       }
@@ -340,7 +344,8 @@ public final class DataTypes {
   }
 
   public static void register(final DataType type) {
-    final String name = type.getName().toLowerCase();
+    final String name = type.getName()
+      .toLowerCase();
     if (!NAME_TYPE_MAP.containsKey(name)) {
       NAME_TYPE_MAP.put(name, type);
     }

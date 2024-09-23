@@ -6,8 +6,8 @@ import java.util.Iterator;
 import java.util.Map;
 
 import com.revolsys.collection.json.JsonObject;
-import com.revolsys.collection.json.JsonParser;
 import com.revolsys.collection.map.LruMap;
+import com.revolsys.record.io.format.json.JsonIo;
 import com.revolsys.util.Pair;
 
 public class JsonWebTokenCache {
@@ -18,7 +18,7 @@ public class JsonWebTokenCache {
     final Instant now = Instant.now();
     Pair<Instant, JsonObject> resource = CACHE.get(uri);
     if (resource == null) {
-      final JsonObject json = JsonParser.read(uri);
+      final JsonObject json = JsonIo.read(uri);
       final Instant expiry = now.plusSeconds(15 * 60);
       resource = new Pair<>(expiry, json);
     }

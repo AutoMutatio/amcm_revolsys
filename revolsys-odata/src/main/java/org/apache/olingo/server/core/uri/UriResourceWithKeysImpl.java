@@ -24,10 +24,8 @@ import java.util.List;
 import org.apache.olingo.commons.api.edm.EdmType;
 import org.apache.olingo.server.api.uri.UriParameter;
 import org.apache.olingo.server.api.uri.UriResourceKind;
-import org.apache.olingo.server.api.uri.UriResourcePartTyped;
 
-public abstract class UriResourceWithKeysImpl extends UriResourceImpl
-  implements UriResourcePartTyped {
+public abstract class UriResourceWithKeysImpl extends UriResourcePartTyped {
 
   private EdmType collectionTypeFilter = null;
 
@@ -40,7 +38,8 @@ public abstract class UriResourceWithKeysImpl extends UriResourceImpl
   }
 
   private String getFQN(final EdmType type) {
-    return type.getFullQualifiedName().getFullQualifiedNameAsString();
+    return type.getPathName()
+      .toString();
   }
 
   public List<UriParameter> getKeyPredicates() {
@@ -60,7 +59,8 @@ public abstract class UriResourceWithKeysImpl extends UriResourceImpl
         if (tmp.length() == 0) {
           tmp.append(getFQN(this.entryTypeFilter));
         } else {
-          tmp.append("/()").append(getFQN(this.entryTypeFilter));
+          tmp.append("/()")
+            .append(getFQN(this.entryTypeFilter));
         }
       }
 

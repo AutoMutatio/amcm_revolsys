@@ -118,7 +118,8 @@ public class HttpRequestStatusLine {
   }
 
   private void parse() throws BatchDeserializerException {
-    final String[] parts = this.statusLine.toString().split(" ");
+    final String[] parts = this.statusLine.toString()
+      .split(" ");
 
     // Status line consists of 3 parts: Method, URI and HTTP Version
     if (parts.length == 3) {
@@ -181,7 +182,8 @@ public class HttpRequestStatusLine {
       } else {
         final URI base = URI.create(baseUri);
         if (rawUri.startsWith(base.getRawPath())) {
-          parseRelativeUri(removeLeadingSlash(rawUri.substring(base.getRawPath().length())));
+          parseRelativeUri(removeLeadingSlash(rawUri.substring(base.getRawPath()
+            .length())));
         } else {
           parseRelativeUri(rawUri);
         }

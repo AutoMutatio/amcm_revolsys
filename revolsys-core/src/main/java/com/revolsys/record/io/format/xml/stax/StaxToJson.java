@@ -70,7 +70,7 @@ public class StaxToJson {
       final InputStream in = entity.getContent()) {
       return process(in);
     } catch (final Exception e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 

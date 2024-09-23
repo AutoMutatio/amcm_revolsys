@@ -250,10 +250,10 @@ public final class JavaBeanUtil {
       } else if (t instanceof Error) {
         throw (Error)t;
       } else {
-        throw Exceptions.wrap(t);
+        throw Exceptions.toRuntimeException(t);
       }
     } catch (final Exception e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 

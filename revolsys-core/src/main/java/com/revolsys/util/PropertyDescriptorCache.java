@@ -1,32 +1,29 @@
 package com.revolsys.util;
 
-import java.beans.BeanInfo;
-import java.beans.IntrospectionException;
-import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.WeakHashMap;
-
-import com.revolsys.collection.map.Maps;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class PropertyDescriptorCache {
-  private static Map<Class<?>, Map<String, PropertyDescriptor>> propertyDescriptorByClassAndName = new WeakHashMap<>();
+  private static Map<Class<?>, PropertyDescriptorCacheForClass> cacheForClass = new WeakHashMap<>();
 
-  private static Map<Class<?>, Map<String, Method>> propertyWriteMethodByClassAndName = new WeakHashMap<>();
+  private static final ReentrantLock lock = new ReentrantLock();
 
   public static void clearCache() {
-    synchronized (propertyDescriptorByClassAndName) {
-      propertyDescriptorByClassAndName.clear();
-      propertyWriteMethodByClassAndName.clear();
+    lock.lock();
+    try {
+      cacheForClass.clear();
+    } finally {
+      lock.unlock();
     }
   }
 
   public static PropertyDescriptor getPropertyDescriptor(final Class<?> clazz,
     final String propertyName) {
-    final Map<String, PropertyDescriptor> propertyDescriptors = getPropertyDescriptors(clazz);
-    return propertyDescriptors.get(propertyName);
+    final var propertyDescriptors = getPropertyDescriptors(clazz);
+    return propertyDescriptors.getPropertyDescriptor(propertyName);
   }
 
   public static PropertyDescriptor getPropertyDescriptor(final Object object,
@@ -39,49 +36,23 @@ public class PropertyDescriptorCache {
     }
   }
 
-  protected static Map<String, PropertyDescriptor> getPropertyDescriptors(final Class<?> clazz) {
-    synchronized (propertyDescriptorByClassAndName) {
-      Map<String, PropertyDescriptor> propertyDescriptors = propertyDescriptorByClassAndName
-        .get(clazz);
+  private static PropertyDescriptorCacheForClass getPropertyDescriptors(final Class<?> clazz) {
+    lock.lock();
+    try {
+      var propertyDescriptors = cacheForClass.get(clazz);
       if (propertyDescriptors == null) {
-        propertyDescriptors = new HashMap<>();
-        try {
-          final BeanInfo beanInfo = Introspector.getBeanInfo(clazz);
-          for (final PropertyDescriptor propertyDescriptor : beanInfo.getPropertyDescriptors()) {
-            final String propertyName = propertyDescriptor.getName();
-            propertyDescriptors.put(propertyName, propertyDescriptor);
-            Method writeMethod = propertyDescriptor.getWriteMethod();
-            if (writeMethod == null) {
-              final String setMethodName = "set" + Character.toUpperCase(propertyName.charAt(0))
-                + propertyName.substring(1);
-              try {
-                final Class<?> propertyType = propertyDescriptor.getPropertyType();
-                writeMethod = clazz.getMethod(setMethodName, propertyType);
-                propertyDescriptor.setWriteMethod(writeMethod);
-              } catch (NoSuchMethodException | SecurityException e) {
-              }
-            }
-            Maps.put(propertyWriteMethodByClassAndName, clazz, propertyName, writeMethod);
-          }
-        } catch (final IntrospectionException e) {
-          // TODO Auto-generated catch block
-          e.printStackTrace();
-        }
-        propertyDescriptorByClassAndName.put(clazz, propertyDescriptors);
+        propertyDescriptors = new PropertyDescriptorCacheForClass(clazz);
+        cacheForClass.put(clazz, propertyDescriptors);
       }
       return propertyDescriptors;
+    } finally {
+      lock.unlock();
     }
   }
 
   protected static Map<String, Method> getWriteMethods(final Class<?> clazz) {
-    synchronized (propertyDescriptorByClassAndName) {
-      Map<String, Method> writeMethods = propertyWriteMethodByClassAndName.get(clazz);
-      if (writeMethods == null) {
-        getPropertyDescriptors(clazz);
-        writeMethods = propertyWriteMethodByClassAndName.get(clazz);
-      }
-      return writeMethods;
-    }
+    final var propertyDescriptors = getPropertyDescriptors(clazz);
+    return propertyDescriptors.getWriteMethods();
   }
 
 }

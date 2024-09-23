@@ -1,10 +1,8 @@
 package com.revolsys.net.oauth;
 
-import java.util.function.Function;
-
 import com.revolsys.collection.json.JsonObject;
-import com.revolsys.collection.json.JsonParser;
 import com.revolsys.http.HttpRequestBuilder;
+import com.revolsys.record.io.format.json.JsonIo;
 import com.revolsys.spring.resource.Resource;
 
 public class OpenIdConnectClientV1 extends OpenIdConnectClient {
@@ -21,7 +19,7 @@ public class OpenIdConnectClientV1 extends OpenIdConnectClient {
 
   private static OpenIdConnectClientV1 newClientV1(final String url) {
     final Resource resource = Resource.getResource(url);
-    final JsonObject config = JsonParser.read((Object)resource);
+    final JsonObject config = JsonIo.read((Object)resource);
     if (config == null || config.isEmpty()) {
       throw new IllegalArgumentException("Not a valid .well-known/openid-configuration");
     } else {
@@ -35,30 +33,30 @@ public class OpenIdConnectClientV1 extends OpenIdConnectClient {
     super(config);
   }
 
-  public Function<BearerToken, BearerToken> bearerTokenRefreshFactory(
-    final OpenIdResource resource) {
+  public BearerTokenRefresher newTokenRefresh(
+    final OpenIdScope resource) {
     return bearerToken -> tokenClientCredentials(resource);
   }
 
   private OpenIdBearerToken getOpenIdBearerToken(final HttpRequestBuilder requestBuilder,
-    final OpenIdResource resource) {
-    final var response = requestBuilder.getJson();
+    final OpenIdScope resource) {
+    final var response = requestBuilder.responseAsJson();
     return new OpenIdBearerToken(this, response, resource);
   }
 
-  public OpenIdBearerToken tokenClientCredentials(final OpenIdResource resource) {
+  public OpenIdBearerToken tokenClientCredentials(final OpenIdScope resource) {
     final var requestBuilder = tokenBuilder("client_credentials", true);
     if (resource != null) {
-      requestBuilder.addParameter("resource", resource.getResource());
+      requestBuilder.addParameter("resource", resource.getScope());
     }
     return getOpenIdBearerToken(requestBuilder, resource);
   }
 
-  public OpenIdBearerToken tokenRefresh(final String refreshToken, final OpenIdResource resource) {
+  public OpenIdBearerToken tokenRefresh(final String refreshToken, final OpenIdScope resource) {
     final var requestBuilder = tokenBuilder("refresh_token", true);
     requestBuilder.addParameter("refresh_token", refreshToken);
     if (resource != null) {
-      requestBuilder.addParameter("resource", resource.getResource());
+      requestBuilder.addParameter("resource", resource.getScope());
     }
     return getOpenIdBearerToken(requestBuilder, resource);
   }

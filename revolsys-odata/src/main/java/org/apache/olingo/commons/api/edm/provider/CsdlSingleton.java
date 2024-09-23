@@ -20,7 +20,7 @@ package org.apache.olingo.commons.api.edm.provider;
 
 import java.util.List;
 
-import org.apache.olingo.commons.api.edm.FullQualifiedName;
+import com.revolsys.io.PathName;
 
 /**
  * The type Csdl singleton.
@@ -59,14 +59,14 @@ public class CsdlSingleton extends CsdlBindingTarget {
   }
 
   @Override
-  public CsdlSingleton setType(final FullQualifiedName type) {
+  public CsdlSingleton setType(final PathName type) {
     this.type = type;
     return this;
   }
 
   @Override
   public CsdlSingleton setType(final String type) {
-    this.type = new FullQualifiedName(type);
+    this.type = PathName.fromDotSeparated(type);
     return this;
   }
 }

@@ -45,7 +45,9 @@ public class SearchParser {
   private SearchQueryToken token;
 
   private String getTokenAsString() {
-    return this.token == null ? "<EOF>" : this.token.getToken().name();
+    return this.token == null ? "<EOF>"
+      : this.token.getToken()
+        .name();
   }
 
   private boolean isEof() {

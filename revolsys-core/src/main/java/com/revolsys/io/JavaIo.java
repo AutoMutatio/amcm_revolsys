@@ -50,7 +50,7 @@ public class JavaIo {
         return out;
       }
     }
-    throw new IllegalArgumentException("Cannot create writer for class: " + target.getClass());
+    return null;
   }
 
   public static Reader createReader(final Object source) {
@@ -61,10 +61,10 @@ public class JavaIo {
           return reader;
         }
       } catch (final IOException e) {
-        throw Exceptions.wrap(e);
+        throw Exceptions.toRuntimeException(e);
       }
     }
-    throw new IllegalArgumentException("Cannot create reader for class: " + source.getClass());
+    return null;
   }
 
   public static Writer createWriter(final Object target) throws IOException {
@@ -74,7 +74,7 @@ public class JavaIo {
         return writer;
       }
     }
-    throw new IllegalArgumentException("Cannot create writer for class: " + target.getClass());
+    return null;
   }
 
   public OutputStream newOutputStream(final Object target) throws IOException {
@@ -122,11 +122,10 @@ public class JavaIo {
     } else if (source instanceof final InputStream in) {
       return new InputStreamReader(in, StandardCharsets.UTF_8);
     } else if (source instanceof final URI uri) {
-      return new InputStreamReader(uri.toURL().openStream());
+      return new InputStreamReader(uri.toURL()
+        .openStream());
     } else if (source instanceof final URL url) {
       return new InputStreamReader(url.openStream());
-    } else if (source instanceof final Resource resource) {
-      return resource.newReader();
     }
     return null;
   }

@@ -38,7 +38,7 @@ public abstract class SqlAppendable implements Appendable {
       this.appendable.append(c);
       return this;
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 
@@ -48,7 +48,7 @@ public abstract class SqlAppendable implements Appendable {
       this.appendable.append(chars);
       return this;
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 
@@ -58,7 +58,7 @@ public abstract class SqlAppendable implements Appendable {
       this.appendable.append(chars, start, end);
       return this;
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 

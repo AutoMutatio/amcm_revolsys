@@ -82,10 +82,6 @@ public interface JsonObject extends MapEx, JsonType {
     return new JsonObjectHash("items", items);
   }
 
-  static JsonObject parse(final Object value) {
-    return JsonParser.read(value);
-  }
-
   static JsonObject tree() {
     return new JsonObjectTree();
   }
@@ -218,7 +214,7 @@ public interface JsonObject extends MapEx, JsonType {
       appendable.append('}');
       return appendable;
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 
@@ -309,5 +305,4 @@ public interface JsonObject extends MapEx, JsonType {
     }
     return result;
   }
-
 }

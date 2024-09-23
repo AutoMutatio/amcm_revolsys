@@ -3,8 +3,11 @@ package com.revolsys.parallel.channel;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Condition;
 
 import com.revolsys.exception.Exceptions;
+import com.revolsys.parallel.ReentrantLockEx;
 
 public class MultiInputSelector {
   private int enabledChannels = 0;
@@ -13,15 +16,18 @@ public class MultiInputSelector {
 
   private long maxWait;
 
-  private final Object monitor = new Object();
+  private final ReentrantLockEx lock = new ReentrantLockEx();
+
+  private final Condition lockCondition = this.lock.newCondition();
 
   private boolean scheduled;
 
   void closeChannel() {
-    synchronized (this.monitor) {
+    try (
+      var l = this.lock.lockX()) {
       this.enabledChannels--;
       if (this.enabledChannels <= 0) {
-        this.monitor.notifyAll();
+        this.lockCondition.signalAll();
       }
     }
   }
@@ -114,9 +120,10 @@ public class MultiInputSelector {
   }
 
   void schedule() {
-    synchronized (this.monitor) {
+    try (
+      var l = this.lock.lockX()) {
       this.scheduled = true;
-      this.monitor.notifyAll();
+      this.lockCondition.signalAll();
     }
   }
 
@@ -151,18 +158,25 @@ public class MultiInputSelector {
 
   public synchronized int select(final List<? extends SelectableInput> channels,
     final List<Boolean> guard, final long msecs) {
-    return select(channels, guard, msecs, 0);
+    return select(channels, guard, msecs, TimeUnit.MILLISECONDS);
   }
 
   public synchronized int select(final List<? extends SelectableInput> channels,
-    final List<Boolean> guard, final long msecs, final int nsecs) {
+    final List<Boolean> guard, final long time, final TimeUnit unit) {
     if (!enableChannels(channels, guard) && this.guardEnabledChannels > 0) {
-      synchronized (this.monitor) {
+      try (
+        var l = this.lock.lockX()) {
         if (!this.scheduled) {
           try {
-            this.monitor.wait(Math.min(msecs, this.maxWait), nsecs);
+            final long waitTime = Math.min(unit.toNanos(time),
+              TimeUnit.MILLISECONDS.toNanos(this.maxWait));
+            if (waitTime == 0 || waitTime == Long.MAX_VALUE) {
+              this.lockCondition.await();
+            } else {
+              this.lockCondition.awaitNanos(waitTime);
+            }
           } catch (final InterruptedException e) {
-            Exceptions.throwUncheckedException(e);
+            throw Exceptions.toRuntimeException(e);
           }
         }
       }
@@ -170,17 +184,30 @@ public class MultiInputSelector {
     return disableChannels(channels, guard);
   }
 
-  public synchronized int select(final long msecs, final int nsecs,
+  public synchronized int select(final long msecs, final List<? extends SelectableInput> channels) {
+    return select(msecs, TimeUnit.MILLISECONDS, channels);
+  }
+
+  public synchronized int select(final long msecs, final SelectableInput... channels) {
+    return select(msecs, TimeUnit.MILLISECONDS, channels);
+  }
+
+  public synchronized int select(final long time, final TimeUnit unit,
     final List<? extends SelectableInput> channels) {
     if (!enableChannels(channels)) {
-      if (msecs + nsecs >= 0) {
-        synchronized (this.monitor) {
-          if (!this.scheduled) {
-            try {
-              this.monitor.wait(Math.min(msecs, this.maxWait), nsecs);
-            } catch (final InterruptedException e) {
-              Exceptions.throwUncheckedException(e);
+      try (
+        var l = this.lock.lockX()) {
+        if (!this.scheduled) {
+          try {
+            final long waitTime = Math.min(unit.toNanos(time),
+              TimeUnit.MILLISECONDS.toNanos(this.maxWait));
+            if (waitTime == 0 || waitTime == Long.MAX_VALUE) {
+              this.lockCondition.await();
+            } else {
+              this.lockCondition.awaitNanos(waitTime);
             }
+          } catch (final InterruptedException e) {
+            throw Exceptions.toRuntimeException(e);
           }
         }
       }
@@ -188,17 +215,9 @@ public class MultiInputSelector {
     return disableChannels(channels);
   }
 
-  public synchronized int select(final long msecs, final int nsecs,
+  public synchronized int select(final long time, final TimeUnit unit,
     final SelectableInput... channels) {
-    return select(msecs, nsecs, Arrays.asList(channels));
-  }
-
-  public synchronized int select(final long msecs, final List<? extends SelectableInput> channels) {
-    return select(msecs, 0, channels);
-  }
-
-  public synchronized int select(final long msecs, final SelectableInput... channels) {
-    return select(msecs, 0, channels);
+    return select(time, unit, Arrays.asList(channels));
   }
 
   public synchronized int select(final SelectableInput... channels) {
@@ -224,16 +243,16 @@ public class MultiInputSelector {
 
   public synchronized int select(final SelectableInput[] channels, final boolean[] guard,
     final long msecs) {
-    return select(channels, guard, msecs, 0);
+    return select(channels, guard, msecs, TimeUnit.MILLISECONDS);
   }
 
   public synchronized int select(final SelectableInput[] channels, final boolean[] guard,
-    final long msecs, final int nsecs) {
+    final long time, final TimeUnit unit) {
     final List<Boolean> guardList = new ArrayList<>();
     for (final boolean enabled : guard) {
       guardList.add(enabled);
     }
-    return select(Arrays.asList(channels), guardList, msecs, nsecs);
+    return select(Arrays.asList(channels), guardList, time, unit);
   }
 
   public synchronized <T extends SelectableInput> T selectChannelInput(final List<T> channels) {

@@ -11,7 +11,8 @@ public record Partition(Partition parent, Path path, String key, Object value, S
     if (parent == null) {
       return Path.of(fullName);
     } else {
-      return parent.path().resolve(fullName);
+      return parent.path()
+        .resolve(fullName);
     }
   }
 
@@ -37,7 +38,8 @@ public record Partition(Partition parent, Path path, String key, Object value, S
   }
 
   public Path fullPath(final Path root, final String typeName) {
-    return root.resolve(typeName).resolve(this.path);
+    return root.resolve(typeName)
+      .resolve(this.path);
   }
 
   public RecordWriter newMultiWriter(final Path root, final String typeName,

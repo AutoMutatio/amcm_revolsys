@@ -22,6 +22,7 @@ import java.util.zip.ZipOutputStream;
 import com.revolsys.exception.Exceptions;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.spring.resource.Resource;
+import com.revolsys.util.BaseCloseable;
 import com.revolsys.util.Pair;
 
 public class ZipUtil {
@@ -61,7 +62,7 @@ public class ZipUtil {
           final String zipEntryName = FileUtil.getRelativePath(baseDirectory, file);
           zipOut.putNextEntry(new ZipEntry(zipEntryName));
           final InputStream in = new FileInputStream(file);
-          FileUtil.copy(in, zipOut);
+          IoUtil.copy(in, zipOut);
           in.close();
         }
       }
@@ -86,7 +87,7 @@ public class ZipUtil {
       } else {
         zipOut.putNextEntry(new ZipEntry(fileName));
         final InputStream in = new FileInputStream(file);
-        FileUtil.copy(in, zipOut);
+        IoUtil.copy(in, zipOut);
         in.close();
       }
     }
@@ -104,7 +105,7 @@ public class ZipUtil {
       try {
         return new ZipFile(file);
       } catch (final IOException e) {
-        throw Exceptions.wrap(e);
+        throw Exceptions.toRuntimeException(e);
       }
     });
     ZipEntry zipEntry = zipFile.getEntry(fileName);
@@ -147,7 +148,7 @@ public class ZipUtil {
           outputFile.getParentFile().mkdirs();
           try (
             InputStream entryIn = zipFile.getInputStream(entry)) {
-            FileUtil.copy(entryIn, outputFile, entry.getSize());
+            IoUtil.copy(entryIn, outputFile, entry.getSize());
           }
           entryNames.add(entryName);
         }
@@ -185,14 +186,14 @@ public class ZipUtil {
         if (entry.isDirectory()) {
           outputFile.mkdir();
         } else {
-          FileUtil.copy(zipIn, outputFile);
+          IoUtil.copy(zipIn, outputFile);
         }
         zipIn.closeEntry();
       }
-      FileUtil.closeSilent(zipIn);
+      BaseCloseable.closeSilent(zipIn);
       return true;
     } catch (final IOException e) {
-      FileUtil.closeSilent(zipIn);
+      BaseCloseable.closeSilent(zipIn);
       FileUtil.deleteDirectory(directory);
       throw e;
     }

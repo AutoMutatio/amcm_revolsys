@@ -8,7 +8,9 @@ import java.util.function.IntFunction;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
-public abstract class AbstractDelegatingCollection<V> implements Collection<V> {
+import com.revolsys.collection.iterator.BaseIterable;
+
+public abstract class AbstractDelegatingCollection<T> implements Collection<T>, BaseIterable<T> {
 
   private boolean editable = true;
 
@@ -17,50 +19,50 @@ public abstract class AbstractDelegatingCollection<V> implements Collection<V> {
   }
 
   @Override
-  public boolean add(final V e) {
-    final Collection<V> collection = getEditableCollection();
+  public boolean add(final T e) {
+    final Collection<T> collection = getEditableCollection();
     return collection.add(e);
   }
 
   @Override
-  public boolean addAll(final Collection<? extends V> c) {
-    final Collection<V> collection = getEditableCollection();
+  public boolean addAll(final Collection<? extends T> c) {
+    final Collection<T> collection = getEditableCollection();
     return collection.addAll(c);
   }
 
   @Override
   public void clear() {
-    final Collection<V> collection = getEditableCollection();
+    final Collection<T> collection = getEditableCollection();
     collection.clear();
   }
 
   @Override
   public boolean contains(final Object o) {
-    final Collection<V> collection = getCollection();
+    final Collection<T> collection = getCollection();
     return collection.contains(o);
   }
 
   @Override
   public boolean containsAll(final Collection<?> c) {
-    final Collection<V> collection = getCollection();
+    final Collection<T> collection = getCollection();
     return collection.containsAll(c);
   }
 
   @Override
   public boolean equals(final Object obj) {
-    final Collection<V> collection = getCollection();
+    final Collection<T> collection = getCollection();
     return collection.equals(obj);
   }
 
   @Override
-  public void forEach(final Consumer<? super V> action) {
-    final Collection<V> collection = getCollection();
+  public void forEach(final Consumer<? super T> action) {
+    final Collection<T> collection = getCollection();
     collection.forEach(action);
   }
 
-  protected abstract Collection<V> getCollection();
+  protected abstract Collection<T> getCollection();
 
-  protected Collection<V> getEditableCollection() {
+  protected Collection<T> getEditableCollection() {
     if (!isEditable()) {
       throw new IllegalStateException("Set is not editable");
     }
@@ -68,8 +70,13 @@ public abstract class AbstractDelegatingCollection<V> implements Collection<V> {
   }
 
   @Override
+  public T getFirst() {
+    return BaseIterable.super.getFirst();
+  }
+
+  @Override
   public int hashCode() {
-    final Collection<V> collection = getCollection();
+    final Collection<T> collection = getCollection();
     return collection.hashCode();
   }
 
@@ -79,14 +86,14 @@ public abstract class AbstractDelegatingCollection<V> implements Collection<V> {
 
   @Override
   public boolean isEmpty() {
-    final Collection<V> collection = getCollection();
+    final Collection<T> collection = getCollection();
     return collection.isEmpty();
   }
 
   @Override
-  public Iterator<V> iterator() {
-    final Collection<V> collection = getCollection();
-    final Iterator<V> iterator = collection.iterator();
+  public Iterator<T> iterator() {
+    final Collection<T> collection = getCollection();
+    final Iterator<T> iterator = collection.iterator();
     if (isEditable()) {
       return iterator;
     } else {
@@ -97,7 +104,7 @@ public abstract class AbstractDelegatingCollection<V> implements Collection<V> {
         }
 
         @Override
-        public V next() {
+        public T next() {
           return iterator.next();
         }
 
@@ -110,74 +117,74 @@ public abstract class AbstractDelegatingCollection<V> implements Collection<V> {
   }
 
   @Override
-  public Stream<V> parallelStream() {
-    final Collection<V> collection = getCollection();
+  public Stream<T> parallelStream() {
+    final Collection<T> collection = getCollection();
     return collection.parallelStream();
   }
 
   @Override
   public boolean remove(final Object o) {
-    final Collection<V> collection = getEditableCollection();
+    final Collection<T> collection = getEditableCollection();
     return collection.remove(o);
   }
 
   @Override
   public boolean removeAll(final Collection<?> c) {
-    final Collection<V> collection = getEditableCollection();
+    final Collection<T> collection = getEditableCollection();
     return collection.removeAll(c);
   }
 
   @Override
-  public boolean removeIf(final Predicate<? super V> filter) {
-    final Collection<V> collection = getEditableCollection();
+  public boolean removeIf(final Predicate<? super T> filter) {
+    final Collection<T> collection = getEditableCollection();
     return collection.removeIf(filter);
   }
 
   @Override
   public boolean retainAll(final Collection<?> c) {
-    final Collection<V> collection = getEditableCollection();
+    final Collection<T> collection = getEditableCollection();
     return collection.retainAll(c);
   }
 
   @Override
   public int size() {
-    final Collection<V> collection = getCollection();
+    final Collection<T> collection = getCollection();
     return collection.size();
   }
 
   @Override
-  public Spliterator<V> spliterator() {
-    final Collection<V> collection = getCollection();
+  public Spliterator<T> spliterator() {
+    final Collection<T> collection = getCollection();
     return collection.spliterator();
   }
 
   @Override
-  public Stream<V> stream() {
-    final Collection<V> collection = getCollection();
+  public Stream<T> stream() {
+    final Collection<T> collection = getCollection();
     return collection.stream();
   }
 
   @Override
   public Object[] toArray() {
-    final Collection<V> collection = getCollection();
+    final Collection<T> collection = getCollection();
     return collection.toArray();
   }
 
   @Override
-  public <T> T[] toArray(final IntFunction<T[]> generator) {
-    final Collection<V> collection = getCollection();
+  public <V> V[] toArray(final IntFunction<V[]> generator) {
+    final Collection<T> collection = getCollection();
     return collection.toArray(generator);
   }
 
   @Override
-  public <T> T[] toArray(final T[] a) {
-    final Collection<V> collection = getCollection();
+  public <V> V[] toArray(final V[] a) {
+    final Collection<T> collection = getCollection();
     return collection.toArray(a);
   }
 
   @Override
   public String toString() {
-    final Collection<V> collection = getCollection();
+    final Collection<T> collection = getCollection();
     return collection.toString();
   }
 

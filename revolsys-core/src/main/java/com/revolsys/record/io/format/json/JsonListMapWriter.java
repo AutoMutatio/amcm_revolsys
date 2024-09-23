@@ -21,7 +21,7 @@ public class JsonListMapWriter extends AbstractMapWriter {
     try {
       this.out.write('[');
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 
@@ -60,7 +60,7 @@ public class JsonListMapWriter extends AbstractMapWriter {
       this.out.write('\n');
       JsonWriterUtil.write(this.out, values, null, isWriteNulls());
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 }

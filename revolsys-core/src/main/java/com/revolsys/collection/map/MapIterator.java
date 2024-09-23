@@ -4,6 +4,8 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.function.Function;
 
+import com.revolsys.collection.iterator.AbstractIterator;
+
 public class MapIterator<I, O> extends AbstractIterator<O> {
 
   private Function<? super I, O> converter;

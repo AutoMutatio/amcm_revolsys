@@ -1,8 +1,6 @@
 package com.revolsys.record.query;
 
-import java.util.Collections;
-import java.util.List;
-
+import com.revolsys.collection.list.ListEx;
 import com.revolsys.io.PathName;
 import com.revolsys.jdbc.JdbcUtils;
 import com.revolsys.record.schema.FieldDefinition;
@@ -64,7 +62,7 @@ public class TableReferenceImpl implements TableReference {
     final QueryValue queryValue) {
     final RecordDefinition recordDefinition = this.recordDefinition;
     if (recordDefinition == null) {
-      queryValue.appendSelect(query, null, sql);
+      queryValue.appendSelect(query, query.getRecordStore(), sql);
     } else {
       recordDefinition.appendSelect(query, sql, queryValue);
     }
@@ -90,10 +88,10 @@ public class TableReferenceImpl implements TableReference {
   }
 
   @Override
-  public List<FieldDefinition> getFields() {
+  public ListEx<FieldDefinition> getFields() {
     final RecordDefinition recordDefinition = getRecordDefinition();
     if (recordDefinition == null) {
-      return Collections.emptyList();
+      return ListEx.empty();
     } else {
       return recordDefinition.getFields();
     }

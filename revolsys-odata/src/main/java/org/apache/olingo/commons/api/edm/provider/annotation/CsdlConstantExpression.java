@@ -18,6 +18,10 @@
  */
 package org.apache.olingo.commons.api.edm.provider.annotation;
 
+import org.apache.olingo.commons.api.edm.annotation.EdmExpression;
+import org.apache.olingo.commons.core.edm.Edm;
+import org.apache.olingo.commons.core.edm.annotation.EdmConstantExpression;
+
 public class CsdlConstantExpression extends CsdlExpression {
 
   /**
@@ -110,10 +114,10 @@ public class CsdlConstantExpression extends CsdlExpression {
     }
     final CsdlConstantExpression csdlConstExp = (CsdlConstantExpression)obj;
 
-    return (this.getValue() == null ? csdlConstExp.getValue() == null
-      : this.getValue().equals(csdlConstExp.getValue()))
-      && (this.getType() == null ? csdlConstExp.getType() == null
-        : this.getType().equals(csdlConstExp.getType()));
+    return (getValue() == null ? csdlConstExp.getValue() == null
+      : getValue().equals(csdlConstExp.getValue()))
+      && (getType() == null ? csdlConstExp.getType() == null
+        : getType().equals(csdlConstExp.getType()));
   }
 
   /**
@@ -149,5 +153,10 @@ public class CsdlConstantExpression extends CsdlExpression {
   public CsdlConstantExpression setValue(final String value) {
     this.value = value;
     return this;
+  }
+
+  @Override
+  public EdmExpression toEdm(final Edm edm) {
+    return new EdmConstantExpression(edm, this);
   }
 }

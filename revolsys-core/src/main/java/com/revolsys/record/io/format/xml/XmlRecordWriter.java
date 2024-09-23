@@ -9,13 +9,13 @@ import javax.xml.namespace.QName;
 import com.revolsys.collection.NameProxy;
 import com.revolsys.data.type.DataType;
 import com.revolsys.io.AbstractRecordWriter;
-import com.revolsys.io.FileUtil;
 import com.revolsys.io.IoConstants;
 import com.revolsys.record.Record;
 import com.revolsys.record.property.RecordProperties;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordDefinitionProxy;
+import com.revolsys.util.BaseCloseable;
 
 public class XmlRecordWriter extends AbstractRecordWriter {
 
@@ -50,7 +50,7 @@ public class XmlRecordWriter extends AbstractRecordWriter {
           this.out.endDocument();
         }
       } finally {
-        FileUtil.closeSilent(this.out);
+        BaseCloseable.closeSilent(this.out);
         this.out = null;
       }
     }
@@ -160,7 +160,7 @@ public class XmlRecordWriter extends AbstractRecordWriter {
 
   private void writeHeader() {
     setIndent(isIndent());
-    this.out.startDocument("UTF-8", "1.0");
+    this.out.startDocument("UTF-8", "1.1");
     this.singleObject = Boolean.TRUE.equals(getProperty(IoConstants.SINGLE_OBJECT_PROPERTY));
     if (!this.singleObject) {
       this.out.startTag(new QName("items"));

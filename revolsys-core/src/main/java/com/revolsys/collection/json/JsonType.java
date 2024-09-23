@@ -17,13 +17,15 @@ public interface JsonType extends DataTypedValue, Jsonable, BaseCloneable {
       return null;
     } else if (value instanceof MapEx) {
       final MapEx map = (MapEx)value;
-      return (V)JsonObject.hash().addValuesClone(map);
+      return (V)JsonObject.hash()
+        .addValuesClone(map);
     } else if (value instanceof Map) {
       final Map<String, Object> map = (Map)value;
       return (V)map;
     } else if (value instanceof List) {
       final List<?> list = (List<?>)value;
-      return (V)JsonList.array().addValuesClone(list);
+      return (V)JsonList.array()
+        .addValuesClone(list);
     } else if (value instanceof BaseCloneable) {
       return (V)((BaseCloneable)value).clone();
     } else if (value instanceof Cloneable) {
@@ -46,6 +48,15 @@ public interface JsonType extends DataTypedValue, Jsonable, BaseCloneable {
   Appendable appendJson(Appendable appendable);
 
   @Override
+  default Appendable appendJsonFormatted(final Appendable appendable) {
+    try (
+      JsonWriter jsonWriter = new JsonWriter(appendable, true)) {
+      jsonWriter.value(this);
+    }
+    return appendable;
+  }
+
+  @Override
   default JsonType asJson() {
     return this;
   }
@@ -61,5 +72,4 @@ public interface JsonType extends DataTypedValue, Jsonable, BaseCloneable {
   default JsonType toJson() {
     return clone();
   }
-
 }

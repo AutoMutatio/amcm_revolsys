@@ -20,6 +20,8 @@ package org.apache.olingo.commons.api.edm;
 
 import org.apache.olingo.commons.api.edm.constants.EdmTypeKind;
 
+import com.revolsys.io.PathName;
+
 /**
  * EdmType holds the namespace of a given type and its type as {@link EdmTypeKind}.
  */
@@ -28,7 +30,7 @@ public interface EdmType extends EdmNamed {
   /**
    * @return full qualified name
    */
-  FullQualifiedName getFullQualifiedName();
+  PathName getPathName();
 
   /**
    * @return {@link EdmTypeKind} of this {@link EdmType}
@@ -40,6 +42,6 @@ public interface EdmType extends EdmNamed {
    *
    * @return namespace as String
    */
-  String getNamespace();
+  PathName getNamespace();
 
 }

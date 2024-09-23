@@ -15,10 +15,10 @@ import javax.swing.undo.UndoableEdit;
 
 import com.revolsys.beans.PropertyChangeSupport;
 import com.revolsys.beans.PropertyChangeSupportProxy;
+import com.revolsys.collection.value.GlobalBooleanValue;
 import com.revolsys.swing.action.RunnableAction;
 import com.revolsys.util.BaseCloseable;
 import com.revolsys.util.OS;
-import com.revolsys.value.GlobalBooleanValue;
 
 public class UndoManager extends javax.swing.undo.UndoManager
   implements PropertyChangeSupportProxy {

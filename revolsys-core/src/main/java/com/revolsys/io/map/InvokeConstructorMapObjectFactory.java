@@ -8,6 +8,7 @@ import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.json.JsonObjectHash;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.exception.Exceptions;
+import com.revolsys.io.MapSerializer;
 
 public class InvokeConstructorMapObjectFactory extends AbstractMapObjectFactory
   implements MapSerializer {

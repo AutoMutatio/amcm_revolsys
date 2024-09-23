@@ -3,8 +3,6 @@ package com.revolsys.record.schema;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import org.springframework.transaction.PlatformTransactionManager;
-
 import com.revolsys.collection.json.JsonObject;
 import com.revolsys.data.identifier.Identifier;
 import com.revolsys.io.PathName;
@@ -37,12 +35,6 @@ public interface TableRecordStoreConnection extends Transactionable, TableRecord
     return null;
   }
 
-  @Override
-  default PlatformTransactionManager getTransactionManager() {
-    final RecordStore recordStore = getRecordStore();
-    return recordStore.getTransactionManager();
-  }
-
   default Record insertRecord(final Record record) {
     final AbstractTableRecordStore tableRecordStore = getTableRecordStore(record);
     return tableRecordStore.insertRecord(this, record);
@@ -55,12 +47,12 @@ public interface TableRecordStoreConnection extends Transactionable, TableRecord
 
   default Record newRecord(final CharSequence tablePath) {
     final AbstractTableRecordStore tableRecordStore = getTableRecordStore(tablePath);
-    return tableRecordStore.newRecord();
+    return tableRecordStore.newRecord(this);
   }
 
   default Record newRecord(final CharSequence tablePath, final JsonObject json) {
     final AbstractTableRecordStore tableRecordStore = getTableRecordStore(tablePath);
-    return tableRecordStore.newRecord(json);
+    return tableRecordStore.newRecord(this, json);
   }
 
   default Record updateRecord(final CharSequence tablePath, final Identifier id,

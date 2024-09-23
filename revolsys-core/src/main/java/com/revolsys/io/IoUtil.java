@@ -245,7 +245,7 @@ public class IoUtil {
       }
       return numBytes;
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 

@@ -7,10 +7,13 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.locks.Condition;
 
 import com.revolsys.exception.Exceptions;
 import com.revolsys.exception.WrappedInterruptedException;
+import com.revolsys.parallel.ReentrantLockEx;
 
 public class NamedChannelBundle<T> {
 
@@ -18,7 +21,9 @@ public class NamedChannelBundle<T> {
   private boolean closed = false;
 
   /** The monitor reads must synchronize on */
-  private final Object monitor = new Object();
+  private final ReentrantLockEx lock = new ReentrantLockEx();
+
+  private final Condition lockCondition = this.lock.newCondition();
 
   /** The name of the channel. */
   private String name;
@@ -32,7 +37,7 @@ public class NamedChannelBundle<T> {
   private int readerNotifyCount = 0;
 
   /** The monitor reads must synchronize on */
-  private final Object readMonitor = new Object();
+  private final ReentrantLockEx readLock = new ReentrantLockEx();
 
   private AtomicLong sequence = new AtomicLong();
 
@@ -45,7 +50,7 @@ public class NamedChannelBundle<T> {
   private boolean writeClosed;
 
   /** The monitor writes must synchronize on */
-  private final Object writeMonitor = new Object();
+  private final ReentrantLockEx writeLock = new ReentrantLockEx();
 
   public NamedChannelBundle() {
   }
@@ -56,11 +61,12 @@ public class NamedChannelBundle<T> {
 
   public void close() {
     this.closed = true;
-    synchronized (this.monitor) {
+    try (
+      var l = this.lock.lockX()) {
       this.valueQueueByName = null;
       this.sequence = null;
       this.sequenceQueueByName = null;
-      this.monitor.notifyAll();
+      this.lockCondition.signalAll();
     }
   }
 
@@ -115,7 +121,8 @@ public class NamedChannelBundle<T> {
     if (!this.closed) {
       if (this.writeClosed) {
         boolean empty = true;
-        synchronized (this.monitor) {
+        try (
+          var l = this.lock.lockX()) {
           for (final Queue<T> queue : this.valueQueueByName.values()) {
             if (!queue.isEmpty()) {
               empty = false;
@@ -132,9 +139,10 @@ public class NamedChannelBundle<T> {
   }
 
   public void notifyReaders() {
-    synchronized (this.monitor) {
+    try (
+      var l = this.lock.lockX()) {
       this.readerNotifyCount++;
-      this.monitor.notifyAll();
+      this.lockCondition.signalAll();
     }
   }
 
@@ -167,8 +175,10 @@ public class NamedChannelBundle<T> {
   }
 
   public T read(final long timeout, final Collection<String> names) {
-    synchronized (this.readMonitor) {
-      synchronized (this.monitor) {
+    try (
+      var rl = this.readLock.lockX()) {
+      try (
+        var l = this.lock.lockX()) {
         final int readerNotifyCount = this.readerNotifyCount;
         try {
           long maxTime = 0;
@@ -182,9 +192,9 @@ public class NamedChannelBundle<T> {
           if (timeout == 0) {
             while (queue == null && readerNotifyCount == this.readerNotifyCount) {
               try {
-                this.monitor.wait();
+                this.lockCondition.await();
               } catch (final InterruptedException e) {
-                Exceptions.throwUncheckedException(e);
+                throw Exceptions.toRuntimeException(e);
               }
               if (isClosed()) {
                 throw new ClosedException();
@@ -197,9 +207,9 @@ public class NamedChannelBundle<T> {
             while (queue == null && waitTime > 0 && readerNotifyCount == this.readerNotifyCount) {
               final long milliSeconds = waitTime;
               try {
-                this.monitor.wait(milliSeconds);
+                this.lockCondition.await(milliSeconds, TimeUnit.MILLISECONDS);
               } catch (final InterruptedException e) {
-                Exceptions.throwUncheckedException(e);
+                throw Exceptions.toRuntimeException(e);
               }
               if (isClosed()) {
                 throw new ClosedException();
@@ -215,12 +225,12 @@ public class NamedChannelBundle<T> {
             return null;
           } else {
             final T value = queue.remove();
-            this.monitor.notifyAll();
+            this.lockCondition.signalAll();
             return value;
           }
         } catch (final WrappedInterruptedException e) {
           close();
-          this.monitor.notifyAll();
+          this.lockCondition.signalAll();
           throw e;
         }
       }
@@ -236,7 +246,8 @@ public class NamedChannelBundle<T> {
   }
 
   public void readConnect() {
-    synchronized (this.monitor) {
+    try (
+      var l = this.lock.lockX()) {
       if (isClosed()) {
         throw new IllegalStateException("Cannot connect to a closed channel");
       } else {
@@ -247,12 +258,13 @@ public class NamedChannelBundle<T> {
   }
 
   public void readDisconnect() {
-    synchronized (this.monitor) {
+    try (
+      var l = this.lock.lockX()) {
       if (!this.closed) {
         this.numReaders--;
         if (this.numReaders <= 0) {
           close();
-          this.monitor.notifyAll();
+          this.lockCondition.signalAll();
         }
       }
 
@@ -260,10 +272,11 @@ public class NamedChannelBundle<T> {
   }
 
   public Collection<T> remove(final String name) {
-    synchronized (this.monitor) {
+    try (
+      var l = this.lock.lockX()) {
       this.sequenceQueueByName.remove(name);
       final Queue<T> values = this.valueQueueByName.remove(name);
-      this.monitor.notifyAll();
+      this.lockCondition.signalAll();
       return values;
     }
   }
@@ -277,10 +290,12 @@ public class NamedChannelBundle<T> {
    * @param value The object to write to the Channel.
    */
   public void write(final String name, final T value) {
-    synchronized (this.writeMonitor) {
-      synchronized (this.monitor) {
+    try (
+      var wl = this.writeLock.lockX()) {
+      try (
+        var l = this.lock.lockX()) {
         if (this.closed) {
-          this.monitor.notifyAll();
+          this.lockCondition.signalAll();
           throw new ClosedException();
         } else {
           final Long sequence = this.sequence.getAndIncrement();
@@ -290,14 +305,15 @@ public class NamedChannelBundle<T> {
           final Queue<T> queue = getValueQueue(name);
           queue.add(value);
 
-          this.monitor.notifyAll();
+          this.lockCondition.signalAll();
         }
       }
     }
   }
 
   public void writeConnect() {
-    synchronized (this.monitor) {
+    try (
+      var l = this.lock.lockX()) {
       if (this.writeClosed) {
         throw new IllegalStateException("Cannot connect to a closed channel");
       } else {
@@ -308,12 +324,13 @@ public class NamedChannelBundle<T> {
   }
 
   public void writeDisconnect() {
-    synchronized (this.monitor) {
+    try (
+      var l = this.lock.lockX()) {
       if (!this.writeClosed) {
         this.numWriters--;
         if (this.numWriters <= 0) {
           this.writeClosed = true;
-          this.monitor.notifyAll();
+          this.lockCondition.signalAll();
         }
       }
     }

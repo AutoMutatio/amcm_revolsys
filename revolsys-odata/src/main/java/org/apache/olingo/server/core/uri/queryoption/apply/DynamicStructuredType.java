@@ -31,8 +31,9 @@ import org.apache.olingo.commons.api.edm.EdmProperty;
 import org.apache.olingo.commons.api.edm.EdmStructuredType;
 import org.apache.olingo.commons.api.edm.EdmTerm;
 import org.apache.olingo.commons.api.edm.EdmType;
-import org.apache.olingo.commons.api.edm.FullQualifiedName;
 import org.apache.olingo.commons.api.edm.constants.EdmTypeKind;
+
+import com.revolsys.io.PathName;
 
 /** A dynamic structured type used to incorporate dynamic properties containing aggregations. */
 public class DynamicStructuredType implements EdmStructuredType, Cloneable {
@@ -74,8 +75,8 @@ public class DynamicStructuredType implements EdmStructuredType, Cloneable {
   }
 
   @Override
-  public FullQualifiedName getFullQualifiedName() {
-    return this.startType.getFullQualifiedName();
+  public PathName getPathName() {
+    return this.startType.getPathName();
   }
 
   @Override
@@ -89,7 +90,7 @@ public class DynamicStructuredType implements EdmStructuredType, Cloneable {
   }
 
   @Override
-  public String getNamespace() {
+  public PathName getNamespace() {
     return this.startType.getNamespace();
   }
 

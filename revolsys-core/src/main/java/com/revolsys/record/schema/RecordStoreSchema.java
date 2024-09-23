@@ -9,12 +9,13 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 
-import jakarta.annotation.PreDestroy;
-
 import com.revolsys.collection.Parent;
+import com.revolsys.collection.list.ListEx;
+import com.revolsys.collection.list.Lists;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.io.PathName;
 import com.revolsys.logging.Logs;
+import com.revolsys.parallel.ReentrantLockEx;
 import com.revolsys.record.io.RecordStoreExtension;
 import com.revolsys.util.Property;
 
@@ -31,6 +32,8 @@ public class RecordStoreSchema extends AbstractRecordStoreSchemaElement
   private final Map<PathName, RecordStoreSchema> schemasByPath = new TreeMap<>();
 
   private GeometryFactory geometryFactory;
+
+  private final ReentrantLockEx lock = new ReentrantLockEx();
 
   public RecordStoreSchema(final AbstractRecordStore recordStore) {
     this.recordStore = recordStore;
@@ -63,24 +66,28 @@ public class RecordStoreSchema extends AbstractRecordStoreSchemaElement
   }
 
   @Override
-  @PreDestroy
-  public synchronized void close() {
-    if (this.recordDefinitionsByPath != null) {
-      for (final RecordDefinition recordDefinition : this.recordDefinitionsByPath.values()) {
-        recordDefinition.destroy();
+  public void close() {
+    try (
+      var l = this.lock.lockX()) {
+      if (this.recordDefinitionsByPath != null) {
+        for (final RecordDefinition recordDefinition : this.recordDefinitionsByPath.values()) {
+          recordDefinition.destroy();
+        }
       }
+      this.recordStore = null;
+      this.recordDefinitionsByPath.clear();
+      this.elementsByPath.clear();
+      this.schemasByPath.clear();
+      super.close();
     }
-    this.recordStore = null;
-    this.recordDefinitionsByPath.clear();
-    this.elementsByPath.clear();
-    this.schemasByPath.clear();
-    super.close();
   }
 
-  public synchronized RecordDefinition findRecordDefinition(final PathName path) {
-    refreshIfNeeded();
-    final RecordDefinition recordDefinition = this.recordDefinitionsByPath.get(path);
-    return recordDefinition;
+  public RecordDefinition findRecordDefinition(final PathName path) {
+    try (
+      var l = this.lock.lockX()) {
+      refreshIfNeeded();
+      return this.recordDefinitionsByPath.get(path);
+    }
   }
 
   @Override
@@ -105,7 +112,8 @@ public class RecordStoreSchema extends AbstractRecordStoreSchemaElement
             if (schemaPath.isParentOf(path)) {
               childElement = this.elementsByPath.get(path);
               if (childElement == null) {
-                synchronized (getRecordStore()) {
+                try (
+                  var l = this.lock.lockX()) {
                   refreshIfNeeded();
                   childElement = this.elementsByPath.get(path);
                   if (childElement == null || childElement instanceof NonExistingSchemaElement) {
@@ -186,9 +194,9 @@ public class RecordStoreSchema extends AbstractRecordStoreSchemaElement
     }
   }
 
-  public List<RecordDefinition> getRecordDefinitions() {
+  public ListEx<RecordDefinition> getRecordDefinitions() {
     refreshIfNeeded();
-    return new ArrayList<>(this.recordDefinitionsByPath.values());
+    return Lists.toArray(this.recordDefinitionsByPath.values());
   }
 
   @SuppressWarnings("unchecked")
@@ -295,54 +303,57 @@ public class RecordStoreSchema extends AbstractRecordStoreSchemaElement
   }
 
   @Override
-  public synchronized void refresh() {
-    this.initialized = true;
-    final AbstractRecordStore recordStore = getRecordStore();
-    if (recordStore != null) {
-      recordStore.initialize();
-      final Collection<RecordStoreExtension> extensions = recordStore.getRecordStoreExtensions();
-      for (final RecordStoreExtension extension : extensions) {
+  public void refresh() {
+    try (
+      var l = this.lock.lockX()) {
+      this.initialized = true;
+      final AbstractRecordStore recordStore = getRecordStore();
+      if (recordStore != null) {
+        recordStore.initialize();
+        final Collection<RecordStoreExtension> extensions = recordStore.getRecordStoreExtensions();
+        for (final RecordStoreExtension extension : extensions) {
+          try {
+            if (extension.isEnabled(recordStore)) {
+              extension.preProcess(this);
+            }
+          } catch (final Throwable e) {
+            Logs.error(extension, "Unable to pre-process schema: " + this, e);
+          }
+        }
         try {
-          if (extension.isEnabled(recordStore)) {
-            extension.preProcess(this);
+          final Map<PathName, ? extends RecordStoreSchemaElement> elementsByPath = recordStore
+            .refreshSchemaElements(this);
+          final Set<PathName> removedPaths = new HashSet<>(this.elementsByPath.keySet());
+          for (final Entry<PathName, ? extends RecordStoreSchemaElement> entry : elementsByPath
+            .entrySet()) {
+            final PathName path = entry.getKey();
+            removedPaths.remove(path);
+            final RecordStoreSchemaElement newElement = entry.getValue();
+            final RecordStoreSchemaElement oldElement = this.elementsByPath.get(path);
+            if (oldElement == null) {
+              addElement(newElement);
+            } else {
+              replaceElement(path, oldElement, newElement);
+            }
+          }
+          for (final PathName removedPath : removedPaths) {
+            removeElement(removedPath);
+          }
+          for (final RecordDefinition recordDefinition : getRecordDefinitions()) {
+            recordStore.initRecordDefinition(recordDefinition);
           }
         } catch (final Throwable e) {
-          Logs.error(extension, "Unable to pre-process schema: " + this, e);
+          Logs.error(this, "Unable to refresh schema: " + this, e);
         }
-      }
-      try {
-        final Map<PathName, ? extends RecordStoreSchemaElement> elementsByPath = recordStore
-          .refreshSchemaElements(this);
-        final Set<PathName> removedPaths = new HashSet<>(this.elementsByPath.keySet());
-        for (final Entry<PathName, ? extends RecordStoreSchemaElement> entry : elementsByPath
-          .entrySet()) {
-          final PathName path = entry.getKey();
-          removedPaths.remove(path);
-          final RecordStoreSchemaElement newElement = entry.getValue();
-          final RecordStoreSchemaElement oldElement = this.elementsByPath.get(path);
-          if (oldElement == null) {
-            addElement(newElement);
-          } else {
-            replaceElement(path, oldElement, newElement);
-          }
-        }
-        for (final PathName removedPath : removedPaths) {
-          removeElement(removedPath);
-        }
-        for (final RecordDefinition recordDefinition : getRecordDefinitions()) {
-          recordStore.initRecordDefinition(recordDefinition);
-        }
-      } catch (final Throwable e) {
-        Logs.error(this, "Unable to refresh schema: " + this, e);
-      }
 
-      for (final RecordStoreExtension extension : extensions) {
-        try {
-          if (extension.isEnabled(recordStore)) {
-            extension.postProcess(this);
+        for (final RecordStoreExtension extension : extensions) {
+          try {
+            if (extension.isEnabled(recordStore)) {
+              extension.postProcess(this);
+            }
+          } catch (final Throwable e) {
+            Logs.error(extension, "Unable to post-process schema: " + this, e);
           }
-        } catch (final Throwable e) {
-          Logs.error(extension, "Unable to post-process schema: " + this, e);
         }
       }
     }

@@ -9,10 +9,10 @@ import com.revolsys.geometry.model.ClockDirection;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.io.AbstractRecordWriter;
-import com.revolsys.io.FileUtil;
 import com.revolsys.record.Record;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinitionProxy;
+import com.revolsys.util.BaseCloseable;
 
 public class WktRecordWriter extends AbstractRecordWriter {
 
@@ -33,7 +33,7 @@ public class WktRecordWriter extends AbstractRecordWriter {
 
   @Override
   public void close() {
-    FileUtil.closeSilent(this.out);
+    BaseCloseable.closeSilent(this.out);
   }
 
   @Override
@@ -80,7 +80,7 @@ public class WktRecordWriter extends AbstractRecordWriter {
       EWktWriter.writeCCW(this.out, geometry);
       this.out.write('\n');
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 

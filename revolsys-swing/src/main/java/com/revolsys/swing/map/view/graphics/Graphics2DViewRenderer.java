@@ -651,7 +651,7 @@ public class Graphics2DViewRenderer extends ViewRenderer {
                   dx = 0;
                   horizontalAlignment = "left";
                 }
-                final double viewWidth = this.getViewWidthPixels();
+                final double viewWidth = getViewWidthPixels();
                 if (screenX + maxWidth > viewWidth) {
                   screenX = (int)(viewWidth - maxWidth - 1);
                   dx = 0;
@@ -661,7 +661,7 @@ public class Graphics2DViewRenderer extends ViewRenderer {
                   screenY = 1;
                   dy = 0;
                 }
-                final double viewHeight = this.getViewHeightPixels();
+                final double viewHeight = getViewHeightPixels();
                 if (screenY > viewHeight) {
                   screenY = viewHeight - 1 - maxHeight;
                   dy = 0;
@@ -710,8 +710,7 @@ public class Graphics2DViewRenderer extends ViewRenderer {
 
                 final double radius = style.getTextHaloRadius();
                 final Unit<Length> unit = style.getTextSizeUnit();
-                final double textHaloRadius = this
-                  .toDisplayValue(Quantities.getQuantity(radius, unit));
+                final double textHaloRadius = toDisplayValue(Quantities.getQuantity(radius, unit));
                 if (textHaloRadius > 0) {
                   final Stroke savedStroke = graphics.getStroke();
                   final Stroke outlineStroke = new BasicStroke((float)(textHaloRadius + 1),

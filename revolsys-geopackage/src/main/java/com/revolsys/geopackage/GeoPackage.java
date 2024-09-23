@@ -26,6 +26,8 @@ import com.revolsys.collection.map.MapEx;
 import com.revolsys.collection.map.Maps;
 import com.revolsys.io.FileUtil;
 import com.revolsys.io.file.Paths;
+import com.revolsys.jdbc.JdbcDataSource;
+import com.revolsys.jdbc.JdbcDataSourceWrapper;
 import com.revolsys.jdbc.io.AbstractJdbcDatabaseFactory;
 import com.revolsys.jdbc.io.JdbcRecordStore;
 import com.revolsys.logging.Logs;
@@ -49,11 +51,11 @@ import com.revolsys.util.RsCoreDataTypes;
  * jdbc:sqlite:[file]
  */
 public class GeoPackage extends AbstractJdbcDatabaseFactory
-  implements RecordReaderFactory, RecordWriterFactory, FileRecordStoreFactory {
+    implements RecordReaderFactory, RecordWriterFactory, FileRecordStoreFactory {
   private static final boolean AVAILABLE;
 
   private static final List<FieldDefinition> CONNECTION_FIELD_DEFINITIONS = Arrays.asList( //
-    new FieldDefinition("file", RsCoreDataTypes.FILE, 50, true) //
+      new FieldDefinition("file", RsCoreDataTypes.FILE, 50, true) //
   );
 
   public static final String DESCRIPTION = "GeoPackage Database";
@@ -67,8 +69,8 @@ public class GeoPackage extends AbstractJdbcDatabaseFactory
   public static final String MIME_TYPE = "application/geopackage+vnd.sqlite3";
 
   private static final List<Pattern> URL_PATTERNS = Arrays.asList(Pattern.compile("jdbc:sqlite:.+"),
-    Pattern.compile("[^(file:)].+\\.gpkg"), Pattern.compile("file:(/(//)?)?.+\\.gpkg"),
-    Pattern.compile("folderconnection:/(//)?.*.gpkg"));
+      Pattern.compile("[^(file:)].+\\.gpkg"), Pattern.compile("file:(/(//)?)?.+\\.gpkg"),
+      Pattern.compile("folderconnection:/(//)?.*.gpkg"));
 
   static {
     boolean available = true;
@@ -85,7 +87,7 @@ public class GeoPackage extends AbstractJdbcDatabaseFactory
   }
 
   public static GeoPackageRecordStore createRecordStore(final Object source,
-    final MapEx properties) {
+      final MapEx properties) {
     final GeoPackageRecordStore recordStore = openRecordStore(source);
     if (recordStore != null) {
       recordStore.setCreateMissingRecordStore(true);
@@ -192,7 +194,7 @@ public class GeoPackage extends AbstractJdbcDatabaseFactory
 
   @Override
   public Class<? extends RecordStore> getRecordStoreInterfaceClass(
-    final Map<String, ? extends Object> connectionProperties) {
+      final Map<String, ? extends Object> connectionProperties) {
     return JdbcRecordStore.class;
   }
 
@@ -222,9 +224,9 @@ public class GeoPackage extends AbstractJdbcDatabaseFactory
   }
 
   @Override
-  public DataSource newDataSource(final Map<String, ? extends Object> config) {
+  public JdbcDataSource newDataSource(final Map<String, ? extends Object> config) {
     final MapEx newConfig = JsonObject.hash(config);
-    String url = (String)newConfig.remove("url");
+    String url = (String) newConfig.remove("url");
     if (!Property.hasValue(url)) {
       throw new IllegalArgumentException("jdbc url required");
     }
@@ -258,14 +260,14 @@ public class GeoPackage extends AbstractJdbcDatabaseFactory
           Property.setSimple(sqliteConfig, name, value);
         } catch (final Throwable t) {
           Logs.debug(this,
-            "Unable to set data source property " + name + " = " + value + " for " + url, t);
+              "Unable to set data source property " + name + " = " + value + " for " + url, t);
         }
       }
 
       final SQLiteDataSource dataSource = new SQLiteDataSource(sqliteConfig);
       dataSource.setUrl(url);
 
-      return dataSource;
+      return new JdbcDataSourceWrapper(dataSource);
     } catch (final Throwable e) {
       throw new IllegalArgumentException("Unable to create data source for " + config, e);
     }
@@ -273,14 +275,14 @@ public class GeoPackage extends AbstractJdbcDatabaseFactory
 
   @Override
   public RecordReader newRecordReader(final Resource resource,
-    final RecordFactory<? extends Record> factory, final MapEx properties) {
+      final RecordFactory<? extends Record> factory, final MapEx properties) {
     return new GeopackageFileRecordReader(resource, factory, properties);
   }
 
   @Override
   public GeoPackageRecordStore newRecordStore(final DataSource dataSource) {
     throw new UnsupportedOperationException(
-      "GeoPackage record store cannot be created from a dataSource");
+        "GeoPackage record store cannot be created from a dataSource");
   }
 
   @Override
@@ -290,7 +292,7 @@ public class GeoPackage extends AbstractJdbcDatabaseFactory
 
   @Override
   public RecordWriter newRecordWriter(final RecordDefinitionProxy recordDefinition,
-    final Resource resource) {
+      final Resource resource) {
     if (resource.isFile()) {
       final GeoPackageRecordStore recordStore = GeoPackage.createRecordStore(resource);
       if (recordStore == null) {
@@ -307,10 +309,10 @@ public class GeoPackage extends AbstractJdbcDatabaseFactory
 
   @Override
   public RecordWriter newRecordWriter(final String baseName,
-    final RecordDefinitionProxy recordDefinition, final OutputStream outputStream,
-    final Charset charset) {
+      final RecordDefinitionProxy recordDefinition, final OutputStream outputStream,
+      final Charset charset) {
     return new OutputStreamRecordWriter(recordDefinition, baseName, GeoPackage.FILE_EXTENSION,
-      outputStream);
+        outputStream);
   }
 
   @Override

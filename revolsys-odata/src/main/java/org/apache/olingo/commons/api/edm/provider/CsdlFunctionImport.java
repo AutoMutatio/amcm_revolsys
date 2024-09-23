@@ -20,14 +20,14 @@ package org.apache.olingo.commons.api.edm.provider;
 
 import java.util.List;
 
-import org.apache.olingo.commons.api.edm.FullQualifiedName;
+import com.revolsys.io.PathName;
 
 /**
  * The type Csdl function import.
  */
 public class CsdlFunctionImport extends CsdlOperationImport {
 
-  private FullQualifiedName function;
+  private PathName functionName;
 
   // Default include in service document is false for function imports
   private boolean includeInServiceDocument;
@@ -37,13 +37,22 @@ public class CsdlFunctionImport extends CsdlOperationImport {
    */
   private String title;
 
+  public CsdlFunctionImport() {
+  }
+
+  public CsdlFunctionImport(final CsdlFunction function) {
+    this.name = function.getName();
+    this.functionName = function.getNamespace()
+      .newChild(this.name);
+  }
+
   /**
    * Gets function.
    *
    * @return the function
    */
   public String getFunction() {
-    return this.function.getFullQualifiedNameAsString();
+    return this.functionName.toDotSeparated();
   }
 
   /**
@@ -51,8 +60,8 @@ public class CsdlFunctionImport extends CsdlOperationImport {
    *
    * @return the function fQN
    */
-  public FullQualifiedName getFunctionFQN() {
-    return this.function;
+  public PathName getFunctionPathName() {
+    return this.functionName;
   }
 
   @Override
@@ -91,8 +100,8 @@ public class CsdlFunctionImport extends CsdlOperationImport {
    * @param function the function
    * @return the function
    */
-  public CsdlFunctionImport setFunction(final FullQualifiedName function) {
-    this.function = function;
+  public CsdlFunctionImport setFunction(final PathName function) {
+    this.functionName = function;
     return this;
   }
 
@@ -103,7 +112,7 @@ public class CsdlFunctionImport extends CsdlOperationImport {
    * @return the function
    */
   public CsdlFunctionImport setFunction(final String function) {
-    this.function = new FullQualifiedName(function);
+    this.functionName = PathName.fromDotSeparated(function);
     return this;
   }
 

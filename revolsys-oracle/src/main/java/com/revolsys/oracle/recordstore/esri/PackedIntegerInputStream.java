@@ -21,7 +21,7 @@ public class PackedIntegerInputStream extends InputStream {
   }
 
   @Override
-  public synchronized void mark(final int readlimit) {
+  public void mark(final int readlimit) {
     this.in.mark(readlimit);
   }
 

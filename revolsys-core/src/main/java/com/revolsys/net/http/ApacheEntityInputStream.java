@@ -6,16 +6,23 @@ import org.apache.http.HttpEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 
 import com.revolsys.io.DelegatingInputStream;
-import com.revolsys.io.FileUtil;
+import com.revolsys.util.BaseCloseable;
 
 public class ApacheEntityInputStream extends DelegatingInputStream {
 
   private final CloseableHttpClient client;
 
+  private HttpEntity entity;
+
   public ApacheEntityInputStream(final CloseableHttpClient client, final HttpEntity entity)
     throws IOException {
     super(entity.getContent());
     this.client = client;
+    this.entity = entity;
+  }
+
+  public long length() {
+    return entity.getContentLength();
   }
 
   @Override
@@ -23,7 +30,9 @@ public class ApacheEntityInputStream extends DelegatingInputStream {
     try {
       super.close();
     } finally {
-      FileUtil.closeSilent(this.client);
+      if (this.client != null) {
+        BaseCloseable.closeSilent(this.client);
+      }
     }
   }
 }

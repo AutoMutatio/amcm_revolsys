@@ -15,7 +15,6 @@ import javax.sql.DataSource;
 
 import org.postgresql.jdbc.PgConnection;
 
-import com.revolsys.collection.ResultPager;
 import com.revolsys.data.identifier.Identifier;
 import com.revolsys.data.type.CollectionDataType;
 import com.revolsys.data.type.DataType;
@@ -31,7 +30,6 @@ import com.revolsys.gis.postgresql.type.PostgreSQLOidFieldDefinition;
 import com.revolsys.gis.postgresql.type.PostgreSQLTidWrapper;
 import com.revolsys.io.PathName;
 import com.revolsys.jdbc.JdbcConnection;
-import com.revolsys.jdbc.JdbcUtils;
 import com.revolsys.jdbc.field.JdbcFieldAdder;
 import com.revolsys.jdbc.field.JdbcFieldDefinition;
 import com.revolsys.jdbc.field.JdbcStringFieldAdder;
@@ -42,13 +40,11 @@ import com.revolsys.jdbc.io.JdbcRecordStoreSchema;
 import com.revolsys.record.ArrayRecord;
 import com.revolsys.record.Record;
 import com.revolsys.record.RecordFactory;
-import com.revolsys.record.io.RecordIterator;
 import com.revolsys.record.property.ShortNameProperty;
 import com.revolsys.record.query.Query;
 import com.revolsys.record.query.QueryValue;
 import com.revolsys.record.query.SqlAppendable;
 import com.revolsys.record.query.functions.EnvelopeIntersects;
-import com.revolsys.record.query.functions.JsonRawValue;
 import com.revolsys.record.query.functions.JsonValue;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
@@ -133,23 +129,6 @@ public class PostgreSQLRecordStore extends AbstractJdbcRecordStore {
     }
   }
 
-  private void appendJsonRawValue(final Query query, final SqlAppendable sql,
-    final QueryValue queryValue) {
-    final JsonRawValue jsonValue = (JsonRawValue)queryValue;
-    final QueryValue jsonParameter = jsonValue.getParameter(0);
-    sql.append('(');
-    jsonParameter.appendSql(query, this, sql);
-
-    final String[] path = jsonValue.getPath().split("\\.");
-    for (int i = 1; i < path.length; i++) {
-      final String propertyName = path[i];
-      sql.append(" -> '");
-      sql.append(propertyName);
-      sql.append("'");
-    }
-    sql.append(")");
-  }
-
   private void appendJsonValue(final Query query, final SqlAppendable sql,
     final QueryValue queryValue) {
     final JsonValue jsonValue = (JsonValue)queryValue;
@@ -157,52 +136,28 @@ public class PostgreSQLRecordStore extends AbstractJdbcRecordStore {
     sql.append('(');
     jsonParameter.appendSql(query, this, sql);
 
-    final String[] path = jsonValue.getPath().split("\\.");
+    final String[] path = jsonValue.getPath()
+      .split("\\.");
     for (int i = 1; i < path.length; i++) {
       final String propertyName = path[i];
-      sql.append(" ->> '");
+      if (jsonValue.isText()) {
+        sql.append(" ->> '");
+      } else {
+        sql.append(" -> '");
+      }
       sql.append(propertyName);
       sql.append("'");
     }
-    sql.append(")::text");
+    sql.append(")");
+    if (jsonValue.isText()) {
+      sql.append("::text");
+    }
   }
 
   @Override
   public String getGeneratePrimaryKeySql(final JdbcRecordDefinition recordDefinition) {
     final String sequenceName = getSequenceName(recordDefinition);
     return "nextval('" + sequenceName + "')";
-  }
-
-  @Override
-  public JdbcConnection getJdbcConnection() {
-    return getJdbcConnection(false);
-  }
-
-  @Override
-  public JdbcConnection getJdbcConnection(final boolean autoCommit) {
-    final DataSource dataSource = getDataSource();
-    Connection connection = JdbcUtils.getConnection(dataSource);
-    if (connection == null) {
-      return null;
-    } else {
-      try {
-        PgConnection pgConnection;
-        try {
-          pgConnection = connection.unwrap(PgConnection.class);
-        } catch (final NullPointerException e) {
-          connection = JdbcUtils.getConnection(dataSource);
-          pgConnection = connection.unwrap(PgConnection.class);
-        }
-        pgConnection.addDataType("geometry", PostgreSQLGeometryWrapper.class);
-        pgConnection.addDataType("box2d", PostgreSQLBoundingBoxWrapper.class);
-        pgConnection.addDataType("box3d", PostgreSQLBoundingBoxWrapper.class);
-        pgConnection.addDataType("tid", PostgreSQLTidWrapper.class);
-      } catch (final SQLException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-      }
-      return new JdbcConnection(connection, dataSource, autoCommit);
-    }
   }
 
   @Override
@@ -214,6 +169,20 @@ public class PostgreSQLRecordStore extends AbstractJdbcRecordStore {
   @Override
   public String getRecordStoreType() {
     return "PostgreSQL";
+  }
+
+  @Override
+  protected String getSelectSql(final Query query) {
+    String sql = super.getSelectSql(query);
+    final int offset = query.getOffset();
+    if (offset > 0) {
+      sql += " OFFSET " + offset;
+    }
+    final int limit = query.getLimit();
+    if (limit != Integer.MAX_VALUE) {
+      sql += " LIMIT " + limit;
+    }
+    return sql;
   }
 
   @Override
@@ -238,6 +207,20 @@ public class PostgreSQLRecordStore extends AbstractJdbcRecordStore {
     }
     return sequenceName;
 
+  }
+
+  @Override
+  protected void initConnection(final Connection connection) {
+    super.initConnection(connection);
+    try {
+      final PgConnection pgConnection = connection.unwrap(PgConnection.class);
+      pgConnection.addDataType("geometry", PostgreSQLGeometryWrapper.class);
+      pgConnection.addDataType("box2d", PostgreSQLBoundingBoxWrapper.class);
+      pgConnection.addDataType("box3d", PostgreSQLBoundingBoxWrapper.class);
+      pgConnection.addDataType("tid", PostgreSQLTidWrapper.class);
+    } catch (final SQLException e) {
+      throw Exceptions.wrap("Unable to initialize connection", e);
+    }
   }
 
   @Override
@@ -322,7 +305,6 @@ public class PostgreSQLRecordStore extends AbstractJdbcRecordStore {
       "/PUBLIC/PG_BUFFER_CACHE", "/PUBLIC/PG_STAT_STATEMENTS", "/PUBLIC/SPATIAL_REF_SYS");
     addSqlQueryAppender(EnvelopeIntersects.class, this::appendEnvelopeIntersects);
     addSqlQueryAppender(JsonValue.class, this::appendJsonValue);
-    addSqlQueryAppender(JsonRawValue.class, this::appendJsonRawValue);
   }
 
   @Override
@@ -372,15 +354,11 @@ public class PostgreSQLRecordStore extends AbstractJdbcRecordStore {
   @Override
   public Array newArray(final Connection connection, final String typeName, final Object array) {
     try {
-      return connection.unwrap(PgConnection.class).createArrayOf(typeName, array);
+      return connection.unwrap(PgConnection.class)
+        .createArrayOf(typeName, array);
     } catch (final SQLException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
-  }
-
-  @Override
-  public RecordIterator newIterator(final Query query, final Map<String, Object> properties) {
-    return new PostgreSQLJdbcQueryIterator(this, query, properties);
   }
 
   @Override
@@ -410,11 +388,6 @@ public class PostgreSQLRecordStore extends AbstractJdbcRecordStore {
       dbSchemaName, quoteName);
   }
 
-  @Override
-  public ResultPager<Record> page(final Query query) {
-    return new PostgreSQLJdbcQueryResultPager(this, getProperties(), query);
-  }
-
   public void setUseSchemaSequencePrefix(final boolean useSchemaSequencePrefix) {
     this.useSchemaSequencePrefix = useSchemaSequencePrefix;
   }
@@ -427,8 +400,10 @@ public class PostgreSQLRecordStore extends AbstractJdbcRecordStore {
     final Object[] values = new Object[size];
     int i = 0;
     for (final Object element : elements) {
-      values[i++] = field.getDataType().toObject(element);
+      values[i++] = field.getDataType()
+        .toObject(element);
     }
-    return connection.unwrap(PgConnection.class).createArrayOf(field.getDbDataType(), values);
+    return connection.unwrap(PgConnection.class)
+      .createArrayOf(field.getDbDataType(), values);
   }
 }

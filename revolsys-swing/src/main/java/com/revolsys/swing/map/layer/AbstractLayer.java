@@ -43,14 +43,15 @@ import com.revolsys.collection.EmptyReference;
 import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.collection.map.MapSerializerMap;
+import com.revolsys.collection.value.ThreadBooleanValue;
 import com.revolsys.data.type.DataType;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.geometry.model.editor.BoundingBoxEditor;
 import com.revolsys.io.FileUtil;
 import com.revolsys.io.IoFactory;
+import com.revolsys.io.MapSerializer;
 import com.revolsys.io.map.MapObjectFactory;
-import com.revolsys.io.map.MapSerializer;
 import com.revolsys.logging.Logs;
 import com.revolsys.number.Doubles;
 import com.revolsys.properties.BaseObjectWithProperties;
@@ -81,7 +82,6 @@ import com.revolsys.util.CaseConverter;
 import com.revolsys.util.Preferences;
 import com.revolsys.util.Property;
 import com.revolsys.util.ToolTipProxy;
-import com.revolsys.value.ThreadBooleanValue;
 
 public abstract class AbstractLayer extends BaseObjectWithProperties
   implements Layer, PropertyChangeListener, PropertyChangeSupportProxy, ToolTipProxy {
@@ -696,7 +696,7 @@ public abstract class AbstractLayer extends BaseObjectWithProperties
       }
     } else {
       final PanelComponentHolder basePanel = new PanelComponentHolder();
-      addPropertyChangeListener("initialized", (event) -> {
+      addPropertyChangeListener("initialized", event -> {
         if (isInitialized() && isExists()) {
           Invoke.later(() -> {
             final Component tableViewComponent = newTableViewComponent(config);

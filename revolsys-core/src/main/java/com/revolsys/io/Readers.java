@@ -171,7 +171,7 @@ public interface Readers {
       }
       return string.toString();
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 }

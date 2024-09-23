@@ -8,7 +8,7 @@ import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.json.JsonObjectHash;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.exception.Exceptions;
-import com.revolsys.io.map.MapSerializer;
+import com.revolsys.io.MapSerializer;
 
 class ImgEntry implements MapEx, MapSerializer {
 
@@ -68,7 +68,7 @@ class ImgEntry implements MapEx, MapSerializer {
     try {
       return (MapEx)super.clone();
     } catch (final CloneNotSupportedException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 

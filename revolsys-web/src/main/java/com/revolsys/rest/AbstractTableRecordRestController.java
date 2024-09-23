@@ -22,8 +22,6 @@ import com.revolsys.record.query.Query;
 import com.revolsys.record.schema.AbstractTableRecordStore;
 import com.revolsys.record.schema.TableRecordStoreConnection;
 import com.revolsys.record.schema.TableRecordStoreFactory;
-import com.revolsys.transaction.Transaction;
-import com.revolsys.transaction.TransactionOptions;
 import com.revolsys.web.HttpServletUtils;
 
 public class AbstractTableRecordRestController extends AbstractWebController {
@@ -51,32 +49,25 @@ public class AbstractTableRecordRestController extends AbstractWebController {
   public void handleGetRecords(final TableRecordStoreConnection connection,
     final HttpServletRequest request, final HttpServletResponse response, final Query query)
     throws IOException {
-    try (
-      Transaction transaction = connection.newTransaction(TransactionOptions.REQUIRES_NEW_READONLY);
-      final RecordReader records = query.getRecordReader(transaction)) {
-      Long count = null;
-      if (HttpServletUtils.getBooleanParameter(request, "$count")) {
-        count = query.getRecordCount();
+    connection.transactionRun(() -> {
+      try (
+        final RecordReader records = query.getRecordReader()) {
+        Long count = null;
+        if (HttpServletUtils.getBooleanParameter(request, "$count")) {
+          count = query.getRecordCount();
+        }
+        responseRecords(connection, request, response, query, records, count);
       }
-      responseRecords(connection, request, response, query, records, count);
-    }
+    });
   }
 
   protected void handleInsertRecord(final TableRecordStoreConnection connection,
     final HttpServletRequest request, final HttpServletResponse response,
     final CharSequence tablePath) throws IOException {
     final JsonObject json = readJsonBody(request);
-    Record record = connection.newRecord(tablePath, json);
-    try (
-      Transaction transaction = connection.newTransaction()) {
-      try {
-        record = connection.insertRecord(record);
-      } catch (final Exception e) {
-        // TODO return error
-        transaction.setRollbackOnly(e);
-      }
-    }
-    responseRecordJson(response, record);
+    final Record record = connection.newRecord(tablePath, json);
+    final Record savedRecord = connection.transactionNewCall(() -> connection.insertRecord(record));
+    responseRecordJson(response, savedRecord);
   }
 
   protected Record handleUpdateRecordDo(final TableRecordStoreConnection connection,
@@ -95,16 +86,7 @@ public class AbstractTableRecordRestController extends AbstractWebController {
 
   protected Record handleUpdateRecordDo(final TableRecordStoreConnection connection,
     final HttpServletResponse response, final Supplier<Record> action) throws IOException {
-    final Record record;
-    try (
-      Transaction transaction = connection.newTransaction()) {
-      try {
-        record = action.get();
-      } catch (final Exception e) {
-        // TODO display error
-        throw transaction.setRollbackOnly(e);
-      }
-    }
+    final Record record = connection.transactionNewCall(() -> action.get());
     responseRecordJson(response, record);
     return record;
   }
@@ -138,11 +120,12 @@ public class AbstractTableRecordRestController extends AbstractWebController {
     if (query == null) {
       responseJson(response, JsonObject.hash("value", JsonList.array()));
     }
-    try (
-      Transaction transaction = connection.newTransaction(TransactionOptions.REQUIRES_NEW_READONLY);
-      final RecordReader records = query.getRecordReader(transaction)) {
-      responseRecords(connection, request, response, query, records, count);
-    }
+    connection.transaction().requiresNew().readOnly().run(() -> {
+      try (
+        final RecordReader records = query.getRecordReader()) {
+        responseRecords(connection, request, response, query, records, count);
+      }
+    });
   }
 
   protected void responseRecords(final TableRecordStoreConnection connection,
@@ -160,11 +143,12 @@ public class AbstractTableRecordRestController extends AbstractWebController {
   public void responseRecordsJson(final TableRecordStoreConnection connection,
     final HttpServletRequest request, final HttpServletResponse response, final Query query,
     final Long count, final JsonObject extraData) throws IOException {
-    try (
-      Transaction transaction = connection.newTransaction(TransactionOptions.REQUIRES_NEW_READONLY);
-      final RecordReader records = query.getRecordReader(transaction)) {
-      responseRecordsJson(connection, request, response, query, records, count, extraData);
-    }
+    connection.transaction().requiresNew().readOnly().run(() -> {
+      try (
+        final RecordReader records = query.getRecordReader()) {
+        responseRecordsJson(connection, request, response, query, records, count, extraData);
+      }
+    });
   }
 
   protected void responseRecordsJson(final TableRecordStoreConnection connection,

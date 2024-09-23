@@ -95,7 +95,7 @@ public class Invoke {
       try {
         SwingUtilities.invokeAndWait(runnable);
       } catch (final InterruptedException e) {
-        Exceptions.throwUncheckedException(e);
+        throw Exceptions.toRuntimeException(e);
       } catch (final InvocationTargetException e) {
         Exceptions.throwCauseException(e);
       }

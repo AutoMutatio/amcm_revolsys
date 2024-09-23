@@ -97,12 +97,12 @@ public class Json {
     protected Object toObjectDo(final Object value) {
       if (value instanceof JsonList) {
         return value;
-      } else if (value instanceof Jsonable) {
-        return ((Jsonable)value).asJson();
-      } else if (value instanceof Collection<?>) {
-        return JsonList.array((Collection<?>)value);
+      } else if (value instanceof final Jsonable jsonable) {
+        return jsonable.asJson();
+      } else if (value instanceof final Collection<?> collection) {
+        return JsonList.array(collection);
       } else {
-        final Object json = JsonParser.read(value);
+        final Object json = JsonParser.read(value.toString());
         if (json instanceof JsonList) {
           return json;
         } else {
@@ -287,6 +287,25 @@ public class Json {
   public static final String MIME_TYPE = "application/json";
 
   public static final String MIME_TYPE_UTF8 = "application/json;charset=utf-8";
+
+  public static Appendable appendJson(final Collection<?> collection, final Appendable appendable) {
+    try {
+      appendable.append('[');
+      boolean first = true;
+      for (final Object value : collection) {
+        if (first) {
+          first = false;
+        } else {
+          appendable.append(',');
+        }
+        JsonWriterUtil.appendValue(appendable, value);
+      }
+      appendable.append(']');
+      return appendable;
+    } catch (final IOException e) {
+      throw Exceptions.toRuntimeException(e);
+    }
+  }
 
   public static JsonObject clone(final JsonObject object) {
     if (object == null) {

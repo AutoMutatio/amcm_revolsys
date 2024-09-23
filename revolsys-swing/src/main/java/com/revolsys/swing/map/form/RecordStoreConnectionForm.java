@@ -21,8 +21,8 @@ import com.revolsys.collection.map.MapEx;
 import com.revolsys.collection.map.Maps;
 import com.revolsys.data.type.DataTypes;
 import com.revolsys.io.IoFactory;
+import com.revolsys.jdbc.JdbcDatabaseFactory;
 import com.revolsys.jdbc.exception.DatabaseNotFoundException;
-import com.revolsys.jdbc.io.JdbcDatabaseFactory;
 import com.revolsys.record.io.AbstractRecordIoFactory;
 import com.revolsys.record.io.FileRecordStoreFactory;
 import com.revolsys.record.io.RecordStoreConnection;
@@ -48,16 +48,15 @@ public final class RecordStoreConnectionForm extends Form {
   private static final long serialVersionUID = 2750736040832727823L;
 
   public static void addHandlers() {
-    RecordStoreConnectionManager.setInvalidRecordStoreFunction((connection, exception) -> {
-      return Invoke.andWait(() -> {
+    RecordStoreConnectionManager
+      .setInvalidRecordStoreFunction((connection, exception) -> Invoke.andWait(() -> {
         final RecordStoreConnectionRegistry registry = connection.getRegistry();
         final RecordStoreConnectionForm form = new RecordStoreConnectionForm(registry, connection,
           exception);
         return form.showDialog();
-      });
-    });
+      }));
 
-    RecordStoreConnectionManager.setMissingRecordStoreFunction((name) -> {
+    RecordStoreConnectionManager.setMissingRecordStoreFunction(name -> {
       final RecordStoreConnectionRegistry registry = RecordStoreConnectionManager.get()
         .getUserConnectionRegistry();
       Invoke.andWait(() -> {
@@ -138,9 +137,7 @@ public final class RecordStoreConnectionForm extends Form {
 
       final ComboBox<String> connectionNamesField = ComboBox.newComboBox("namedConnection",
         connectionNames);
-      connectionNamesField.addItemListener((e) ->
-
-      {
+      connectionNamesField.addItemListener(e -> {
         if (e.getStateChange() == ItemEvent.SELECTED) {
           final String connectionName = (String)e.getItem();
           if (connectionName != null) {

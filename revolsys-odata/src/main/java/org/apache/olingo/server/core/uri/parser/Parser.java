@@ -29,17 +29,8 @@ import org.apache.olingo.commons.api.edm.EdmStructuredType;
 import org.apache.olingo.commons.api.edm.EdmType;
 import org.apache.olingo.commons.api.ex.ODataRuntimeException;
 import org.apache.olingo.commons.core.edm.Edm;
-import org.apache.olingo.server.api.OData;
 import org.apache.olingo.server.api.uri.UriInfo;
 import org.apache.olingo.server.api.uri.UriInfoKind;
-import org.apache.olingo.server.api.uri.UriResource;
-import org.apache.olingo.server.api.uri.UriResourceAction;
-import org.apache.olingo.server.api.uri.UriResourceCount;
-import org.apache.olingo.server.api.uri.UriResourceEntitySet;
-import org.apache.olingo.server.api.uri.UriResourceFunction;
-import org.apache.olingo.server.api.uri.UriResourcePartTyped;
-import org.apache.olingo.server.api.uri.UriResourceRef;
-import org.apache.olingo.server.api.uri.UriResourceValue;
 import org.apache.olingo.server.api.uri.queryoption.AliasQueryOption;
 import org.apache.olingo.server.api.uri.queryoption.ApplyItem;
 import org.apache.olingo.server.api.uri.queryoption.ApplyOption;
@@ -54,7 +45,15 @@ import org.apache.olingo.server.api.uri.queryoption.SystemQueryOption;
 import org.apache.olingo.server.api.uri.queryoption.SystemQueryOptionKind;
 import org.apache.olingo.server.api.uri.queryoption.expression.Expression;
 import org.apache.olingo.server.core.uri.UriInfoImpl;
+import org.apache.olingo.server.core.uri.UriResource;
+import org.apache.olingo.server.core.uri.UriResourceAction;
+import org.apache.olingo.server.core.uri.UriResourceCount;
+import org.apache.olingo.server.core.uri.UriResourceEntitySet;
+import org.apache.olingo.server.core.uri.UriResourceFunction;
+import org.apache.olingo.server.core.uri.UriResourcePartTyped;
+import org.apache.olingo.server.core.uri.UriResourceRef;
 import org.apache.olingo.server.core.uri.UriResourceStartingTypeFilterImpl;
+import org.apache.olingo.server.core.uri.UriResourceValue;
 import org.apache.olingo.server.core.uri.parser.UriTokenizer.TokenKind;
 import org.apache.olingo.server.core.uri.parser.search.SearchParser;
 import org.apache.olingo.server.core.uri.queryoption.AliasQueryOptionImpl;
@@ -98,11 +97,8 @@ public class Parser {
 
   private final Edm edm;
 
-  private final OData odata;
-
-  public Parser(final Edm edm, final OData odata) {
+  public Parser(final Edm edm) {
     this.edm = edm;
-    this.odata = odata;
   }
 
   private void checkOptionEOF(final UriTokenizer tokenizer, final String optionName,
@@ -163,9 +159,9 @@ public class Parser {
       }
       final String optionValue = expandOption.getText();
       final UriTokenizer expandTokenizer = new UriTokenizer(optionValue);
-      final ExpandOption option = new ExpandParser(this.edm, this.odata, aliases, entitySetNames)
-        .parse(expandTokenizer,
-          contextType instanceof EdmStructuredType ? (EdmStructuredType)contextType : null);
+      final ExpandOption option = new ExpandParser(this.edm, aliases, entitySetNames).parse(
+        expandTokenizer,
+        contextType instanceof EdmStructuredType ? (EdmStructuredType)contextType : null);
       checkOptionEOF(expandTokenizer, expandOption.getName(), optionValue);
       for (final ExpandItem item : option.getExpandItems()) {
         ((ExpandOptionImpl)expandOption).addExpandItem(item);
@@ -323,10 +319,11 @@ public class Parser {
     if (selectOption != null) {
       final String optionValue = selectOption.getText();
       final UriTokenizer selectTokenizer = new UriTokenizer(optionValue);
-      ((SelectOptionImpl)selectOption)
-        .setSelectItems(new SelectParser(this.edm).parse(selectTokenizer,
+      ((SelectOptionImpl)selectOption).setSelectItems(new SelectParser(this.edm)
+        .parse(selectTokenizer,
           contextType instanceof EdmStructuredType ? (EdmStructuredType)contextType : null,
-          contextIsCollection).getSelectItems());
+          contextIsCollection)
+        .getSelectItems());
       checkOptionEOF(selectTokenizer, selectOption.getName(), optionValue);
     }
   }
@@ -374,7 +371,8 @@ public class Parser {
     int numberOfSegments = pathSegmentsDecoded.size();
     // Remove an initial empty segment resulting from the expected '/' at the
     // beginning of the path.
-    if (numberOfSegments > 1 && pathSegmentsDecoded.get(0).isEmpty()) {
+    if (numberOfSegments > 1 && pathSegmentsDecoded.get(0)
+      .isEmpty()) {
       pathSegmentsDecoded.remove(0);
       numberOfSegments--;
     }
@@ -402,7 +400,8 @@ public class Parser {
 
     } else if ("$entity".equals(firstSegment)) {
       if (null != contextUriInfo.getIdOption()) {
-        String idOptionText = contextUriInfo.getIdOption().getText();
+        String idOptionText = contextUriInfo.getIdOption()
+          .getText();
         if (idOptionText.startsWith(HTTP)) {
           baseUri = UriDecoder.decode(baseUri);
           if (idOptionText.contains(baseUri)) {
@@ -422,7 +421,7 @@ public class Parser {
           final String typeCastSegment = pathSegmentsDecoded.get(1);
           ensureLastSegment(typeCastSegment, 2, numberOfSegments);
           contextType = resourcePathParser.parseDollarEntityTypeCast(typeCastSegment);
-          contextUriInfo = (UriInfoImpl)new Parser(this.edm, this.odata)
+          contextUriInfo = (UriInfoImpl)this.edm.getParser()
             .parseUri("/" + idOptionText, query, fragment, baseUri);
           contextUriInfo.setEntityTypeCast((EdmEntityType)contextType);
         } else if (numberOfSegments == 1) {
@@ -430,8 +429,8 @@ public class Parser {
            * If url is of the form
            * http://localhost:8080/odata-server-tecsvc/odata.svc/$entity?$id=ESAllPrim(32527)
            */
-          contextUriInfo = (UriInfoImpl)new Parser(this.edm, this.odata)
-            .parseUri("/" + idOptionText, query, fragment, baseUri);
+          contextUriInfo = (UriInfoImpl)new Parser(this.edm).parseUri("/" + idOptionText, query,
+            fragment, baseUri);
         }
         contextType = contextUriInfo.getEntityTypeCast();
         contextUriInfo.setKind(UriInfoKind.entityId);
@@ -483,7 +482,8 @@ public class Parser {
               ensureLastSegment(pathSegment, count, numberOfSegments);
             } else if (segment instanceof UriResourceAction
               || segment instanceof UriResourceFunction
-                && !((UriResourceFunction)segment).getFunction().isComposable()) {
+                && !((UriResourceFunction)segment).getFunction()
+                  .isComposable()) {
               if (count < numberOfSegments) {
                 throw new UriValidationException(
                   "The segment of an action or of a non-composable function must be the last resource-path segment.",

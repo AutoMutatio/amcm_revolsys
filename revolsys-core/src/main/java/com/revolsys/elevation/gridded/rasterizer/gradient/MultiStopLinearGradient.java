@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.revolsys.collection.json.JsonObject;
-import com.revolsys.io.map.MapSerializer;
+import com.revolsys.io.MapSerializer;
 import com.revolsys.logging.Logs;
 import com.revolsys.properties.BaseObjectWithProperties;
 import com.revolsys.spring.resource.Resource;

@@ -1,5 +1,7 @@
 package com.revolsys.http;
 
+import com.revolsys.collection.iterator.BaseIterable;
+import com.revolsys.collection.iterator.Iterables;
 import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.json.JsonParser;
 import com.revolsys.io.map.ObjectFactoryConfig;
@@ -7,7 +9,7 @@ import com.revolsys.io.map.ObjectFactoryConfig;
 public interface SecretStore {
 
   static JsonObject getSecretJsonObject(final ObjectFactoryConfig factoryConfig,
-    final String secretName) {
+      final String secretName) {
     final SecretStore secretStore = factoryConfig.getValue("secretStore");
     if (secretStore != null) {
       return secretStore.getSecretJsonObject(secretName);
@@ -24,7 +26,7 @@ public interface SecretStore {
   }
 
   static String getSecretValue(final ObjectFactoryConfig factoryConfig, final String secretName,
-    final String propertyName) {
+      final String propertyName) {
     final SecretStore secretStore = factoryConfig.getValue("secretStore");
     if (secretStore != null) {
       final String value = secretStore.getSecretValue(secretName);
@@ -37,7 +39,7 @@ public interface SecretStore {
   }
 
   static void setSecretValue(final ObjectFactoryConfig factoryConfig, final String secretName,
-    final String value) {
+      final String value) {
     final SecretStore secretStore = factoryConfig.getValue("secretStore");
     if (secretStore != null) {
       secretStore.setSecretValue(secretName, value);
@@ -45,7 +47,7 @@ public interface SecretStore {
   }
 
   static String setSecretValue(final ObjectFactoryConfig factoryConfig, final String secretName,
-    final String propertyName, final String value) {
+      final String propertyName, final String value) {
     final SecretStore secretStore = factoryConfig.getValue("secretStore");
     if (secretStore != null) {
       final String config = secretStore.getSecretValue(secretName);
@@ -69,6 +71,10 @@ public interface SecretStore {
       return JsonParser.read(value);
     }
     return JsonObject.hash();
+  }
+
+  default BaseIterable<JsonObject> getSecrets() {
+    return Iterables.empty();
   }
 
   String getSecretValue(String secretId);

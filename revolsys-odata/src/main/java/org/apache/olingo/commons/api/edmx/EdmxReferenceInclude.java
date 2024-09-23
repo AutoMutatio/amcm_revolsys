@@ -18,20 +18,22 @@
  */
 package org.apache.olingo.commons.api.edmx;
 
+import com.revolsys.io.PathName;
+
 /**
  * edmx:Include elements that specify the schemas to include from the target document.
  */
 public class EdmxReferenceInclude {
-  private final String namespace;
+  private final PathName namespace;
 
-  private final String alias;
+  private final PathName alias;
 
   /**
    * Create include with given namespace and empty (<code>NULL</code>) alias.
    *
    * @param namespace of include
    */
-  public EdmxReferenceInclude(final String namespace) {
+  public EdmxReferenceInclude(final PathName namespace) {
     this(namespace, null);
   }
 
@@ -41,7 +43,7 @@ public class EdmxReferenceInclude {
    * @param namespace of include
    * @param alias of include
    */
-  public EdmxReferenceInclude(final String namespace, final String alias) {
+  public EdmxReferenceInclude(final PathName namespace, final PathName alias) {
     this.namespace = namespace;
     this.alias = alias;
   }
@@ -49,14 +51,14 @@ public class EdmxReferenceInclude {
   /**
    * @return alias of the include if one defined; null otherwise
    */
-  public String getAlias() {
+  public PathName getAlias() {
     return this.alias;
   }
 
   /**
    * @return Namespace of the include
    */
-  public String getNamespace() {
+  public PathName getNamespace() {
     return this.namespace;
   }
 }

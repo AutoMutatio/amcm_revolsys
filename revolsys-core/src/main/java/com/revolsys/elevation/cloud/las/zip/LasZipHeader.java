@@ -16,8 +16,8 @@ import com.revolsys.elevation.cloud.las.Version;
 import com.revolsys.elevation.cloud.las.pointformat.LasPointFormat;
 import com.revolsys.exception.Exceptions;
 import com.revolsys.io.Buffers;
+import com.revolsys.io.MapSerializer;
 import com.revolsys.io.channels.ChannelWriter;
-import com.revolsys.io.map.MapSerializer;
 import com.revolsys.math.arithmeticcoding.ArithmeticCodingCodec;
 import com.revolsys.util.Pair;
 
@@ -131,7 +131,7 @@ public class LasZipHeader implements MapSerializer {
         this.versions[i] = Buffers.getLEUnsignedShort(buffer);
       }
     } catch (final IOException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 

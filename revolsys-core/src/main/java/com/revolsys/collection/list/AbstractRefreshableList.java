@@ -2,6 +2,7 @@ package com.revolsys.collection.list;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.locks.ReentrantLock;
 
 import com.revolsys.data.refresh.RefreshableValueHolder;
 import com.revolsys.data.refresh.SupplierRefreshableValueHolder;
@@ -14,13 +15,20 @@ public abstract class AbstractRefreshableList<V> extends AbstractDelegatingList<
   private final RefreshableValueHolder<List<V>> value = new SupplierRefreshableValueHolder<>(
     this::loadValue);
 
+  private final ReentrantLock lock = new ReentrantLock();
+
   public AbstractRefreshableList(final boolean editable) {
     super(editable);
   }
 
   @Override
-  public synchronized void clearValue() {
-    this.value.clear();
+  public void clearValue() {
+    this.lock.lock();
+    try {
+      this.value.clear();
+    } finally {
+      this.lock.unlock();
+    }
   }
 
   @Override
@@ -45,13 +53,23 @@ public abstract class AbstractRefreshableList<V> extends AbstractDelegatingList<
   protected abstract List<V> loadValue();
 
   @Override
-  public synchronized void refresh() {
-    this.value.reload();
+  public void refresh() {
+    this.lock.lock();
+    try {
+      this.value.reload();
+    } finally {
+      this.lock.unlock();
+    }
   }
 
   @Override
-  public synchronized void refreshIfNeeded() {
-    this.value.get();
+  public void refreshIfNeeded() {
+    this.lock.lock();
+    try {
+      this.value.get();
+    } finally {
+      this.lock.unlock();
+    }
   }
 
   public AbstractRefreshableList<V> setLabel(final String label) {

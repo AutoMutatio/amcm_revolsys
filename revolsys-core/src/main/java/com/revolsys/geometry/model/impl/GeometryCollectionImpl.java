@@ -116,7 +116,7 @@ public class GeometryCollectionImpl implements GeometryCollection {
       }
       return geometryCollection;
     } catch (final CloneNotSupportedException e) {
-      throw Exceptions.wrap(e);
+      throw Exceptions.toRuntimeException(e);
     }
   }
 

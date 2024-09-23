@@ -18,20 +18,22 @@
  */
 package org.apache.olingo.commons.api.edm.provider;
 
+import com.revolsys.io.PathName;
+
 /**
  * Represents an alias info CSDL item
  */
 public class CsdlAliasInfo {
 
-  private String namespace;
+  private PathName namespace;
 
-  private String alias;
+  private PathName alias;
 
   /**
    * Returns the alias of item
    * @return Alias alias
    */
-  public String getAlias() {
+  public PathName getAlias() {
     return this.alias;
   }
 
@@ -39,7 +41,15 @@ public class CsdlAliasInfo {
    * Returns the namespace of the alias
    * @return namespace of the alias
    */
-  public String getNamespace() {
+  public PathName getNamespace() {
+    return this.namespace;
+  }
+
+  /**
+   * Returns the namespace of the alias
+   * @return namespace of the alias
+   */
+  public PathName getParent() {
     return this.namespace;
   }
 
@@ -48,7 +58,7 @@ public class CsdlAliasInfo {
    * @param alias Alias
    * @return this instance
    */
-  public CsdlAliasInfo setAlias(final String alias) {
+  public CsdlAliasInfo setAlias(final PathName alias) {
     this.alias = alias;
     return this;
   }
@@ -58,7 +68,7 @@ public class CsdlAliasInfo {
    * @param namespace the namespace of the alias
    * @return this instance
    */
-  public CsdlAliasInfo setNamespace(final String namespace) {
+  public CsdlAliasInfo setNamespace(final PathName namespace) {
     this.namespace = namespace;
     return this;
   }

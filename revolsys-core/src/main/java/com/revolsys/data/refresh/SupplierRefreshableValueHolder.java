@@ -1,5 +1,6 @@
 package com.revolsys.data.refresh;
 
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Supplier;
 
 public class SupplierRefreshableValueHolder<V> implements RefreshableValueHolder<V> {
@@ -9,26 +10,36 @@ public class SupplierRefreshableValueHolder<V> implements RefreshableValueHolder
 
   private final Supplier<V> supplier;
 
+  private final ReentrantLock lock = new ReentrantLock();
+
   public SupplierRefreshableValueHolder(final Supplier<V> supplier) {
     this.supplier = supplier;
   }
 
   @Override
-  public synchronized void clear() {
-    this.valueLoaded = false;
-    this.value = null;
+  public void clear() {
+    this.lock.lock();
+    try {
+      this.valueLoaded = false;
+      this.value = null;
+    } finally {
+      this.lock.unlock();
+    }
   }
 
   @Override
   public V get() {
     final V value = this.value;
     if (!this.valueLoaded) {
-      synchronized (this) {
+      this.lock.lock();
+      try {
         if (this.valueLoaded) {
           return this.value;
         } else {
           return reload();
         }
+      } finally {
+        this.lock.unlock();
       }
     }
     return value;
@@ -39,11 +50,27 @@ public class SupplierRefreshableValueHolder<V> implements RefreshableValueHolder
     return this.valueLoaded;
   }
 
+  public void refreshIfNeeded() {
+    this.lock.lock();
+    try {
+      if (!this.valueLoaded) {
+        reload();
+      }
+    } finally {
+      this.lock.unlock();
+    }
+  }
+
   @Override
   public V reload() {
-    final V newValue = this.value = this.supplier.get();
-    this.valueLoaded = true;
-    return newValue;
+    this.lock.lock();
+    try {
+      final V newValue = this.value = this.supplier.get();
+      this.valueLoaded = true;
+      return newValue;
+    } finally {
+      this.lock.unlock();
+    }
   }
 
 }

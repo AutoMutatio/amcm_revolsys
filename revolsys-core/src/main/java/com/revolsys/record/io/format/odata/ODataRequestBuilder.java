@@ -9,11 +9,11 @@ import com.revolsys.http.HttpRequestBuilder;
 
 public record ODataRequestBuilder(HttpRequestBuilder request) {
   public InputStream newInputStream() {
-    return this.request.newInputStream();
+    return this.request.responseAsInputStream();
   }
 
   public JsonObject getJsonObject() {
-    return this.request.getJson();
+    return this.request.responseAsJson();
   }
 
   public Single<JsonObject> jsonObject() {

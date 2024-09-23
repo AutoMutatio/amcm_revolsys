@@ -42,9 +42,6 @@ public interface RecordWriter extends Writer<Record>, RecordDefinitionProxy {
     for (final var format : formats) {
       final var path = parent.resolve(baseName + "." + format);
       final var writer = newRecordWriter(recordDefinition, path);
-      if (writer == null) {
-        throw new IllegalArgumentException("Writer not supported: " + format);
-      }
       writers.add(writer);
     }
     return new MultiRecordWriter(recordDefinition, writers);
@@ -56,9 +53,6 @@ public interface RecordWriter extends Writer<Record>, RecordDefinitionProxy {
     for (final var format : formats) {
       final var path = parent.resolve(baseName + "." + format);
       final var writer = newRecordWriter(recordDefinition, path);
-      if (writer == null) {
-        throw new IllegalArgumentException("Writer not supported: " + format);
-      }
       writers.add(writer);
     }
     return new MultiRecordWriter(recordDefinition, writers);
