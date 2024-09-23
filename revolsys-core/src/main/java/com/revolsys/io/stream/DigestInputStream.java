@@ -11,4 +11,5 @@ public class DigestInputStream extends java.security.DigestInputStream
   public DigestInputStream(final InputStream stream, final MessageDigest digest) {
     super(stream, digest);
   }
+
 }

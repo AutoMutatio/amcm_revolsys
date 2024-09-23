@@ -93,7 +93,7 @@ public class ListDataType extends SimpleDataType {
       list.addAll(collection);
       return list;
     } else if (value instanceof final Iterable iterable) {
-      final List<Object> list = createList();
+      final ListEx<Object> list = createList();
       iterable.forEach(list::add);
       return list;
     } else if (value instanceof CharSequence) {
@@ -110,5 +110,4 @@ public class ListDataType extends SimpleDataType {
   public String toString() {
     return super.toString() + "<" + this.contentType + ">";
   }
-
 }

@@ -347,7 +347,6 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
       QueryValue right;
       if (value instanceof QueryValue) {
         right = (QueryValue)value;
-        right = (QueryValue)value;
       } else {
         right = new Value(left, value);
       }
@@ -417,7 +416,6 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     } else {
       QueryValue right;
       if (value instanceof QueryValue) {
-        right = (QueryValue)value;
         right = (QueryValue)value;
       } else {
         right = new Value(left, value);
@@ -661,7 +659,7 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     return this.fetchSize;
   }
 
-  public Query fetchSize(final int fetchSize) {
+  public Query fetchSize(int fetchSize) {
     this.fetchSize = fetchSize;
     return this;
   }
