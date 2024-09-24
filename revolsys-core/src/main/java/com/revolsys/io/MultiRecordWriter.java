@@ -5,6 +5,7 @@ import java.util.Arrays;
 import com.revolsys.record.Record;
 import com.revolsys.record.io.RecordWriter;
 import com.revolsys.record.schema.RecordDefinitionProxy;
+import com.revolsys.util.BaseCloseable;
 
 public class MultiRecordWriter extends AbstractRecordWriter {
 
@@ -23,10 +24,15 @@ public class MultiRecordWriter extends AbstractRecordWriter {
   }
 
   @Override
+  public void close() {
+    super.close();
+    BaseCloseable.closeSilent(this.writers);
+  }
+
+  @Override
   public void write(final Record record) {
     for (final RecordWriter writer : this.writers) {
       writer.write(record);
     }
   }
-
 }

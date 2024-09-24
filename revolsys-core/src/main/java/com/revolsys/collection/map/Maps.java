@@ -53,9 +53,9 @@ public interface Maps {
     return count;
   }
 
-  static <K, V, C extends Collection<V>> boolean addToCollection(final Supplier<C> supplier,
-      final Map<K, C> map, final K key, final V value) {
-    final C values = get(map, key, supplier);
+  static <K, V, C extends Collection<V>, M extends Map<K, C>> boolean addToCollection(
+    final Supplier<C> supplier, final M map, final K key, final V value) {
+    final var values = get(map, key, supplier);
     return values.add(value);
   }
 
