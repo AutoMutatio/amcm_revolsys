@@ -2,6 +2,7 @@ package com.revolsys.data.type;
 
 import java.lang.reflect.Constructor;
 import java.util.Collection;
+import java.util.List;
 
 import com.revolsys.collection.list.ArrayListEx;
 import com.revolsys.collection.list.ListEx;

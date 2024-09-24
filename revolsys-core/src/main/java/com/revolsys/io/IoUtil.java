@@ -349,4 +349,21 @@ public class IoUtil {
     }
   }
 
+  public static long size(final InputStream in) {
+    try {
+      long size = 0;
+      final byte[] buffer = new byte[8196];
+      while (true) {
+        final int count = in.read(buffer);
+        if (count >= 0) {
+          size += count;
+        } else {
+          return size;
+        }
+      }
+    } catch (final IOException e) {
+      return Exceptions.throwUncheckedException(e);
+    }
+  }
+
 }

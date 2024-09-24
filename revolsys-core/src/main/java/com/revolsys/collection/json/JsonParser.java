@@ -121,7 +121,7 @@ public class JsonParser implements Iterator<JsonParser.EventType>, Closeable {
 
   @SuppressWarnings("unchecked")
   public static <V> V read(final Object source) {
-    return (V) read(JavaIo.createReader(source));
+    return (V)read(JavaIo.createReader(source));
   }
 
   @SuppressWarnings("unchecked")
