@@ -1,5 +1,8 @@
 package com.revolsys.record.schema;
 
+import org.springframework.dao.DataIntegrityViolationException;
+
+import com.revolsys.exception.Exceptions;
 import com.revolsys.record.ArrayChangeTrackRecord;
 import com.revolsys.record.ChangeTrackRecord;
 import com.revolsys.record.Record;
@@ -19,30 +22,37 @@ public class RecordStoreInsertUpdateBuilder<R extends Record> extends InsertUpda
   public Record executeDo() {
     final Query query = getQuery();
     query.setRecordFactory(ArrayChangeTrackRecord.FACTORY);
-    final ChangeTrackRecord changeTrackRecord = query.getRecord();
-    if (changeTrackRecord == null) {
-      if (isInsert()) {
-        final Record newRecord = newRecord();
-        if (newRecord == null) {
-          return null;
-        } else {
+    final int maxRetries = 2;
+    for (int numRetries = 0; numRetries < maxRetries; numRetries++) {
+      final ChangeTrackRecord changeTrackRecord = query.getRecord();
+      if (changeTrackRecord == null) {
+        if (isInsert()) {
+          final Record newRecord = newRecord();
+          if (newRecord == null) {
+            return null;
+          }
           insertRecord(newRecord);
-          return this.recordStore.insertRecord(newRecord);
+          try {
+            return this.recordStore.insertRecord(newRecord);
+          } catch (final RuntimeException e) {
+            final var de = Exceptions.getCause(e, DataIntegrityViolationException.class);
+            if (de != null && isUpdate()) {
+              continue;
+            }
+            throw e;
+          }
         }
       } else {
-        return null;
-      }
-    } else {
-      if (isUpdate()) {
-        updateRecord(changeTrackRecord);
-        if (changeTrackRecord.isModified()) {
-          this.recordStore.updateRecord(changeTrackRecord);
+        if (isUpdate()) {
+          updateRecord(changeTrackRecord);
+          if (changeTrackRecord.isModified()) {
+            this.recordStore.updateRecord(changeTrackRecord);
+          }
+          return changeTrackRecord.newRecord();
         }
-        return changeTrackRecord.newRecord();
-      } else {
-        return null;
       }
     }
+    return null;
   }
 
   @Override
