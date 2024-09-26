@@ -4,6 +4,8 @@ import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import com.revolsys.exception.Exceptions;
 import com.revolsys.exception.WrappedInterruptedException;
@@ -130,6 +132,10 @@ public class Channel<T> implements SelectableChannelInput<T>, ChannelOutput<T>, 
     return this.closed;
   }
 
+  public boolean isOpen() {
+    return !isClosed();
+  }
+
   @Override
   public Iterator<T> iterator() {
     return new ChannelInputIterator<>(this);
@@ -222,6 +228,10 @@ public class Channel<T> implements SelectableChannelInput<T>, ChannelOutput<T>, 
       }
 
     }
+  }
+
+  public Stream<T> stream() {
+    return StreamSupport.stream(new ChannelSpliterator<>(this, Long.MAX_VALUE), false);
   }
 
   @Override

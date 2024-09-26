@@ -2,8 +2,11 @@ package com.revolsys.collection.iterator;
 
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
+
+import com.revolsys.collection.list.Lists;
 
 public interface Iterables {
   static BaseIterable<?> EMPTY = Collections::emptyIterator;
@@ -96,6 +99,11 @@ public interface Iterables {
     return fromIterator(iterator);
   }
 
+  @SuppressWarnings("unchecked")
+  static <V> BaseIterable<V> multiple(final Iterable<V>... iterables) {
+    return multiple(Lists.newArray(iterables));
+  }
+
   static <V> V next(final Iterator<V> iterator) {
     if (iterator == null || !iterator.hasNext()) {
       return null;
@@ -107,5 +115,14 @@ public interface Iterables {
   static <V> BaseIterable<V> paging(final Supplier<Iterable<V>> supplier) {
     final var iterator = new PagingIterator<>(supplier);
     return fromIterator(iterator);
+  }
+
+  @SuppressWarnings("unchecked")
+  static <V> BaseIterable<V> prefix(final V value, final Iterable<V> iterable) {
+    return multiple(fromValue(value), iterable);
+  }
+
+  static <V> BaseIterable<V> walkTree(final V start, final Function<V, Iterable<V>> treeWalk) {
+    return fromValue(start).walkTree(treeWalk);
   }
 }

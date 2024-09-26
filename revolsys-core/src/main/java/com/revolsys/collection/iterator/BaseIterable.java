@@ -81,6 +81,15 @@ public interface BaseIterable<T> extends Iterable<T> {
     return result;
   }
 
+  @SuppressWarnings("unchecked")
+  default BaseIterable<T> concat(final BaseIterable<T> other) {
+    if (other == null) {
+      return this;
+    } else {
+      return Iterables.multiple(this, other);
+    }
+  }
+
   default BaseIterable<T> filter(final Predicate<? super T> filter) {
     if (filter == null) {
       return this;

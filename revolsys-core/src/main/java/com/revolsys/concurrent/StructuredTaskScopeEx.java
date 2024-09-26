@@ -1,5 +1,6 @@
-package com.revolsys;
+package com.revolsys.concurrent;
 
+import java.util.Arrays;
 import java.util.concurrent.Callable;
 import java.util.concurrent.StructuredTaskScope;
 import java.util.concurrent.ThreadFactory;
@@ -7,10 +8,13 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Condition;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
+import com.revolsys.collection.iterator.BaseIterable;
 import com.revolsys.collection.iterator.Iterables;
 import com.revolsys.collection.list.ListEx;
 import com.revolsys.collection.list.Lists;
+import com.revolsys.concurrent.LambdaStructuredTaskScope.RunnableWithException;
 import com.revolsys.exception.Exceptions;
 import com.revolsys.parallel.ReentrantLockEx;
 import com.revolsys.util.Cancellable;
@@ -18,7 +22,8 @@ import com.revolsys.util.Cancellable;
 public class StructuredTaskScopeEx<V> extends StructuredTaskScope<V> implements Cancellable {
   @SuppressWarnings("unchecked")
   public static <I> void forEach(final Consumer<I> action, final I... values) {
-    try (var scope = new StructuredTaskScopeEx<Void>()) {
+    try (
+      var scope = new StructuredTaskScopeEx<Void>()) {
       scope.fork(value -> {
         action.accept(value);
         return null;
@@ -28,7 +33,8 @@ public class StructuredTaskScopeEx<V> extends StructuredTaskScope<V> implements 
   }
 
   public static <I> void forEach(final Consumer<I> action, final Iterable<I> values) {
-    try (var scope = new StructuredTaskScopeEx<Void>()) {
+    try (
+      var scope = new StructuredTaskScopeEx<Void>()) {
       scope.fork(value -> {
         action.accept(value);
         return null;
@@ -56,7 +62,7 @@ public class StructuredTaskScopeEx<V> extends StructuredTaskScope<V> implements 
   @Override
   public void cancel() {
     try (
-        var l = this.lock.lockX()) {
+      var l = this.lock.lockX()) {
       this.cancelled = true;
       this.done.signal();
     }
@@ -64,9 +70,22 @@ public class StructuredTaskScopeEx<V> extends StructuredTaskScope<V> implements 
 
   private void done() {
     try (
-        var l = this.lock.lockX()) {
+      var l = this.lock.lockX()) {
       this.done.signal();
     }
+  }
+
+  @SuppressWarnings("unchecked")
+  public <U extends V, I> void forEach(final Function<I, U> task, final I... values) {
+    forEach(task, Arrays.asList(values));
+  }
+
+  public <U extends V, I> void forEach(final Function<I, U> task, final Iterable<I> values) {
+    values.forEach(v -> fork(() -> task.apply(v)));
+  }
+
+  public <U extends V, I> void forEach(final Function<I, U> task, final Stream<I> values) {
+    values.forEach(v -> fork(() -> task.apply(v)));
   }
 
   @Override
@@ -81,17 +100,50 @@ public class StructuredTaskScopeEx<V> extends StructuredTaskScope<V> implements 
 
   @SuppressWarnings("unchecked")
   public <U extends V, I> ListEx<Subtask<U>> fork(final Function<I, U> task, final I... values) {
-    return Lists.<I>newArray(values).cancellable(this).map(v -> fork(() -> task.apply(v))).toList();
+    return Lists.<I> newArray(values)
+      .cancellable(this)
+      .map(v -> fork(() -> task.apply(v)))
+      .toList();
   }
 
-  public <U extends V, I> ListEx<Subtask<U>> fork(final Function<I, U> task, final Iterable<I> values) {
-    return Iterables.fromIterable(values).cancellable(this).map(v -> fork(() -> task.apply(v))).toList();
+  public <U extends V, I> ListEx<Subtask<U>> fork(final Function<I, U> task,
+    final Iterable<I> values) {
+    return Iterables.fromIterable(values)
+      .cancellable(this)
+      .map(v -> fork(() -> task.apply(v)))
+      .toList();
   }
 
   public void fork(final int count, final Callable<V> task) {
     for (int i = 0; i < count; i++) {
       fork(task);
     }
+  }
+
+  public ListEx<Subtask<V>> forkAll(final BaseIterable<Callable<V>> tasks) {
+    return tasks.cancellable(this)
+      .map(this::fork)
+      .toList();
+  }
+
+  @SuppressWarnings("unchecked")
+  public BaseIterable<Subtask<V>> forkAll(final Callable<V>... tasks) {
+    final var list = Lists.newArray(tasks);
+    return forkAll(list);
+  }
+
+  public ListEx<Subtask<V>> forkRunnable(final BaseIterable<RunnableWithException> tasks) {
+    return tasks.cancellable(this)
+      .map(task -> fork(() -> {
+        task.run();
+        return null;
+      }))
+      .toList();
+  }
+
+  public BaseIterable<Subtask<V>> forkRunnable(final RunnableWithException... tasks) {
+    final var list = Lists.newArray(tasks);
+    return forkRunnable(list);
   }
 
   @Override
@@ -112,7 +164,7 @@ public class StructuredTaskScopeEx<V> extends StructuredTaskScope<V> implements 
     try {
       while (true) {
         try (
-            var l = this.lock.lockX()) {
+          var l = this.lock.lockX()) {
           if (this.cancelled) {
             shutdown();
             break;
