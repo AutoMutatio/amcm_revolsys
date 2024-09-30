@@ -35,21 +35,20 @@ public class RecordStoreInsertUpdateBuilder<R extends Record> extends InsertUpda
           try {
             return this.recordStore.insertRecord(newRecord);
           } catch (final RuntimeException e) {
-            final var de = Exceptions.getCause(e, DataIntegrityViolationException.class);
-            if (de != null && isUpdate()) {
+            final var dataIntegrityException = Exceptions.getCause(e,
+              DataIntegrityViolationException.class);
+            if (dataIntegrityException != null && isUpdate()) {
               continue;
             }
             throw e;
           }
         }
-      } else {
-        if (isUpdate()) {
-          updateRecord(changeTrackRecord);
-          if (changeTrackRecord.isModified()) {
-            this.recordStore.updateRecord(changeTrackRecord);
-          }
-          return changeTrackRecord.newRecord();
+      } else if (isUpdate()) {
+        updateRecord(changeTrackRecord);
+        if (changeTrackRecord.isModified()) {
+          this.recordStore.updateRecord(changeTrackRecord);
         }
+        return changeTrackRecord.newRecord();
       }
     }
     return null;
