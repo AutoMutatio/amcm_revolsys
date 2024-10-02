@@ -80,13 +80,8 @@ public class ProgressTree implements Jsonable {
   }
 
   public static void count(final String label) {
-    ensureBound();
-    getTree().addCount(label);
-  }
-
-  private static void ensureBound() {
-    if (!SCOPED_VALUE.isBound()) {
-      throw new IllegalStateException("No progress tree bound to thread");
+    if (SCOPED_VALUE.isBound()) {
+      getTree().addCount(label);
     }
   }
 
