@@ -1,7 +1,5 @@
 package com.revolsys.record.schema;
 
-import org.springframework.dao.DataIntegrityViolationException;
-
 import com.revolsys.exception.Exceptions;
 import com.revolsys.record.ArrayChangeTrackRecord;
 import com.revolsys.record.ChangeTrackRecord;
@@ -22,33 +20,29 @@ public class RecordStoreInsertUpdateBuilder<R extends Record> extends InsertUpda
   public Record executeDo() {
     final Query query = getQuery();
     query.setRecordFactory(ArrayChangeTrackRecord.FACTORY);
-    final int maxRetries = 2;
-    for (int numRetries = 0; numRetries < maxRetries; numRetries++) {
-      final ChangeTrackRecord changeTrackRecord = query.getRecord();
-      if (changeTrackRecord == null) {
-        if (isInsert()) {
-          final Record newRecord = newRecord();
-          if (newRecord == null) {
-            return null;
-          }
-          insertRecord(newRecord);
-          try {
-            return this.recordStore.insertRecord(newRecord);
-          } catch (final RuntimeException e) {
-            final var dataIntegrityException = Exceptions.getCause(e,
-              DataIntegrityViolationException.class);
-            if (dataIntegrityException != null && isUpdate()) {
-              continue;
-            }
-            throw e;
-          }
+    final ChangeTrackRecord changeTrackRecord = query.getRecord();
+    if (changeTrackRecord == null) {
+      if (isInsert()) {
+        final Record newRecord = newRecord();
+        if (newRecord == null) {
+          return null;
         }
-      } else if (isUpdate()) {
+        insertRecord(newRecord);
+        try {
+          return this.recordStore.insertRecord(newRecord);
+        } catch (final RuntimeException e) {
+          throw Exceptions.wrap("Unable to insert record:\n" + newRecord, e);
+        }
+      }
+    } else if (isUpdate()) {
+      try {
         updateRecord(changeTrackRecord);
         if (changeTrackRecord.isModified()) {
           this.recordStore.updateRecord(changeTrackRecord);
         }
         return changeTrackRecord.newRecord();
+      } catch (final Exception e) {
+        throw Exceptions.wrap("Unable to update record:\n" + changeTrackRecord, e);
       }
     }
     return null;
