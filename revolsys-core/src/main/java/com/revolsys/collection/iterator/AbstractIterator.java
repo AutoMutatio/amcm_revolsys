@@ -2,11 +2,14 @@ package com.revolsys.collection.iterator;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.revolsys.properties.BaseObjectWithProperties;
 
 public abstract class AbstractIterator<T> extends BaseObjectWithProperties
   implements Iterator<T>, Reader<T> {
+
+  private final AtomicBoolean closed = new AtomicBoolean();
 
   private boolean hasNext = true;
 
@@ -18,9 +21,11 @@ public abstract class AbstractIterator<T> extends BaseObjectWithProperties
 
   @Override
   public final void close() {
-    this.hasNext = false;
-    this.object = null;
-    closeDo();
+    if (this.closed.compareAndSet(false, true)) {
+      this.hasNext = false;
+      this.object = null;
+      closeDo();
+    }
   }
 
   protected void closeDo() {
