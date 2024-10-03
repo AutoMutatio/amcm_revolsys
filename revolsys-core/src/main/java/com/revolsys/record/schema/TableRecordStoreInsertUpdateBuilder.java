@@ -31,7 +31,7 @@ public class TableRecordStoreInsertUpdateBuilder<R extends Record> extends Inser
         if (newRecord == null) {
           return null;
         }
-        insertRecord(newRecord);
+        prepareInsertRecord(newRecord);
         try {
           return this.recordStore.insertRecord(this.connection, newRecord);
         } catch (final RuntimeException e) {
@@ -40,7 +40,7 @@ public class TableRecordStoreInsertUpdateBuilder<R extends Record> extends Inser
       }
     } else if (isUpdate()) {
       try {
-        updateRecord(changeTrackRecord);
+        prepareUpdateRecord(changeTrackRecord);
         this.recordStore.updateRecordDo(this.connection, changeTrackRecord);
         return changeTrackRecord.newRecord();
       } catch (final Exception e) {

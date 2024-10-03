@@ -27,7 +27,7 @@ public class RecordStoreInsertUpdateBuilder<R extends Record> extends InsertUpda
         if (newRecord == null) {
           return null;
         }
-        insertRecord(newRecord);
+        prepareInsertRecord(newRecord);
         try {
           return this.recordStore.insertRecord(newRecord);
         } catch (final RuntimeException e) {
@@ -36,7 +36,7 @@ public class RecordStoreInsertUpdateBuilder<R extends Record> extends InsertUpda
       }
     } else if (isUpdate()) {
       try {
-        updateRecord(changeTrackRecord);
+        prepareUpdateRecord(changeTrackRecord);
         if (changeTrackRecord.isModified()) {
           this.recordStore.updateRecord(changeTrackRecord);
         }
