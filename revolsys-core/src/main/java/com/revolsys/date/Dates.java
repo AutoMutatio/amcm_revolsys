@@ -17,6 +17,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.DayOfWeek;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
@@ -43,12 +44,21 @@ import com.revolsys.logging.Logs;
 
 public interface Dates {
   public static class Timer {
-    private final long startTime = System.currentTimeMillis();
+    private long startTime = System.currentTimeMillis();
 
     private long stepStartTime = this.startTime;
 
     private Timer() {
 
+    }
+
+    public void clear() {
+      this.startTime = System.currentTimeMillis();
+      this.stepStartTime = this.startTime;
+    }
+
+    public Duration duration() {
+      return Duration.between(Instant.now(), Instant.ofEpochMilli(this.startTime));
     }
 
     public void printStep(final String message) {

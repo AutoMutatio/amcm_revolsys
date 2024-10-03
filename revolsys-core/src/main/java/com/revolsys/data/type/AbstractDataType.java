@@ -14,9 +14,6 @@ public abstract class AbstractDataType implements DataType {
 
   public AbstractDataType(final String name, final Class<?> javaClass,
     final boolean requiresQuotes) {
-    if (name == null) {
-      Debug.noOp();
-    }
     this.name = name;
     this.javaClass = javaClass;
     this.requiresQuotes = requiresQuotes;

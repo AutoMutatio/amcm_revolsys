@@ -16,8 +16,12 @@ public class BigDecimalDataType extends AbstractDataType {
   @Override
   protected Object toObjectDo(final Object value) {
     final String string = DataTypes.toString(value);
-    final BigDecimal decimal = new BigDecimal(string);
-    return decimal.stripTrailingZeros();
+    final BigDecimal decimal = new BigDecimal(string).stripTrailingZeros();
+    if (decimal.scale() < 0) {
+      return new BigDecimal(decimal.toPlainString());
+    } else {
+      return decimal;
+    }
   }
 
   @Override

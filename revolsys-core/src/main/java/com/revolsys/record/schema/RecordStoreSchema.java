@@ -10,6 +10,8 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import com.revolsys.collection.Parent;
+import com.revolsys.collection.list.ListEx;
+import com.revolsys.collection.list.Lists;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.io.PathName;
 import com.revolsys.logging.Logs;
@@ -192,9 +194,9 @@ public class RecordStoreSchema extends AbstractRecordStoreSchemaElement
     }
   }
 
-  public List<RecordDefinition> getRecordDefinitions() {
+  public ListEx<RecordDefinition> getRecordDefinitions() {
     refreshIfNeeded();
-    return new ArrayList<>(this.recordDefinitionsByPath.values());
+    return Lists.toArray(this.recordDefinitionsByPath.values());
   }
 
   @SuppressWarnings("unchecked")

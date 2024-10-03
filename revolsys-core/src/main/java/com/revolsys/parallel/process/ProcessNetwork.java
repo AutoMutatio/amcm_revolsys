@@ -117,6 +117,11 @@ public class ProcessNetwork {
     processNetwork.startAndWait();
   }
 
+  public static void startAndWait(final Iterable<Runnable> processes) {
+    final ProcessNetwork processNetwork = new ProcessNetwork(processes);
+    processNetwork.startAndWait();
+  }
+
   public static void startAndWait(final Process... processes) {
     final ProcessNetwork processNetwork = new ProcessNetwork(processes);
     processNetwork.startAndWait();
@@ -162,7 +167,7 @@ public class ProcessNetwork {
   public ProcessNetwork() {
   }
 
-  public ProcessNetwork(final Collection<? extends Runnable> processes) {
+  public ProcessNetwork(final Iterable<? extends Runnable> processes) {
     for (final Runnable runnable : processes) {
       if (runnable instanceof Process) {
         final Process process = (Process)runnable;

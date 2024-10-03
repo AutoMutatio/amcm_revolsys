@@ -62,6 +62,18 @@ public final class PathName implements Comparable<PathName>, CharSequence {
     return pathName;
   }
 
+  public static PathName fromSlashSeparated(final String path) {
+    var pathName = ROOT;
+    for (var part : path.strip()
+      .split("/+")) {
+      part = part.strip();
+      if (part.length() > 0) {
+        pathName = pathName.newChild(part);
+      }
+    }
+    return pathName;
+  }
+
   private static String getName(final String path) {
     if (path == null) {
       return null;
