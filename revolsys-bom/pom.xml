@@ -357,21 +357,6 @@
         </exclusions>
       </dependency>
       <dependency>
-        <groupId>org.graalvm.js</groupId>
-        <artifactId>js</artifactId>
-        <version>${org.graalvm.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.graalvm.js</groupId>
-        <artifactId>js-scriptengine</artifactId>
-        <version>${org.graalvm.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.graalvm.truffle</groupId>
-        <artifactId>truffle-api</artifactId>
-        <version>${org.graalvm.version}</version>
-      </dependency>
-      <dependency>
         <groupId>com.nimbusds</groupId>
         <artifactId>nimbus-jose-jwt</artifactId>
         <version>9.41.2</version>
@@ -520,7 +505,6 @@
     <org.apache.xmlgraphics.commons.version>2.9</org.apache.xmlgraphics.commons.version>
     <org.docx4j.version>11.5.0</org.docx4j.version>
     <org.gdal.version>2.4.0</org.gdal.version>
-    <org.graalvm.version>23.0.5</org.graalvm.version>
     <org.slf4j.version>2.0.16</org.slf4j.version>
     <org.springframework.version>6.1.13</org.springframework.version>
     <org.springframework.boot.version>3.3.4</org.springframework.boot.version>
