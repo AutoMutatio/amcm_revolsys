@@ -173,7 +173,7 @@ public class Transaction {
 
     private final TransactionContext context;
 
-    public SavedBuilder(TransactionContext context) {
+    public SavedBuilder(final TransactionContext context) {
       super();
       this.context = context;
     }
