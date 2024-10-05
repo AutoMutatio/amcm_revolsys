@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.Condition;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
@@ -27,121 +26,8 @@ public class ProcessNetwork {
 
   private static ThreadLocal<ProcessNetwork> PROCESS_NETWORK = new ThreadLocal<>();
 
-  public static <V> void forAll(final Consumer<V> action, final Iterable<V> values) {
-    final ProcessNetwork processNetwork = new ProcessNetwork();
-    for (final V value : values) {
-      processNetwork.addProcess(() -> action.accept(value));
-    }
-    processNetwork.startAndWait();
-  }
-
-  @SuppressWarnings("unchecked")
-  public static <V> void forAll(final Consumer<V> action, final V... values) {
-    final ProcessNetwork processNetwork = new ProcessNetwork();
-    for (final V value : values) {
-      processNetwork.addProcess(() -> action.accept(value));
-    }
-    processNetwork.startAndWait();
-  }
-
-  public static <V> void forEach(final int processCount, final Iterable<V> values,
-    final Consumer<V> action) {
-    final Iterator<V> iterator = values.iterator();
-    final var lock = new ReentrantLockEx();
-    if (iterator.hasNext()) {
-      final ProcessNetwork processNetwork = new ProcessNetwork();
-      for (int i = 0; i < processCount; i++) {
-        processNetwork.addProcess(() -> {
-          while (true) {
-            V value;
-            try (
-              var l = lock.lockX()) {
-              if (iterator.hasNext()) {
-                value = iterator.next();
-              } else {
-                return;
-              }
-            }
-            action.accept(value);
-          }
-        });
-      }
-      processNetwork.startAndWait();
-    }
-  }
-
   public static ProcessNetwork forThread() {
     return PROCESS_NETWORK.get();
-  }
-
-  public static <V> void forWhile(final int processCount, final Supplier<V> supplier,
-    final Consumer<V> action) {
-    final ReentrantLockEx lock = new ReentrantLockEx();
-    final ProcessNetwork processNetwork = new ProcessNetwork();
-    for (int i = 0; i < processCount; i++) {
-      processNetwork.addProcess(() -> {
-        while (true) {
-          V value = supplier.get();
-          try (
-            var l = lock.lockX()) {
-            value = supplier.get();
-            if (value == null) {
-              return;
-            }
-          }
-          action.accept(value);
-        }
-      });
-    }
-    processNetwork.startAndWait();
-  }
-
-  public static void processTasks(final int processCount, final Channel<Runnable> tasks) {
-    final ProcessNetwork processNetwork = new ProcessNetwork();
-    for (int i = 0; i < processCount; i++) {
-      processNetwork.addProcess(() -> {
-        while (true) {
-          final Runnable task = tasks.read(1000);
-          if (task == null) {
-            return;
-          } else {
-            try {
-              task.run();
-            } catch (final Throwable e) {
-              Logs.error(ProcessNetwork.class, "Error procesing task", e);
-            }
-          }
-        }
-      });
-    }
-    processNetwork.startAndWait();
-  }
-
-  public static void startAndWait(final Iterable<Runnable> processes) {
-    final ProcessNetwork processNetwork = new ProcessNetwork(processes);
-    processNetwork.startAndWait();
-  }
-
-  public static void startAndWait(final Process... processes) {
-    final ProcessNetwork processNetwork = new ProcessNetwork(processes);
-    processNetwork.startAndWait();
-  }
-
-  public static void startAndWait(final Runnable... processes) {
-    final ProcessNetwork processNetwork = new ProcessNetwork(processes);
-    processNetwork.startAndWait();
-  }
-
-  public static void startAndWait(final Runnable initializer) {
-    final ProcessNetwork saved = PROCESS_NETWORK.get();
-    try {
-      final ProcessNetwork processNetwork = new ProcessNetwork();
-      PROCESS_NETWORK.set(processNetwork);
-      initializer.run();
-      processNetwork.startAndWait();
-    } finally {
-      PROCESS_NETWORK.set(saved);
-    }
   }
 
   private boolean autoStart;

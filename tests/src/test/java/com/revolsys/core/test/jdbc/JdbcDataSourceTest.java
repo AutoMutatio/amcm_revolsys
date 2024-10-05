@@ -12,7 +12,7 @@ import com.revolsys.exception.Exceptions;
 import com.revolsys.jdbc.JdbcDataSource;
 import com.revolsys.jdbc.JdbcDatabaseFactory;
 import com.revolsys.logging.Logs;
-import com.revolsys.parallel.process.ProcessNetwork;
+import com.revolsys.util.concurrent.Concurrent;
 
 public class JdbcDataSourceTest {
 
@@ -51,50 +51,54 @@ public class JdbcDataSourceTest {
   @Test
   public void testDataSourceConnection() {
     final var dataSource = newDataSource();
-    ProcessNetwork.forAll(v -> {
-      for (int i = 0; i < 1000; i++) {
-        final boolean error = i % 13 == 0;
-        try {
-          if (error) {
-            runError(dataSource);
-          } else {
-            runTest(dataSource);
-          }
-          LockSupport.parkNanos(Duration.ofMillis(20)
-            .toNanos());
-        } catch (final Exception e) {
-          if (!error || !e.getMessage()
-            .contains("ERROR: column \"error\" does not exist")) {
-            Logs.error(this, e);
-          }
-        }
-      }
-    }, 1, 2, 3, 4, 5);
-  }
-
-  @Test
-  public void testDataSourceTransaction() {
-    final var dataSource = newDataSource();
-    ProcessNetwork.forAll(v -> {
-      for (int i = 0; i < 1000; i++) {
-        final boolean error = i % 13 == 0;
-        try {
-          dataSource.transactionNewRun(() -> {
+    Concurrent.virtual()
+      .unbounded()
+      .forEach(v -> {
+        for (int i = 0; i < 1000; i++) {
+          final boolean error = i % 13 == 0;
+          try {
             if (error) {
               runError(dataSource);
             } else {
               runTest(dataSource);
             }
-          });
-          LockSupport.parkNanos(Duration.ofMillis(20)
-            .toNanos());
-        } catch (final Exception e) {
-          if (!error || !e.getMessage()
-            .contains("ERROR: column \"error\" does not exist")) {
-            Logs.error(this, e);
+            LockSupport.parkNanos(Duration.ofMillis(20)
+              .toNanos());
+          } catch (final Exception e) {
+            if (!error || !e.getMessage()
+              .contains("ERROR: column \"error\" does not exist")) {
+              Logs.error(this, e);
+            }
           }
         }
-      }
-    }, 1, 2, 3, 4, 5);
+      }, 1, 2, 3, 4, 5);
+  }
+
+  @Test
+  public void testDataSourceTransaction() {
+    final var dataSource = newDataSource();
+    Concurrent.virtual()
+      .unbounded()
+      .forEach(v -> {
+        for (int i = 0; i < 1000; i++) {
+          final boolean error = i % 13 == 0;
+          try {
+            dataSource.transactionNewRun(() -> {
+              if (error) {
+                runError(dataSource);
+              } else {
+                runTest(dataSource);
+              }
+            });
+            LockSupport.parkNanos(Duration.ofMillis(20)
+              .toNanos());
+          } catch (final Exception e) {
+            if (!error || !e.getMessage()
+              .contains("ERROR: column \"error\" does not exist")) {
+              Logs.error(this, e);
+            }
+          }
+        }
+      }, 1, 2, 3, 4, 5);
   }
 }
