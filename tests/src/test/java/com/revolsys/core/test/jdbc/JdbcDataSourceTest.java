@@ -52,7 +52,6 @@ public class JdbcDataSourceTest {
   public void testDataSourceConnection() {
     final var dataSource = newDataSource();
     Concurrent.virtual()
-      .unbounded()
       .forEach(v -> {
         for (int i = 0; i < 1000; i++) {
           final boolean error = i % 13 == 0;
@@ -78,7 +77,6 @@ public class JdbcDataSourceTest {
   public void testDataSourceTransaction() {
     final var dataSource = newDataSource();
     Concurrent.virtual()
-      .unbounded()
       .forEach(v -> {
         for (int i = 0; i < 1000; i++) {
           final boolean error = i % 13 == 0;

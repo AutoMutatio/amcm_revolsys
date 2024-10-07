@@ -11,36 +11,17 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 import com.revolsys.collection.iterator.ForEachHandler;
+import com.revolsys.collection.iterator.ForEachMethods;
 import com.revolsys.collection.iterator.Iterables;
+import com.revolsys.collection.iterator.RunableMethods;
 import com.revolsys.collection.list.ListEx;
 import com.revolsys.collection.list.Lists;
 import com.revolsys.exception.Exceptions;
 import com.revolsys.parallel.ReentrantLockEx;
 import com.revolsys.util.Cancellable;
 
-public class StructuredTaskScopeEx<V> extends StructuredTaskScope<V> implements Cancellable {
-  @SuppressWarnings("unchecked")
-  public static <I> void forEach(final Consumer<I> action, final I... values) {
-    try (
-      var scope = new StructuredTaskScopeEx<Void>()) {
-      scope.fork(value -> {
-        action.accept(value);
-        return null;
-      }, values);
-      scope.join();
-    }
-  }
-
-  public static <I> void forEach(final Consumer<I> action, final Iterable<I> values) {
-    try (
-      var scope = new StructuredTaskScopeEx<Void>()) {
-      scope.fork(value -> {
-        action.accept(value);
-        return null;
-      }, values);
-      scope.join();
-    }
-  }
+public class StructuredTaskScopeEx<V> extends StructuredTaskScope<V>
+  implements Cancellable, ForEachMethods {
 
   private final ReentrantLockEx lock = new ReentrantLockEx();
 
@@ -75,6 +56,12 @@ public class StructuredTaskScopeEx<V> extends StructuredTaskScope<V> implements 
   }
 
   @Override
+  public <T> void forEach(final Consumer<? super T> action, final ForEachHandler<T> forEach) {
+    final Consumer<? super T> forkAction = forkConsumerValue(action);
+    forEach.forEach(forkAction);
+  }
+
+  @Override
   public <U extends V> Subtask<U> fork(final Callable<? extends U> task) {
     if (this.cancelled) {
       return null;
@@ -84,23 +71,8 @@ public class StructuredTaskScopeEx<V> extends StructuredTaskScope<V> implements 
     }
   }
 
-  @SuppressWarnings("unchecked")
-  public <I> ListEx<Subtask<V>> fork(final Consumer<I> task, final I... values) {
-    return Lists.<I> newArray(values)
-      .cancellable(this)
-      .map(v -> fork(() -> task.accept(v)))
-      .toList();
-  }
-
   public <I> Subtask<V> fork(final Consumer<I> task, final I value) {
-    return fork(() -> task.accept(value));
-  }
-
-  public <I> ListEx<Subtask<V>> fork(final Consumer<I> task, final Iterable<I> values) {
-    return Iterables.fromIterable(values)
-      .cancellable(this)
-      .map(v -> fork(() -> task.accept(v)))
-      .toList();
+    return run(() -> task.accept(value));
   }
 
   @SuppressWarnings("unchecked")
@@ -121,19 +93,6 @@ public class StructuredTaskScopeEx<V> extends StructuredTaskScope<V> implements 
 
   public void fork(final int count, final Callable<V> task) {
     for (int i = 0; i < count; i++) {
-      fork(task);
-    }
-  }
-
-  public <U extends V> Subtask<U> fork(final Runnable task) {
-    return fork(() -> {
-      task.run();
-      return null;
-    });
-  }
-
-  public void fork(final Runnable... tasks) {
-    for (final var task : tasks) {
       fork(task);
     }
   }
@@ -160,7 +119,7 @@ public class StructuredTaskScopeEx<V> extends StructuredTaskScope<V> implements 
   public <T> void fork(final Semaphore semaphore, final Consumer<? super T> action, final T value) {
     try {
       semaphore.acquire();
-      fork(() -> {
+      run(() -> {
         try {
           action.accept(value);
         } finally {
@@ -175,7 +134,7 @@ public class StructuredTaskScopeEx<V> extends StructuredTaskScope<V> implements 
   public <T> void fork(final Semaphore semaphore, final Runnable action) {
     try {
       semaphore.acquire();
-      fork(() -> {
+      run(() -> {
         try {
           action.run();
         } finally {
@@ -187,11 +146,7 @@ public class StructuredTaskScopeEx<V> extends StructuredTaskScope<V> implements 
     }
   }
 
-  Consumer<Runnable> forkConsumerRunnable() {
-    return this::fork;
-  }
-
-  <V> Consumer<? super V> forkConsumerValue(final Consumer<V> action) {
+  <T> Consumer<? super T> forkConsumerValue(final Consumer<T> action) {
     return v -> fork(action, v);
   }
 
@@ -229,5 +184,29 @@ public class StructuredTaskScopeEx<V> extends StructuredTaskScope<V> implements 
       throw Exceptions.toRuntimeException(e);
     }
     return this;
+  }
+
+  /**
+   * Use the @{link {@link #run(Runnable)} method to for a subtask
+   *
+   * @param forEach The handler that loops through
+   * @see RunableMethods
+   */
+  public void run(final ForEachHandler<Runnable> forEach) {
+    final Consumer<Runnable> forkAction = this::run;
+    forEach.forEach(forkAction);
+  }
+
+  /**
+   * Fork a subtask that runs the @{link {@link Runnable} and returns null as the result.
+   *
+   * @param task The task to run
+   * @return The subtask
+   */
+  public Subtask<V> run(final Runnable task) {
+    return fork(() -> {
+      task.run();
+      return null;
+    });
   }
 }

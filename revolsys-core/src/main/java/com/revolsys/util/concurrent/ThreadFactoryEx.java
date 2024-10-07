@@ -9,9 +9,12 @@ import java.util.concurrent.ThreadFactory;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import com.revolsys.collection.iterator.ForEachHandler;
+import com.revolsys.collection.iterator.ForEachMethods;
+import com.revolsys.collection.iterator.RunableMethods;
 import com.revolsys.parallel.SemaphoreEx;
 
-public class ThreadFactoryEx implements ThreadFactory {
+public class ThreadFactoryEx implements ThreadFactory, ForEachMethods, RunableMethods {
 
   public static ThreadFactoryEx builder(final Builder builder) {
     final var factory = builder.factory();
@@ -47,6 +50,11 @@ public class ThreadFactoryEx implements ThreadFactory {
     this.factory = factory;
   }
 
+  @Override
+  public <V> void forEach(final Consumer<? super V> action, final ForEachHandler<V> forEach) {
+    this.scope(scope -> forEach.forEach(scope.forkConsumerValue(action)));
+  }
+
   public String name() {
     return this.name;
   }
@@ -58,6 +66,15 @@ public class ThreadFactoryEx implements ThreadFactory {
 
   public ExecutorService newThreadPerTaskExecutor() {
     return Executors.newThreadPerTaskExecutor(this.factory);
+  }
+
+  @Override
+  public <V> void run(final ForEachHandler<Runnable> forEach) {
+    scope(scope -> scope.run(forEach));
+  }
+
+  public <V> void run(final Runnable action) {
+    scope(scope -> scope.run(action));
   }
 
   public <V> void scope(final Consumer<StructuredTaskScopeEx<V>> action) {
@@ -89,7 +106,7 @@ public class ThreadFactoryEx implements ThreadFactory {
     return semaphore(new SemaphoreEx(permits));
   }
 
-  private SemaphoreScope semaphore(final SemaphoreEx semaphore) {
+  public SemaphoreScope semaphore(final SemaphoreEx semaphore) {
     return new SemaphoreScope(semaphore, this);
   }
 
@@ -98,7 +115,4 @@ public class ThreadFactoryEx implements ThreadFactory {
     return this.name;
   }
 
-  public UnboundedScope unbounded() {
-    return new UnboundedScope(this);
-  }
 }
