@@ -8,16 +8,15 @@ import java.lang.management.ThreadInfo;
 import java.lang.management.ThreadMXBean;
 
 import com.revolsys.collection.value.LazyValueHolder;
+import com.revolsys.util.concurrent.Concurrent;
 
 public class DeadlockLogger implements Runnable {
   private static final int WAIT_TIME = 60000;
 
   private static LazyValueHolder<Thread> thread = new LazyValueHolder<>(() -> {
     final DeadlockLogger deadlockLogger = new DeadlockLogger();
-    final Thread thread = new Thread(deadlockLogger, "Deadlock-detection");
-    thread.setDaemon(true);
-    thread.start();
-    return thread;
+    return Concurrent.virtual("DeadlockDetection")
+      .start(deadlockLogger);
 
   });
 

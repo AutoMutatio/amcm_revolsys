@@ -63,7 +63,6 @@ public abstract class AbstractOutProcess<T> extends AbstractProcess implements O
       Logs.debug(this, "Shutdown");
     } catch (final Throwable e) {
       Logs.error(this, e.getMessage(), e);
-      getProcessNetwork().stop();
     } finally {
       if (this.out != null) {
         this.out.writeDisconnect();

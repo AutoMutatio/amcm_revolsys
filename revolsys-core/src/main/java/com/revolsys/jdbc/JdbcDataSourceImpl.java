@@ -33,6 +33,7 @@ import com.revolsys.transaction.ActiveTransactionContext;
 import com.revolsys.transaction.TransactionContext;
 import com.revolsys.util.BaseCloseable;
 import com.revolsys.util.Property;
+import com.revolsys.util.concurrent.Concurrent;
 
 public class JdbcDataSourceImpl extends JdbcDataSource implements BaseCloseable {
   private class ConnectionEntry {
@@ -385,8 +386,7 @@ public class JdbcDataSourceImpl extends JdbcDataSource implements BaseCloseable 
             try {
               driver = Class.forName(driverClassName);
             } catch (final ClassNotFoundException cnfe) {
-              driver = Thread.currentThread()
-                .getContextClassLoader()
+              driver = Concurrent.contextClassLoader()
                 .loadClass(driverClassName);
             }
           } catch (final Exception t) {

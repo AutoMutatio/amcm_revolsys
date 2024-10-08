@@ -4,7 +4,6 @@ import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
@@ -35,6 +34,7 @@ public class SemaphoreEx extends Semaphore {
     return this.release;
   }
 
+  // TODO replace this with new code
   public <V> long forEach(final ExecutorService executor, final BaseIterable<V> values,
     final Consumer<V> action) {
     if (action == null) {
@@ -105,15 +105,6 @@ public class SemaphoreEx extends Semaphore {
       }
     } catch (final InterruptedException e) {
       throw Exceptions.toRuntimeException(e);
-    }
-  }
-
-  public <V> void virtualForEach(final BaseIterable<V> values, final Consumer<V> action) {
-    if (values != null && action != null) {
-      try (
-        final var executor = Executors.newVirtualThreadPerTaskExecutor()) {
-        forEach(executor, values, action);
-      }
     }
   }
 
