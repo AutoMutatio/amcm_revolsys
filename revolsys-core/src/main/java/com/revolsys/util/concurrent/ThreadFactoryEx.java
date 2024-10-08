@@ -107,6 +107,10 @@ public class ThreadFactoryEx
     return Executors.newScheduledThreadPool(0, this);
   }
 
+  public ScheduledExecutorService newScheduledThreadPool(final int corePoolSize) {
+    return new ScheduledThreadPoolExecutor(corePoolSize, this);
+  }
+
   @Override
   public Thread newThread(final Runnable r) {
     return this.factory.newThread(r);
@@ -123,10 +127,6 @@ public class ThreadFactoryEx
 
   public <V> void run(final Runnable action) {
     scope(scope -> scope.run(action));
-  }
-
-  public ScheduledExecutorService scheduledThreadPool(final int corePoolSize) {
-    return new ScheduledThreadPoolExecutor(corePoolSize, this);
   }
 
   public <V> void scope(final Consumer<StructuredTaskScopeEx<V>> action) {
