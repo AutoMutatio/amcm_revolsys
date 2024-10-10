@@ -26,6 +26,7 @@ import com.revolsys.raster.BufferedImages;
 import com.revolsys.util.IconNameProxy;
 import com.revolsys.util.OS;
 import com.revolsys.util.Property;
+import com.revolsys.util.concurrent.Concurrent;
 
 public class Icons {
   public static final String BADGE_FOLDER = "/com/revolsys/famfamfam/silk/badges/";
@@ -93,7 +94,7 @@ public class Icons {
     final String resourceName = RESOURCE_FOLDER + imageFileName;
     URL url = clazz.getResource(resourceName);
     if (url == null) {
-      final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+      final ClassLoader classLoader = Concurrent.contextClassLoader();
       url = classLoader.getResource("images/" + imageFileName);
       if (url == null) {
         url = classLoader.getResource("icons/" + imageFileName);
@@ -298,12 +299,10 @@ public class Icons {
     final String resourceName = RESOURCE_FOLDER + imageName + "." + fileExtension;
     InputStream in = clazz.getResourceAsStream(resourceName);
     if (in == null) {
-      in = Thread.currentThread()
-        .getContextClassLoader()
+      in = Concurrent.contextClassLoader()
         .getResourceAsStream("images/" + imageName + "." + fileExtension);
       if (in == null) {
-        in = Thread.currentThread()
-          .getContextClassLoader()
+        in = Concurrent.contextClassLoader()
           .getResourceAsStream("icons/" + imageName + "." + fileExtension);
       }
     }

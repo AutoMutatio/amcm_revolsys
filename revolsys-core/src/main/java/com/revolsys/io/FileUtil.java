@@ -40,7 +40,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.ConcurrentLinkedDeque;
 
+import com.revolsys.collection.value.ValueHolder;
 import com.revolsys.connection.file.FileConnectionManager;
 import com.revolsys.connection.file.FolderConnection;
 import com.revolsys.connection.file.FolderConnectionRegistry;
@@ -52,6 +54,7 @@ import com.revolsys.spring.resource.PathResource;
 import com.revolsys.spring.resource.Resource;
 import com.revolsys.util.Property;
 import com.revolsys.util.UrlUtil;
+import com.revolsys.util.concurrent.Concurrent;
 
 /**
  * The FileUtil class is a utility class for performing common tasks with
@@ -61,10 +64,28 @@ import com.revolsys.util.UrlUtil;
  */
 public final class FileUtil {
   /** Files or directories to be deleted on exit. */
-  private static final List<File> deleteFilesOnExit = new ArrayList<>();
+  private static final ConcurrentLinkedDeque<File> deleteFilesOnExit = new ConcurrentLinkedDeque<>();
 
   /** The thread that deletes files on exit. */
-  private static Thread deleteFilesOnExitThread;
+  private static ValueHolder<Thread> deleteFilesOnExitThread = ValueHolder.lazy(() -> {
+    final var thread = Concurrent.virtual("DeleteFilesOnExit")
+      .newThread(() -> {
+        for (final File file : deleteFilesOnExit) {
+          if (file.exists()) {
+            if (file.isFile()) {
+              Logs.debug(FileUtil.class, "Deleting file: " + file.getAbsolutePath());
+              file.delete();
+            } else {
+              Logs.debug(FileUtil.class, "Deleting directory: " + file.getAbsolutePath());
+              deleteDirectory(file);
+            }
+          }
+        }
+      });
+    Runtime.getRuntime()
+      .addShutdownHook(thread);
+    return thread;
+  });
 
   public static final FilenameFilter IMAGE_FILENAME_FILTER = new ExtensionFilenameFilter(
     Arrays.asList("gif", "jpg", "png", "tif", "tiff", "bmp"));
@@ -219,30 +240,8 @@ public final class FileUtil {
    * @param file The file or directory to delete.
    */
   public static void deleteFileOnExit(final File file) {
-    synchronized (deleteFilesOnExit) {
-      if (deleteFilesOnExitThread == null) {
-        deleteFilesOnExitThread = new Thread(new Runnable() {
-          @Override
-          public void run() {
-            synchronized (deleteFilesOnExit) {
-              for (final File file : deleteFilesOnExit) {
-                if (file.exists()) {
-                  if (file.isFile()) {
-                    Logs.debug(FileUtil.class, "Deleting file: " + file.getAbsolutePath());
-                    file.delete();
-                  } else {
-                    Logs.debug(FileUtil.class, "Deleting directory: " + file.getAbsolutePath());
-                    deleteDirectory(file);
-                  }
-                }
-              }
-            }
-          }
-        });
-        Runtime.getRuntime().addShutdownHook(deleteFilesOnExitThread);
-      }
-      deleteFilesOnExit.add(file);
-    }
+    deleteFilesOnExitThread.get();
+    deleteFilesOnExit.add(file);
   }
 
   /**

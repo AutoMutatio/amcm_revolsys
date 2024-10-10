@@ -1,5 +1,7 @@
 package com.revolsys.core.test.geometry.test.old.perf;
 
+import com.revolsys.util.concurrent.Concurrent;
+
 /**
  * Runs a {@link ThreadTestCase}.
  *
@@ -15,8 +17,8 @@ public class ThreadTestRunner {
 
     for (int i = 0; i < testcase.getThreadCount(); i++) {
       final Runnable runnable = testcase.getRunnable(i);
-      final Thread t = new Thread(runnable);
-      t.start();
+      Concurrent.platform()
+        .start(runnable);
     }
   }
 

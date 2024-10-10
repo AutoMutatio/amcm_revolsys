@@ -14,6 +14,7 @@ import com.revolsys.exception.Exceptions;
 import com.revolsys.logging.Logs;
 import com.revolsys.swing.SwingUtil;
 import com.revolsys.util.Cancellable;
+import com.revolsys.util.concurrent.Concurrent;
 
 public abstract class AbstractSwingWorker<B, V> extends SwingWorker<B, V>
   implements BackgroundTask, Cancellable {
@@ -73,8 +74,7 @@ public abstract class AbstractSwingWorker<B, V> extends SwingWorker<B, V>
 
   @Override
   protected final B doInBackground() throws Exception {
-    this.threadName = Thread.currentThread()
-      .getName()
+    this.threadName = Concurrent.threadName()
       .replace("SwingWorker-pool-", "")
       .replace("thread-", "");
     try {

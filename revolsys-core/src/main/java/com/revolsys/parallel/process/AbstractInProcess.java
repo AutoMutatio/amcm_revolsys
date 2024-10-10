@@ -67,7 +67,6 @@ public abstract class AbstractInProcess<T> extends AbstractProcess implements In
       Logs.debug(this, "Shutdown");
     } catch (final Throwable e) {
       Logs.error(this, e.getMessage(), e);
-      getProcessNetwork().stop();
     } finally {
       if (this.in != null) {
         this.in.readDisconnect();
