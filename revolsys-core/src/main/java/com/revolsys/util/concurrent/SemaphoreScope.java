@@ -18,9 +18,9 @@ public class SemaphoreScope implements ForEachMethods, RunableMethods {
   }
 
   @Override
-  public <V> void forEach(final Consumer<? super V> action, final ForEachHandler<V> forEach) {
+  public <V> void forEach(final ForEachHandler<V> forEach, final Consumer<? super V> action) {
     this.threadFactory
-      .scope(scope -> forEach.forEach(value -> scope.fork(this.semaphore, action, value)));
+      .scope(scope -> forEach.forEach(value -> scope.fork(this.semaphore, value, action)));
   }
 
   @Override

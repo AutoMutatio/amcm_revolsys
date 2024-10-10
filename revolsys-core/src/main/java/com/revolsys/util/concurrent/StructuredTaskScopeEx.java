@@ -95,7 +95,7 @@ public class StructuredTaskScopeEx<V> extends StructuredTaskScope<V>
   }
 
   @Override
-  public <T> void forEach(final Consumer<? super T> action, final ForEachHandler<T> forEach) {
+  public <T> void forEach(final ForEachHandler<T> forEach, final Consumer<? super T> action) {
     final Consumer<? super T> forkAction = forkConsumerValue(action);
     forEach.forEach(forkAction);
   }
@@ -110,7 +110,7 @@ public class StructuredTaskScopeEx<V> extends StructuredTaskScope<V>
     }
   }
 
-  public <I> Subtask<V> fork(final Consumer<I> task, final I value) {
+  public <I> Subtask<V> fork(final I value, final Consumer<I> task) {
     return run(() -> task.accept(value));
   }
 
@@ -122,8 +122,8 @@ public class StructuredTaskScopeEx<V> extends StructuredTaskScope<V>
       .toList();
   }
 
-  public <U extends V, I> ListEx<Subtask<U>> fork(final Function<I, U> task,
-    final Iterable<I> values) {
+  public <U extends V, I> ListEx<Subtask<U>> fork(final Iterable<I> values,
+    final Function<I, U> task) {
     return Iterables.fromIterable(values)
       .cancellable(this)
       .map(v -> fork(() -> task.apply(v)))
@@ -136,28 +136,28 @@ public class StructuredTaskScopeEx<V> extends StructuredTaskScope<V>
     }
   }
 
-  public <T> void fork(final Semaphore semaphore, final Consumer<? super T> action,
-    final ForEachHandler<T> forEach) {
-    forEach.forEach(value -> fork(semaphore, action, value));
+  public <T> void fork(final Semaphore semaphore, final ForEachHandler<T> forEach,
+    final Consumer<? super T> action) {
+    forEach.forEach(value -> fork(semaphore, value, action));
   }
 
-  public <T> void fork(final Semaphore semaphore, final Consumer<? super T> action,
-    final Iterable<T> values) {
+  public <T> void fork(final Semaphore semaphore, final Iterable<T> values,
+    final Consumer<? super T> action) {
     if (values != null) {
       final ForEachHandler<T> handler = values::forEach;
-      fork(semaphore, action, handler);
+      fork(semaphore, handler, action);
     }
   }
 
-  public <T> void fork(final Semaphore semaphore, final Consumer<? super T> action,
-    final Stream<T> values) {
+  public <T> void fork(final Semaphore semaphore, final Stream<T> values,
+    final Consumer<? super T> action) {
     if (values != null) {
       final ForEachHandler<T> handler = values::forEach;
-      fork(semaphore, action, handler);
+      fork(semaphore, handler, action);
     }
   }
 
-  public <T> void fork(final Semaphore semaphore, final Consumer<? super T> action, final T value) {
+  public <T> void fork(final Semaphore semaphore, final T value, final Consumer<? super T> action) {
     try {
       semaphore.acquire();
       run(() -> {
@@ -188,7 +188,7 @@ public class StructuredTaskScopeEx<V> extends StructuredTaskScope<V>
   }
 
   <T> Consumer<? super T> forkConsumerValue(final Consumer<T> action) {
-    return v -> fork(action, v);
+    return v -> fork(v, action);
   }
 
   @Override

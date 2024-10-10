@@ -125,7 +125,7 @@ public class ThreadFactoryEx
   }
 
   @Override
-  public <V> void forEach(final Consumer<? super V> action, final ForEachHandler<V> forEach) {
+  public <V> void forEach(final ForEachHandler<V> forEach, final Consumer<? super V> action) {
     this.scope(scope -> forEach.forEach(scope.forkConsumerValue(action)));
   }
 
