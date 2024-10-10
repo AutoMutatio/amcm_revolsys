@@ -113,7 +113,9 @@ public final class LambdaStructuredTaskScope<V> extends StructuredTaskScopeEx<V>
         switch (subtask.state()) {
           case FAILED -> {
             final var throwable = subtask.exception();
-            this.errorAction.accept(throwable);
+            if (this.errorAction != null) {
+              this.errorAction.accept(throwable);
+            }
             if (this.throwErrors) {
               this.exceptions.add(throwable);
             }

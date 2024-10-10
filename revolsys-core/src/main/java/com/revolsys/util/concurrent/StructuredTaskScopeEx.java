@@ -18,6 +18,9 @@ import com.revolsys.collection.list.ListEx;
 import com.revolsys.collection.list.Lists;
 import com.revolsys.exception.Exceptions;
 import com.revolsys.parallel.ReentrantLockEx;
+import com.revolsys.parallel.channel.Channel;
+import com.revolsys.parallel.channel.ChannelOutput;
+import com.revolsys.parallel.channel.store.Buffer;
 import com.revolsys.util.Cancellable;
 
 public class StructuredTaskScopeEx<V> extends StructuredTaskScope<V>
@@ -46,6 +49,42 @@ public class StructuredTaskScopeEx<V> extends StructuredTaskScope<V>
       this.cancelled = true;
       this.done.signal();
     }
+  }
+
+  /**
+   * <pre>
+   * scope.channelSupplierWorker(
+   *   (channel) -> {
+   *     var values = ...;
+   *     values.forEach(channel::write);
+   *   },
+   *   (value) -> {
+   *     scope.fork(()->{
+   *       // Perform task on value
+   *     });
+   *   }
+   * );
+   * </pre>
+   * @param <T>
+   * @param bufferSize
+   * @param source
+   * @param inputHandler
+   */
+  public <T> void channelSupplierWorker(final int bufferSize,
+    final Consumer<ChannelOutput<T>> source, final Consumer<T> inputHandler) {
+    final var channel = new Channel<T>(new Buffer<>(bufferSize));
+    run(() -> {
+      try (
+        var read = channel.writeConnect()) {
+        source.accept(channel);
+      }
+    }, () -> {
+      try (
+        final var write = channel.readConnect()) {
+        channel.forEach(value -> inputHandler.accept(value));
+      }
+    });
+
   }
 
   private void done() {
@@ -105,14 +144,16 @@ public class StructuredTaskScopeEx<V> extends StructuredTaskScope<V>
   public <T> void fork(final Semaphore semaphore, final Consumer<? super T> action,
     final Iterable<T> values) {
     if (values != null) {
-      fork(semaphore, action, values::forEach);
+      final ForEachHandler<T> handler = values::forEach;
+      fork(semaphore, action, handler);
     }
   }
 
   public <T> void fork(final Semaphore semaphore, final Consumer<? super T> action,
     final Stream<T> values) {
     if (values != null) {
-      fork(semaphore, action, values::forEach);
+      final ForEachHandler<T> handler = values::forEach;
+      fork(semaphore, action, handler);
     }
   }
 
@@ -195,6 +236,18 @@ public class StructuredTaskScopeEx<V> extends StructuredTaskScope<V>
   public void run(final ForEachHandler<Runnable> forEach) {
     final Consumer<Runnable> forkAction = this::run;
     forEach.forEach(forkAction);
+  }
+
+  /**
+   * Use the @{link {@link #run(Runnable)} method to for a subtask
+   *
+   * @param forEach The handler that loops through
+   * @see RunableMethods
+   */
+  public void run(final Runnable... tasks) {
+    for (final Runnable task : tasks) {
+      run(task);
+    }
   }
 
   /**

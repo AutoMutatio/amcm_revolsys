@@ -1,9 +1,14 @@
 package com.revolsys.util.concurrent;
 
-import java.lang.Thread.Builder;
+import java.lang.management.ThreadInfo;
+import java.lang.ref.Reference;
+import java.lang.ref.ReferenceQueue;
+import java.lang.ref.WeakReference;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -16,17 +21,76 @@ import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import com.revolsys.collection.iterator.BaseIterable;
 import com.revolsys.collection.iterator.ForEachHandler;
 import com.revolsys.collection.iterator.ForEachMethods;
+import com.revolsys.collection.iterator.Iterables;
 import com.revolsys.collection.iterator.RunableMethods;
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.json.Jsonable;
+import com.revolsys.collection.list.Lists;
+import com.revolsys.collection.set.Sets;
 import com.revolsys.parallel.SemaphoreEx;
 
 public class ThreadFactoryEx
-  implements ThreadFactory, ForEachMethods, RunableMethods, ExecutorService {
+  implements ThreadFactory, ForEachMethods, RunableMethods, ExecutorService, Jsonable {
+  private static final Set<Reference<ThreadFactoryEx>> FACTORIES = ConcurrentHashMap.newKeySet();
 
-  public static ThreadFactoryEx builder(final Builder builder) {
-    final var factory = builder.factory();
-    return new ThreadFactoryEx(factory);
+  private static final ReferenceQueue<ThreadFactoryEx> FACTORY_QUEUE = new ReferenceQueue<>();
+
+  private static final Set<String> ignoreThreadNames = Sets
+    .newHash(Lists.newArray("JDWP Transport Listener: dt_socket", "JDWP Event Helper Thread",
+      "JDWP Command Reader", "RMI TCP Accept-59634", "RMI TCP Accept-0", "Live Reload Server",
+      "DestroyJavaVM", "Reference Handler", "Finalizer"));
+
+  private static void cleanupReferences() {
+    for (var ref = FACTORY_QUEUE.poll(); ref != null; ref = FACTORY_QUEUE.poll()) {
+      FACTORIES.remove(ref);
+    }
+  }
+
+  public static BaseIterable<ThreadFactoryEx> factories() {
+    return Iterables.fromIterable(FACTORIES)
+      .map(Reference::get)
+      .filter(f -> f != null);
+  }
+
+  public static boolean hideThread(final Thread t) {
+    final var stackTrace = t.getStackTrace();
+    if (stackTrace.length == 0) {
+      return false;
+    } else if (stackTrace[0].toString()
+      .contains("jdk.internal.misc.Unsafe.park")) {
+      return false;
+    } else if (t.getName()
+      .startsWith("RMI TCP ")) {
+      return false;
+    } else if (t.getName()
+      .startsWith("JMX ")) {
+      return false;
+    } else if (ignoreThreadNames.contains(t.getName())) {
+      return false;
+    }
+    return true;
+  }
+
+  public static boolean hideThread(final ThreadInfo t) {
+    final var stackTrace = t.getStackTrace();
+    if (stackTrace.length == 0) {
+      return false;
+    } else if (stackTrace[0].toString()
+      .startsWith("java.base@21/jdk.internal.misc.Unsafe.park")) {
+      return false;
+    } else if (t.getThreadName()
+      .startsWith("RMI TCP ")) {
+      return false;
+    } else if (t.getThreadName()
+      .startsWith("JMX ")) {
+      return false;
+    } else if (ignoreThreadNames.contains(t.getThreadName())) {
+      return false;
+    }
+    return true;
   }
 
   private final ThreadFactory factory;
@@ -35,14 +99,18 @@ public class ThreadFactoryEx
 
   private final ExecutorService executorService;
 
-  public ThreadFactoryEx(final String name, final ThreadFactory factory) {
+  private final Set<Thread> threads = ConcurrentHashMap.newKeySet();
+
+  ThreadFactoryEx(final String name, final ThreadFactory factory) {
     this(factory);
     this.name = name;
   }
 
-  public ThreadFactoryEx(final ThreadFactory factory) {
+  ThreadFactoryEx(final ThreadFactory factory) {
     this.factory = factory;
     this.executorService = Executors.newThreadPerTaskExecutor(this);
+    FACTORIES.add(new WeakReference<ThreadFactoryEx>(this, FACTORY_QUEUE));
+    cleanupReferences();
   }
 
   @Override
@@ -59,6 +127,10 @@ public class ThreadFactoryEx
   @Override
   public <V> void forEach(final Consumer<? super V> action, final ForEachHandler<V> forEach) {
     this.scope(scope -> forEach.forEach(scope.forkConsumerValue(action)));
+  }
+
+  public boolean hasThreads() {
+    return !this.threads.isEmpty();
   }
 
   @Override
@@ -113,7 +185,21 @@ public class ThreadFactoryEx
 
   @Override
   public Thread newThread(final Runnable r) {
-    return this.factory.newThread(r);
+    final var thread = this.factory.newThread(() -> {
+      try {
+        r.run();
+      } finally {
+        final var removeThread = Thread.currentThread();
+        this.threads.remove(removeThread);
+        // System.out.println("finish\t" + this.name + "\t" +
+        // this.threads.size());
+      }
+    });
+    this.threads.add(thread);
+    // System.out.println("start\t" + this.name + "\t" + this.threads.size());
+
+    thread.setUncaughtExceptionHandler(null);
+    return thread;
   }
 
   public ExecutorService newThreadPerTaskExecutor() {
@@ -130,28 +216,28 @@ public class ThreadFactoryEx
   }
 
   public <V> void scope(final Consumer<StructuredTaskScopeEx<V>> action) {
-    new LambdaStructuredTaskScope.Builder<V>(this.name, this.factory).throwErrors()
+    new LambdaStructuredTaskScope.Builder<V>(this.name, this).throwErrors()
       .join(action);
   }
 
   public <V> void scope(final String name, final Consumer<StructuredTaskScopeEx<V>> action) {
-    new LambdaStructuredTaskScope.Builder<V>(name, this.factory).throwErrors()
+    new LambdaStructuredTaskScope.Builder<V>(name, this).throwErrors()
       .join(action);
   }
 
   public <V> V scope(final String name, final Function<StructuredTaskScopeEx<V>, V> action) {
-    return new LambdaStructuredTaskScope.Builder<V>(name, this.factory).throwErrors()
+    return new LambdaStructuredTaskScope.Builder<V>(name, this).throwErrors()
       .join(action);
   }
 
   public <V> void scopeBuild(final String name,
     final Consumer<LambdaStructuredTaskScope.Builder<V>> action) {
-    action.accept(new LambdaStructuredTaskScope.Builder<V>(name, this.factory));
+    action.accept(new LambdaStructuredTaskScope.Builder<V>(name, this));
   }
 
   public <V> V scopeBuild(final String name,
     final Function<LambdaStructuredTaskScope.Builder<V>, V> action) {
-    return action.apply(new LambdaStructuredTaskScope.Builder<V>(name, this.factory));
+    return action.apply(new LambdaStructuredTaskScope.Builder<V>(name, this));
   }
 
   public SemaphoreScope semaphore(final int permits) {
@@ -183,6 +269,14 @@ public class ThreadFactoryEx
     return this.executorService.submit(task);
   }
 
+  public Future<?> submit(final Consumer<ThreadFactoryEx> action) {
+    return submit(() -> action.accept(this));
+  }
+
+  public <V> Future<V> submit(final Function<ThreadFactoryEx, V> action) {
+    return submit(() -> action.apply(this));
+  }
+
   @Override
   public Future<?> submit(final Runnable task) {
     return this.executorService.submit(task);
@@ -191,6 +285,46 @@ public class ThreadFactoryEx
   @Override
   public <T> Future<T> submit(final Runnable task, final T result) {
     return this.executorService.submit(task, result);
+  }
+
+  @Override
+  public JsonObject toJson() {
+    final var json = JsonObject.hash()
+      .addValue("name", this.name)
+      .addValue("threads", Iterables.fromIterable(this.threads)
+        .filter(ThreadFactoryEx::hideThread)
+        .map(this::toJson)
+        .toList());
+    json.removeEmptyProperties();
+    return json;
+  }
+
+  public JsonObject toJson(final Thread thread) {
+    final var json = JsonObject.hash()
+      .addValue("id", thread.threadId())
+      .addValue("name", thread.getName())
+      .addValue("priority", thread.getPriority())
+      .addNotEmpty("alive", thread.isAlive());
+
+    final boolean daemon = thread.isDaemon();
+    if (daemon) {
+      json.addValue("daemon", daemon);
+    }
+    final boolean virtual = thread.isVirtual();
+    if (virtual) {
+      json.addValue("virtual", virtual);
+    }
+    final boolean interrupted = thread.isInterrupted();
+    if (interrupted) {
+      json.addValue("interrupted", interrupted);
+    }
+
+    final var stackTraceArray = thread.getStackTrace();
+    final var stackTrace = Lists.newArray(stackTraceArray);
+
+    json.addNotEmpty("stackTrace", stackTrace);
+    json.removeEmptyProperties();
+    return json;
   }
 
   @Override
