@@ -795,4 +795,13 @@ public interface Strings {
       return text.toUpperCase();
     }
   }
+
+  static String replaceNullCharacters(final String string) {
+    if (string == null) {
+      return null;
+    } else {
+      return string.replace("\u0000", "")
+        .stripTrailing();
+    }
+  }
 }
