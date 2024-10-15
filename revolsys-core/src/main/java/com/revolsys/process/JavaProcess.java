@@ -13,6 +13,7 @@ import com.revolsys.collection.list.Lists;
 import com.revolsys.exception.Exceptions;
 import com.revolsys.io.FileUtil;
 import com.revolsys.logging.Logs;
+import com.revolsys.util.concurrent.Concurrent;
 
 public final class JavaProcess implements Runnable {
   private List<String> javaArguments = new ArrayList<>();
@@ -201,9 +202,8 @@ public final class JavaProcess implements Runnable {
       Logs.error(this, "programClass cannot be null");
       return null;
     } else {
-      final Thread thread = new Thread(this, this.programClass.getName());
-      thread.start();
-      return thread;
+      return Concurrent.virtual(this.programClass.getName())
+        .start(this);
     }
   }
 

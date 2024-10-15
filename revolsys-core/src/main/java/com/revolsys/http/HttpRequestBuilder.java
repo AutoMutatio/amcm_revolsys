@@ -16,7 +16,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.concurrent.Executors;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -76,6 +75,7 @@ import com.revolsys.net.http.ApacheEntityInputStream;
 import com.revolsys.net.http.ApacheHttpException;
 import com.revolsys.util.BaseCloseable;
 import com.revolsys.util.UriBuilder;
+import com.revolsys.util.concurrent.Concurrent;
 
 public class HttpRequestBuilder {
 
@@ -232,7 +232,8 @@ public class HttpRequestBuilder {
     return HttpClient.newBuilder()
       .connectTimeout(Duration.ofMillis(CONNECT_TIMEOUT))
       .followRedirects(Redirect.NORMAL)
-      .executor(Executors.newVirtualThreadPerTaskExecutor())
+      .executor(Concurrent.virtual("HttpClient")
+        .newThreadPerTaskExecutor())
       .build();
   }
 

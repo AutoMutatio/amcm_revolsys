@@ -77,7 +77,7 @@ public interface Exceptions {
   static boolean isInterruptException(final Throwable e) {
     if (hasCause(e, InterruptedException.class) || hasCause(e, InterruptedIOException.class)
       || hasCause(e, ClosedByInterruptException.class)
-      || hasCause(e, WrappedInterruptedException.class)) {
+      || hasCause(e, WrappedInterruptedException.class) || Thread.interrupted()) {
       return true;
     } else {
       final var ioe = getCause(e, IOException.class);

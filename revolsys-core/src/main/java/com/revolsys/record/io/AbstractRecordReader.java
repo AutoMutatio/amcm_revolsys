@@ -14,6 +14,7 @@ import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.io.PathName;
 import com.revolsys.record.Record;
 import com.revolsys.record.RecordFactory;
+import com.revolsys.record.RecordState;
 import com.revolsys.record.io.format.csv.GeometryFieldDefinition;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
@@ -220,6 +221,7 @@ public abstract class AbstractRecordReader extends AbstractIterator<Record>
    */
   protected Record parseRecord(final List<String> fieldNames, final List<String> values) {
     final Record record = this.recordFactory.newRecord(this.recordDefinition);
+    record.setState(RecordState.INITIALIZING);
     final int valueCount = values.size();
     final int fieldCount = fieldNames.size();
     final int count = Math.min(valueCount, fieldCount);
@@ -239,6 +241,7 @@ public abstract class AbstractRecordReader extends AbstractIterator<Record>
         record.setGeometryValue(geometry);
       }
     }
+    record.setState(RecordState.PERSISTED);
     return record;
   }
 

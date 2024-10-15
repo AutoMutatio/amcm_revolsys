@@ -97,7 +97,7 @@ public abstract class InsertUpdateBuilder<R extends Record> {
   * @param record The record to insert.
   * @return The record;
   */
-  protected Record insertRecord(final Record record) {
+  protected Record prepareInsertRecord(final Record record) {
     record.addValues(this.searchValues);
     this.insertAction.accept(record);
     this.commonAction.accept(record);
@@ -197,7 +197,7 @@ public abstract class InsertUpdateBuilder<R extends Record> {
    * @param record The record to insert.
    * @return The record;
    */
-  public Record updateRecord(final Record record) {
+  public Record prepareUpdateRecord(final Record record) {
     this.updateAction.accept(record);
     this.commonAction.accept(record);
     return record;

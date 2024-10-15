@@ -25,6 +25,7 @@ import com.revolsys.gis.postgresql.type.PostgreSQLBoundingBoxWrapper;
 import com.revolsys.gis.postgresql.type.PostgreSQLGeometryFieldAdder;
 import com.revolsys.gis.postgresql.type.PostgreSQLGeometryWrapper;
 import com.revolsys.gis.postgresql.type.PostgreSQLJdbcBlobFieldDefinition;
+import com.revolsys.gis.postgresql.type.PostgreSQLJdbcIntevalFieldDefinition;
 import com.revolsys.gis.postgresql.type.PostgreSQLJsonbFieldDefinition;
 import com.revolsys.gis.postgresql.type.PostgreSQLOidFieldDefinition;
 import com.revolsys.gis.postgresql.type.PostgreSQLTidWrapper;
@@ -262,6 +263,8 @@ public class PostgreSQLRecordStore extends AbstractJdbcRecordStore {
     addFieldAdder("date", new JdbcFieldAdder(DataTypes.DATE_TIME));
     addFieldAdder("timestamp", new JdbcFieldAdder(DataTypes.TIMESTAMP));
     addFieldAdder("timestamptz", new JdbcFieldAdder(DataTypes.TIMESTAMP));
+
+    addFieldAdder("interval", PostgreSQLJdbcIntevalFieldDefinition::new);
 
     addFieldAdder("bool", new JdbcFieldAdder(DataTypes.BOOLEAN));
 

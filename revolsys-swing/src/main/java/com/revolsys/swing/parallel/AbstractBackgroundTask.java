@@ -4,6 +4,7 @@ import javax.swing.SwingWorker.StateValue;
 
 import com.revolsys.logging.Logs;
 import com.revolsys.swing.menu.MenuFactory;
+import com.revolsys.util.concurrent.Concurrent;
 
 public abstract class AbstractBackgroundTask implements Runnable, BackgroundTask {
 
@@ -57,7 +58,7 @@ public abstract class AbstractBackgroundTask implements Runnable, BackgroundTask
   @Override
   public void run() {
     try {
-      this.taskThreadName = Thread.currentThread().getName();
+      this.taskThreadName = Concurrent.threadName();
       this.startTime = System.currentTimeMillis();
       this.taskStatus = StateValue.STARTED;
       BackgroundTaskManager.taskStatusChanged();
@@ -76,7 +77,7 @@ public abstract class AbstractBackgroundTask implements Runnable, BackgroundTask
 
   public void start() {
     BackgroundTaskManager.addTask(this);
-    final Thread thread = new Thread(this);
-    thread.start();
+    Concurrent.platform(this.taskThreadName)
+      .start(this);
   }
 }
