@@ -278,7 +278,7 @@ public abstract class Single<T> {
 
     @Override
     public String toString() {
-      return null;
+      return Objects.toString(this.value);
     }
 
   }
