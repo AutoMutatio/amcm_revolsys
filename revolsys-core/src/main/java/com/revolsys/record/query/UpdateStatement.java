@@ -5,43 +5,28 @@ import java.util.function.Consumer;
 
 import com.revolsys.collection.list.ArrayListEx;
 import com.revolsys.collection.list.ListEx;
+import com.revolsys.collection.list.Lists;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordDefinitionProxy;
 import com.revolsys.record.schema.RecordStore;
 
 public class UpdateStatement implements RecordDefinitionProxy {
-  private record UpdateSetClause(ColumnReference column, QueryValue value) {
+  private final ListEx<From> fromClauses = Lists.newArray();
 
-    public void appendSql(final UpdateStatement update, final SqlAppendable sql) {
-      this.column.appendColumnName(sql);
-      sql.append(" = ");
-      if (this.value == null) {
-        sql.append("null");
-      } else {
-        this.value.appendSql(null, update.getRecordStore(), sql);
-      }
-    }
-
-    public int appendParameters(int index, final PreparedStatement statement) {
-      index = this.column.appendParameters(index, statement);
-      if (this.value != null) {
-        index = this.value.appendParameters(index, statement);
-      }
-      return index;
-    }
-  }
+  private final ListEx<SetClause> setClauses = new ArrayListEx<>();
 
   private TableReference table;
 
-  private final ListEx<UpdateSetClause> setClauses = new ArrayListEx<>();
+  private Condition where = Condition.ALL;
 
-  private Condition where;
+  private final ListEx<With> withClauses = Lists.newArray();
 
   public int appendParameters(int index, final PreparedStatement statement) {
-    for (final UpdateSetClause set : this.setClauses) {
-      index = set.appendParameters(index, statement);
+    index = SqlAppendParameters.appendParameters(statement, index, this.withClauses);
+    index = SqlAppendParameters.appendParameters(statement, index, this.setClauses);
+    for (final var set : this.fromClauses) {
+      index = set.appendFromParameters(index, statement);
     }
-
     final Condition where = getWhere();
     if (!where.isEmpty()) {
       index = where.appendParameters(index, statement);
@@ -51,36 +36,44 @@ public class UpdateStatement implements RecordDefinitionProxy {
 
   public void appendSql(final SqlAppendable sql) {
     final RecordStore recordStore = getRecordStore();
+    if (!this.withClauses.isEmpty()) {
+      sql.append("WITH ");
+      boolean first = true;
+      for (final var with : this.withClauses) {
+        if (first) {
+          first = false;
+        } else {
+          sql.append(", ");
+        }
+        with.appendSql(sql);
+      }
+      sql.append(' ');
+    }
     sql.append("UPDATE ");
     this.table.appendFromWithAlias(sql);
 
-    sql.append(" SET ");
     if (this.setClauses.isEmpty()) {
       throw new IllegalStateException("Update statement must set at least one value");
     }
-    boolean first = true;
-    for (final UpdateSetClause set : this.setClauses) {
-      if (first) {
-        first = false;
-      } else {
-        sql.append(", ");
+    SetClause.appendSet(sql, recordStore, this.setClauses);
+    if (!this.fromClauses.isEmpty()) {
+      sql.append(" FROM  ");
+      boolean first = true;
+      for (final var from : this.fromClauses) {
+        if (first) {
+          first = false;
+        } else {
+          sql.append(", ");
+        }
+        from.appendFrom(sql);
       }
-      set.appendSql(this, sql);
+      sql.append(' ');
     }
     final Condition where = this.where;
     if (where != null && !where.isEmpty()) {
       sql.append(" WHERE  ");
       where.appendSql(null, recordStore, sql);
     }
-  }
-
-  public UpdateStatement from(final TableReference from) {
-    this.table = from;
-    return this;
-  }
-
-  public TableReference getFrom() {
-    return this.table;
   }
 
   @Override
@@ -117,7 +110,7 @@ public class UpdateStatement implements RecordDefinitionProxy {
   }
 
   public UpdateStatement set(final ColumnReference column, final QueryValue value) {
-    this.setClauses.add(new UpdateSetClause(column, value));
+    this.setClauses.add(new SetClause(column, value));
     return this;
   }
 
@@ -127,6 +120,15 @@ public class UpdateStatement implements RecordDefinitionProxy {
 
   public UpdateStatement setNull(final ColumnReference column) {
     return set(column, null);
+  }
+
+  public TableReference table() {
+    return this.table;
+  }
+
+  public UpdateStatement table(final TableReference from) {
+    this.table = from;
+    return this;
   }
 
   public String toSql() {
@@ -153,8 +155,8 @@ public class UpdateStatement implements RecordDefinitionProxy {
   }
 
   public UpdateStatement where(final Consumer<WhereConditionBuilder> action) {
-    final WhereConditionBuilder builder = new WhereConditionBuilder(getFrom());
-    this.where = builder.build(action);
+    final var table = table();
+    this.where = new WhereConditionBuilder(table, this.where).build(action);
     return this;
   }
 
@@ -171,6 +173,14 @@ public class UpdateStatement implements RecordDefinitionProxy {
       }
       this.where = new Equal(left, right);
     }
+    return this;
+  }
+
+  public UpdateStatement with(final Consumer<With> action) {
+    final var with = new With();
+    this.withClauses.add(with);
+    this.fromClauses.add(with);
+    action.accept(with);
     return this;
   }
 

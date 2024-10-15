@@ -1,17 +1,19 @@
 package com.revolsys.record.query;
 
 import java.sql.PreparedStatement;
+import java.util.function.Consumer;
 
 import com.revolsys.collection.list.ArrayListEx;
 import com.revolsys.collection.list.ListEx;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordDefinitionProxy;
-import com.revolsys.record.schema.RecordStore;
 
 public class InsertStatement implements RecordDefinitionProxy {
   private TableReference table;
 
   private final ListEx<String> columnNames = new ArrayListEx<>();
+
+  private Conflict conflict;
 
   public int appendParameters(final int index, final PreparedStatement statement) {
 
@@ -19,14 +21,24 @@ public class InsertStatement implements RecordDefinitionProxy {
   }
 
   public void appendSql(final SqlAppendable sql) {
-    final RecordStore recordStore = getRecordStore();
     sql.append("INSERT INTO ");
     this.table.appendFromWithAlias(sql);
+    // TODO columns, overriding, dfault values |vaues
+
+    if (this.conflict != null) {
+      this.conflict.appendSql(sql);
+    }
 
   }
 
   public InsertStatement column(final String name) {
     this.columnNames.add(name);
+    return this;
+  }
+
+  public InsertStatement conflict(final Consumer<Conflict> action) {
+    this.conflict = new Conflict(this);
+    action.accept(this.conflict);
     return this;
   }
 

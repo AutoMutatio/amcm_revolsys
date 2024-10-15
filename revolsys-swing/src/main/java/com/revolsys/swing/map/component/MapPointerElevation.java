@@ -14,6 +14,7 @@ import javax.swing.border.BevelBorder;
 import com.revolsys.geometry.model.Point;
 import com.revolsys.logging.Logs;
 import com.revolsys.number.Doubles;
+import com.revolsys.parallel.ReentrantLockEx;
 import com.revolsys.parallel.channel.Channel;
 import com.revolsys.parallel.channel.store.Overwrite;
 import com.revolsys.swing.map.MapPanel;
@@ -21,6 +22,7 @@ import com.revolsys.swing.map.Viewport2D;
 import com.revolsys.swing.map.layer.Project;
 import com.revolsys.swing.map.layer.elevation.ElevationModelLayer;
 import com.revolsys.swing.parallel.Invoke;
+import com.revolsys.util.concurrent.Concurrent;
 
 public class MapPointerElevation extends JLabel implements MouseMotionListener {
 
@@ -34,7 +36,7 @@ public class MapPointerElevation extends JLabel implements MouseMotionListener {
 
   private List<ElevationModelLayer> layers = Collections.emptyList();
 
-  private final Object layerSync = new Object();
+  private final ReentrantLockEx layerLock = new ReentrantLockEx();
 
   private int lastX = -1;
 
@@ -43,7 +45,8 @@ public class MapPointerElevation extends JLabel implements MouseMotionListener {
   public MapPointerElevation(final MapPanel map) {
     this.project = map.getProject();
     this.viewport = map.getViewport();
-    map.getMouseOverlay().addMouseMotionListener(this);
+    map.getMouseOverlay()
+      .addMouseMotionListener(this);
     setBorder(
       BorderFactory.createCompoundBorder(BorderFactory.createBevelBorder(BevelBorder.LOWERED),
         BorderFactory.createEmptyBorder(2, 3, 2, 3)));
@@ -53,54 +56,56 @@ public class MapPointerElevation extends JLabel implements MouseMotionListener {
     setPreferredSize(new Dimension(100, height));
     setVisible(false);
     final PropertyChangeListener listener = e -> {
-      synchronized (this.layerSync) {
+      try (
+        var lock = this.layerLock.lockX()) {
         this.layers = null;
       }
     };
     this.project.addPropertyChangeListener("layers", listener);
     this.project.addPropertyChangeListener("visible", listener);
-    final Thread thread = new Thread(() -> {
-      while (true) {
-        try {
+    Concurrent.virtual("MapGetElevation")
+      .start(() -> {
+        while (true) {
+          try {
 
-          final Point point = this.refreshChannel.read();
-          if (point == null) {
-            return;
-          } else {
-            final List<ElevationModelLayer> layers = getLayers();
-            if (!layers.isEmpty()) {
+            final Point point = this.refreshChannel.read();
+            if (point == null) {
+              return;
+            } else {
+              final List<ElevationModelLayer> layers = getLayers();
+              if (!layers.isEmpty()) {
 
-              final double elevation = ElevationModelLayer.getElevation(layers, point);
-              Invoke.later(() -> {
-                synchronized (this.layerSync) {
-                  if (Double.isFinite(elevation) && !getLayers().isEmpty()) {
-                    setVisible(true);
-                    final String text = Doubles.toString(Doubles.makePrecise(1000, elevation));
-                    setText(text);
-                  } else {
-                    setVisible(false);
+                final double elevation = ElevationModelLayer.getElevation(layers, point);
+                Invoke.later(() -> {
+                  try (
+                    var lock = this.layerLock.lockX()) {
+                    if (Double.isFinite(elevation) && !getLayers().isEmpty()) {
+                      setVisible(true);
+                      final String text = Doubles.toString(Doubles.makePrecise(1000, elevation));
+                      setText(text);
+                    } else {
+                      setVisible(false);
+                    }
                   }
-                }
-              });
+                });
+              }
             }
+          } catch (final Throwable e) {
+            Logs.error(this, e);
           }
-        } catch (final Throwable e) {
-          Logs.error(this, e);
         }
-      }
-    }, "map-get-elevation");
-    thread.setDaemon(true);
-    thread.start();
+      });
   }
 
   private List<ElevationModelLayer> getLayers() {
     if (this.layers == null) {
-      synchronized (this.layerSync) {
+      try (
+        var lock = this.layerLock.lockX()) {
         if (this.layers == null) {
           final double scale = this.viewport.getScale();
           this.layers = ElevationModelLayer.getVisibleLayers(this.project, scale);
           final boolean hasLayers = !this.layers.isEmpty();
-          Invoke.later(() -> this.setVisible(hasLayers));
+          Invoke.later(() -> setVisible(hasLayers));
         }
       }
     }

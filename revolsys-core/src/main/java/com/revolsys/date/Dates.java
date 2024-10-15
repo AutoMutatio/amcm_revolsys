@@ -121,6 +121,10 @@ public interface Dates {
     return endTime;
   }
 
+  public static Duration durationSince(final Instant start) {
+    return Duration.between(start, Instant.now());
+  }
+
   static boolean equalsNotNull(final Object date1, final Object date2) {
     return ((Date)date1).compareTo((Date)date2) == 0;
   }

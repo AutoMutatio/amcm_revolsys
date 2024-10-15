@@ -52,7 +52,7 @@ import com.revolsys.util.Property;
 import com.revolsys.util.count.LabelCounters;
 
 public class Query extends BaseObjectWithProperties implements Cloneable, CancellableProxy,
-  Transactionable, QueryValue, TableReferenceProxy, Lambdaable<Query> {
+  Transactionable, QueryValue, TableReferenceProxy, Lambdaable<Query>, From {
 
   private static void addFilter(final Query query, final RecordDefinition recordDefinition,
     final Map<String, ?> filter, final AbstractMultiCondition multipleCondition) {
@@ -458,6 +458,11 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     appendSql(sql);
   }
 
+  @Override
+  public void appendFrom(final SqlAppendable string) {
+    this.from.appendFrom(string);
+  }
+
   public SqlAppendable appendOrderByFields(final SqlAppendable sql, final TableReferenceProxy table,
     final List<OrderBy> orderBy) {
     boolean first = true;
@@ -659,7 +664,7 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     return this.fetchSize;
   }
 
-  public Query fetchSize(int fetchSize) {
+  public Query fetchSize(final int fetchSize) {
     this.fetchSize = fetchSize;
     return this;
   }

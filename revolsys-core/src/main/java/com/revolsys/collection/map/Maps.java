@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
@@ -24,6 +25,7 @@ import com.revolsys.data.type.DataType;
 import com.revolsys.data.type.DataTypes;
 import com.revolsys.util.BaseCloneable;
 import com.revolsys.util.Property;
+import com.revolsys.util.Strings;
 
 public interface Maps {
   public static final Supplier<Map<?, ?>> FACTORY_TREE = TreeMap::new;
@@ -976,6 +978,31 @@ public interface Maps {
         }
       }
       return map;
+    }
+  }
+
+  static void replaceNullCharacters(final MapEx sourceData) {
+    for (final var key : sourceData.keySet()) {
+      final Object value = sourceData.get(key);
+      if (value instanceof final MapEx map) {
+        replaceNullCharacters(map);
+      } else if (value instanceof final List list) {
+        for (@SuppressWarnings("unchecked")
+        final ListIterator<Object> iterator = list.listIterator(); iterator.hasNext();) {
+          final Object listItem = iterator.next();
+          if (listItem instanceof final String string) {
+            final var replaced = Strings.replaceNullCharacters(string);
+            if (replaced.length() != string.length()) {
+              iterator.set(replaced);
+            }
+          }
+        }
+      } else if (value instanceof final String string) {
+        final var replaced = Strings.replaceNullCharacters(string);
+        if (replaced.length() != string.length()) {
+          sourceData.addValue(key, value);
+        }
+      }
     }
   }
 }

@@ -8,6 +8,8 @@ import java.util.jar.Attributes;
 import java.util.jar.Attributes.Name;
 import java.util.jar.Manifest;
 
+import com.revolsys.util.concurrent.Concurrent;
+
 public class ManifestUtil {
 
   public static String getImplementationVersion(final String implementationTitle) {
@@ -19,7 +21,8 @@ public class ManifestUtil {
     final Name name, final String defaultValue) {
     final Manifest manifest = getManifestByImplementationTitle(implementationTitle);
     if (manifest != null) {
-      return manifest.getMainAttributes().getValue(name);
+      return manifest.getMainAttributes()
+        .getValue(name);
     } else {
       return defaultValue;
     }
@@ -29,7 +32,8 @@ public class ManifestUtil {
     final String name, final String defaultValue) {
     final Manifest manifest = getManifestByImplementationTitle(implementationTitle);
     if (manifest != null) {
-      return manifest.getMainAttributes().getValue(name);
+      return manifest.getMainAttributes()
+        .getValue(name);
     } else {
       return defaultValue;
     }
@@ -37,8 +41,7 @@ public class ManifestUtil {
 
   public static Manifest getManifestByImplementationTitle(final String implementationTitle) {
     try {
-      final Enumeration<URL> resources = Thread.currentThread()
-        .getContextClassLoader()
+      final Enumeration<URL> resources = Concurrent.contextClassLoader()
         .getResources("META-INF/MANIFEST.MF");
       while (resources.hasMoreElements()) {
         final URL url = resources.nextElement();
