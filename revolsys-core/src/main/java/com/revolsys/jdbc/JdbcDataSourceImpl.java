@@ -87,8 +87,12 @@ public class JdbcDataSourceImpl extends JdbcDataSource implements BaseCloseable 
 
     public boolean isClosed() {
       try {
-        return this.state.get() == ConnectionEntryState.CLOSED
-          || this.connection != null && !this.connection.isClosed();
+        if (this.state.get() == ConnectionEntryState.CLOSED) {
+          return true;
+        } else if (this.connection != null && this.connection.isClosed()) {
+          return true;
+        }
+        return false;
       } catch (final SQLException e) {
         return true;
       }
@@ -129,7 +133,8 @@ public class JdbcDataSourceImpl extends JdbcDataSource implements BaseCloseable 
           throw e;
         } finally {
           try {
-            if (isExpired(this.returnedInstant.toEpochMilli()) || !canIdle()) {
+            final var returnedMillis = this.returnedInstant.toEpochMilli();
+            if (isExpired(returnedMillis) || !canIdle()) {
               close();
             } else if (dataSource.isClosed()) {
               close();
