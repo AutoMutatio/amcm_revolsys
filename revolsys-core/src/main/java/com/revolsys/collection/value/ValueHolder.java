@@ -71,8 +71,9 @@ public interface ValueHolder<T> extends Emptyable, Supplier<T> {
     return getValue();
   }
 
-  default T getOrDefault(final Supplier<? extends T> supplier) {
-    return getValue();
+  @SuppressWarnings("unchecked")
+  default <R extends T> R getOrDefault(final Supplier<R> supplier) {
+    return (R)getValue();
   }
 
   default T getOrDefault(final T other) {
@@ -101,6 +102,10 @@ public interface ValueHolder<T> extends Emptyable, Supplier<T> {
   @Override
   default boolean isEmpty() {
     return getValue() == null;
+  }
+
+  default boolean isExpired() {
+    return false;
   }
 
   default boolean isPresent() {

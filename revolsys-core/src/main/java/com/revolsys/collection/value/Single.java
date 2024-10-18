@@ -1,5 +1,7 @@
 package com.revolsys.collection.value;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
@@ -9,7 +11,7 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-public abstract class Single<T> {
+public abstract class Single<T> implements ValueHolder<T> {
   private static class SingleEmpty<V> extends Single<V> {
 
     @Override
@@ -23,13 +25,18 @@ public abstract class Single<T> {
     }
 
     @Override
-    public <R> R getOrDefault(final Supplier<R> supplier) {
+    public <R extends V> R getOrDefault(final Supplier<R> supplier) {
       return supplier.get();
     }
 
     @Override
     public V getOrDefault(final V other) {
       return other;
+    }
+
+    @Override
+    public V getOrNull() {
+      return null;
     }
 
     @Override
@@ -137,6 +144,19 @@ public abstract class Single<T> {
 
   }
 
+  private static class SingleEmptyExpiry<V> extends SingleEmpty<V> {
+    private final long expireTime;
+
+    public SingleEmptyExpiry(final long expireTime) {
+      this.expireTime = expireTime;
+    }
+
+    @Override
+    public boolean isExpired() {
+      return System.currentTimeMillis() >= this.expireTime;
+    }
+  }
+
   private static class SingleValue<V> extends Single<V> {
 
     private final V value;
@@ -166,12 +186,17 @@ public abstract class Single<T> {
 
     @SuppressWarnings("unchecked")
     @Override
-    public <R> R getOrDefault(final Supplier<R> supplier) {
+    public <R extends V> R getOrDefault(final Supplier<R> supplier) {
       return (R)this.value;
     }
 
     @Override
     public V getOrDefault(final V other) {
+      return this.value;
+    }
+
+    @Override
+    public V getOrNull() {
       return this.value;
     }
 
@@ -290,6 +315,17 @@ public abstract class Single<T> {
     return (Single<T>)EMPTY;
   }
 
+  public static <T> Single<T> emptyExpiry(final Duration duration) {
+    final var instant = Instant.now()
+      .plus(duration);
+    return emptyExpiry(instant);
+  }
+
+  public static <T> Single<T> emptyExpiry(final Instant instant) {
+    final var millis = instant.toEpochMilli();
+    return new SingleEmptyExpiry<T>(millis);
+  }
+
   public static <T> Single<T> of(final T value) {
     if (value == null) {
       throw new NullPointerException("A Single value must not be null");
@@ -309,40 +345,65 @@ public abstract class Single<T> {
   private Single() {
   }
 
+  @Override
   public Single<T> filter(final Predicate<? super T> predicate) {
     return this;
   }
 
+  @Override
   public abstract T get();
 
-  public abstract <R> R getOrDefault(final Supplier<R> supplier);
+  @Override
+  public abstract <R extends T> R getOrDefault(final Supplier<R> supplier);
 
+  @Override
   public abstract T getOrDefault(final T other);
 
+  public abstract T getOrNull();
+
+  @Override
   public abstract T getOrThrow();
 
+  @Override
   public abstract <X extends Throwable> T getOrThrow(final Supplier<? extends X> exceptionSupplier)
     throws X;
 
+  @Override
+  public T getValue() {
+    return get();
+  }
+
+  @Override
   public void ifPresent(final Consumer<? super T> action) {
   }
 
+  @Override
   public abstract void ifPresentOrElse(final Consumer<? super T> action,
     final Runnable emptyAction);
 
+  @Override
   public abstract boolean isEmpty();
 
+  @Override
+  public boolean isExpired() {
+    return false;
+  }
+
+  @Override
   public boolean isPresent() {
     return false;
   }
 
+  @Override
   public abstract <U> Single<U> map(final Function<? super T, ? extends U> mapper);
 
   public abstract <U> Single<U> mapSingle(
     final Function<? super T, ? extends Single<? extends U>> mapper);
 
+  @Override
   public abstract Single<T> orDefault(final Supplier<? extends T> defaultValue);
 
+  @Override
   public abstract Single<T> orDefault(final T defaultValue);
 
   public abstract Single<T> orDefaultSingle(final Single<T> defaultValue);
@@ -350,17 +411,22 @@ public abstract class Single<T> {
   public abstract Single<T> orDefaultSingle(
     final Supplier<? extends Single<? extends T>> defaultValue);
 
+  @Override
   public abstract Single<T> orThrow();
 
+  @Override
   public abstract <X extends Throwable> Single<T> orThrow(
     final Supplier<? extends X> exceptionSupplier) throws X;
 
+  @Override
   public abstract Stream<T> stream();
 
+  @Override
   public Single<T> tap(final Consumer<? super T> action) {
     return this;
   }
 
+  @Override
   public abstract Optional<T> toOptional();
 
   @Override
