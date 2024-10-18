@@ -10,11 +10,11 @@ import com.revolsys.geometry.coordinatesystem.model.systems.EpsgId;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.logging.Logs;
-import com.revolsys.parallel.ExecutorServiceFactory;
 import com.revolsys.swing.map.layer.raster.AbstractTiledGeoreferencedImageLayer;
 import com.revolsys.swing.map.layer.tile.AbstractTiledLayerRenderer;
 import com.revolsys.swing.map.view.ViewRenderer;
 import com.revolsys.util.CaseConverter;
+import com.revolsys.util.concurrent.Concurrent;
 
 public class BingTiledLayer extends AbstractTiledGeoreferencedImageLayer<BingMapTile> {
   public static final GeometryFactory GEOMETRY_FACTORY = GeometryFactory.floating3d(EpsgId.WGS84);
@@ -124,7 +124,8 @@ public class BingTiledLayer extends AbstractTiledGeoreferencedImageLayer<BingMap
 
   public void setClient(final BingClient client) {
     this.client = client;
-    ExecutorServiceFactory.getExecutorService().execute(this::initialize);
+    Concurrent.virtual()
+      .execute(this::initialize);
   }
 
   public void setImagerySet(final ImagerySet imagerySet) {

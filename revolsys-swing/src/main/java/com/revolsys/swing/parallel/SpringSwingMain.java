@@ -29,6 +29,7 @@ import com.revolsys.swing.logging.ListLoggingAppender;
 import com.revolsys.swing.logging.LoggingEventPanel;
 import com.revolsys.util.Property;
 import com.revolsys.util.Strings;
+import com.revolsys.util.concurrent.Concurrent;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -41,11 +42,12 @@ public class SpringSwingMain implements UncaughtExceptionHandler {
 
   public static void start(final Class<? extends SpringSwingMain> appClass, final String... args) {
     final SpringApplicationBuilder builder = new SpringApplicationBuilder(appClass)
-        .web(WebApplicationType.NONE)
-        .headless(false);
+      .web(WebApplicationType.NONE)
+      .headless(false);
 
-    final var beanFactory = (GenericApplicationContext) builder.run(args);
-    beanFactory.getBean(appClass).run(beanFactory);
+    final var beanFactory = (GenericApplicationContext)builder.run(args);
+    beanFactory.getBean(appClass)
+      .run(beanFactory);
 
   }
 
@@ -90,10 +92,10 @@ public class SpringSwingMain implements UncaughtExceptionHandler {
   public void logError(final Throwable e) {
     try {
       final Instant timestamp = Instant.now();
-      final String threadName = Thread.currentThread().getName();
+      final String threadName = Concurrent.threadName();
       final String stackTrace = e.getMessage() + "\n" + Strings.toString("\n", e.getStackTrace());
       LoggingEventPanel.showDialog(timestamp, Level.ERROR, getClass().getName(),
-          "Unable to start application:" + e.getMessage(), threadName, stackTrace);
+        "Unable to start application:" + e.getMessage(), threadName, stackTrace);
     } finally {
       Logs.error(this, "Unable to start application " + this.name, e);
     }
@@ -109,27 +111,27 @@ public class SpringSwingMain implements UncaughtExceptionHandler {
   public final void run(final GenericApplicationContext beanFactory) {
     this.beanFactory = beanFactory;
     CompletableFuture//
-        .runAsync(this::preSwingInit)
+      .runAsync(this::preSwingInit)
 
-        .thenRunAsync(this::swingInitLookAndFeel, SwingUtil.EXECUTOR)
+      .thenRunAsync(this::swingInitLookAndFeel, SwingUtil.EXECUTOR)
 
-        .thenApplyAsync(this::appPreSwingInit)
+      .thenApplyAsync(this::appPreSwingInit)
 
-        .thenComposeAsync(startApp -> {
-          if (startApp) {
-            return CompletableFuture.runAsync(this::appSwingInit, SwingUtil.EXECUTOR);
-          } else {
-            return CompletableFuture.completedFuture(null);
-          }
-        })
+      .thenComposeAsync(startApp -> {
+        if (startApp) {
+          return CompletableFuture.runAsync(this::appSwingInit, SwingUtil.EXECUTOR);
+        } else {
+          return CompletableFuture.completedFuture(null);
+        }
+      })
 
-        .handle((v, e) -> {
-          if (e != null) {
-            Logs.error(this, e.getCause());
-          }
-          return v;
-        })
-        .join();
+      .handle((v, e) -> {
+        if (e != null) {
+          Logs.error(this, e.getCause());
+        }
+        return v;
+      })
+      .join();
   }
 
   public void setLookAndFeelName(final String lookAndFeelName) {
@@ -169,7 +171,8 @@ public class SpringSwingMain implements UncaughtExceptionHandler {
       }
       JFrame.setDefaultLookAndFeelDecorated(true);
       JDialog.setDefaultLookAndFeelDecorated(true);
-      ToolTipManager.sharedInstance().setInitialDelay(100);
+      ToolTipManager.sharedInstance()
+        .setInitialDelay(100);
     } catch (final Exception e) {
       Exceptions.throwCauseException(e);
     }
@@ -189,14 +192,15 @@ public class SpringSwingMain implements UncaughtExceptionHandler {
     Logs.error(logClass, message, e);
     final Logger rootLogger = LogbackUtil.getRootLogger();
     for (final Iterator<Appender<ILoggingEvent>> iterator = rootLogger
-        .iteratorForAppenders(); iterator.hasNext();) {
+      .iteratorForAppenders(); iterator.hasNext();) {
       final Appender<ILoggingEvent> appender = iterator.next();
       if (appender instanceof ListLoggingAppender) {
         return;
       }
     }
     final Logger logger = LogbackUtil.getLogger(logClass);
-    final String name = logger.getClass().getName();
+    final String name = logger.getClass()
+      .getName();
     final LoggingEvent event = new LoggingEvent();
     event.setLoggerName(name);
     event.setLevel(Level.INFO);

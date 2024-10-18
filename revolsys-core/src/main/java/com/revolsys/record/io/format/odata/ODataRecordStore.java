@@ -99,6 +99,7 @@ public class ODataRecordStore extends AbstractRecordStore {
     addUnaryFunction("tolower", Lower.class);
     addUnaryFunction("toupper", Upper.class);
     HANDLERS.put(Like.class, ODataRecordStore::addLike);
+    HANDLERS.put(SqlCondition.class, (s, c) -> s.append(((SqlCondition)c).getSql()));
     HANDLERS.put(ILike.class, ODataRecordStore::addILike);
     HANDLERS.put(Value.class, ODataRecordStore::addValue);
     HANDLERS.put(CollectionValue.class, ODataRecordStore::addCollectionValue);
