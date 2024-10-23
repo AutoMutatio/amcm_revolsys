@@ -572,6 +572,10 @@ public interface MapDefault<K, KA, V, M extends MapDefault<K, KA, V, M>>
     return size() == 0;
   }
 
+  default boolean isFalse(final KA name) {
+    return getBoolean(name, false) == false;
+  }
+
   default boolean isTrue(final KA name) {
     return getBoolean(name, false);
   }
