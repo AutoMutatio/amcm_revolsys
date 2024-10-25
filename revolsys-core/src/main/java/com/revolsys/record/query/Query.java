@@ -52,7 +52,7 @@ import com.revolsys.util.Property;
 import com.revolsys.util.count.LabelCounters;
 
 public class Query extends BaseObjectWithProperties implements Cloneable, CancellableProxy,
-  Transactionable, QueryValue, TableReferenceProxy, Lambdaable<Query> {
+  Transactionable, QueryValue, TableReferenceProxy, Lambdaable<Query>, From {
 
   private static void addFilter(final Query query, final RecordDefinition recordDefinition,
     final Map<String, ?> filter, final AbstractMultiCondition multipleCondition) {
@@ -169,6 +169,8 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     return query;
   }
 
+  private int fetchSize = 100;
+
   private List<Join> joins = new ArrayList<>();
 
   private boolean distinct = false;
@@ -244,15 +246,12 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
   }
 
   public Query addGroupBy(final Object groupByItem) {
-    if (groupByItem instanceof QueryValue) {
-      final QueryValue queryValue = (QueryValue)groupByItem;
+    if (groupByItem instanceof final QueryValue queryValue) {
       this.groupBy.add(queryValue);
-    } else if (groupByItem instanceof CharSequence) {
-      final CharSequence fieldName = (CharSequence)groupByItem;
+    } else if (groupByItem instanceof final CharSequence fieldName) {
       final ColumnReference column = this.table.getColumn(fieldName);
       this.groupBy.add(column);
-    } else if (groupByItem instanceof Integer) {
-      final Integer index = (Integer)groupByItem;
+    } else if (groupByItem instanceof final Integer index) {
       final ColumnIndex columnIndex = new ColumnIndex(index);
       this.groupBy.add(columnIndex);
     } else {
@@ -287,15 +286,13 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     QueryValue queryValue;
     if (field instanceof QueryValue) {
       queryValue = (QueryValue)field;
-    } else if (field instanceof CharSequence) {
-      final CharSequence name = (CharSequence)field;
+    } else if (field instanceof final CharSequence name) {
       try {
         queryValue = this.table.getColumn(name);
       } catch (final IllegalArgumentException e) {
         queryValue = new Column(name);
       }
-    } else if (field instanceof Integer) {
-      final Integer index = (Integer)field;
+    } else if (field instanceof final Integer index) {
       queryValue = new ColumnIndex(index);
     } else {
       throw new IllegalArgumentException("Not a field name: " + field);
@@ -459,6 +456,11 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
   public void appendDefaultSql(final Query query, final RecordStore recordStore,
     final SqlAppendable sql) {
     appendSql(sql);
+  }
+
+  @Override
+  public void appendFrom(final SqlAppendable string) {
+    this.from.appendFrom(string);
   }
 
   public SqlAppendable appendOrderByFields(final SqlAppendable sql, final TableReferenceProxy table,
@@ -656,6 +658,15 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
 
   public boolean exists() {
     return getRecordCount() != 0;
+  }
+
+  public int fetchSize() {
+    return this.fetchSize;
+  }
+
+  public Query fetchSize(final int fetchSize) {
+    this.fetchSize = fetchSize;
+    return this;
   }
 
   /**
@@ -1023,12 +1034,10 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
       QueryValue right;
       if (value instanceof QueryValue) {
         right = (QueryValue)value;
+      } else if (left instanceof ColumnReference) {
+        right = new Value((ColumnReference)left, value);
       } else {
-        if (left instanceof ColumnReference) {
-          right = new Value((ColumnReference)left, value);
-        } else {
-          right = Value.newValue(value);
-        }
+        right = Value.newValue(value);
       }
       condition = operator.apply(left, right);
     }
@@ -1149,8 +1158,7 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     final Condition whereCondition = getWhereCondition();
     if (whereCondition.isEmpty()) {
       setWhereCondition(condition);
-    } else if (whereCondition instanceof Or) {
-      final Or or = (Or)whereCondition;
+    } else if (whereCondition instanceof final Or or) {
       or.or(condition);
     } else {
       setWhereCondition(new Or(whereCondition, condition));
@@ -1196,8 +1204,7 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     for (final Iterator<QueryValue> iterator = this.selectExpressions.iterator(); iterator
       .hasNext();) {
       final QueryValue queryValue = iterator.next();
-      if (queryValue instanceof Column) {
-        final Column column = (Column)queryValue;
+      if (queryValue instanceof final Column column) {
         if (column.getName()
           .equals(name)) {
           iterator.remove();

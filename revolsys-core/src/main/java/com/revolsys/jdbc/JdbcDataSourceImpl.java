@@ -33,6 +33,7 @@ import com.revolsys.transaction.ActiveTransactionContext;
 import com.revolsys.transaction.TransactionContext;
 import com.revolsys.util.BaseCloseable;
 import com.revolsys.util.Property;
+import com.revolsys.util.concurrent.Concurrent;
 
 public class JdbcDataSourceImpl extends JdbcDataSource implements BaseCloseable {
   private class ConnectionEntry {
@@ -85,7 +86,16 @@ public class JdbcDataSourceImpl extends JdbcDataSource implements BaseCloseable 
     }
 
     public boolean isClosed() {
-      return this.state.get() == ConnectionEntryState.CLOSED;
+      try {
+        if (this.state.get() == ConnectionEntryState.CLOSED) {
+          return true;
+        } else if (this.connection != null && this.connection.isClosed()) {
+          return true;
+        }
+        return false;
+      } catch (final SQLException e) {
+        return true;
+      }
     }
 
     public boolean isExpired(final long time) {
@@ -123,7 +133,8 @@ public class JdbcDataSourceImpl extends JdbcDataSource implements BaseCloseable 
           throw e;
         } finally {
           try {
-            if (isExpired(this.returnedInstant.toEpochMilli()) || !canIdle()) {
+            final var returnedMillis = this.returnedInstant.toEpochMilli();
+            if (isExpired(returnedMillis) || !canIdle()) {
               close();
             } else if (dataSource.isClosed()) {
               close();
@@ -380,8 +391,7 @@ public class JdbcDataSourceImpl extends JdbcDataSource implements BaseCloseable 
             try {
               driver = Class.forName(driverClassName);
             } catch (final ClassNotFoundException cnfe) {
-              driver = Thread.currentThread()
-                .getContextClassLoader()
+              driver = Concurrent.contextClassLoader()
                 .loadClass(driverClassName);
             }
           } catch (final Exception t) {

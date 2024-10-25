@@ -65,9 +65,13 @@ public abstract class JdbcDataSource implements DataSource, Transactionable {
   public JdbcConnection getConnection(final ConnectionConsumer initializer) throws SQLException {
     final TransactionContext context = Transaction.getContext();
     if (context instanceof final ActiveTransactionContext activeContext) {
-      return activeContext.getResource(this.key, this.resourceConstructor)
-        .addConnectionInitializer(initializer)
-        .getJdbcConnection();
+      try {
+        return activeContext.getResource(this.key, this.resourceConstructor)
+          .addConnectionInitializer(initializer)
+          .getJdbcConnection();
+      } catch (RuntimeException | SQLException e) {
+        return activeContext.setRollbackOnly(e);
+      }
     } else {
       final JdbcConnection connection = newJdbcConnection();
       if (connection.hasConnection()) {

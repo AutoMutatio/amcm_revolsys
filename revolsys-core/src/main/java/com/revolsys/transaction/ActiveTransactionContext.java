@@ -182,6 +182,11 @@ public class ActiveTransactionContext implements TransactionContext {
   }
 
   @Override
+  public void setRollbackOnly() {
+    this.rollbackOnly = true;
+  }
+
+  @Override
   public <V> V setRollbackOnly(final Throwable e) {
     for (final var resource : this.resources.values()) {
       resource.setHasError();

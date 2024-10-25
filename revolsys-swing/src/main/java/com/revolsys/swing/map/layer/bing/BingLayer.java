@@ -6,13 +6,13 @@ import com.revolsys.collection.json.JsonObject;
 import com.revolsys.geometry.coordinatesystem.model.systems.EpsgId;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactory;
-import com.revolsys.parallel.ExecutorServiceFactory;
 import com.revolsys.raster.GeoreferencedImage;
 import com.revolsys.swing.map.layer.AbstractLayer;
 import com.revolsys.swing.map.layer.BaseMapLayer;
 import com.revolsys.swing.map.layer.raster.ViewFunctionImageLayerRenderer;
 import com.revolsys.swing.map.view.ViewRenderer;
 import com.revolsys.util.CaseConverter;
+import com.revolsys.util.concurrent.Concurrent;
 
 public class BingLayer extends AbstractLayer implements BaseMapLayer {
   public static final GeometryFactory GEOMETRY_FACTORY = GeometryFactory.floating3d(EpsgId.WGS84);
@@ -89,7 +89,8 @@ public class BingLayer extends AbstractLayer implements BaseMapLayer {
 
   public void setClient(final BingClient client) {
     this.client = client;
-    ExecutorServiceFactory.getExecutorService().execute(this::initialize);
+    Concurrent.virtual()
+      .execute(this::initialize);
   }
 
   public void setImagerySet(final ImagerySet imagerySet) {

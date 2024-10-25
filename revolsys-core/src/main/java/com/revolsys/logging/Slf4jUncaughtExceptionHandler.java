@@ -7,6 +7,8 @@ public class Slf4jUncaughtExceptionHandler implements UncaughtExceptionHandler {
     Thread.setDefaultUncaughtExceptionHandler(new Slf4jUncaughtExceptionHandler());
   }
 
+  public static final Slf4jUncaughtExceptionHandler INSTANCE = new Slf4jUncaughtExceptionHandler();
+
   public static void init() {
   }
 

@@ -684,7 +684,14 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
   }
 
   public UpdateStatement updateStatement(final TableRecordStoreConnection connection) {
-    return new TableRecordStoreUpdateStatement(connection).from(getTable());
+    return new TableRecordStoreUpdateStatement(connection).table(getTable());
+  }
+
+  public UpdateStatement updateStatement(final TableRecordStoreConnection connection,
+    final Consumer<UpdateStatement> action) {
+    final var statement = new TableRecordStoreUpdateStatement(connection).table(getTable());
+    action.accept(statement);
+    return statement;
   }
 
   public void validateRecord(final MapEx record) {

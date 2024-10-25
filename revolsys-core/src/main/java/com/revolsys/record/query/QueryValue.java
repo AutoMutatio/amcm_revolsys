@@ -1,6 +1,5 @@
 package com.revolsys.record.query;
 
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -25,7 +24,7 @@ import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordStore;
 import com.revolsys.util.Property;
 
-public interface QueryValue extends Cloneable {
+public interface QueryValue extends Cloneable, SqlAppendParameters {
   static <V extends QueryValue> List<V> cloneQueryValues(final TableReference oldTable,
     final TableReference newTable, final List<V> values) {
     final List<V> clonedValues = new ArrayList<>();
@@ -121,9 +120,6 @@ public interface QueryValue extends Cloneable {
   }
 
   void appendDefaultSql(Query query, RecordStore recordStore, SqlAppendable sql);
-
-  // TODO wrap in a more generic structure
-  int appendParameters(int index, PreparedStatement statement);
 
   default void appendSelect(final Query query, final RecordStore recordStore,
     final SqlAppendable sql) {
