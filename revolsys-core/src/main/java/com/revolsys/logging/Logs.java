@@ -14,6 +14,9 @@ import com.revolsys.collection.map.LruMap;
 import com.revolsys.exception.Exceptions;
 import com.revolsys.exception.WrappedRuntimeException;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.spi.LoggingEvent;
+
 public class Logs {
 
   private static Map<String, Boolean> LOGGED_ERRORS = new LruMap<>(1000);
@@ -55,7 +58,7 @@ public class Logs {
   }
 
   public static void debug(final String name, final String message) {
-    final Logger logger = getLogger(name);
+    final Logger logger = logger(name);
     logger.debug(message);
   }
 
@@ -63,7 +66,7 @@ public class Logs {
     final StringBuilder messageText = new StringBuilder();
     final Throwable logException = getMessageAndException(messageText, message, e);
 
-    final Logger logger = getLogger(name);
+    final Logger logger = logger(name);
     logger.debug(messageText.toString(), logException);
   }
 
@@ -103,7 +106,7 @@ public class Logs {
   }
 
   public static void error(final String name, final String message) {
-    final Logger logger = getLogger(name);
+    final Logger logger = logger(name);
     logger.error(message);
   }
 
@@ -111,7 +114,7 @@ public class Logs {
     final StringBuilder messageText = new StringBuilder();
     final Throwable logException = getMessageAndException(messageText, message, e);
 
-    final Logger logger = getLogger(name);
+    final Logger logger = logger(name);
     logger.error(messageText.toString(), logException);
   }
 
@@ -127,29 +130,15 @@ public class Logs {
     final String combinedMessage = messageText.toString();
     if (!LOGGED_ERRORS.containsKey(combinedMessage)) {
       LOGGED_ERRORS.put(combinedMessage, Boolean.TRUE);
-      final Logger logger = getLogger(object);
+      final Logger logger = logger(object);
       logger.error(combinedMessage, logException);
     }
   }
 
-  public static Logger getLogger(final Class<?> clazz) {
-    final String name = clazz.getName();
-    return getLogger(name);
-  }
-
-  public static Logger getLogger(final Object object) {
-    if (object instanceof String) {
-      return getLogger((String)object);
-    } else if (object instanceof Class<?>) {
-      return getLogger((Class<?>)object);
-    } else {
-      final Class<? extends Object> clazz = object.getClass();
-      return getLogger(clazz);
-    }
-  }
-
-  public static Logger getLogger(final String name) {
-    return LoggerFactory.getLogger(name);
+  public static LoggingEvent event(final Object object, final Level level, final String message) {
+    final var logger = (ch.qos.logback.classic.Logger)logger(object);
+    final var logClass = ch.qos.logback.classic.Logger.FQCN;
+    return new LoggingEvent(logClass, logger, level, message, null, new Object[0]);
   }
 
   public static Throwable getMessageAndException(final StringBuilder messageText,
@@ -176,7 +165,8 @@ public class Logs {
         logException = exceptions.remove(exceptionCount - 1);
         for (final Throwable throwable : exceptions) {
           if (throwable == sqlException) {
-            messages.add(sqlException.getClass().getName());
+            messages.add(sqlException.getClass()
+              .getName());
             final String wrappedMessage = sqlException.getMessage();
             addMessage(messages, wrappedMessage);
           } else {
@@ -219,7 +209,7 @@ public class Logs {
   }
 
   public static void info(final String name, final String message) {
-    final Logger logger = getLogger(name);
+    final Logger logger = logger(name);
     logger.info(message);
   }
 
@@ -227,7 +217,7 @@ public class Logs {
     final StringBuilder messageText = new StringBuilder();
     final Throwable logException = getMessageAndException(messageText, message, e);
 
-    final Logger logger = getLogger(name);
+    final Logger logger = logger(name);
     logger.info(messageText.toString(), logException);
   }
 
@@ -241,14 +231,37 @@ public class Logs {
     return isDebugEnabled(logClass);
   }
 
+  public static Logger logger(final Class<?> clazz) {
+    final String name = clazz.getName();
+    return logger(name);
+  }
+
+  public static Logger logger(final Object object) {
+    if (object == null) {
+      return logger(Logger.ROOT_LOGGER_NAME);
+    } else if (object instanceof final CharSequence chars) {
+      return logger(chars.toString());
+    } else if (object instanceof final Class<?> clazz) {
+      return logger(clazz);
+    } else {
+      final Class<? extends Object> clazz = object.getClass();
+      return logger(clazz);
+    }
+  }
+
+  public static Logger logger(final String name) {
+    return LoggerFactory.getLogger(name);
+  }
+
   public static void setUncaughtExceptionHandler() {
     setUncaughtExceptionHandler(Thread.class);
   }
 
   public static void setUncaughtExceptionHandler(final Class<?> logClass) {
-    Thread.currentThread().setUncaughtExceptionHandler((thread, exception) -> {
-      Logs.error(logClass, exception);
-    });
+    Thread.currentThread()
+      .setUncaughtExceptionHandler((thread, exception) -> {
+        Logs.error(logClass, exception);
+      });
   }
 
   public static void warn(final Class<?> clazz, final String message) {
@@ -282,7 +295,7 @@ public class Logs {
   }
 
   public static void warn(final String name, final String message) {
-    final Logger logger = getLogger(name);
+    final Logger logger = logger(name);
     logger.warn(message);
   }
 
@@ -290,7 +303,7 @@ public class Logs {
     final StringBuilder messageText = new StringBuilder();
     final Throwable logException = getMessageAndException(messageText, message, e);
 
-    final Logger logger = getLogger(name);
+    final Logger logger = logger(name);
     logger.warn(messageText.toString(), logException);
   }
 
