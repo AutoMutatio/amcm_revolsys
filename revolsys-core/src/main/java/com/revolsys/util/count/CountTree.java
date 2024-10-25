@@ -85,6 +85,10 @@ public class CountTree implements Jsonable {
     return this.counter.get();
   }
 
+  public long getCount(final String key) {
+    return getCounter(key).getCount();
+  }
+
   public CountTree getCounter(final String key) {
     return this.counterByKey.computeIfAbsent(key, this::newCounter);
   }
@@ -103,8 +107,14 @@ public class CountTree implements Jsonable {
     return this;
   }
 
-  public void setCount(final long count) {
+  public CountTree setCount(final long count) {
     this.counter.set(count);
+    return this;
+  }
+
+  public CountTree setCount(final String key, final long count) {
+    getCounter(key).setCount(count);
+    return this;
   }
 
   @Override

@@ -13,6 +13,10 @@ import java.sql.SQLTimeoutException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 
+import com.revolsys.collection.iterator.Iterables;
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.util.Strings;
+
 public interface Exceptions {
   @SuppressWarnings("unchecked")
   static <T extends Throwable> T getCause(Throwable e, final Class<T> clazz) {
@@ -115,6 +119,43 @@ public interface Exceptions {
     } else {
       throw toRuntimeException(e);
     }
+  }
+
+  static JsonObject toJson(final StackTraceElement element) {
+    return JsonObject.hash()
+      .addNotEmpty("c", element.getClassName())
+      .addNotEmpty("m", element.getMethodName())
+      .addNotEmpty("f", element.getFileName())
+      .addNotEmpty("l", element.getLineNumber());
+
+    // TODO? moduleName, moduleVersion, classLoader
+  }
+
+  static JsonObject toJson(final Throwable e) {
+    final var message = e.getMessage();
+    final var json = JsonObject.hash()
+      .addNotEmpty("class", e.getClass())
+      .addNotEmpty("message", message);
+    final var localizedMessage = e.getLocalizedMessage();
+    if (!Strings.equals(message, localizedMessage)) {
+      json.addNotEmpty("localizedMessage", localizedMessage);
+    }
+
+    final var trace = e.getStackTrace();
+    if (trace.length > 0) {
+      final var traceJson = Iterables.fromValues(trace)
+        .map(StackTraceElement::toString);
+      json.addValue("trace", traceJson);
+    }
+
+    final var suppressed = e.getSuppressed();
+    if (suppressed.length > 0) {
+      final var suppressedJson = Iterables.fromValues(suppressed)
+        .map(Exceptions::toJson);
+      json.addValue("supressed", suppressedJson);
+    }
+
+    return json;
   }
 
   static RuntimeException toRuntimeException(final Throwable e) {
