@@ -148,13 +148,18 @@ public interface Exceptions {
       json.addValue("trace", traceJson);
     }
 
+    final var cause = e.getCause();
+    if (cause != null) {
+      final var causeJson = Exceptions.toJson(cause);
+      json.addValue("cause", causeJson);
+    }
+
     final var suppressed = e.getSuppressed();
     if (suppressed.length > 0) {
       final var suppressedJson = Iterables.fromValues(suppressed)
         .map(Exceptions::toJson);
       json.addValue("supressed", suppressedJson);
     }
-
     return json;
   }
 
