@@ -20,14 +20,23 @@ import ch.qos.logback.core.encoder.EncoderBase;
  */
 public class JsonLogbackEncoder extends EncoderBase<ILoggingEvent> {
 
-  private static final byte[] FOOTER = new byte[0];
+  private static final byte[] FOOTER = "\n]\n".getBytes();
 
-  private static final byte[] HEADER = "\n".getBytes();
+  private static final byte[] HEADER = "[\n".getBytes();
+
+  private static final byte[] MESSAGE_SEPRATOR = ",\n".getBytes();
+
+  private boolean first = true;
 
   @Override
   public byte[] encode(final ILoggingEvent event) {
     try (
       var out = new ByteArrayOutputStream()) {
+      if (this.first) {
+        this.first = false;
+      } else {
+        out.write(MESSAGE_SEPRATOR);
+      }
       try (
         var json = new JsonWriter(out, false)) {
         json.startObject();
@@ -78,7 +87,6 @@ public class JsonLogbackEncoder extends EncoderBase<ILoggingEvent> {
 
         json.endObject();
       }
-      out.write('\n');
       return out.toByteArray();
     } catch (final IOException e) {
       return new byte[0];
@@ -100,7 +108,9 @@ public class JsonLogbackEncoder extends EncoderBase<ILoggingEvent> {
     if (exception == null) {
       return;
     }
-
+    // in the nominal case, attributeName != null. However, attributeName will
+    // be null for suppressed
+    // IThrowableProxy array, in which case no attribute name is needed
     if (attributeName != null) {
       json.label(attributeName);
     }
@@ -126,7 +136,6 @@ public class JsonLogbackEncoder extends EncoderBase<ILoggingEvent> {
     if (cause != null) {
       writeException(json, "cause", cause);
     }
-
     final IThrowableProxy[] suppressedArray = exception.getSuppressed();
     if (suppressedArray != null && suppressedArray.length != 0) {
       json.label("suppressed");
@@ -193,19 +202,21 @@ public class JsonLogbackEncoder extends EncoderBase<ILoggingEvent> {
 
       for (int i = 0; i < len - commonFrames; i++) {
         final var methodCall = trace[i];
-
-        json.startObject();
         final StackTraceElement ste = methodCall.getStackTraceElement();
-
-        json.labelValueNotEmpty("c", ste.getClassName());
-
-        json.labelValueNotEmpty("m", ste.getMethodName());
-
-        json.labelValueNotEmpty("f", ste.getFileName());
-
-        json.labelValueNotEmpty("l", ste.getLineNumber());
-        json.endObject();
-
+        final var className = ste.getClassName();
+        final var methodName = ste.getMethodName();
+        final var fileName = ste.getFileName();
+        final var lineNumber = ste.getLineNumber();
+        final var s = new StringBuilder().append(className)
+          .append('.')
+          .append(methodName)
+          .append('(')
+          .append(fileName)
+          .append(':')
+          .append(lineNumber)
+          .append(')')
+          .toString();
+        json.value(s);
       }
 
       json.endList();
