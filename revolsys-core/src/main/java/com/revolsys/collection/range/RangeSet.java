@@ -41,6 +41,14 @@ public class RangeSet extends AbstractSet<Object>
     return range;
   }
 
+  public static RangeSet newRangeSet(final Object rangeSpec) {
+    if (rangeSpec == null) {
+      return new RangeSet();
+    } else {
+      return newRangeSet(rangeSpec.toString());
+    }
+  }
+
   public static RangeSet newRangeSet(final String rangeSpec) {
     final RangeSet set = new RangeSet();
     if (Property.hasValue(rangeSpec)) {
@@ -273,7 +281,8 @@ public class RangeSet extends AbstractSet<Object>
       } else if (from2 instanceof Integer) {
         return 1;
       } else {
-        return from1.toString().compareTo(from2.toString());
+        return from1.toString()
+          .compareTo(from2.toString());
       }
     }
   }

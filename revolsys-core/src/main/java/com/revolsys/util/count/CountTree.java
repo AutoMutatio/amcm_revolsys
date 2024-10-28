@@ -29,6 +29,10 @@ public class CountTree implements Jsonable {
     return this.counter.incrementAndGet();
   }
 
+  public long addCount(final long count) {
+    return this.counter.addAndGet(count);
+  }
+
   public long addCount(final String... path) {
     var counter = this;
     for (final String key : path) {
@@ -81,6 +85,10 @@ public class CountTree implements Jsonable {
     return this.counter.get();
   }
 
+  public long getCount(final String key) {
+    return getCounter(key).getCount();
+  }
+
   public CountTree getCounter(final String key) {
     return this.counterByKey.computeIfAbsent(key, this::newCounter);
   }
@@ -92,6 +100,21 @@ public class CountTree implements Jsonable {
   protected CountTree newCounter(final String key) {
     return new CountTree(this.path.clone()
       .addValue(key));
+  }
+
+  public CountTree removeCounter(final String key) {
+    this.counterByKey.remove(key);
+    return this;
+  }
+
+  public CountTree setCount(final long count) {
+    this.counter.set(count);
+    return this;
+  }
+
+  public CountTree setCount(final String key, final long count) {
+    getCounter(key).setCount(count);
+    return this;
   }
 
   @Override
