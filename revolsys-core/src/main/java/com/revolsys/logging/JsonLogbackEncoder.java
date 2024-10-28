@@ -20,23 +20,14 @@ import ch.qos.logback.core.encoder.EncoderBase;
  */
 public class JsonLogbackEncoder extends EncoderBase<ILoggingEvent> {
 
-  private static final byte[] FOOTER = "\n]\n".getBytes();
+  private static final byte[] FOOTER = new byte[0];
 
-  private static final byte[] HEADER = "[\n".getBytes();
-
-  private static final byte[] MESSAGE_SEPRATOR = ",\n".getBytes();
-
-  private boolean first = true;
+  private static final byte[] HEADER = "\n".getBytes();
 
   @Override
   public byte[] encode(final ILoggingEvent event) {
     try (
       var out = new ByteArrayOutputStream()) {
-      if (this.first) {
-        this.first = false;
-      } else {
-        out.write(MESSAGE_SEPRATOR);
-      }
       try (
         var json = new JsonWriter(out, false)) {
         json.startObject();
@@ -87,6 +78,7 @@ public class JsonLogbackEncoder extends EncoderBase<ILoggingEvent> {
 
         json.endObject();
       }
+      out.write('\n');
       return out.toByteArray();
     } catch (final IOException e) {
       return new byte[0];
@@ -108,9 +100,7 @@ public class JsonLogbackEncoder extends EncoderBase<ILoggingEvent> {
     if (exception == null) {
       return;
     }
-    // in the nominal case, attributeName != null. However, attributeName will
-    // be null for suppressed
-    // IThrowableProxy array, in which case no attribute name is needed
+
     if (attributeName != null) {
       json.label(attributeName);
     }
@@ -136,6 +126,7 @@ public class JsonLogbackEncoder extends EncoderBase<ILoggingEvent> {
     if (cause != null) {
       writeException(json, "cause", cause);
     }
+
     final IThrowableProxy[] suppressedArray = exception.getSuppressed();
     if (suppressedArray != null && suppressedArray.length != 0) {
       json.label("suppressed");
