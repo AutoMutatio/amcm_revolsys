@@ -8,7 +8,7 @@ public class WrappedRuntimeException extends RuntimeException {
   }
 
   public WrappedRuntimeException(final Throwable cause) {
-    super(cause);
+    super(null, cause);
   }
 
   public <T extends Throwable> T getCause(final Class<T> clazz) {
