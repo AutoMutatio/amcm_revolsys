@@ -15,6 +15,9 @@ import java.util.concurrent.TimeoutException;
 
 import com.revolsys.collection.iterator.Iterables;
 import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.list.ListEx;
+import com.revolsys.collection.list.Lists;
+import com.revolsys.util.Property;
 import com.revolsys.util.Strings;
 
 public interface Exceptions {
@@ -28,6 +31,14 @@ public interface Exceptions {
       }
     }
     return null;
+  }
+
+  static ListEx<StackTraceElement> getTrace(final Throwable e) {
+    if (e == null) {
+      return Lists.empty();
+    }
+    final var stackTrace = e.getStackTrace();
+    return Lists.newArray(stackTrace);
   }
 
   static boolean hasCause(Throwable e, final Class<? extends Throwable> clazz) {
@@ -105,6 +116,23 @@ public interface Exceptions {
     }
   }
 
+  static void removeCommonTrace(final ListEx<StackTraceElement> thisTrace, final Throwable cause) {
+    final var causeTrace = getTrace(cause);
+    if (!thisTrace.isEmpty() && !causeTrace.isEmpty()) {
+      int thisIndex = thisTrace.size() - 1;
+      int causeIndex = causeTrace.size() - 1;
+      while (thisIndex >= 0 && causeIndex >= 0) {
+        final var thisLine = thisTrace.get(thisIndex);
+        final var causeLine = causeTrace.get(causeIndex);
+        if (thisLine.equals(causeLine)) {
+          thisTrace.remove(thisIndex);
+        }
+        thisIndex--;
+        causeIndex--;
+      }
+    }
+  }
+
   @SuppressWarnings("unchecked")
   static <T> T throwCauseException(final Throwable e) {
     final Throwable cause = e.getCause();
@@ -132,25 +160,41 @@ public interface Exceptions {
   }
 
   static JsonObject toJson(final Throwable e) {
+    final var fullTrace = Lists.<String> newArray();
+    return toJson(e, fullTrace)//
+      .addValue("fullTrace", fullTrace);
+  }
+
+  static JsonObject toJson(final Throwable e, final ListEx<String> fullTrace) {
+    final var clazz = e.getClass()
+      .getName();
     final var message = e.getMessage();
+
+    fullTrace.addValue("CLASS: " + clazz);
+    if (Property.hasValue(message)) {
+      fullTrace.addNotEmpty("MESSAGE: " + message);
+    }
+
     final var json = JsonObject.hash()
-      .addNotEmpty("class", e.getClass())
+      .addNotEmpty("class", clazz)
       .addNotEmpty("message", message);
     final var localizedMessage = e.getLocalizedMessage();
     if (!Strings.equals(message, localizedMessage)) {
       json.addNotEmpty("localizedMessage", localizedMessage);
     }
 
-    final var trace = e.getStackTrace();
-    if (trace.length > 0) {
-      final var traceJson = Iterables.fromValues(trace)
-        .map(StackTraceElement::toString);
+    final var trace = getTrace(e);
+    removeCommonTrace(trace, e.getCause());
+
+    if (!trace.isEmpty()) {
+      final var traceJson = trace.map(StackTraceElement::toString);
+      traceJson.forEach(fullTrace::add);
       json.addValue("trace", traceJson);
     }
 
     final var cause = e.getCause();
     if (cause != null) {
-      final var causeJson = Exceptions.toJson(cause);
+      final var causeJson = toJson(cause, fullTrace);
       json.addValue("cause", causeJson);
     }
 
@@ -166,14 +210,18 @@ public interface Exceptions {
   static RuntimeException toRuntimeException(final Throwable e) {
     if (e == null) {
       return null;
+    } else if (e instanceof final WrappedRuntimeException re) {
+      throw re;
     } else if (isTimeoutException(e)) {
       return new WrappedTimeoutException(e);
     } else if (isInterruptException(e)) {
       return new WrappedInterruptedException(e);
     } else if (hasCause(e, IOException.class)) {
       return new WrappedIoException(e);
-    } else if (e instanceof RuntimeException) {
-      throw (RuntimeException)e;
+    } else if (e instanceof final Error error) {
+      throw error;
+    } else if (e instanceof final RuntimeException re) {
+      throw re;
     } else if (e instanceof InvocationTargetException) {
       final Throwable cause = e.getCause();
       return toRuntimeException(cause);
