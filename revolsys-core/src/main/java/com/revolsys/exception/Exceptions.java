@@ -9,6 +9,7 @@ import java.net.SocketTimeoutException;
 import java.net.http.HttpConnectTimeoutException;
 import java.net.http.HttpTimeoutException;
 import java.nio.channels.ClosedByInterruptException;
+import java.sql.SQLException;
 import java.sql.SQLTimeoutException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
@@ -17,10 +18,19 @@ import com.revolsys.collection.iterator.Iterables;
 import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.list.ListEx;
 import com.revolsys.collection.list.Lists;
+import com.revolsys.util.Debug;
 import com.revolsys.util.Property;
 import com.revolsys.util.Strings;
 
 public interface Exceptions {
+  static void addException(final JsonObject parent, final ListEx<String> fullTrace,
+    final String key, final Throwable e) {
+    if (e != null) {
+      final var eJson = toJson(e, fullTrace);
+      parent.addValue(key, eJson);
+    }
+  }
+
   @SuppressWarnings("unchecked")
   static <T extends Throwable> T getCause(Throwable e, final Class<T> clazz) {
     while (e != null) {
@@ -166,6 +176,9 @@ public interface Exceptions {
   }
 
   static JsonObject toJson(final Throwable e, final ListEx<String> fullTrace) {
+    if (e == null) {
+      return JsonObject.EMPTY;
+    }
     final var clazz = e.getClass()
       .getName();
     final var message = e.getMessage();
@@ -178,6 +191,17 @@ public interface Exceptions {
     final var json = JsonObject.hash()
       .addNotEmpty("class", clazz)
       .addNotEmpty("message", message);
+
+    try {
+      // Can't use instanceof as it could be in a different class
+      final var properties = e.getClass()
+        .getMethod("getProperties")
+        .invoke(e);
+      json.addNotEmpty("properties", properties);
+    } catch (final Throwable e2) {
+      Debug.noOp();
+    }
+
     final var localizedMessage = e.getLocalizedMessage();
     if (!Strings.equals(message, localizedMessage)) {
       json.addNotEmpty("localizedMessage", localizedMessage);
@@ -193,9 +217,13 @@ public interface Exceptions {
     }
 
     final var cause = e.getCause();
-    if (cause != null) {
-      final var causeJson = toJson(cause, fullTrace);
-      json.addValue("cause", causeJson);
+    addException(json, fullTrace, "cause", cause);
+
+    if (e instanceof final SQLException sqlException) {
+      final var next = sqlException.getNextException();
+      if (next != cause) {
+        addException(json, fullTrace, "next", next);
+      }
     }
 
     final var suppressed = e.getSuppressed();
