@@ -2,30 +2,39 @@ package com.revolsys.exception;
 
 import com.revolsys.collection.json.JsonObject;
 
-public class WrappedRuntimeException extends ExceptionWithProperties {
+public class ExceptionWithProperties extends RuntimeException {
   private static final long serialVersionUID = 1L;
 
   private final JsonObject properties = JsonObject.hash();
 
-  public WrappedRuntimeException(final String message, final Throwable cause) {
+  public ExceptionWithProperties() {
+  }
+
+  public ExceptionWithProperties(final String message) {
+    super(message);
+  }
+
+  public ExceptionWithProperties(final String message, final Throwable cause) {
     super(message, cause);
   }
 
-  public WrappedRuntimeException(final Throwable cause) {
-    super(null, cause);
+  public ExceptionWithProperties(final String message, final Throwable cause,
+    final boolean enableSuppression, final boolean writableStackTrace) {
+    super(message, cause, enableSuppression, writableStackTrace);
   }
 
-  @Override
+  public ExceptionWithProperties(final Throwable cause) {
+    super(cause);
+  }
+
   public <T extends Throwable> T getCause(final Class<T> clazz) {
     return Exceptions.getCause(this, clazz);
   }
 
-  @Override
   public JsonObject getProperties() {
     return this.properties;
   }
 
-  @Override
   public boolean isException(final Class<? extends Throwable> clazz) {
     final Throwable cause = getCause();
     if (cause == null) {
@@ -39,8 +48,7 @@ public class WrappedRuntimeException extends ExceptionWithProperties {
     }
   }
 
-  @Override
-  public WrappedRuntimeException property(final String key, final Object value) {
+  public ExceptionWithProperties property(final String key, final Object value) {
     this.properties.addValue(key, value);
     return this;
   }

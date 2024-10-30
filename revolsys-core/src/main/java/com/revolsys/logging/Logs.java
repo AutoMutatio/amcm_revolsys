@@ -63,11 +63,7 @@ public class Logs {
   }
 
   public static void debug(final String name, final String message, final Throwable e) {
-    final StringBuilder messageText = new StringBuilder();
-    final Throwable logException = getMessageAndException(messageText, message, e);
-
-    final Logger logger = logger(name);
-    logger.debug(messageText.toString(), logException);
+    logger(name).debug(message, e);
   }
 
   public static void debug(final String name, final Throwable e) {
@@ -111,11 +107,7 @@ public class Logs {
   }
 
   public static void error(final String name, final String message, final Throwable e) {
-    final StringBuilder messageText = new StringBuilder();
-    final Throwable logException = getMessageAndException(messageText, message, e);
-
-    final Logger logger = logger(name);
-    logger.error(messageText.toString(), logException);
+    logger(name).error(message, e);
   }
 
   public static void error(final String name, final Throwable e) {
@@ -124,14 +116,10 @@ public class Logs {
   }
 
   public static void errorOnce(final Object object, final String message, final Throwable e) {
-    final StringBuilder messageText = new StringBuilder();
-    final Throwable logException = getMessageAndException(messageText, message, e);
-
-    final String combinedMessage = messageText.toString();
-    if (!LOGGED_ERRORS.containsKey(combinedMessage)) {
-      LOGGED_ERRORS.put(combinedMessage, Boolean.TRUE);
+    if (!LOGGED_ERRORS.containsKey(message)) {
+      LOGGED_ERRORS.put(message, Boolean.TRUE);
       final Logger logger = logger(object);
-      logger.error(combinedMessage, logException);
+      logger.error(message, e);
     }
   }
 
@@ -214,11 +202,7 @@ public class Logs {
   }
 
   public static void info(final String name, final String message, final Throwable e) {
-    final StringBuilder messageText = new StringBuilder();
-    final Throwable logException = getMessageAndException(messageText, message, e);
-
-    final Logger logger = logger(name);
-    logger.info(messageText.toString(), logException);
+    logger(name).info(message, e);
   }
 
   public static boolean isDebugEnabled(final Class<?> logCateogory) {
@@ -300,11 +284,7 @@ public class Logs {
   }
 
   public static void warn(final String name, final String message, final Throwable e) {
-    final StringBuilder messageText = new StringBuilder();
-    final Throwable logException = getMessageAndException(messageText, message, e);
-
-    final Logger logger = logger(name);
-    logger.warn(messageText.toString(), logException);
+    logger(name).warn(message, e);
   }
 
   public static void warn(final String name, final Throwable e) {

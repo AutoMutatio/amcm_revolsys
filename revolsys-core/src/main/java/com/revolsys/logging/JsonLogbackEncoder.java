@@ -8,11 +8,13 @@ import java.util.Map;
 import org.slf4j.event.KeyValuePair;
 
 import com.revolsys.collection.json.JsonWriter;
+import com.revolsys.exception.Exceptions;
 import com.revolsys.util.Property;
 
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.classic.spi.IThrowableProxy;
 import ch.qos.logback.classic.spi.StackTraceElementProxy;
+import ch.qos.logback.classic.spi.ThrowableProxy;
 import ch.qos.logback.core.encoder.EncoderBase;
 
 /**
@@ -20,23 +22,16 @@ import ch.qos.logback.core.encoder.EncoderBase;
  */
 public class JsonLogbackEncoder extends EncoderBase<ILoggingEvent> {
 
-  private static final byte[] FOOTER = "\n]\n".getBytes();
+  private static final byte[] FOOTER = "".getBytes();
 
-  private static final byte[] HEADER = "[\n".getBytes();
+  private static final byte[] HEADER = "\n".getBytes();
 
-  private static final byte[] MESSAGE_SEPRATOR = ",\n".getBytes();
-
-  private boolean first = true;
+  private static final byte[] MESSAGE_SEPRATOR = "\n".getBytes();
 
   @Override
   public byte[] encode(final ILoggingEvent event) {
     try (
       var out = new ByteArrayOutputStream()) {
-      if (this.first) {
-        this.first = false;
-      } else {
-        out.write(MESSAGE_SEPRATOR);
-      }
       try (
         var json = new JsonWriter(out, false)) {
         json.startObject();
@@ -74,8 +69,14 @@ public class JsonLogbackEncoder extends EncoderBase<ILoggingEvent> {
           json.labelValue("thread", thread);
         }
 
-        final var exception = event.getThrowableProxy();
-        writeException(json, "exception", exception);
+        final var exceptionProxy = event.getThrowableProxy();
+        if (exceptionProxy instanceof final ThrowableProxy throwableProxy) {
+          final var throwable = throwableProxy.getThrowable();
+          final var exceptionJson = Exceptions.toJson(throwable);
+          json.labelValue("exception", exceptionJson);
+        } else {
+          writeException(json, "exception", exceptionProxy);
+        }
 
         //// TODO? event.getLoggerContextVO());
 
@@ -86,6 +87,7 @@ public class JsonLogbackEncoder extends EncoderBase<ILoggingEvent> {
         writeKeyValuePairs(json, event);
 
         json.endObject();
+        out.write(MESSAGE_SEPRATOR);
       }
       return out.toByteArray();
     } catch (final IOException e) {
