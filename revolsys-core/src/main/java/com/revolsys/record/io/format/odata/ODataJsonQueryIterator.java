@@ -107,8 +107,8 @@ public class ODataJsonQueryIterator<V> extends AbstractIterator<V> implements It
       // Don't use delta link in this case
       throw new NoSuchElementException();
     }
-    final Iterator<JsonObject> results = this.results;
     do {
+      final Iterator<JsonObject> results = this.results;
       if (results != null && results.hasNext()) {
         final JsonObject recordJson = results.next();
         this.readCount++;
@@ -120,7 +120,7 @@ public class ODataJsonQueryIterator<V> extends AbstractIterator<V> implements It
         this.request = this.requestFactory.get(this.nextURI);
         executeRequest();
       }
-    } while (results != null);
+    } while (this.results != null);
     throw new NoSuchElementException();
   }
 
