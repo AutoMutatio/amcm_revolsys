@@ -87,6 +87,26 @@ public class StructuredTaskScopeEx<V> extends StructuredTaskScope<V>
 
   }
 
+  public <T> void channelSupplierWorkerThreads(final int bufferSize,
+    final Consumer<ChannelOutput<T>> source, final Consumer<T> inputHandler) {
+    final var channel = new Channel<T>(new Buffer<>(bufferSize));
+    run(() -> {
+      try (
+        var read = channel.writeConnect()) {
+        source.accept(channel);
+      }
+    });
+    for (int i = 0; i < bufferSize; i++) {
+      run(() -> {
+        try (
+          final var write = channel.readConnect()) {
+          channel.forEach(value -> inputHandler.accept(value));
+        }
+      });
+    }
+
+  }
+
   private void done() {
     try (
       var l = this.lock.lockX()) {
@@ -110,10 +130,6 @@ public class StructuredTaskScopeEx<V> extends StructuredTaskScope<V>
     }
   }
 
-  public <I> Subtask<V> fork(final I value, final Consumer<I> task) {
-    return run(() -> task.accept(value));
-  }
-
   @SuppressWarnings("unchecked")
   public <U extends V, I> ListEx<Subtask<U>> fork(final Function<I, U> task, final I... values) {
     return Lists.<I> newArray(values)
@@ -122,18 +138,22 @@ public class StructuredTaskScopeEx<V> extends StructuredTaskScope<V>
       .toList();
   }
 
-  public <U extends V, I> ListEx<Subtask<U>> fork(final Iterable<I> values,
-    final Function<I, U> task) {
-    return Iterables.fromIterable(values)
-      .cancellable(this)
-      .map(v -> fork(() -> task.apply(v)))
-      .toList();
+  public <I> Subtask<V> fork(final I value, final Consumer<I> task) {
+    return run(() -> task.accept(value));
   }
 
   public void fork(final int count, final Callable<V> task) {
     for (int i = 0; i < count; i++) {
       fork(task);
     }
+  }
+
+  public <U extends V, I> ListEx<Subtask<U>> fork(final Iterable<I> values,
+    final Function<I, U> task) {
+    return Iterables.fromIterable(values)
+      .cancellable(this)
+      .map(v -> fork(() -> task.apply(v)))
+      .toList();
   }
 
   public <T> void fork(final Semaphore semaphore, final ForEachHandler<T> forEach,
@@ -146,6 +166,21 @@ public class StructuredTaskScopeEx<V> extends StructuredTaskScope<V>
     if (values != null) {
       final ForEachHandler<T> handler = values::forEach;
       fork(semaphore, handler, action);
+    }
+  }
+
+  public <T> void fork(final Semaphore semaphore, final Runnable action) {
+    try {
+      semaphore.acquire();
+      run(() -> {
+        try {
+          action.run();
+        } finally {
+          semaphore.release();
+        }
+      });
+    } catch (final InterruptedException e) {
+      throw Exceptions.toRuntimeException(e);
     }
   }
 
@@ -163,21 +198,6 @@ public class StructuredTaskScopeEx<V> extends StructuredTaskScope<V>
       run(() -> {
         try {
           action.accept(value);
-        } finally {
-          semaphore.release();
-        }
-      });
-    } catch (final InterruptedException e) {
-      throw Exceptions.toRuntimeException(e);
-    }
-  }
-
-  public <T> void fork(final Semaphore semaphore, final Runnable action) {
-    try {
-      semaphore.acquire();
-      run(() -> {
-        try {
-          action.run();
         } finally {
           semaphore.release();
         }
