@@ -37,8 +37,6 @@ import com.revolsys.util.BaseCloseable;
 import com.revolsys.util.Property;
 import com.revolsys.util.concurrent.Concurrent;
 
-// TODO see why it is not cleaning up old connections.
-
 public class JdbcDataSourceImpl extends JdbcDataSource implements BaseCloseable {
   public static class Builder {
 
