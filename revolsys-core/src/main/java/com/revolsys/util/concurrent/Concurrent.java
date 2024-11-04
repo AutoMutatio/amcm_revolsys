@@ -3,15 +3,20 @@ package com.revolsys.util.concurrent;
 import java.lang.Thread.Builder.OfPlatform;
 import java.lang.Thread.Builder.OfVirtual;
 import java.time.Duration;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 
+import com.revolsys.collection.value.ValueHolder;
 import com.revolsys.exception.Exceptions;
 import com.revolsys.logging.Slf4jUncaughtExceptionHandler;
 
 public class Concurrent {
 
   private static final AtomicLong THREAD_INDEX = new AtomicLong();
+
+  private static final ValueHolder<ScheduledExecutorService> VIRTUAL_SCHEDULED = ValueHolder
+    .lazy(() -> virtual("scheduled").newScheduledThreadPool());
 
   public static ClassLoader contextClassLoader() {
     return Thread.currentThread()
@@ -73,5 +78,9 @@ public class Concurrent {
     }
     final var factory = builder.factory();
     return new ThreadFactoryEx(name, factory);
+  }
+
+  public static ScheduledExecutorService virtualSceduled() {
+    return VIRTUAL_SCHEDULED.get();
   }
 }
