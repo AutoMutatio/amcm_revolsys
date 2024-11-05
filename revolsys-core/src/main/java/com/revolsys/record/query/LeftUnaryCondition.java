@@ -13,11 +13,11 @@ public class LeftUnaryCondition extends AbstractUnaryQueryValue implements Condi
   }
 
   @Override
-  public void appendDefaultSql(final Query query, final RecordStore recordStore,
+  public void appendDefaultSql(final QueryStatement statement, final RecordStore recordStore,
     final SqlAppendable buffer) {
     buffer.append(this.operator);
     buffer.append(" ");
-    super.appendDefaultSql(query, recordStore, buffer);
+    super.appendDefaultSql(statement, recordStore, buffer);
   }
 
   @Override

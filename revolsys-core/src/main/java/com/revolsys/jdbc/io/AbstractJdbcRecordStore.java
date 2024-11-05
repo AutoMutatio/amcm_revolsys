@@ -18,6 +18,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.UUID;
+import java.util.function.Function;
 
 import javax.sql.DataSource;
 
@@ -25,6 +26,8 @@ import jakarta.annotation.PreDestroy;
 
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
+import com.revolsys.collection.iterator.BaseIterable;
+import com.revolsys.collection.list.ListEx;
 import com.revolsys.collection.map.Maps;
 import com.revolsys.data.identifier.Identifier;
 import com.revolsys.data.type.DataType;
@@ -51,7 +54,9 @@ import com.revolsys.record.io.RecordStoreExtension;
 import com.revolsys.record.io.RecordWriter;
 import com.revolsys.record.property.GlobalIdProperty;
 import com.revolsys.record.query.ColumnIndexes;
+import com.revolsys.record.query.ColumnReference;
 import com.revolsys.record.query.DeleteStatement;
+import com.revolsys.record.query.InsertStatement;
 import com.revolsys.record.query.Q;
 import com.revolsys.record.query.Query;
 import com.revolsys.record.query.QueryValue;
@@ -62,6 +67,7 @@ import com.revolsys.record.query.UpdateStatement;
 import com.revolsys.record.schema.AbstractRecordStore;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
+import com.revolsys.record.schema.RecordDefinitionBuilder;
 import com.revolsys.record.schema.RecordDefinitionImpl;
 import com.revolsys.record.schema.RecordDefinitionProxy;
 import com.revolsys.record.schema.RecordStore;
@@ -334,6 +340,75 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
     }
   }
 
+  @Override
+  public int executeInsertCount(final InsertStatement insert) {
+    final String sql = insert.toSql();
+    return transactionCall(() -> {
+      try (
+        JdbcConnection connection = getJdbcConnection()) {
+        // It's important to have this in an inner try. Otherwise the exceptions
+        // won't get caught on closing the writer and the transaction won't get
+        // rolled back.
+        try (
+          final PreparedStatement statement = connection.prepareStatement(sql)) {
+          insert.appendParameters(1, statement);
+          return statement.executeUpdate();
+        } catch (final SQLException e) {
+          throw connection.getException("insert", sql, e);
+        }
+      }
+    });
+  }
+
+  @Override
+  public <V> V executeInsertRecords(final InsertStatement insert,
+    final Function<BaseIterable<Record>, V> action) {
+    return transactionCall(() -> {
+      insert.ensureReturning();
+      final String sql = insert.toSql();
+      try (
+        JdbcConnection connection = getJdbcConnection()) {
+        // It's important to have this in an inner try. Otherwise the exceptions
+        // won't get caught on closing the writer and the transaction won't get
+        // rolled back.
+
+        try (
+          final PreparedStatement statement = connection.prepareStatement(sql)) {
+          insert.appendParameters(1, statement);
+          ListEx<? extends ColumnReference> columns;
+          RecordDefinition recordDefinition;
+          if (insert.isReturningAll()) {
+            recordDefinition = insert.getRecordDefinition();
+            columns = recordDefinition.getFields();
+          } else {
+            columns = insert.getReturning();
+            final var rdBuilder = new RecordDefinitionBuilder(insert.getRecordDefinition()
+              .getName());
+            insert.getReturning()
+              .forEach(column -> {
+                if (column instanceof final FieldDefinition field) {
+                  rdBuilder.addField(field);
+                } else if (column instanceof final FieldDefinition field) {
+                  rdBuilder.addField(field);
+                } else {
+                  rdBuilder.addField(column.getName(), column.getDataType());
+                }
+              });
+            recordDefinition = rdBuilder.getRecordDefinition();
+          }
+          try (
+            var resultSet = statement.executeQuery();
+            final var records = new JdbcResultSetIterator(this, recordDefinition, columns,
+              resultSet);) {
+            return action.apply(records);
+          }
+        } catch (final SQLException e) {
+          throw connection.getException("insert", sql, e);
+        }
+      }
+    });
+  }
+
   public void executeUpdate(final PreparedStatement statement) throws SQLException {
     statement.executeUpdate();
   }
@@ -486,7 +561,7 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
   }
 
   public Record getNextRecord(final RecordDefinition recordDefinition,
-    final List<QueryValue> expressions, final RecordFactory<Record> recordFactory,
+    final List<? extends QueryValue> expressions, final RecordFactory<Record> recordFactory,
     final ResultSet resultSet) {
     final Record record = recordFactory.newRecord(recordDefinition);
     if (record != null) {

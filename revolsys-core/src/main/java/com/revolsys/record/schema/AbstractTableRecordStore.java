@@ -36,6 +36,7 @@ import com.revolsys.record.query.Cast;
 import com.revolsys.record.query.ColumnReference;
 import com.revolsys.record.query.Condition;
 import com.revolsys.record.query.DeleteStatement;
+import com.revolsys.record.query.InsertStatement;
 import com.revolsys.record.query.Or;
 import com.revolsys.record.query.Q;
 import com.revolsys.record.query.Query;
@@ -353,6 +354,15 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
 
   protected void insertRecordBefore(final TableRecordStoreConnection connection,
     final Record record) {
+  }
+
+  @Override
+  public InsertStatement insertStatement() {
+    throw new UnsupportedOperationException("deleteStatement(#TableRecordStoreConnection)");
+  }
+
+  public InsertStatement insertStatement(final TableRecordStoreConnection connection) {
+    return new TableRecordStoreInsertStatement(connection).into(getTable());
   }
 
   protected boolean isFieldReadonly(final String fieldName) {

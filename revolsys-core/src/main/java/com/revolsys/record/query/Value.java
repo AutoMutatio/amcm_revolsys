@@ -150,7 +150,7 @@ public class Value implements QueryValue {
   }
 
   @Override
-  public void appendDefaultSql(final Query query, final RecordStore recordStore,
+  public void appendDefaultSql(final QueryStatement statement, final RecordStore recordStore,
     final SqlAppendable sql) {
     if (sql.isUsePlaceholders()) {
       if (this.jdbcField == null) {

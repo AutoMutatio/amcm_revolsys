@@ -37,13 +37,13 @@ public class Count extends AbstractUnaryQueryValue {
   }
 
   @Override
-  public void appendDefaultSql(final Query query, final RecordStore recordStore,
+  public void appendDefaultSql(final QueryStatement statement, final RecordStore recordStore,
     final SqlAppendable buffer) {
     buffer.append("count(");
     if (this.distinct) {
       buffer.append("distinct ");
     }
-    super.appendDefaultSql(query, recordStore, buffer);
+    super.appendDefaultSql(statement, recordStore, buffer);
     buffer.append(")");
   }
 

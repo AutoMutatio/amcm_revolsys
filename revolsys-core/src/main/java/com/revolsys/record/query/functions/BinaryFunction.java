@@ -4,7 +4,7 @@ import java.util.List;
 
 import com.revolsys.data.type.DataType;
 import com.revolsys.record.query.AbstractBinaryQueryValue;
-import com.revolsys.record.query.Query;
+import com.revolsys.record.query.QueryStatement;
 import com.revolsys.record.query.QueryValue;
 import com.revolsys.record.query.SqlAppendable;
 import com.revolsys.record.schema.RecordStore;
@@ -24,13 +24,13 @@ public abstract class BinaryFunction extends AbstractBinaryQueryValue implements
   }
 
   @Override
-  public void appendDefaultSql(final Query query, final RecordStore recordStore,
+  public void appendDefaultSql(final QueryStatement statement, final RecordStore recordStore,
     final SqlAppendable buffer) {
     buffer.append(getName());
     buffer.append("(");
-    appendLeft(buffer, query, recordStore);
+    appendLeft(statement, recordStore, buffer);
     buffer.append(", ");
-    appendRight(buffer, query, recordStore);
+    appendRight(statement, recordStore, buffer);
     buffer.append(")");
   }
 

@@ -7,10 +7,8 @@ import com.revolsys.collection.list.ArrayListEx;
 import com.revolsys.collection.list.ListEx;
 import com.revolsys.collection.list.Lists;
 import com.revolsys.record.schema.RecordDefinition;
-import com.revolsys.record.schema.RecordDefinitionProxy;
-import com.revolsys.record.schema.RecordStore;
 
-public class UpdateStatement implements RecordDefinitionProxy {
+public class UpdateStatement implements QueryStatement {
   private final ListEx<From> fromClauses = Lists.newArray();
 
   private final ListEx<SetClause> setClauses = new ArrayListEx<>();
@@ -35,7 +33,6 @@ public class UpdateStatement implements RecordDefinitionProxy {
   }
 
   public void appendSql(final SqlAppendable sql) {
-    final RecordStore recordStore = getRecordStore();
     if (!this.withClauses.isEmpty()) {
       sql.append("WITH ");
       boolean first = true;
@@ -55,7 +52,7 @@ public class UpdateStatement implements RecordDefinitionProxy {
     if (this.setClauses.isEmpty()) {
       throw new IllegalStateException("Update statement must set at least one value");
     }
-    SetClause.appendSet(sql, recordStore, this.setClauses);
+    SetClause.appendSet(sql, this, this.setClauses);
     if (!this.fromClauses.isEmpty()) {
       sql.append(" FROM  ");
       boolean first = true;
@@ -72,7 +69,7 @@ public class UpdateStatement implements RecordDefinitionProxy {
     final Condition where = this.where;
     if (where != null && !where.isEmpty()) {
       sql.append(" WHERE  ");
-      where.appendSql(null, recordStore, sql);
+      where.appendSql(this, sql);
     }
   }
 
@@ -110,7 +107,7 @@ public class UpdateStatement implements RecordDefinitionProxy {
   }
 
   public UpdateStatement set(final ColumnReference column, final QueryValue value) {
-    this.setClauses.add(new SetClause(column, value));
+    this.setClauses.add(new SetClause(this, column, value));
     return this;
   }
 
