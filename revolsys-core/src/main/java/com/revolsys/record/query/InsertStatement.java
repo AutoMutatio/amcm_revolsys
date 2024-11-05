@@ -246,14 +246,8 @@ public class InsertStatement implements QueryStatement {
   }
 
   public InsertStatement insert(final String name, final Object value) {
-    return insert(this.table, name, value);
-  }
-
-  public InsertStatement insert(final TableReferenceProxy table, final String name,
-    final Object value) {
-    if (table.getTableReference()
-      .hasColumn(name)) {
-      final var column = table.getColumn(name);
+    if (hasField(name)) {
+      final var column = getColumn(name);
       int columnIndex = this.columns.indexOf(column);
       if (columnIndex == -1) {
         columnIndex = this.columns.size();
@@ -269,7 +263,7 @@ public class InsertStatement implements QueryStatement {
 
       values.set(columnIndex, Value.newValue(column, value));
     } else {
-      throw new IllegalArgumentException(table + "." + name + " doesn't exist");
+      throw new IllegalArgumentException(this.table + "." + name + " doesn't exist");
     }
     return this;
   }
@@ -278,7 +272,7 @@ public class InsertStatement implements QueryStatement {
     for (final var entry : values.entrySet()) {
       final var name = entry.getKey();
       final var value = entry.getValue();
-      insert(this.table, name, value);
+      insert(name, value);
     }
     return this;
   }
@@ -294,7 +288,7 @@ public class InsertStatement implements QueryStatement {
   }
 
   public InsertStatement insertKey(final String name, final Object value) {
-    insert(this.table, name, value);
+    insert(name, value);
     conflictColumn(name);
     return this;
   }
@@ -388,7 +382,7 @@ public class InsertStatement implements QueryStatement {
    * @return
    */
   public InsertStatement upsert(final String name, final Object value) {
-    insert(this.table, name, value);
+    insert(name, value);
     update(name);
     return this;
   }

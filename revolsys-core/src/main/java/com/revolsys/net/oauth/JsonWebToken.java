@@ -20,8 +20,9 @@ import java.util.Base64.Decoder;
 
 import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.json.JsonParser;
+import com.revolsys.collection.json.Jsonable;
 
-public class JsonWebToken {
+public class JsonWebToken implements Jsonable {
 
   public static JsonObject decodeJson(final String base64) {
     final byte[] decoded = Base64.getDecoder()
@@ -229,6 +230,13 @@ public class JsonWebToken {
       return false;
     }
 
+  }
+
+  @Override
+  public JsonObject toJson() {
+    return JsonObject.hash()
+      .addValue("header", this.header)
+      .addValue("payload", this.payload);
   }
 
   @Override
