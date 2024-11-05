@@ -26,8 +26,6 @@ public class JsonLogbackEncoder extends EncoderBase<ILoggingEvent> {
 
   private static final byte[] HEADER = "\n".getBytes();
 
-  private static final byte[] MESSAGE_SEPRATOR = "\n".getBytes();
-
   @Override
   public byte[] encode(final ILoggingEvent event) {
     try (
@@ -87,7 +85,7 @@ public class JsonLogbackEncoder extends EncoderBase<ILoggingEvent> {
         writeKeyValuePairs(json, event);
 
         json.endObject();
-        out.write(MESSAGE_SEPRATOR);
+        json.newLineForce();
       }
       return out.toByteArray();
     } catch (final IOException e) {
