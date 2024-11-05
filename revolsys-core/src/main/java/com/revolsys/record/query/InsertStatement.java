@@ -283,6 +283,16 @@ public class InsertStatement implements QueryStatement {
     return this;
   }
 
+  public InsertStatement insertFieldValue(final String name, final MapEx source) {
+    final var value = source.getValue(name);
+    return insert(name, value);
+  }
+
+  public InsertStatement insertKey(final String name, final MapEx source, final String sourceKey) {
+    final var value = source.getValue(sourceKey);
+    return insertKey(name, value);
+  }
+
   public InsertStatement insertKey(final String name, final Object value) {
     insert(this.table, name, value);
     conflictColumn(name);
