@@ -43,6 +43,7 @@ import com.revolsys.record.Record;
 import com.revolsys.record.RecordFactory;
 import com.revolsys.record.property.ShortNameProperty;
 import com.revolsys.record.query.Query;
+import com.revolsys.record.query.QueryStatement;
 import com.revolsys.record.query.QueryValue;
 import com.revolsys.record.query.SqlAppendable;
 import com.revolsys.record.query.functions.EnvelopeIntersects;
@@ -112,30 +113,30 @@ public class PostgreSQLRecordStore extends AbstractJdbcRecordStore {
     return field;
   }
 
-  private void appendEnvelopeIntersects(final Query query, final SqlAppendable sql,
+  private void appendEnvelopeIntersects(final QueryStatement statement, final SqlAppendable sql,
     final QueryValue queryValue) {
     final EnvelopeIntersects envelopeIntersects = (EnvelopeIntersects)queryValue;
     final QueryValue boundingBox1Value = envelopeIntersects.getBoundingBox1Value();
     if (boundingBox1Value == null) {
       sql.append("NULL");
     } else {
-      appendQueryValue(query, sql, boundingBox1Value);
+      appendQueryValue(statement, sql, boundingBox1Value);
     }
     sql.append(" && ");
     final QueryValue boundingBox2Value = envelopeIntersects.getBoundingBox2Value();
     if (boundingBox2Value == null) {
       sql.append("NULL");
     } else {
-      appendQueryValue(query, sql, boundingBox2Value);
+      appendQueryValue(statement, sql, boundingBox2Value);
     }
   }
 
-  private void appendJsonValue(final Query query, final SqlAppendable sql,
+  private void appendJsonValue(final QueryStatement statement, final SqlAppendable sql,
     final QueryValue queryValue) {
     final JsonValue jsonValue = (JsonValue)queryValue;
     final QueryValue jsonParameter = jsonValue.getParameter(0);
     sql.append('(');
-    jsonParameter.appendSql(query, this, sql);
+    jsonParameter.appendSql(statement, this, sql);
 
     final String[] path = jsonValue.getPath()
       .split("\\.");

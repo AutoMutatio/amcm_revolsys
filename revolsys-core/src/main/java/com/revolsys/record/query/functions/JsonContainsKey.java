@@ -9,7 +9,7 @@ import com.revolsys.collection.map.MapEx;
 import com.revolsys.exception.Exceptions;
 import com.revolsys.record.query.AbstractUnaryQueryValue;
 import com.revolsys.record.query.Condition;
-import com.revolsys.record.query.Query;
+import com.revolsys.record.query.QueryStatement;
 import com.revolsys.record.query.QueryValue;
 import com.revolsys.record.query.SqlAppendable;
 import com.revolsys.record.query.TableReference;
@@ -25,9 +25,9 @@ public class JsonContainsKey extends AbstractUnaryQueryValue implements Conditio
   }
 
   @Override
-  public void appendDefaultSql(final Query query, final RecordStore recordStore,
+  public void appendDefaultSql(final QueryStatement statement, final RecordStore recordStore,
     final SqlAppendable sql) {
-    getValue().appendSql(query, recordStore, sql);
+    getValue().appendSql(statement, recordStore, sql);
     sql.append(" ?? ?");
   }
 

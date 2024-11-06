@@ -46,7 +46,7 @@ import com.revolsys.jdbc.io.JdbcRecordWriter;
 import com.revolsys.logging.Logs;
 import com.revolsys.record.query.CollectionValue;
 import com.revolsys.record.query.ColumnReference;
-import com.revolsys.record.query.Query;
+import com.revolsys.record.query.QueryStatement;
 import com.revolsys.record.query.QueryValue;
 import com.revolsys.record.query.SqlAppendable;
 import com.revolsys.record.query.Value;
@@ -62,7 +62,9 @@ import com.revolsys.spring.resource.UrlResource;
 
 public class GeoPackageRecordStore extends AbstractJdbcRecordStore {
 
-  private static final int APPLICATION_ID = ByteBuffer.wrap("GPKG".getBytes()).asIntBuffer().get();
+  private static final int APPLICATION_ID = ByteBuffer.wrap("GPKG".getBytes())
+    .asIntBuffer()
+    .get();
 
   private Path file;
 
@@ -76,7 +78,7 @@ public class GeoPackageRecordStore extends AbstractJdbcRecordStore {
   };
 
   public GeoPackageRecordStore(final GeoPackage geoPackage,
-      final Map<String, ? extends Object> connectionProperties) {
+    final Map<String, ? extends Object> connectionProperties) {
     super(geoPackage, connectionProperties);
     final String url = getUrl();
     if (url.startsWith(GeoPackage.JDBC_PREFIX)) {
@@ -89,25 +91,26 @@ public class GeoPackageRecordStore extends AbstractJdbcRecordStore {
     addSqlQueryAppender(EnvelopeIntersects.class, this::appendEvelopeIntersects);
   }
 
-  private void appendEvelopeIntersects(final Query query, final SqlAppendable sql,
-      final QueryValue queryValue) {
-    final EnvelopeIntersects envelopeIntersects = (EnvelopeIntersects) queryValue;
-    final JdbcRecordDefinition recordDefinition = (JdbcRecordDefinition) query.getRecordDefinition();
+  private void appendEvelopeIntersects(final QueryStatement statement, final SqlAppendable sql,
+    final QueryValue queryValue) {
+    final EnvelopeIntersects envelopeIntersects = (EnvelopeIntersects)queryValue;
+    final JdbcRecordDefinition recordDefinition = (JdbcRecordDefinition)statement
+      .getRecordDefinition();
     final QueryValue boundingBox1Value = envelopeIntersects.getBoundingBox1Value();
     final QueryValue boundingBox2Value = envelopeIntersects.getBoundingBox2Value();
     if (boundingBox1Value instanceof ColumnReference && boundingBox2Value instanceof Value) {
-      final ColumnReference column = (ColumnReference) boundingBox1Value;
-      final Value value = (Value) boundingBox2Value;
+      final ColumnReference column = (ColumnReference)boundingBox1Value;
+      final Value value = (Value)boundingBox2Value;
       final Object bboxValue = value.getQueryValue();
 
       final String fieldName = column.getName();
       if (recordDefinition.isGeometryField(fieldName) && bboxValue instanceof BoundingBox) {
-        final BoundingBox boundingBox = (BoundingBox) bboxValue;
+        final BoundingBox boundingBox = (BoundingBox)bboxValue;
         final String idFieldName = recordDefinition.getIdFieldName();
         sql.append(idFieldName);
         sql.append(" in (select id from rtree_" + recordDefinition.getDbTableName() + "_"
-            + fieldName.toLowerCase()
-            + " where minx >= ? and maxx <= ? and miny >= ? and maxy <= ?)");
+          + fieldName.toLowerCase()
+          + " where minx >= ? and maxx <= ? and miny >= ? and maxy <= ?)");
         final double minX = boundingBox.getMinX();
         final double maxX = boundingBox.getMaxX();
         final double minY = boundingBox.getMinY();
@@ -147,10 +150,11 @@ public class GeoPackageRecordStore extends AbstractJdbcRecordStore {
 
   @Override
   protected RecordDefinition createRecordDefinitionDo(final RecordDefinition oldRecordDefinition) {
-    final String tableName = oldRecordDefinition.getPathName().getName();
+    final String tableName = oldRecordDefinition.getPathName()
+      .getName();
 
     final RecordDefinitionBuilder newRdBuilder = new RecordDefinitionBuilder(tableName)
-        .setGeometryFactory(oldRecordDefinition.getGeometryFactory());
+      .setGeometryFactory(oldRecordDefinition.getGeometryFactory());
 
     final String idFieldName;
     if (isPrimaryKeyValid(oldRecordDefinition)) {
@@ -162,7 +166,8 @@ public class GeoPackageRecordStore extends AbstractJdbcRecordStore {
     }
     newRdBuilder.setIdFieldName(idFieldName);
     for (final FieldDefinition field : oldRecordDefinition.getFields()) {
-      if (!field.getName().equals(idFieldName)) {
+      if (!field.getName()
+        .equals(idFieldName)) {
         final FieldDefinition newField = field.clone();
         newRdBuilder.addField(newField);
       }
@@ -186,21 +191,21 @@ public class GeoPackageRecordStore extends AbstractJdbcRecordStore {
         final int coordinateSystemId = coordinateSystem.getCoordinateSystemId();
         final String sridSql = "SELECT srs_id from gpkg_spatial_ref_sys where srs_id = ?";
         try (
-            JdbcConnection connection = super.getJdbcConnection()) {
+          JdbcConnection connection = super.getJdbcConnection()) {
           try (
-              final PreparedStatement statement = connection.prepareStatement(sridSql)) {
+            final PreparedStatement statement = connection.prepareStatement(sridSql)) {
             statement.setInt(1, coordinateSystemId);
 
             try (
-                final ResultSet resultSet = statement.executeQuery()) {
+              final ResultSet resultSet = statement.executeQuery()) {
               if (!resultSet.next()) {
                 final String insertSrsSql = "INSERT INTO gpkg_spatial_ref_sys (srs_name, srs_id, organization, organization_coordsys_id, definition, description) VALUES (?,?,?,?,?,?)";
                 final String coordinateSystemName = coordinateSystem.getCoordinateSystemName();
                 final String esriWktCs = coordinateSystem.toEsriWktCs();
 
                 try (
-                    final PreparedStatement insertStatement = connection
-                        .prepareStatement(insertSrsSql)) {
+                  final PreparedStatement insertStatement = connection
+                    .prepareStatement(insertSrsSql)) {
                   insertStatement.setString(1, coordinateSystemName);
                   insertStatement.setInt(2, coordinateSystemId);
                   insertStatement.setString(3, "EPSG");
@@ -239,8 +244,8 @@ public class GeoPackageRecordStore extends AbstractJdbcRecordStore {
     executeSql("user_version", "PRAGMA user_version = 10201;");
 
     for (final String fileName : Arrays.asList("gpkg_spatial_ref_sys.sql", "gpkg_contents.sql",
-        "gpkg_data_columns.sql", "gpkg_data_column_constraints.sql", "gpkg_extensions.sql",
-        "gpkg_geometry_columns.sql", "gpkg_metadata.sql", "gpkg_metadata_reference.sql"
+      "gpkg_data_columns.sql", "gpkg_data_column_constraints.sql", "gpkg_extensions.sql",
+      "gpkg_geometry_columns.sql", "gpkg_metadata.sql", "gpkg_metadata_reference.sql"
     // , "gpkg_tile_matrix.sql", "gpkg_tile_matrix_set.sql"
     )) {
       for (final String sql : getSqlTemplates(fileName)) {
@@ -257,10 +262,11 @@ public class GeoPackageRecordStore extends AbstractJdbcRecordStore {
 
   private void executeSql(final String task, final String sql) {
     try (
-        JdbcConnection connection = getJdbcConnection()) {
-      if (sql.strip().length() > 0) {
+      JdbcConnection connection = getJdbcConnection()) {
+      if (sql.strip()
+        .length() > 0) {
         try (
-            Statement statement = connection.createStatement()) {
+          Statement statement = connection.createStatement()) {
           statement.execute(sql);
         }
       }
@@ -271,10 +277,11 @@ public class GeoPackageRecordStore extends AbstractJdbcRecordStore {
 
   private void executeSqlNoFunctions(final String task, final String sql) {
     try (
-        JdbcConnection connection = super.getJdbcConnection()) {
-      if (sql.strip().length() > 0) {
+      JdbcConnection connection = super.getJdbcConnection()) {
+      if (sql.strip()
+        .length() > 0) {
         try (
-            Statement statement = connection.createStatement()) {
+          Statement statement = connection.createStatement()) {
           statement.execute(sql);
         }
       }
@@ -294,7 +301,7 @@ public class GeoPackageRecordStore extends AbstractJdbcRecordStore {
   }
 
   private GeometryFactory getGeometryFactory(final Connection connection,
-      final int coordinateSystemId) throws SQLException {
+    final int coordinateSystemId) throws SQLException {
     if (coordinateSystemId <= 0) {
       return GeometryFactory.DEFAULT_2D;
     }
@@ -304,11 +311,11 @@ public class GeoPackageRecordStore extends AbstractJdbcRecordStore {
       return geometryFactory;
     } else {
       try (
-          PreparedStatement statement = connection
-              .prepareStatement("select definition from gpkg_spatial_ref_sys where srs_id = ?")) {
+        PreparedStatement statement = connection
+          .prepareStatement("select definition from gpkg_spatial_ref_sys where srs_id = ?")) {
         statement.setInt(1, coordinateSystemId);
         try (
-            ResultSet resultSet = statement.executeQuery()) {
+          ResultSet resultSet = statement.executeQuery()) {
           if (resultSet.next()) {
             final String wkt = resultSet.getString(1);
             return GeometryFactory.floating2d(wkt);
@@ -327,16 +334,16 @@ public class GeoPackageRecordStore extends AbstractJdbcRecordStore {
   @SuppressWarnings("unchecked")
   @Override
   public <RD extends RecordDefinition> RD getRecordDefinition(
-      final RecordDefinition recordDefinition) {
+    final RecordDefinition recordDefinition) {
     PathName pathName = recordDefinition.getPathName();
     if (pathName.getElementCount() > 1) {
       pathName = pathName.getLastElement();
     }
     final RecordDefinition rd = getRecordDefinition(pathName);
     if (rd == null && recordDefinition != null && isCreateMissingTables()) {
-      return (RD) createRecordDefinitionDo(recordDefinition);
+      return (RD)createRecordDefinitionDo(recordDefinition);
     }
-    return (RD) rd;
+    return (RD)rd;
   }
 
   @Override
@@ -351,8 +358,8 @@ public class GeoPackageRecordStore extends AbstractJdbcRecordStore {
 
   private String[] getSqlTemplates(final String fileName) {
     final String sqlStatements = Resource
-        .getResource("classpath:/com/revolsys/geopackage/" + fileName)
-        .contentsAsString();
+      .getResource("classpath:/com/revolsys/geopackage/" + fileName)
+      .contentsAsString();
     return sqlStatements.split("-- END --");
   }
 
@@ -419,12 +426,12 @@ public class GeoPackageRecordStore extends AbstractJdbcRecordStore {
 
   @Override
   public PreparedStatement insertStatementPrepareRowId(final JdbcConnection connection,
-      final RecordDefinition recordDefinition, final String sql) throws SQLException {
+    final RecordDefinition recordDefinition, final String sql) throws SQLException {
     final List<FieldDefinition> idFields = recordDefinition.getIdFields();
     final String[] idColumnNames = new String[idFields.size()];
     for (int i = 0; i < idFields.size(); i++) {
       final FieldDefinition idField = idFields.get(0);
-      final String columnName = ((JdbcFieldDefinition) idField).getDbName();
+      final String columnName = ((JdbcFieldDefinition)idField).getDbName();
       idColumnNames[i] = columnName;
     }
     return connection.prepareStatement(sql, idColumnNames);
@@ -437,7 +444,7 @@ public class GeoPackageRecordStore extends AbstractJdbcRecordStore {
       if (Number.class.isAssignableFrom(idField.getTypeClass())) {
         final DataType dataType = idField.getDataType();
         return !(dataType == DataTypes.FLOAT || dataType == DataTypes.DOUBLE
-            || dataType == DataTypes.DECIMAL);
+          || dataType == DataTypes.DECIMAL);
       }
     }
     return false;
@@ -456,24 +463,24 @@ public class GeoPackageRecordStore extends AbstractJdbcRecordStore {
 
   @Override
   protected Map<PathName, ? extends RecordStoreSchemaElement> refreshSchemaElementsDo(
-      final JdbcRecordStoreSchema schema, final PathName schemaPath) {
+    final JdbcRecordStoreSchema schema, final PathName schemaPath) {
     final String schemaName = schema.getPath();
 
     final Map<PathName, RecordStoreSchemaElement> elementsByPath = new TreeMap<>();
     try {
       try (
-          final Connection connection = getJdbcConnection();
-          final PreparedStatement statement = connection.prepareStatement(
-              "select * from gpkg_contents where data_type in ('attributes', 'features') and table_name <> 'ogr_empty_table'");
+        final Connection connection = getJdbcConnection();
+        final PreparedStatement statement = connection.prepareStatement(
+          "select * from gpkg_contents where data_type in ('attributes', 'features') and table_name <> 'ogr_empty_table'");
 
-          ResultSet resultSet = statement.executeQuery();) {
+        ResultSet resultSet = statement.executeQuery();) {
         while (resultSet.next()) {
           final String tableType = resultSet.getString("data_type");
 
           final String tableName = resultSet.getString("table_name");
           final PathName pathName = PathName.newPathName(tableName);
           final JdbcRecordDefinition recordDefinition = new JdbcRecordDefinition(schema, pathName,
-              tableName);
+            tableName);
 
           final String description = resultSet.getString("description");
           recordDefinition.setDescription(description);
@@ -481,7 +488,7 @@ public class GeoPackageRecordStore extends AbstractJdbcRecordStore {
           if ("features".equals(tableType)) {
             final int coordinateSystemId = resultSet.getInt("srs_id");
             final GeometryFactory geometryFactory = getGeometryFactory(connection,
-                coordinateSystemId);
+              coordinateSystemId);
             recordDefinition.setGeometryFactory(geometryFactory);
             final double minX = resultSet.getDouble("min_x");
             final double minY = resultSet.getDouble("min_y");
@@ -492,10 +499,10 @@ public class GeoPackageRecordStore extends AbstractJdbcRecordStore {
           }
           final List<String> idFieldNames = new ArrayList<>();
           try (
-              PreparedStatement columnStatement = connection
-                  .prepareStatement("PRAGMA table_info(" + tableName + ")")) {
+            PreparedStatement columnStatement = connection
+              .prepareStatement("PRAGMA table_info(" + tableName + ")")) {
             try (
-                final ResultSet columnsRs = columnStatement.executeQuery()) {
+              final ResultSet columnsRs = columnStatement.executeQuery()) {
               while (columnsRs.next()) {
                 final String dbColumnName = columnsRs.getString("name");
                 final String fieldName = dbColumnName;
@@ -507,14 +514,16 @@ public class GeoPackageRecordStore extends AbstractJdbcRecordStore {
                   length = Integer.parseInt(dataType.substring(5, dataType.length() - 1));
                   dataType = "TEXT";
                 }
-                final boolean required = columnsRs.getString("notnull").equals("1");
-                final boolean primaryKey = columnsRs.getString("pk").equals("1");
+                final boolean required = columnsRs.getString("notnull")
+                  .equals("1");
+                final boolean primaryKey = columnsRs.getString("pk")
+                  .equals("1");
                 if (primaryKey) {
                   idFieldNames.add(fieldName);
                 }
                 final Object defaultValue = columnsRs.getString("dflt_value");
                 final FieldDefinition field = addField(recordDefinition, dbColumnName, fieldName,
-                    sqlType, dataType, length, scale, required, null);
+                  sqlType, dataType, length, scale, required, null);
                 field.setDefaultValue(defaultValue);
               }
             }
@@ -532,18 +541,18 @@ public class GeoPackageRecordStore extends AbstractJdbcRecordStore {
 
   public MapEx selectMapNoFunctions(final String sql, final Object... parameters) {
     try (
-        JdbcConnection connection = super.getJdbcConnection()) {
+      JdbcConnection connection = super.getJdbcConnection()) {
       try (
-          final PreparedStatement statement = connection.prepareStatement(sql)) {
+        final PreparedStatement statement = connection.prepareStatement(sql)) {
         JdbcUtils.setParameters(statement, parameters);
 
         try (
-            final ResultSet resultSet = statement.executeQuery()) {
+          final ResultSet resultSet = statement.executeQuery()) {
           if (resultSet.next()) {
             return JdbcUtils.readMap(resultSet);
           } else {
             throw new IllegalArgumentException(
-                "Value not found for " + sql + " " + Arrays.asList(parameters));
+              "Value not found for " + sql + " " + Arrays.asList(parameters));
           }
         }
       }

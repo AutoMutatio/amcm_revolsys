@@ -41,7 +41,7 @@ public class ThreadFactoryEx
   private static final Set<String> ignoreThreadNames = Sets
     .newHash(Lists.newArray("JDWP Transport Listener: dt_socket", "JDWP Event Helper Thread",
       "JDWP Command Reader", "RMI TCP Accept-59634", "RMI TCP Accept-0", "Live Reload Server",
-      "DestroyJavaVM", "Reference Handler", "Finalizer"));
+      "DestroyJavaVM", "Reference Handler", "Finalizer", "File Watcher"));
 
   private static void cleanupReferences() {
     for (var ref = FACTORY_QUEUE.poll(); ref != null; ref = FACTORY_QUEUE.poll()) {
@@ -55,42 +55,55 @@ public class ThreadFactoryEx
       .filter(f -> f != null);
   }
 
+  private static boolean hideThread(final String name) {
+    if (name.startsWith("RMI TCP ")) {
+      return true;
+    } else if (name.startsWith("JMX ")) {
+      return true;
+    } else if (name.startsWith("container-")) {
+      return true;
+    } else if (name.endsWith("-Poller")) {
+      return true;
+    } else if (name.endsWith("-Acceptor")) {
+      return true;
+    } else if (ignoreThreadNames.contains(name)) {
+      return true;
+    }
+    return false;
+  }
+
   public static boolean hideThread(final Thread t) {
+    final var threadName = t.getName();
+    if (hideThread(threadName)) {
+      return false;
+    }
+
     final var stackTrace = t.getStackTrace();
     if (stackTrace.length == 0) {
       return false;
-    } else if (stackTrace[0].toString()
-      .contains("jdk.internal.misc.Unsafe.park")) {
-      return false;
-    } else if (t.getName()
-      .startsWith("RMI TCP ")) {
-      return false;
-    } else if (t.getName()
-      .startsWith("JMX ")) {
-      return false;
-    } else if (ignoreThreadNames.contains(t.getName())) {
-      return false;
+      // } else if (stackTrace[0].toString()
+      // .contains("jdk.internal.misc.Unsafe.park")) {
+      // return false;
+      // } else if (stackTrace[0].toString()
+      // .contains("java.lang.VirtualThread.park")) {
+      // return false;
+    } else {
+      return true;
     }
-    return true;
   }
 
   public static boolean hideThread(final ThreadInfo t) {
+    final var threadName = t.getThreadName();
+    if (hideThread(threadName)) {
+      return false;
+    }
+
     final var stackTrace = t.getStackTrace();
     if (stackTrace.length == 0) {
       return false;
-    } else if (stackTrace[0].toString()
-      .startsWith("java.base@21/jdk.internal.misc.Unsafe.park")) {
-      return false;
-    } else if (t.getThreadName()
-      .startsWith("RMI TCP ")) {
-      return false;
-    } else if (t.getThreadName()
-      .startsWith("JMX ")) {
-      return false;
-    } else if (ignoreThreadNames.contains(t.getThreadName())) {
-      return false;
+    } else {
+      return true;
     }
-    return true;
   }
 
   private final ThreadFactory factory;

@@ -7,10 +7,8 @@ import com.revolsys.collection.list.ArrayListEx;
 import com.revolsys.collection.list.ListEx;
 import com.revolsys.collection.list.Lists;
 import com.revolsys.record.schema.RecordDefinition;
-import com.revolsys.record.schema.RecordDefinitionProxy;
-import com.revolsys.record.schema.RecordStore;
 
-public class UpdateStatement implements RecordDefinitionProxy {
+public class UpdateStatement implements QueryStatement {
   private final ListEx<From> fromClauses = Lists.newArray();
 
   private final ListEx<SetClause> setClauses = new ArrayListEx<>();
@@ -35,7 +33,6 @@ public class UpdateStatement implements RecordDefinitionProxy {
   }
 
   public void appendSql(final SqlAppendable sql) {
-    final RecordStore recordStore = getRecordStore();
     if (!this.withClauses.isEmpty()) {
       sql.append("WITH ");
       boolean first = true;
@@ -55,7 +52,7 @@ public class UpdateStatement implements RecordDefinitionProxy {
     if (this.setClauses.isEmpty()) {
       throw new IllegalStateException("Update statement must set at least one value");
     }
-    SetClause.appendSet(sql, recordStore, this.setClauses);
+    SetClause.appendSet(sql, this, this.setClauses);
     if (!this.fromClauses.isEmpty()) {
       sql.append(" FROM  ");
       boolean first = true;
@@ -72,8 +69,12 @@ public class UpdateStatement implements RecordDefinitionProxy {
     final Condition where = this.where;
     if (where != null && !where.isEmpty()) {
       sql.append(" WHERE  ");
-      where.appendSql(null, recordStore, sql);
+      where.appendSql(this, sql);
     }
+  }
+
+  public int executeUpdateCount() {
+    return getRecordStore().updateRecords(this);
   }
 
   @Override
@@ -110,7 +111,7 @@ public class UpdateStatement implements RecordDefinitionProxy {
   }
 
   public UpdateStatement set(final ColumnReference column, final QueryValue value) {
-    this.setClauses.add(new SetClause(column, value));
+    this.setClauses.add(new SetClause(this, column, value));
     return this;
   }
 
@@ -145,34 +146,20 @@ public class UpdateStatement implements RecordDefinitionProxy {
     return sqlBuilder.toSqlString();
   }
 
-  public int updateRecords() {
-    return getRecordStore().updateRecords(this);
-  }
-
-  public UpdateStatement where(final Condition where) {
-    this.where = where;
-    return this;
+  /**
+   * Add a where condition for this field and value.
+   *
+   * @param fieldName
+   * @param value
+   * @return
+   */
+  public UpdateStatement updateKey(final String fieldName, final Object value) {
+    return where(w -> w.and(fieldName, value));
   }
 
   public UpdateStatement where(final Consumer<WhereConditionBuilder> action) {
     final var table = table();
     this.where = new WhereConditionBuilder(table, this.where).build(action);
-    return this;
-  }
-
-  public UpdateStatement where(final String fieldName, final Object value) {
-    final ColumnReference left = this.table.getColumn(fieldName);
-    if (value == null) {
-      this.where = new IsNull(left);
-    } else {
-      QueryValue right;
-      if (value instanceof final QueryValue queryValue) {
-        right = queryValue;
-      } else {
-        right = new Value(left, value);
-      }
-      this.where = new Equal(left, right);
-    }
     return this;
   }
 

@@ -111,6 +111,10 @@ public class Channel<T> implements SelectableChannelInput<T>, ChannelOutput<T>, 
         action.accept(value);
       }
     } catch (final ExitLoopException | ClosedException e) {
+    } catch (final RuntimeException e) {
+      if (!Exceptions.isInterruptException(e)) {
+        throw e;
+      }
     }
   }
 

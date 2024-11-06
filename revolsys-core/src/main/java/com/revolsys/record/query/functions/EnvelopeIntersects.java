@@ -9,7 +9,7 @@ import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.record.query.AbstractBinaryQueryValue;
 import com.revolsys.record.query.Condition;
-import com.revolsys.record.query.Query;
+import com.revolsys.record.query.QueryStatement;
 import com.revolsys.record.query.QueryValue;
 import com.revolsys.record.query.SqlAppendable;
 import com.revolsys.record.query.TableReference;
@@ -25,12 +25,12 @@ public class EnvelopeIntersects extends AbstractBinaryQueryValue implements Cond
   }
 
   @Override
-  public void appendDefaultSql(final Query query, final RecordStore recordStore,
+  public void appendDefaultSql(final QueryStatement statement, final RecordStore recordStore,
     final SqlAppendable buffer) {
     buffer.append("ST_INTERSECTS(");
-    appendLeft(buffer, query, recordStore);
+    appendLeft(statement, recordStore, buffer);
     buffer.append(", ");
-    appendRight(buffer, query, recordStore);
+    appendRight(statement, recordStore, buffer);
     buffer.append(")");
   }
 

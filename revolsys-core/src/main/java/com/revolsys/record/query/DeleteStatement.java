@@ -4,10 +4,8 @@ import java.sql.PreparedStatement;
 import java.util.function.Consumer;
 
 import com.revolsys.record.schema.RecordDefinition;
-import com.revolsys.record.schema.RecordDefinitionProxy;
-import com.revolsys.record.schema.RecordStore;
 
-public class DeleteStatement implements RecordDefinitionProxy {
+public class DeleteStatement implements QueryStatement {
 
   private TableReference from;
 
@@ -22,13 +20,12 @@ public class DeleteStatement implements RecordDefinitionProxy {
   }
 
   public void appendSql(final SqlAppendable sql) {
-    final RecordStore recordStore = getRecordStore();
     sql.append("DELETE FROM ");
     this.from.appendFromWithAlias(sql);
     final Condition where = this.where;
     if (where != null && !where.isEmpty()) {
       sql.append(" WHERE  ");
-      where.appendSql(null, recordStore, sql);
+      where.appendSql(this, sql);
     }
   }
 

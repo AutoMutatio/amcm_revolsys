@@ -3,11 +3,11 @@ package com.revolsys.record.query;
 import java.sql.PreparedStatement;
 
 import com.revolsys.collection.iterator.BaseIterable;
-import com.revolsys.record.schema.RecordStore;
 
-public record SetClause(ColumnReference column, QueryValue value) implements SqlAppendParameters {
+public record SetClause(QueryStatement statement, ColumnReference column, QueryValue value)
+  implements SqlAppendParameters {
 
-  public static void appendSet(final SqlAppendable sql, final RecordStore recordStore,
+  public static void appendSet(final SqlAppendable sql, final QueryStatement statement,
     final BaseIterable<SetClause> clauses) {
     sql.append(" SET ");
     {
@@ -18,18 +18,18 @@ public record SetClause(ColumnReference column, QueryValue value) implements Sql
         } else {
           sql.append(", ");
         }
-        set.appendSql(recordStore, sql);
+        set.appendSql(statement, sql);
       }
     }
   }
 
-  public void appendSql(final RecordStore recordStore, final SqlAppendable sql) {
+  public void appendSql(final QueryStatement statement, final SqlAppendable sql) {
     this.column.appendColumnName(sql);
     sql.append(" = ");
     if (this.value == null) {
       sql.append("null");
     } else {
-      this.value.appendSql(null, recordStore, sql);
+      this.value.appendSql(statement, sql);
     }
   }
 

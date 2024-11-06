@@ -114,29 +114,34 @@ public interface QueryValue extends Cloneable, SqlAppendParameters {
     return recordStore.addField(recordDefinition, metaData, columnIndex);
   }
 
-  default void appendDefaultSelect(final Query query, final RecordStore recordStore,
+  default void appendDefaultSelect(final QueryStatement statement, final RecordStore recordStore,
     final SqlAppendable sql) {
-    recordStore.appendQueryValue(query, sql, this);
+    recordStore.appendQueryValue(statement, sql, this);
   }
 
-  void appendDefaultSql(Query query, RecordStore recordStore, SqlAppendable sql);
+  void appendDefaultSql(QueryStatement statement, RecordStore recordStore, SqlAppendable sql);
 
-  default void appendSelect(final Query query, final RecordStore recordStore,
+  default void appendSelect(final QueryStatement statement, final RecordStore recordStore,
     final SqlAppendable sql) {
     if (recordStore == null) {
-      appendDefaultSelect(query, null, sql);
+      appendDefaultSelect(statement, null, sql);
     } else {
-      recordStore.appendSelect(query, sql, this);
+      recordStore.appendSelect(statement, sql, this);
     }
   }
 
-  default void appendSql(final Query query, final RecordStore recordStore,
+  default void appendSql(final QueryStatement statement, final RecordStore recordStore,
     final SqlAppendable sql) {
     if (recordStore == null) {
-      appendDefaultSql(query, null, sql);
+      appendDefaultSql(statement, null, sql);
     } else {
-      recordStore.appendQueryValue(query, sql, this);
+      recordStore.appendQueryValue(statement, sql, this);
     }
+  }
+
+  default void appendSql(final QueryStatement statement, final SqlAppendable sql) {
+    final var recordStore = statement.getRecordStore();
+    appendSql(statement, recordStore, sql);
   }
 
   default void changeRecordDefinition(final RecordDefinition oldRecordDefinition,

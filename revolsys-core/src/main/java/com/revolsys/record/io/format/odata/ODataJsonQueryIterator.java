@@ -12,6 +12,7 @@ import com.revolsys.collection.iterator.IterableWithCount;
 import com.revolsys.collection.json.JsonObject;
 import com.revolsys.http.HttpRequestBuilder;
 import com.revolsys.http.HttpRequestBuilderFactory;
+import com.revolsys.util.Debug;
 
 public class ODataJsonQueryIterator<V> extends AbstractIterator<V> implements IterableWithCount<V> {
 
@@ -69,8 +70,13 @@ public class ODataJsonQueryIterator<V> extends AbstractIterator<V> implements It
   }
 
   void executeRequest() {
+
     final JsonObject json = this.request.responseAsJson();
+    final var s = this.request.toString();
     if (json == null) {
+      if (s.contains("delta")) {
+        Debug.noOp();
+      }
       this.nextURI = null;
       this.results = Collections.emptyIterator();
       return;
@@ -87,6 +93,10 @@ public class ODataJsonQueryIterator<V> extends AbstractIterator<V> implements It
       }
       if (json.hasValue("@odata.deltaLink")) {
         this.deltaLink = json.getURI("@odata.deltaLink");
+      }
+      if (s.contains("delta")
+        && s.contains("b!BynUrbeF7EuVqMKG1KJ_jiTpdJ11PeNKuR_ubcnOIY8bW0kyDAj3Q52JeZXO5QFR")) {
+        Debug.noOp();
       }
       this.results = json.<JsonObject> getList("value")
         .iterator();
@@ -115,10 +125,19 @@ public class ODataJsonQueryIterator<V> extends AbstractIterator<V> implements It
         return this.converter.apply(recordJson);
       }
       if (this.nextURI == null || ++this.pageCount >= this.pageLimit) {
+        if (this.request.toString()
+          .contains("delta")) {
+          Debug.noOp();
+        }
         throw new NoSuchElementException();
       } else {
-        this.request = this.requestFactory.get(this.nextURI);
-        executeRequest();
+        try {
+          this.request = this.requestFactory.get(this.nextURI);
+          executeRequest();
+        } catch (final Exception e) {
+          // TODO Auto-generated catch block
+          e.printStackTrace();
+        }
       }
     } while (this.results != null);
     throw new NoSuchElementException();
