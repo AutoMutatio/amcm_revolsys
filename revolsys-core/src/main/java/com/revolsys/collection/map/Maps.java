@@ -35,7 +35,7 @@ public interface Maps {
   public static final Supplier<Map<?, ?>> FACTORY_HASH = HashMap::new;
 
   static <K1, V> boolean addAllToSet(final Map<K1, Set<V>> map, final K1 key1,
-      final Collection<? extends V> values) {
+    final Collection<? extends V> values) {
     if (Property.hasValue(values)) {
       final Set<V> set = getSet(map, key1);
       return set.addAll(values);
@@ -62,7 +62,7 @@ public interface Maps {
   }
 
   static <K1, K2, C extends Collection<V>, V> boolean addToCollection(final Supplier<C> factory,
-      final Map<K1, Map<K2, C>> map, final K1 key1, final K2 key2, final V value) {
+    final Map<K1, Map<K2, C>> map, final K1 key1, final K2 key2, final V value) {
     final C values = getCollection(factory, map, key1, key2);
     return values.add(value);
   }
@@ -77,25 +77,25 @@ public interface Maps {
   }
 
   static <K1, K2, V> boolean addToList(final Map<K1, Map<K2, List<V>>> map, final K1 key1,
-      final K2 key2, final V value) {
+    final K2 key2, final V value) {
     final List<V> values = getList(map, key1, key2);
     return values.add(value);
   }
 
   static <K1, K2, V> boolean addToList(final Supplier<Map<K2, List<V>>> supplier,
-      final Map<K1, Map<K2, List<V>>> map, final K1 key1, final K2 key2, final V value) {
+    final Map<K1, Map<K2, List<V>>> map, final K1 key1, final K2 key2, final V value) {
     final List<V> values = getList(supplier, map, key1, key2);
     return values.add(value);
   }
 
   static <K1, K2, V> V addToMap(final Map<K1, Map<K2, V>> map, final K1 key1, final K2 key2,
-      final V value) {
+    final V value) {
     final Map<K2, V> mapValue = getMap(map, key1);
     return mapValue.put(key2, value);
   }
 
   static <K1, K2, V> V addToMap(final Supplier<Map<K2, V>> supplier, final Map<K1, Map<K2, V>> map,
-      final K1 key1, final K2 key2, final V value) {
+    final K1 key1, final K2 key2, final V value) {
     final Map<K2, V> mapValue = getMap(supplier, map, key1);
     return mapValue.put(key2, value);
   }
@@ -106,7 +106,7 @@ public interface Maps {
   }
 
   static <K1, V> boolean addToTreeSet(final Map<K1, Set<V>> map, final Comparator<V> comparator,
-      final K1 key1, final V value) {
+    final K1 key1, final V value) {
     final Set<V> values = getTreeSet(map, comparator, key1);
     return values.add(value);
   }
@@ -146,7 +146,7 @@ public interface Maps {
   }
 
   static <K, V> boolean collectionContains(final Map<K, ? extends Collection<? extends V>> map,
-      final K key, final V value) {
+    final K key, final V value) {
     if (map == null || key == null) {
       return false;
     } else {
@@ -160,7 +160,7 @@ public interface Maps {
   }
 
   static <K1, V> boolean containsInCollection(final Map<K1, ? extends Collection<V>> map,
-      final K1 key, final V value) {
+    final K1 key, final V value) {
     final Collection<V> collection = map.get(key);
     if (collection == null) {
       return false;
@@ -170,7 +170,7 @@ public interface Maps {
   }
 
   static <K1, K2, V> boolean containsKey(final Map<K1, Map<K2, V>> map, final K1 key1,
-      final K2 key2) {
+    final K2 key2) {
     final Map<K2, V> mapValue = getMap(map, key1);
     return mapValue.containsKey(key2);
   }
@@ -208,7 +208,7 @@ public interface Maps {
   }
 
   static boolean equals(final Map<String, Object> map1, final Map<String, Object> map2,
-      final String key) {
+    final String key) {
     final Object value1 = map1.get(key);
     final Object value2 = map2.get(key);
     final boolean equals = DataType.equal(value1, value2);
@@ -231,7 +231,7 @@ public interface Maps {
   }
 
   static boolean equalsNotNull(final Map<Object, Object> map1, final Map<Object, Object> map2,
-      final Collection<? extends CharSequence> exclude) {
+    final Collection<? extends CharSequence> exclude) {
     final Set<Object> keys = new TreeSet<>();
     keys.addAll(map1.keySet());
     keys.addAll(map2.keySet());
@@ -249,34 +249,34 @@ public interface Maps {
 
   @SuppressWarnings("unchecked")
   static boolean equalsNotNull(final Object map1, final Object map2) {
-    return equalsNotNull((Map<Object, Object>) map1, (Map<Object, Object>) map2);
+    return equalsNotNull((Map<Object, Object>)map1, (Map<Object, Object>)map2);
   }
 
   @SuppressWarnings("unchecked")
   static boolean equalsNotNull(final Object map1, final Object map2,
-      final Collection<? extends CharSequence> exclude) {
-    return equalsNotNull((Map<Object, Object>) map1, (Map<Object, Object>) map2, exclude);
+    final Collection<? extends CharSequence> exclude) {
+    return equalsNotNull((Map<Object, Object>)map1, (Map<Object, Object>)map2, exclude);
   }
 
   @SuppressWarnings({
-      "unchecked", "rawtypes"
+    "unchecked", "rawtypes"
   })
   static <K, V> Supplier<Map<K, V>> factoryHash() {
-    return (Supplier) FACTORY_HASH;
+    return (Supplier)FACTORY_HASH;
   }
 
   @SuppressWarnings({
-      "unchecked", "rawtypes"
+    "unchecked", "rawtypes"
   })
   static <K, V> Supplier<Map<K, V>> factoryLinkedHash() {
-    return (Supplier) FACTORY_LINKED_HASH;
+    return (Supplier)FACTORY_LINKED_HASH;
   }
 
   @SuppressWarnings({
-      "unchecked", "rawtypes"
+    "unchecked", "rawtypes"
   })
   static <K, V> Supplier<Map<K, V>> factoryTree() {
-    return (Supplier) FACTORY_TREE;
+    return (Supplier)FACTORY_TREE;
   }
 
   static <V> V first(final Map<?, V> map) {
@@ -293,7 +293,7 @@ public interface Maps {
     if (map == null) {
       return null;
     } else {
-      return (V) map.get(key);
+      return (V)map.get(key);
     }
   }
 
@@ -311,7 +311,7 @@ public interface Maps {
       return defaultValue;
     } else {
       @SuppressWarnings("unchecked")
-      final V value = (V) map.get(key);
+      final V value = (V)map.get(key);
       if (value == null) {
         map.put(key, defaultValue);
         return defaultValue;
@@ -340,13 +340,13 @@ public interface Maps {
   }
 
   @SuppressWarnings({
-      "unchecked", "rawtypes"
+    "unchecked", "rawtypes"
   })
   static <K, V> V get(final Supplier<V> supplier, final Map<K, ? extends Object> map, final K key) {
-    V value = (V) map.get(key);
+    V value = (V)map.get(key);
     if (value == null) {
       value = supplier.get();
-      ((Map) map).put(key, value);
+      ((Map)map).put(key, value);
     }
     return value;
   }
@@ -356,19 +356,19 @@ public interface Maps {
     if (value == null) {
       return false;
     } else if (value instanceof Boolean) {
-      return (Boolean) value;
+      return (Boolean)value;
     } else {
       return Boolean.parseBoolean(value.toString());
     }
   }
 
   static boolean getBool(final Map<String, ? extends Object> map, final String name,
-      final boolean defaultValue) {
+    final boolean defaultValue) {
     final Object value = get(map, name);
     if (value == null) {
       return defaultValue;
     } else if (value instanceof Boolean) {
-      return (Boolean) value;
+      return (Boolean)value;
     } else {
       return Boolean.parseBoolean(value.toString());
     }
@@ -379,14 +379,14 @@ public interface Maps {
     if (value == null) {
       return null;
     } else if (value instanceof Boolean) {
-      return (Boolean) value;
+      return (Boolean)value;
     } else {
       return Boolean.valueOf(value.toString());
     }
   }
 
   static <K, C extends Collection<V>, V> C getCollection(final Supplier<C> factory,
-      final Map<K, C> map, final K key) {
+    final Map<K, C> map, final K key) {
     C collection = map.get(key);
     if (collection == null && factory != null) {
       collection = factory.get();
@@ -396,7 +396,7 @@ public interface Maps {
   }
 
   static <K1, K2, C extends Collection<V>, V> C getCollection(final Supplier<C> factory,
-      final Map<K1, Map<K2, C>> map, final K1 key1, final K2 key2) {
+    final Map<K1, Map<K2, C>> map, final K1 key1, final K2 key2) {
     final Map<K2, C> map2 = getMap(map, key1);
     final C collecion = getCollection(factory, map2, key2);
     return collecion;
@@ -416,7 +416,7 @@ public interface Maps {
     if (value == null) {
       return null;
     } else if (value instanceof Number) {
-      final Number number = (Number) value;
+      final Number number = (Number)value;
       return number.doubleValue();
     } else {
       final String stringValue = value.toString();
@@ -433,7 +433,7 @@ public interface Maps {
   }
 
   static <K> double getDouble(final Map<K, ? extends Object> object, final K name,
-      final double defaultValue) {
+    final double defaultValue) {
     final Double value = getDouble(object, name);
     if (value == null) {
       return defaultValue;
@@ -443,7 +443,7 @@ public interface Maps {
   }
 
   static Double getDoubleValue(final Map<String, ? extends Object> map, final String name) {
-    final Number value = (Number) get(map, name);
+    final Number value = (Number)get(map, name);
     if (value == null) {
       return null;
     } else {
@@ -468,7 +468,7 @@ public interface Maps {
     if (value == null) {
       return null;
     } else if (value instanceof Number) {
-      final Number number = (Number) value;
+      final Number number = (Number)value;
       return number.intValue();
     } else {
       final String stringValue = value.toString();
@@ -485,7 +485,7 @@ public interface Maps {
   }
 
   static <K> int getInteger(final Map<K, ? extends Object> object, final K name,
-      final int defaultValue) {
+    final int defaultValue) {
     final Integer value = getInteger(object, name);
     if (value == null) {
       return defaultValue;
@@ -504,14 +504,14 @@ public interface Maps {
   }
 
   static <K1, K2, V> List<V> getList(final Map<K1, Map<K2, List<V>>> map, final K1 key1,
-      final K2 key2) {
+    final K2 key2) {
     final Map<K2, List<V>> map2 = getMap(map, key1);
     final List<V> list = getList(map2, key2);
     return list;
   }
 
   static <K1, K2, V> List<V> getList(final Supplier<Map<K2, List<V>>> supplier,
-      final Map<K1, Map<K2, List<V>>> map, final K1 key1, final K2 key2) {
+    final Map<K1, Map<K2, List<V>>> map, final K1 key1, final K2 key2) {
     final Map<K2, List<V>> map2 = getMap(supplier, map, key1);
     final List<V> list = getList(map2, key2);
     return list;
@@ -522,7 +522,7 @@ public interface Maps {
     if (value == null) {
       return null;
     } else if (value instanceof Number) {
-      final Number number = (Number) value;
+      final Number number = (Number)value;
       return number.longValue();
     } else {
       final String stringValue = value.toString();
@@ -539,12 +539,12 @@ public interface Maps {
   }
 
   static long getLong(final Map<String, ? extends Object> map, final String name,
-      final long defaultValue) {
+    final long defaultValue) {
     final Object value = get(map, name);
     if (value == null) {
       return defaultValue;
     } else if (value instanceof Number) {
-      final Number number = (Number) value;
+      final Number number = (Number)value;
       return number.longValue();
     } else {
       final String stringValue = value.toString();
@@ -575,13 +575,13 @@ public interface Maps {
   }
 
   static <K1, K2, V> V getMap(final Map<K1, Map<K2, V>> map, final K1 key1, final K2 key2,
-      final Supplier<V> supplier) {
+    final Supplier<V> supplier) {
     final Map<K2, V> values = getMap(map, key1);
     return get(supplier, values, key2);
   }
 
   static <K1, K2, V> V getMap(final Map<K1, Map<K2, V>> map, final K1 key1, final K2 key2,
-      final V defaultValue) {
+    final V defaultValue) {
     final Map<K2, V> values = getMap(map, key1);
     final V value = values.get(key2);
     if (value == null) {
@@ -592,7 +592,7 @@ public interface Maps {
   }
 
   static <K1, K2, V> Map<K2, V> getMap(final Supplier<Map<K2, V>> supplier,
-      final Map<K1, Map<K2, V>> map, final K1 key) {
+    final Map<K1, Map<K2, V>> map, final K1 key) {
     Map<K2, V> value = map.get(key);
     if (value == null) {
       value = supplier.get();
@@ -633,7 +633,7 @@ public interface Maps {
   }
 
   static String getString(final Map<String, ? extends Object> map, final String name,
-      final String defaultValue) {
+    final String defaultValue) {
     final Object value = get(map, name);
     if (value == null) {
       return defaultValue;
@@ -652,7 +652,7 @@ public interface Maps {
   }
 
   static <K, V> Set<V> getTreeSet(final Map<K, Set<V>> map, final Comparator<V> comparator,
-      final K key) {
+    final K key) {
     Set<V> value = map.get(key);
     if (value == null) {
       value = new TreeSet<>(comparator);
@@ -702,7 +702,7 @@ public interface Maps {
   }
 
   static <K, V> void mergeCollection(final Map<K, Collection<V>> map,
-      final Map<K, Collection<V>> otherMap) {
+    final Map<K, Collection<V>> otherMap) {
     for (final Entry<K, Collection<V>> entry : otherMap.entrySet()) {
       final K key = entry.getKey();
       Collection<V> collection = map.get(key);
@@ -749,7 +749,7 @@ public interface Maps {
   }
 
   static <T1, T2> Map<T1, T2> newLinkedHash(final List<T1> sourceValues,
-      final List<T2> targetValues) {
+    final List<T2> targetValues) {
     final Map<T1, T2> map = newLinkedHash();
     for (int i = 0; i < sourceValues.size() && i < targetValues.size(); i++) {
       final T1 sourceValue = sourceValues.get(i);
@@ -780,7 +780,7 @@ public interface Maps {
   }
 
   static <K extends Comparable<K>, V extends Comparable<V>> TreeMap<K, V> newTree(
-      final Comparator<K> comparator) {
+    final Comparator<K> comparator) {
     return new TreeMap<>(comparator);
   }
 
@@ -807,19 +807,19 @@ public interface Maps {
   }
 
   static <K1, K2, V> V put(final Map<K1, Map<K2, V>> map, final K1 key1, final K2 key2,
-      final V value) {
+    final V value) {
     final Map<K2, V> values = getMap(map, key1);
     return values.put(key2, value);
   }
 
   static <K1, K2, V> V put(final Supplier<Map<K2, V>> factory, final Map<K1, Map<K2, V>> map,
-      final K1 key1, final K2 key2, final V value) {
+    final K1 key1, final K2 key2, final V value) {
     final Map<K2, V> values = getMap(factory, map, key1);
     return values.put(key2, value);
   }
 
   static void putAll(final Map<String, Object> map,
-      final Map<String, ? extends Object> properties) {
+    final Map<String, ? extends Object> properties) {
     if (map != null && properties != null) {
       for (final Entry<String, ? extends Object> entry : properties.entrySet()) {
         final String key = entry.getKey();
@@ -832,7 +832,7 @@ public interface Maps {
   static void putAll(final Map<String, Object> map, final Properties properties) {
     if (map != null && properties != null) {
       for (final Entry<Object, Object> entry : properties.entrySet()) {
-        final String key = (String) entry.getKey();
+        final String key = (String)entry.getKey();
         final Object value = entry.getValue();
         map.put(key, value);
       }
@@ -840,7 +840,7 @@ public interface Maps {
   }
 
   static <K, V extends Comparable<V>> void putIfGreaterThan(final Map<K, V> map, final K key,
-      final V value) {
+    final V value) {
     final V lastValue = map.get(key);
     if (lastValue == null || value.compareTo(lastValue) > 1) {
       map.put(key, value);
@@ -848,7 +848,7 @@ public interface Maps {
   }
 
   static <K, V> boolean removeFromCollection(final Map<K, ? extends Collection<V>> map, final K key,
-      final V value) {
+    final V value) {
     final Collection<V> values = map.get(key);
     if (values == null) {
       return false;
@@ -888,7 +888,7 @@ public interface Maps {
   }
 
   static <K, V extends Comparable<V>> void removeIfGreaterThanEqual(final Map<K, V> map,
-      final K key, final V value) {
+    final K key, final V value) {
     final V lastValue = map.get(key);
     if (lastValue == null || value.compareTo(lastValue) >= 0) {
       map.remove(key);
@@ -896,10 +896,39 @@ public interface Maps {
   }
 
   static <K, V extends Comparable<V>> void removeIfLessThanEqual(final Map<K, V> map, final K key,
-      final V value) {
+    final V value) {
     final V lastValue = map.get(key);
     if (lastValue == null || value.compareTo(lastValue) <= 0) {
       map.remove(key);
+    }
+  }
+
+  static void replaceNullCharacters(final List<?> list) {
+    for (final ListIterator<Object> iterator = ((List)list).listIterator(); iterator.hasNext();) {
+      final Object listItem = iterator.next();
+      if (listItem instanceof final String string) {
+        final var replaced = Strings.replaceNullCharacters(string);
+        if (replaced.length() != string.length()) {
+          iterator.set(replaced);
+        }
+      }
+    }
+  }
+
+  static void replaceNullCharacters(final MapEx sourceData) {
+    for (final var key : sourceData.keySet()) {
+      final Object value = sourceData.get(key);
+      if (value instanceof final MapEx map) {
+        replaceNullCharacters(map);
+      } else if (value instanceof final List list) {
+
+        replaceNullCharacters(list);
+      } else if (value instanceof final String string) {
+        final var replaced = Strings.replaceNullCharacters(string);
+        if (replaced.length() != string.length()) {
+          sourceData.addValue(key, value);
+        }
+      }
     }
   }
 
@@ -942,7 +971,7 @@ public interface Maps {
   }
 
   static <K extends Comparable<K>, V extends Comparable<V>> Map<K, V> sortByValues(
-      final Map<K, V> map) {
+    final Map<K, V> map) {
     final MapValueComparator<K, V> comparator = new MapValueComparator<>(map);
     final Map<K, V> sortedMap = newTree(comparator);
     sortedMap.putAll(map);
@@ -978,31 +1007,6 @@ public interface Maps {
         }
       }
       return map;
-    }
-  }
-
-  static void replaceNullCharacters(final MapEx sourceData) {
-    for (final var key : sourceData.keySet()) {
-      final Object value = sourceData.get(key);
-      if (value instanceof final MapEx map) {
-        replaceNullCharacters(map);
-      } else if (value instanceof final List list) {
-        for (@SuppressWarnings("unchecked")
-        final ListIterator<Object> iterator = list.listIterator(); iterator.hasNext();) {
-          final Object listItem = iterator.next();
-          if (listItem instanceof final String string) {
-            final var replaced = Strings.replaceNullCharacters(string);
-            if (replaced.length() != string.length()) {
-              iterator.set(replaced);
-            }
-          }
-        }
-      } else if (value instanceof final String string) {
-        final var replaced = Strings.replaceNullCharacters(string);
-        if (replaced.length() != string.length()) {
-          sourceData.addValue(key, value);
-        }
-      }
     }
   }
 }

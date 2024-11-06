@@ -73,6 +73,10 @@ public class UpdateStatement implements QueryStatement {
     }
   }
 
+  public int executeUpdateCount() {
+    return getRecordStore().updateRecords(this);
+  }
+
   @Override
   public RecordDefinition getRecordDefinition() {
     if (this.table == null) {
@@ -142,34 +146,20 @@ public class UpdateStatement implements QueryStatement {
     return sqlBuilder.toSqlString();
   }
 
-  public int updateRecords() {
-    return getRecordStore().updateRecords(this);
-  }
-
-  public UpdateStatement where(final Condition where) {
-    this.where = where;
-    return this;
+  /**
+   * Add a where condition for this field and value.
+   *
+   * @param fieldName
+   * @param value
+   * @return
+   */
+  public UpdateStatement updateKey(final String fieldName, final Object value) {
+    return where(w -> w.and(fieldName, value));
   }
 
   public UpdateStatement where(final Consumer<WhereConditionBuilder> action) {
     final var table = table();
     this.where = new WhereConditionBuilder(table, this.where).build(action);
-    return this;
-  }
-
-  public UpdateStatement where(final String fieldName, final Object value) {
-    final ColumnReference left = this.table.getColumn(fieldName);
-    if (value == null) {
-      this.where = new IsNull(left);
-    } else {
-      QueryValue right;
-      if (value instanceof final QueryValue queryValue) {
-        right = queryValue;
-      } else {
-        right = new Value(left, value);
-      }
-      this.where = new Equal(left, right);
-    }
     return this;
   }
 
