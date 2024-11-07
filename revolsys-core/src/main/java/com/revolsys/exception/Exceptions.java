@@ -13,6 +13,7 @@ import java.sql.SQLException;
 import java.sql.SQLTimeoutException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
+import java.util.function.Function;
 
 import com.revolsys.collection.iterator.Iterables;
 import com.revolsys.collection.json.JsonObject;
@@ -100,7 +101,11 @@ public interface Exceptions {
   }
 
   static boolean isInterruptException(final Throwable e) {
-    if (hasCause(e, InterruptedException.class) || hasCause(e, InterruptedIOException.class)
+    if (Thread.interrupted()) {
+      Thread.currentThread()
+        .interrupt();
+      return true;
+    } else if (hasCause(e, InterruptedException.class) || hasCause(e, InterruptedIOException.class)
       || hasCause(e, ClosedByInterruptException.class)
       || hasCause(e, WrappedInterruptedException.class) || Thread.interrupted()) {
       return true;
@@ -241,9 +246,9 @@ public interface Exceptions {
     } else if (e instanceof final WrappedRuntimeException re) {
       throw re;
     } else if (isTimeoutException(e)) {
-      return new WrappedTimeoutException(e);
+      return wrap(e, WrappedTimeoutException.class, WrappedTimeoutException::new);
     } else if (isInterruptException(e)) {
-      return new WrappedInterruptedException(e);
+      return wrap(e, WrappedInterruptedException.class, WrappedInterruptedException::new);
     } else if (hasCause(e, IOException.class)) {
       return new WrappedIoException(e);
     } else if (e instanceof final Error error) {
@@ -308,5 +313,26 @@ public interface Exceptions {
     } else {
       return new WrappedRuntimeException(message, e);
     }
+  }
+
+  /**
+   * Wrap the exception using the constructor if it isn't doesn't have the exceptionClass as
+   * a cause or it's not an Error or RuntimeException
+   * @param e
+   * @param exceptionClass
+   * @param constructor
+   * @return
+   * @throws Error
+   */
+  static RuntimeException wrap(final Throwable e, final Class<? extends Throwable> exceptionClass,
+    final Function<Throwable, RuntimeException> constructor) throws Error {
+    if (hasCause(e, exceptionClass)) {
+      if (e instanceof final Error error) {
+        throw error;
+      } else if (e instanceof final RuntimeException re) {
+        throw re;
+      }
+    }
+    return constructor.apply(e);
   }
 }
