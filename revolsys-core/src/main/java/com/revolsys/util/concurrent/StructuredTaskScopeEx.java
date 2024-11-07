@@ -22,6 +22,7 @@ import com.revolsys.parallel.channel.Channel;
 import com.revolsys.parallel.channel.ChannelOutput;
 import com.revolsys.parallel.channel.store.Buffer;
 import com.revolsys.util.Cancellable;
+import com.revolsys.util.Debug;
 
 public class StructuredTaskScopeEx<V> extends StructuredTaskScope<V>
   implements Cancellable, ForEachMethods {
@@ -94,8 +95,11 @@ public class StructuredTaskScopeEx<V> extends StructuredTaskScope<V>
       try (
         var read = channel.writeConnect()) {
         source.accept(channel);
+      } finally {
+        Debug.noOp();
       }
     });
+
     for (int i = 0; i < bufferSize; i++) {
       run(() -> {
         try (
