@@ -25,6 +25,7 @@ import org.springframework.jdbc.CannotGetJdbcConnectionException;
 import org.springframework.jdbc.support.SQLErrorCodeSQLExceptionTranslator;
 import org.springframework.jdbc.support.SQLErrorCodesFactory;
 
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.list.ListEx;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.exception.Exceptions;
@@ -320,7 +321,7 @@ public class JdbcDataSourceImpl extends JdbcDataSource implements BaseCloseable 
 
     @Override
     protected Connection newConnection() throws SQLException {
-      final var entry = getConnectionEntry();
+      final var entry = getConnectionEntry(JsonObject.EMPTY);
       try {
         final var connection = entry.getConnection();
         initializeConnection(connection);
@@ -433,8 +434,9 @@ public class JdbcDataSourceImpl extends JdbcDataSource implements BaseCloseable 
     return this.connectionInitCallbacks;
   }
 
-  protected ConnectionEntry getConnectionEntry() {
-    if (!isClosed() && this.limitLeases.tryAcquire(this.config.maxWait) && !isClosed()) {
+  protected ConnectionEntry getConnectionEntry(final JsonObject properties) {
+    final Duration maxWait = properties.getValue("maxWait", this.config.maxWait);
+    if (!isClosed() && this.limitLeases.tryAcquire(maxWait) && !isClosed()) {
       var entry = nextEntry();
       if (entry == null) {
         Connection connection = null;
@@ -551,8 +553,8 @@ public class JdbcDataSourceImpl extends JdbcDataSource implements BaseCloseable 
   }
 
   @Override
-  protected JdbcConnection newJdbcConnection() throws SQLException {
-    final var entry = getConnectionEntry();
+  protected JdbcConnection newJdbcConnection(final JsonObject properties) throws SQLException {
+    final var entry = getConnectionEntry(properties);
     final var connection = entry.getConnection();
     return new ConnectionImpl(this, entry, connection, true);
   }
