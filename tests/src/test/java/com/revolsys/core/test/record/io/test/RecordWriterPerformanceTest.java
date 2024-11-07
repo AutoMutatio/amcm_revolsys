@@ -109,7 +109,8 @@ public class RecordWriterPerformanceTest {
 
   private static void writeRecords(final Path basePath, final RecordDefinition recordDefinition,
     final RecordWriterFactory writerFactory) {
-    final String fileExtension = writerFactory.getFileExtensions().get(0);
+    final String fileExtension = writerFactory.getFileExtensions()
+      .get(0);
     final Resource resource = new PathResource(basePath.resolve("records." + fileExtension));
     final Record record = newRecord(recordDefinition, 0);
     // Prime the code to avoid initialization in timings
@@ -128,18 +129,19 @@ public class RecordWriterPerformanceTest {
       final long seconds = ellapsedTime / 1000 % 60;
       final long minutes = ellapsedTime / 60000 % 60;
       System.out.println(writerFactory.getName() + "\t" + minutes + ":" + seconds + "." + millis
-        + "\t" + resource.getFile().length());
+        + "\t" + resource.getFile()
+          .length());
     } finally {
       resource.delete();
     }
     for (int i = 0; i < 10; i++) {
       System.gc();
-        try {
-          Thread.sleep(1000);
-        } catch (final InterruptedException e) {
-          Exceptions.throwUncheckedException(e);
-        }
-     }
+      try {
+        Thread.sleep(1000);
+      } catch (final InterruptedException e) {
+        throw Exceptions.toRuntimeException(e);
+      }
+    }
   }
 
   private static void writeRecords(final RecordWriterFactory writerFactory,
