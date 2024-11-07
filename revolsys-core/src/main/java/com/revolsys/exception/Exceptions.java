@@ -101,13 +101,13 @@ public interface Exceptions {
   }
 
   static boolean isInterruptException(final Throwable e) {
-    if (Thread.interrupted()) {
-      Thread.currentThread()
-        .interrupt();
+    final var thread = Thread.currentThread();
+    if (thread.isInterrupted()) {
       return true;
     } else if (hasCause(e, InterruptedException.class) || hasCause(e, InterruptedIOException.class)
       || hasCause(e, ClosedByInterruptException.class)
-      || hasCause(e, WrappedInterruptedException.class) || Thread.interrupted()) {
+      || hasCause(e, WrappedInterruptedException.class)) {
+      thread.interrupt();
       return true;
     } else {
       final var ioe = getCause(e, IOException.class);
@@ -245,10 +245,10 @@ public interface Exceptions {
       return null;
     } else if (e instanceof final WrappedRuntimeException re) {
       throw re;
-    } else if (isTimeoutException(e)) {
-      return wrap(e, WrappedTimeoutException.class, WrappedTimeoutException::new);
     } else if (isInterruptException(e)) {
       return wrap(e, WrappedInterruptedException.class, WrappedInterruptedException::new);
+    } else if (isTimeoutException(e)) {
+      return wrap(e, WrappedTimeoutException.class, WrappedTimeoutException::new);
     } else if (hasCause(e, IOException.class)) {
       return new WrappedIoException(e);
     } else if (e instanceof final Error error) {
