@@ -1,5 +1,6 @@
 package com.revolsys.util.concurrent;
 
+import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.StructuredTaskScope;
@@ -17,12 +18,14 @@ import com.revolsys.collection.iterator.RunableMethods;
 import com.revolsys.collection.list.ListEx;
 import com.revolsys.collection.list.Lists;
 import com.revolsys.exception.Exceptions;
+import com.revolsys.logging.Logs;
 import com.revolsys.parallel.ReentrantLockEx;
 import com.revolsys.parallel.channel.Channel;
 import com.revolsys.parallel.channel.ChannelOutput;
+import com.revolsys.parallel.channel.ClosedException;
 import com.revolsys.parallel.channel.store.Buffer;
 import com.revolsys.util.Cancellable;
-import com.revolsys.util.Debug;
+import com.revolsys.util.ExitLoopException;
 
 public class StructuredTaskScopeEx<V> extends StructuredTaskScope<V>
   implements Cancellable, ForEachMethods {
@@ -90,13 +93,16 @@ public class StructuredTaskScopeEx<V> extends StructuredTaskScope<V>
 
   public <T> void channelSupplierWorkerThreads(final int bufferSize,
     final Consumer<ChannelOutput<T>> source, final Consumer<T> inputHandler) {
+    Objects.requireNonNull(source, "Source required");
+    Objects.requireNonNull(inputHandler, "Input handler required");
     final var channel = new Channel<T>(new Buffer<>(bufferSize));
     run(() -> {
       try (
         var read = channel.writeConnect()) {
         source.accept(channel);
-      } finally {
-        Debug.noOp();
+      } catch (RuntimeException | Error e) {
+        Logs.error(this, "Task source error", e);
+        throw e;
       }
     });
 
@@ -104,7 +110,18 @@ public class StructuredTaskScopeEx<V> extends StructuredTaskScope<V>
       run(() -> {
         try (
           final var write = channel.readConnect()) {
-          channel.forEach(value -> inputHandler.accept(value));
+          try {
+            while (!channel.isClosed()) {
+              final T value = channel.read();
+              inputHandler.accept(value);
+            }
+          } catch (final ExitLoopException | ClosedException e) {
+          } catch (RuntimeException | Error e) {
+            if (!Exceptions.isInterruptException(e)) {
+              Logs.error(this, "Task handler error", e);
+              throw e;
+            }
+          }
         }
       });
     }
