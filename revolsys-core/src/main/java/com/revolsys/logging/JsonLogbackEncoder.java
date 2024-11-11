@@ -39,13 +39,13 @@ public class JsonLogbackEncoder extends EncoderBase<ILoggingEvent> {
           json.labelValue("i", sequenceNumber);
         }
 
-        final var timestamp = event.getInstant();
-        json.labelValue("timestamp", timestamp);
-
         final var level = event.getLevel();
         if (level != null) {
           json.labelValue("level", level);
         }
+
+        final var timestamp = event.getInstant();
+        json.labelValue("timestamp", timestamp);
 
         final var logger = event.getLoggerName();
         if (logger != null) {
