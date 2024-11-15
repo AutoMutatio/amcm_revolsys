@@ -22,10 +22,8 @@ import com.revolsys.logging.Logs;
 import com.revolsys.parallel.ReentrantLockEx;
 import com.revolsys.parallel.channel.Channel;
 import com.revolsys.parallel.channel.ChannelOutput;
-import com.revolsys.parallel.channel.ClosedException;
 import com.revolsys.parallel.channel.store.Buffer;
 import com.revolsys.util.Cancellable;
-import com.revolsys.util.ExitLoopException;
 
 public class StructuredTaskScopeEx<V> extends StructuredTaskScope<V>
   implements Cancellable, ForEachMethods {
@@ -101,8 +99,10 @@ public class StructuredTaskScopeEx<V> extends StructuredTaskScope<V>
         var read = channel.writeConnect()) {
         source.accept(channel);
       } catch (RuntimeException | Error e) {
-        Logs.error(this, "Task source error", e);
-        throw e;
+        if (channel.isClosed() || Exceptions.isInterruptException(e)) {
+          return;
+        }
+        Logs.error(this, "Shutdown: Task source error", e);
       }
     });
 
@@ -115,12 +115,11 @@ public class StructuredTaskScopeEx<V> extends StructuredTaskScope<V>
               final T value = channel.read();
               inputHandler.accept(value);
             }
-          } catch (final ExitLoopException | ClosedException e) {
           } catch (RuntimeException | Error e) {
-            if (!Exceptions.isInterruptException(e)) {
-              Logs.error(this, "Task handler error", e);
-              throw e;
+            if (channel.isClosed() || Exceptions.isInterruptException(e)) {
+              return;
             }
+            Logs.error(this, "Shutdown: Task handler error", e);
           }
         }
       });
