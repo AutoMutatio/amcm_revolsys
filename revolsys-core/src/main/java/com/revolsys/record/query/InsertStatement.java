@@ -1,6 +1,7 @@
 package com.revolsys.record.query;
 
 import java.sql.PreparedStatement;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import com.revolsys.collection.iterator.BaseIterable;
@@ -10,9 +11,7 @@ import com.revolsys.collection.map.MapEx;
 import com.revolsys.record.Record;
 import com.revolsys.record.schema.RecordDefinition;
 
-public class InsertStatement implements QueryStatement {
-
-  private TableReference table;
+public class InsertStatement extends AbstractReturningQueryStatement<InsertStatement> {
 
   private final ListEx<ColumnReference> columns = Lists.newArray();
 
@@ -22,29 +21,18 @@ public class InsertStatement implements QueryStatement {
 
   private final ListEx<ColumnReference> conflictColumns = Lists.newArray();
 
-  private final ListEx<ColumnReference> returning = Lists.newArray();
-
-  private boolean returningAll = false;
-
   private void appendColumns(final SqlAppendable sql) {
     final var columns = this.columns;
     appendColumns(sql, columns);
   }
 
   private void appendColumns(final SqlAppendable sql, final ListEx<ColumnReference> columns) {
-    sql.append(" (");
-    boolean first = true;
-    for (final var column : columns) {
-      if (first) {
-        first = false;
-      } else {
-        sql.append(", ");
-      }
-      column.appendColumnName(sql);
-    }
-    sql.append(") ");
+    sql.append("(\n");
+    appendColumnNames(sql, columns);
+    sql.append(")\n");
   }
 
+  @Override
   public int appendParameters(int index, final PreparedStatement statement) {
     for (final var column : this.columns) {
       index = column.appendParameters(index, statement);
@@ -57,15 +45,14 @@ public class InsertStatement implements QueryStatement {
     if (this.conflictAction != null) {
       index = this.conflictAction.appendParameters(index, statement);
     }
-    for (final var column : this.returning) {
-      index = column.appendParameters(index, statement);
-    }
+    appendReturningParameters(index, statement);
     return index;
   }
 
+  @Override
   public void appendSql(final SqlAppendable sql) {
     sql.append("INSERT INTO ");
-    this.table.appendFromWithAsAlias(sql);
+    getTable().appendFromWithAsAlias(sql);
     sql.append('\n');
     appendColumns(sql);
     sql.append('\n');
@@ -84,11 +71,7 @@ public class InsertStatement implements QueryStatement {
       this.conflictAction.appendSql(sql);
     }
 
-    if (this.returningAll) {
-      sql.append("RETURNING *\n");
-    } else if (!this.returning.isEmpty()) {
-      sql.append("RETURNING ");
-    }
+    appendReturning(sql);
 
   }
 
@@ -102,21 +85,21 @@ public class InsertStatement implements QueryStatement {
       }
       appendValuesRow(sql, valuesRow);
     }
-    sql.append('\n');
   }
 
   private void appendValuesRow(final SqlAppendable sql, final ListEx<QueryValue> values) {
-    sql.append(" (");
+    sql.append("(\n");
     boolean first = true;
     for (final var value : values) {
       if (first) {
         first = false;
       } else {
-        sql.append(", ");
+        sql.append(",\n");
       }
+      sql.append("  ");
       value.appendSql(this, getRecordStore(), sql);
     }
-    sql.append(")");
+    sql.append("\n)\n");
   }
 
   private InsertStatement column(final ColumnReference columnReference) {
@@ -130,7 +113,7 @@ public class InsertStatement implements QueryStatement {
     if (column instanceof final ColumnReference columnReference) {
       column(columnReference);
     } else if (column instanceof final CharSequence name) {
-      final var columnReference = this.table.getColumn(name);
+      final var columnReference = getTable().getColumn(name);
       column(columnReference);
     } else if (column != null) {
       throw new IllegalArgumentException("Not a valid column class=" + column.getClass());
@@ -163,7 +146,7 @@ public class InsertStatement implements QueryStatement {
     if (column instanceof final ColumnReference columnReference) {
       conflictColumn(columnReference);
     } else if (column instanceof final CharSequence name) {
-      final var columnReference = this.table.getColumn(name);
+      final var columnReference = getTable().getColumn(name);
       conflictColumn(columnReference);
     } else if (column != null) {
       throw new IllegalArgumentException("Not a valid column class=" + column.getClass());
@@ -200,13 +183,6 @@ public class InsertStatement implements QueryStatement {
     return configUpdate;
   }
 
-  public InsertStatement ensureReturning() {
-    if (!this.returningAll || this.returning.isEmpty()) {
-      this.returningAll = true;
-    }
-    return this;
-  }
-
   public int executeInsertCount() {
     return getRecordStore().executeInsertCount(this);
   }
@@ -224,20 +200,16 @@ public class InsertStatement implements QueryStatement {
   }
 
   public TableReference getInto() {
-    return this.table;
+    return getTable();
   }
 
   @Override
   public RecordDefinition getRecordDefinition() {
-    if (this.table == null) {
+    if (getTable() == null) {
       return null;
     } else {
-      return this.table.getRecordDefinition();
+      return getTable().getRecordDefinition();
     }
-  }
-
-  public ListEx<ColumnReference> getReturning() {
-    return this.returning;
   }
 
   public InsertStatement insert(final String name, final MapEx source, final String sourceKey) {
@@ -263,7 +235,7 @@ public class InsertStatement implements QueryStatement {
 
       values.set(columnIndex, Value.newValue(column, value));
     } else {
-      throw new IllegalArgumentException(this.table + "." + name + " doesn't exist");
+      throw new IllegalArgumentException(getTable() + "." + name + " doesn't exist");
     }
     return this;
   }
@@ -272,6 +244,14 @@ public class InsertStatement implements QueryStatement {
     for (final var entry : values.entrySet()) {
       final var name = entry.getKey();
       final var value = entry.getValue();
+      insert(name, value);
+    }
+    return this;
+  }
+
+  public InsertStatement insertAll(final MapEx values, final String... fieldNames) {
+    for (final var name : fieldNames) {
+      final var value = values.get(name);
       insert(name, value);
     }
     return this;
@@ -293,66 +273,9 @@ public class InsertStatement implements QueryStatement {
     return this;
   }
 
-  public InsertStatement into(final TableReference from) {
-    this.table = from;
+  public InsertStatement into(final TableReference table) {
+    table(table);
     return this;
-  }
-
-  public boolean isReturningAll() {
-    return this.returningAll;
-  }
-
-  protected StringBuilderSqlAppendable newSqlAppendable() {
-    final StringBuilderSqlAppendable sql = SqlAppendable.stringBuilder();
-    final RecordDefinition recordDefinition = getRecordDefinition();
-    if (recordDefinition != null) {
-      sql.setRecordStore(recordDefinition.getRecordStore());
-    }
-    return sql;
-  }
-
-  private InsertStatement returning(final ColumnReference column) {
-    if (column != null && !this.returning.contains(column)) {
-      this.returning.add(column);
-    }
-    return this;
-  }
-
-  public InsertStatement returning(final Iterable<Object> returning) {
-    for (final var column : returning) {
-      returning(column);
-    }
-    return this;
-  }
-
-  public InsertStatement returning(final Object column) {
-    if (column instanceof final ColumnReference columnReference) {
-      returning(columnReference);
-    } else if (column instanceof final CharSequence name) {
-      final var columnReference = this.table.getColumn(name);
-      returning(columnReference);
-    } else if (column != null) {
-      throw new IllegalArgumentException("Not a valid column class=" + column.getClass());
-    }
-    return this;
-  }
-
-  public InsertStatement returning(final Object... returning) {
-    for (final var column : returning) {
-      returning(column);
-    }
-    return this;
-  }
-
-  public InsertStatement returningAll() {
-    this.returningAll = true;
-    return this;
-  }
-
-  public String toSql() {
-    final StringBuilderSqlAppendable sql = newSqlAppendable();
-    appendSql(sql);
-    return sql.toSqlString();
   }
 
   @Override
@@ -369,9 +292,35 @@ public class InsertStatement implements QueryStatement {
     return this;
   }
 
+  public InsertStatement update(final String name,
+    final BiFunction<ColumnReference, Excluded, QueryValue> setProvider) {
+    final var column = getColumn(name);
+    final var excluded = new Excluded(column);
+    final var value = setProvider.apply(column, excluded);
+    conflictUpdate().set(column, value);
+    return this;
+  }
+
   public InsertStatement update(final String name, final Object value) {
     final var column = getColumn(name);
     conflictUpdate().set(column, value);
+    return this;
+  }
+
+  public InsertStatement updateAll(final MapEx values) {
+    for (final var entry : values.entrySet()) {
+      final var name = entry.getKey();
+      final var value = entry.getValue();
+      insert(name, value);
+    }
+    return this;
+  }
+
+  public InsertStatement updateAll(final MapEx values, final String... fieldNames) {
+    for (final var name : fieldNames) {
+      final var value = values.get(name);
+      update(name, value);
+    }
     return this;
   }
 
@@ -384,6 +333,23 @@ public class InsertStatement implements QueryStatement {
   public InsertStatement upsert(final String name, final Object value) {
     insert(name, value);
     update(name);
+    return this;
+  }
+
+  public InsertStatement upsertAll(final MapEx values) {
+    for (final var entry : values.entrySet()) {
+      final var name = entry.getKey();
+      final var value = entry.getValue();
+      upsert(name, value);
+    }
+    return this;
+  }
+
+  public InsertStatement upsertAll(final MapEx values, final String... fieldNames) {
+    for (final var name : fieldNames) {
+      final var value = values.get(name);
+      upsert(name, value);
+    }
     return this;
   }
 

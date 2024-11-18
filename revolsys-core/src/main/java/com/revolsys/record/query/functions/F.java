@@ -2,6 +2,7 @@ package com.revolsys.record.query.functions;
 
 import java.util.List;
 
+import com.revolsys.collection.list.Lists;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.BoundingBoxProxy;
 import com.revolsys.geometry.model.Geometry;
@@ -53,7 +54,8 @@ public class F {
     final ColumnReference field = (ColumnReference)left;
     if (right instanceof Value) {
       final Value value = (Value)right;
-      final String text = value.getValue().toString();
+      final String text = value.getValue()
+        .toString();
       final FieldDefinition fieldDefinition = field.getFieldDefinition();
       final GeometryFactory geometryFactory = fieldDefinition.getGeometryFactory();
       final Geometry geometry = geometryFactory.geometry(text);
@@ -96,6 +98,14 @@ public class F {
     final EnvelopeIntersects condition = new EnvelopeIntersects(field, value);
     query.and(condition);
     return condition;
+  }
+
+  public static FunctionMultiArgs greatest(final QueryValue... arguments) {
+    return new FunctionMultiArgs("GREATEST", Lists.newArray(arguments));
+  }
+
+  public static FunctionMultiArgs greatest(final QueryValue value1, final QueryValue value2) {
+    return new FunctionMultiArgs("GREATEST", Lists.newArray(value1, value2));
   }
 
   public static Lower lower(final QueryValue value) {

@@ -243,6 +243,11 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
 
   }
 
+  public boolean exists(final TableRecordStoreConnection connection,
+    final TableRecordStoreQuery query) {
+    return connection.transactionCall(() -> getRecordStore().exists(query));
+  }
+
   public Map<QueryValue, Boolean> getDefaultSortOrder() {
     return this.defaultSortOrder;
   }
@@ -358,7 +363,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
 
   @Override
   public InsertStatement insertStatement() {
-    throw new UnsupportedOperationException("deleteStatement(#TableRecordStoreConnection)");
+    throw new UnsupportedOperationException("insertStatement()");
   }
 
   public InsertStatement insertStatement(final TableRecordStoreConnection connection) {

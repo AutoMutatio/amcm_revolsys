@@ -221,6 +221,15 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     this(new TableReferenceImpl(typePath), whereCondition);
   }
 
+  public Query(final RecordStore recordStore) {
+    this.recordStore = recordStore;
+  }
+
+  public Query(final RecordStore recordStore, final TableReferenceProxy table) {
+    this.recordStore = recordStore;
+    this.table = table.getTableReference();
+  }
+
   public Query(final String typePath) {
     this(typePath, null);
   }
@@ -520,7 +529,11 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
         } else {
           sql.append(", ");
         }
-        table.appendSelect(this, sql, selectItem);
+        if (table == null) {
+          selectItem.appendSelect(this, this.recordStore, sql);
+        } else {
+          table.appendSelect(this, sql, selectItem);
+        }
       }
     }
   }
@@ -539,7 +552,7 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
   protected void appendSql(final SqlAppendable sql, final TableReferenceProxy table,
     final List<OrderBy> orderBy) {
     From from = getFrom();
-    if (from == null) {
+    if (from == null && table != null) {
       from = table.getTableReference();
     }
     final List<Join> joins = getJoins();
@@ -564,8 +577,10 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
       sql.append("DISTINCT ");
     }
     appendSelect(sql);
-    sql.append(" FROM ");
-    from.appendFromWithAlias(sql);
+    if (from != null) {
+      sql.append(" FROM ");
+      from.appendFromWithAlias(sql);
+    }
     for (final Join join : joins) {
       appendQueryValue(sql, join);
     }

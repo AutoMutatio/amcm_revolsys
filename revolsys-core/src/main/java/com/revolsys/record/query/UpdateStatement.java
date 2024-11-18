@@ -2,23 +2,25 @@ package com.revolsys.record.query;
 
 import java.sql.PreparedStatement;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
+import com.revolsys.collection.iterator.BaseIterable;
 import com.revolsys.collection.list.ArrayListEx;
 import com.revolsys.collection.list.ListEx;
 import com.revolsys.collection.list.Lists;
+import com.revolsys.record.Record;
 import com.revolsys.record.schema.RecordDefinition;
 
-public class UpdateStatement implements QueryStatement {
+public class UpdateStatement extends AbstractReturningQueryStatement<UpdateStatement> {
   private final ListEx<From> fromClauses = Lists.newArray();
 
   private final ListEx<SetClause> setClauses = new ArrayListEx<>();
-
-  private TableReference table;
 
   private Condition where = Condition.ALL;
 
   private final ListEx<With> withClauses = Lists.newArray();
 
+  @Override
   public int appendParameters(int index, final PreparedStatement statement) {
     index = SqlAppendParameters.appendParameters(statement, index, this.withClauses);
     index = SqlAppendParameters.appendParameters(statement, index, this.setClauses);
@@ -32,6 +34,7 @@ public class UpdateStatement implements QueryStatement {
     return index;
   }
 
+  @Override
   public void appendSql(final SqlAppendable sql) {
     if (!this.withClauses.isEmpty()) {
       sql.append("WITH ");
@@ -47,7 +50,7 @@ public class UpdateStatement implements QueryStatement {
       sql.append(' ');
     }
     sql.append("UPDATE ");
-    this.table.appendFromWithAlias(sql);
+    getTable().appendFromWithAlias(sql);
 
     if (this.setClauses.isEmpty()) {
       throw new IllegalStateException("Update statement must set at least one value");
@@ -74,29 +77,28 @@ public class UpdateStatement implements QueryStatement {
   }
 
   public int executeUpdateCount() {
-    return getRecordStore().updateRecords(this);
+    return getRecordStore().executeUpdateCount(this);
+  }
+
+  public Record executeUpdateRecord() {
+    return executeUpdateRecords(BaseIterable::getFirst);
+  }
+
+  public <V> V executeUpdateRecords(final Function<BaseIterable<Record>, V> action) {
+    return getRecordStore().executeUpdateRecords(this, action);
   }
 
   @Override
   public RecordDefinition getRecordDefinition() {
-    if (this.table == null) {
+    if (getTable() == null) {
       return null;
     } else {
-      return this.table.getRecordDefinition();
+      return getTable().getRecordDefinition();
     }
   }
 
   public Condition getWhere() {
     return this.where;
-  }
-
-  protected StringBuilderSqlAppendable newSqlAppendable() {
-    final StringBuilderSqlAppendable sql = SqlAppendable.stringBuilder();
-    final RecordDefinition recordDefinition = getRecordDefinition();
-    if (recordDefinition != null) {
-      sql.setRecordStore(recordDefinition.getRecordStore());
-    }
-    return sql;
   }
 
   public UpdateStatement set(final CharSequence name, final Object value) {
@@ -124,18 +126,7 @@ public class UpdateStatement implements QueryStatement {
   }
 
   public TableReference table() {
-    return this.table;
-  }
-
-  public UpdateStatement table(final TableReference from) {
-    this.table = from;
-    return this;
-  }
-
-  public String toSql() {
-    final StringBuilderSqlAppendable sql = newSqlAppendable();
-    appendSql(sql);
-    return sql.toSqlString();
+    return getTable();
   }
 
   @Override
