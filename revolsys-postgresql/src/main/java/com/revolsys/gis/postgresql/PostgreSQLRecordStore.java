@@ -157,6 +157,27 @@ public class PostgreSQLRecordStore extends AbstractJdbcRecordStore {
   }
 
   @Override
+  public boolean exists(final Query query) {
+    final var existQuery = newQuery().select(query.asExists());
+    final String sql = getSelectSql(existQuery);
+    try (
+      var connection = getJdbcConnection()) {
+      try (
+        var statement = connection.prepareStatement(sql);
+        var resultSet = getResultSet(statement, query)) {
+        if (resultSet.next()) {
+          return resultSet.getBoolean(1);
+        } else {
+          return false;
+        }
+      }
+
+    } catch (final SQLException e) {
+      throw getException("Execute Query", sql, e);
+    }
+  }
+
+  @Override
   public String getGeneratePrimaryKeySql(final JdbcRecordDefinition recordDefinition) {
     final String sequenceName = getSequenceName(recordDefinition);
     return "nextval('" + sequenceName + "')";
@@ -368,7 +389,8 @@ public class PostgreSQLRecordStore extends AbstractJdbcRecordStore {
   @Override
   protected JdbcRecordDefinition newRecordDefinition(final JdbcRecordStoreSchema schema,
     final PathName pathName, String dbTableName) {
-    if (dbTableName.charAt(0) != '"' && !dbTableName.equals(dbTableName.toLowerCase())) {
+    if (dbTableName != null && dbTableName.charAt(0) != '"'
+      && !dbTableName.equals(dbTableName.toLowerCase())) {
       dbTableName = '"' + dbTableName + '"';
     }
     return super.newRecordDefinition(schema, pathName, dbTableName);

@@ -53,6 +53,7 @@ import com.revolsys.record.io.RecordReader;
 import com.revolsys.record.io.RecordStoreExtension;
 import com.revolsys.record.io.RecordWriter;
 import com.revolsys.record.property.GlobalIdProperty;
+import com.revolsys.record.query.AbstractReturningQueryStatement;
 import com.revolsys.record.query.ColumnIndexes;
 import com.revolsys.record.query.ColumnReference;
 import com.revolsys.record.query.DeleteStatement;
@@ -341,31 +342,43 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
   }
 
   @Override
-  public int executeInsertCount(final InsertStatement insert) {
-    final String sql = insert.toSql();
-    return transactionCall(() -> {
-      try (
-        JdbcConnection connection = getJdbcConnection()) {
-        // It's important to have this in an inner try. Otherwise the exceptions
-        // won't get caught on closing the writer and the transaction won't get
-        // rolled back.
-        try (
-          final PreparedStatement statement = connection.prepareStatement(sql)) {
-          insert.appendParameters(1, statement);
-          return statement.executeUpdate();
-        } catch (final SQLException e) {
-          throw connection.getException("insert", sql, e);
-        }
-      }
-    });
+  public int executeInsertCount(final InsertStatement queryStatement) {
+    return executeQueryStatementCount(queryStatement);
   }
 
   @Override
   public <V> V executeInsertRecords(final InsertStatement insert,
     final Function<BaseIterable<Record>, V> action) {
+    return executeReturningStatementRecords(insert, action);
+  }
+
+  protected int executeQueryStatementCount(
+    final AbstractReturningQueryStatement<?> queryStatement) {
+    final String sql = queryStatement.toSql();
     return transactionCall(() -> {
-      insert.ensureReturning();
-      final String sql = insert.toSql();
+      try (
+        JdbcConnection connection = getJdbcConnection()) {
+        // It's important to have this in an inner try. Otherwise the exceptions
+        // won't get caught on closing the writer and the transaction won't get
+        // rolled back.
+        try (
+          final PreparedStatement statement = connection.prepareStatement(sql)) {
+          queryStatement.appendParameters(1, statement);
+          return statement.executeUpdate();
+        } catch (final SQLException e) {
+          final var sqlString = queryStatement.toString();
+          throw connection.getException("execute", sqlString, e);
+        }
+      }
+    });
+  }
+
+  private <V> V executeReturningStatementRecords(
+    final AbstractReturningQueryStatement<?> queryStatement,
+    final Function<BaseIterable<Record>, V> action) {
+    return transactionCall(() -> {
+      queryStatement.ensureReturning();
+      final String sql = queryStatement.toSql();
       try (
         JdbcConnection connection = getJdbcConnection()) {
         // It's important to have this in an inner try. Otherwise the exceptions
@@ -374,17 +387,17 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
 
         try (
           final PreparedStatement statement = connection.prepareStatement(sql)) {
-          insert.appendParameters(1, statement);
+          queryStatement.appendParameters(1, statement);
           ListEx<? extends ColumnReference> columns;
           RecordDefinition recordDefinition;
-          if (insert.isReturningAll()) {
-            recordDefinition = insert.getRecordDefinition();
+          if (queryStatement.isReturningAll()) {
+            recordDefinition = queryStatement.getRecordDefinition();
             columns = recordDefinition.getFields();
           } else {
-            columns = insert.getReturning();
-            final var rdBuilder = new RecordDefinitionBuilder(insert.getRecordDefinition()
+            columns = queryStatement.getReturning();
+            final var rdBuilder = new RecordDefinitionBuilder(queryStatement.getRecordDefinition()
               .getName());
-            insert.getReturning()
+            queryStatement.getReturning()
               .forEach(column -> {
                 if (column instanceof final FieldDefinition field) {
                   rdBuilder.addField(field);
@@ -403,7 +416,8 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
             return action.apply(records);
           }
         } catch (final SQLException e) {
-          throw connection.getException("insert", sql, e);
+          final var sqlString = queryStatement.toString();
+          throw connection.getException("execute", sqlString, e);
         }
       }
     });
@@ -411,6 +425,17 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
 
   public void executeUpdate(final PreparedStatement statement) throws SQLException {
     statement.executeUpdate();
+  }
+
+  @Override
+  public int executeUpdateCount(final UpdateStatement queryStatement) {
+    return executeQueryStatementCount(queryStatement);
+  }
+
+  @Override
+  public <V> V executeUpdateRecords(final UpdateStatement update,
+    final Function<BaseIterable<Record>, V> action) {
+    return executeReturningStatementRecords(update, action);
   }
 
   public Set<String> getAllSchemaNames() {
@@ -1368,28 +1393,6 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
         }
         parameterIndex = setIdEqualsValues(statement, parameterIndex, recordDefinition, record);
         executeUpdate(statement);
-      }
-    });
-  }
-
-  @Override
-  public int updateRecords(final UpdateStatement update) {
-
-    final String sql = update.toSql();
-    return transactionCall(() -> {
-      // It's important to have this in an inner try. Otherwise the exceptions
-      // won't get caught on closing the writer and the transaction won't get
-      // rolled back.
-      try (
-        JdbcConnection connection = getJdbcConnection()) {
-        try (
-          final PreparedStatement statement = connection.prepareStatement(sql)) {
-
-          update.appendParameters(1, statement);
-          return statement.executeUpdate();
-        } catch (final SQLException e) {
-          throw connection.getException("update", sql, e);
-        }
       }
     });
   }

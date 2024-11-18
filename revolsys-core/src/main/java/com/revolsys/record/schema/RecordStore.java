@@ -310,6 +310,19 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
     throw new UnsupportedOperationException("InsertStatement not implemented");
   }
 
+  default int executeUpdateCount(final UpdateStatement queryStatement) {
+    throw new UnsupportedOperationException("UpdateStatement not implemented");
+  }
+
+  default <V> V executeUpdateRecords(final UpdateStatement insertStatement,
+    final Function<BaseIterable<Record>, V> action) {
+    throw new UnsupportedOperationException("UpdateStatement not implemented");
+  }
+
+  default boolean exists(final Query query) {
+    return query.getRecordCount() > 0;
+  }
+
   default RecordDefinition findRecordDefinition(final PathName typePath) {
     final PathName schemaName = typePath.getParent();
     final RecordStoreSchema schema = getSchema(schemaName);
@@ -810,10 +823,6 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
       }
     }
     return i;
-  }
-
-  default int updateRecords(final UpdateStatement updateStatement) {
-    throw new UnsupportedOperationException("Update not supported: " + updateStatement);
   }
 
   default void write(final Record record, final RecordState state) {
