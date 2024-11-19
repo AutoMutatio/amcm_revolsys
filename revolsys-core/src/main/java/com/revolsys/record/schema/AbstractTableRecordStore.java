@@ -655,6 +655,12 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     final ChangeTrackRecord record) {
   }
 
+  /**
+   * Make changes to the record checked to see if it was modified but before saving to the database
+   *
+   * @param connection
+   * @param record
+   */
   protected void updateRecordBefore(final TableRecordStoreConnection connection,
     final ChangeTrackRecord record) {
   }
@@ -673,6 +679,16 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     }
   }
 
+  /**
+   * Make changes to the record before it was checked to see if it was modified
+   *
+   * @param connection
+   * @param record
+   */
+  protected void updateRecordPre(final TableRecordStoreConnection connection,
+    final ChangeTrackRecord record) {
+  }
+
   public int updateRecords(final TableRecordStoreConnection connection, final Query query,
     final Consumer<? super ChangeTrackRecord> updateAction) {
     return connection.transactionCall(() -> {
@@ -686,6 +702,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
         for (final Record queryRecord : reader) {
           final ChangeTrackRecord record = (ChangeTrackRecord)queryRecord;
           updateAction.accept(record);
+          updateRecordPre(connection, record);
           if (record.isModified()) {
             updateRecordBefore(connection, record);
             writer.write(record);
