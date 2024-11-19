@@ -15,6 +15,7 @@ import javax.sql.DataSource;
 
 import org.postgresql.jdbc.PgConnection;
 
+import com.revolsys.collection.set.Sets;
 import com.revolsys.data.identifier.Identifier;
 import com.revolsys.data.type.CollectionDataType;
 import com.revolsys.data.type.DataType;
@@ -25,6 +26,7 @@ import com.revolsys.gis.postgresql.type.PostgreSQLBoundingBoxWrapper;
 import com.revolsys.gis.postgresql.type.PostgreSQLGeometryFieldAdder;
 import com.revolsys.gis.postgresql.type.PostgreSQLGeometryWrapper;
 import com.revolsys.gis.postgresql.type.PostgreSQLJdbcBlobFieldDefinition;
+import com.revolsys.gis.postgresql.type.PostgreSQLJdbcEnumFieldDefinition;
 import com.revolsys.gis.postgresql.type.PostgreSQLJdbcIntevalFieldDefinition;
 import com.revolsys.gis.postgresql.type.PostgreSQLJsonbFieldDefinition;
 import com.revolsys.gis.postgresql.type.PostgreSQLOidFieldDefinition;
@@ -50,6 +52,7 @@ import com.revolsys.record.query.functions.EnvelopeIntersects;
 import com.revolsys.record.query.functions.JsonValue;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
+import com.revolsys.record.schema.RecordStoreSchemaElement;
 import com.revolsys.util.Property;
 
 public class PostgreSQLRecordStore extends AbstractJdbcRecordStore {
@@ -89,8 +92,14 @@ public class PostgreSQLRecordStore extends AbstractJdbcRecordStore {
   protected JdbcFieldDefinition addField(final JdbcRecordDefinition recordDefinition,
     final String dbColumnName, final String name, final int sqlType, final String dbDataType,
     final int length, final int scale, final boolean required, final String description) {
+    final var dbType = PathName.fromDotSeparated(dbDataType.replaceAll("\"", ""));
     final JdbcFieldDefinition field;
-    if (dbDataType.charAt(0) == '_') {
+    if (((JdbcRecordStoreSchema)recordDefinition.getSchema()).isEnum(dbType)) {
+      field = new PostgreSQLJdbcEnumFieldDefinition(dbColumnName, name, sqlType, dbDataType, length,
+        scale, required, description, getProperties());
+      field.setQuoteName(isQuoteNames());
+      recordDefinition.addField(field);
+    } else if (dbDataType.charAt(0) == '_') {
       final String elementDbDataType = dbDataType.substring(1);
       final JdbcFieldAdder fieldAdder = getFieldAdder(elementDbDataType);
       final JdbcFieldDefinition elementField = fieldAdder.newField(this, recordDefinition,
@@ -102,6 +111,7 @@ public class PostgreSQLRecordStore extends AbstractJdbcRecordStore {
       field = new PostgreSQLArrayFieldDefinition(dbColumnName, name, listDataType,
         elementDbDataType, sqlType, dbDataType, length, scale, required, description, elementField,
         getProperties());
+      field.setQuoteName(isQuoteNames());
       recordDefinition.addField(field);
     } else {
       field = super.addField(recordDefinition, dbColumnName, name, sqlType, dbDataType, length,
@@ -412,6 +422,49 @@ public class PostgreSQLRecordStore extends AbstractJdbcRecordStore {
     final boolean quoteName = !dbSchemaName.equals(dbSchemaName.toLowerCase());
     return new PostgreSQLRecordStoreSchema((PostgreSQLRecordStoreSchema)rootSchema, childSchemaPath,
       dbSchemaName, quoteName);
+  }
+
+  @Override
+  protected Map<PathName, ? extends RecordStoreSchemaElement> refreshSchemaElementsDo(
+    final JdbcRecordStoreSchema schema, final PathName schemaPath) {
+    refreshSchemaElementsDoEnums(schema, schemaPath);
+    return super.refreshSchemaElementsDo(schema, schemaPath);
+  }
+
+  protected void refreshSchemaElementsDoEnums(final JdbcRecordStoreSchema schema,
+    final PathName schemaPath) {
+    final Set<PathName> enumTypeNames = Sets.newHash();
+    final var sql = """
+select
+  t.typname as name
+from
+  pg_type t
+join pg_catalog.pg_namespace n on
+  n.oid = t.typnamespace
+where
+  t.typtype = 'e'
+  and n.nspname = ?
+""";
+    try (
+      var connection = getJdbcConnection()) {
+      try (
+        var statement = connection.prepareStatement(sql)) {
+        statement.setString(1, schemaPath.getName());
+        try (
+          var resultSet = statement.executeQuery()) {
+          while (resultSet.next()) {
+            final var enumName = resultSet.getString(1);
+            final var enumType = schemaPath.newChild(enumName);
+            enumTypeNames.add(enumType);
+          }
+        }
+      } catch (final SQLException e) {
+        throw connection.getException("enum", sql, e);
+      }
+    } catch (final SQLException e) {
+      throw Exceptions.toRuntimeException(e);
+    }
+    schema.addProperty("enums", enumTypeNames);
   }
 
   public void setUseSchemaSequencePrefix(final boolean useSchemaSequencePrefix) {
