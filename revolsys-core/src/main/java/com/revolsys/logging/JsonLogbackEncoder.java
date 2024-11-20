@@ -2,6 +2,7 @@ package com.revolsys.logging;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -26,6 +27,19 @@ public class JsonLogbackEncoder extends EncoderBase<ILoggingEvent> {
 
   private static final byte[] HEADER = "\n".getBytes();
 
+  private static final String HOST_NAME = initHostName();
+
+  private static final String initHostName() {
+    for (final var key : Arrays.asList("HOSTNAME", "COMPUTERNAME", "HOST")) {
+      final var name = System.getenv(key);
+      if (Property.hasValue(name)) {
+        return name.replaceAll("\\..+", "")
+          .replaceAll("[^a-zA-Z0-9_]+", "_");
+      }
+    }
+    return "";
+  }
+
   @Override
   public byte[] encode(final ILoggingEvent event) {
     try (
@@ -34,18 +48,15 @@ public class JsonLogbackEncoder extends EncoderBase<ILoggingEvent> {
         var json = new JsonWriter(out, false)) {
         json.startObject();
 
-        final var sequenceNumber = event.getSequenceNumber();
-        if (sequenceNumber > 0) {
-          json.labelValue("i", sequenceNumber);
-        }
+        final var timestamp = event.getInstant();
+        json.labelValue("timestamp", timestamp);
 
         final var level = event.getLevel();
         if (level != null) {
           json.labelValue("level", level);
         }
 
-        final var timestamp = event.getInstant();
-        json.labelValue("timestamp", timestamp);
+        json.labelValue("host", HOST_NAME);
 
         final var logger = event.getLoggerName();
         if (logger != null) {
@@ -55,6 +66,11 @@ public class JsonLogbackEncoder extends EncoderBase<ILoggingEvent> {
         final var message = event.getMessage();
         if (Property.hasValue(message)) {
           json.labelValue("message", message);
+        }
+
+        final var sequenceNumber = event.getSequenceNumber();
+        if (sequenceNumber > 0) {
+          json.labelValue("i", sequenceNumber);
         }
 
         final var arguments = event.getArgumentArray();
