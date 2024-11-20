@@ -29,7 +29,17 @@ public class DeleteStatement implements QueryStatement {
     }
   }
 
+  public DeleteStatement deleteKey(final String name, final Object value) {
+    where(where -> where.and(name, value));
+    return this;
+  }
+
+  // TODO remove
   public int deleteRecords() {
+    return executeDeleteCount();
+  }
+
+  public int executeDeleteCount() {
     return getRecordStore().deleteRecords(this);
   }
 
@@ -84,7 +94,7 @@ public class DeleteStatement implements QueryStatement {
   }
 
   public DeleteStatement where(final Consumer<WhereConditionBuilder> action) {
-    final WhereConditionBuilder builder = new WhereConditionBuilder(getFrom());
+    final WhereConditionBuilder builder = new WhereConditionBuilder(getFrom(), this.where);
     this.where = builder.build(action);
     return this;
   }
