@@ -230,7 +230,8 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
   }
 
   public DeleteStatement deleteStatement(final TableRecordStoreConnection connection) {
-    return new TableRecordStoreDeleteStatement(connection).from(getTable());
+    final var table = getTable();
+    return new TableRecordStoreDeleteStatement(connection).from(table);
   }
 
   protected void executeUpdate(final TableRecordStoreConnection connection, final String sql,
