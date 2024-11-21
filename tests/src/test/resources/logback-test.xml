@@ -21,12 +21,12 @@
   <logger name="org.apache.pdfbox.pdmodel.font.PDFont" level="OFF" />
 
   <logger name="org.apache.pdfbox.pdmodel.font.PDCIDFontType2" level="OFF" />
-    
-   <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
-      <encoder>
-        <pattern>%gray(%date{STRICT}) %highlight(%-5level) %cyan(%logger) [%yellow(%thread)] %green(%message) %magenta(%kvp{DOUBLE})\n%red(%exception{full})</pattern>
-      </encoder>
-    </appender>
+
+  <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>%gray(%date{STRICT}) %highlight(%-5level) %cyan(%logger) [%yellow(%thread)] %green(%message) %magenta(%kvp{DOUBLE})\n%red(%exception{full})</pattern>
+    </encoder>
+  </appender>
 
   <root level="error">
     <appender-ref ref="CONSOLE" />

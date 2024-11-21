@@ -178,6 +178,16 @@ public class HttpRequestBuilder {
     }
   }
 
+  public static ListEx<JsonObject> getJsonAsList(final HttpResponse response) {
+    final HttpEntity entity = response.getEntity();
+    try (
+      InputStream in = entity.getContent()) {
+      return JsonParser.read(in);
+    } catch (final Exception e) {
+      throw Exceptions.toRuntimeException(e);
+    }
+  }
+
   public static JsonList getJsonList(final HttpResponse response) {
     final HttpEntity entity = response.getEntity();
     try (
@@ -721,6 +731,14 @@ public class HttpRequestBuilder {
       setHeader("Accept", "application/json");
     }
     final Function<HttpResponse, JsonList> function = HttpRequestBuilder::getJsonList;
+    return execute(function);
+  }
+
+  public ListEx<JsonObject> responseAsList() {
+    if (!this.headerNames.contains("Accept")) {
+      setHeader("Accept", "application/json");
+    }
+    final Function<HttpResponse, ListEx<JsonObject>> function = HttpRequestBuilder::getJsonAsList;
     return execute(function);
   }
 
