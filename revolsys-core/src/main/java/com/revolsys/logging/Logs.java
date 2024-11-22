@@ -2,6 +2,7 @@ package com.revolsys.logging;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -13,11 +14,14 @@ import org.slf4j.LoggerFactory;
 import com.revolsys.collection.map.LruMap;
 import com.revolsys.exception.Exceptions;
 import com.revolsys.exception.WrappedRuntimeException;
+import com.revolsys.util.Property;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.spi.LoggingEvent;
 
 public class Logs {
+
+  public static final String HOST_NAME = initHostName();
 
   private static Map<String, Boolean> LOGGED_ERRORS = new LruMap<>(1000);
 
@@ -203,6 +207,17 @@ public class Logs {
 
   public static void info(final String name, final String message, final Throwable e) {
     logger(name).info(message, e);
+  }
+
+  private static final String initHostName() {
+    for (final var key : Arrays.asList("HOSTNAME", "COMPUTERNAME", "HOST")) {
+      final var name = System.getenv(key);
+      if (Property.hasValue(name)) {
+        return name.replaceAll("\\..+", "")
+          .replaceAll("[^a-zA-Z0-9_]+", "_");
+      }
+    }
+    return "";
   }
 
   public static boolean isDebugEnabled(final Class<?> logCateogory) {
