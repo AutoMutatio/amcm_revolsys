@@ -4,9 +4,8 @@ import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.Semaphore;
-import java.util.concurrent.StructuredTaskScope;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -35,8 +34,12 @@ public class SemaphoreEx extends Semaphore {
     return this.release;
   }
 
+  // TODO replace this with new code
   public <V> long forEach(final ExecutorService executor, final BaseIterable<V> values,
     final Consumer<V> action) {
+    if (action == null) {
+      throw new NullPointerException("action");
+    }
     if (values != null) {
       return values.forEachCount(value -> {
         if (!executor.isShutdown()) {
@@ -46,6 +49,8 @@ public class SemaphoreEx extends Semaphore {
               action.accept(value);
               release();
             });
+          } catch (final RejectedExecutionException e) {
+            // Ignore as shutdown
           } catch (final InterruptedException e) {
             throw Exceptions.toRuntimeException(e);
           }
@@ -53,35 +58,7 @@ public class SemaphoreEx extends Semaphore {
       });
     }
     return 0;
-  }
 
-  public <V> void forEach(final StructuredTaskScope<?> scope, final BaseIterable<V> values,
-    final Consumer<V> action) throws InterruptedException {
-    if (values != null) {
-      values.forEach(value -> {
-        try {
-          acquire();
-          scope.fork(() -> {
-            action.accept(value);
-            release();
-            return null;
-          });
-        } catch (final InterruptedException e) {
-          throw Exceptions.toRuntimeException(e);
-        }
-      });
-      scope.join();
-    }
-  }
-
-  public <V> void forEach(final Supplier<ExecutorService> executorSupplier,
-    final BaseIterable<V> values, final Consumer<V> action) {
-    if (values != null) {
-      try (
-        final var executor = executorSupplier.get()) {
-        forEach(executor, values, action);
-      }
-    }
   }
 
   public CompletableFuture<Void> runAsync(final Runnable runnable, final Executor executor) {
@@ -128,15 +105,6 @@ public class SemaphoreEx extends Semaphore {
       }
     } catch (final InterruptedException e) {
       throw Exceptions.toRuntimeException(e);
-    }
-  }
-
-  public <V> void virtualForEach(final BaseIterable<V> values, final Consumer<V> action) {
-    if (values != null) {
-      try (
-        final var executor = Executors.newVirtualThreadPerTaskExecutor()) {
-        forEach(executor, values, action);
-      }
     }
   }
 

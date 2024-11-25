@@ -8,8 +8,8 @@ import java.util.function.Function;
 import com.revolsys.collection.value.ValueHolder;
 import com.revolsys.exception.Exceptions;
 import com.revolsys.logging.Logs;
-import com.revolsys.parallel.ExecutorServiceFactory;
 import com.revolsys.util.BaseCloseable;
+import com.revolsys.util.concurrent.Concurrent;
 
 public class MapValueHolderFunction<K, V> implements ValueHolder<V> {
 
@@ -46,7 +46,7 @@ public class MapValueHolderFunction<K, V> implements ValueHolder<V> {
     this.value = initialValue;
     this.initializer = initializer;
     if (this.value == null) {
-      this.task = ExecutorServiceFactory.getExecutorService()
+      this.task = Concurrent.virtual()
         .submit(this::initialize);
     } else {
       this.latch.countDown();

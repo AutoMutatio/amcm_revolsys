@@ -22,26 +22,27 @@ import com.revolsys.record.RecordFactory;
 import com.revolsys.record.code.CodeTable;
 import com.revolsys.record.property.RecordDefinitionProperty;
 import com.revolsys.record.query.DeleteStatement;
-import com.revolsys.record.query.Query;
+import com.revolsys.record.query.InsertStatement;
+import com.revolsys.record.query.QueryStatement;
 import com.revolsys.record.query.QueryValue;
 import com.revolsys.record.query.SqlAppendable;
 import com.revolsys.record.query.TableReference;
 import com.revolsys.util.CaseConverter;
 
 public interface RecordDefinition extends Cloneable, GeometryFactoryProxy, RecordStoreSchemaElement,
-    MapSerializer, RecordDefinitionProxy, RecordFactory<Record>, TableReference {
+  MapSerializer, RecordDefinitionProxy, RecordFactory<Record>, TableReference {
 
   static RecordDefinitionBuilder builder() {
     return new RecordDefinitionBuilder();
   }
 
   static RecordDefinition newRecordDefinition(final GeometryFactory geometryFactory,
-      final DataType dataType) {
+    final DataType dataType) {
     final String name = dataType.getName();
     return new RecordDefinitionBuilder(name) //
-        .addField(dataType) //
-        .setGeometryFactory(geometryFactory) //
-        .getRecordDefinition() //
+      .addField(dataType) //
+      .setGeometryFactory(geometryFactory) //
+      .getRecordDefinition() //
     ;
   }
 
@@ -57,21 +58,21 @@ public interface RecordDefinition extends Cloneable, GeometryFactoryProxy, Recor
   void addProperty(RecordDefinitionProperty property);
 
   @Override
-  default void appendQueryValue(final Query query, final SqlAppendable sql,
-      final QueryValue queryValue) {
+  default void appendQueryValue(final QueryStatement statement, final SqlAppendable sql,
+    final QueryValue queryValue) {
     final RecordStore recordStore = getRecordStore();
-    queryValue.appendSql(query, recordStore, sql);
+    queryValue.appendSql(statement, recordStore, sql);
   }
 
   @Override
-  default void appendSelect(final Query query, final SqlAppendable sql,
-      final QueryValue queryValue) {
+  default void appendSelect(final QueryStatement statement, final SqlAppendable sql,
+    final QueryValue queryValue) {
     final RecordStore recordStore = getRecordStore();
-    queryValue.appendSelect(query, recordStore, sql);
+    queryValue.appendSelect(statement, recordStore, sql);
   }
 
   @Override
-  default void appendSelectAll(final Query query, final SqlAppendable sql) {
+  default void appendSelectAll(final QueryStatement statement, final SqlAppendable sql) {
     boolean first = true;
     for (final FieldDefinition field : getFields()) {
       if (first) {
@@ -80,7 +81,7 @@ public interface RecordDefinition extends Cloneable, GeometryFactoryProxy, Recor
         sql.append(", ");
       }
       final RecordStore recordStore = getRecordStore();
-      field.appendSelect(query, recordStore, sql);
+      field.appendSelect(statement, recordStore, sql);
     }
   }
 
@@ -368,6 +369,11 @@ public interface RecordDefinition extends Cloneable, GeometryFactoryProxy, Recor
 
   @Override
   boolean hasIdField();
+
+  @Override
+  default InsertStatement insertStatement() {
+    return getRecordStore().insertStatement(getPathName());
+  }
 
   boolean isFieldRequired(CharSequence name);
 

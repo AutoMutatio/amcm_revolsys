@@ -34,7 +34,7 @@ public class Join implements QueryValue, TableReferenceProxy {
   }
 
   @Override
-  public void appendDefaultSql(final Query query, final RecordStore recordStore,
+  public void appendDefaultSql(final QueryStatement statement, final RecordStore recordStore,
     final SqlAppendable sql) {
     sql.append(' ');
     sql.append(this.joinType.toString());
@@ -49,7 +49,7 @@ public class Join implements QueryValue, TableReferenceProxy {
       sql.append(this.tableName);
     }
     if (this.statement != null) {
-      this.statement.appendDefaultSelect(query, recordStore, sql);
+      this.statement.appendDefaultSelect(statement, recordStore, sql);
       if (this.alias != null) {
         sql.append(" ");
         sql.append('"');
@@ -59,7 +59,7 @@ public class Join implements QueryValue, TableReferenceProxy {
     }
     if (!this.condition.isEmpty()) {
       sql.append(" ON ");
-      this.condition.appendSql(query, recordStore, sql);
+      this.condition.appendSql(statement, recordStore, sql);
     }
   }
 

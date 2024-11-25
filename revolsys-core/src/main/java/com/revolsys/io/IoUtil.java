@@ -99,7 +99,8 @@ public class IoUtil {
    */
   public static long copy(final InputStream in, final File file) {
     try {
-      file.getParentFile().mkdirs();
+      file.getParentFile()
+        .mkdirs();
       try (
         final FileOutputStream out = new FileOutputStream(file)) {
         return in.transferTo(out);
@@ -289,7 +290,8 @@ public class IoUtil {
     } else {
       String fileName = file.getName();
       if (!Property.hasValue(fileName)) {
-        fileName = file.getPath().replaceAll("\\\\$", "");
+        fileName = file.getPath()
+          .replaceAll("\\\\$", "");
       }
       return fileName;
     }
@@ -346,6 +348,31 @@ public class IoUtil {
       return out.toString();
     } finally {
       BaseCloseable.closeSilent(reader);
+    }
+  }
+
+  public static long size(final InputStream in) {
+    try {
+      long size = 0;
+      final byte[] buffer = new byte[8196];
+      while (true) {
+        final int count = in.read(buffer);
+        if (count >= 0) {
+          size += count;
+        } else {
+          return size;
+        }
+      }
+    } catch (final IOException e) {
+      return Exceptions.throwUncheckedException(e);
+    }
+  }
+
+  public static Reader toReader(final InputStream in) {
+    try {
+      return new InputStreamReader(in);
+    } catch (final Exception e) {
+      return Exceptions.throwUncheckedException(e);
     }
   }
 

@@ -7,7 +7,7 @@ import com.revolsys.record.schema.RecordStore;
 public class NoCondition implements Condition {
 
   @Override
-  public void appendDefaultSql(final Query query, final RecordStore recordStore,
+  public void appendDefaultSql(final QueryStatement statement, final RecordStore recordStore,
     final SqlAppendable sql) {
   }
 

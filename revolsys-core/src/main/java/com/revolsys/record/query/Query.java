@@ -26,7 +26,6 @@ import com.revolsys.collection.map.MapEx;
 import com.revolsys.function.Lambdaable;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.io.PathName;
-import com.revolsys.jdbc.JdbcUtils;
 import com.revolsys.jdbc.field.JdbcFieldDefinition;
 import com.revolsys.jdbc.field.JdbcFieldDefinitions;
 import com.revolsys.predicate.Predicates;
@@ -52,8 +51,7 @@ import com.revolsys.util.Property;
 import com.revolsys.util.count.LabelCounters;
 
 public class Query extends BaseObjectWithProperties implements Cloneable, CancellableProxy,
-  Transactionable, QueryValue, TableReferenceProxy, Lambdaable<Query> {
-
+  Transactionable, QueryValue, TableReferenceProxy, Lambdaable<Query>, From, QueryStatement {
   private static void addFilter(final Query query, final RecordDefinition recordDefinition,
     final Map<String, ?> filter, final AbstractMultiCondition multipleCondition) {
     if (filter != null && !filter.isEmpty()) {
@@ -169,6 +167,8 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     return query;
   }
 
+  private int fetchSize = 100;
+
   private List<Join> joins = new ArrayList<>();
 
   private boolean distinct = false;
@@ -221,6 +221,15 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     this(new TableReferenceImpl(typePath), whereCondition);
   }
 
+  public Query(final RecordStore recordStore) {
+    this.recordStore = recordStore;
+  }
+
+  public Query(final RecordStore recordStore, final TableReferenceProxy table) {
+    this.recordStore = recordStore;
+    this.table = table.getTableReference();
+  }
+
   public Query(final String typePath) {
     this(typePath, null);
   }
@@ -244,15 +253,12 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
   }
 
   public Query addGroupBy(final Object groupByItem) {
-    if (groupByItem instanceof QueryValue) {
-      final QueryValue queryValue = (QueryValue)groupByItem;
+    if (groupByItem instanceof final QueryValue queryValue) {
       this.groupBy.add(queryValue);
-    } else if (groupByItem instanceof CharSequence) {
-      final CharSequence fieldName = (CharSequence)groupByItem;
+    } else if (groupByItem instanceof final CharSequence fieldName) {
       final ColumnReference column = this.table.getColumn(fieldName);
       this.groupBy.add(column);
-    } else if (groupByItem instanceof Integer) {
-      final Integer index = (Integer)groupByItem;
+    } else if (groupByItem instanceof final Integer index) {
       final ColumnIndex columnIndex = new ColumnIndex(index);
       this.groupBy.add(columnIndex);
     } else {
@@ -287,15 +293,13 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     QueryValue queryValue;
     if (field instanceof QueryValue) {
       queryValue = (QueryValue)field;
-    } else if (field instanceof CharSequence) {
-      final CharSequence name = (CharSequence)field;
+    } else if (field instanceof final CharSequence name) {
       try {
         queryValue = this.table.getColumn(name);
       } catch (final IllegalArgumentException e) {
         queryValue = new Column(name);
       }
-    } else if (field instanceof Integer) {
-      final Integer index = (Integer)field;
+    } else if (field instanceof final Integer index) {
       queryValue = new ColumnIndex(index);
     } else {
       throw new IllegalArgumentException("Not a field name: " + field);
@@ -456,9 +460,14 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
   }
 
   @Override
-  public void appendDefaultSql(final Query query, final RecordStore recordStore,
+  public void appendDefaultSql(final QueryStatement statement, final RecordStore recordStore,
     final SqlAppendable sql) {
     appendSql(sql);
+  }
+
+  @Override
+  public void appendFrom(final SqlAppendable string) {
+    this.from.appendFrom(string);
   }
 
   public SqlAppendable appendOrderByFields(final SqlAppendable sql, final TableReferenceProxy table,
@@ -520,7 +529,11 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
         } else {
           sql.append(", ");
         }
-        table.appendSelect(this, sql, selectItem);
+        if (table == null) {
+          selectItem.appendSelect(this, this.recordStore, sql);
+        } else {
+          table.appendSelect(this, sql, selectItem);
+        }
       }
     }
   }
@@ -539,7 +552,7 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
   protected void appendSql(final SqlAppendable sql, final TableReferenceProxy table,
     final List<OrderBy> orderBy) {
     From from = getFrom();
-    if (from == null) {
+    if (from == null && table != null) {
       from = table.getTableReference();
     }
     final List<Join> joins = getJoins();
@@ -564,12 +577,14 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
       sql.append("DISTINCT ");
     }
     appendSelect(sql);
-    sql.append(" FROM ");
-    from.appendFromWithAlias(sql);
-    for (final Join join : joins) {
-      JdbcUtils.appendQueryValue(sql, this, join);
+    if (from != null) {
+      sql.append(" FROM ");
+      from.appendFromWithAlias(sql);
     }
-    JdbcUtils.appendWhere(sql, this, sql.isUsePlaceholders());
+    for (final Join join : joins) {
+      appendQueryValue(sql, join);
+    }
+    appendWhere(sql, sql.isUsePlaceholders());
 
     if (groupBy != null) {
       boolean hasGroupBy = false;
@@ -586,7 +601,7 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     }
     if (!this.having.isEmpty()) {
       sql.append(" HAVING ");
-      JdbcUtils.appendQueryValue(sql, this, this.having);
+      appendQueryValue(sql, this.having);
     }
 
     addOrderBy(sql, table, orderBy);
@@ -595,6 +610,14 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
 
     if (this.union != null) {
       this.union.appendSql(sql);
+    }
+  }
+
+  public void appendWhere(final SqlAppendable sql, final boolean usePlaceholders) {
+    final Condition where = getWhereCondition();
+    if (!where.isEmpty()) {
+      sql.append(" WHERE ");
+      appendQueryValue(sql, where);
     }
   }
 
@@ -658,6 +681,15 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     return getRecordCount() != 0;
   }
 
+  public int fetchSize() {
+    return this.fetchSize;
+  }
+
+  public Query fetchSize(final int fetchSize) {
+    this.fetchSize = fetchSize;
+    return this;
+  }
+
   /**
    * Process each result record. Ensures that there is an open transaction
    * @param action
@@ -703,6 +735,7 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     return this.from;
   }
 
+  @Override
   public FieldDefinition getGeometryField() {
     return getRecordDefinition().getGeometryField();
   }
@@ -752,6 +785,7 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     return getRecordStore().getRecordCount(this);
   }
 
+  @Override
   public RecordDefinition getRecordDefinition() {
     if (this.table == null) {
       return null;
@@ -760,6 +794,7 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     }
   }
 
+  @Override
   @SuppressWarnings("unchecked")
   public <V extends Record> RecordFactory<V> getRecordFactory() {
     return (RecordFactory<V>)this.recordFactory;
@@ -1023,12 +1058,10 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
       QueryValue right;
       if (value instanceof QueryValue) {
         right = (QueryValue)value;
+      } else if (left instanceof ColumnReference) {
+        right = new Value((ColumnReference)left, value);
       } else {
-        if (left instanceof ColumnReference) {
-          right = new Value((ColumnReference)left, value);
-        } else {
-          right = Value.newValue(value);
-        }
+        right = Value.newValue(value);
       }
       condition = operator.apply(left, right);
     }
@@ -1043,7 +1076,7 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
       from = this.table;
     }
     from.appendFromWithAlias(sql);
-    JdbcUtils.appendWhere(sql, this, true);
+    appendWhere(sql, true);
     return sql.toSqlString();
   }
 
@@ -1149,8 +1182,7 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     final Condition whereCondition = getWhereCondition();
     if (whereCondition.isEmpty()) {
       setWhereCondition(condition);
-    } else if (whereCondition instanceof Or) {
-      final Or or = (Or)whereCondition;
+    } else if (whereCondition instanceof final Or or) {
       or.or(condition);
     } else {
       setWhereCondition(new Or(whereCondition, condition));
@@ -1196,8 +1228,7 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     for (final Iterator<QueryValue> iterator = this.selectExpressions.iterator(); iterator
       .hasNext();) {
       final QueryValue queryValue = iterator.next();
-      if (queryValue instanceof Column) {
-        final Column column = (Column)queryValue;
+      if (queryValue instanceof final Column column) {
         if (column.getName()
           .equals(name)) {
           iterator.remove();

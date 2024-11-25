@@ -41,18 +41,18 @@ public class In extends AbstractBinaryQueryValue implements Condition {
   }
 
   @Override
-  public void appendDefaultSql(final Query query, final RecordStore recordStore,
+  public void appendDefaultSql(final QueryStatement statement, final RecordStore recordStore,
     final SqlAppendable buffer) {
     if (isEmpty()) {
       buffer.append("1==0");
     } else {
-      super.appendLeft(buffer, query, recordStore);
+      super.appendLeft(statement, recordStore, buffer);
       buffer.append(" IN ");
       final boolean collection = getRight() instanceof CollectionValue;
       if (!collection) {
         buffer.append('(');
       }
-      super.appendRight(buffer, query, recordStore);
+      super.appendRight(statement, recordStore, buffer);
       if (!collection) {
         buffer.append(')');
       }

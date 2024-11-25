@@ -30,7 +30,7 @@ public class EmptyValueHolder<V> implements ValueHolder<V> {
   }
 
   @Override
-  public V getOrDefault(final Supplier<? extends V> supplier) {
+  public <R extends V> R getOrDefault(final Supplier<R> supplier) {
     return supplier.get();
   }
 

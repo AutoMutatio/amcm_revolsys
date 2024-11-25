@@ -4,6 +4,7 @@ import java.net.URI;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 import com.revolsys.collection.iterator.AbstractIterator;
@@ -11,6 +12,7 @@ import com.revolsys.collection.iterator.IterableWithCount;
 import com.revolsys.collection.json.JsonObject;
 import com.revolsys.http.HttpRequestBuilder;
 import com.revolsys.http.HttpRequestBuilderFactory;
+import com.revolsys.util.Debug;
 
 public class ODataJsonQueryIterator<V> extends AbstractIterator<V> implements IterableWithCount<V> {
 
@@ -36,6 +38,10 @@ public class ODataJsonQueryIterator<V> extends AbstractIterator<V> implements It
 
   private int pageCount = 0;
 
+  private Consumer<URI> deltaLinkCallback;
+
+  private URI deltaLink;
+
   public ODataJsonQueryIterator(final HttpRequestBuilderFactory requestFactory,
     final HttpRequestBuilder request, final Function<JsonObject, V> converter,
     final String queryLabel, final int pageLimit) {
@@ -48,9 +54,29 @@ public class ODataJsonQueryIterator<V> extends AbstractIterator<V> implements It
     this.pageLimit = pageLimit;
   }
 
+  @Override
+  protected void closeDo() {
+    super.closeDo();
+    if (this.deltaLinkCallback != null) {
+      if (this.deltaLink != null) {
+        this.deltaLinkCallback.accept(this.deltaLink);
+      }
+    }
+  }
+
+  public ODataJsonQueryIterator<V> deltaLinkCallback(final Consumer<URI> deltaLinkCallback) {
+    this.deltaLinkCallback = deltaLinkCallback;
+    return this;
+  }
+
   void executeRequest() {
+
     final JsonObject json = this.request.responseAsJson();
+    final var s = this.request.toString();
     if (json == null) {
+      if (s.contains("delta")) {
+        Debug.noOp();
+      }
       this.nextURI = null;
       this.results = Collections.emptyIterator();
       return;
@@ -65,7 +91,13 @@ public class ODataJsonQueryIterator<V> extends AbstractIterator<V> implements It
       } else {
         this.nextURI = null;
       }
-
+      if (json.hasValue("@odata.deltaLink")) {
+        this.deltaLink = json.getURI("@odata.deltaLink");
+      }
+      if (s.contains("delta")
+        && s.contains("b!BynUrbeF7EuVqMKG1KJ_jiTpdJ11PeNKuR_ubcnOIY8bW0kyDAj3Q52JeZXO5QFR")) {
+        Debug.noOp();
+      }
       this.results = json.<JsonObject> getList("value")
         .iterator();
     }
@@ -82,23 +114,32 @@ public class ODataJsonQueryIterator<V> extends AbstractIterator<V> implements It
   @Override
   protected V getNext() throws NoSuchElementException {
     if (this.readCount >= this.limit) {
+      // Don't use delta link in this case
       throw new NoSuchElementException();
     }
-    final Iterator<JsonObject> results = this.results;
     do {
+      final Iterator<JsonObject> results = this.results;
       if (results != null && results.hasNext()) {
         final JsonObject recordJson = results.next();
         this.readCount++;
         return this.converter.apply(recordJson);
       }
       if (this.nextURI == null || ++this.pageCount >= this.pageLimit) {
+        if (this.request.toString()
+          .contains("delta")) {
+          Debug.noOp();
+        }
         throw new NoSuchElementException();
       } else {
-        this.request = this.requestFactory.get(this.nextURI);
-
-        executeRequest();
+        try {
+          this.request = this.requestFactory.get(this.nextURI);
+          executeRequest();
+        } catch (final Exception e) {
+          // TODO Auto-generated catch block
+          e.printStackTrace();
+        }
       }
-    } while (results != null);
+    } while (this.results != null);
     throw new NoSuchElementException();
   }
 

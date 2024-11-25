@@ -1,16 +1,35 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE xml>
-<configuration name="revolsys-test">
+<configuration scan="true">
 
-  <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
-    <encoder>
-      <pattern>%d\t%p\t%c\t%m%n</pattern>
-    </encoder>
-  </appender>
- 
-  <logger name="com.revolsys.core.test.gis.esri.gdb.file" level="DEBUG" />
- 
+  <logger name="com.automutatio" level="info" />
+
+  <logger name="org.docx4j.model.properties" level="OFF" />
+
+  <logger name="org.docx4j" level="OFF" />
+
+  <logger name="org.apache" level="OFF" />
+
+  <logger name="org.apache.fontbox.ttf.CmapSubtable" level="OFF" />
+
+  <logger name="org.apache.pdfbox.pdmodel.font" level="OFF" />
+
+  <logger name="org.apache.pdfbox.pdmodel.font.PDSimpleFont" level="OFF" />
+
+  <logger name="org.apache.pdfbox.pdmodel.font.PDType0Font" level="OFF" />
+
+  <logger name="org.apache.pdfbox.pdmodel.font.PDType1Font" level="error" />
+
+  <logger name="org.apache.pdfbox.pdmodel.font.PDFont" level="OFF" />
+
+  <logger name="org.apache.pdfbox.pdmodel.font.PDCIDFontType2" level="OFF" />
+    
+   <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+      <encoder>
+        <pattern>%gray(%date{STRICT}) %highlight(%-5level) %cyan(%logger) [%yellow(%thread)] %green(%message) %magenta(%kvp{DOUBLE})\n%red(%exception{full})</pattern>
+      </encoder>
+    </appender>
+
   <root level="error">
-    <appender-ref ref="Console"/>
+    <appender-ref ref="CONSOLE" />
   </root>
+
 </configuration>

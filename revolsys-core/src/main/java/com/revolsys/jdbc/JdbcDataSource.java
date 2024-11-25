@@ -10,6 +10,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.UncategorizedSQLException;
 import org.springframework.jdbc.support.SQLErrorCodeSQLExceptionTranslator;
 
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.value.ValueHolder;
 import com.revolsys.transaction.ActiveTransactionContext;
 import com.revolsys.transaction.Transaction;
@@ -56,20 +57,30 @@ public abstract class JdbcDataSource implements DataSource, Transactionable {
 
   @Override
   public JdbcConnection getConnection() throws SQLException {
-    return getConnection(null);
+    return getConnection(null, JsonObject.EMPTY);
   }
 
   /**
    * Return a new JDBC connection. The client caller must close the connection.
    */
   public JdbcConnection getConnection(final ConnectionConsumer initializer) throws SQLException {
+    return getConnection(initializer, JsonObject.EMPTY);
+
+  }
+
+  public JdbcConnection getConnection(final ConnectionConsumer initializer,
+    final JsonObject properties) throws SQLException {
     final TransactionContext context = Transaction.getContext();
     if (context instanceof final ActiveTransactionContext activeContext) {
-      return activeContext.getResource(this.key, this.resourceConstructor)
-        .addConnectionInitializer(initializer)
-        .getJdbcConnection();
+      try {
+        return activeContext.getResource(this.key, this.resourceConstructor)
+          .addConnectionInitializer(initializer)
+          .getJdbcConnection();
+      } catch (RuntimeException | SQLException e) {
+        return activeContext.setRollbackOnly(e);
+      }
     } else {
-      final JdbcConnection connection = newJdbcConnection();
+      final JdbcConnection connection = newJdbcConnection(properties);
       if (connection.hasConnection()) {
         if (initializer != null) {
           initializer.accept(connection);
@@ -79,6 +90,10 @@ public abstract class JdbcDataSource implements DataSource, Transactionable {
       }
       return connection;
     }
+  }
+
+  public JdbcConnection getConnection(final JsonObject properties) throws SQLException {
+    return getConnection(null, properties);
   }
 
   @Override
@@ -103,5 +118,5 @@ public abstract class JdbcDataSource implements DataSource, Transactionable {
 
   protected abstract SQLErrorCodeSQLExceptionTranslator newExceptionTranslator();
 
-  protected abstract JdbcConnection newJdbcConnection() throws SQLException;
+  protected abstract JdbcConnection newJdbcConnection(JsonObject properties) throws SQLException;
 }

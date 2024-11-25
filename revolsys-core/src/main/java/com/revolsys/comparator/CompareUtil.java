@@ -2,8 +2,10 @@ package com.revolsys.comparator;
 
 import java.text.Collator;
 import java.util.Comparator;
+import java.util.UUID;
 
 import com.revolsys.data.type.DataTypes;
+import com.revolsys.util.Uuid;
 
 public class CompareUtil {
 
@@ -18,12 +20,10 @@ public class CompareUtil {
       }
     } else if (object2 == null) {
       return 1;
+    } else if (object1 instanceof Number) {
+      return NumericComparator.numericCompare(object1, object2);
     } else {
-      if (object1 instanceof Number) {
-        return NumericComparator.numericCompare(object1, object2);
-      } else {
-        return object1.compareTo(object2);
-      }
+      return object1.compareTo(object2);
     }
   }
 
@@ -32,12 +32,10 @@ public class CompareUtil {
     if (object1 == null) {
       if (object2 == null) {
         return 0;
+      } else if (nullsFirst) {
+        return -1;
       } else {
-        if (nullsFirst) {
-          return -1;
-        } else {
-          return 1;
-        }
+        return 1;
       }
     } else if (object2 == null) {
       if (nullsFirst) {
@@ -73,6 +71,8 @@ public class CompareUtil {
       }
     } else if (object2 == null) {
       return 1;
+    } else if (object1 instanceof final UUID uuid) {
+      return Uuid.compare(uuid, object2);
     } else if (object1 instanceof Comparable) {
       if (object1 instanceof Number) {
         return NumericComparator.numericCompare(object1, object2);
@@ -84,7 +84,8 @@ public class CompareUtil {
       final Comparable<Object> comparable = (Comparable<Object>)object1;
       return comparable.compareTo(object2);
     } else {
-      return object1.toString().compareTo(object2.toString());
+      return object1.toString()
+        .compareTo(object2.toString());
     }
   }
 
@@ -92,12 +93,10 @@ public class CompareUtil {
     if (object1 == null) {
       if (object2 == null) {
         return 0;
+      } else if (nullsFirst) {
+        return -1;
       } else {
-        if (nullsFirst) {
-          return -1;
-        } else {
-          return 1;
-        }
+        return 1;
       }
     } else if (object2 == null) {
       if (nullsFirst) {
@@ -116,7 +115,8 @@ public class CompareUtil {
       final Comparable<Object> comparable = (Comparable<Object>)object1;
       return comparable.compareTo(object2);
     } else {
-      return object1.toString().compareTo(object2.toString());
+      return object1.toString()
+        .compareTo(object2.toString());
     }
   }
 

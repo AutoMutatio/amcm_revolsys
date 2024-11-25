@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.UUID;
 
 import com.revolsys.data.type.DataType;
+import com.revolsys.util.Uuid;
 
 public class UuidIdentifier implements Identifier, Comparable<Object> {
   private final UUID id;
@@ -16,8 +17,7 @@ public class UuidIdentifier implements Identifier, Comparable<Object> {
   @Override
   public int compareTo(final Object object) {
     Object otherValue;
-    if (object instanceof Identifier) {
-      final Identifier identifier = (Identifier)object;
+    if (object instanceof final Identifier identifier) {
       if (identifier.isSingle()) {
         otherValue = identifier.getValue(0);
       } else {
@@ -26,12 +26,7 @@ public class UuidIdentifier implements Identifier, Comparable<Object> {
     } else {
       otherValue = object;
     }
-    if (otherValue instanceof UUID) {
-      final UUID otherId = (UUID)otherValue;
-      return this.id.compareTo(otherId);
-    } else {
-      return this.id.toString().compareTo(otherValue.toString());
-    }
+    return Uuid.compare(this.id, otherValue);
   }
 
   @Override
@@ -46,8 +41,7 @@ public class UuidIdentifier implements Identifier, Comparable<Object> {
 
   @Override
   public boolean equals(final Object other) {
-    if (other instanceof Identifier) {
-      final Identifier identifier = (Identifier)other;
+    if (other instanceof final Identifier identifier) {
       return equals(identifier);
     } else {
       return DataType.equal(this.id, other);

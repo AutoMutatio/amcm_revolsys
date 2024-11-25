@@ -20,7 +20,11 @@ public class WhereConditionBuilder implements TableReferenceProxy {
 
   public WhereConditionBuilder(final TableReference table, final Condition condition) {
     this.table = table;
-    this.condition = condition;
+    if (condition == null) {
+      this.condition = Condition.ALL;
+    } else {
+      this.condition = condition;
+    }
   }
 
   public WhereConditionBuilder and(final ColumnReference left, final Object value) {
