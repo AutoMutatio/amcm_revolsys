@@ -210,7 +210,7 @@ public class Logs {
   }
 
   private static final String initHostName() {
-    for (final var key : Arrays.asList("HOSTNAME", "COMPUTERNAME", "HOST")) {
+    for (final var key : Arrays.asList("COMPUTERNAME", "HOSTNAME", "HOST")) {
       final var name = System.getenv(key);
       if (Property.hasValue(name)) {
         return name.replaceAll("\\..+", "")
