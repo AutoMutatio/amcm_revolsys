@@ -160,9 +160,7 @@ public interface JdbcDatabaseFactory extends RecordStoreFactory {
           passwordSupplier = null;
         }
       }
-      @SuppressWarnings("resource")
-      final var dataSource = new JdbcDataSourceImpl();
-      return dataSource//
+      return new JdbcDataSourceImpl.Builder()//
         .setDriverClassName(getDriverClassName())
         .setUrl(url)
         .setMaxIdle(maxIdle)
@@ -171,7 +169,8 @@ public interface JdbcDatabaseFactory extends RecordStoreFactory {
         .setMaxAge(maxAge)
         .setUserSupplier(userSupplier)
         .setPasswordSupplier(passwordSupplier)
-        .setConfig(newConfig);
+        .setConfig(newConfig)
+        .build();
     } catch (final Throwable e) {
       throw new IllegalArgumentException("Unable to create data source for " + config, e);
     }

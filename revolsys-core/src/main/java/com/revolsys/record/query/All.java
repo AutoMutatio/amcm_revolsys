@@ -9,10 +9,10 @@ public class All extends AbstractArrayExpression {
   }
 
   @Override
-  public void appendDefaultSql(final Query query, final RecordStore recordStore,
+  public void appendDefaultSql(final QueryStatement statement, final RecordStore recordStore,
     final SqlAppendable buffer) {
     buffer.append("ALL(");
-    super.appendDefaultSql(query, recordStore, buffer);
+    super.appendDefaultSql(statement, recordStore, buffer);
     buffer.append(")");
   }
 

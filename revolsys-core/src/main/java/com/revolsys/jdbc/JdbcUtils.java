@@ -28,29 +28,12 @@ import com.revolsys.io.PathUtil;
 import com.revolsys.jdbc.field.JdbcFieldDefinition;
 import com.revolsys.jdbc.field.JdbcFieldDefinitions;
 import com.revolsys.logging.Logs;
-import com.revolsys.record.query.Condition;
 import com.revolsys.record.query.Query;
-import com.revolsys.record.query.QueryValue;
 import com.revolsys.record.query.SqlAppendable;
 import com.revolsys.record.query.StringBuilderSqlAppendable;
 import com.revolsys.util.Property;
 
 public final class JdbcUtils {
-
-  public static void appendQueryValue(final SqlAppendable sql, final Query query,
-    final QueryValue queryValue) {
-    final var recordStore = query.getRecordStore();
-    queryValue.appendSql(query, recordStore, sql);
-  }
-
-  public static void appendWhere(final SqlAppendable sql, final Query query,
-    final boolean usePlaceholders) {
-    final Condition where = query.getWhereCondition();
-    if (!where.isEmpty()) {
-      sql.append(" WHERE ");
-      appendQueryValue(sql, query, where);
-    }
-  }
 
   public static String cleanObjectName(final String objectName) {
     return objectName.replaceAll("[^a-zA-Z\\._]", "");
@@ -120,7 +103,7 @@ public final class JdbcUtils {
     sql.append("DELETE FROM ");
     sql.append(dbTableName);
     sql.append(" T ");
-    appendWhere(sql, query, true);
+    query.appendWhere(sql, true);
     return sql.toSqlString();
   }
 

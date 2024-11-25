@@ -36,6 +36,7 @@ import com.revolsys.record.query.Cast;
 import com.revolsys.record.query.ColumnReference;
 import com.revolsys.record.query.Condition;
 import com.revolsys.record.query.DeleteStatement;
+import com.revolsys.record.query.InsertStatement;
 import com.revolsys.record.query.Or;
 import com.revolsys.record.query.Q;
 import com.revolsys.record.query.Query;
@@ -229,7 +230,8 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
   }
 
   public DeleteStatement deleteStatement(final TableRecordStoreConnection connection) {
-    return new TableRecordStoreDeleteStatement(connection).from(getTable());
+    final var table = getTable();
+    return new TableRecordStoreDeleteStatement(connection).from(table);
   }
 
   protected void executeUpdate(final TableRecordStoreConnection connection, final String sql,
@@ -240,6 +242,11 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     }
     throw new UnsupportedOperationException("Must be a JDBC connection");
 
+  }
+
+  public boolean exists(final TableRecordStoreConnection connection,
+    final TableRecordStoreQuery query) {
+    return connection.transactionCall(() -> getRecordStore().exists(query));
   }
 
   public Map<QueryValue, Boolean> getDefaultSortOrder() {
@@ -353,6 +360,15 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
 
   protected void insertRecordBefore(final TableRecordStoreConnection connection,
     final Record record) {
+  }
+
+  @Override
+  public InsertStatement insertStatement() {
+    throw new UnsupportedOperationException("insertStatement()");
+  }
+
+  public InsertStatement insertStatement(final TableRecordStoreConnection connection) {
+    return new TableRecordStoreInsertStatement(connection).into(getTable());
   }
 
   protected boolean isFieldReadonly(final String fieldName) {
@@ -640,6 +656,12 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     final ChangeTrackRecord record) {
   }
 
+  /**
+   * Make changes to the record checked to see if it was modified but before saving to the database
+   *
+   * @param connection
+   * @param record
+   */
   protected void updateRecordBefore(final TableRecordStoreConnection connection,
     final ChangeTrackRecord record) {
   }
@@ -658,6 +680,16 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     }
   }
 
+  /**
+   * Make changes to the record before it was checked to see if it was modified
+   *
+   * @param connection
+   * @param record
+   */
+  protected void updateRecordPre(final TableRecordStoreConnection connection,
+    final ChangeTrackRecord record) {
+  }
+
   public int updateRecords(final TableRecordStoreConnection connection, final Query query,
     final Consumer<? super ChangeTrackRecord> updateAction) {
     return connection.transactionCall(() -> {
@@ -671,6 +703,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
         for (final Record queryRecord : reader) {
           final ChangeTrackRecord record = (ChangeTrackRecord)queryRecord;
           updateAction.accept(record);
+          updateRecordPre(connection, record);
           if (record.isModified()) {
             updateRecordBefore(connection, record);
             writer.write(record);
@@ -684,7 +717,14 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
   }
 
   public UpdateStatement updateStatement(final TableRecordStoreConnection connection) {
-    return new TableRecordStoreUpdateStatement(connection).from(getTable());
+    return new TableRecordStoreUpdateStatement(connection).table(getTable());
+  }
+
+  public UpdateStatement updateStatement(final TableRecordStoreConnection connection,
+    final Consumer<UpdateStatement> action) {
+    final var statement = new TableRecordStoreUpdateStatement(connection).table(getTable());
+    action.accept(statement);
+    return statement;
   }
 
   public void validateRecord(final MapEx record) {

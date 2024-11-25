@@ -11,6 +11,7 @@ import javax.sql.DataSource;
 import org.springframework.jdbc.CannotGetJdbcConnectionException;
 import org.springframework.jdbc.support.SQLErrorCodeSQLExceptionTranslator;
 
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.transaction.ActiveTransactionContext;
 import com.revolsys.transaction.TransactionContext;
 import com.revolsys.util.BaseCloseable;
@@ -107,7 +108,7 @@ public class JdbcDataSourceWrapper extends JdbcDataSource {
   }
 
   @Override
-  protected JdbcConnection newJdbcConnection() throws SQLException {
+  protected JdbcConnection newJdbcConnection(JsonObject properties) throws SQLException {
     final var connection = newConnectionInternal();
     return new JdbcConnection(this, connection, true);
   }

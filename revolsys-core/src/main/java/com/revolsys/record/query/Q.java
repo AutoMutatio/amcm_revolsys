@@ -20,6 +20,8 @@ import com.revolsys.record.schema.RecordStore;
 import com.revolsys.util.Property;
 
 public class Q {
+  public static BiFunction<QueryValue, QueryValue, QueryValue> ADD = Add::new;
+
   public static BiFunction<QueryValue, QueryValue, Condition> ILIKE = ILike::new;
 
   public static Function<QueryValue, Condition> IS_NOT_NULL = IsNotNull::new;
@@ -524,7 +526,7 @@ public class Q {
   public static Condition predicate(final Predicate<MapEx> predicate) {
     return new Condition() {
       @Override
-      public void appendDefaultSql(final Query query, final RecordStore recordStore,
+      public void appendDefaultSql(final QueryStatement statement, final RecordStore recordStore,
         final SqlAppendable sql) {
         throw new UnsupportedOperationException(
           "Predicate conditions cannot be used to create a SQL expression");

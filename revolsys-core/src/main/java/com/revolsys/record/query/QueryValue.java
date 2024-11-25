@@ -1,6 +1,5 @@
 package com.revolsys.record.query;
 
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -25,7 +24,7 @@ import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordStore;
 import com.revolsys.util.Property;
 
-public interface QueryValue extends Cloneable {
+public interface QueryValue extends Cloneable, SqlAppendParameters {
   static <V extends QueryValue> List<V> cloneQueryValues(final TableReference oldTable,
     final TableReference newTable, final List<V> values) {
     final List<V> clonedValues = new ArrayList<>();
@@ -115,32 +114,34 @@ public interface QueryValue extends Cloneable {
     return recordStore.addField(recordDefinition, metaData, columnIndex);
   }
 
-  default void appendDefaultSelect(final Query query, final RecordStore recordStore,
+  default void appendDefaultSelect(final QueryStatement statement, final RecordStore recordStore,
     final SqlAppendable sql) {
-    recordStore.appendQueryValue(query, sql, this);
+    recordStore.appendQueryValue(statement, sql, this);
   }
 
-  void appendDefaultSql(Query query, RecordStore recordStore, SqlAppendable sql);
+  void appendDefaultSql(QueryStatement statement, RecordStore recordStore, SqlAppendable sql);
 
-  // TODO wrap in a more generic structure
-  int appendParameters(int index, PreparedStatement statement);
-
-  default void appendSelect(final Query query, final RecordStore recordStore,
+  default void appendSelect(final QueryStatement statement, final RecordStore recordStore,
     final SqlAppendable sql) {
     if (recordStore == null) {
-      appendDefaultSelect(query, null, sql);
+      appendDefaultSelect(statement, null, sql);
     } else {
-      recordStore.appendSelect(query, sql, this);
+      recordStore.appendSelect(statement, sql, this);
     }
   }
 
-  default void appendSql(final Query query, final RecordStore recordStore,
+  default void appendSql(final QueryStatement statement, final RecordStore recordStore,
     final SqlAppendable sql) {
     if (recordStore == null) {
-      appendDefaultSql(query, null, sql);
+      appendDefaultSql(statement, null, sql);
     } else {
-      recordStore.appendQueryValue(query, sql, this);
+      recordStore.appendQueryValue(statement, sql, this);
     }
+  }
+
+  default void appendSql(final QueryStatement statement, final SqlAppendable sql) {
+    final var recordStore = statement.getRecordStore();
+    appendSql(statement, recordStore, sql);
   }
 
   default void changeRecordDefinition(final RecordDefinition oldRecordDefinition,

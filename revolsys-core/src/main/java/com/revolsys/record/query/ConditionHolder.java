@@ -24,18 +24,18 @@ public class ConditionHolder implements Condition {
   }
 
   @Override
-  public void appendDefaultSelect(final Query query, final RecordStore recordStore,
+  public void appendDefaultSelect(final QueryStatement statement, final RecordStore recordStore,
     final SqlAppendable sql) {
     if (this.condition != null) {
-      this.condition.appendDefaultSelect(query, recordStore, sql);
+      this.condition.appendDefaultSelect(statement, recordStore, sql);
     }
   }
 
   @Override
-  public void appendDefaultSql(final Query query, final RecordStore recordStore,
+  public void appendDefaultSql(final QueryStatement statement, final RecordStore recordStore,
     final SqlAppendable sql) {
     if (this.condition != null) {
-      this.condition.appendDefaultSql(query, recordStore, sql);
+      this.condition.appendDefaultSql(statement, recordStore, sql);
     }
   }
 
@@ -49,17 +49,17 @@ public class ConditionHolder implements Condition {
   }
 
   @Override
-  public void appendSelect(final Query query, final RecordStore recordStore,
+  public void appendSelect(final QueryStatement statement, final RecordStore recordStore,
     final SqlAppendable sql) {
     if (this.condition != null) {
-      this.condition.appendSelect(query, recordStore, sql);
+      this.condition.appendSelect(statement, recordStore, sql);
     }
   }
 
   @Override
-  public void appendSql(final Query query, final RecordStore recordStore, final SqlAppendable sql) {
+  public void appendSql(final QueryStatement statement, final RecordStore recordStore, final SqlAppendable sql) {
     if (this.condition != null) {
-      this.condition.appendSql(query, recordStore, sql);
+      this.condition.appendSql(statement, recordStore, sql);
     }
   }
 

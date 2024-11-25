@@ -48,6 +48,10 @@ public interface TableReferenceProxy {
 
   TableReference getTableReference();
 
+  default InsertStatement insertStatement() {
+    return new InsertStatement().into(getTableReference());
+  }
+
   default Condition newCondition(final CharSequence fieldName,
     final BiFunction<QueryValue, QueryValue, Condition> operator, final Object value) {
     final ColumnReference left = getColumn(fieldName);

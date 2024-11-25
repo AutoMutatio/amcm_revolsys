@@ -7,13 +7,22 @@ import com.revolsys.record.schema.RecordDefinition;
 
 public record Partition(Partition parent, Path path, String key, Object value, String fullName) {
 
+  private static Path parentPath(final Partition parent, final String fullName) {
+    if (parent == null) {
+      return Path.of(fullName);
+    } else {
+      return parent.path()
+        .resolve(fullName);
+    }
+  }
+
   private Partition(final Partition parent, final String key, final Object value) {
     this(parent, key, value, key + "=" + value);
   }
 
   private Partition(final Partition parent, final String key, final Object value,
     final String fullName) {
-    this(parent, parent.path().resolve(fullName), key, value, fullName);
+    this(parent, parentPath(parent, fullName), key, value, fullName);
   }
 
   public Partition(final String key, final Object value) {
@@ -29,7 +38,8 @@ public record Partition(Partition parent, Path path, String key, Object value, S
   }
 
   public Path fullPath(final Path root, final String typeName) {
-    return root.resolve(typeName).resolve(this.path);
+    return root.resolve(typeName)
+      .resolve(this.path);
   }
 
   public RecordWriter newMultiWriter(final Path root, final String typeName,
