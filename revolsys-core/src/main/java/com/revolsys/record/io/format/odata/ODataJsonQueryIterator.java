@@ -12,7 +12,6 @@ import com.revolsys.collection.iterator.IterableWithCount;
 import com.revolsys.collection.json.JsonObject;
 import com.revolsys.http.HttpRequestBuilder;
 import com.revolsys.http.HttpRequestBuilderFactory;
-import com.revolsys.util.Debug;
 
 public class ODataJsonQueryIterator<V> extends AbstractIterator<V> implements IterableWithCount<V> {
 
@@ -54,14 +53,16 @@ public class ODataJsonQueryIterator<V> extends AbstractIterator<V> implements It
     this.pageLimit = pageLimit;
   }
 
+  private void callbackDeltaLink(final URI deltaLink) {
+    if (this.deltaLinkCallback != null && deltaLink != null) {
+      this.deltaLinkCallback.accept(deltaLink);
+    }
+  }
+
   @Override
   protected void closeDo() {
     super.closeDo();
-    if (this.deltaLinkCallback != null) {
-      if (this.deltaLink != null) {
-        this.deltaLinkCallback.accept(this.deltaLink);
-      }
-    }
+    callbackDeltaLink(this.deltaLink);
   }
 
   public ODataJsonQueryIterator<V> deltaLinkCallback(final Consumer<URI> deltaLinkCallback) {
@@ -70,13 +71,9 @@ public class ODataJsonQueryIterator<V> extends AbstractIterator<V> implements It
   }
 
   void executeRequest() {
-
+    callbackDeltaLink(this.nextURI);
     final JsonObject json = this.request.responseAsJson();
-    final var s = this.request.toString();
     if (json == null) {
-      if (s.contains("delta")) {
-        Debug.noOp();
-      }
       this.nextURI = null;
       this.results = Collections.emptyIterator();
       return;
@@ -91,12 +88,9 @@ public class ODataJsonQueryIterator<V> extends AbstractIterator<V> implements It
       } else {
         this.nextURI = null;
       }
+
       if (json.hasValue("@odata.deltaLink")) {
         this.deltaLink = json.getURI("@odata.deltaLink");
-      }
-      if (s.contains("delta")
-        && s.contains("b!BynUrbeF7EuVqMKG1KJ_jiTpdJ11PeNKuR_ubcnOIY8bW0kyDAj3Q52JeZXO5QFR")) {
-        Debug.noOp();
       }
       this.results = json.<JsonObject> getList("value")
         .iterator();
@@ -125,19 +119,10 @@ public class ODataJsonQueryIterator<V> extends AbstractIterator<V> implements It
         return this.converter.apply(recordJson);
       }
       if (this.nextURI == null || ++this.pageCount >= this.pageLimit) {
-        if (this.request.toString()
-          .contains("delta")) {
-          Debug.noOp();
-        }
         throw new NoSuchElementException();
       } else {
-        try {
-          this.request = this.requestFactory.get(this.nextURI);
-          executeRequest();
-        } catch (final Exception e) {
-          // TODO Auto-generated catch block
-          e.printStackTrace();
-        }
+        this.request = this.requestFactory.get(this.nextURI);
+        executeRequest();
       }
     } while (this.results != null);
     throw new NoSuchElementException();
