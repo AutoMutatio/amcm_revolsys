@@ -4,13 +4,13 @@ import java.sql.PreparedStatement;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class ConflictUpdate implements ConflictAction {
+public class OnConflictDoUpdate implements OnConflictAction {
 
   private final Map<ColumnReference, QueryValue> setExpressions = new LinkedHashMap<>();
 
   private final QueryStatement statement;
 
-  public ConflictUpdate(final QueryStatement statement) {
+  public OnConflictDoUpdate(final QueryStatement statement) {
     this.statement = statement;
   }
 
@@ -60,7 +60,13 @@ public class ConflictUpdate implements ConflictAction {
     this.setExpressions.put(column, queryValue);
   }
 
-  public void setExisting(final ColumnReference column) {
+  /**
+   * Update this column with the value from the insert statement
+   * when there's a conflict
+   *
+   * @param column
+   */
+  public void setExcluded(final ColumnReference column) {
     this.setExpressions.put(column, new Excluded(column));
   }
 }
