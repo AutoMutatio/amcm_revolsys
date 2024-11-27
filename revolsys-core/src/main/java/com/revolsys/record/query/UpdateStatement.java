@@ -76,6 +76,10 @@ public class UpdateStatement extends AbstractReturningQueryStatement<UpdateState
     }
   }
 
+  public boolean executeUpdate() {
+    return executeUpdateCount() > 0;
+  }
+
   public int executeUpdateCount() {
     return getRecordStore().executeUpdateCount(this);
   }
