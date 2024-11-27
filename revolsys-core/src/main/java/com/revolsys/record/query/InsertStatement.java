@@ -2,6 +2,7 @@ package com.revolsys.record.query;
 
 import java.sql.PreparedStatement;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 import com.revolsys.collection.iterator.BaseIterable;
@@ -183,6 +184,10 @@ public class InsertStatement extends AbstractReturningQueryStatement<InsertState
     return configUpdate;
   }
 
+  public boolean executeInsert() {
+    return executeInsertCount() > 0;
+  }
+
   public int executeInsertCount() {
     return getRecordStore().executeInsertCount(this);
   }
@@ -321,6 +326,11 @@ public class InsertStatement extends AbstractReturningQueryStatement<InsertState
       final var value = values.get(name);
       update(name, value);
     }
+    return this;
+  }
+
+  public InsertStatement updateWhere(final Consumer<WhereConditionBuilder> where) {
+    conflictUpdate().where(where);
     return this;
   }
 
