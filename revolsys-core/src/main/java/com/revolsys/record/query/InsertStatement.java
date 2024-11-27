@@ -183,6 +183,10 @@ public class InsertStatement extends AbstractReturningQueryStatement<InsertState
     return configUpdate;
   }
 
+  public boolean executeInsert() {
+    return executeInsertCount() > 0;
+  }
+
   public int executeInsertCount() {
     return getRecordStore().executeInsertCount(this);
   }
