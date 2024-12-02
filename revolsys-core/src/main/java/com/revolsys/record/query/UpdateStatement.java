@@ -1,6 +1,7 @@
 package com.revolsys.record.query;
 
 import java.sql.PreparedStatement;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -8,6 +9,7 @@ import com.revolsys.collection.iterator.BaseIterable;
 import com.revolsys.collection.list.ArrayListEx;
 import com.revolsys.collection.list.ListEx;
 import com.revolsys.collection.list.Lists;
+import com.revolsys.collection.map.MapEx;
 import com.revolsys.record.Record;
 import com.revolsys.record.schema.RecordDefinition;
 
@@ -74,6 +76,7 @@ public class UpdateStatement extends AbstractReturningQueryStatement<UpdateState
       sql.append(" WHERE  ");
       where.appendSql(this, sql);
     }
+    appendReturning(sql);
   }
 
   public boolean executeUpdate() {
@@ -152,9 +155,23 @@ public class UpdateStatement extends AbstractReturningQueryStatement<UpdateState
     return where(w -> w.and(fieldName, value));
   }
 
+  public UpdateStatement updateKeyFieldValue(final String fieldName, final MapEx source,
+    final String sourceKey) {
+    final var value = source.getValue(sourceKey);
+    return updateKey(fieldName, value);
+  }
+
   public UpdateStatement where(final Consumer<WhereConditionBuilder> action) {
     final var table = table();
     this.where = new WhereConditionBuilder(table, this.where).build(action);
+    return this;
+  }
+
+  public UpdateStatement with(final BiConsumer<UpdateStatement, With> action) {
+    final var with = new With();
+    this.withClauses.add(with);
+    this.fromClauses.add(with);
+    action.accept(this, with);
     return this;
   }
 

@@ -41,6 +41,10 @@ public class ODataJsonQueryIterator<V> extends AbstractIterator<V> implements It
 
   private URI deltaLink;
 
+  private Function<Throwable, Boolean> errorHandler;
+
+  private final boolean hadError = false;
+
   public ODataJsonQueryIterator(final HttpRequestBuilderFactory requestFactory,
     final HttpRequestBuilder request, final Function<JsonObject, V> converter,
     final String queryLabel, final int pageLimit) {
@@ -54,7 +58,7 @@ public class ODataJsonQueryIterator<V> extends AbstractIterator<V> implements It
   }
 
   private void callbackDeltaLink(final URI deltaLink) {
-    if (this.deltaLinkCallback != null && deltaLink != null) {
+    if (!this.hadError && this.deltaLinkCallback != null && deltaLink != null) {
       this.deltaLinkCallback.accept(deltaLink);
     }
   }
@@ -67,6 +71,19 @@ public class ODataJsonQueryIterator<V> extends AbstractIterator<V> implements It
 
   public ODataJsonQueryIterator<V> deltaLinkCallback(final Consumer<URI> deltaLinkCallback) {
     this.deltaLinkCallback = deltaLinkCallback;
+    return this;
+  }
+
+  /**
+   * Error handler for iterating through the data. If that method returns true the iterator will terminate and the error will not be propagated.
+   *
+   * DOES NOT handle the cases where the converter has an error. Those errors will get propagated.
+   *
+   * @param errorHandler
+   * @return
+   */
+  public ODataJsonQueryIterator<V> errorHandler(final Function<Throwable, Boolean> errorHandler) {
+    this.errorHandler = errorHandler;
     return this;
   }
 
@@ -92,8 +109,13 @@ public class ODataJsonQueryIterator<V> extends AbstractIterator<V> implements It
       if (json.hasValue("@odata.deltaLink")) {
         this.deltaLink = json.getURI("@odata.deltaLink");
       }
-      this.results = json.<JsonObject> getList("value")
-        .iterator();
+      final var results = json.<JsonObject> getList("value");
+      if (results.isEmpty()) {
+        this.nextURI = null;
+        this.results = Collections.emptyIterator();
+      } else {
+        this.results = results.iterator();
+      }
     }
   }
 
@@ -114,15 +136,38 @@ public class ODataJsonQueryIterator<V> extends AbstractIterator<V> implements It
     do {
       final Iterator<JsonObject> results = this.results;
       if (results != null && results.hasNext()) {
-        final JsonObject recordJson = results.next();
+        final JsonObject recordJson;
+        try {
+          recordJson = results.next();
+        } catch (final Throwable e) {
+          if (this.errorHandler == null || !this.errorHandler.apply(e)) {
+            // Rethrow the error if there was no error handler or it didn't
+            // handle it
+            throw e;
+          } else {
+            // Stop processing if the error handler processed the result
+            break;
+          }
+        }
         this.readCount++;
         return this.converter.apply(recordJson);
       }
       if (this.nextURI == null || ++this.pageCount >= this.pageLimit) {
         throw new NoSuchElementException();
       } else {
-        this.request = this.requestFactory.get(this.nextURI);
-        executeRequest();
+        try {
+          this.request = this.requestFactory.get(this.nextURI);
+          executeRequest();
+        } catch (final Throwable e) {
+          if (this.errorHandler == null || !this.errorHandler.apply(e)) {
+            // Rethrow the error if there was no error handler or it didn't
+            // handle it
+            throw e;
+          } else {
+            // Stop processing if the error handler processed the result
+            break;
+          }
+        }
       }
     } while (this.results != null);
     throw new NoSuchElementException();
@@ -131,7 +176,18 @@ public class ODataJsonQueryIterator<V> extends AbstractIterator<V> implements It
   @Override
   protected void initDo() {
     super.initDo();
-    executeRequest();
+    try {
+      executeRequest();
+    } catch (final Throwable e) {
+      if (this.errorHandler == null || !this.errorHandler.apply(e)) {
+        // Rethrow the error if there was no error handler or it didn't handle
+        // it
+        throw e;
+      } else {
+        // Stop processing if the error handler processed the result
+        this.results = Collections.emptyIterator();
+      }
+    }
   }
 
   @Override

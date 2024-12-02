@@ -217,11 +217,6 @@ public class InsertStatement extends AbstractReturningQueryStatement<InsertState
     }
   }
 
-  public InsertStatement insert(final String name, final MapEx source, final String sourceKey) {
-    final var value = source.getValue(sourceKey);
-    return insert(name, value);
-  }
-
   public InsertStatement insert(final String name, final Object value) {
     if (hasField(name)) {
       final var column = getColumn(name);
@@ -267,15 +262,32 @@ public class InsertStatement extends AbstractReturningQueryStatement<InsertState
     return insert(name, value);
   }
 
-  public InsertStatement insertKey(final String name, final MapEx source, final String sourceKey) {
+  public InsertStatement insertFieldValue(final String name, final MapEx source,
+    final String sourceKey) {
     final var value = source.getValue(sourceKey);
-    return insertKey(name, value);
+    return insert(name, value);
+  }
+
+  @Deprecated
+  public InsertStatement insertKey(final String name, final MapEx source, final String sourceKey) {
+    return insertKeyFieldValue(name, source, sourceKey);
   }
 
   public InsertStatement insertKey(final String name, final Object value) {
     insert(name, value);
     conflictColumn(name);
     return this;
+  }
+
+  public InsertStatement insertKeyFieldValue(final String name, final MapEx source) {
+    final var value = source.getValue(name);
+    return insert(name, value);
+  }
+
+  public InsertStatement insertKeyFieldValue(final String name, final MapEx source,
+    final String sourceKey) {
+    final var value = source.getValue(sourceKey);
+    return insertKey(name, value);
   }
 
   public InsertStatement into(final TableReference table) {
@@ -332,6 +344,11 @@ public class InsertStatement extends AbstractReturningQueryStatement<InsertState
   public InsertStatement updateWhere(final Consumer<WhereConditionBuilder> where) {
     conflictUpdate().where(where);
     return this;
+  }
+
+  public InsertStatement upsert(final String name, final MapEx source, final String sourceKey) {
+    final var value = source.getValue(sourceKey);
+    return upsert(name, value);
   }
 
   /**
