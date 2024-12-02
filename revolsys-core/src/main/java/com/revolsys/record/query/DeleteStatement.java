@@ -39,6 +39,10 @@ public class DeleteStatement implements QueryStatement {
     return executeDeleteCount();
   }
 
+  public boolean executeDelete() {
+    return executeDeleteCount() > 0;
+  }
+
   public int executeDeleteCount() {
     return getRecordStore().deleteRecords(this);
   }

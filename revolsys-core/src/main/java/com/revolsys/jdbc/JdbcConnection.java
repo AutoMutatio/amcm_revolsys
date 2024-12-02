@@ -120,12 +120,17 @@ public class JdbcConnection implements Connection {
     return getConnection().createStruct(typeName, attributes);
   }
 
-  public int executeCall(final String sql, final Object... parameters) {
+  <V> V execute(final String sql, final Object[] parameters) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  public boolean executeCall(final String sql, final Object... parameters) {
     try {
       final PreparedStatement statement = this.connection.prepareCall(sql);
       try {
         JdbcUtils.setParameters(statement, parameters);
-        return statement.executeUpdate();
+        return statement.execute();
       } finally {
         JdbcUtils.close(statement);
       }
