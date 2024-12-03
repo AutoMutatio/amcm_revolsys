@@ -50,7 +50,7 @@ public class PointCloudLayer extends AbstractLayer {
     final EnableCheck enableCheck) {
     TreeNodes
       .addMenuItem(menu, "point_cloud", "Export Point Cloud...", (final PathTreeNode node) -> {
-        final Path sourceFile = node.getPath();
+        final Path sourceFile = node.getFile();
         SwingIo.exportToFile("Point Coud", "com.revolsys.swing.map.layer.pointcloud.export",
           LasPointCloudWriterFactory.class, "las", sourceFile, targetFile -> {
             if (!PointCloud.copyPointCloud(sourceFile, targetFile)) {
@@ -66,7 +66,7 @@ public class PointCloudLayer extends AbstractLayer {
     final EnableCheck enableCheck) {
     TreeNodes
       .addMenuItem(menu, "point_cloud", "Point Cloud Properties", (final PathTreeNode node) -> {
-        final Path file = node.getPath();
+        final Path file = node.getFile();
         Invoke.later(() -> {
           final Resource resource = Resource.getResource(file);
           final PointCloudLayer layer = new PointCloudLayer(resource);
@@ -81,7 +81,7 @@ public class PointCloudLayer extends AbstractLayer {
 
   private static void addMenuZoomToCloud(final MenuFactory menu, final EnableCheck enableCheck) {
     TreeNodes.addMenuItem(menu, "point_cloud", "Zoom to Point Cloud", (final PathTreeNode node) -> {
-      final Path file = node.getPath();
+      final Path file = node.getFile();
       final String baseName = Paths.getBaseName(file);
       Invoke.background("Zoom to Point Cloud: " + baseName, () -> {
         try (
@@ -234,7 +234,8 @@ public class PointCloudLayer extends AbstractLayer {
     propertiesPanel.add(scrollPane);
     final SimpleValueHolder<JButton> buttonHolder = new SimpleValueHolder<>();
     final JButton refreshButton = RunnableAction.newButton("Update Classification Counts", () -> {
-      buttonHolder.getValue().setEnabled(false);
+      buttonHolder.getValue()
+        .setEnabled(false);
       Invoke.background("Classification Counts " + this.url, () -> {
         this.pointCloud.refreshClassificationCounts();
         return this.pointCloud.toHtml();

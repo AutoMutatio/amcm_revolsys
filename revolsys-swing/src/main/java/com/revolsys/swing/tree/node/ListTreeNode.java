@@ -8,6 +8,7 @@ import java.util.List;
 import com.revolsys.swing.parallel.Invoke;
 import com.revolsys.swing.tree.BaseTreeNode;
 
+@SuppressWarnings("serial")
 public class ListTreeNode extends BaseTreeNode {
   private final List<BaseTreeNode> children = new ArrayList<>();
 
@@ -30,7 +31,7 @@ public class ListTreeNode extends BaseTreeNode {
     if (children == null) {
       children = loadChildrenDo();
     }
-    setChildren(children);
+    children.forEach(this::add);
   }
 
   public ListTreeNode(final String name, final BaseTreeNode... nodes) {
@@ -41,10 +42,7 @@ public class ListTreeNode extends BaseTreeNode {
   public void addNode(final BaseTreeNode child) {
     if (child != null) {
       Invoke.andWait(() -> {
-        final int index = this.children.size();
-        this.children.add(child);
-        child.setParent(this);
-        nodesInserted(index);
+        add(child);
       });
     }
   }
@@ -82,9 +80,10 @@ public class ListTreeNode extends BaseTreeNode {
   public void removeNode(final int index) {
     Invoke.andWait(() -> {
       if (index >= 0 && index < this.children.size()) {
-        final BaseTreeNode node = this.children.remove(index);
-        node.setParent(null);
-        nodeRemoved(index, node);
+        final BaseTreeNode node = this.children.get(index);
+        if (node != null) {
+          remove(node);
+        }
       }
     });
   }

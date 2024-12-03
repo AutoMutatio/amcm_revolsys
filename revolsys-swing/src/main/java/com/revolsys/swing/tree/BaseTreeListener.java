@@ -96,7 +96,8 @@ public class BaseTreeListener
       if (path != null) {
 
         TreePath[] selectionPaths = this.tree.getSelectionPaths();
-        if (selectionPaths == null || !Arrays.asList(selectionPaths).contains(path)) {
+        if (selectionPaths == null || !Arrays.asList(selectionPaths)
+          .contains(path)) {
           selectionPaths = new TreePath[] {
             path
           };
@@ -160,8 +161,7 @@ public class BaseTreeListener
   public void treeWillExpand(final TreeExpansionEvent event) throws ExpandVetoException {
     final TreePath path = event.getPath();
     final Object node = path.getLastPathComponent();
-    if (node instanceof LazyLoadTreeNode) {
-      final LazyLoadTreeNode lazyLoadTreeNode = (LazyLoadTreeNode)node;
+    if (node instanceof final LazyLoadTreeNode lazyLoadTreeNode) {
       lazyLoadTreeNode.loadChildren();
     }
   }

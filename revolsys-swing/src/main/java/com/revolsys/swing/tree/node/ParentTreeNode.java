@@ -59,7 +59,7 @@ public class ParentTreeNode extends LazyLoadTreeNode {
   }
 
   @Override
-  protected synchronized void refreshDo() {
+  protected void refreshDo() {
     try {
       final Parent<?> parent = getUserData();
       if (parent != null) {

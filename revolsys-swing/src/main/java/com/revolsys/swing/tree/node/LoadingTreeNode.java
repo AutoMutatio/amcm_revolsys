@@ -5,9 +5,8 @@ import javax.swing.Icon;
 import com.revolsys.swing.tree.BaseTreeNode;
 
 public class LoadingTreeNode extends BaseTreeNode {
-  public LoadingTreeNode(final LazyLoadTreeNode parent) {
+  public LoadingTreeNode() {
     super("Loading...");
-    setParent(parent);
   }
 
   @Override

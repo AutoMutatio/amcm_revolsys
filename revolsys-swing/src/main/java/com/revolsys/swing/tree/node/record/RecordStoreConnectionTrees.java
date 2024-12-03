@@ -32,7 +32,7 @@ public class RecordStoreConnectionTrees extends ConnectionManagerTrees {
 
   static {
     // RecordStoreConnectionRegistry
-    MenuFactory.addMenuInitializer(RecordStoreConnectionRegistry.class, (menu) -> {
+    MenuFactory.addMenuInitializer(RecordStoreConnectionRegistry.class, menu -> {
       TreeNodes.addMenuItemNodeValue(menu, "default", 0, "Add Connection", "database:add",
         RecordStoreConnectionRegistry::isEditable, RecordStoreConnectionTrees::addConnection);
 
@@ -41,7 +41,7 @@ public class RecordStoreConnectionTrees extends ConnectionManagerTrees {
     });
 
     // RecordStoreConnection
-    MenuFactory.addMenuInitializer(RecordStoreConnection.class, (menu) -> {
+    MenuFactory.addMenuInitializer(RecordStoreConnection.class, menu -> {
       TreeNodes.addMenuItemNodeValue(menu, "default", 0, "Edit Connection", "database:edit",
         RecordStoreConnection::isEditable, RecordStoreConnectionTrees::editConnection);
 
@@ -49,11 +49,11 @@ public class RecordStoreConnectionTrees extends ConnectionManagerTrees {
         "Export Connection", "database:export", ConnectionManagerTrees::exportConnection);
     });
 
-    MenuFactory.addMenuInitializer(RecordStoreSchema.class, (menu) -> {
+    MenuFactory.addMenuInitializer(RecordStoreSchema.class, menu -> {
       LazyLoadTreeNode.addRefreshMenuItem(menu);
     });
 
-    MenuFactory.addMenuInitializer(RecordDefinitionImpl.class, (menu) -> {
+    MenuFactory.addMenuInitializer(RecordDefinitionImpl.class, menu -> {
       TreeNodes.addMenuItemNodeValue(menu, "default", "Add Record Layer", "map:add",
         RecordStoreConnectionTrees::addLayer);
       // LazyLoadTreeNode.addRefreshMenuItem(menu);
@@ -79,7 +79,7 @@ public class RecordStoreConnectionTrees extends ConnectionManagerTrees {
     final LinkedList<String> path = new LinkedList<>();
     {
       BaseTreeNode node = BaseTree.getMenuNode();
-      node = node.getParent();
+      node = node.getParentNode();
 
       while (node != null) {
         final Object nodeValue = node.getUserObject();
@@ -89,7 +89,7 @@ public class RecordStoreConnectionTrees extends ConnectionManagerTrees {
         }
         if (nodeValue instanceof RecordStoreSchemaElement) {
           path.addFirst(nodeName);
-          node = node.getParent();
+          node = node.getParentNode();
         } else {
           path.addFirst(nodeName);
           node = null;

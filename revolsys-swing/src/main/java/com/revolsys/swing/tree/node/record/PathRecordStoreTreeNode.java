@@ -50,7 +50,7 @@ public class PathRecordStoreTreeNode extends PathTreeNode
   }
 
   public void addRecordStoreConnection() {
-    final Path path = getPath();
+    final Path path = getFile();
     final String fileName = Paths.getBaseName(path);
 
     final ValueField panel = new ValueField();
@@ -110,14 +110,14 @@ public class PathRecordStoreTreeNode extends PathTreeNode
   @Override
   @SuppressWarnings("unchecked")
   public <V extends RecordStore> V getRecordStore() {
-    final Path path = getPath();
+    final Path path = getFile();
     return (V)RecordStoreConnectionManager.getRecordStore(path);
   }
 
   @Override
   public JsonObject getRecordStoreConnectionMap() {
-    final BaseTreeNode parent = getParent();
-    final Path path = getPath();
+    final BaseTreeNode parent = getParentNode();
+    final Path path = getFile();
     final URL url = getUrl(parent, path);
 
     return JsonObject.hash("url", url.toString());

@@ -51,7 +51,7 @@ public class GriddedElevationModelLayer extends AbstractLayer implements Elevati
   public static final String J_TYPE = "griddedElevationModelLayer";
 
   private static void actionExport(final PathTreeNode node) {
-    final Path path = node.getPath();
+    final Path path = node.getFile();
     SwingIo.exportToFile("Gridded Elevation Model", "com.revolsys.swing.io.gridded_dem.export",
       GriddedElevationModelWriterFactory.class, "asc", path, targetFile -> {
         try {
@@ -66,7 +66,7 @@ public class GriddedElevationModelLayer extends AbstractLayer implements Elevati
   }
 
   private static void actionZoomTo(final PathTreeNode node) {
-    final Path file = node.getPath();
+    final Path file = node.getFile();
     final String baseName = Paths.getBaseName(file);
     Invoke.background("Zoom to Gridded Elevation Model: " + baseName, () -> {
       try (
@@ -97,7 +97,7 @@ public class GriddedElevationModelLayer extends AbstractLayer implements Elevati
     final EnableCheck enableCheck = RsSwingServiceInitializer
       .enableCheck(GriddedElevationModelReaderFactory.class);
 
-    PathTreeNode.MENU.addInitializer((menu) -> {
+    PathTreeNode.MENU.addInitializer(menu -> {
       menuItemPathAddLayer(menu, "gridded_dem", "Add Gridded Elevation Model Layer", "gridded_dem",
         GriddedElevationModelReaderFactory.class);
 
@@ -116,7 +116,7 @@ public class GriddedElevationModelLayer extends AbstractLayer implements Elevati
   }
 
   public static void initializeMenu() {
-    MenuFactory.addMenuInitializer(GriddedElevationModelLayer.class, (menu) -> {
+    MenuFactory.addMenuInitializer(GriddedElevationModelLayer.class, menu -> {
       menu.addGroup(0, "table");
       menu.addGroup(2, "edit");
 

@@ -200,7 +200,8 @@ public class PathTreeNode extends LazyLoadTreeNode implements UrlProxy {
       return parentProxy.getUrl(path);
     } else {
       try {
-        final URL url = path.toUri().toURL();
+        final URL url = path.toUri()
+          .toURL();
         return url;
       } catch (final MalformedURLException e) {
         throw Exceptions.toRuntimeException(e);
@@ -260,7 +261,7 @@ public class PathTreeNode extends LazyLoadTreeNode implements UrlProxy {
 
   private void actionAddFolderConnection() {
     if (isDirectory()) {
-      final Path path = getPath();
+      final Path path = getFile();
       final String fileName = getName();
 
       final ValueField panel = new ValueField();
@@ -304,7 +305,7 @@ public class PathTreeNode extends LazyLoadTreeNode implements UrlProxy {
   }
 
   private void actionExportRecords() {
-    final Path path = getPath();
+    final Path path = getFile();
     boolean hasGeometryField;
     try (
       RecordReader reader = RecordReader.newRecordReader(path)) {
@@ -332,8 +333,8 @@ public class PathTreeNode extends LazyLoadTreeNode implements UrlProxy {
       if (getClass() == other.getClass()) {
         final PathTreeNode fileNode = (PathTreeNode)other;
         if (isExists() == fileNode.isExists()) {
-          final Path path = getPath();
-          final Path otherPath = fileNode.getPath();
+          final Path path = getFile();
+          final Path otherPath = fileNode.getFile();
           final boolean equal = DataType.equal(path, otherPath);
           return equal;
         }
@@ -344,7 +345,7 @@ public class PathTreeNode extends LazyLoadTreeNode implements UrlProxy {
 
   // @Override
   // public String getType() {
-  // final Path path = getPath();
+  // final Path path = getFile();
   // if (Files.isDirectory(path)) {
   // return "Folder";
   // } else if (Files.exists(path)) {
@@ -362,12 +363,16 @@ public class PathTreeNode extends LazyLoadTreeNode implements UrlProxy {
   // }
   // }
 
+  public Path getFile() {
+    return getUserData();
+  }
+
   @Override
   public Icon getIcon() {
     Icon icon = super.getIcon();
     if (icon == null) {
       if (isExists()) {
-        final Path path = getPath();
+        final Path path = getFile();
         icon = getIcon(path);
         setIcon(icon);
       }
@@ -380,20 +385,16 @@ public class PathTreeNode extends LazyLoadTreeNode implements UrlProxy {
     return MENU.getValue();
   }
 
-  public Path getPath() {
-    return getUserData();
-  }
-
   @Override
   public URL getUrl() {
-    final Path path = getPath();
-    final BaseTreeNode parent = getParent();
+    final Path path = getFile();
+    final BaseTreeNode parent = getParentNode();
     return getUrl(parent, path);
   }
 
   @Override
   public int hashCode() {
-    final Path path = getPath();
+    final Path path = getFile();
     if (path == null) {
       return 0;
     } else {
@@ -403,13 +404,13 @@ public class PathTreeNode extends LazyLoadTreeNode implements UrlProxy {
 
   @Override
   public boolean isAllowsChildren() {
-    final Path path = getPath();
+    final Path path = getFile();
     return isAllowsChildren(path);
   }
 
   public boolean isDirectory() {
     if (isExists()) {
-      final Path path = getPath();
+      final Path path = getFile();
       return Files.isDirectory(path);
     } else {
       return false;
@@ -423,7 +424,7 @@ public class PathTreeNode extends LazyLoadTreeNode implements UrlProxy {
 
   public boolean isFileLayer() {
     if (isExists()) {
-      final Path path = getPath();
+      final Path path = getFile();
       if (!this.hasFile) {
         return false;
       } else if (IoFactory.hasFactory(GeoreferencedImageReadFactory.class, path)) {
@@ -447,7 +448,7 @@ public class PathTreeNode extends LazyLoadTreeNode implements UrlProxy {
 
   public <F extends IoFactory> boolean isReadable(final Class<F> factoryClass) {
     if (isExists()) {
-      final Path path = getPath();
+      final Path path = getFile();
       if (!this.hasFile) {
         return false;
       } else {
@@ -469,12 +470,12 @@ public class PathTreeNode extends LazyLoadTreeNode implements UrlProxy {
   @Override
   protected List<BaseTreeNode> loadChildrenDo() {
     refreshFields();
-    final Path path = getPath();
+    final Path path = getFile();
     return getPathNodes(path);
   }
 
   private void refreshFields() {
-    final Path path = getPath();
+    final Path path = getFile();
     this.exists = Paths.exists(path);
     final Icon icon = getIcon(path);
     setIcon(icon);

@@ -9,7 +9,6 @@ import java.beans.PropertyChangeListener;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Collections;
-import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.Function;
@@ -19,16 +18,15 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JTree;
 import javax.swing.TransferHandler.TransferSupport;
+import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeModel;
-import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
 import com.revolsys.beans.ClassRegistry;
 import com.revolsys.beans.NonWeakListener;
 import com.revolsys.collection.NameProxy;
 import com.revolsys.collection.Parent;
-import com.revolsys.collection.iterator.IteratorEnumeration;
 import com.revolsys.data.type.DataType;
 import com.revolsys.data.type.DataTypes;
 import com.revolsys.logging.Logs;
@@ -44,8 +42,9 @@ import com.revolsys.util.IconNameProxy;
 import com.revolsys.util.Property;
 import com.revolsys.util.ToolTipProxy;
 
-public class BaseTreeNode implements TreeNode, Iterable<BaseTreeNode>, PropertyChangeListener,
-  NonWeakListener, Comparable<BaseTreeNode> {
+@SuppressWarnings("serial")
+public class BaseTreeNode extends DefaultMutableTreeNode implements Iterable<BaseTreeNode>,
+  PropertyChangeListener, NonWeakListener, Comparable<BaseTreeNode> {
   private static final ClassRegistry<Function<Object, BaseTreeNode>> NODE_FACTORY_REGISTRY = new ClassRegistry<>();
 
   private static final ClassRegistry<Icon> NODE_ICON_REGISTRY = new ClassRegistry<>();
@@ -113,19 +112,13 @@ public class BaseTreeNode implements TreeNode, Iterable<BaseTreeNode>, PropertyC
 
   private boolean open;
 
-  private boolean allowsChildren;
-
   private Icon disabledIcon;
 
   private Icon icon;
 
   private String name;
 
-  private BaseTreeNode parent;
-
   private JTree tree;
-
-  private Object userObject;
 
   private boolean userObjectInitialized = true;
 
@@ -140,8 +133,8 @@ public class BaseTreeNode implements TreeNode, Iterable<BaseTreeNode>, PropertyC
   }
 
   public BaseTreeNode(final Object userObject, final boolean allowsChildren) {
-    this.userObject = userObject;
-    this.allowsChildren = allowsChildren;
+    setUserObject(userObject);
+    setAllowsChildren(allowsChildren);
     if (userObject instanceof NameProxy) {
       final NameProxy nameProxy = (NameProxy)userObject;
       this.name = nameProxy.getName();
@@ -160,12 +153,6 @@ public class BaseTreeNode implements TreeNode, Iterable<BaseTreeNode>, PropertyC
 
   protected void addListener() {
     Property.addListener(this.userObject, this);
-  }
-
-  @SuppressWarnings("rawtypes")
-  @Override
-  public Enumeration children() {
-    return IteratorEnumeration.newEnumeration(getChildren());
   }
 
   protected void closeDo() {
@@ -308,11 +295,6 @@ public class BaseTreeNode implements TreeNode, Iterable<BaseTreeNode>, PropertyC
     delete();
   }
 
-  @Override
-  public boolean getAllowsChildren() {
-    return isAllowsChildren();
-  }
-
   public BaseTreeNode getChild(final Object item) {
     for (final BaseTreeNode child : getChildren()) {
       if (child.equals(item)) {
@@ -322,22 +304,8 @@ public class BaseTreeNode implements TreeNode, Iterable<BaseTreeNode>, PropertyC
     return null;
   }
 
-  @Override
-  public BaseTreeNode getChildAt(final int index) {
-    final List<BaseTreeNode> children = getChildren();
-    final BaseTreeNode child = children.get(index);
-    return child;
-  }
-
   protected List<Class<?>> getChildClasses() {
     return Collections.emptyList();
-  }
-
-  @Override
-  public int getChildCount() {
-    final List<BaseTreeNode> children = getChildren();
-    final int size = children.size();
-    return size;
   }
 
   public List<BaseTreeNode> getChildren() {
@@ -353,12 +321,6 @@ public class BaseTreeNode implements TreeNode, Iterable<BaseTreeNode>, PropertyC
 
   public Icon getIcon() {
     return this.icon;
-  }
-
-  @Override
-  public int getIndex(final TreeNode node) {
-    final List<BaseTreeNode> children = getChildren();
-    return children.indexOf(node);
   }
 
   protected int getIndexOfChild(final BaseTreeNode abstractTreeNode, final Object child) {
@@ -393,11 +355,6 @@ public class BaseTreeNode implements TreeNode, Iterable<BaseTreeNode>, PropertyC
     return this.name;
   }
 
-  @Override
-  public BaseTreeNode getParent() {
-    return this.parent;
-  }
-
   @SuppressWarnings("unchecked")
   public <V extends BaseTreeNode> V getParentNode() {
     return (V)getParent();
@@ -406,7 +363,7 @@ public class BaseTreeNode implements TreeNode, Iterable<BaseTreeNode>, PropertyC
   @SuppressWarnings("unchecked")
   public <V extends JTree> V getTree() {
     if (this.tree == null) {
-      final BaseTreeNode parent = getParent();
+      final BaseTreeNode parent = getParentNode();
       if (parent == null) {
         return null;
       } else {
@@ -456,7 +413,7 @@ public class BaseTreeNode implements TreeNode, Iterable<BaseTreeNode>, PropertyC
   }
 
   public TreePath getTreePath() {
-    final BaseTreeNode parent = getParent();
+    final BaseTreeNode parent = getParentNode();
     if (parent == null) {
       return new TreePath(this);
     } else {
@@ -498,15 +455,11 @@ public class BaseTreeNode implements TreeNode, Iterable<BaseTreeNode>, PropertyC
     return (V)this.userObject;
   }
 
-  public final Object getUserObject() {
-    return this.userObject;
-  }
-
   @Override
   public int hashCode() {
     final Object object = getUserObject();
     if (object == null) {
-      return 1;
+      return super.hashCode();
     } else {
       return object.hashCode();
     }
@@ -618,7 +571,7 @@ public class BaseTreeNode implements TreeNode, Iterable<BaseTreeNode>, PropertyC
   }
 
   public boolean isExists() {
-    final BaseTreeNode parent = getParent();
+    final BaseTreeNode parent = getParentNode();
     if (parent == null) {
       return true;
     } else {
@@ -689,25 +642,29 @@ public class BaseTreeNode implements TreeNode, Iterable<BaseTreeNode>, PropertyC
 
   protected void nodesChanged(final int... indicies) {
     final TreeModel model = getTreeModel();
-    if (model instanceof DefaultTreeModel) {
-      final DefaultTreeModel treeModel = (DefaultTreeModel)model;
+    if (model instanceof final DefaultTreeModel treeModel) {
       treeModel.nodesChanged(this, indicies);
     }
   }
 
   protected void nodesInserted(final int... indicies) {
     final TreeModel model = getTreeModel();
-    if (model instanceof DefaultTreeModel) {
-      final DefaultTreeModel treeModel = (DefaultTreeModel)model;
+    if (model instanceof final DefaultTreeModel treeModel) {
       treeModel.nodesWereInserted(this, indicies);
     }
   }
 
   protected void nodesRemoved(final int[] indicies, final Object... children) {
     final TreeModel model = getTreeModel();
-    if (model instanceof DefaultTreeModel) {
-      final DefaultTreeModel treeModel = (DefaultTreeModel)model;
+    if (model instanceof final DefaultTreeModel treeModel) {
       treeModel.nodesWereRemoved(this, indicies, children);
+    }
+  }
+
+  protected void nodeStructureChanged() {
+    final TreeModel model = getTreeModel();
+    if (model instanceof final DefaultTreeModel treeModel) {
+      treeModel.nodeStructureChanged(this);
     }
   }
 
@@ -753,10 +710,6 @@ public class BaseTreeNode implements TreeNode, Iterable<BaseTreeNode>, PropertyC
     }
   }
 
-  public void setAllowsChildren(final boolean allowsChildren) {
-    this.allowsChildren = allowsChildren;
-  }
-
   protected void setDisabledIcon(final Icon disabledIcon) {
     this.disabledIcon = disabledIcon;
   }
@@ -786,7 +739,7 @@ public class BaseTreeNode implements TreeNode, Iterable<BaseTreeNode>, PropertyC
     } else {
       addListener();
     }
-    this.parent = parent;
+    super.setParent(parent);
   }
 
   void setTree(final JTree tree) {
@@ -794,10 +747,6 @@ public class BaseTreeNode implements TreeNode, Iterable<BaseTreeNode>, PropertyC
     if (tree != null) {
       addListener();
     }
-  }
-
-  protected void setUserObject(final Object userObject) {
-    this.userObject = userObject;
   }
 
   protected void setUserObjectInitialized(final boolean userObjectInitialized) {

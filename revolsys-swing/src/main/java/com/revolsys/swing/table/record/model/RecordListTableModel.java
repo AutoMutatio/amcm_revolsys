@@ -15,6 +15,8 @@ import com.revolsys.data.type.DataType;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.record.Record;
 import com.revolsys.record.comparator.RecordFieldComparator;
+import com.revolsys.record.io.RecordReader;
+import com.revolsys.record.query.Query;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.swing.map.layer.record.AbstractRecordLayer;
 import com.revolsys.swing.table.BaseJTable;
@@ -34,8 +36,12 @@ public class RecordListTableModel extends RecordRowTableModel implements Reorder
     return newPanel(layer.getRecordDefinition(), records, layer.getFieldNames());
   }
 
+  public static TablePanel newPanel(final Query query) {
+    return newPanelReader(query.getRecordReader());
+  }
+
   public static TablePanel newPanel(final RecordDefinition recordDefinition,
-    final Collection<? extends Record> records, final Collection<String> fieldNames) {
+    final Iterable<? extends Record> records, final Collection<String> fieldNames) {
     final RecordListTableModel model = new RecordListTableModel(recordDefinition, records,
       fieldNames);
     final BaseJTable table = new RecordRowTable(model);
@@ -47,19 +53,28 @@ public class RecordListTableModel extends RecordRowTableModel implements Reorder
     return newPanel(recordDefinition, records, Arrays.asList(fieldNames));
   }
 
+  public static TablePanel newPanelReader(final RecordReader reader) {
+    try (
+      var r = reader) {
+      final var recordDefinition = reader.getRecordDefinition();
+      final var records = reader.toList();
+      return newPanel(recordDefinition, records, recordDefinition.getFieldNames());
+    }
+  }
+
   private final List<Record> records = new ArrayList<>();
 
   public RecordListTableModel(final RecordDefinition recordDefinition,
-    final Collection<? extends Record> records, final Collection<String> fieldNames) {
+    final Iterable<? extends Record> records, final Collection<String> fieldNames) {
     this(recordDefinition, records, fieldNames, 0);
   }
 
   public RecordListTableModel(final RecordDefinition recordDefinition,
-    final Collection<? extends Record> records, final Collection<String> fieldNames,
+    final Iterable<? extends Record> records, final Collection<String> fieldNames,
     final int fieldsOffset) {
     super(recordDefinition, fieldNames, fieldsOffset);
     if (records != null) {
-      this.records.addAll(records);
+      records.forEach(this.records::add);
     }
     setEditable(true);
   }

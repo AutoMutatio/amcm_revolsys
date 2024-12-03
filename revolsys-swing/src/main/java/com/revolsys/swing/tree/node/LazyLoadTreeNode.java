@@ -1,22 +1,22 @@
 package com.revolsys.swing.tree.node;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.Vector;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import com.revolsys.collection.list.Lists;
 import com.revolsys.logging.Logs;
 import com.revolsys.swing.menu.MenuFactory;
 import com.revolsys.swing.parallel.Invoke;
 import com.revolsys.swing.tree.BaseTreeNode;
 import com.revolsys.swing.tree.TreeNodes;
 
+@SuppressWarnings("serial")
 public abstract class LazyLoadTreeNode extends BaseTreeNode {
   public static void addRefreshMenuItem(final MenuFactory menu) {
     TreeNodes.addMenuItem(menu, "default", "Refresh", "arrow_refresh", LazyLoadTreeNode::refresh);
   }
-
-  private List<BaseTreeNode> children = Collections.emptyList();
 
   private boolean loaded = false;
 
@@ -29,13 +29,6 @@ public abstract class LazyLoadTreeNode extends BaseTreeNode {
   public LazyLoadTreeNode(final Object userObject) {
     super(userObject, true);
     setLoading();
-  }
-
-  protected void addNode(final int index, final BaseTreeNode node) {
-    final List<BaseTreeNode> children = this.children;
-    if (isLoaded()) {
-      children.add(index, node);
-    }
   }
 
   @Override
@@ -52,19 +45,12 @@ public abstract class LazyLoadTreeNode extends BaseTreeNode {
   }
 
   @Override
-  public List<BaseTreeNode> getChildren() {
-    return this.children;
-  }
-
-  protected int getUpdateIndex() {
-    synchronized (this.updateIndicies) {
-      return this.updateIndicies.incrementAndGet();
-    }
-  }
-
-  @Override
   public boolean isLoaded() {
     return this.loaded;
+  }
+
+  private boolean isLoading(final List<?> newNodes) {
+    return newNodes.size() == 1 && newNodes.get(0) instanceof LoadingTreeNode;
   }
 
   public void loadChildren() {
@@ -78,52 +64,49 @@ public abstract class LazyLoadTreeNode extends BaseTreeNode {
     return new ArrayList<>();
   }
 
-  private List<BaseTreeNode> newLoadingNodes() {
-    final List<BaseTreeNode> nodes = new ArrayList<>();
-    nodes.add(new LoadingTreeNode(this));
-    return nodes;
+  protected int nextUpdateIndex() {
+    return this.updateIndicies.incrementAndGet();
   }
 
   @Override
   public void nodeCollapsed(final BaseTreeNode treeNode) {
     super.nodeCollapsed(treeNode);
     if (treeNode != this) {
-      final int updateIndex = getUpdateIndex();
-      setChildren(updateIndex, newLoadingNodes());
+      nextUpdateIndex();
+      setLoading();
     }
   }
 
   public final void refresh() {
-    Invoke.background("Refresh tree nodes " + this.getName(), this::refreshDo);
+    refreshDo();
   }
 
-  protected synchronized void refreshDo() {
-    try {
-      final int updateIndex = getUpdateIndex();
-      List<BaseTreeNode> children = loadChildrenDo();
-      if (children == null) {
-        children = Collections.emptyList();
+  protected void refreshDo() {
+    final int updateIndex = nextUpdateIndex();
+    Invoke.background("Refresh tree nodes " + getName(), () -> {
+      try {
+        return loadChildrenDo();
+      } catch (final Throwable e) {
+        Logs.error(this, "Error refreshing: " + getName(), e);
+        return Lists.<BaseTreeNode> empty();
       }
-      final List<BaseTreeNode> childNodes = children;
-      Invoke.later(() -> setChildren(updateIndex, childNodes));
-    } catch (final Throwable e) {
-      Logs.error(this, "Error refreshing: " + getName(), e);
-    }
+    }, children -> setChildren(updateIndex, children));
+
   }
 
   public final void removeNode(final BaseTreeNode node) {
-    final List<BaseTreeNode> children = this.children;
-    if (isLoaded()) {
+    final var children = this.children;
+    if (children != null && isLoaded()) {
       final int index = children.indexOf(node);
       removeNode(index);
     }
   }
 
   public final void removeNode(final int index) {
-    final List<BaseTreeNode> children = this.children;
-    if (isLoaded()) {
+    final var children = this.children;
+    if (children != null && isLoaded()) {
       if (index > 0 && index < children.size()) {
-        final BaseTreeNode node = children.remove(index);
+        final var node = children.remove(index);
         nodeRemoved(index, node);
       }
     }
@@ -131,42 +114,38 @@ public abstract class LazyLoadTreeNode extends BaseTreeNode {
 
   private void setChildren(final int updateIndex, final List<BaseTreeNode> newNodes) {
     if (updateIndex == this.updateIndicies.get()) {
-      if (newNodes.size() == 1) {
-        this.loaded = !(newNodes.get(0) instanceof LoadingTreeNode);
+      if (this.children == null) {
+        newNodes.forEach(this::add);
       } else {
-        this.loaded = true;
-      }
-      final List<BaseTreeNode> oldNodes = this.children;
-      for (int i = 0; i < oldNodes.size();) {
-        final BaseTreeNode oldNode = oldNodes.get(i);
-        if (newNodes.contains(oldNode)) {
-          i++;
+        final boolean oldLoading = isLoading(this.children);
+        final boolean newLoading = isLoading(newNodes);
+        this.loaded = !newLoading;
+        if (oldLoading != newLoading) {
+          removeAllChildren();
+          newNodes.forEach(this::add);
         } else {
-          oldNodes.remove(i);
-          nodeRemoved(i, oldNode);
-          oldNode.setParent(null);
+          final var oldNodes = Lists.<BaseTreeNode> newArray();
+          oldNodes.addAll((Vector)this.children);
+          removeAllChildren();
+
+          for (final var newNode : newNodes) {
+            final int index = oldNodes.indexOf(newNode);
+            if (index == -1) {
+              add(newNode);
+            } else {
+              final var oldNode = oldNodes.get(index);
+              add(oldNode);
+            }
+          }
         }
       }
-      for (int i = 0; i < newNodes.size();) {
-        final BaseTreeNode oldNode;
-        if (i < oldNodes.size()) {
-          oldNode = oldNodes.get(i);
-        } else {
-          oldNode = null;
-        }
-        final BaseTreeNode newNode = newNodes.get(i);
-        if (!newNode.equals(oldNode)) {
-          newNode.setParent(this);
-          oldNodes.add(i, newNode);
-          nodesInserted(i);
-        }
-        i++;
-      }
+      nodeStructureChanged();
     }
   }
 
   private void setLoading() {
-    this.children = newLoadingNodes();
+    removeAllChildren();
+    add(new LoadingTreeNode());
     this.loaded = false;
   }
 }
