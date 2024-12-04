@@ -3,36 +3,66 @@ package com.revolsys.http;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.revolsys.collection.json.JsonObject;
+import com.revolsys.date.Dates;
 import com.revolsys.exception.Exceptions;
-import com.revolsys.parallel.ReentrantLockEx;
+import com.revolsys.logging.Logs;
+import com.revolsys.net.http.ApacheHttpException;
 import com.revolsys.util.Pair;
 
 public class HttpThrottle {
 
-  private static Map<String, Pair<Instant, Duration>> URLS = new LinkedHashMap<>();
+  public static final Duration DEFAULT_RETRY = Duration.ofSeconds(10);
 
-  private static ReentrantLockEx lock = new ReentrantLockEx();
+  private static final AtomicBoolean THROTTLING = new AtomicBoolean();
 
-  public static void throttle(final String key, final long retryTime) {
-    final var now = Instant.now();
-    try (
-      var l = lock.lockX()) {
-      URLS.put(key, Pair.newPair(now, Duration.of(retryTime, ChronoUnit.MILLIS)));
+  private static ConcurrentHashMap<String, Pair<Instant, Duration>> URLS = new ConcurrentHashMap<>();
+
+  public static Duration retryTime(final ApacheHttpException e) {
+    final String retryAfter = e.getHeader("Retry-After");
+    if (retryAfter != null) {
+      try {
+        final int retryAfterSeconds = Integer.parseInt(retryAfter);
+        if (retryAfterSeconds > 0) {
+          return Duration.ofSeconds(retryAfterSeconds);
+        }
+      } catch (final NumberFormatException e1) {
+        final var timeout = Dates.RFC_1123_DATE_TIME.parse(retryAfter, Instant::from);
+        return Duration.between(Instant.now(), timeout);
+      }
     }
+    return DEFAULT_RETRY;
+  }
+
+  public static void throttle(final ApacheHttpException e) {
+    final var timeout = retryTime(e);
+    HttpThrottle.throttle(e.getRequestUri()
+      .toString(), timeout);
+  }
+
+  public static void throttle(final String key, final Duration timout) {
+
     try {
-      Thread.sleep(retryTime);
+      if (THROTTLING.compareAndSet(false, true)) {
+        Logs.error(HttpThrottle.class, "Throttling");
+      }
+      final var now = Instant.now();
+      URLS.put(key, Pair.newPair(now, timout));
+      Thread.sleep(timout);
     } catch (final InterruptedException e1) {
       throw Exceptions.toRuntimeException(e1);
     } finally {
-      try (
-        var l = lock.lockX()) {
-        URLS.remove(key);
-      }
+      THROTTLING.set(false);
+      URLS.remove(key);
     }
+  }
+
+  public static void throttle(final String key, final long retryTime) {
+    final var duration = Duration.of(retryTime, ChronoUnit.MILLIS);
+    throttle(key, duration);
   }
 
   public static JsonObject toJson() {

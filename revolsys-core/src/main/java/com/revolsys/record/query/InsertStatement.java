@@ -281,7 +281,7 @@ public class InsertStatement extends AbstractReturningQueryStatement<InsertState
 
   public InsertStatement insertKeyFieldValue(final String name, final MapEx source) {
     final var value = source.getValue(name);
-    return insert(name, value);
+    return insertKey(name, value);
   }
 
   public InsertStatement insertKeyFieldValue(final String name, final MapEx source,

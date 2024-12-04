@@ -124,6 +124,12 @@ public class UpdateStatement extends AbstractReturningQueryStatement<UpdateState
     return this;
   }
 
+  public UpdateStatement setFieldValue(final String fieldName, final MapEx source,
+    final String sourceKey) {
+    final var value = source.getValue(sourceKey);
+    return set(fieldName, value);
+  }
+
   public UpdateStatement setNull(final CharSequence name) {
     return set(name, null);
   }
@@ -153,6 +159,10 @@ public class UpdateStatement extends AbstractReturningQueryStatement<UpdateState
    */
   public UpdateStatement updateKey(final String fieldName, final Object value) {
     return where(w -> w.and(fieldName, value));
+  }
+
+  public UpdateStatement updateKeyFieldValue(final String fieldName, final MapEx source) {
+    return updateKeyFieldValue(fieldName, source, fieldName);
   }
 
   public UpdateStatement updateKeyFieldValue(final String fieldName, final MapEx source,

@@ -10,20 +10,26 @@ import java.util.function.Function;
 import com.revolsys.collection.iterator.AbstractIterator;
 import com.revolsys.collection.iterator.IterableWithCount;
 import com.revolsys.collection.json.JsonObject;
+import com.revolsys.exception.Exceptions;
 import com.revolsys.http.HttpRequestBuilder;
 import com.revolsys.http.HttpRequestBuilderFactory;
+import com.revolsys.http.HttpThrottle;
+import com.revolsys.net.http.ApacheHttpException;
+import com.revolsys.util.concurrent.RateLimiter;
 
 public class ODataJsonQueryIterator<V> extends AbstractIterator<V> implements IterableWithCount<V> {
 
   private final String queryLabel;
 
-  private Iterator<JsonObject> results;
+  private Iterator<JsonObject> results = Collections.emptyIterator();
 
   private URI nextURI;
 
   private final HttpRequestBuilderFactory requestFactory;
 
   private final Function<JsonObject, V> converter;
+
+  private RateLimiter rateLimiter;
 
   private int readCount;
 
@@ -87,34 +93,67 @@ public class ODataJsonQueryIterator<V> extends AbstractIterator<V> implements It
     return this;
   }
 
-  void executeRequest() {
-    callbackDeltaLink(this.nextURI);
-    final JsonObject json = this.request.responseAsJson();
-    if (json == null) {
-      this.nextURI = null;
-      this.results = Collections.emptyIterator();
-      return;
-    } else {
-      if (this.count == -1) {
-        this.count = json.getInteger("@odata.count", -1);
+  boolean executeRequest(final boolean first) {
+    try {
+      callbackDeltaLink(this.nextURI);
+      if (!first) {
+        this.request = this.requestFactory.get(this.nextURI);
       }
-      if (json.hasValue("@odata.nextLink")) {
-        this.nextURI = json.getURI("@odata.nextLink");
-      } else if (json.hasValue("nextLink")) {
-        this.nextURI = json.getURI("nextLink");
+      JsonObject json;
+      try {
+        if (this.rateLimiter != null) {
+          this.rateLimiter.aquire();
+        }
+        json = this.request.responseAsJson();
+      } catch (final RuntimeException e) {
+        final var apacheException = Exceptions.getCause(e, ApacheHttpException.class);
+        if (apacheException != null && apacheException.getStatusCode() == 429) {
+          // HTTP 429 Too Many Requests
+          // Wait until the duration specified in Retry-After
+          if (this.rateLimiter == null) {
+            HttpThrottle.throttle(apacheException);
+          } else {
+            final String retryAfter = apacheException.getHeader("Retry-After");
+            this.rateLimiter.pauseHttpRetryAfter(retryAfter);
+          }
+          // Then retry the request once
+          json = this.request.responseAsJson();
+        } else {
+          throw e;
+        }
+      }
+      if (json == null) {
+        return false;
       } else {
-        this.nextURI = null;
-      }
+        if (this.count == -1) {
+          this.count = json.getInteger("@odata.count", -1);
+        }
+        if (json.hasValue("@odata.nextLink")) {
+          this.nextURI = json.getURI("@odata.nextLink");
+        } else if (json.hasValue("nextLink")) {
+          this.nextURI = json.getURI("nextLink");
+        } else {
+          this.nextURI = null;
+        }
 
-      if (json.hasValue("@odata.deltaLink")) {
-        this.deltaLink = json.getURI("@odata.deltaLink");
+        if (json.hasValue("@odata.deltaLink")) {
+          this.deltaLink = json.getURI("@odata.deltaLink");
+        }
+        final var results = json.<JsonObject> getList("value");
+        if (results.isEmpty()) {
+          return false;
+        } else {
+          this.results = results.iterator();
+          return true;
+        }
       }
-      final var results = json.<JsonObject> getList("value");
-      if (results.isEmpty()) {
-        this.nextURI = null;
-        this.results = Collections.emptyIterator();
+    } catch (final Throwable e) {
+      if (this.errorHandler == null || !this.errorHandler.apply(e)) {
+        // Rethrow the error if there was no error handler or it didn't handle
+        throw e;
       } else {
-        this.results = results.iterator();
+        // Stop processing if the error handler processed the result
+        return false;
       }
     }
   }
@@ -129,65 +168,38 @@ public class ODataJsonQueryIterator<V> extends AbstractIterator<V> implements It
 
   @Override
   protected V getNext() throws NoSuchElementException {
-    if (this.readCount >= this.limit) {
-      // Don't use delta link in this case
-      throw new NoSuchElementException();
+    if (this.readCount < this.limit) {
+      boolean hasMore = true;
+      while (hasMore) {
+        if (this.results.hasNext()) {
+          final JsonObject recordJson = this.results.next();
+          this.readCount++;
+          return this.converter.apply(recordJson);
+        }
+        if (this.nextURI == null || ++this.pageCount >= this.pageLimit) {
+          hasMore = false;
+        } else {
+          if (!executeRequest(false)) {
+            hasMore = false;
+          }
+        }
+      }
     }
-    do {
-      final Iterator<JsonObject> results = this.results;
-      if (results != null && results.hasNext()) {
-        final JsonObject recordJson;
-        try {
-          recordJson = results.next();
-        } catch (final Throwable e) {
-          if (this.errorHandler == null || !this.errorHandler.apply(e)) {
-            // Rethrow the error if there was no error handler or it didn't
-            // handle it
-            throw e;
-          } else {
-            // Stop processing if the error handler processed the result
-            break;
-          }
-        }
-        this.readCount++;
-        return this.converter.apply(recordJson);
-      }
-      if (this.nextURI == null || ++this.pageCount >= this.pageLimit) {
-        throw new NoSuchElementException();
-      } else {
-        try {
-          this.request = this.requestFactory.get(this.nextURI);
-          executeRequest();
-        } catch (final Throwable e) {
-          if (this.errorHandler == null || !this.errorHandler.apply(e)) {
-            // Rethrow the error if there was no error handler or it didn't
-            // handle it
-            throw e;
-          } else {
-            // Stop processing if the error handler processed the result
-            break;
-          }
-        }
-      }
-    } while (this.results != null);
     throw new NoSuchElementException();
   }
 
   @Override
   protected void initDo() {
     super.initDo();
-    try {
-      executeRequest();
-    } catch (final Throwable e) {
-      if (this.errorHandler == null || !this.errorHandler.apply(e)) {
-        // Rethrow the error if there was no error handler or it didn't handle
-        // it
-        throw e;
-      } else {
-        // Stop processing if the error handler processed the result
-        this.results = Collections.emptyIterator();
-      }
+    if (!executeRequest(true)) {
+      this.nextURI = null;
+      this.results = Collections.emptyIterator();
     }
+  }
+
+  public ODataJsonQueryIterator<V> rateLimiter(final RateLimiter rateLimiter) {
+    this.rateLimiter = rateLimiter;
+    return this;
   }
 
   @Override
