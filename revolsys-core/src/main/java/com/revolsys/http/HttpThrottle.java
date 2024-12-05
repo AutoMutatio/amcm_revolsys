@@ -23,6 +23,10 @@ public class HttpThrottle {
 
   public static Duration retryTime(final ApacheHttpException e) {
     final String retryAfter = e.getHeader("Retry-After");
+    return retryTime(retryAfter);
+  }
+
+  private static Duration retryTime(final String retryAfter) {
     if (retryAfter != null) {
       try {
         final int retryAfterSeconds = Integer.parseInt(retryAfter);
@@ -39,6 +43,12 @@ public class HttpThrottle {
 
   public static void throttle(final ApacheHttpException e) {
     final var timeout = retryTime(e);
+    HttpThrottle.throttle(e.getRequestUri()
+      .toString(), timeout);
+  }
+
+  public static void throttle(final ApacheHttpException e, final String retryAfter) {
+    final var timeout = retryTime(retryAfter);
     HttpThrottle.throttle(e.getRequestUri()
       .toString(), timeout);
   }

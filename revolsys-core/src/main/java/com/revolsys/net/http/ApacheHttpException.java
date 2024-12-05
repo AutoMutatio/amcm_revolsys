@@ -1,18 +1,17 @@
 package com.revolsys.net.http;
 
 import java.net.URI;
+import java.util.Arrays;
 
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.StatusLine;
 import org.apache.http.client.methods.HttpUriRequest;
 
+import com.revolsys.exception.ExceptionWithProperties;
 import com.revolsys.http.HttpRequestBuilder;
 
-public class ApacheHttpException extends RuntimeException {
-  /**
-   *
-   */
+public class ApacheHttpException extends ExceptionWithProperties {
   private static final long serialVersionUID = 1L;
 
   public static ApacheHttpException create(final HttpUriRequest request,
@@ -45,6 +44,8 @@ public class ApacheHttpException extends RuntimeException {
     this.reasonPhrase = statusLine.getReasonPhrase();
     this.content = content;
     this.headers = headers;
+    property("uri", requestUri).property("headers", Arrays.asList(headers))
+      .property("content", content);
   }
 
   public String getContent() {
@@ -53,7 +54,8 @@ public class ApacheHttpException extends RuntimeException {
 
   public String getHeader(final String name) {
     for (final Header header : this.headers) {
-      if (header.getName().equalsIgnoreCase(name)) {
+      if (header.getName()
+        .equalsIgnoreCase(name)) {
         return header.getValue();
       }
     }

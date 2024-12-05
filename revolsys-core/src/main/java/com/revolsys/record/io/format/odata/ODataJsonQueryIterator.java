@@ -1,6 +1,7 @@
 package com.revolsys.record.io.format.odata;
 
 import java.net.URI;
+import java.time.Duration;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -10,11 +11,9 @@ import java.util.function.Function;
 import com.revolsys.collection.iterator.AbstractIterator;
 import com.revolsys.collection.iterator.IterableWithCount;
 import com.revolsys.collection.json.JsonObject;
-import com.revolsys.exception.Exceptions;
 import com.revolsys.http.HttpRequestBuilder;
 import com.revolsys.http.HttpRequestBuilderFactory;
-import com.revolsys.http.HttpThrottle;
-import com.revolsys.net.http.ApacheHttpException;
+import com.revolsys.util.Property;
 import com.revolsys.util.concurrent.RateLimiter;
 
 public class ODataJsonQueryIterator<V> extends AbstractIterator<V> implements IterableWithCount<V> {
@@ -50,6 +49,8 @@ public class ODataJsonQueryIterator<V> extends AbstractIterator<V> implements It
   private Function<Throwable, Boolean> errorHandler;
 
   private final boolean hadError = false;
+
+  private Duration timeout = Duration.ofMinutes(5);
 
   public ODataJsonQueryIterator(final HttpRequestBuilderFactory requestFactory,
     final HttpRequestBuilder request, final Function<JsonObject, V> converter,
@@ -99,30 +100,10 @@ public class ODataJsonQueryIterator<V> extends AbstractIterator<V> implements It
       if (!first) {
         this.request = this.requestFactory.get(this.nextURI);
       }
-      JsonObject json;
-      try {
-        if (this.rateLimiter != null) {
-          this.rateLimiter.aquire();
-        }
-        json = this.request.responseAsJson();
-      } catch (final RuntimeException e) {
-        final var apacheException = Exceptions.getCause(e, ApacheHttpException.class);
-        if (apacheException != null && apacheException.getStatusCode() == 429) {
-          // HTTP 429 Too Many Requests
-          // Wait until the duration specified in Retry-After
-          if (this.rateLimiter == null) {
-            HttpThrottle.throttle(apacheException);
-          } else {
-            final String retryAfter = apacheException.getHeader("Retry-After");
-            this.rateLimiter.pauseHttpRetryAfter(retryAfter);
-          }
-          // Then retry the request once
-          json = this.request.responseAsJson();
-        } else {
-          throw e;
-        }
-      }
-      if (json == null) {
+      final var json = this.request.timeout(this.timeout)
+        .rateLimiter(this.rateLimiter)
+        .responseAsJson();
+      if (Property.isEmpty(json)) {
         return false;
       } else {
         if (this.count == -1) {
@@ -198,7 +179,20 @@ public class ODataJsonQueryIterator<V> extends AbstractIterator<V> implements It
   }
 
   public ODataJsonQueryIterator<V> rateLimiter(final RateLimiter rateLimiter) {
-    this.rateLimiter = rateLimiter;
+    if (rateLimiter == null) {
+      this.rateLimiter = RateLimiter.UNLIMITED;
+    } else {
+      this.rateLimiter = rateLimiter;
+    }
+    return this;
+  }
+
+  public ODataJsonQueryIterator<V> timeout(final Duration timeout) {
+    if (timeout == null) {
+      this.timeout = Duration.ZERO;
+    } else {
+      this.timeout = timeout;
+    }
     return this;
   }
 
