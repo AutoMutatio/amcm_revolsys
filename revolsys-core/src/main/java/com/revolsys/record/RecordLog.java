@@ -8,7 +8,7 @@ import com.revolsys.geometry.model.Geometry;
 import com.revolsys.io.PathName;
 import com.revolsys.io.PathUtil;
 import com.revolsys.io.Writer;
-import com.revolsys.io.file.AtomicPathUpdator;
+import com.revolsys.io.file.AtomicPathUpdater;
 import com.revolsys.record.io.RecordWriter;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
@@ -81,17 +81,17 @@ public class RecordLog implements BaseCloseable {
 
   private final RecordWriter writer;
 
-  private AtomicPathUpdator pathUpdator;
+  private AtomicPathUpdater pathUpdater;
 
-  public RecordLog(final AtomicPathUpdator pathUpdator, final RecordDefinitionProxy record) {
-    this(getLogRecordDefinition(record, true), pathUpdator.getPath());
-    this.pathUpdator = pathUpdator;
+  public RecordLog(final AtomicPathUpdater pathUpdater, final RecordDefinitionProxy record) {
+    this(getLogRecordDefinition(record, true), pathUpdater.getTempFile());
+    this.pathUpdater = pathUpdater;
   }
 
-  public RecordLog(final AtomicPathUpdator pathUpdator, final RecordDefinitionProxy record,
+  public RecordLog(final AtomicPathUpdater pathUpdater, final RecordDefinitionProxy record,
     final String... prefixFieldNames) {
-    this(getLogRecordDefinition(record, prefixFieldNames), pathUpdator.getPath());
-    this.pathUpdator = pathUpdator;
+    this(getLogRecordDefinition(record, prefixFieldNames), pathUpdater.getTempFile());
+    this.pathUpdater = pathUpdater;
   }
 
   public RecordLog(final Path path, final RecordDefinition recordDefinition,
@@ -107,13 +107,12 @@ public class RecordLog implements BaseCloseable {
   public synchronized void close() {
     this.writer.flush();
     this.writer.close();
-    final AtomicPathUpdator pathUpdator = this.pathUpdator;
-    if (pathUpdator != null) {
+    final AtomicPathUpdater updater = this.pathUpdater;
+    if (updater != null) {
       if (this.counter.get() == 0) {
-        pathUpdator.deleteFiles();
-      } else {
-        pathUpdator.close();
+        updater.cancel();
       }
+      updater.close();
     }
   }
 
