@@ -79,6 +79,11 @@ public class UpdateStatement extends AbstractReturningQueryStatement<UpdateState
     appendReturning(sql);
   }
 
+  public UpdateStatement apply(final Consumer<UpdateStatement> action) {
+    action.accept(this);
+    return this;
+  }
+
   public boolean executeUpdate() {
     return executeUpdateCount() > 0;
   }
@@ -122,6 +127,10 @@ public class UpdateStatement extends AbstractReturningQueryStatement<UpdateState
   public UpdateStatement set(final ColumnReference column, final QueryValue value) {
     this.setClauses.add(new SetClause(this, column, value));
     return this;
+  }
+
+  public UpdateStatement setFieldValue(final String fieldName, final MapEx source) {
+    return setFieldValue(fieldName, source, fieldName);
   }
 
   public UpdateStatement setFieldValue(final String fieldName, final MapEx source,

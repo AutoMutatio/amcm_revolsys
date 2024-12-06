@@ -2,6 +2,7 @@ package com.revolsys.net.http;
 
 import java.net.URI;
 import java.util.Arrays;
+import java.util.List;
 
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
@@ -26,34 +27,24 @@ public class ApacheHttpException extends ExceptionWithProperties {
     return new ApacheHttpException(request.getURI(), statusLine, content, response.getAllHeaders());
   }
 
-  private final int statusCode;
-
-  private final String reasonPhrase;
-
-  private final String content;
-
-  private final URI requestUri;
-
-  private final Header[] headers;
-
   public ApacheHttpException(final URI requestUri, final StatusLine statusLine,
     final String content, final Header[] headers) {
-    super(requestUri + "\n" + statusLine + "\n" + content);
-    this.requestUri = requestUri;
-    this.statusCode = statusLine.getStatusCode();
-    this.reasonPhrase = statusLine.getReasonPhrase();
-    this.content = content;
-    this.headers = headers;
-    property("uri", requestUri).property("headers", Arrays.asList(headers))
-      .property("content", content);
+    super(statusLine.toString());
+    final var statusCode = statusLine.getStatusCode();
+    final var reasonPhrase = statusLine.getReasonPhrase();
+    property("uri", requestUri);
+    property("statusCode", statusCode);
+    property("statusMessage", reasonPhrase);
+    property("headers", Arrays.asList(headers));
+    property("content", content);
   }
 
   public String getContent() {
-    return this.content;
+    return property("content");
   }
 
   public String getHeader(final String name) {
-    for (final Header header : this.headers) {
+    for (final Header header : this.<List<Header>> property("headers")) {
       if (header.getName()
         .equalsIgnoreCase(name)) {
         return header.getValue();
@@ -63,15 +54,15 @@ public class ApacheHttpException extends ExceptionWithProperties {
   }
 
   public String getReasonPhrase() {
-    return this.reasonPhrase;
+    return property("reasonPhrase");
   }
 
   public URI getRequestUri() {
-    return this.requestUri;
+    return property("uri");
   }
 
   public int getStatusCode() {
-    return this.statusCode;
+    return property("statusCode");
   }
 
 }

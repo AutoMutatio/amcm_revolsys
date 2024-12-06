@@ -7,6 +7,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.list.Lists;
 import com.revolsys.date.Dates;
 import com.revolsys.exception.Exceptions;
 import com.revolsys.logging.Logs;
@@ -20,6 +21,8 @@ public class HttpThrottle {
   private static final AtomicBoolean THROTTLING = new AtomicBoolean();
 
   private static ConcurrentHashMap<String, Pair<Instant, Duration>> URLS = new ConcurrentHashMap<>();
+
+  private static ConcurrentHashMap<Object, Pair<Instant, Duration>> THROTTLE = new ConcurrentHashMap<>();
 
   public static Duration retryTime(final ApacheHttpException e) {
     final String retryAfter = e.getHeader("Retry-After");
@@ -53,8 +56,11 @@ public class HttpThrottle {
       .toString(), timeout);
   }
 
-  public static void throttle(final String key, final Duration timout) {
+  public static void throttle(final Object key, final Instant time, final Duration timout) {
+    THROTTLE.put(key, Pair.newPair(time, timout));
+  }
 
+  public static void throttle(final String key, final Duration timout) {
     try {
       if (THROTTLING.compareAndSet(false, true)) {
         Logs.error(HttpThrottle.class, "Throttling");
@@ -76,7 +82,21 @@ public class HttpThrottle {
   }
 
   public static JsonObject toJson() {
+    final var throttles = Lists.<JsonObject> newArray();
+    for (final var t : THROTTLE.entrySet()) {
+      final var key = t.getKey();
+      final var value = t.getValue();
+      throttles.add(JsonObject.hash()
+        .addValue("key", key)
+        .addValue("time", value.getValue1())
+        .addValue("timeout", value.getValue2()));
+    }
     return JsonObject.hash("count", URLS.size())
-      .addAll(URLS);
+      .addAll(URLS)
+      .addNotEmpty("throttles", throttles);
+  }
+
+  public static void unThrottle(final Object key) {
+    THROTTLE.remove(key);
   }
 }

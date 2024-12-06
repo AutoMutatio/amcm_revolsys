@@ -5,8 +5,9 @@ import java.time.Instant;
 
 import com.revolsys.date.Dates;
 import com.revolsys.http.HttpThrottle;
+import com.revolsys.util.BaseCloseable;
 
-public interface RateLimiter {
+public interface RateLimiter extends BaseCloseable {
 
   RateLimiter UNLIMITED = () -> {
   };
@@ -24,6 +25,10 @@ public interface RateLimiter {
    * Acquire permission to continue if the rate limit has not been reached.
    */
   void aquire();
+
+  @Override
+  default void close() {
+  }
 
   /**
    * Pause the rate limiter for the duration. This can be used where a service has requested

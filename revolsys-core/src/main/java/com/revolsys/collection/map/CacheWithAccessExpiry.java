@@ -9,7 +9,9 @@ import java.util.function.Function;
 
 import com.revolsys.collection.value.SimpleValueHolder;
 import com.revolsys.collection.value.Single;
+import com.revolsys.util.BaseCloseable;
 import com.revolsys.util.concurrent.Concurrent;
+import com.revolsys.util.concurrent.LastAccessProxy;
 
 public class CacheWithAccessExpiry<K, V> {
   private class CachedValue {
@@ -22,7 +24,16 @@ public class CacheWithAccessExpiry<K, V> {
     }
 
     public boolean isExpired() {
-      return System.currentTimeMillis() > this.accessTime + CacheWithAccessExpiry.this.expiryMillis;
+      if (this.value instanceof final LastAccessProxy lastAccessProxy) {
+        this.accessTime = Math.max(this.accessTime, lastAccessProxy.lastAccess()
+          .accessTime());
+      }
+      final var expired = System.currentTimeMillis() > this.accessTime
+        + CacheWithAccessExpiry.this.expiryMillis;
+      if (expired) {
+        BaseCloseable.closeValueSilent(this.value);
+      }
+      return expired;
     }
 
     public Single<V> single() {

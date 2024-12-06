@@ -2,20 +2,16 @@ package com.revolsys.util.concurrent;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.revolsys.date.Dates;
 import com.revolsys.http.HttpThrottle;
 import com.revolsys.parallel.SemaphoreEx;
-import com.revolsys.util.Debug;
 import com.revolsys.util.Strings;
 
-public class DurationRateLimiter implements RateLimiter {
+public class DurationRateLimiter implements RateLimiter, LastAccessProxy {
 
   private record Pause(Instant time, AtomicInteger permits) {
 
@@ -44,12 +40,11 @@ public class DurationRateLimiter implements RateLimiter {
 
     private boolean releaseIfExpired(final DurationRateLimiter limiter) {
       if (expired()) {
+        HttpThrottle.unThrottle(limiter);
         final var releasePermits = this.permits.getAndAccumulate(0,
           (oldValue, newValue) -> newValue);
         if (releasePermits > 0) {
           limiter.limit.release(releasePermits);
-          Debug.printlnTime(limiter.name, "Resume", releasePermits,
-            limiter.limit.availablePermits());
         }
         return true;
       } else {
@@ -76,6 +71,8 @@ public class DurationRateLimiter implements RateLimiter {
   private String name = "";
 
   private final int limitCount;
+
+  private LastAccess lastAccess = new LastAccess();
 
   public DurationRateLimiter(final int limit, final Duration period) {
     this(limit, period, 1);
@@ -111,15 +108,14 @@ public class DurationRateLimiter implements RateLimiter {
    */
   @Override
   public void aquire() {
-    // final var availablePermits = this.limit.availablePermits();
-    // if (availablePermits == 0) {
-    // Debug.printlnTime(this.name, "Empty", availablePermits);
-    // }
+    this.lastAccess.access();
     this.limit.acquireX();
+    this.lastAccess.access();
     final long interval = currentInterval();
     this.permitsByInterval.compute(interval, this::increment);
   }
 
+  @Override
   public void close() {
     this.future.cancel(true);
   }
@@ -142,19 +138,28 @@ public class DurationRateLimiter implements RateLimiter {
     return counter;
   }
 
-  public RateLimiter name(final String name) {
+  @Override
+  public LastAccess lastAccess() {
+    return this.lastAccess;
+  }
+
+  public DurationRateLimiter lastAccess(final LastAccess lastAccess) {
+    this.lastAccess = lastAccess;
+    return this;
+  }
+
+  public DurationRateLimiter name(final String name) {
     this.name = name;
     return this;
   }
 
   private void pause(final Instant time, final Duration duration) {
+    this.lastAccess.access();
     if (duration.isPositive()) {
       final var paused = this.paused.compute(PAUSE_KEY, (k, oldValue) -> {
         if (oldValue == null) {
+          HttpThrottle.throttle(this, time, duration);
           final int permits = this.limit.drainPermits();
-          Debug.printlnTime(this.name, "Pause", duration,
-            LocalDateTime.ofInstant(time, ZoneId.systemDefault()), permits,
-            this.limit.availablePermits());
           return new Pause(time, new AtomicInteger(permits));
         } else {
           return oldValue.time(time);
@@ -162,12 +167,14 @@ public class DurationRateLimiter implements RateLimiter {
       });
       try {
         paused.sleep();
+        this.lastAccess.access();
         removeExpired();
         while (true) {
           final Pause currentPause = this.paused.get(PAUSE_KEY);
           if (currentPause == null) {
             break;
           } else {
+            this.lastAccess.access();
             currentPause.sleep();
           }
         }
@@ -188,24 +195,6 @@ public class DurationRateLimiter implements RateLimiter {
     final Instant time = Instant.now()
       .plus(duration);
     pause(time, duration);
-  }
-
-  @Override
-  public void pauseHttpRetryAfter(final String retryAfter) {
-    if (retryAfter == null) {
-      pauseFor(HttpThrottle.DEFAULT_RETRY);
-    } else {
-      try {
-        final int retryAfterSeconds = Integer.parseInt(retryAfter);
-        if (retryAfterSeconds > 0) {
-          final var duration = Duration.ofSeconds(retryAfterSeconds);
-          pauseFor(duration);
-        }
-      } catch (final NumberFormatException e1) {
-        final var time = Dates.RFC_1123_DATE_TIME.parse(retryAfter, Instant::from);
-        pauseUtil(time);
-      }
-    }
   }
 
   /**
@@ -250,8 +239,6 @@ public class DurationRateLimiter implements RateLimiter {
                 .getAndAccumulate(0, (oldValue, newValue) -> newValue);
               if (releasePermits > 0) {
                 this.limit.release(releasePermits);
-                // Debug.printlnTime(this.name, "Release", releasePermits,
-                // this.limit.availablePermits());
               }
             }
             return pause;
