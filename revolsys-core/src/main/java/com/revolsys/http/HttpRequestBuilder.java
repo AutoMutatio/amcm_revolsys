@@ -658,7 +658,7 @@ public class HttpRequestBuilder {
         // HTTP 429 Too Many Requests and the timeout hasn't expired
         // Wait until the duration specified in Retry-After
         final String retryAfter = e.getHeader("Retry-After");
-        this.rateLimiter.pauseHttpRetryAfter(retryAfter);
+        this.rateLimiter.pauseHttpRetryAfter(retryAfter, timeoutIime);
         return; // DON'T THROW THE EXCEPTION
       }
     }

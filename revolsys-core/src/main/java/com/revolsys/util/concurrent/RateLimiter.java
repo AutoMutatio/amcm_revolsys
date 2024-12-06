@@ -4,6 +4,7 @@ import java.time.Duration;
 import java.time.Instant;
 
 import com.revolsys.date.Dates;
+import com.revolsys.exception.ExceptionWithProperties;
 import com.revolsys.http.HttpThrottle;
 import com.revolsys.util.BaseCloseable;
 
@@ -40,7 +41,7 @@ public interface RateLimiter extends BaseCloseable {
     Concurrent.sleep(duration);
   }
 
-  default void pauseHttpRetryAfter(final String retryAfter) {
+  default void pauseHttpRetryAfter(final String retryAfter, final Instant timeout) {
     if (retryAfter == null) {
       pauseFor(HttpThrottle.DEFAULT_RETRY);
     } else {
@@ -48,10 +49,23 @@ public interface RateLimiter extends BaseCloseable {
         final int retryAfterSeconds = Integer.parseInt(retryAfter);
         if (retryAfterSeconds > 0) {
           final var duration = Duration.ofSeconds(retryAfterSeconds);
+          final var time = Instant.now()
+            .plus(duration);
+          if (time.isAfter(timeout)) {
+            throw new ExceptionWithProperties("RetryAfter exceeds max timeout")
+              .property("time", time)
+              .property("timeout", timeout)
+              .property("duration", duration);
+          }
           pauseFor(duration);
         }
       } catch (final NumberFormatException e1) {
         final var time = Dates.RFC_1123_DATE_TIME.parse(retryAfter, Instant::from);
+
+        if (time.isAfter(timeout)) {
+          throw new ExceptionWithProperties("RetryAfter exceeds max timeout").property("time", time)
+            .property("timeout", timeout);
+        }
         pauseUtil(time);
       }
     }
