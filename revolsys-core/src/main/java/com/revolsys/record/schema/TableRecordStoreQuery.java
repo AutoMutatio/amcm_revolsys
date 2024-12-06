@@ -29,6 +29,11 @@ public class TableRecordStoreQuery extends Query {
   }
 
   @Override
+  public boolean exists() {
+    return this.recordStore.exists(this.connection, this);
+  }
+
+  @Override
   public <R extends Record> R getRecord() {
     return transactionCall(() -> this.recordStore.getRecord(this.connection, this));
   }
@@ -51,7 +56,7 @@ public class TableRecordStoreQuery extends Query {
 
   @Override
   public Record newRecord() {
-    return this.recordStore.newRecord(connection);
+    return this.recordStore.newRecord(this.connection);
   }
 
   @Override

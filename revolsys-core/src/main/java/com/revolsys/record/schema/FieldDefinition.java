@@ -31,7 +31,7 @@ import com.revolsys.record.Record;
 import com.revolsys.record.RecordState;
 import com.revolsys.record.code.CodeTable;
 import com.revolsys.record.query.ColumnReference;
-import com.revolsys.record.query.Query;
+import com.revolsys.record.query.QueryStatement;
 import com.revolsys.record.query.SqlAppendable;
 import com.revolsys.record.query.TableReference;
 import com.revolsys.util.BaseCloneable;
@@ -328,13 +328,13 @@ public class FieldDefinition extends BaseObjectWithProperties implements CharSeq
   }
 
   @Override
-  public void appendDefaultSelect(final Query query, final RecordStore recordStore,
+  public void appendDefaultSelect(final QueryStatement statement, final RecordStore recordStore,
     final SqlAppendable sql) {
     appendColumnNameWithPrefix(sql);
   }
 
   @Override
-  public void appendDefaultSql(final Query query, final RecordStore recordStore,
+  public void appendDefaultSql(final QueryStatement statement, final RecordStore recordStore,
     final SqlAppendable sql) {
     appendColumnNameWithPrefix(sql);
   }

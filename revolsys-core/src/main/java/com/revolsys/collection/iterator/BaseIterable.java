@@ -55,7 +55,7 @@ import com.revolsys.util.StringBuilders;
  * @author Paul Austin
  * @param <T> The type of the item to read.
  */
-public interface BaseIterable<T> extends Iterable<T> {
+public interface BaseIterable<T> extends Iterable<T>, ForEachHandler<T> {
 
   default BaseIterable<T> cancellable(final Cancellable cancellable) {
     if (cancellable == null) {

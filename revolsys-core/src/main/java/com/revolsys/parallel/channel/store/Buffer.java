@@ -114,7 +114,7 @@ public class Buffer<T> extends ChannelValueStore<T> {
   protected int getState() {
     if (this.buffer.isEmpty()) {
       return EMPTY;
-    } else if (!this.discardIfFull && this.maxSize > 0 && this.buffer.size() == this.maxSize) {
+    } else if (!this.discardIfFull && this.maxSize > 0 && this.buffer.size() >= this.maxSize) {
       return FULL;
     } else {
       return NONEMPTYFULL;

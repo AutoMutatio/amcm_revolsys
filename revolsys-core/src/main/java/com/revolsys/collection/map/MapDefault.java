@@ -76,6 +76,7 @@ public interface MapDefault<K, KA, V, M extends MapDefault<K, KA, V, M>>
     return (M)this;
   }
 
+  @SuppressWarnings("unchecked")
   default M addFieldValues(final MapDefault<?, KA, ? extends V, ?> source, final KA... fieldNames) {
     for (final KA fieldName : fieldNames) {
       final V value = source.getValue(fieldName);
@@ -571,6 +572,10 @@ public interface MapDefault<K, KA, V, M extends MapDefault<K, KA, V, M>>
     return size() == 0;
   }
 
+  default boolean isFalse(final KA name) {
+    return getBoolean(name, false) == false;
+  }
+
   default boolean isTrue(final KA name) {
     return getBoolean(name, false);
   }
@@ -605,7 +610,8 @@ public interface MapDefault<K, KA, V, M extends MapDefault<K, KA, V, M>>
 
           @Override
           public K next() {
-            return this.interator.next().getKey();
+            return this.interator.next()
+              .getKey();
           }
 
           @Override
@@ -674,7 +680,8 @@ public interface MapDefault<K, KA, V, M extends MapDefault<K, KA, V, M>>
         if (first) {
           first = false;
         } else {
-          string.append(',').append(' ');
+          string.append(',')
+            .append(' ');
         }
         final K key = entry.getKey();
         final V value = entry.getValue();
@@ -683,9 +690,11 @@ public interface MapDefault<K, KA, V, M extends MapDefault<K, KA, V, M>>
         string.append(value == this ? "(this Map)" : value);
         if (!i.hasNext()) {
         }
-        string.append(',').append(' ');
+        string.append(',')
+          .append(' ');
       }
-      return string.append('}').toString();
+      return string.append('}')
+        .toString();
     }
   }
 
@@ -856,7 +865,8 @@ public interface MapDefault<K, KA, V, M extends MapDefault<K, KA, V, M>>
 
           @Override
           public V next() {
-            return this.iterator.next().getValue();
+            return this.iterator.next()
+              .getValue();
           }
 
           @Override

@@ -121,6 +121,10 @@ public interface Dates {
     return endTime;
   }
 
+  public static Duration durationSince(final Instant start) {
+    return Duration.between(start, Instant.now());
+  }
+
   static boolean equalsNotNull(final Object date1, final Object date2) {
     return ((Date)date1).compareTo((Date)date2) == 0;
   }
@@ -299,7 +303,16 @@ public interface Dates {
         try {
           return INSTANT_PARSER.parse(string, Instant::from);
         } catch (final Exception e2) {
-          return INSTANT_PARSER_UTC.parse(string, Instant::from);
+          try {
+            return INSTANT_PARSER_UTC.parse(string, Instant::from);
+          } catch (final Exception e3) {
+            final var localDate = getLocalDate(string);
+            if (localDate != null) {
+              return getInstant(localDate);
+            } else {
+              throw e3;
+            }
+          }
         }
       } else {
         return DateTimeFormatter.RFC_1123_DATE_TIME.parse(string, Instant::from);

@@ -6,7 +6,7 @@ import java.util.List;
 
 import com.revolsys.data.type.DataType;
 import com.revolsys.record.query.AbstractUnaryQueryValue;
-import com.revolsys.record.query.Query;
+import com.revolsys.record.query.QueryStatement;
 import com.revolsys.record.query.QueryValue;
 import com.revolsys.record.query.SqlAppendable;
 import com.revolsys.record.schema.RecordStore;
@@ -33,11 +33,11 @@ public class UnaryFunction extends AbstractUnaryQueryValue implements Function {
   }
 
   @Override
-  public void appendDefaultSql(final Query query, final RecordStore recordStore,
+  public void appendDefaultSql(final QueryStatement statement, final RecordStore recordStore,
     final SqlAppendable buffer) {
     buffer.append(getName());
     buffer.append("(");
-    super.appendDefaultSql(query, recordStore, buffer);
+    super.appendDefaultSql(statement, recordStore, buffer);
     buffer.append(")");
   }
 

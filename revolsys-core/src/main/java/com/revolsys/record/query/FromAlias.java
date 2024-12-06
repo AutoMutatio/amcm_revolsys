@@ -3,13 +3,21 @@ package com.revolsys.record.query;
 import com.revolsys.record.schema.FieldDefinition;
 
 public class FromAlias implements From {
-  private final From from;
+  private From from;
 
-  private final String alias;
+  private String alias;
+
+  protected FromAlias() {
+  }
 
   public FromAlias(final From from, final String alias) {
     this.from = from;
     this.alias = alias;
+  }
+
+  protected FromAlias alias(final String alias) {
+    this.alias = alias;
+    return this;
   }
 
   @Override
@@ -22,6 +30,11 @@ public class FromAlias implements From {
     appendFrom(sql);
     sql.append(" ");
     sql.append(this.alias);
+  }
+
+  protected FromAlias from(final From from) {
+    this.from = from;
+    return this;
   }
 
   @Override

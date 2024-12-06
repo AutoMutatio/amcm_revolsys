@@ -18,11 +18,6 @@ public class Md5 {
 
   public static Supplier<MessageDigest> SUPPLIER = Md5::getMessageDigest;
 
-  public static DigestBuilder builder() {
-    final MessageDigest digest = getMessageDigest();
-    return new DigestBuilder(digest);
-  }
-
   public static DigestReadableByteChannel channel(final ReadableByteChannel in) {
     final MessageDigest messageDigest = getMessageDigest();
     return new DigestReadableByteChannel(in, messageDigest);
@@ -73,17 +68,20 @@ public class Md5 {
 
   public static String md5Base64(final byte[] data) {
     final byte[] md5 = md5(data);
-    return Base64.getEncoder().encodeToString(md5);
+    return Base64.getEncoder()
+      .encodeToString(md5);
   }
 
   public static String md5Base64(final InputStream data) throws IOException {
     final byte[] md5 = md5(data);
-    return Base64.getEncoder().encodeToString(md5);
+    return Base64.getEncoder()
+      .encodeToString(md5);
   }
 
   public static String md5Base64(final String data) {
     final byte[] md5 = md5(data);
-    return Base64.getEncoder().encodeToString(md5);
+    return Base64.getEncoder()
+      .encodeToString(md5);
   }
 
   public static String md5Hex(final byte[] data) {

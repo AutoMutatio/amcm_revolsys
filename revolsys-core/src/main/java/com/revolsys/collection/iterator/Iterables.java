@@ -5,6 +5,8 @@ import java.util.Iterator;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
+import com.revolsys.collection.list.Lists;
+
 public interface Iterables {
   static BaseIterable<?> EMPTY = Collections::emptyIterator;
 
@@ -73,6 +75,11 @@ public interface Iterables {
    */
   static <V> BaseIterable<V> fromValue(final V value) {
     return () -> new SingleIterator<>(value);
+  }
+
+  @SuppressWarnings("unchecked")
+  static <V> BaseIterable<V> fromValues(final V... values) {
+    return Lists.newArray(values);
   }
 
   /**

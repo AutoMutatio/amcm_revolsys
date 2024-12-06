@@ -3,7 +3,6 @@ package com.revolsys.record.io.format.odata;
 import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.data.type.DataType;
-import com.revolsys.data.type.DataTypes;
 import com.revolsys.data.type.ListDataType;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.io.PathName;
@@ -13,7 +12,6 @@ import com.revolsys.record.code.CodeTable;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordDefinitionImpl;
-import com.revolsys.util.Debug;
 
 public class ODataRecordDefinition extends RecordDefinitionImpl implements ODataTypeDefinition {
 
@@ -58,8 +56,6 @@ public class ODataRecordDefinition extends RecordDefinitionImpl implements OData
           for (final FieldDefinition field : recordDefinition.getFields()) {
             addField(field.clone());
           }
-        } else {
-          Debug.noOp();
         }
       }
 
@@ -81,9 +77,6 @@ public class ODataRecordDefinition extends RecordDefinitionImpl implements OData
           dataType = codeTable.getUnderlyingType();
         } else {
           dataType = OData.getDataTypeFromEdm(type);
-        }
-        if (dataType == DataTypes.OBJECT) {
-          Debug.noOp();
         }
         if (collection) {
           dataType = ListDataType.of(dataType);
@@ -133,9 +126,11 @@ public class ODataRecordDefinition extends RecordDefinitionImpl implements OData
         addField(fieldDefinition);
       }
 
-      final var idFields = this.entityType.getJsonObject("Key").<JsonObject> getList("PropertyRef");
+      final var idFields = this.entityType.getJsonObject("Key")
+        .<JsonObject> getList("PropertyRef");
       if (!idFields.isEmpty()) {
-        final var idFieldNames = idFields.map(n -> n.getString("Name")).toList();
+        final var idFieldNames = idFields.map(n -> n.getString("Name"))
+          .toList();
         setIdFieldNames(idFieldNames);
       }
     }

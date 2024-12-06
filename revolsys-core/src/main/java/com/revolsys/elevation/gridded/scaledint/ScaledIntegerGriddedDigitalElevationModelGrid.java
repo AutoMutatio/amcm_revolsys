@@ -7,15 +7,12 @@ import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Iterator;
-import java.util.LinkedList;
+import java.util.concurrent.ConcurrentLinkedDeque;
 
 import com.revolsys.collection.map.IntHashMap;
 import com.revolsys.elevation.gridded.GriddedElevationModel;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.grid.AbstractGrid;
-import com.revolsys.parallel.channel.Channel;
-import com.revolsys.parallel.process.InProcess;
-import com.revolsys.parallel.process.ProcessNetwork;
 
 public class ScaledIntegerGriddedDigitalElevationModelGrid extends AbstractGrid
   implements GriddedElevationModel {
@@ -119,17 +116,11 @@ public class ScaledIntegerGriddedDigitalElevationModelGrid extends AbstractGrid
 
   private int maxOpenFiles = 10000;
 
-  private final LinkedList<ElevationFile> openFiles = new LinkedList<>();
+  private final ConcurrentLinkedDeque<ElevationFile> openFiles = new ConcurrentLinkedDeque<>();
 
   private boolean cacheFiles = true;
 
   private boolean closed = false;
-
-  private final InProcess<ElevationFile> addFileProcess = InProcess
-    .<ElevationFile> lambda(this::addOpenFile)//
-    .setInBufferSize(100);
-
-  private final ProcessNetwork processes = new ProcessNetwork(this.addFileProcess);
 
   public ScaledIntegerGriddedDigitalElevationModelGrid(final Path basePath, final String filePrefix,
     final int coordinateSystemId, final int gridTileSize, final int gridCellSize,
@@ -147,24 +138,19 @@ public class ScaledIntegerGriddedDigitalElevationModelGrid extends AbstractGrid
       .resolve(Integer.toString(coordinateSystemId))//
       .resolve(Integer.toString(gridTileSize))//
     ;
-    this.processes.start();
-  }
-
-  private void addOpenFile(final Channel<ElevationFile> channel, final ElevationFile file) {
-    final LinkedList<ElevationFile> openFiles = this.openFiles;
-    openFiles.add(file);
-    if (openFiles.size() > this.maxOpenFiles) {
-      for (final Iterator<ElevationFile> iterator = openFiles.iterator(); openFiles
-        .size() > this.maxOpenFiles && iterator.hasNext();) {
-        final ElevationFile closeFile = iterator.next();
-        closeFile.remove(iterator);
-      }
-    }
   }
 
   private void addOpenFile(final ElevationFile elevationFile) {
     if (this.cacheFiles) {
-      this.addFileProcess.write(elevationFile);
+      final ConcurrentLinkedDeque<ElevationFile> openFiles = this.openFiles;
+      openFiles.addLast(elevationFile);
+      if (openFiles.size() > this.maxOpenFiles) {
+        for (final Iterator<ElevationFile> iterator = openFiles.iterator(); openFiles
+          .size() > this.maxOpenFiles && iterator.hasNext();) {
+          final ElevationFile closeFile = iterator.next();
+          closeFile.remove(iterator);
+        }
+      }
     }
   }
 
@@ -177,11 +163,9 @@ public class ScaledIntegerGriddedDigitalElevationModelGrid extends AbstractGrid
   @Override
   public void close() {
     this.closed = true;
-    this.addFileProcess.getIn().close();
     for (final ElevationFile elevationFile : this.openFiles) {
       elevationFile.close();
     }
-    this.processes.stop();
   }
 
   private ElevationFile getElevationFile(final int tileX, final int tileY) throws IOException {

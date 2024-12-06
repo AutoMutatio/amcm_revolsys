@@ -43,7 +43,7 @@ public class ArrayValue implements QueryValue {
   }
 
   @Override
-  public void appendDefaultSql(final Query query, final RecordStore recordStore,
+  public void appendDefaultSql(final QueryStatement statement, final RecordStore recordStore,
     final SqlAppendable sql) {
     if (sql.isUsePlaceholders()) {
       sql.append('?');
@@ -57,7 +57,7 @@ public class ArrayValue implements QueryValue {
           sql.append(',');
         }
         final Value value = Value.newValue(this.jdbcField, object);
-        value.appendDefaultSelect(query, recordStore, sql);
+        value.appendDefaultSelect(statement, recordStore, sql);
       }
       sql.append(']');
     }

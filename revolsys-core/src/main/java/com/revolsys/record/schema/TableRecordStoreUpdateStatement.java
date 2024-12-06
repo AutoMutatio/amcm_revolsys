@@ -10,7 +10,7 @@ public class TableRecordStoreUpdateStatement extends UpdateStatement {
   }
 
   @Override
-  public int updateRecords() {
-    return this.connection.transactionCall(super::updateRecords);
+  public int executeUpdateCount() {
+    return this.connection.transactionCall(super::executeUpdateCount);
   }
 }

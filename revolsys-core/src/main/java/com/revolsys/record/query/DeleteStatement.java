@@ -4,10 +4,8 @@ import java.sql.PreparedStatement;
 import java.util.function.Consumer;
 
 import com.revolsys.record.schema.RecordDefinition;
-import com.revolsys.record.schema.RecordDefinitionProxy;
-import com.revolsys.record.schema.RecordStore;
 
-public class DeleteStatement implements RecordDefinitionProxy {
+public class DeleteStatement implements QueryStatement {
 
   private TableReference from;
 
@@ -22,17 +20,30 @@ public class DeleteStatement implements RecordDefinitionProxy {
   }
 
   public void appendSql(final SqlAppendable sql) {
-    final RecordStore recordStore = getRecordStore();
     sql.append("DELETE FROM ");
     this.from.appendFromWithAlias(sql);
     final Condition where = this.where;
     if (where != null && !where.isEmpty()) {
       sql.append(" WHERE  ");
-      where.appendSql(null, recordStore, sql);
+      where.appendSql(this, sql);
     }
   }
 
+  public DeleteStatement deleteKey(final String name, final Object value) {
+    where(where -> where.and(name, value));
+    return this;
+  }
+
+  // TODO remove
   public int deleteRecords() {
+    return executeDeleteCount();
+  }
+
+  public boolean executeDelete() {
+    return executeDeleteCount() > 0;
+  }
+
+  public int executeDeleteCount() {
     return getRecordStore().deleteRecords(this);
   }
 
@@ -87,7 +98,7 @@ public class DeleteStatement implements RecordDefinitionProxy {
   }
 
   public DeleteStatement where(final Consumer<WhereConditionBuilder> action) {
-    final WhereConditionBuilder builder = new WhereConditionBuilder(getFrom());
+    final WhereConditionBuilder builder = new WhereConditionBuilder(getFrom(), this.where);
     this.where = builder.build(action);
     return this;
   }

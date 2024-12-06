@@ -25,7 +25,7 @@ import com.revolsys.geometry.model.Point;
 import com.revolsys.geometry.model.Polygon;
 import com.revolsys.jdbc.field.JdbcFieldDefinition;
 import com.revolsys.record.query.ColumnIndexes;
-import com.revolsys.record.query.Query;
+import com.revolsys.record.query.QueryStatement;
 import com.revolsys.record.query.SqlAppendable;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordStore;
@@ -97,7 +97,7 @@ public class ArcSdeStGeometryFieldDefinition extends JdbcFieldDefinition {
   }
 
   @Override
-  public void appendSelect(final Query query, final RecordStore recordStore,
+  public void appendSelect(final QueryStatement statement, final RecordStore recordStore,
     final SqlAppendable sql) {
     super.appendColumnName(sql);
     sql.append(".ENTITY, ");

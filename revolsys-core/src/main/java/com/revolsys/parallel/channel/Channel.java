@@ -2,6 +2,7 @@ package com.revolsys.parallel.channel;
 
 import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Condition;
 import java.util.function.Consumer;
 
@@ -25,7 +26,7 @@ public class Channel<T> implements SelectableChannelInput<T>, ChannelOutput<T>, 
   protected MultiInputSelector alt;
 
   /** Flag indicating if the channel has been closed. */
-  private boolean closed = false;
+  private final AtomicBoolean closed = new AtomicBoolean();
 
   /** The ChannelValueStore used to store the data for the Channel */
   protected ChannelValueStore<T> data;
@@ -80,7 +81,7 @@ public class Channel<T> implements SelectableChannelInput<T>, ChannelOutput<T>, 
   }
 
   public void close() {
-    this.closed = true;
+    this.closed.compareAndSet(false, true);
   }
 
   @Override
@@ -106,10 +107,14 @@ public class Channel<T> implements SelectableChannelInput<T>, ChannelOutput<T>, 
   public void forEach(final Consumer<? super T> action) {
     try {
       while (!isClosed()) {
-        final var url = read();
-        action.accept(url);
+        final var value = read();
+        action.accept(value);
       }
     } catch (final ExitLoopException | ClosedException e) {
+    } catch (final RuntimeException e) {
+      if (!Exceptions.isInterruptException(e)) {
+        throw e;
+      }
     }
   }
 
@@ -119,7 +124,7 @@ public class Channel<T> implements SelectableChannelInput<T>, ChannelOutput<T>, 
 
   @Override
   public boolean isClosed() {
-    if (!this.closed) {
+    if (!this.closed.get()) {
       if (this.writeClosed) {
         if (this.data.getState() == ChannelValueStore.EMPTY) {
           close();
@@ -127,7 +132,7 @@ public class Channel<T> implements SelectableChannelInput<T>, ChannelOutput<T>, 
       }
     }
 
-    return this.closed;
+    return this.closed.get();
   }
 
   @Override
@@ -213,7 +218,7 @@ public class Channel<T> implements SelectableChannelInput<T>, ChannelOutput<T>, 
   public void readDisconnect() {
     try (
       var l = this.lock.lockX()) {
-      if (!this.closed) {
+      if (!this.closed.get()) {
         this.numReaders--;
         if (this.numReaders <= 0) {
           close();
@@ -246,7 +251,7 @@ public class Channel<T> implements SelectableChannelInput<T>, ChannelOutput<T>, 
       var wl = this.writeLock.lockX()) {
       try (
         var l = this.lock.lockX()) {
-        if (this.closed) {
+        if (this.closed.get()) {
           throw new ClosedException();
         }
         final MultiInputSelector tempAlt = this.alt;
@@ -263,7 +268,7 @@ public class Channel<T> implements SelectableChannelInput<T>, ChannelOutput<T>, 
             } catch (final InterruptedException e) {
               throw Exceptions.toRuntimeException(e);
             }
-            if (this.closed) {
+            if (this.closed.get()) {
               throw new ClosedException();
             }
           } catch (final WrappedInterruptedException e) {
