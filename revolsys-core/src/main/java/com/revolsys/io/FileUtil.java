@@ -524,6 +524,9 @@ public final class FileUtil {
       if (startIndex == -1) {
         startIndex = 0;
       }
+      while (fileName.charAt(startIndex) == '.' && startIndex < fileName.length()) {
+        startIndex++;
+      }
       for (int dotIndex = fileName.indexOf('.', startIndex); dotIndex > 0; dotIndex = fileName
         .indexOf('.', startIndex)) {
         dotIndex++;
