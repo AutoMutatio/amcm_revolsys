@@ -11,6 +11,7 @@ import java.util.function.Function;
 import com.revolsys.collection.iterator.AbstractIterator;
 import com.revolsys.collection.iterator.IterableWithCount;
 import com.revolsys.collection.json.JsonObject;
+import com.revolsys.exception.Exceptions;
 import com.revolsys.http.HttpRequestBuilder;
 import com.revolsys.http.HttpRequestBuilderFactory;
 import com.revolsys.util.Property;
@@ -129,8 +130,10 @@ public class ODataJsonQueryIterator<V> extends AbstractIterator<V> implements It
         }
       }
     } catch (final Throwable e) {
-      if (this.errorHandler == null || !this.errorHandler.apply(e)) {
-        // Rethrow the error if there was no error handler or it didn't handle
+      if (this.errorHandler == null || Exceptions.isInterruptException(e)
+        || !this.errorHandler.apply(e)) {
+        // Rethrow the error if there was no error handler, it was an interrupt
+        // or it didn't handle
         throw e;
       } else {
         // Stop processing if the error handler processed the result
