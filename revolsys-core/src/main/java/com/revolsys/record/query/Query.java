@@ -28,6 +28,7 @@ import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.io.PathName;
 import com.revolsys.jdbc.field.JdbcFieldDefinition;
 import com.revolsys.jdbc.field.JdbcFieldDefinitions;
+import com.revolsys.logging.Logs;
 import com.revolsys.predicate.Predicates;
 import com.revolsys.properties.BaseObjectWithProperties;
 import com.revolsys.record.ArrayChangeTrackRecord;
@@ -1520,7 +1521,7 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
         string.append(this.parameters);
       }
     } catch (final Throwable t) {
-      t.printStackTrace();
+      Logs.error(this, t);
     }
     return string.toString();
   }

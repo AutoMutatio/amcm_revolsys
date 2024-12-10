@@ -185,6 +185,10 @@ public class InsertStatement extends AbstractReturningQueryStatement<InsertState
    * Execute this insert statement, and return the number of records inserted and/or updated
    * @return
    */
+  public boolean executeInsert() {
+    return executeInsertCount() > 0;
+  }
+
   public int executeInsertCount() {
     return getRecordStore().executeInsertCount(this);
   }
