@@ -23,6 +23,7 @@ import com.revolsys.collection.json.Json;
 import com.revolsys.collection.list.ListEx;
 import com.revolsys.collection.list.Lists;
 import com.revolsys.collection.map.MapEx;
+import com.revolsys.collection.value.Single;
 import com.revolsys.function.Lambdaable;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.io.PathName;
@@ -1488,6 +1489,10 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
       }
     }
     return this;
+  }
+
+  public <R extends Record> Single<R> singleRecord() {
+    return Single.ofNullable(getRecord());
   }
 
   public <V extends Record> void sort(final List<V> records) {

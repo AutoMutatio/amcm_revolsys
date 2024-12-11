@@ -5,10 +5,10 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpClient.Redirect;
-import java.net.http.HttpRequest.BodyPublisher;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -68,14 +68,15 @@ import com.revolsys.collection.list.ListEx;
 import com.revolsys.collection.value.LazyValueHolder;
 import com.revolsys.collection.value.Single;
 import com.revolsys.collection.value.ValueHolder;
+import com.revolsys.exception.ExceptionWithProperties;
 import com.revolsys.exception.Exceptions;
-import com.revolsys.exception.WrappedRuntimeException;
 import com.revolsys.io.IoUtil;
 import com.revolsys.net.http.ApacheEntityInputStream;
 import com.revolsys.net.http.ApacheHttpException;
 import com.revolsys.util.BaseCloseable;
 import com.revolsys.util.UriBuilder;
 import com.revolsys.util.concurrent.Concurrent;
+import com.revolsys.util.concurrent.RateLimiter;
 
 public class HttpRequestBuilder {
 
@@ -330,6 +331,8 @@ public class HttpRequestBuilder {
 
   private ProtocolVersion version;
 
+  private RateLimiter rateLimiter = RateLimiter.UNLIMITED;
+
   private URI uri;
 
   private HeaderGroup headerGroup;
@@ -344,7 +347,7 @@ public class HttpRequestBuilder {
 
   private final HttpRequestBuilderFactory factory;
 
-  private BodyPublisher body;
+  private Duration timeout = Duration.ZERO;
 
   public HttpRequestBuilder(final HttpRequestBuilderFactory factory) {
     this.factory = factory;
@@ -471,57 +474,64 @@ public class HttpRequestBuilder {
   }
 
   public void execute(final BiConsumer<HttpUriRequest, HttpResponse> action) {
+    execute(action, this.timeout);
+
+  }
+
+  public void execute(final BiConsumer<HttpUriRequest, HttpResponse> action,
+    final Duration timeout) {
     final HttpUriRequest request = build();
     try (
-      final CloseableHttpClient httpClient = newClient()) {
-      final HttpResponse response = getResponse(httpClient, request);
+      final var httpClient = newClient()) {
+      final var response = getResponse(httpClient, request, timeout);
       action.accept(request, response);
-    } catch (final ApacheHttpException e) {
-      throw e;
-    } catch (final WrappedRuntimeException e) {
-      throw e;
-    } catch (final Exception e) {
-      throw Exceptions.wrap(request.getURI()
-        .toString(), e);
+    } catch (final RuntimeException | IOException e) {
+      throw wrapException(request, e);
     }
   }
 
   public void execute(final Consumer<HttpResponse> action) {
+    execute(action, this.timeout);
+  }
+
+  public void execute(final Consumer<HttpResponse> action, final Duration timeout) {
+
     final HttpUriRequest request = build();
     try (
-      final CloseableHttpClient httpClient = newClient()) {
-      final HttpResponse response = getResponse(httpClient, request);
+      final var httpClient = newClient()) {
+      final HttpResponse response = getResponse(httpClient, request, timeout);
       action.accept(response);
-    } catch (final ApacheHttpException e) {
-      throw e;
-    } catch (final WrappedRuntimeException e) {
-      throw e;
-    } catch (final Exception e) {
-      throw Exceptions.wrap(request.getURI()
-        .toString(), e);
+    } catch (final RuntimeException | IOException e) {
+      throw wrapException(request, e);
     }
   }
 
   public <V> V execute(final Function<HttpResponse, V> action) {
-    final HttpUriRequest request = build();
-    try (
-      final CloseableHttpClient httpClient = newClient()) {
-      return httpClient.execute(request, response -> {
-        final StatusLine statusLine = response.getStatusLine();
-        final int statusCode = statusLine.getStatusCode();
-        if (statusCode >= 200 && statusCode <= 299) {
-          return action.apply(response);
-        } else {
-          throw ApacheHttpException.create(request, response);
-        }
-      });
-    } catch (final ApacheHttpException e) {
-      throw e;
-    } catch (final WrappedRuntimeException e) {
-      throw e;
-    } catch (final Exception e) {
-      throw Exceptions.wrap(request.getURI()
-        .toString(), e);
+    return execute(action, this.timeout);
+  }
+
+  public <V> V execute(final Function<HttpResponse, V> action, final Duration timeout) {
+    final Instant expireTime = toExpireTime(timeout);
+    while (true) {
+      final HttpUriRequest request = build();
+      try (
+        final CloseableHttpClient httpClient = newClient()) {
+        this.rateLimiter.aquire();
+        // Debug.printlnTime(request.getURI());
+        return httpClient.execute(request, response -> {
+          final StatusLine statusLine = response.getStatusLine();
+          final int statusCode = statusLine.getStatusCode();
+          if (statusCode >= 200 && statusCode <= 299) {
+            return action.apply(response);
+          } else {
+            throw ApacheHttpException.create(request, response);
+          }
+        });
+      } catch (final ApacheHttpException e) {
+        rateLimitApacheException(e, expireTime);
+      } catch (final RuntimeException | IOException e) {
+        throw wrapException(request, e);
+      }
     }
   }
 
@@ -576,21 +586,25 @@ public class HttpRequestBuilder {
   }
 
   public HttpResponse getResponse(final CloseableHttpClient httpClient,
-    final HttpUriRequest request) {
-    try {
-      final HttpResponse response = httpClient.execute(request);
-      final StatusLine statusLine = response.getStatusLine();
-      final int statusCode = statusLine.getStatusCode();
-      if (statusCode >= 200 && statusCode <= 299) {
-        return response;
-      } else {
-        throw ApacheHttpException.create(request, response);
+    final HttpUriRequest request, final Duration timeout) {
+    final Instant expireTime = toExpireTime(timeout);
+    while (true) {
+      this.rateLimiter.aquire();
+      // Debug.printlnTime(request.getURI());
+      try {
+        final var response = httpClient.execute(request);
+        final var statusLine = response.getStatusLine();
+        final int statusCode = statusLine.getStatusCode();
+        if (statusCode >= 200 && statusCode <= 299) {
+          return response;
+        } else {
+          throw ApacheHttpException.create(request, response);
+        }
+      } catch (final ApacheHttpException e) {
+        rateLimitApacheException(e, expireTime);
+      } catch (final RuntimeException | IOException e) {
+        throw wrapException(request, e);
       }
-    } catch (final ApacheHttpException e) {
-      throw e;
-    } catch (final Exception e) {
-      throw Exceptions.wrap(request.getURI()
-        .toString(), e);
     }
   }
 
@@ -637,6 +651,29 @@ public class HttpRequestBuilder {
     }
   }
 
+  private void rateLimitApacheException(final ApacheHttpException e, final Instant timeoutIime) {
+    if (e.getStatusCode() == 429) {
+      if (Instant.now()
+        .isBefore(timeoutIime)) {
+        // HTTP 429 Too Many Requests and the timeout hasn't expired
+        // Wait until the duration specified in Retry-After
+        final String retryAfter = e.getHeader("Retry-After");
+        this.rateLimiter.pauseHttpRetryAfter(retryAfter, timeoutIime);
+        return; // DON'T THROW THE EXCEPTION
+      }
+    }
+    throw e;
+  }
+
+  public HttpRequestBuilder rateLimiter(final RateLimiter rateLimiter) {
+    if (rateLimiter == null) {
+      this.rateLimiter = RateLimiter.UNLIMITED;
+    } else {
+      this.rateLimiter = rateLimiter;
+    }
+    return this;
+  }
+
   public HttpRequestBuilder removeHeader(final Header header) {
     if (this.headerGroup != null) {
       this.headerGroup.removeHeader(header);
@@ -670,50 +707,33 @@ public class HttpRequestBuilder {
   }
 
   public ApacheEntityInputStream responseAsInputStream() {
-    // try (
-    // var client = newHttpClient()) {
-    // final var request = buildJdk();
-    // try {
-    // final var response = client.send(request, BodyHandlers.ofInputStream());
-    // return switch (response.statusCode()) {
-    // case 200 -> response.body();
-    //
-    // case 404 -> null;
-    //
-    // // TODO get reasonPhrase
-    // default -> throw new HttpResponseException(response.statusCode(), "",
-    // request);
-    // };
-    // } catch (final InterruptedException | IOException e) {
-    // throw Exceptions.toRuntimeException(e);
-    // }
-    // }
     final HttpUriRequest request = build();
-    final CloseableHttpClient httpClient = newClient();
+    final var httpClient = newClient();
     try {
-      final HttpResponse response = getResponse(httpClient, request);
-      final HttpEntity entity = response.getEntity();
+      final var response = getResponse(httpClient, request, this.timeout);
+      final var entity = response.getEntity();
       if (entity == null) {
         return null;
       } else {
         return new ApacheEntityInputStream(httpClient, entity);
       }
-    } catch (final ApacheHttpException e) {
+    } catch (final RuntimeException | IOException e) {
       BaseCloseable.closeSilent(httpClient);
-      throw e;
-    } catch (final Exception e) {
-      BaseCloseable.closeSilent(httpClient);
-      throw Exceptions.wrap(request.getURI()
-        .toString(), e);
+      throw wrapException(request, e);
     }
   }
 
   public JsonObject responseAsJson() {
+    return responseAsJson(this.timeout);
+  }
+
+  public JsonObject responseAsJson(final Duration timeout) {
     if (!this.headerNames.contains("Accept")) {
       setHeader("Accept", "application/json");
     }
     final Function<HttpResponse, JsonObject> function = HttpRequestBuilder::getJson;
-    return execute(function);
+    return execute(function, timeout);
+
   }
 
   public JsonList responseAsJsonList() {
@@ -727,11 +747,6 @@ public class HttpRequestBuilder {
   public String responseAsString() {
     final Function<HttpResponse, String> function = HttpRequestBuilder::getString;
     return execute(function);
-  }
-
-  public HttpRequestBuilder setBody(final BodyPublisher body) {
-    this.body = body;
-    return this;
   }
 
   public HttpRequestBuilder setCharset(final Charset charset) {
@@ -868,6 +883,26 @@ public class HttpRequestBuilder {
     return this;
   }
 
+  public Duration timeout() {
+    return this.timeout;
+  }
+
+  public HttpRequestBuilder timeout(final Duration timeout) {
+    this.timeout = timeout;
+    return this;
+  }
+
+  private Instant toExpireTime(final Duration timeout) {
+    Instant expireTime;
+    if (timeout.isNegative()) {
+      expireTime = Instant.MAX;
+    } else {
+      expireTime = Instant.now()
+        .plus(timeout);
+    }
+    return expireTime;
+  }
+
   @Override
   public String toString() {
     final StringBuilder builder = new StringBuilder();
@@ -888,6 +923,18 @@ public class HttpRequestBuilder {
     builder.append(", config=");
     builder.append(this.config);
     return builder.toString();
+  }
+
+  private ExceptionWithProperties wrapException(final HttpUriRequest request, final Throwable e) {
+    final var uri = request.getURI();
+    if (e instanceof final ApacheHttpException apacheE) {
+      return apacheE;
+    } else if (e instanceof final ExceptionWithProperties eprops) {
+      return eprops.property("uri", uri);
+    } else {
+      return Exceptions.toWrapped(e)
+        .property("uri", uri);
+    }
   }
 
 }

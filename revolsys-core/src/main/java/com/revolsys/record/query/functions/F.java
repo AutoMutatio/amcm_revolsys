@@ -100,6 +100,10 @@ public class F {
     return condition;
   }
 
+  public static SimpleFunction function(final String name, final QueryValue... args) {
+    return new SimpleFunction(name, args);
+  }
+
   public static FunctionMultiArgs greatest(final QueryValue... arguments) {
     return new FunctionMultiArgs("GREATEST", Lists.newArray(arguments));
   }
