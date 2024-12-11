@@ -675,6 +675,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
   protected final Record updateRecordDo(final TableRecordStoreConnection connection,
     final ChangeTrackRecord record) {
     try {
+      updateRecordPre(connection, record);
       if (record.isModified()) {
         updateRecordBefore(connection, record);
         this.recordStore.updateRecord(record);
