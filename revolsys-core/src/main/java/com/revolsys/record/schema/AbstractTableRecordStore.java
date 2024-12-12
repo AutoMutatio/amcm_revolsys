@@ -369,7 +369,11 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
   }
 
   public InsertStatement insertStatement(final TableRecordStoreConnection connection) {
-    return new TableRecordStoreInsertStatement(connection).into(getTable());
+    return new TableRecordStoreInsertStatement(this, connection).into(getTable());
+  }
+
+  protected void insertStatementRecordAfter(final TableRecordStoreConnection connection,
+    final Record record) {
   }
 
   protected boolean isFieldReadonly(final String fieldName) {
