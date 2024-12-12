@@ -12,6 +12,8 @@ import java.util.function.Supplier;
 
 import jakarta.servlet.http.HttpServletRequest;
 
+import org.slf4j.LoggerFactory;
+
 import com.revolsys.collection.json.JsonList;
 import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.map.MapEx;
@@ -24,7 +26,6 @@ import com.revolsys.io.PathName;
 import com.revolsys.jdbc.JdbcConnection;
 import com.revolsys.jdbc.field.JdbcFieldDefinition;
 import com.revolsys.jdbc.io.JdbcRecordStore;
-import com.revolsys.logging.Logs;
 import com.revolsys.record.ArrayChangeTrackRecord;
 import com.revolsys.record.ChangeTrackRecord;
 import com.revolsys.record.ODataParser;
@@ -590,7 +591,12 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
   protected void setRecordDefinition(final RecordDefinition recordDefinition) {
     this.recordDefinition = recordDefinition;
     if (recordDefinition == null) {
-      Logs.error(this, "Table doesn't exist\t" + getTypeName());
+      LoggerFactory.getLogger(getClass())
+        .atError()
+        .setMessage("Table doesn't exist")
+        .addKeyValue("name", getTypeName())
+        .log();
+      ;
     } else {
       setRecordDefinitionPost(recordDefinition);
       this.tableAlias = recordDefinition.getTableAlias();
@@ -669,6 +675,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
   protected final Record updateRecordDo(final TableRecordStoreConnection connection,
     final ChangeTrackRecord record) {
     try {
+      updateRecordPre(connection, record);
       if (record.isModified()) {
         updateRecordBefore(connection, record);
         this.recordStore.updateRecord(record);

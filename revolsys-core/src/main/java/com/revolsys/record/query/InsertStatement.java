@@ -2,6 +2,7 @@ package com.revolsys.record.query;
 
 import java.sql.PreparedStatement;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 import com.revolsys.collection.iterator.BaseIterable;
@@ -218,11 +219,6 @@ public class InsertStatement extends AbstractReturningQueryStatement<InsertState
     }
   }
 
-  public InsertStatement insert(final String name, final MapEx source, final String sourceKey) {
-    final var value = source.getValue(sourceKey);
-    return insert(name, value);
-  }
-
   public InsertStatement insert(final String name, final Object value) {
     if (hasField(name)) {
       final var column = getColumn(name);
@@ -268,9 +264,15 @@ public class InsertStatement extends AbstractReturningQueryStatement<InsertState
     return insert(name, value);
   }
 
-  public InsertStatement insertKey(final String name, final MapEx source, final String sourceKey) {
+  public InsertStatement insertFieldValue(final String name, final MapEx source,
+    final String sourceKey) {
     final var value = source.getValue(sourceKey);
-    return insertKey(name, value);
+    return insert(name, value);
+  }
+
+  @Deprecated
+  public InsertStatement insertKey(final String name, final MapEx source, final String sourceKey) {
+    return insertKeyFieldValue(name, source, sourceKey);
   }
 
   /**
@@ -287,6 +289,17 @@ public class InsertStatement extends AbstractReturningQueryStatement<InsertState
     insert(name, value);
     conflictColumn(name);
     return this;
+  }
+
+  public InsertStatement insertKeyFieldValue(final String name, final MapEx source) {
+    final var value = source.getValue(name);
+    return insertKey(name, value);
+  }
+
+  public InsertStatement insertKeyFieldValue(final String name, final MapEx source,
+    final String sourceKey) {
+    final var value = source.getValue(sourceKey);
+    return insertKey(name, value);
   }
 
   public InsertStatement into(final TableReference table) {
@@ -324,23 +337,6 @@ public class InsertStatement extends AbstractReturningQueryStatement<InsertState
     return sqlBuilder.toSqlString();
   }
 
-  public InsertStatement updateAll(final MapEx values) {
-    for (final var entry : values.entrySet()) {
-      final var name = entry.getKey();
-      final var value = entry.getValue();
-      insert(name, value);
-    }
-    return this;
-  }
-
-  public InsertStatement updateAll(final MapEx values, final String... fieldNames) {
-    for (final var name : fieldNames) {
-      final var value = values.get(name);
-      update(name, value);
-    }
-    return this;
-  }
-
   /**
    * Specifies that when there's a conflict on insert, this column should be updated
    * with the value from the insert statement.
@@ -367,6 +363,33 @@ public class InsertStatement extends AbstractReturningQueryStatement<InsertState
     final var column = getColumn(name);
     onConflictDoUpdate().set(column, value);
     return this;
+  }
+
+  public InsertStatement updateAll(final MapEx values) {
+    for (final var entry : values.entrySet()) {
+      final var name = entry.getKey();
+      final var value = entry.getValue();
+      insert(name, value);
+    }
+    return this;
+  }
+
+  public InsertStatement updateAll(final MapEx values, final String... fieldNames) {
+    for (final var name : fieldNames) {
+      final var value = values.get(name);
+      update(name, value);
+    }
+    return this;
+  }
+
+  public InsertStatement updateWhere(final Consumer<WhereConditionBuilder> where) {
+    onConflictDoUpdate().where(where);
+    return this;
+  }
+
+  public InsertStatement upsert(final String name, final MapEx source, final String sourceKey) {
+    final var value = source.getValue(sourceKey);
+    return upsert(name, value);
   }
 
   /**

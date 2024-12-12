@@ -351,7 +351,7 @@ public interface WebColors {
       opacity = fromHex(colorString, 4, 5, 255);
     } else if (length == 7) {
       red = fromHex(colorString, 1, 3, 0);
-      green = fromHex(colorString, 4, 5, red);
+      green = fromHex(colorString, 3, 5, red);
       blue = fromHex(colorString, 5, 7, green);
       opacity = 255;
     } else if (length == 9) {
@@ -440,6 +440,51 @@ public interface WebColors {
     final int green = color.getGreen();
     final int blue = color.getBlue();
     return new Color(red, green, blue, alpha);
+  }
+
+  /**
+   * Darken
+   * @param color
+   * @param factor
+   * @return
+   */
+  public static Color shade(final Color color, final double factor) {
+    final int red = color.getRed();
+    final int green = color.getGreen();
+    final int blue = color.getBlue();
+    final int alpha = color.getAlpha();
+
+    final int newR = shade(red, factor);
+    final int newG = shade(green, factor);
+    final int newB = shade(blue, factor);
+    return new Color(newR, newG, newB, alpha);
+  }
+
+  private static int shade(final int color, final double factor) {
+    final double shade = color * (1 - factor);
+    return Math.max(0, (int)Math.round(shade));
+  }
+
+  /**
+   * lighten
+   * @param color
+   * @param factor
+   * @return
+   */
+  public static Color tint(final Color color, final double factor) {
+    final int red = color.getRed();
+    final int green = color.getGreen();
+    final int blue = color.getBlue();
+    final int alpha = color.getAlpha();
+
+    final int newR = tint(red, factor);
+    final int newG = tint(green, factor);
+    final int newB = tint(blue, factor);
+    return new Color(newR, newG, newB, alpha);
+  }
+
+  private static int tint(final int color, final double factor) {
+    return Math.min(255, (int)Math.round(color + (255 - color) * factor));
   }
 
   static Color toColor(final Object value) {

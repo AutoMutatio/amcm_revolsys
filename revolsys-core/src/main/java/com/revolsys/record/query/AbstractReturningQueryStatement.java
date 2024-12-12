@@ -38,9 +38,9 @@ public abstract class AbstractReturningQueryStatement<QS extends QueryStatement>
 
   protected void appendReturning(final SqlAppendable sql) {
     if (this.returningAll) {
-      sql.append("RETURNING *\n");
+      sql.append("\nRETURNING *");
     } else if (!this.returning.isEmpty()) {
-      sql.append("RETURNING\n");
+      sql.append("\nRETURNING");
       appendColumnNames(sql, this.returning);
     }
   }

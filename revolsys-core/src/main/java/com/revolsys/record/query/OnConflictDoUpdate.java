@@ -3,12 +3,15 @@ package com.revolsys.record.query;
 import java.sql.PreparedStatement;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.function.Consumer;
 
 public class OnConflictDoUpdate implements OnConflictAction {
 
   private final Map<ColumnReference, QueryValue> setExpressions = new LinkedHashMap<>();
 
   private final QueryStatement statement;
+
+  private Condition where = Condition.ALL;
 
   public OnConflictDoUpdate(final QueryStatement statement) {
     this.statement = statement;
@@ -22,6 +25,7 @@ public class OnConflictDoUpdate implements OnConflictAction {
       index = column.appendParameters(index, statement);
       index = value.appendParameters(index, statement);
     }
+    index = this.where.appendParameters(index, statement);
     return index;
   }
 
@@ -43,6 +47,11 @@ public class OnConflictDoUpdate implements OnConflictAction {
       value.appendSql(this.statement, sql);
     }
     sql.append('\n');
+    if (!this.where.isEmpty()) {
+      sql.append("WHERE\n");
+      this.where.appendSql(this.statement, sql);
+      sql.append('\n');
+    }
   }
 
   @Override
@@ -68,5 +77,11 @@ public class OnConflictDoUpdate implements OnConflictAction {
    */
   public void setExcluded(final ColumnReference column) {
     this.setExpressions.put(column, new Excluded(column));
+  }
+
+  public OnConflictDoUpdate where(final Consumer<WhereConditionBuilder> action) {
+    final var table = this.statement.getRecordDefinition();
+    this.where = new WhereConditionBuilder(table, this.where).build(action);
+    return this;
   }
 }

@@ -1,5 +1,6 @@
 package com.revolsys.record.schema;
 
+import com.revolsys.record.Record;
 import com.revolsys.record.query.InsertStatement;
 
 public class TableRecordStoreInsertStatement extends InsertStatement {
@@ -12,5 +13,10 @@ public class TableRecordStoreInsertStatement extends InsertStatement {
   @Override
   public int executeInsertCount() {
     return this.connection.transactionCall(super::executeInsertCount);
+  }
+
+  @Override
+  public Record executeInsertRecord() {
+    return this.connection.transactionCall(super::executeInsertRecord);
   }
 }
