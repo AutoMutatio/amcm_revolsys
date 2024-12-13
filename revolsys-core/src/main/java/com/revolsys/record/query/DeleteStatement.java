@@ -34,11 +34,6 @@ public class DeleteStatement implements QueryStatement {
     return this;
   }
 
-  // TODO remove
-  public int deleteRecords() {
-    return executeDeleteCount();
-  }
-
   public boolean executeDelete() {
     return executeDeleteCount() > 0;
   }
