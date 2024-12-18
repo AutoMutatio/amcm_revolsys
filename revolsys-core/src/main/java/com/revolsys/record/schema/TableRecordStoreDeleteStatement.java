@@ -8,9 +8,4 @@ public class TableRecordStoreDeleteStatement extends DeleteStatement {
   public TableRecordStoreDeleteStatement(final TableRecordStoreConnection connection) {
     this.connection = connection;
   }
-
-  @Override
-  public int deleteRecords() {
-    return this.connection.transactionCall(super::deleteRecords);
-  }
 }
