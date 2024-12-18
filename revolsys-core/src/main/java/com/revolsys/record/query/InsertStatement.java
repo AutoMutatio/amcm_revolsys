@@ -18,7 +18,7 @@ public class InsertStatement extends AbstractReturningQueryStatement<InsertState
 
   private final ListEx<ListEx<QueryValue>> values = Lists.newArray();
 
-  private ConflictAction conflictAction;
+  private OnConflictAction onConflictAction;
 
   private final ListEx<ColumnReference> conflictColumns = Lists.newArray();
 
@@ -43,8 +43,8 @@ public class InsertStatement extends AbstractReturningQueryStatement<InsertState
         index = value.appendParameters(index, statement);
       }
     }
-    if (this.conflictAction != null) {
-      index = this.conflictAction.appendParameters(index, statement);
+    if (this.onConflictAction != null) {
+      index = this.onConflictAction.appendParameters(index, statement);
     }
     appendReturningParameters(index, statement);
     return index;
@@ -62,14 +62,14 @@ public class InsertStatement extends AbstractReturningQueryStatement<InsertState
       appendValues(sql);
     }
 
-    if (this.conflictAction != null && !this.conflictAction.isEmpty()) {
+    if (this.onConflictAction != null && !this.onConflictAction.isEmpty()) {
       sql.append("ON CONFLICT\n");
       if (!this.conflictColumns.isEmpty()) {
         appendColumns(sql, this.conflictColumns);
         sql.append('\n');
       }
       // TODO conflict target
-      this.conflictAction.appendSql(sql);
+      this.onConflictAction.appendSql(sql);
     }
 
     appendReturning(sql);
@@ -143,6 +143,13 @@ public class InsertStatement extends AbstractReturningQueryStatement<InsertState
     return this;
   }
 
+  /**
+   * Specify a column where a conflict might occur. For multiple conflict columns,
+   * chain calls to this method, or use conflictColumns.
+   *
+   * @param column
+   * @return
+   */
   public InsertStatement conflictColumn(final Object column) {
     if (column instanceof final ColumnReference columnReference) {
       conflictColumn(columnReference);
@@ -155,6 +162,12 @@ public class InsertStatement extends AbstractReturningQueryStatement<InsertState
     return this;
   }
 
+  /**
+   * Specify multiple columns where conflicts might occur.
+   *
+   * @param column
+   * @return
+   */
   public InsertStatement conflictColumns(final Iterable<Object> columns) {
     for (final var column : columns) {
       conflictColumn(column);
@@ -169,21 +182,10 @@ public class InsertStatement extends AbstractReturningQueryStatement<InsertState
     return this;
   }
 
-  public InsertStatement conflictDoNothing() {
-    this.conflictAction = ConflictDoNothing.INSTANCE;
-    return this;
-  }
-
-  private ConflictUpdate conflictUpdate() {
-    ConflictUpdate configUpdate;
-    if (this.conflictAction instanceof final ConflictUpdate update) {
-      configUpdate = update;
-    } else {
-      this.conflictAction = configUpdate = new ConflictUpdate(this);
-    }
-    return configUpdate;
-  }
-
+  /**
+   * Execute this insert statement, and return the number of records inserted and/or updated
+   * @return
+   */
   public boolean executeInsert() {
     return executeInsertCount() > 0;
   }
@@ -273,6 +275,16 @@ public class InsertStatement extends AbstractReturningQueryStatement<InsertState
     return insertKeyFieldValue(name, source, sourceKey);
   }
 
+  /**
+   * Specify a primary key column and value for the insert statement, and set this
+   * as a conflict column for the case where the record with this key already exists.
+   *
+   * For compound primary keys, this method can be chained.
+   *
+   * @param name
+   * @param value
+   * @return
+   */
   public InsertStatement insertKey(final String name, final Object value) {
     insert(name, value);
     conflictColumn(name);
@@ -295,6 +307,28 @@ public class InsertStatement extends AbstractReturningQueryStatement<InsertState
     return this;
   }
 
+  /**
+   * Specifies that when there's a conflict on insert, no columns should be updated with
+   * the values from the insert statement
+   *
+   * @param column
+   * @return
+   */
+  public InsertStatement onConflictDoNothing() {
+    this.onConflictAction = OnConflictDoNothing.INSTANCE;
+    return this;
+  }
+
+  private OnConflictDoUpdate onConflictDoUpdate() {
+    OnConflictDoUpdate onConfigDoUpdate;
+    if (this.onConflictAction instanceof final OnConflictDoUpdate update) {
+      onConfigDoUpdate = update;
+    } else {
+      this.onConflictAction = onConfigDoUpdate = new OnConflictDoUpdate(this);
+    }
+    return onConfigDoUpdate;
+  }
+
   @Override
   public String toString() {
     final StringBuilderSqlAppendable sqlBuilder = newSqlAppendable();
@@ -303,9 +337,16 @@ public class InsertStatement extends AbstractReturningQueryStatement<InsertState
     return sqlBuilder.toSqlString();
   }
 
+  /**
+   * Specifies that when there's a conflict on insert, this column should be updated
+   * with the value from the insert statement.
+   *
+   * @param column
+   * @return
+   */
   public InsertStatement update(final String name) {
     final var column = getColumn(name);
-    conflictUpdate().setExisting(column);
+    onConflictDoUpdate().setExcluded(column);
     return this;
   }
 
@@ -314,13 +355,13 @@ public class InsertStatement extends AbstractReturningQueryStatement<InsertState
     final var column = getColumn(name);
     final var excluded = new Excluded(column);
     final var value = setProvider.apply(column, excluded);
-    conflictUpdate().set(column, value);
+    onConflictDoUpdate().set(column, value);
     return this;
   }
 
   public InsertStatement update(final String name, final Object value) {
     final var column = getColumn(name);
-    conflictUpdate().set(column, value);
+    onConflictDoUpdate().set(column, value);
     return this;
   }
 
@@ -342,7 +383,7 @@ public class InsertStatement extends AbstractReturningQueryStatement<InsertState
   }
 
   public InsertStatement updateWhere(final Consumer<WhereConditionBuilder> where) {
-    conflictUpdate().where(where);
+    onConflictDoUpdate().where(where);
     return this;
   }
 
@@ -352,7 +393,13 @@ public class InsertStatement extends AbstractReturningQueryStatement<InsertState
   }
 
   /**
-   * Use the value for an insert and also set that field in the on conflict do update
+   * Insert/update this value for this column when executing the insert statement.
+   *
+   * If the record already exists and there's a conflict, update the column with
+   * this value from the insert statement.
+   * This method can be called multiple times for the same insert statement when
+   * inserting/updating multiple columns.
+   *
    * @param name
    * @param value
    * @return
