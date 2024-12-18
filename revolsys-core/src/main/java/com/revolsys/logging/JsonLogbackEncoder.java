@@ -49,7 +49,7 @@ public class JsonLogbackEncoder extends EncoderBase<ILoggingEvent> {
           json.labelValue("logger", logger);
         }
 
-        final var message = event.getMessage();
+        final var message = getMessage(event);
         if (Property.hasValue(message)) {
           json.labelValue("message", message);
         }
@@ -98,6 +98,28 @@ public class JsonLogbackEncoder extends EncoderBase<ILoggingEvent> {
   @Override
   public byte[] footerBytes() {
     return FOOTER;
+  }
+
+  private String getMessage(final ILoggingEvent event) {
+    final var message = event.getMessage();
+    if (!Property.hasValue(message)) {
+      final var cause = event.getThrowableProxy();
+      return getMessage(cause);
+    }
+    return message;
+  }
+
+  private String getMessage(final IThrowableProxy exception) {
+    if (exception == null) {
+      return null;
+    }
+    final var message = exception.getMessage();
+    if (Property.hasValue(message)) {
+      return message;
+    } else {
+      var cause = exception.getCause();
+      return getMessage(cause);
+    }
   }
 
   @Override
