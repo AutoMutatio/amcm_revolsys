@@ -1,7 +1,6 @@
 package com.revolsys.http;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpClient.Redirect;
@@ -17,6 +16,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -170,9 +170,9 @@ public class HttpRequestBuilder {
   }
 
   public static JsonObject getJson(final HttpResponse response) {
-    final HttpEntity entity = response.getEntity();
+    final var entity = response.getEntity();
     try (
-      InputStream in = entity.getContent()) {
+      var in = entity.getContent()) {
       return JsonParser.read(in);
     } catch (final Exception e) {
       throw Exceptions.toRuntimeException(e);
@@ -180,9 +180,9 @@ public class HttpRequestBuilder {
   }
 
   public static JsonList getJsonList(final HttpResponse response) {
-    final HttpEntity entity = response.getEntity();
+    final var entity = response.getEntity();
     try (
-      InputStream in = entity.getContent()) {
+      var in = entity.getContent()) {
       return JsonParser.read(in);
     } catch (final Exception e) {
       throw Exceptions.toRuntimeException(e);
@@ -190,9 +190,9 @@ public class HttpRequestBuilder {
   }
 
   public static String getString(final HttpResponse response) {
-    final HttpEntity entity = response.getEntity();
+    final var entity = response.getEntity();
     try (
-      InputStream in = entity.getContent()) {
+      var in = entity.getContent()) {
       return IoUtil.getString(in);
     } catch (final Exception e) {
       throw Exceptions.toRuntimeException(e);
@@ -214,6 +214,12 @@ public class HttpRequestBuilder {
     return HttpRequestBuilderFactory.FACTORY.newRequestBuilder()
       .setMethod(HttpHead.METHOD_NAME)
       .setUri(uri);
+  }
+
+  public static boolean isSuccess(final HttpResponse response) {
+    final StatusLine statusLine = response.getStatusLine();
+    final int statusCode = statusLine.getStatusCode();
+    return statusCode >= 200 && statusCode <= 299;
   }
 
   public static HttpClient jdkClient() {
@@ -468,14 +474,13 @@ public class HttpRequestBuilder {
   }
 
   public void execute() {
-    final Consumer<HttpResponse> noop = r -> {
+    final Consumer<HttpResponse> noop = response -> {
     };
     execute(noop);
   }
 
   public void execute(final BiConsumer<HttpUriRequest, HttpResponse> action) {
     execute(action, this.timeout);
-
   }
 
   public void execute(final BiConsumer<HttpUriRequest, HttpResponse> action,
@@ -484,9 +489,42 @@ public class HttpRequestBuilder {
     try (
       final var httpClient = newClient()) {
       final var response = getResponse(httpClient, request, timeout);
-      action.accept(request, response);
+      final var isSuccess = isSuccess(response);
+      if (isSuccess) {
+        action.accept(request, response);
+      } else {
+        throw ApacheHttpException.create(request, response);
+      }
     } catch (final RuntimeException | IOException e) {
       throw wrapException(request, e);
+    }
+  }
+
+  public <V> V execute(final BiFunction<HttpUriRequest, HttpResponse, V> action) {
+    return execute(action, this.timeout);
+  }
+
+  public <V> V execute(final BiFunction<HttpUriRequest, HttpResponse, V> action,
+    final Duration timeout) {
+    final Instant expireTime = toExpireTime(timeout);
+    while (true) {
+      final HttpUriRequest request = build();
+      try (
+        final CloseableHttpClient httpClient = newClient()) {
+        this.rateLimiter.aquire();
+        return httpClient.execute(request, response -> {
+          final var isSuccess = isSuccess(response);
+          if (isSuccess) {
+            return action.apply(request, response);
+          } else {
+            throw ApacheHttpException.create(request, response);
+          }
+        });
+      } catch (final ApacheHttpException e) {
+        rateLimitApacheException(e, expireTime);
+      } catch (final RuntimeException | IOException e) {
+        throw wrapException(request, e);
+      }
     }
   }
 
@@ -495,12 +533,16 @@ public class HttpRequestBuilder {
   }
 
   public void execute(final Consumer<HttpResponse> action, final Duration timeout) {
-
     final HttpUriRequest request = build();
     try (
       final var httpClient = newClient()) {
-      final HttpResponse response = getResponse(httpClient, request, timeout);
-      action.accept(response);
+      final var response = getResponse(httpClient, request, timeout);
+      final var isSuccess = isSuccess(response);
+      if (isSuccess) {
+        action.accept(response);
+      } else {
+        throw ApacheHttpException.create(request, response);
+      }
     } catch (final RuntimeException | IOException e) {
       throw wrapException(request, e);
     }
@@ -517,11 +559,9 @@ public class HttpRequestBuilder {
       try (
         final CloseableHttpClient httpClient = newClient()) {
         this.rateLimiter.aquire();
-        // Debug.printlnTime(request.getURI());
         return httpClient.execute(request, response -> {
-          final StatusLine statusLine = response.getStatusLine();
-          final int statusCode = statusLine.getStatusCode();
-          if (statusCode >= 200 && statusCode <= 299) {
+          final var isSuccess = isSuccess(response);
+          if (isSuccess) {
             return action.apply(response);
           } else {
             throw ApacheHttpException.create(request, response);
@@ -593,9 +633,7 @@ public class HttpRequestBuilder {
       // Debug.printlnTime(request.getURI());
       try {
         final var response = httpClient.execute(request);
-        final var statusLine = response.getStatusLine();
-        final int statusCode = statusLine.getStatusCode();
-        if (statusCode >= 200 && statusCode <= 299) {
+        if (isSuccess(response)) {
           return response;
         } else {
           throw ApacheHttpException.create(request, response);
