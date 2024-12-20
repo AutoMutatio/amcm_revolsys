@@ -497,7 +497,7 @@
     </dependencies>
   </dependencyManagement>
   <properties>
-    <ch.qos.logback.version>1.5.8</ch.qos.logback.version>
+    <ch.qos.logback.version>1.5.13</ch.qos.logback.version>
     <com.fasterxml.jackson.version>2.18.0</com.fasterxml.jackson.version>
     <org.apache.logging.log4j>2.24.1</org.apache.logging.log4j>
     <org.apache.pdfbox.version>3.0.3</org.apache.pdfbox.version>
