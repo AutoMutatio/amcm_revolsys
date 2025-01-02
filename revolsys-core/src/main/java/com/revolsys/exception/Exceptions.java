@@ -329,7 +329,9 @@ public interface Exceptions {
   }
 
   static WrappedRuntimeException wrap(final String message, final Throwable e) {
-    if (isTimeoutException(e)) {
+    if (e == null) {
+      return null;
+    } else if (isTimeoutException(e)) {
       return new WrappedTimeoutException(message, e);
     } else if (isInterruptException(e)) {
       return new WrappedInterruptedException(message, e);
