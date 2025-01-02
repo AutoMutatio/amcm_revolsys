@@ -600,7 +600,6 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
         .setMessage("Table doesn't exist")
         .addKeyValue("name", getTypeName())
         .log();
-      ;
     } else {
       setRecordDefinitionPost(recordDefinition);
       this.tableAlias = recordDefinition.getTableAlias();
