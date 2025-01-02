@@ -687,7 +687,8 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
       }
       return record.newRecord();
     } catch (final Exception e) {
-      throw Exceptions.wrap("Unable to update record:\n" + record, e);
+      throw Exceptions.toWrapped(e)
+        .property("record", record);
     }
   }
 
