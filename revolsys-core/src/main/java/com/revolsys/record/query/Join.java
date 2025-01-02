@@ -118,8 +118,8 @@ public class Join implements QueryValue, TableReferenceProxy {
     } else if (this.table.hasColumn(name)) {
       return new Column(this, name);
     }
-    throw new IllegalArgumentException(
-      "Column not found: " + this.table.getTableReference().getTablePath() + "." + name);
+    throw new IllegalArgumentException("Column not found: " + this.table.getTableReference()
+      .getTablePath() + "." + name);
   }
 
   public Condition getCondition() {
@@ -158,6 +158,11 @@ public class Join implements QueryValue, TableReferenceProxy {
     return null;
   }
 
+  public Join on(final QueryValue left, final QueryValue right) {
+    final Equal condition = new Equal(left, right);
+    return and(condition);
+  }
+
   public Join on(final String fromFieldName, final Object value) {
     final Condition condition = this.table.equal(fromFieldName, value);
     return and(condition);
@@ -187,8 +192,7 @@ public class Join implements QueryValue, TableReferenceProxy {
     final String toFieldName) {
     final ColumnReference fromColumn = getColumn(fromFieldName);
     final ColumnReference toColumn = toTable.getColumn(toFieldName);
-    final Equal condition = new Equal(fromColumn, toColumn);
-    return and(condition);
+    return on(fromColumn, toColumn);
   }
 
   public Join or(final Condition condition) {

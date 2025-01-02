@@ -23,11 +23,13 @@ import com.revolsys.collection.json.Json;
 import com.revolsys.collection.list.ListEx;
 import com.revolsys.collection.list.Lists;
 import com.revolsys.collection.map.MapEx;
+import com.revolsys.collection.value.Single;
 import com.revolsys.function.Lambdaable;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.io.PathName;
 import com.revolsys.jdbc.field.JdbcFieldDefinition;
 import com.revolsys.jdbc.field.JdbcFieldDefinitions;
+import com.revolsys.logging.Logs;
 import com.revolsys.predicate.Predicates;
 import com.revolsys.properties.BaseObjectWithProperties;
 import com.revolsys.record.ArrayChangeTrackRecord;
@@ -1489,6 +1491,10 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     return this;
   }
 
+  public <R extends Record> Single<R> singleRecord() {
+    return Single.ofNullable(getRecord());
+  }
+
   public <V extends Record> void sort(final List<V> records) {
     final List<OrderBy> orderBy = getOrderBy();
     if (!orderBy.isEmpty()) {
@@ -1520,7 +1526,7 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
         string.append(this.parameters);
       }
     } catch (final Throwable t) {
-      t.printStackTrace();
+      Logs.error(this, t);
     }
     return string.toString();
   }

@@ -34,8 +34,9 @@ public class TableRecordStoreInsertUpdateBuilder<R extends Record> extends Inser
         prepareInsertRecord(newRecord);
         try {
           return this.recordStore.insertRecord(this.connection, newRecord);
-        } catch (final RuntimeException e) {
-          throw Exceptions.wrap("Unable to insert record:\n" + newRecord, e);
+        } catch (final RuntimeException | Error e) {
+          throw Exceptions.toWrapped(e)
+            .property("record", changeTrackRecord);
         }
       }
     } else if (isUpdate()) {
@@ -43,8 +44,9 @@ public class TableRecordStoreInsertUpdateBuilder<R extends Record> extends Inser
         prepareUpdateRecord(changeTrackRecord);
         this.recordStore.updateRecordDo(this.connection, changeTrackRecord);
         return changeTrackRecord.newRecord();
-      } catch (final Exception e) {
-        throw Exceptions.wrap("Unable to update record:\n" + changeTrackRecord, e);
+      } catch (final RuntimeException | Error e) {
+        throw Exceptions.toWrapped(e)
+          .property("record", changeTrackRecord);
       }
     }
     return null;

@@ -3,6 +3,7 @@ package com.revolsys.util.concurrent;
 import java.lang.Thread.Builder.OfPlatform;
 import java.lang.Thread.Builder.OfVirtual;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
@@ -46,10 +47,23 @@ public class Concurrent {
   }
 
   public static void sleep(final Duration duration) {
-    try {
-      Thread.sleep(duration);
-    } catch (final InterruptedException e) {
-      throw Exceptions.toRuntimeException(e);
+    if (duration != null) {
+      try {
+        Thread.sleep(duration);
+      } catch (final InterruptedException e) {
+        throw Exceptions.toRuntimeException(e);
+      }
+    }
+  }
+
+  public static void sleepUntil(final Instant instant) {
+    if (instant != null) {
+      try {
+        final var duration = Duration.between(Instant.now(), instant);
+        Thread.sleep(duration);
+      } catch (final InterruptedException e) {
+        throw Exceptions.toRuntimeException(e);
+      }
     }
   }
 

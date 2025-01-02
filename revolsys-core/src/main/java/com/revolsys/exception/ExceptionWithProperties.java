@@ -48,6 +48,10 @@ public class ExceptionWithProperties extends RuntimeException {
     }
   }
 
+  public <V> V property(final String key) {
+    return this.properties.getValue(key);
+  }
+
   public ExceptionWithProperties property(final String key, final Object value) {
     this.properties.addValue(key, value);
     return this;

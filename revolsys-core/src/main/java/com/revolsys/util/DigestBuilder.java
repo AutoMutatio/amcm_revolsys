@@ -1,5 +1,6 @@
 package com.revolsys.util;
 
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -8,6 +9,7 @@ import java.util.Base64;
 import com.revolsys.data.identifier.Identifier;
 import com.revolsys.data.type.DataTypes;
 import com.revolsys.exception.Exceptions;
+import com.revolsys.io.stream.DigestInputStream;
 
 public class DigestBuilder {
   public static DigestBuilder md5() {
@@ -99,6 +101,11 @@ public class DigestBuilder {
   public Identifier buildHexIdentifier() {
     final String string = toString();
     return Identifier.newIdentifier(string);
+  }
+
+  public DigestInputStream inputStream(final InputStream in) {
+    return new DigestInputStream(in, this.digester);
+
   }
 
   @Override

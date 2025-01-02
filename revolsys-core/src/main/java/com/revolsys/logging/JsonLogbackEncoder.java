@@ -2,7 +2,6 @@ package com.revolsys.logging;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -27,19 +26,6 @@ public class JsonLogbackEncoder extends EncoderBase<ILoggingEvent> {
 
   private static final byte[] HEADER = "\n".getBytes();
 
-  private static final String HOST_NAME = initHostName();
-
-  private static final String initHostName() {
-    for (final var key : Arrays.asList("HOSTNAME", "COMPUTERNAME", "HOST")) {
-      final var name = System.getenv(key);
-      if (Property.hasValue(name)) {
-        return name.replaceAll("\\..+", "")
-          .replaceAll("[^a-zA-Z0-9_]+", "_");
-      }
-    }
-    return "";
-  }
-
   @Override
   public byte[] encode(final ILoggingEvent event) {
     try (
@@ -56,14 +42,14 @@ public class JsonLogbackEncoder extends EncoderBase<ILoggingEvent> {
           json.labelValue("level", level);
         }
 
-        json.labelValue("host", HOST_NAME);
+        json.labelValue("host", Logs.HOST_NAME);
 
         final var logger = event.getLoggerName();
         if (logger != null) {
           json.labelValue("logger", logger);
         }
 
-        final var message = event.getMessage();
+        final var message = getMessage(event);
         if (Property.hasValue(message)) {
           json.labelValue("message", message);
         }
@@ -112,6 +98,28 @@ public class JsonLogbackEncoder extends EncoderBase<ILoggingEvent> {
   @Override
   public byte[] footerBytes() {
     return FOOTER;
+  }
+
+  private String getMessage(final ILoggingEvent event) {
+    final var message = event.getMessage();
+    if (!Property.hasValue(message)) {
+      final var cause = event.getThrowableProxy();
+      return getMessage(cause);
+    }
+    return message;
+  }
+
+  private String getMessage(final IThrowableProxy exception) {
+    if (exception == null) {
+      return null;
+    }
+    final var message = exception.getMessage();
+    if (Property.hasValue(message)) {
+      return message;
+    } else {
+      var cause = exception.getCause();
+      return getMessage(cause);
+    }
   }
 
   @Override

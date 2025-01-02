@@ -20,6 +20,7 @@ import java.time.LocalDate;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -73,10 +74,8 @@ public final class DataTypes {
   public static final DataType BASE64_BINARY = new SimpleDataType("base64Binary", byte[].class);
 
   public static final DataType BASE64_URL_BINARY = new FunctionDataType("base64UrlBinary",
-    byte[].class, s -> Base64.getUrlDecoder()
-      .decode(s.toString()),
-    v -> Base64.getUrlEncoder()
-      .encodeToString((byte[])v));
+    byte[].class, s -> Base64.getUrlDecoder().decode(s.toString()),
+    v -> Base64.getUrlEncoder().encodeToString((byte[])v));
 
   public static final DataType BINARY = new SimpleDataType("binary", byte[].class);
 
@@ -225,8 +224,7 @@ public final class DataTypes {
     } else if (value instanceof Path) {
       final Path path = (Path)value;
       try {
-        return path.toUri()
-          .toURL();
+        return path.toUri().toURL();
       } catch (final MalformedURLException e) {
         throw new IllegalArgumentException("Cannot get url " + path, e);
       }
@@ -270,6 +268,11 @@ public final class DataTypes {
     register(Long.TYPE, LONG);
     register(Float.TYPE, FLOAT);
     register(Double.TYPE, DOUBLE);
+  }
+
+  public static CollectionDataType collection(final String name, final Class<?> collectionClass,
+    final DataType valueType) {
+    return new CollectionDataType(name, collectionClass, valueType);
   }
 
   public static DataType getDataType(final Class<?> clazz) {
@@ -336,6 +339,14 @@ public final class DataTypes {
     }
   }
 
+  public static ListDataType list(final DataType valueType) {
+    return new ListDataType(List.class, valueType);
+  }
+
+  public static ListDataType list(final String name, final DataType valueType) {
+    return new ListDataType(name, List.class, valueType);
+  }
+
   public static void register(final Class<?> typeClass, final DataType type) {
     final String typeClassName = typeClass.getName();
     if (!CLASS_TYPE_MAP.containsKey(typeClassName)) {
@@ -344,8 +355,7 @@ public final class DataTypes {
   }
 
   public static void register(final DataType type) {
-    final String name = type.getName()
-      .toLowerCase();
+    final String name = type.getName().toLowerCase();
     if (!NAME_TYPE_MAP.containsKey(name)) {
       NAME_TYPE_MAP.put(name, type);
     }

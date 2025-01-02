@@ -28,6 +28,10 @@ public class Q {
 
   public static Function<QueryValue, Condition> IS_NULL = IsNull::new;
 
+  public static BiFunction<QueryValue, QueryValue, Condition> IS_DISTINCT_FROM = IsDistinctFrom::new;
+
+  public static BiFunction<QueryValue, QueryValue, Condition> IS_NOT_DISTINCT_FROM = IsNotDistinctFrom::new;
+
   public static BiFunction<QueryValue, QueryValue, Condition> EQUAL = Q::equal;
 
   public static BiFunction<QueryValue, QueryValue, Condition> NOT_EQUAL = Q::notEqual;

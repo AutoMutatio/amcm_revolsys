@@ -311,6 +311,15 @@ public interface ListEx<T> extends List<T>, Cloneable, BaseIterable<T> {
     }
   }
 
+  /**
+   * Reverse the list in place.
+   * @return
+   */
+  default ListEx<T> reverse() {
+    Collections.reverse(this);
+    return this;
+  }
+
   default ListEx<T> sortThis(final Comparator<? super T> converter) {
     sort(converter);
     return this;

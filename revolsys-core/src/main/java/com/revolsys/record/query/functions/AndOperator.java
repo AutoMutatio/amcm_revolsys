@@ -16,7 +16,7 @@ public class AndOperator extends AbstractBinaryQueryValue {
   @Override
   public void appendDefaultSql(final QueryStatement statement, final RecordStore recordStore,
     final SqlAppendable buffer) {
-    buffer.append(")");
+    buffer.append("(");
     appendLeft(statement, recordStore, buffer);
     buffer.append(" AND ");
     appendRight(statement, recordStore, buffer);

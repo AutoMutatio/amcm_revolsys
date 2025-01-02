@@ -245,6 +245,9 @@ public class JdbcDataSourceImpl extends JdbcDataSource implements BaseCloseable 
             if (!connAutoCommit) {
               connection.setAutoCommit(true);
             }
+            if (connection.isReadOnly()) {
+              connection.setReadOnly(false);
+            }
           }
         } catch (final SQLException | RuntimeException | Error e) {
           close();
