@@ -1,7 +1,6 @@
 package com.revolsys.exception;
 
 import java.io.IOException;
-import java.io.InterruptedIOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
@@ -104,7 +103,7 @@ public interface Exceptions {
     final var thread = Thread.currentThread();
     if (thread.isInterrupted()) {
       return true;
-    } else if (hasCause(e, InterruptedException.class) || hasCause(e, InterruptedIOException.class)
+    } else if (hasCause(e, InterruptedException.class)
       || hasCause(e, ClosedByInterruptException.class)
       || hasCause(e, WrappedInterruptedException.class)) {
       thread.interrupt();
@@ -330,7 +329,9 @@ public interface Exceptions {
   }
 
   static WrappedRuntimeException wrap(final String message, final Throwable e) {
-    if (isTimeoutException(e)) {
+    if (e == null) {
+      return null;
+    } else if (isTimeoutException(e)) {
       return new WrappedTimeoutException(message, e);
     } else if (isInterruptException(e)) {
       return new WrappedInterruptedException(message, e);

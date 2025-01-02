@@ -600,7 +600,6 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
         .setMessage("Table doesn't exist")
         .addKeyValue("name", getTypeName())
         .log();
-      ;
     } else {
       setRecordDefinitionPost(recordDefinition);
       this.tableAlias = recordDefinition.getTableAlias();
@@ -687,7 +686,8 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
       }
       return record.newRecord();
     } catch (final Exception e) {
-      throw Exceptions.wrap("Unable to update record:\n" + record, e);
+      throw Exceptions.toWrapped(e)
+        .property("record", record);
     }
   }
 

@@ -202,15 +202,19 @@ public class ActiveTransactionContext implements TransactionContext {
         addException(e);
       }
     }
-    return () -> {
-      for (final var r : this.resources.values()) {
-        try {
-          r.resume();
-        } catch (final Throwable e) {
-          addException(e);
-        }
+    return () -> 
+      resume()
+    ;
+  }
+
+  private void resume() {
+    for (final var r : this.resources.values()) {
+      try {
+        r.resume();
+      } catch (final Throwable e) {
+        addException(e);
       }
-    };
+    }
   }
 
 }

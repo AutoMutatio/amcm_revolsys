@@ -30,8 +30,9 @@ public class RecordStoreInsertUpdateBuilder<R extends Record> extends InsertUpda
         prepareInsertRecord(newRecord);
         try {
           return this.recordStore.insertRecord(newRecord);
-        } catch (final RuntimeException e) {
-          throw Exceptions.wrap("Unable to insert record:\n" + newRecord, e);
+        } catch (final RuntimeException | Error e) {
+          throw Exceptions.toWrapped(e)
+            .property("record", newRecord);
         }
       }
     } else if (isUpdate()) {
@@ -41,8 +42,9 @@ public class RecordStoreInsertUpdateBuilder<R extends Record> extends InsertUpda
           this.recordStore.updateRecord(changeTrackRecord);
         }
         return changeTrackRecord.newRecord();
-      } catch (final Exception e) {
-        throw Exceptions.wrap("Unable to update record:\n" + changeTrackRecord, e);
+      } catch (final RuntimeException | Error e) {
+        throw Exceptions.toWrapped(e)
+          .property("record", changeTrackRecord);
       }
     }
     return null;
