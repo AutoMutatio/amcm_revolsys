@@ -6,6 +6,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 import com.revolsys.collection.iterator.BaseIterable;
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.list.ArrayListEx;
 import com.revolsys.collection.list.ListEx;
 import com.revolsys.collection.list.Lists;
@@ -145,6 +146,14 @@ public class UpdateStatement extends AbstractReturningQueryStatement<UpdateState
 
   public UpdateStatement setNull(final ColumnReference column) {
     return set(column, null);
+  }
+
+  public UpdateStatement setValues(final JsonObject updatedFields) {
+    for (final var key : updatedFields.keySet()) {
+      final var value = updatedFields.get(key);
+      set(key, value);
+    }
+    return null;
   }
 
   public TableReference table() {

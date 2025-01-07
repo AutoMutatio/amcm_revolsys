@@ -1,6 +1,7 @@
 package com.revolsys.http;
 
 import java.net.URI;
+import java.time.Duration;
 import java.util.Map;
 import java.util.function.BiFunction;
 
@@ -11,8 +12,10 @@ import com.revolsys.collection.json.JsonObject;
 import com.revolsys.io.map.ObjectFactoryConfig;
 import com.revolsys.util.LazyMap;
 import com.revolsys.util.UriBuilder;
+import com.revolsys.util.concurrent.RateLimiter;
 
 public class HttpRequestBuilderFactory {
+
   public record Builder(HttpRequestBuilderFactory factory, URI uri) {
 
     public final HttpRequestBuilder httpDelete() {
@@ -104,6 +107,10 @@ public class HttpRequestBuilderFactory {
     return getDefault(factoryConfig);
   }
 
+  private Duration timeout;
+
+  private RateLimiter rateLimiter;
+
   public Builder builder(final URI uri) {
     return new Builder(this, uri);
   }
@@ -115,13 +122,16 @@ public class HttpRequestBuilderFactory {
     return newRequestBuilder().setRequest(request);
   }
 
-  public final HttpRequestBuilder create(final HttpMethod method, final String uri) {
-    return create(method, URI.create(uri));
+  public final HttpRequestBuilder create(final HttpMethod method, final String url) {
+    final var uri = URI.create(url);
+    return create(method, uri);
   }
 
   public final HttpRequestBuilder create(final HttpMethod method, final URI uri) {
     return newRequestBuilder().setMethod(method)
-      .setUri(uri);
+      .setUri(uri)
+      .rateLimiter(rateLimiter())
+      .timeout(timeout());
   }
 
   public final HttpRequestBuilder delete(final String uri) {
@@ -173,6 +183,34 @@ public class HttpRequestBuilderFactory {
 
   public final HttpRequestBuilder put(final URI uri) {
     return create(HttpMethod.PUT, uri);
+  }
+
+  public RateLimiter rateLimiter() {
+    if (this.rateLimiter == null) {
+      return RateLimiter.UNLIMITED;
+    } else {
+      return this.rateLimiter;
+    }
+  }
+
+  @SuppressWarnings("unchecked")
+  public <R extends HttpRequestBuilderFactory> R rateLimiter(final RateLimiter rateLimiter) {
+    this.rateLimiter = rateLimiter;
+    return (R)this;
+  }
+
+  public Duration timeout() {
+    if (this.timeout == null) {
+      return Duration.ZERO;
+    } else {
+      return this.timeout;
+    }
+  }
+
+  @SuppressWarnings("unchecked")
+  public <R extends HttpRequestBuilderFactory> R timeout(final Duration timeout) {
+    this.timeout = timeout;
+    return (R)this;
   }
 
 }

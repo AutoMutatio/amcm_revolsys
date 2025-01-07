@@ -182,7 +182,7 @@ public class HttpRequestBuilder {
   public static ListEx<JsonObject> getJsonAsList(final HttpResponse response) {
     final HttpEntity entity = response.getEntity();
     try (
-      InputStream in = entity.getContent()) {
+      var in = entity.getContent()) {
       return JsonParser.read(in);
     } catch (final Exception e) {
       throw Exceptions.toRuntimeException(e);

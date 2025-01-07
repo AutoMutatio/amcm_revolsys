@@ -76,8 +76,12 @@ public class DigestBuilder {
     return append(bytes);
   }
 
+  public byte[] build() {
+    return this.digester.digest();
+  }
+
   public String buildAZ(final int length) {
-    final byte[] digest = this.digester.digest();
+    final byte[] digest = build();
     final var size = Math.min(length, digest.length);
     final var c = new char[size];
     for (int i = 0; i < size; i++) {
@@ -88,13 +92,13 @@ public class DigestBuilder {
   }
 
   public String buildBase64() {
-    final byte[] digest = this.digester.digest();
+    final byte[] digest = build();
     return Base64.getEncoder()
       .encodeToString(digest);
   }
 
   public String buildHex() {
-    final byte[] digest = this.digester.digest();
+    final byte[] digest = build();
     return Hex.toHex(digest);
   }
 
