@@ -311,6 +311,9 @@ public final class FileUtil {
   }
 
   public static String getBaseName(final String name) {
+    if (name == null) {
+      return null;
+    }
     final String fileName = getFileName(name);
     final int dotIndex = fileName.lastIndexOf('.');
     if (dotIndex != -1) {
@@ -485,6 +488,9 @@ public final class FileUtil {
   }
 
   public static String getFileName(String fileName) {
+    if (fileName == null) {
+      return null;
+    }
     fileName = fileName.replaceAll("\\+", "/");
     final int slashIndex = fileName.lastIndexOf('/');
     if (slashIndex != -1) {
@@ -635,7 +641,11 @@ public final class FileUtil {
   }
 
   public static String getSafeFileName(final String name) {
-    return name.replaceAll("[^a-zA-Z0-9\\-_ \\.]", "_");
+    if (name == null) {
+      return null;
+    } else {
+      return name.replaceAll("[^a-zA-Z0-9\\-_ \\.]", "_");
+    }
   }
 
   public static File getUrlFile(final String url) {
@@ -730,6 +740,9 @@ public final class FileUtil {
   }
 
   public static String lowerFileNameExtension(final String fileName) {
+    if (fileName == null) {
+      return null;
+    }
     final String baseName = getBaseName(fileName);
     final String fileExtension = getFileNameExtension(fileName);
     if (fileExtension.length() == 0) {
