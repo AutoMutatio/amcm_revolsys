@@ -153,7 +153,7 @@ public class UpdateStatement extends AbstractReturningQueryStatement<UpdateState
       final var value = updatedFields.get(key);
       set(key, value);
     }
-    return null;
+    return this;
   }
 
   public TableReference table() {
