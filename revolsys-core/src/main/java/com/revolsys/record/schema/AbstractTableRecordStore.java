@@ -225,11 +225,6 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     return connection.transactionCall(() -> this.recordStore.deleteRecord(record));
   }
 
-  @Override
-  public DeleteStatement deleteStatement() {
-    throw new UnsupportedOperationException("deleteStatement(#TableRecordStoreConnection)");
-  }
-
   public DeleteStatement deleteStatement(final TableRecordStoreConnection connection) {
     final var table = getTable();
     return new TableRecordStoreDeleteStatement(connection).from(table);
@@ -361,11 +356,6 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
 
   protected void insertRecordBefore(final TableRecordStoreConnection connection,
     final Record record) {
-  }
-
-  @Override
-  public InsertStatement insertStatement() {
-    throw new UnsupportedOperationException("insertStatement()");
   }
 
   public InsertStatement insertStatement(final TableRecordStoreConnection connection) {

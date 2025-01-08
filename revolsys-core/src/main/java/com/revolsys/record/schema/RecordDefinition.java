@@ -91,7 +91,6 @@ public interface RecordDefinition extends Cloneable, GeometryFactoryProxy, Recor
 
   void deleteRecord(Record record);;
 
-  @Override
   default DeleteStatement deleteStatement() {
     return getRecordStore().deleteStatement(getPathName());
   }
@@ -370,7 +369,6 @@ public interface RecordDefinition extends Cloneable, GeometryFactoryProxy, Recor
   @Override
   boolean hasIdField();
 
-  @Override
   default InsertStatement insertStatement() {
     return getRecordStore().insertStatement(getPathName());
   }
