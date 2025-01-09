@@ -16,10 +16,6 @@ public interface TableReferenceProxy {
     }
   }
 
-  default DeleteStatement deleteStatement() {
-    return new DeleteStatement().from(getTableReference());
-  }
-
   default ColumnReference getColumn(final CharSequence name) {
     return getTableReference().getColumn(name);
   }
@@ -47,10 +43,6 @@ public interface TableReferenceProxy {
   }
 
   TableReference getTableReference();
-
-  default InsertStatement insertStatement() {
-    return new InsertStatement().into(getTableReference());
-  }
 
   default Condition newCondition(final CharSequence fieldName,
     final BiFunction<QueryValue, QueryValue, Condition> operator, final Object value) {
