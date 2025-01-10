@@ -3,6 +3,12 @@ package com.revolsys.parallel.channel;
 import com.revolsys.util.BaseCloseable;
 
 public interface ChannelInput<T> extends Iterable<T> {
+  boolean isClosed();
+
+  default boolean isOpen() {
+    return !isClosed();
+  }
+
   /**
    * Reads an Object from the Channel. This method also ensures only one of the
    * readers can actually be reading at any time. All other readers are blocked

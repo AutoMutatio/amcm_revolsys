@@ -99,7 +99,8 @@ public abstract class AbstractMergeProcess extends AbstractInOutProcess<Record, 
         return currentType;
       } else {
         processObjects(currentType, out);
-        final int nameCompare = sourceTypeName.toString().compareTo(otherTypeName.toString());
+        final int nameCompare = sourceTypeName.toString()
+          .compareTo(otherTypeName.toString());
         if (nameCompare < 0) {
           // If the first feature type name is < second feature type
           // name
@@ -169,7 +170,6 @@ public abstract class AbstractMergeProcess extends AbstractInOutProcess<Record, 
   protected abstract void processObjects(RecordDefinition currentType, Channel<Record> out);
 
   @Override
-  @SuppressWarnings("unchecked")
   protected void run(final Channel<Record> in, final Channel<Record> out) {
     setUp();
     try {
@@ -196,7 +196,8 @@ public abstract class AbstractMergeProcess extends AbstractInOutProcess<Record, 
             } while (!test);
             if (test) {
               objects[i] = object;
-              typePaths[i] = objects[i].getRecordDefinition().getPath();
+              typePaths[i] = objects[i].getRecordDefinition()
+                .getPath();
             }
 
           }
