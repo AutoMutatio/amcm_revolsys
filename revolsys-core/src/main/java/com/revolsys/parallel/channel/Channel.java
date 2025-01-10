@@ -135,6 +135,10 @@ public class Channel<T> implements SelectableChannelInput<T>, ChannelOutput<T>, 
     return this.closed.get();
   }
 
+  public boolean isOpen() {
+    return !isClosed();
+  }
+
   @Override
   public Iterator<T> iterator() {
     return new ChannelInputIterator<>(this);
