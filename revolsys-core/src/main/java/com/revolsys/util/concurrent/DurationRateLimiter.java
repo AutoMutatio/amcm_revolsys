@@ -7,7 +7,6 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.revolsys.http.HttpThrottle;
 import com.revolsys.parallel.SemaphoreEx;
 import com.revolsys.util.Strings;
 
@@ -40,7 +39,6 @@ public class DurationRateLimiter implements RateLimiter, LastAccessProxy {
 
     private boolean releaseIfExpired(final DurationRateLimiter limiter) {
       if (expired()) {
-        HttpThrottle.unThrottle(limiter);
         final var releasePermits = this.permits.getAndAccumulate(0,
           (oldValue, newValue) -> newValue);
         if (releasePermits > 0) {
@@ -153,12 +151,34 @@ public class DurationRateLimiter implements RateLimiter, LastAccessProxy {
     return this;
   }
 
-  private void pause(final Instant time, final Duration duration) {
+  /**
+   * Pause the rate limiter for the duration. This can be used where a service has requested
+   * rate limiting (e.g HTTP 429 with Retry-After header).
+   *
+   * @param duration The duration to pause for.
+   */
+  @Override
+  public void pauseFor(final Duration duration) {
+    if (!duration.isNegative()) {
+      final Instant time = Instant.now()
+        .plus(duration);
+      pauseUntil(time);
+    }
+  }
+
+  /**
+   * Pause the rate limiter until the specified time. This can be used where a service has requested
+   * rate limiting (e.g HTTP 429 with Retry-After header).
+   *
+   * @param duration The duration to pause for.
+   */
+  @Override
+  public void pauseUntil(final Instant time) {
     this.lastAccess.access();
-    if (duration.isPositive()) {
+    if (Instant.now()
+      .isBefore(time)) {
       final var paused = this.paused.compute(PAUSE_KEY, (k, oldValue) -> {
         if (oldValue == null) {
-          HttpThrottle.throttle(this, time, duration);
           final int permits = this.limit.drainPermits();
           return new Pause(time, new AtomicInteger(permits));
         } else {
@@ -182,31 +202,6 @@ public class DurationRateLimiter implements RateLimiter, LastAccessProxy {
         removeExpired();
       }
     }
-  }
-
-  /**
-   * Pause the rate limiter for the duration. This can be used where a service has requested
-   * rate limiting (e.g HTTP 429 with Retry-After header).
-   *
-   * @param duration The duration to pause for.
-   */
-  @Override
-  public void pauseFor(final Duration duration) {
-    final Instant time = Instant.now()
-      .plus(duration);
-    pause(time, duration);
-  }
-
-  /**
-   * Pause the rate limiter until the specified time. This can be used where a service has requested
-   * rate limiting (e.g HTTP 429 with Retry-After header).
-   *
-   * @param duration The duration to pause for.
-   */
-  @Override
-  public void pauseUtil(final Instant time) {
-    final var duration = Duration.between(Instant.now(), time);
-    pause(time, duration);
   }
 
   /**

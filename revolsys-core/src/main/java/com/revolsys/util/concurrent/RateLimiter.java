@@ -2,16 +2,17 @@ package com.revolsys.util.concurrent;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 
 import com.revolsys.date.Dates;
-import com.revolsys.exception.ExceptionWithProperties;
-import com.revolsys.http.HttpThrottle;
 import com.revolsys.util.BaseCloseable;
 
 public interface RateLimiter extends BaseCloseable {
 
   RateLimiter UNLIMITED = () -> {
   };
+
+  static final Duration DEFAULT_RETRY = Duration.ofSeconds(10);
 
   static void aquire(final RateLimiterProxy rateLimiterProxy) {
     if (rateLimiterProxy != null) {
@@ -20,6 +21,23 @@ public interface RateLimiter extends BaseCloseable {
         rateLimiter.aquire();
       }
     }
+  }
+
+  static Instant retryInstant(final String retryAfter) {
+    if (retryAfter != null) {
+      try {
+        final int retryAfterSeconds = Integer.parseInt(retryAfter);
+        if (retryAfterSeconds >= 0) {
+          return Instant.now()
+            .plus(retryAfterSeconds, ChronoUnit.SECONDS);
+        }
+      } catch (final NumberFormatException e1) {
+        final var timeout = Dates.RFC_1123_DATE_TIME.parse(retryAfter, Instant::from);
+        return timeout;
+      }
+    }
+    return Instant.now()
+      .plus(DEFAULT_RETRY);
   }
 
   /**
@@ -41,33 +59,20 @@ public interface RateLimiter extends BaseCloseable {
     Concurrent.sleep(duration);
   }
 
-  default void pauseHttpRetryAfter(final String retryAfter, final Instant timeout) {
-    if (retryAfter == null) {
-      pauseFor(HttpThrottle.DEFAULT_RETRY);
+  /**
+  * Pause for the duration specified in the retryAfter header or the maximum timeout.
+  *
+  * @param retryAfter The time in seconds or date returned from the Http Retry-After header.
+  * @param timeout The maximum time to wait until
+  * @return True if the thread paused, false if the timeout would be exceeded.
+  */
+  default boolean pauseHttpRetryAfter(final String retryAfter, final Instant timeout) {
+    final var retryInstant = RateLimiter.retryInstant(retryAfter);
+    if (retryInstant.isAfter(timeout)) {
+      return false;
     } else {
-      try {
-        final int retryAfterSeconds = Integer.parseInt(retryAfter);
-        if (retryAfterSeconds > 0) {
-          final var duration = Duration.ofSeconds(retryAfterSeconds);
-          final var time = Instant.now()
-            .plus(duration);
-          if (time.isAfter(timeout)) {
-            throw new ExceptionWithProperties("RetryAfter exceeds max timeout")
-              .property("time", time)
-              .property("timeout", timeout)
-              .property("duration", duration);
-          }
-          pauseFor(duration);
-        }
-      } catch (final NumberFormatException e1) {
-        final var time = Dates.RFC_1123_DATE_TIME.parse(retryAfter, Instant::from);
-
-        if (time.isAfter(timeout)) {
-          throw new ExceptionWithProperties("RetryAfter exceeds max timeout").property("time", time)
-            .property("timeout", timeout);
-        }
-        pauseUtil(time);
-      }
+      pauseUntil(retryInstant);
+      return true;
     }
   }
 
@@ -77,7 +82,7 @@ public interface RateLimiter extends BaseCloseable {
    *
    * @param duration The duration to pause for.
    */
-  default void pauseUtil(final Instant time) {
+  default void pauseUntil(final Instant time) {
     Concurrent.sleepUntil(time);
   }
 

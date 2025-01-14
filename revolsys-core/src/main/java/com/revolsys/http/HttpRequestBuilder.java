@@ -329,8 +329,6 @@ public class HttpRequestBuilder {
       .setUri(uri);
   }
 
-  private final boolean logRequests = true;
-
   private String method;
 
   private Charset charset = Consts.UTF_8;
@@ -691,13 +689,12 @@ public class HttpRequestBuilder {
 
   private void rateLimitApacheException(final ApacheHttpException e, final Instant timeoutIime) {
     if (e.getStatusCode() == 429) {
-      if (Instant.now()
-        .isBefore(timeoutIime)) {
-        // HTTP 429 Too Many Requests and the timeout hasn't expired
-        // Wait until the duration specified in Retry-After
-        final String retryAfter = e.getHeader("Retry-After");
-        this.rateLimiter.pauseHttpRetryAfter(retryAfter, timeoutIime);
-        return; // DON'T THROW THE EXCEPTION
+      // HTTP 429 Too Many Requests and the timeout hasn't expired
+      // Wait until the duration specified in Retry-After
+      final String retryAfter = e.getHeader("Retry-After");
+      if (this.rateLimiter.pauseHttpRetryAfter(retryAfter, timeoutIime)) {
+        // DON'T THROW THE EXCEPTION so it can retry
+        return;
       }
     }
     throw e;
