@@ -167,7 +167,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
       final ColumnReference column = getTable().getColumn(fieldName);
       QueryValue left = column;
       final DataType dataType = column.getDataType();
-      if (dataType != DataTypes.STRING) {
+      if (dataType != null && dataType != DataTypes.STRING) {
         if (!dataType.isNumeric() || dataType.isValid(searchText)) {
           left = new Cast(left, "text");
         } else {

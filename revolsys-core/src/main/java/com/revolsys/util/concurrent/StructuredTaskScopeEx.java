@@ -176,6 +176,18 @@ public class StructuredTaskScopeEx<V> extends StructuredTaskScope<V>
       .toList();
   }
 
+  public <U extends V> Subtask<U> fork(final Runnable task) {
+    if (this.cancelled) {
+      return null;
+    } else {
+      this.count.incrementAndGet();
+      return super.fork(() -> {
+        task.run();
+        return null;
+      });
+    }
+  }
+
   public <T> void fork(final Semaphore semaphore, final ForEachHandler<T> forEach,
     final Consumer<? super T> action) {
     forEach.forEach(value -> fork(semaphore, value, action));
