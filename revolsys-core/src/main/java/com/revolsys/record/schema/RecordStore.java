@@ -825,6 +825,10 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
     return i;
   }
 
+  default UpdateStatement updateStatement(final PathName pathName) {
+    return new UpdateStatement().table(getRecordDefinition(pathName));
+  }
+
   default void write(final Record record, final RecordState state) {
     transactionRun(() -> {
       // It's important to have this in an inner try. Otherwise the exceptions
