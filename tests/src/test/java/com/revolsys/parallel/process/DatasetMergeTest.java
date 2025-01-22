@@ -61,10 +61,11 @@ class DatasetMergeTest {
     final var deletedRecords = expectedDeletedRecords.clone();
     final var insertedRecords = expectedInsertedRecords.clone();
     final var updatedRecords = expectedUpdatedRecords.clone();
-    final var counts = DatasetMerge.<JsonObject, Integer> builder()
+    final var counts = DatasetMerge.<JsonObject, JsonObject, Integer> builder()
       .sourceRecords(sourceRecords)
       .targetRecords(targetRecords)
-      .recordToId(record -> record.getInteger("id"))
+      .sourceRecordToId(record -> record.getInteger("id"))
+      .targetRecordToId(record -> record.getInteger("id"))
       .comparator(Integer::compare)
       .deleteRecordHandler(actual -> {
         final var expected = deletedRecords.removeFirst();
@@ -79,7 +80,6 @@ class DatasetMergeTest {
         Assert.assertEquals("updateRecords", source, expected);
         Assert.assertEquals("updateRecords", source, target);
       })
-      .build()
       .run();
     Assert.assertEquals("insertRecords.size", 0, insertedRecords.size());
     Assert.assertEquals("deleteRecords.size", 0, deletedRecords.size());
@@ -101,10 +101,11 @@ class DatasetMergeTest {
     final var insertedRecords = expectedInsertedRecords.clone();
     final var updatedRecords = expectedUpdatedRecords.clone();
     final var batchSize = 10;
-    final var counts = DatasetMerge.<JsonObject, Integer> builder()
+    final var counts = DatasetMerge.<JsonObject, JsonObject, Integer> builder()
       .sourceRecords(sourceRecords)
       .targetRecords(targetRecords)
-      .recordToId(record -> record.getInteger("id"))
+      .sourceRecordToId(record -> record.getInteger("id"))
+      .targetRecordToId(record -> record.getInteger("id"))
       .comparator(Integer::compare)
       .deleteHandler(deletedChannel -> {
         while (deletedChannel.isOpen()) {
@@ -145,7 +146,6 @@ class DatasetMergeTest {
           }
         }
       })
-      .build() // Create the merger
       .run(); // Process all the source and return the counts
 
     Assert.assertEquals("insertRecords.size", 0, insertedRecords.size());

@@ -272,6 +272,12 @@ public interface JsonObject extends MapEx, JsonType {
   }
 
   @Override
+  default JsonObject renameProperty(final CharSequence oldName, final CharSequence newName) {
+    MapEx.super.renameProperty(oldName, newName);
+    return this;
+  }
+
+  @Override
   default JsonObject renameProperty(final CharSequence oldName, final CharSequence newName,
     final DataType dataType) {
     MapEx.super.renameProperty(oldName, newName, dataType);
