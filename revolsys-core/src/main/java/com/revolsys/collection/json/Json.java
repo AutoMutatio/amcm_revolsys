@@ -393,26 +393,6 @@ public class Json {
     return new JsonObjectHash();
   }
 
-  public static String toString(final List<? extends Map<String, Object>> list) {
-    return toString(list, false);
-  }
-
-  public static String toString(final List<? extends Map<String, Object>> list,
-    final boolean indent) {
-    final StringWriter writer = new StringWriter();
-    final JsonWriter mapWriter = new JsonWriter(writer, indent);
-    mapWriter.startObject();
-    mapWriter.label("items");
-    mapWriter.startList();
-    for (final Map<String, Object> map : list) {
-      mapWriter.write(map);
-    }
-    mapWriter.close();
-    mapWriter.endList();
-    mapWriter.startObject();
-    return writer.toString();
-  }
-
   public static String toString(final Map<String, ? extends Object> values) {
     final StringWriter writer = new StringWriter();
     try (
