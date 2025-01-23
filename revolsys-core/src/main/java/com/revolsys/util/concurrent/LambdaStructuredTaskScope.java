@@ -7,6 +7,7 @@ import java.util.function.Function;
 
 import com.revolsys.collection.list.ListEx;
 import com.revolsys.collection.list.Lists;
+import com.revolsys.exception.Exceptions;
 import com.revolsys.exception.MultipleException;
 
 public final class LambdaStructuredTaskScope<V> extends StructuredTaskScopeEx<V> {
@@ -101,6 +102,10 @@ public final class LambdaStructuredTaskScope<V> extends StructuredTaskScopeEx<V>
         this.closeAction.run();
       }
       if (this.throwErrors && !this.exceptions.isEmpty()) {
+        if (this.exceptions.size() == 1) {
+          var exception = this.exceptions.get(0);
+          throw Exceptions.toRuntimeException(exception);
+        }
         throw new MultipleException(this.exceptions);
       }
     }
