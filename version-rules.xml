@@ -61,5 +61,15 @@
         <ignoreVersion type="regex">\d{8}\.\d{6}</ignoreVersion>
       </ignoreVersions>
     </rule>
+    <rule groupId = "jakarta.websocket" comparisonMethod="maven">
+      <ignoreVersions>
+        <ignoreVersion type="regex">.*</ignoreVersion>
+      </ignoreVersions>
+    </rule>
+    <rule groupId = "jakarta.servlet" comparisonMethod="maven">
+      <ignoreVersions>
+        <ignoreVersion type="regex">.*</ignoreVersion>
+      </ignoreVersions>
+    </rule>
 	</rules>
 </ruleset>
