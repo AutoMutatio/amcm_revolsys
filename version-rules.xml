@@ -63,12 +63,17 @@
     </rule>
     <rule groupId = "jakarta.websocket" comparisonMethod="maven">
       <ignoreVersions>
-        <ignoreVersion type="regex">.*</ignoreVersion>
+        <ignoreVersion type="range">[2.2,)</ignoreVersion>
       </ignoreVersions>
     </rule>
     <rule groupId = "jakarta.servlet" comparisonMethod="maven">
       <ignoreVersions>
-        <ignoreVersion type="regex">.*</ignoreVersion>
+        <ignoreVersion type="range">[6.1,)</ignoreVersion>
+      </ignoreVersions>
+    </rule>
+    <rule groupId = "jakarta.servlet.jsp" comparisonMethod="maven">
+      <ignoreVersions>
+        <ignoreVersion type="range">[3.2,)</ignoreVersion>
       </ignoreVersions>
     </rule>
 	</rules>
