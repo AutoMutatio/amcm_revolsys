@@ -1,23 +1,20 @@
 package com.revolsys.parallel.process;
 
 import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Iterator;
+import java.util.Map;
 import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import java.util.function.Function;
 
 import com.revolsys.exception.Exceptions;
 import com.revolsys.parallel.channel.Channel;
 import com.revolsys.parallel.channel.store.Buffer;
-import com.revolsys.util.Debug;
 import com.revolsys.util.concurrent.Concurrent;
 import com.revolsys.util.count.CountTree;
 
 /**
-The DatasetMerge process is designed to detect insert, update, and deleted records for two
-data sets sorted by an identifier.
+The MapDatasetMerge process is designed to detect insert, update, and deleted records for two
+map data sets with a common key.
 
 <b>NOTE: This will cause unexpected inserts/deletes if the data is not sorted.</b>
 
@@ -25,11 +22,8 @@ data sets sorted by an identifier.
 <pre>
 var counts = // Counts of source, target, delete, insert, update records
   DatasetMerge.<JsonObject, Integer> builder()
-  .sourceRecords(sourceRecords) // Iterable of sorted sourceRecords
-  .targetRecords(targetRecords) // Iterable of sorted sourceRecords
-  .sourceRecordToId(record -> record.getInteger("id")) // Lambda function to get the id from a source record
-  .targetRecordToId(record -> record.getInteger("id")) // Lambda function to get the id from a target record
-  .comparator(Integer::compare) // Lambda function to compare two identifiers
+  .sourceRecordById(sourceRecordById) // Map of source records keyed by the id
+  .targetRecordById(targetRecordById) // Map of source records keyed by the id
   .deleteRecordHandler(deletedRecord -> {
     // Do something with the target record that wasn't in the source
   })
@@ -40,7 +34,8 @@ var counts = // Counts of source, target, delete, insert, update records
     // Do something to update the target record with the source
     // Best practice is to compare the source and target before doing the database update
   })
-   .run(); // Process all the source and return the counts
+  .build() // Create the merger
+  .run(); // Process all the source and return the counts
 </pre>
 
 <h2>Batching updates in a transaction</h2>
@@ -54,11 +49,8 @@ example of this.</p>
 var batchSize = 10;
 var counts = // Counts of source, target, delete, insert, update records
   DatasetMerge.<JsonObject, Integer> builder()
-  .sourceRecords(sourceRecords) // Iterable of sorted sourceRecords
-  .targetRecords(targetRecords) // Iterable of sorted sourceRecords
-  .sourceRecordToId(record -> record.getInteger("id")) // Lambda function to get the id from a source record
-  .targetRecordToId(record -> record.getInteger("id")) // Lambda function to get the id from a target record
-  .comparator(Integer::compare) // Lambda function to compare two identifiers
+  .sourceRecordById(sourceRecordById) // Map of source records keyed by the id
+  .targetRecordById(targetRecordById) // Map of source records keyed by the id
   .deleteHandler(deletedChannel -> {
     while (deletedChannel.isOpen()) {
       try (var transaction = ...) {
@@ -103,15 +95,16 @@ var counts = // Counts of source, target, delete, insert, update records
       }
     }
   })
+  .build() // Create the merger
   .run(); // Process all the source and return the counts
 </pre>
  * @param <SR>
  * @param <K>
  */
-public final class DatasetMerge<SR, TR, K> implements Cloneable {
+public final class MapDatasetMerge<SR, TR, K> implements Cloneable {
 
   public static class Builder<SR2, TR2, K2> {
-    private final DatasetMerge<SR2, TR2, K2> merger = new DatasetMerge<>();
+    private final MapDatasetMerge<SR2, TR2, K2> merger = new MapDatasetMerge<>();
 
     public Builder() {
       // Default NoOp handlers
@@ -121,11 +114,6 @@ public final class DatasetMerge<SR, TR, K> implements Cloneable {
       });
       updateRecordHandler(r -> {
       });
-    }
-
-    public Builder<SR2, TR2, K2> comparator(final Comparator<K2> comparator) {
-      this.merger.comparator = Objects.requireNonNull(comparator, "comparator");
-      return this;
     }
 
     public Builder<SR2, TR2, K2> deleteHandler(final Consumer<Channel<TR2>> deleteHandler) {
@@ -149,35 +137,22 @@ public final class DatasetMerge<SR, TR, K> implements Cloneable {
     }
 
     public CountTree run() {
-      Objects.requireNonNull(this.merger.comparator, "comparator");
       Objects.requireNonNull(this.merger.deleteHandler, "deleteHandler");
       Objects.requireNonNull(this.merger.insertHandler, "insertHandler");
       Objects.requireNonNull(this.merger.updateHandler, "updateHandler");
-      Objects.requireNonNull(this.merger.sourceRecordToId, "sourceRecordToId");
-      Objects.requireNonNull(this.merger.targetRecordToId, "targetRecordToId");
-      Objects.requireNonNull(this.merger.sourceRecords, "sourceRecords");
-      Objects.requireNonNull(this.merger.targetRecords, "targetRecords");
+      Objects.requireNonNull(this.merger.sourceRecordById, "sourceRecordById");
+      Objects.requireNonNull(this.merger.targetRecordById, "targetRecordById");
       return this.merger.clone()
         .run();
     }
 
-    public Builder<SR2, TR2, K2> sourceRecords(final Iterable<? extends SR2> sourceRecords) {
-      this.merger.sourceRecords = Objects.requireNonNull(sourceRecords, "sourceRecords");
+    public Builder<SR2, TR2, K2> sourceRecordById(final Map<K2, ? extends SR2> sourceRecordById) {
+      this.merger.sourceRecordById = Objects.requireNonNull(sourceRecordById, "sourceRecordById");
       return this;
     }
 
-    public Builder<SR2, TR2, K2> sourceRecordToId(final Function<SR2, K2> sourceRecordToId) {
-      this.merger.sourceRecordToId = Objects.requireNonNull(sourceRecordToId, "sourceRecordToId");
-      return this;
-    }
-
-    public Builder<SR2, TR2, K2> targetRecords(final Iterable<? extends TR2> targetRecords) {
-      this.merger.targetRecords = Objects.requireNonNull(targetRecords, "targetRecords");
-      return this;
-    }
-
-    public Builder<SR2, TR2, K2> targetRecordToId(final Function<TR2, K2> targetRecordToId) {
-      this.merger.targetRecordToId = Objects.requireNonNull(targetRecordToId, "targetRecordToId");
+    public Builder<SR2, TR2, K2> targetRecordById(final Map<K2, ? extends TR2> targetRecordById) {
+      this.merger.targetRecordById = Objects.requireNonNull(targetRecordById, "targetRecordById");
       return this;
     }
 
@@ -208,17 +183,9 @@ public final class DatasetMerge<SR, TR, K> implements Cloneable {
     return new Builder<>();
   }
 
-  private final boolean debug = false;
+  private Map<K, ? extends SR> sourceRecordById;
 
-  private Comparator<K> comparator;
-
-  private Function<SR, K> sourceRecordToId;
-
-  private Function<TR, K> targetRecordToId;
-
-  private Iterable<? extends SR> sourceRecords;
-
-  private Iterable<? extends TR> targetRecords;
+  private Map<K, ? extends TR> targetRecordById;
 
   private final CountTree counts = new CountTree();
 
@@ -236,9 +203,9 @@ public final class DatasetMerge<SR, TR, K> implements Cloneable {
 
   @SuppressWarnings("unchecked")
   @Override
-  protected DatasetMerge<SR, TR, K> clone() {
+  protected MapDatasetMerge<SR, TR, K> clone() {
     try {
-      return (DatasetMerge<SR, TR, K>)super.clone();
+      return (MapDatasetMerge<SR, TR, K>)super.clone();
     } catch (final CloneNotSupportedException e) {
       throw Exceptions.toRuntimeException(e);
     }
@@ -264,32 +231,24 @@ public final class DatasetMerge<SR, TR, K> implements Cloneable {
 
   private Void processRecords() {
     try {
-      final var sourceIterator = this.sourceRecords.iterator();
-      final var targetIterator = this.targetRecords.iterator();
-      var sourceRef = recordNext(sourceIterator, this.sourceRecordToId, "source");
-      var targetRef = recordNext(targetIterator, this.targetRecordToId, "target");
-      while (sourceRef.hasRecord() || targetRef.hasRecord()) {
-        if (this.debug) {
-          Debug.println(sourceRef.id(), targetRef.id());
-        }
-        final int idCompare = targetRef.compareTo(this.comparator, sourceRef);
-        if (idCompare > 0) {
+      for (final var sourceEntry : this.sourceRecordById.entrySet()) {
+        final var key = sourceEntry.getKey();
+        final var sourceRecord = sourceEntry.getValue();
+        final var targetRecord = this.targetRecordById.get(key);
+        if (targetRecord == null) {
           this.counts.addCount("insert");
-          final var sourceRecord = sourceRef.record();
           this.insertChannel.write(sourceRecord);
-          sourceRef = recordNext(sourceIterator, this.sourceRecordToId, "source");
-        } else if (idCompare < 0) {
-          this.counts.addCount("delete");
-          final var targetRecord = targetRef.record();
-          this.deleteChannel.write(targetRecord);
-          targetRef = recordNext(targetIterator, this.targetRecordToId, "target");
         } else {
           this.counts.addCount("update");
-          final var sourceRecord = sourceRef.record();
-          final var targetRecord = targetRef.record();
           this.updateChannel.write(new SourceTargetRecord<SR, TR>(sourceRecord, targetRecord));
-          sourceRef = recordNext(sourceIterator, this.sourceRecordToId, "source");
-          targetRef = recordNext(targetIterator, this.targetRecordToId, "target");
+        }
+      }
+      for (final var targetEntry : this.targetRecordById.entrySet()) {
+        final var key = targetEntry.getKey();
+        final var targetRecord = targetEntry.getValue();
+        if (!this.sourceRecordById.containsKey(key)) {
+          this.counts.addCount("delete");
+          this.deleteChannel.write(targetRecord);
         }
       }
     } finally {
@@ -307,18 +266,6 @@ public final class DatasetMerge<SR, TR, K> implements Cloneable {
       this.updateChannel.readDisconnect();
     }
     return null;
-  }
-
-  private <R3> RecordWithId<R3, K> recordNext(final Iterator<? extends R3> iterator,
-    final Function<R3, K> recordToId, final String countLabel) {
-    if (iterator.hasNext()) {
-      final var record = iterator.next();
-      final var id = recordToId.apply(record);
-      this.counts.addCount(countLabel);
-      return new RecordWithId<>(record, id);
-    } else {
-      return RecordWithId.empty();
-    }
   }
 
   public CountTree run() {
