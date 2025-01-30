@@ -18,6 +18,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
+import com.revolsys.collection.Collector;
 import com.revolsys.collection.iterator.Reader;
 import com.revolsys.collection.json.Json;
 import com.revolsys.collection.list.ListEx;
@@ -673,6 +674,12 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
       clone.sql = null;
     }
     return clone;
+  }
+
+  public <O> O collect(final Collector<Record, O> collector) {
+    final var result = collector.newResult();
+    forEachRecord(value -> collector.collect(result, value));
+    return result;
   }
 
   public int deleteRecords() {
