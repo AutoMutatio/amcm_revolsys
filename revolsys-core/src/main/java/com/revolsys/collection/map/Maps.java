@@ -701,6 +701,15 @@ public interface Maps {
     return new LazyValueMap<>(loadFunction);
   }
 
+  static <K, VI, VO> Map<K, VO> mapValues(final Map<K, VI> map, final Function<VI, VO> mapper) {
+    final Map<K, VO> outMap = new LinkedHashMap<>();
+    map.forEach((key, inValue) -> {
+      final var outValue = mapper.apply(inValue);
+      outMap.put(key, outValue);
+    });
+    return outMap;
+  }
+
   static <K, V> void mergeCollection(final Map<K, Collection<V>> map,
     final Map<K, Collection<V>> otherMap) {
     for (final Entry<K, Collection<V>> entry : otherMap.entrySet()) {

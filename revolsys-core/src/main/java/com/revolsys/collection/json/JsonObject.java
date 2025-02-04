@@ -265,6 +265,11 @@ public interface JsonObject extends MapEx, JsonType {
     return MapEx.super.removeEmptyProperties();
   }
 
+  default JsonObject removeEmptyValues() {
+    removeEmptyProperties();
+    return this;
+  }
+
   @Override
   default JsonObject removeValues(final CharSequence... names) {
     MapEx.super.removeValues(names);
