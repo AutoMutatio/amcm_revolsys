@@ -75,52 +75,60 @@ public class StructuredTaskScopeEx<V> extends StructuredTaskScope<V>
   public <T> void channelSupplierWorker(final int bufferSize,
     final Consumer<ChannelOutput<T>> source, final Consumer<T> inputHandler) {
     final var channel = new Channel<T>(new Buffer<>(bufferSize));
+    channel.writeConnect();
+    channel.readConnect();
     run(() -> {
-      try (
-        var read = channel.writeConnect()) {
+      try {
         source.accept(channel);
+      } finally {
+        channel.writeDisconnect();
       }
     }, () -> {
-      try (
-        final var write = channel.readConnect()) {
+      try {
         channel.forEach(value -> inputHandler.accept(value));
+      } finally {
+        channel.readDisconnect();
       }
     });
 
   }
 
-  public <T> void channelSupplierWorkerThreads(final int bufferSize,
+  public <T> void channelSupplierWorkerThreads(final int workerCount,
     final Consumer<ChannelOutput<T>> source, final Consumer<T> inputHandler) {
     Objects.requireNonNull(source, "Source required");
     Objects.requireNonNull(inputHandler, "Input handler required");
-    final var channel = new Channel<T>(new Buffer<>(bufferSize));
+    final var channel = new Channel<T>(new Buffer<>(workerCount));
+    channel.writeConnect();
+    for (int i = 0; i < workerCount; i++) {
+      channel.readConnect();
+    }
     run(() -> {
-      try (
-        var read = channel.writeConnect()) {
+      try {
         source.accept(channel);
       } catch (RuntimeException | Error e) {
         if (channel.isClosed() || Exceptions.isInterruptException(e)) {
           return;
         }
         Logs.error(this, "Shutdown: Task source error", e);
+      } finally {
+        channel.writeDisconnect();
       }
     });
 
-    for (int i = 0; i < bufferSize; i++) {
+    for (int i = 0; i < workerCount; i++) {
       run(() -> {
-        try (
-          final var write = channel.readConnect()) {
-          try {
-            while (!channel.isClosed()) {
-              final T value = channel.read();
-              inputHandler.accept(value);
-            }
-          } catch (RuntimeException | Error e) {
-            if (channel.isClosed() || Exceptions.isInterruptException(e)) {
-              return;
-            }
-            Logs.error(this, "Shutdown: Task handler error", e);
+        try {
+          while (!channel.isClosed()) {
+            final T value = channel.read();
+            inputHandler.accept(value);
           }
+        } catch (RuntimeException | Error e) {
+          if (channel.isClosed() || Exceptions.isInterruptException(e)) {
+            return;
+          }
+          Logs.error(this, "Shutdown: Task handler error", e);
+        } finally {
+          channel.readDisconnect();
         }
       });
     }
