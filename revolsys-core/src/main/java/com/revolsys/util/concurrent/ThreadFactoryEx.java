@@ -233,11 +233,6 @@ public class ThreadFactoryEx
       .join(action);
   }
 
-  public <V> void scope(final String name, final Consumer<StructuredTaskScopeEx<V>> action) {
-    new LambdaStructuredTaskScope.Builder<V>(name, this).throwErrors()
-      .join(action);
-  }
-
   public <V> V scope(final String name, final Function<StructuredTaskScopeEx<V>, V> action) {
     return new LambdaStructuredTaskScope.Builder<V>(name, this).throwErrors()
       .join(action);
@@ -251,6 +246,11 @@ public class ThreadFactoryEx
   public <V> V scopeBuild(final String name,
     final Function<LambdaStructuredTaskScope.Builder<V>, V> action) {
     return action.apply(new LambdaStructuredTaskScope.Builder<V>(name, this));
+  }
+
+  public <V> void scopeConsume(final String name, final Consumer<StructuredTaskScopeEx<V>> action) {
+    new LambdaStructuredTaskScope.Builder<V>(name, this).throwErrors()
+      .join(action);
   }
 
   public SemaphoreScope semaphore(final int permits) {
