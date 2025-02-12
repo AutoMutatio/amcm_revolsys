@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 
+import com.revolsys.collection.map.MapDefault;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.data.type.DataType;
 import com.revolsys.data.type.DataTypeValueFactory;
@@ -137,6 +138,13 @@ public interface JsonObject extends MapEx, JsonType {
         addValue(fieldName, value);
       }
     }
+    return this;
+  }
+
+  @Override
+  default JsonObject addFieldValues(final MapDefault<?, CharSequence, ? extends Object, ?> source,
+    final CharSequence... fieldNames) {
+    MapEx.super.addFieldValues(source, fieldNames);
     return this;
   }
 
