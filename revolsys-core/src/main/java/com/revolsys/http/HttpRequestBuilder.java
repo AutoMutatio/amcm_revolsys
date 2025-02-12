@@ -171,6 +171,9 @@ public class HttpRequestBuilder {
 
   public static JsonObject getJson(final HttpResponse response) {
     final var entity = response.getEntity();
+    if (entity == null) {
+      return JsonObject.hash();
+    }
     try (
       var in = entity.getContent()) {
       return JsonParser.read(in);

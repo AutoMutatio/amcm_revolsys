@@ -401,6 +401,21 @@ public interface Strings {
     }
   }
 
+  static String padStart(final String string, final int length, final char paddingCharacter) {
+    if (string == null) {
+      return null;
+    }
+    if (string.length() >= length) {
+      return string;
+    }
+    final var sb = new StringBuilder(length);
+    for (int i = string.length(); i < length; i++) {
+      sb.append(paddingCharacter);
+    }
+    sb.append(string);
+    return sb.toString();
+  }
+
   static void print(final PrintStream out, final char separator, final Object... values) {
     if (values != null) {
       boolean first = true;
