@@ -99,9 +99,7 @@ public class StructuredTaskScopeEx<V> extends StructuredTaskScope<V>
     Objects.requireNonNull(inputHandler, "Input handler required");
     final var channel = new Channel<T>(new Buffer<>(workerCount));
     channel.writeConnect();
-    for (int i = 0; i < workerCount; i++) {
-      channel.readConnect();
-    }
+
     run(() -> {
       try {
         source.accept(channel);
@@ -115,6 +113,20 @@ public class StructuredTaskScopeEx<V> extends StructuredTaskScope<V>
       }
     });
 
+    channelWorkerThreads(workerCount, channel, inputHandler);
+
+  }
+
+  public <T> void channelSupplierWorkerThreads(final int workerCount, final Iterable<T> values,
+    final Consumer<T> inputHandler) {
+    channelSupplierWorkerThreads(workerCount, out -> values.forEach(out::write), inputHandler);
+  }
+
+  public <T> void channelWorkerThreads(final int workerCount, final Channel<T> channel,
+    final Consumer<T> inputHandler) {
+    for (int i = 0; i < workerCount; i++) {
+      channel.readConnect();
+    }
     for (int i = 0; i < workerCount; i++) {
       run(() -> {
         try {
@@ -132,7 +144,6 @@ public class StructuredTaskScopeEx<V> extends StructuredTaskScope<V>
         }
       });
     }
-
   }
 
   private void done() {
