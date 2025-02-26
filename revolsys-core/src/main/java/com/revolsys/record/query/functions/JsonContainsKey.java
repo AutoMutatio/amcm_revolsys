@@ -13,6 +13,7 @@ import com.revolsys.record.query.QueryStatement;
 import com.revolsys.record.query.QueryValue;
 import com.revolsys.record.query.SqlAppendable;
 import com.revolsys.record.query.TableReference;
+import com.revolsys.record.query.TableReferenceProxy;
 import com.revolsys.record.schema.RecordStore;
 
 public class JsonContainsKey extends AbstractUnaryQueryValue implements Condition {
@@ -22,6 +23,11 @@ public class JsonContainsKey extends AbstractUnaryQueryValue implements Conditio
   public JsonContainsKey(final QueryValue left, final String key) {
     super(left);
     this.key = key;
+  }
+
+  public JsonContainsKey(final TableReferenceProxy table, final String columnName,
+    final String key) {
+    this(table.getColumn(columnName), key);
   }
 
   @Override
