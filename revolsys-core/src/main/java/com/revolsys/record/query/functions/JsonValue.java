@@ -10,6 +10,8 @@ import com.revolsys.collection.json.Json;
 import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.record.query.ColumnIndexes;
+import com.revolsys.record.query.Condition;
+import com.revolsys.record.query.Q;
 import com.revolsys.record.query.QueryStatement;
 import com.revolsys.record.query.QueryValue;
 import com.revolsys.record.query.SqlAppendable;
@@ -69,6 +71,11 @@ public class JsonValue extends SimpleFunction {
     final QueryValue jsonParameter = getParameter(0);
     index = jsonParameter.appendParameters(index, statement);
     return index;
+  }
+
+  public Condition equal(final Object value) {
+    final var queryValue = Value.newValue(value);
+    return Q.equal(this, queryValue);
   }
 
   public String getPath() {

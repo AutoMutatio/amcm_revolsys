@@ -385,6 +385,12 @@ public class Q {
     return jsonValue(left, Value.newValue(right));
   }
 
+  public static JsonValue jsonValue(final TableReferenceProxy table, final String fieldName,
+    final String name) {
+    final var column = table.getColumn(fieldName);
+    return jsonValue(column, name);
+  }
+
   public static LessThan lessThan(final FieldDefinition fieldDefinition, final Object value) {
     final String name = fieldDefinition.getName();
     final Value valueCondition = Value.newValue(fieldDefinition, value);

@@ -1531,6 +1531,11 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
     return toJson().toJsonString();
   }
 
+  @Override
+  default String toJsonString(final boolean indent) {
+    return MapEx.super.toJsonString(indent);
+  }
+
   default void validateField(final FieldDefinition field) {
     if (field != null) {
       final int index = field.getIndex();

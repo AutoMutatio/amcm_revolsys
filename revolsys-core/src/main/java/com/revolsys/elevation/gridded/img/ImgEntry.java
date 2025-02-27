@@ -185,6 +185,11 @@ class ImgEntry implements MapEx, MapSerializer {
   }
 
   @Override
+  public JsonObject toJson() {
+    return MapEx.super.toJson();
+  }
+
+  @Override
   public JsonObject toMap() {
     final JsonObject map = new JsonObjectHash();
     map.add("name", this.name);
