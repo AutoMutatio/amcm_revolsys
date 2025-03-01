@@ -385,10 +385,17 @@ public class Q {
     return jsonValue(left, Value.newValue(right));
   }
 
+  public static JsonValue jsonValue(final TableReferenceProxy table, final String fieldName,
+    final String name) {
+    final var column = table.getColumn(fieldName);
+    return jsonValue(column, name);
+  }
+
   public static Equal jsonValueEqual(final QueryValue left, final String key, final Object value) {
     final var jsonValue = jsonValue(left, key);
     return Q.equal(jsonValue, value);
   }
+
 
   public static LessThan lessThan(final FieldDefinition fieldDefinition, final Object value) {
     final String name = fieldDefinition.getName();

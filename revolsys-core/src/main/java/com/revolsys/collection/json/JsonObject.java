@@ -148,6 +148,14 @@ public interface JsonObject extends MapEx, JsonType {
     return this;
   }
 
+  @Override
+  default JsonObject addFieldValues(final MapDefault<?, CharSequence, ? extends Object, ?> source,
+    final DataType dataType, final CharSequence... fieldNames) {
+    // TODO Auto-generated method stub
+    MapEx.super.addFieldValues(source, dataType, fieldNames);
+    return this;
+  }
+
   default JsonObject addNotEmpty(final String key, final Object value) {
     if (Property.hasValue(value)) {
       addValue(key, value);
@@ -281,6 +289,12 @@ public interface JsonObject extends MapEx, JsonType {
   @Override
   default JsonObject removeValues(final CharSequence... names) {
     MapEx.super.removeValues(names);
+    return this;
+  }
+
+  @Override
+  default JsonObject renameProperty(final CharSequence oldName, final CharSequence newName) {
+    MapEx.super.renameProperty(oldName, newName);
     return this;
   }
 

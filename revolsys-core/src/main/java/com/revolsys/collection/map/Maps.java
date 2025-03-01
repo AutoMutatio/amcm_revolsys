@@ -15,6 +15,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.prefs.BackingStoreException;
@@ -31,6 +32,8 @@ public interface Maps {
   public static final Supplier<Map<?, ?>> FACTORY_TREE = TreeMap::new;
 
   public static final Supplier<Map<?, ?>> FACTORY_LINKED_HASH = LinkedHashMap::new;
+
+  public static final Supplier<Map<?, ?>> FACTORY_CONCURRENT_HASH = ConcurrentHashMap::new;
 
   public static final Supplier<Map<?, ?>> FACTORY_HASH = HashMap::new;
 
@@ -256,6 +259,13 @@ public interface Maps {
   static boolean equalsNotNull(final Object map1, final Object map2,
     final Collection<? extends CharSequence> exclude) {
     return equalsNotNull((Map<Object, Object>)map1, (Map<Object, Object>)map2, exclude);
+  }
+
+  @SuppressWarnings({
+    "unchecked", "rawtypes"
+  })
+  static <K, V> Supplier<Map<K, V>> factoryConcurrentHash() {
+    return (Supplier)FACTORY_CONCURRENT_HASH;
   }
 
   @SuppressWarnings({
