@@ -391,6 +391,12 @@ public class Q {
     return jsonValue(column, name);
   }
 
+  public static Equal jsonValueEqual(final QueryValue left, final String key, final Object value) {
+    final var jsonValue = jsonValue(left, key);
+    return Q.equal(jsonValue, value);
+  }
+
+
   public static LessThan lessThan(final FieldDefinition fieldDefinition, final Object value) {
     final String name = fieldDefinition.getName();
     final Value valueCondition = Value.newValue(fieldDefinition, value);
