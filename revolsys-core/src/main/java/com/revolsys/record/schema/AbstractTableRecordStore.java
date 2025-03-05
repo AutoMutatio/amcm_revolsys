@@ -164,16 +164,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
       .toLowerCase();
     search = '%' + searchText + '%';
     for (final String fieldName : this.searchFieldNames) {
-      final ColumnReference column = getTable().getColumn(fieldName);
-      QueryValue left = column;
-      final DataType dataType = column.getDataType();
-      if (dataType != null && dataType != DataTypes.STRING) {
-        if (!dataType.isNumeric() || dataType.isValid(searchText)) {
-          left = new Cast(left, "text");
-        } else {
-          left = null;
-        }
-      }
+      final QueryValue left = getSearchColumn(fieldName, searchText);
       if (left != null) {
         final Condition condition = query.newCondition(left, Q.ILIKE, search);
         or.addCondition(condition);
@@ -295,6 +286,19 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
   @SuppressWarnings("unchecked")
   public <R extends RecordStore> R getRecordStore() {
     return (R)this.recordStore;
+  }
+
+  protected QueryValue getSearchColumn(final String fieldName, final String searchText) {
+    final ColumnReference column = getTable().getColumn(fieldName);
+    final DataType dataType = column.getDataType();
+    if (dataType != null && dataType != DataTypes.STRING) {
+      if (!dataType.isNumeric() || dataType.isValid(searchText)) {
+        return new Cast(column, "text");
+      } else {
+        return null;
+      }
+    }
+    return column;
   }
 
   public TableReference getTable() {
