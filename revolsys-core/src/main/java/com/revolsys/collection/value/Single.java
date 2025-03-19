@@ -353,6 +353,10 @@ public abstract class Single<T> implements ValueHolder<T> {
   @Override
   public abstract T get();
 
+  public <OUT> OUT get(final Function<Single<T>, OUT> mapper) {
+    return mapper.apply(this);
+  }
+
   @Override
   public abstract <R extends T> R getOrDefault(final Supplier<R> supplier);
 
