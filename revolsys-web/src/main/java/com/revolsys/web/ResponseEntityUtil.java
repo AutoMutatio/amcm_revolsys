@@ -28,4 +28,8 @@ public class ResponseEntityUtil {
       .detail(content)
       .responseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
   }
+
+  public static ResponseEntity<?> emptyNotFound(final Single<ResponseEntity<?>> map) {
+    return map.getOrDefault(ResponseEntityUtil::notFound);
+  }
 }
