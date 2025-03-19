@@ -187,10 +187,10 @@ public interface JsonObject extends MapEx, JsonType {
     return addValue(key, value);
   }
 
-  default JsonObject addValues(final MapEx values) {
+  default JsonObject addValues(final Map<String, ?> values) {
     if (values != null) {
       for (final String name : values.keySet()) {
-        final Object value = values.getValue(name);
+        final Object value = values.get(name);
         addValue(name, value);
       }
     }
