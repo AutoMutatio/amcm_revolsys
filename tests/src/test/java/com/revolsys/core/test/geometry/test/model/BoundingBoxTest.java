@@ -353,7 +353,7 @@ public class BoundingBoxTest implements TestConstants {
     final BoundingBox emptyNull = BoundingBox.bboxNew((Iterable<Point>)null);
     assertBoundingBox(null, emptyNull, GeometryFactory.DEFAULT_2D, true, 2, NULL_BOUNDS);
 
-    final BoundingBox emptyList = BoundingBox.bboxNew(new ArrayList<Point>());
+    final BoundingBox emptyList = BoundingBox.bboxNew(new ArrayList<>());
     assertBoundingBox(null, emptyList, GeometryFactory.DEFAULT_2D, true, 2, NULL_BOUNDS);
 
     final BoundingBox emptyListWithNulls = BoundingBox.bboxNew(Collections.<Point> singleton(null));
@@ -363,7 +363,7 @@ public class BoundingBoxTest implements TestConstants {
     assertBoundingBox(null, emptyNullCoordinatesList, GeometryFactory.DEFAULT_2D, true, 2,
       NULL_BOUNDS);
 
-    final BoundingBox emptyCoordinatesList = BoundingBox.bboxNew(new ArrayList<Point>());
+    final BoundingBox emptyCoordinatesList = BoundingBox.bboxNew(new ArrayList<>());
     assertBoundingBox(null, emptyCoordinatesList, GeometryFactory.DEFAULT_2D, true, 2, NULL_BOUNDS);
 
     // Different number of axis and values

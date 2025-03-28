@@ -291,7 +291,7 @@ public final class EpsgCoordinateSystemsLoader {
           .add("id", id) //
           .add("name", record.get("coord_sys_name")) //
           .add("type", type) //
-          .add("axes", new ArrayList<MapEx>());
+          .add("axes", new ArrayList<>());
         this.coordinateSystemById.put(id, coordinateSystem);
       }
     }

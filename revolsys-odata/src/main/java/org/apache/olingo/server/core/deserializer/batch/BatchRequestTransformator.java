@@ -137,8 +137,8 @@ public class BatchRequestTransformator {
   }
 
   private boolean isInvalidGetRequestBody(final BatchQueryOperation operation) {
-    return operation.getBody().size() > 1
-      || operation.getBody().size() == 1 && !operation.getBody().get(0).toString().strip().isEmpty();
+    return operation.getBody().size() > 1 || operation.getBody().size() == 1
+      && !operation.getBody().get(0).toString().strip().isEmpty();
   }
 
   private ODataRequest processQueryOperation(final BatchBodyPart bodyPart, final String baseUri,

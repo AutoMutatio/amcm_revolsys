@@ -58,12 +58,6 @@ public class DeleteStatement implements RecordDefinitionProxy {
     return this.where;
   }
 
-  public String toSql() {
-    final StringBuilderSqlAppendable sql = newSqlAppendable();
-    appendSql(sql);
-    return sql.toSqlString();
-  }
-
   protected StringBuilderSqlAppendable newSqlAppendable() {
     final StringBuilderSqlAppendable sql = SqlAppendable.stringBuilder();
     final RecordDefinition recordDefinition = getRecordDefinition();
@@ -71,6 +65,12 @@ public class DeleteStatement implements RecordDefinitionProxy {
       sql.setRecordStore(recordDefinition.getRecordStore());
     }
     return sql;
+  }
+
+  public String toSql() {
+    final StringBuilderSqlAppendable sql = newSqlAppendable();
+    appendSql(sql);
+    return sql.toSqlString();
   }
 
   @Override

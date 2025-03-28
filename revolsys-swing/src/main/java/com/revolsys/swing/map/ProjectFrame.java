@@ -112,7 +112,7 @@ public class ProjectFrame extends BaseFrame {
     PREFERENCE_PROJECT, "recentProject");
 
   private static final PreferenceKey PREFERENCE_RECENT_PROJECTS = new PreferenceKey(
-    PREFERENCE_PROJECT, "recentProjects", DataTypes.LIST, new ArrayList<String>());
+    PREFERENCE_PROJECT, "recentProjects", DataTypes.LIST, new ArrayList<>());
 
   private static final String BOTTOM_TAB = "INTERNAL_bottomTab";
 
