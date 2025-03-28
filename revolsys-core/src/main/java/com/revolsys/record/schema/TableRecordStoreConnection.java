@@ -52,6 +52,16 @@ public interface TableRecordStoreConnection extends Transactionable, TableRecord
     return recordStore.newQuery(this);
   }
 
+  default Record newRecord(final CharSequence tablePath) {
+    final AbstractTableRecordStore tableRecordStore = getTableRecordStore(tablePath);
+    return tableRecordStore.newRecord();
+  }
+
+  default Record newRecord(final CharSequence tablePath, final JsonObject json) {
+    final AbstractTableRecordStore tableRecordStore = getTableRecordStore(tablePath);
+    return tableRecordStore.newRecord(json);
+  }
+
   default Record updateRecord(final CharSequence tablePath, final Identifier id,
     final Consumer<Record> updateAction) {
     final AbstractTableRecordStore tableRecordStore = getTableRecordStore(tablePath);
