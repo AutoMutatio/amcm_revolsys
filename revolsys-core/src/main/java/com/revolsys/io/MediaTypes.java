@@ -54,14 +54,15 @@ public class MediaTypes {
    */
   public static String extension(String extension, String mediaType) {
     init();
-    if (extension != null) {
-      extension = extension.strip().toLowerCase();
+    if (Property.hasValue(extension)) {
+      extension = extension.strip()
+        .toLowerCase();
       if (mediaTypeByFileExtension.containsKey(extension)) {
         return extension;
       }
     }
 
-    if (mediaType != null) {
+    if (Property.hasValue(mediaType)) {
       mediaType = mediaType.toLowerCase();
       final String result = fileExtensionByMediaType.get(mediaType);
       if (Property.hasValue(result)) {
@@ -69,10 +70,10 @@ public class MediaTypes {
       }
     }
 
-    if (extension == null) {
-      return "bin";
-    } else {
+    if (Property.hasValue(extension)) {
       return extension;
+    } else {
+      return "bin";
     }
   }
 
@@ -98,7 +99,10 @@ public class MediaTypes {
                 .toLowerCase()
                 .strip()
                 .intern();
-              final String mediaType = line.substring(tabIndex + 1).toLowerCase().strip().intern();
+              final String mediaType = line.substring(tabIndex + 1)
+                .toLowerCase()
+                .strip()
+                .intern();
               if (Property.hasValuesAll(fileExtension, mediaType)) {
                 if (!mediaTypeByFileExtension.containsKey(fileExtension)) {
                   mediaTypeByFileExtension.put(fileExtension, mediaType);
@@ -153,14 +157,15 @@ public class MediaTypes {
    */
   public static String mediaType(String mediaType, String extension) {
     init();
-    if (mediaType != null) {
-      mediaType = mediaType.strip().toLowerCase();
+    if (Property.hasValue(mediaType)) {
+      mediaType = mediaType.strip()
+        .toLowerCase();
       if (fileExtensionByMediaType.containsKey(mediaType)) {
         return mediaType;
       }
     }
 
-    if (extension != null) {
+    if (Property.hasValue(extension)) {
       extension = extension.toLowerCase();
       final String result = mediaTypeByFileExtension.get(extension);
       if (Property.hasValue(result)) {
@@ -168,10 +173,10 @@ public class MediaTypes {
       }
     }
 
-    if (mediaType == null) {
-      return "application/octet-stream";
-    } else {
+    if (Property.hasValue(mediaType)) {
       return mediaType;
+    } else {
+      return "application/octet-stream";
     }
   }
 }

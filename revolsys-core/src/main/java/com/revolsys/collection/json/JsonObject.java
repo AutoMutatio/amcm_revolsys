@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 
+import com.revolsys.collection.map.MapDefault;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.data.type.DataType;
 import com.revolsys.data.type.DataTypeValueFactory;
@@ -140,6 +141,21 @@ public interface JsonObject extends MapEx, JsonType {
     return this;
   }
 
+  @Override
+  default JsonObject addFieldValues(final MapDefault<?, CharSequence, ? extends Object, ?> source,
+    final CharSequence... fieldNames) {
+    MapEx.super.addFieldValues(source, fieldNames);
+    return this;
+  }
+
+  @Override
+  default JsonObject addFieldValues(final MapDefault<?, CharSequence, ? extends Object, ?> source,
+    final DataType dataType, final CharSequence... fieldNames) {
+    // TODO Auto-generated method stub
+    MapEx.super.addFieldValues(source, dataType, fieldNames);
+    return this;
+  }
+
   default JsonObject addNotEmpty(final String key, final Object value) {
     if (Property.hasValue(value)) {
       addValue(key, value);
@@ -171,10 +187,10 @@ public interface JsonObject extends MapEx, JsonType {
     return addValue(key, value);
   }
 
-  default JsonObject addValues(final MapEx values) {
+  default JsonObject addValues(final Map<String, ?> values) {
     if (values != null) {
       for (final String name : values.keySet()) {
-        final Object value = values.getValue(name);
+        final Object value = values.get(name);
         addValue(name, value);
       }
     }
@@ -265,9 +281,20 @@ public interface JsonObject extends MapEx, JsonType {
     return MapEx.super.removeEmptyProperties();
   }
 
+  default JsonObject removeEmptyValues() {
+    removeEmptyProperties();
+    return this;
+  }
+
   @Override
   default JsonObject removeValues(final CharSequence... names) {
     MapEx.super.removeValues(names);
+    return this;
+  }
+
+  @Override
+  default JsonObject renameProperty(final CharSequence oldName, final CharSequence newName) {
+    MapEx.super.renameProperty(oldName, newName);
     return this;
   }
 

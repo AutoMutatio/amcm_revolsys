@@ -8,7 +8,8 @@
 	<ignoreVersions>
 		<ignoreVersion type="regex">.*-alpha.*</ignoreVersion>
     <ignoreVersion type="regex">.*Alpha.*</ignoreVersion>
-		<ignoreVersion type="regex">.*-beta.*</ignoreVersion>
+    <ignoreVersion type="regex">.*-beta.*</ignoreVersion>
+    <ignoreVersion type="regex">.*Beta.*</ignoreVersion>
     <ignoreVersion type="regex">.*-MTEC.*</ignoreVersion>
     <ignoreVersion type="regex">.*-rc.*</ignoreVersion>
     <ignoreVersion type="regex">.*-RC.*</ignoreVersion>
@@ -58,6 +59,21 @@
     <rule groupId="commons-io" comparisonMethod="maven">
       <ignoreVersions>
         <ignoreVersion type="regex">\d{8}\.\d{6}</ignoreVersion>
+      </ignoreVersions>
+    </rule>
+    <rule groupId = "jakarta.websocket" comparisonMethod="maven">
+      <ignoreVersions>
+        <ignoreVersion type="range">[2.2,)</ignoreVersion>
+      </ignoreVersions>
+    </rule>
+    <rule groupId = "jakarta.servlet" comparisonMethod="maven">
+      <ignoreVersions>
+        <ignoreVersion type="range">[6.1,)</ignoreVersion>
+      </ignoreVersions>
+    </rule>
+    <rule groupId = "jakarta.servlet.jsp" comparisonMethod="maven">
+      <ignoreVersions>
+        <ignoreVersion type="range">[3.2,)</ignoreVersion>
       </ignoreVersions>
     </rule>
 	</rules>

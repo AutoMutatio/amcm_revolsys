@@ -48,12 +48,12 @@ public abstract class JdbcConnectionTransactionResource implements Transactionab
   public void close() {
     final Connection connection = this.connection;
     if (connection != null) {
-      if (this.context.isReadOnly()) {
-        try {
+      try {
+        if (this.context.isReadOnly() || connection.isReadOnly()) {
           connection.setReadOnly(false);
-        } catch (final SQLException e) {
-          this.hasError = true;
         }
+      } catch (final SQLException e) {
+        setHasError();
       }
       try {
         closeConnection();

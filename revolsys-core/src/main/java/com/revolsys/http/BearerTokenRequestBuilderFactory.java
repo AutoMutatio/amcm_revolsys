@@ -18,30 +18,46 @@ public class BearerTokenRequestBuilderFactory extends HttpRequestBuilderFactory 
   }
 
   protected String getAccessToken() {
-    if (this.token == null || this.token.isExpired()) {
-      this.token = this.tokenRefresh.refreshBearerToken(this.token);
-    }
-    if (this.token == null) {
+    final var token = getBearerToken();
+    if (token == null) {
       return null;
     } else {
-      return this.token.getAccessToken();
-    }
-  }
-
-  public boolean hasValidToken() {
-    if (this.token == null || this.token.isExpired()) {
-      this.token = this.tokenRefresh.refreshBearerToken(this.token);
-    }
-    if (this.token == null) {
-      return false;
-    } else {
-      return true;
+      return token.getAccessToken();
     }
   }
 
   protected String getAuthorizationHeader() {
     final String accessToken = getAccessToken();
     return "Bearer " + accessToken;
+  }
+
+  protected BearerToken getBearerToken() {
+    if (this.token == null || this.token.isExpired()) {
+      this.token = this.tokenRefresh.refreshBearerToken(this.token);
+    }
+    if (this.token == null) {
+      return null;
+    } else {
+      return this.token;
+    }
+  }
+
+  public String getClaim(final String key) {
+    final var token = getBearerToken();
+    if (token == null) {
+      return null;
+    } else {
+      return token.getStringClaim(key);
+    }
+  }
+
+  public boolean hasValidToken() {
+    final var token = getBearerToken();
+    if (token == null) {
+      return false;
+    } else {
+      return true;
+    }
   }
 
   @Override

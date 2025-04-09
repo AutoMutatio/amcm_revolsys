@@ -39,7 +39,7 @@ public class BearerToken {
     return Instant.ofEpochMilli(this.expireTime);
   }
 
-  protected JsonWebToken getJwt() {
+  public JsonWebToken getJwt() {
     if (this.jwt == null) {
       this.jwt = initJwt();
     }
@@ -136,5 +136,4 @@ public class BearerToken {
   public String toStringJwt() {
     return this.jwt.toString();
   }
-
 }

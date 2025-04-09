@@ -77,12 +77,11 @@ public class Ranges {
     value = toValue(value);
     if (value == null) {
       return null;
-    } else if (value instanceof Long) {
-      return newRange(((Long)value).longValue());
+    } else if (value instanceof final Long number) {
+      return newRange(number);
     } else if (Numbers.isPrimitiveIntegral(value)) {
       return newRange(((Number)value).intValue());
-    } else if (value instanceof Character) {
-      final Character character = (Character)value;
+    } else if (value instanceof final Character character) {
       return newRange(character.charValue());
     } else {
       return new StringSingletonRange(value.toString());
@@ -99,45 +98,57 @@ public class Ranges {
       final long fromLong = (Long)fromValue;
       if (toValue instanceof Long) {
         final long toLong = (Long)toValue;
-        if (fromLong != 0 && from.toString().charAt(0) == '0'
-          || toLong != 0 && to.toString().charAt(0) == '0') {
+        if (fromLong != 0 && from.toString()
+          .charAt(0) == '0' || toLong != 0
+            && to.toString()
+              .charAt(0) == '0') {
           return new LongPaddedRange(fromLong, toLong);
         } else {
           return newRange(fromLong, toLong);
         }
       } else if (toValue instanceof Integer) {
         final long toLong = (Integer)toValue;
-        if (fromLong != 0 && from.toString().charAt(0) == '0'
-          || toLong != 0 && to.toString().charAt(0) == '0') {
+        if (fromLong != 0 && from.toString()
+          .charAt(0) == '0' || toLong != 0
+            && to.toString()
+              .charAt(0) == '0') {
           return new LongPaddedRange(fromLong, toLong);
         } else {
           return newRange(fromLong, toLong);
         }
       } else {
         throw new RangeInvalidException("Cannot create range from " + fromValue + " (Long) and "
-          + toValue + " (" + toValue.getClass().getSimpleName() + ")");
+          + toValue + " (" + toValue.getClass()
+            .getSimpleName()
+          + ")");
       }
     } else if (fromValue instanceof Integer) {
       final int fromInt = (Integer)fromValue;
       if (toValue instanceof Long) {
         final long toLong = (Long)toValue;
-        if (fromInt != 0 && from.toString().charAt(0) == '0'
-          || toLong != 0 && to.toString().charAt(0) == '0') {
+        if (fromInt != 0 && from.toString()
+          .charAt(0) == '0' || toLong != 0
+            && to.toString()
+              .charAt(0) == '0') {
           return new LongPaddedRange(fromInt, toLong);
         } else {
           return newRange(fromInt, toLong);
         }
       } else if (toValue instanceof Integer) {
         final int toInt = (Integer)toValue;
-        if (fromInt != 0 && from.toString().charAt(0) == '0'
-          || toInt != 0 && to.toString().charAt(0) == '0') {
+        if (fromInt != 0 && from.toString()
+          .charAt(0) == '0' || toInt != 0
+            && to.toString()
+              .charAt(0) == '0') {
           return new LongPaddedRange(fromInt, toInt);
         } else {
           return newRange(fromInt, toInt);
         }
       } else {
         throw new RangeInvalidException("Cannot create range from " + fromValue + " (Long) and "
-          + toValue + " (" + toValue.getClass().getSimpleName() + ")");
+          + toValue + " (" + toValue.getClass()
+            .getSimpleName()
+          + ")");
       }
     } else if (fromValue instanceof Character) {
       final char fromChar = (Character)fromValue;
@@ -146,11 +157,15 @@ public class Ranges {
         return newRange(fromChar, toChar);
       } else {
         throw new RangeInvalidException("Cannot create range from " + fromValue
-          + " (Character) and " + toValue + " (" + toValue.getClass().getSimpleName() + ")");
+          + " (Character) and " + toValue + " (" + toValue.getClass()
+            .getSimpleName()
+          + ")");
       }
     } else {
       throw new RangeInvalidException("Cannot create range from " + fromValue + " (String) and "
-        + toValue + " (" + toValue.getClass().getSimpleName() + ")");
+        + toValue + " (" + toValue.getClass()
+          .getSimpleName()
+        + ")");
     }
   }
 

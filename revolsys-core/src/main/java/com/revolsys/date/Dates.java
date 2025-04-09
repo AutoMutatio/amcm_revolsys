@@ -71,18 +71,18 @@ public interface Dates {
     }
   }
 
-  public static final DateTimeFormatter RFC_1123_DATE_TIME = newRfc1123();
+  DateTimeFormatter RFC_1123_DATE_TIME = newRfc1123();
 
   DateTimeFormatter yyyyMMdd = DateTimeFormatter.ofPattern("yyyyMMdd");
 
   DateTimeFormatter HHmmssSS = DateTimeFormatter.ofPattern("HHmmssSS");
 
-  public static final ZoneId UTC = ZoneId.of("UTC");
+  ZoneId UTC = ZoneId.of("UTC");
 
   Pattern DATE_TIME_NANOS_PATTERN = Pattern.compile(
     "\\s*(\\d{4})-(\\d{2})-(\\d{2})(?:[\\sT]+(\\d{2})\\:(\\d{2})\\:(\\d{2})(?:\\.(\\d{1,9}))?)?\\s*");
 
-  static final DateTimeFormatter INSTANT_PARSER = new DateTimeFormatterBuilder()
+  DateTimeFormatter INSTANT_PARSER = new DateTimeFormatterBuilder()
     .appendOptional(DateTimeFormatter.ISO_INSTANT)
     .appendOptional(new DateTimeFormatterBuilder().appendPattern("yyyy-MM-dd'T'HH:mm:ss")
       .appendFraction(ChronoField.NANO_OF_SECOND, 0, 9, true)
@@ -91,11 +91,17 @@ public interface Dates {
       .toFormatter())
     .toFormatter();
 
-  static final DateTimeFormatter INSTANT_PARSER_UTC = new DateTimeFormatterBuilder()
+  DateTimeFormatter INSTANT_PARSER_UTC = new DateTimeFormatterBuilder()
     .appendPattern("yyyy-MM-dd'T'HH:mm:ss")
     .appendFraction(ChronoField.NANO_OF_SECOND, 0, 9, true)
     .parseLenient()
     .toFormatter()
+    .withZone(UTC);
+
+  DateTimeFormatter ISO_DATE = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+    .withZone(UTC);
+
+  DateTimeFormatter ISO_TIME = DateTimeFormatter.ofPattern("HH:mm:ss")
     .withZone(UTC);
 
   static Set<DayOfWeek> days(final int... days) {
@@ -119,6 +125,10 @@ public interface Dates {
     final String timeString = toEllapsedTime(startTime, endTime);
     Logs.debug(object, message + "\t" + timeString);
     return endTime;
+  }
+
+  public static Duration durationSince(final Instant start) {
+    return Duration.between(start, Instant.now());
   }
 
   static boolean equalsNotNull(final Object date1, final Object date2) {
@@ -163,6 +173,11 @@ public interface Dates {
       return DateTimeFormatter.ofPattern(pattern)
         .format(date);
     }
+  }
+
+  static String formatIsoDate(final Instant timestamp) {
+    // TODO Auto-generated method stub
+    return null;
   }
 
   static Calendar getCalendar(final String dateString) {
@@ -299,7 +314,16 @@ public interface Dates {
         try {
           return INSTANT_PARSER.parse(string, Instant::from);
         } catch (final Exception e2) {
-          return INSTANT_PARSER_UTC.parse(string, Instant::from);
+          try {
+            return INSTANT_PARSER_UTC.parse(string, Instant::from);
+          } catch (final Exception e3) {
+            final var localDate = getLocalDate(string);
+            if (localDate != null) {
+              return getInstant(localDate);
+            } else {
+              throw e3;
+            }
+          }
         }
       } else {
         return DateTimeFormatter.RFC_1123_DATE_TIME.parse(string, Instant::from);

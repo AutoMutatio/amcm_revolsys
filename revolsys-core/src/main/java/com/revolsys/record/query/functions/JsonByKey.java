@@ -6,7 +6,7 @@ import java.util.List;
 import com.revolsys.collection.json.Json;
 import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.map.MapEx;
-import com.revolsys.record.query.Query;
+import com.revolsys.record.query.QueryStatement;
 import com.revolsys.record.query.QueryValue;
 import com.revolsys.record.query.SqlAppendable;
 import com.revolsys.record.query.Value;
@@ -28,10 +28,10 @@ public class JsonByKey extends SimpleFunction {
   }
 
   @Override
-  public void appendDefaultSql(final Query query, final RecordStore recordStore,
+  public void appendDefaultSql(final QueryStatement statement, final RecordStore recordStore,
     final SqlAppendable buffer) {
     final QueryValue jsonParameter = getParameter(0);
-    jsonParameter.appendSql(query, recordStore, buffer);
+    jsonParameter.appendSql(statement, recordStore, buffer);
 
     buffer.append(" -> '");
     buffer.append(this.path);

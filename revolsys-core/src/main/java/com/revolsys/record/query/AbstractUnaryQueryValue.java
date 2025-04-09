@@ -21,9 +21,9 @@ public abstract class AbstractUnaryQueryValue implements QueryValue {
   }
 
   @Override
-  public void appendDefaultSql(final Query query, final RecordStore recordStore,
+  public void appendDefaultSql(final QueryStatement statement, final RecordStore recordStore,
     final SqlAppendable buffer) {
-    this.value.appendSql(query, recordStore, buffer);
+    this.value.appendSql(statement, recordStore, buffer);
   }
 
   @Override
@@ -34,12 +34,12 @@ public abstract class AbstractUnaryQueryValue implements QueryValue {
     return index;
   }
 
-  protected void appendValue(final SqlAppendable sql, final Query query,
-    final RecordStore recordStore) {
+  protected void appendValue(final QueryStatement statement, final RecordStore recordStore,
+    final SqlAppendable sql) {
     if (this.value == null) {
       sql.append("NULL");
     } else {
-      this.value.appendSql(query, recordStore, sql);
+      this.value.appendSql(statement, recordStore, sql);
     }
     sql.append(" ");
   }

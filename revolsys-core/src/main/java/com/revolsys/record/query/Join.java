@@ -34,7 +34,7 @@ public class Join implements QueryValue, TableReferenceProxy {
   }
 
   @Override
-  public void appendDefaultSql(final Query query, final RecordStore recordStore,
+  public void appendDefaultSql(final QueryStatement statement, final RecordStore recordStore,
     final SqlAppendable sql) {
     sql.append(' ');
     sql.append(this.joinType.toString());
@@ -49,7 +49,7 @@ public class Join implements QueryValue, TableReferenceProxy {
       sql.append(this.tableName);
     }
     if (this.statement != null) {
-      this.statement.appendDefaultSelect(query, recordStore, sql);
+      this.statement.appendDefaultSelect(statement, recordStore, sql);
       if (this.alias != null) {
         sql.append(" ");
         sql.append('"');
@@ -59,7 +59,7 @@ public class Join implements QueryValue, TableReferenceProxy {
     }
     if (!this.condition.isEmpty()) {
       sql.append(" ON ");
-      this.condition.appendSql(query, recordStore, sql);
+      this.condition.appendSql(statement, recordStore, sql);
     }
   }
 
@@ -118,8 +118,8 @@ public class Join implements QueryValue, TableReferenceProxy {
     } else if (this.table.hasColumn(name)) {
       return new Column(this, name);
     }
-    throw new IllegalArgumentException(
-      "Column not found: " + this.table.getTableReference().getTablePath() + "." + name);
+    throw new IllegalArgumentException("Column not found: " + this.table.getTableReference()
+      .getTablePath() + "." + name);
   }
 
   public Condition getCondition() {
@@ -158,6 +158,11 @@ public class Join implements QueryValue, TableReferenceProxy {
     return null;
   }
 
+  public Join on(final QueryValue left, final QueryValue right) {
+    final Equal condition = new Equal(left, right);
+    return and(condition);
+  }
+
   public Join on(final String fromFieldName, final Object value) {
     final Condition condition = this.table.equal(fromFieldName, value);
     return and(condition);
@@ -187,8 +192,7 @@ public class Join implements QueryValue, TableReferenceProxy {
     final String toFieldName) {
     final ColumnReference fromColumn = getColumn(fromFieldName);
     final ColumnReference toColumn = toTable.getColumn(toFieldName);
-    final Equal condition = new Equal(fromColumn, toColumn);
-    return and(condition);
+    return on(fromColumn, toColumn);
   }
 
   public Join or(final Condition condition) {

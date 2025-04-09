@@ -68,7 +68,6 @@ import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordStoreSchema;
 import com.revolsys.record.schema.RecordStoreSchemaElement;
-import com.revolsys.util.Debug;
 import com.revolsys.util.UriBuilder;
 import com.revolsys.util.UrlUtil;
 
@@ -557,7 +556,7 @@ public class ODataRecordStore extends AbstractRecordStore {
             .asList("Namespace", "Annotation", "Annotations", "Action", "Function", "Alias", "Term",
               "EntityContainer")
             .contains(elementType)) {
-            Debug.noOp();
+            // Debug.noOp();
           }
         }
       }

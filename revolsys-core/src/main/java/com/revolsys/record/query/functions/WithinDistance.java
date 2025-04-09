@@ -10,7 +10,7 @@ import com.revolsys.data.type.DataTypes;
 import com.revolsys.exception.Exceptions;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.record.query.Condition;
-import com.revolsys.record.query.Query;
+import com.revolsys.record.query.QueryStatement;
 import com.revolsys.record.query.QueryValue;
 import com.revolsys.record.query.SqlAppendable;
 import com.revolsys.record.query.TableReference;
@@ -33,17 +33,17 @@ public class WithinDistance implements Condition, Function {
   }
 
   @Override
-  public void appendDefaultSql(final Query query, final RecordStore recordStore,
+  public void appendDefaultSql(final QueryStatement statement, final RecordStore recordStore,
     final SqlAppendable sql) {
     if (this.geometry1Value == null || this.geometry2Value == null || this.distanceValue == null) {
       sql.append("1 = 0");
     } else {
       sql.append(NAME + "(");
-      this.geometry1Value.appendSql(query, recordStore, sql);
+      this.geometry1Value.appendSql(statement, recordStore, sql);
       sql.append(", ");
-      this.geometry2Value.appendSql(query, recordStore, sql);
+      this.geometry2Value.appendSql(statement, recordStore, sql);
       sql.append(", ");
-      this.distanceValue.appendSql(query, recordStore, sql);
+      this.distanceValue.appendSql(statement, recordStore, sql);
       sql.append(")");
     }
   }

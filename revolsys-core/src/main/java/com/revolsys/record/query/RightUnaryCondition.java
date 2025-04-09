@@ -13,9 +13,9 @@ public class RightUnaryCondition extends AbstractUnaryQueryValue implements Cond
   }
 
   @Override
-  public void appendDefaultSql(final Query query, final RecordStore recordStore,
+  public void appendDefaultSql(final QueryStatement statement, final RecordStore recordStore,
     final SqlAppendable buffer) {
-    super.appendDefaultSql(query, recordStore, buffer);
+    super.appendDefaultSql(statement, recordStore, buffer);
     buffer.append(" ");
     buffer.append(this.operator);
   }

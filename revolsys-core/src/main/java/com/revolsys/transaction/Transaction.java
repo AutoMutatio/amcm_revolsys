@@ -120,7 +120,14 @@ public class Transaction {
           return Exceptions.throwUncheckedException(e);
         }
       } else {
-        return scopedCall(action, this.initializers);
+        try (
+          var context = new ActiveTransactionContext(this.initializers)) {
+          try {
+            return where(context).call(action);
+          } catch (final Throwable t) {
+            return context.setRollbackOnly(t);
+          }
+        }
       }
     }
 
@@ -133,7 +140,15 @@ public class Transaction {
           Exceptions.throwUncheckedException(e);
         }
       } else {
-        scopedRun(action, this.initializers);
+        try (
+          var context = new ActiveTransactionContext(this.initializers)) {
+          try {
+            final Runnable runnable = runnable(context, action);
+            where(context).run(runnable);
+          } catch (final Throwable t) {
+            context.setRollbackOnly(t);
+          }
+        }
       }
     }
 
@@ -151,16 +166,27 @@ public class Transaction {
     @Override
     public <V> V call(final Callable<V> action) {
       try (
-        var s = suspend()) {
-        return scopedCall(action, this.initializers);
+        var s = suspend();
+        var context = new ActiveTransactionContext(this.initializers)) {
+        try {
+          return where(context).call(action);
+        } catch (final Throwable t) {
+          return context.setRollbackOnly(t);
+        }
       }
     }
 
     @Override
     public void run(final RunAction action) {
       try (
-        var s = suspend()) {
-        scopedRun(action, this.initializers);
+        var s = suspend();
+        var context = new ActiveTransactionContext(this.initializers)) {
+        try {
+          final Runnable runnable = runnable(context, action);
+          where(context).run(runnable);
+        } catch (final Throwable t) {
+          context.setRollbackOnly(t);
+        }
       }
     }
   }
@@ -173,7 +199,7 @@ public class Transaction {
 
     private final TransactionContext context;
 
-    public SavedBuilder(TransactionContext context) {
+    public SavedBuilder(final TransactionContext context) {
       super();
       this.context = context;
     }
@@ -281,33 +307,6 @@ public class Transaction {
     return new SavedBuilder(getContext());
   }
 
-  private static <V> V scopedCall(final Callable<V> action,
-    final List<Consumer<ActiveTransactionContext>> initializers) {
-    try (
-      var context = new ActiveTransactionContext(initializers)) {
-      try {
-        return ScopedValue.where(CONTEXT, context)
-          .call(action);
-      } catch (final Throwable t) {
-        return context.setRollbackOnly(t);
-      }
-    }
-  }
-
-  private static void scopedRun(final RunAction action,
-    final List<Consumer<ActiveTransactionContext>> initializers) {
-    try (
-      var context = new ActiveTransactionContext(initializers)) {
-      try {
-        final Runnable runnable = runnable(context, action);
-        ScopedValue.where(CONTEXT, context)
-          .run(runnable);
-      } catch (final Throwable t) {
-        context.setRollbackOnly(t);
-      }
-    }
-  }
-
   private static BaseCloseable suspend() {
     final TransactionContext context = getContext();
     if (context instanceof final ActiveTransactionContext mapContext) {
@@ -319,6 +318,10 @@ public class Transaction {
 
   public static TransactionBuilder transaction() {
     return TransactionBuilder.BUILDER;
+  }
+
+  private static Carrier where(final ActiveTransactionContext context) {
+    return ScopedValue.where(CONTEXT, context);
   }
 
   static Carrier where(final TransactionContext context) {

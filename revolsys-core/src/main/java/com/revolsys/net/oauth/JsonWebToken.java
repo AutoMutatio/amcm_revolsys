@@ -10,12 +10,12 @@ import java.util.regex.Pattern;
 
 import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.json.JsonParser;
+import com.revolsys.collection.json.Jsonable;
 
-public class JsonWebToken implements Principal {
+public class JsonWebToken implements Principal, Jsonable {
 
   public static JsonObject decodeJson(final String base64) {
-    final byte[] decoded = Base64.getDecoder()
-      .decode(base64);
+    final byte[] decoded = Base64.getDecoder().decode(base64);
     final String string = new String(decoded, StandardCharsets.UTF_8);
     return JsonParser.read(string);
   }
@@ -171,9 +171,7 @@ public class JsonWebToken implements Principal {
       }
       final String tokenToSign = this.token.substring(0, this.token.lastIndexOf('.'));
       final String keyId = this.header.getString("kid");
-      return openIdConfig.getJwtKeySet()
-        .getKey(keyId)
-        .isValid(tokenToSign, this.signatureBytes);
+      return openIdConfig.getJwtKeySet().getKey(keyId).isValid(tokenToSign, this.signatureBytes);
     } catch (final Exception e) {
       return false;
     }
@@ -190,8 +188,7 @@ public class JsonWebToken implements Principal {
 
   public boolean isValid(final Pattern pattern) {
     final String issuer = getIssuer();
-    if (!pattern.matcher(issuer)
-      .matches()) {
+    if (!pattern.matcher(issuer).matches()) {
       return false;
     }
     return isValid();
@@ -209,6 +206,11 @@ public class JsonWebToken implements Principal {
     } catch (final Exception e) {
       return false;
     }
+  }
+
+  @Override
+  public JsonObject toJson() {
+    return JsonObject.hash().addValue("header", this.header).addValue("payload", this.payload);
   }
 
   @Override

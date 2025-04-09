@@ -32,18 +32,33 @@ public interface TableReference extends From, TableReferenceProxy {
   default void appendFromWithAlias(final SqlAppendable sql, final String tableAlias) {
     appendFrom(sql);
     if (tableAlias != null) {
-      sql.append(" ");
-      sql.append('"');
+      sql.append(" \"");
       sql.append(tableAlias);
       sql.append('"');
     }
   }
 
-  void appendQueryValue(final Query query, final SqlAppendable sql, final QueryValue queryValue);
+  default void appendFromWithAsAlias(final SqlAppendable sql) {
+    final String tableAlias = getTableAlias();
+    appendFromWithAsAlias(sql, tableAlias);
+  }
 
-  void appendSelect(final Query query, final SqlAppendable string, final QueryValue queryValue);
+  default void appendFromWithAsAlias(final SqlAppendable sql, final String tableAlias) {
+    appendFrom(sql);
+    if (tableAlias != null) {
+      sql.append(" AS \"");
+      sql.append(tableAlias);
+      sql.append('"');
+    }
+  }
 
-  void appendSelectAll(Query query, final SqlAppendable string);
+  void appendQueryValue(final QueryStatement statement, final SqlAppendable sql,
+    final QueryValue queryValue);
+
+  void appendSelect(final QueryStatement statement, final SqlAppendable string,
+    final QueryValue queryValue);
+
+  void appendSelectAll(QueryStatement statement, final SqlAppendable string);
 
   default QueryValue count(final String fieldName) {
     final ColumnReference field = getColumn(fieldName);

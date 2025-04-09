@@ -21,7 +21,7 @@ public class AllColumns implements QueryValue {
   }
 
   @Override
-  public void appendDefaultSql(final Query query, final RecordStore recordStore,
+  public void appendDefaultSql(final QueryStatement statement, final RecordStore recordStore,
     final SqlAppendable sql) {
     this.table.appendColumnPrefix(sql);
     sql.append("*");
@@ -32,9 +32,9 @@ public class AllColumns implements QueryValue {
     return index;
   }
 
-  protected void appendValue(final SqlAppendable sql, final Query query,
-    final RecordStore recordStore) {
-    appendDefaultSql(query, recordStore, sql);
+  protected void appendValue(final QueryStatement statement, final RecordStore recordStore,
+    final SqlAppendable sql) {
+    appendDefaultSql(statement, recordStore, sql);
   }
 
   @Override

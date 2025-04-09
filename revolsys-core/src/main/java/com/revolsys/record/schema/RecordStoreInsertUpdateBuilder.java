@@ -1,5 +1,6 @@
 package com.revolsys.record.schema;
 
+import com.revolsys.exception.Exceptions;
 import com.revolsys.record.ArrayChangeTrackRecord;
 import com.revolsys.record.ChangeTrackRecord;
 import com.revolsys.record.Record;
@@ -25,24 +26,28 @@ public class RecordStoreInsertUpdateBuilder<R extends Record> extends InsertUpda
         final Record newRecord = newRecord();
         if (newRecord == null) {
           return null;
-        } else {
-          insertRecord(newRecord);
-          return this.recordStore.insertRecord(newRecord);
         }
-      } else {
-        return null;
+        prepareInsertRecord(newRecord);
+        try {
+          return this.recordStore.insertRecord(newRecord);
+        } catch (final RuntimeException | Error e) {
+          throw Exceptions.toWrapped(e)
+            .property("record", newRecord);
+        }
       }
-    } else {
-      if (isUpdate()) {
-        updateRecord(changeTrackRecord);
+    } else if (isUpdate()) {
+      try {
+        prepareUpdateRecord(changeTrackRecord);
         if (changeTrackRecord.isModified()) {
           this.recordStore.updateRecord(changeTrackRecord);
         }
         return changeTrackRecord.newRecord();
-      } else {
-        return null;
+      } catch (final RuntimeException | Error e) {
+        throw Exceptions.toWrapped(e)
+          .property("record", changeTrackRecord);
       }
     }
+    return null;
   }
 
   @Override

@@ -33,6 +33,7 @@ import com.revolsys.swing.action.RunnableAction;
 import com.revolsys.swing.component.BasePanel;
 import com.revolsys.swing.dnd.ClipboardUtil;
 import com.revolsys.swing.parallel.Invoke;
+import com.revolsys.util.concurrent.Concurrent;
 
 public class ProcessWindow extends JFrame {
 
@@ -131,35 +132,36 @@ public class ProcessWindow extends JFrame {
     StyleConstants.setFontFamily(style, "MonoSpaced");
     StyleConstants.setFontSize(style, 12);
     StyleConstants.setForeground(style, color);
-    new Thread(() -> {
-      try {
-        while (this.process.isAlive() || in.available() > 0) {
-          try {
-            Thread.sleep(500);
-          } catch (final InterruptedException e) {
-            throw Exceptions.toRuntimeException(e);
+    Concurrent.virtual(this.threadPrefix + "-" + name)
+      .start(() -> {
+        try {
+          while (this.process.isAlive() || in.available() > 0) {
+            try {
+              Thread.sleep(500);
+            } catch (final InterruptedException e) {
+              throw Exceptions.toRuntimeException(e);
+            }
+            final int byteCount = in.available();
+            if (byteCount != 0) {
+              final byte b[] = new byte[byteCount];
+              in.read(b);
+              final String input = new String(b, 0, b.length);
+              Invoke.later(() -> {
+                try {
+                  doc.insertString(doc.getLength(), input, style);
+                  textArea.setCaretPosition(textArea.getDocument()
+                    .getLength());
+                } catch (final Exception e) {
+                  textArea.setText("\nConsole reports an Internal error.");
+                  textArea.setText("The error is: " + e);
+                }
+              });
+            }
           }
-          final int byteCount = in.available();
-          if (byteCount != 0) {
-            final byte b[] = new byte[byteCount];
-            in.read(b);
-            final String input = new String(b, 0, b.length);
-            Invoke.later(() -> {
-              try {
-                doc.insertString(doc.getLength(), input, style);
-                textArea.setCaretPosition(textArea.getDocument()
-                  .getLength());
-              } catch (final Exception e) {
-                textArea.setText("\nConsole reports an Internal error.");
-                textArea.setText("The error is: " + e);
-              }
-            });
-          }
+        } catch (final Exception e) {
+          return;
         }
-      } catch (final Exception e) {
-        return;
-      }
-    }, this.threadPrefix + "-" + name).start();
+      });
   }
 
   public void setProcess(final Process process) {

@@ -18,11 +18,11 @@ public abstract class UnaryArithmatic extends AbstractBinaryQueryValue {
   }
 
   @Override
-  public void appendDefaultSql(final Query query, final RecordStore recordStore,
+  public void appendDefaultSql(final QueryStatement statement, final RecordStore recordStore,
     final SqlAppendable buffer) {
-    appendLeft(buffer, query, recordStore);
+    appendLeft(statement, recordStore, buffer);
     buffer.append(this.operator);
-    appendRight(buffer, query, recordStore);
+    appendRight(statement, recordStore, buffer);
   }
 
   @Override

@@ -8,7 +8,7 @@ import java.util.List;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.data.type.DataType;
 import com.revolsys.record.query.AbstractMultiQueryValue;
-import com.revolsys.record.query.Query;
+import com.revolsys.record.query.QueryStatement;
 import com.revolsys.record.query.QueryValue;
 import com.revolsys.record.query.SqlAppendable;
 import com.revolsys.record.schema.RecordStore;
@@ -48,7 +48,7 @@ public class SimpleFunction extends AbstractMultiQueryValue implements Function 
   }
 
   @Override
-  public void appendDefaultSql(final Query query, final RecordStore recordStore,
+  public void appendDefaultSql(final QueryStatement statement, final RecordStore recordStore,
     final SqlAppendable buffer) {
     buffer.append(this.name);
     buffer.append("(");
@@ -59,7 +59,7 @@ public class SimpleFunction extends AbstractMultiQueryValue implements Function 
       } else {
         buffer.append(", ");
       }
-      parameter.appendSql(query, recordStore, buffer);
+      parameter.appendSql(statement, recordStore, buffer);
     }
     buffer.append(")");
   }

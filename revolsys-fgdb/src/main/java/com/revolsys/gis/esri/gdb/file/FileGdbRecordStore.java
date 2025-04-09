@@ -54,6 +54,7 @@ import com.revolsys.record.query.ILike;
 import com.revolsys.record.query.Like;
 import com.revolsys.record.query.OrderBy;
 import com.revolsys.record.query.Query;
+import com.revolsys.record.query.QueryStatement;
 import com.revolsys.record.query.QueryValue;
 import com.revolsys.record.query.SqlAppendable;
 import com.revolsys.record.query.SqlCondition;
@@ -170,7 +171,7 @@ public class FileGdbRecordStore extends AbstractRecordStore {
     this.geodatabase.alterDomain(domain);
   }
 
-  private void appendCollectionValue(final Query query, final SqlAppendable sql,
+  private void appendCollectionValue(final QueryStatement statement, final SqlAppendable sql,
     final QueryValue condition) {
     final CollectionValue collectionValue = (CollectionValue)condition;
     final List<Object> values = collectionValue.getValues();
@@ -185,17 +186,18 @@ public class FileGdbRecordStore extends AbstractRecordStore {
     }
   }
 
-  private void appendFakeTrue(final Query query, final SqlAppendable sql,
+  private void appendFakeTrue(final QueryStatement statement, final SqlAppendable sql,
     final QueryValue queryValue) {
     sql.append("1 = 1");
   }
 
-  private void appendLike(final Query query, final SqlAppendable sql, final QueryValue condition) {
+  private void appendLike(final QueryStatement statement, final SqlAppendable sql,
+    final QueryValue condition) {
     final BinaryCondition like = (BinaryCondition)condition;
     final QueryValue left = like.getLeft();
     final QueryValue right = like.getRight();
     sql.append("UPPER(CAST(");
-    appendQueryValue(query, sql, left);
+    appendQueryValue(statement, sql, left);
     sql.append(" AS VARCHAR(4000))) LIKE ");
     if (right instanceof Value) {
       final Value valueCondition = (Value)right;
@@ -208,11 +210,11 @@ public class FileGdbRecordStore extends AbstractRecordStore {
       }
       sql.append("'");
     } else {
-      appendQueryValue(query, sql, right);
+      appendQueryValue(statement, sql, right);
     }
   }
 
-  private void appendSqlCondition(final Query query, final SqlAppendable sql,
+  private void appendSqlCondition(final QueryStatement statement, final SqlAppendable sql,
     final QueryValue condition) {
     final SqlCondition sqlCondition = (SqlCondition)condition;
     final String where = sqlCondition.getSql();
@@ -245,7 +247,8 @@ public class FileGdbRecordStore extends AbstractRecordStore {
     }
   }
 
-  private void appendValue(final Query query, final SqlAppendable sql, final QueryValue condition) {
+  private void appendValue(final QueryStatement statement, final SqlAppendable sql,
+    final QueryValue condition) {
     final Value valueCondition = (Value)condition;
     Object value = valueCondition.getValue();
     if (value instanceof Identifier) {

@@ -16,7 +16,7 @@ import com.revolsys.geometry.model.GeometryDataTypes;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.io.PathName;
 import com.revolsys.logging.Logs;
-import com.revolsys.record.query.Query;
+import com.revolsys.record.query.QueryStatement;
 import com.revolsys.record.query.SqlAppendable;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinitionImpl;
@@ -160,7 +160,7 @@ public class OgrRecordDefinition extends RecordDefinitionImpl {
   }
 
   @Override
-  public void appendSelectAll(final Query query, final SqlAppendable sql) {
+  public void appendSelectAll(final QueryStatement statement, final SqlAppendable sql) {
     boolean first = true;
     for (final String columnName : this.columnNames) {
       if (first) {

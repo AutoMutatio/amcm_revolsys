@@ -12,19 +12,23 @@ import com.revolsys.record.schema.RecordDefinition;
 
 public interface ColumnReference extends QueryValue {
 
-  void appendColumnName(final SqlAppendable string);
+  void appendColumnName(final SqlAppendable sql);
 
-  default void appendColumnNameWithPrefix(final SqlAppendable string) {
-    appendColumnPrefix(string);
-    appendColumnName(string);
+  default void appendColumnNameWithPrefix(final SqlAppendable sql) {
+    appendColumnPrefix(sql);
+    appendColumnName(sql);
   }
 
-  default void appendColumnPrefix(final SqlAppendable string) {
+  default void appendColumnPrefix(final SqlAppendable sql) {
   }
 
   @Override
   default int appendParameters(final int index, final PreparedStatement statement) {
     return index;
+  }
+
+  default Cast cast(final String typeName) {
+    return new Cast(this, typeName);
   }
 
   ColumnReference clone();
@@ -37,7 +41,11 @@ public interface ColumnReference extends QueryValue {
   }
 
   default DataType getDataType() {
-    return getFieldDefinition().getDataType();
+    final var fieldDefinition = getFieldDefinition();
+    if (fieldDefinition == null) {
+      return null;
+    }
+    return fieldDefinition.getDataType();
   }
 
   FieldDefinition getFieldDefinition();

@@ -21,6 +21,7 @@ import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.io.IoFactoryRegistry;
 import com.revolsys.logging.Logs;
 import com.revolsys.util.Property;
+import com.revolsys.util.concurrent.Concurrent;
 
 public class ContextCleanupListener implements ServletContextListener {
 
@@ -47,7 +48,7 @@ public class ContextCleanupListener implements ServletContextListener {
 
   @Override
   public void contextDestroyed(final ServletContextEvent event) {
-    final ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
+    final ClassLoader contextClassLoader = Concurrent.contextClassLoader();
     IoFactoryRegistry.clearInstance();
     GeometryFactory.clear();
     EpsgCoordinateSystems.clear();
@@ -63,7 +64,7 @@ public class ContextCleanupListener implements ServletContextListener {
 
   @Override
   public void contextInitialized(final ServletContextEvent event) {
-    CachedIntrospectionResults.acceptClassLoader(Thread.currentThread().getContextClassLoader());
+    CachedIntrospectionResults.acceptClassLoader(Concurrent.contextClassLoader());
   }
 
   protected boolean isWebAppClassLoaderOrChild(ClassLoader classLoader) {

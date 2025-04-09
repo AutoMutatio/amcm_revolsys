@@ -20,11 +20,17 @@ import com.revolsys.record.schema.RecordStore;
 import com.revolsys.util.Property;
 
 public class Q {
+  public static BiFunction<QueryValue, QueryValue, QueryValue> ADD = Add::new;
+
   public static BiFunction<QueryValue, QueryValue, Condition> ILIKE = ILike::new;
 
   public static Function<QueryValue, Condition> IS_NOT_NULL = IsNotNull::new;
 
   public static Function<QueryValue, Condition> IS_NULL = IsNull::new;
+
+  public static BiFunction<QueryValue, QueryValue, Condition> IS_DISTINCT_FROM = IsDistinctFrom::new;
+
+  public static BiFunction<QueryValue, QueryValue, Condition> IS_NOT_DISTINCT_FROM = IsNotDistinctFrom::new;
 
   public static BiFunction<QueryValue, QueryValue, Condition> EQUAL = Q::equal;
 
@@ -379,6 +385,18 @@ public class Q {
     return jsonValue(left, Value.newValue(right));
   }
 
+  public static JsonValue jsonValue(final TableReferenceProxy table, final String fieldName,
+    final String name) {
+    final var column = table.getColumn(fieldName);
+    return jsonValue(column, name);
+  }
+
+  public static Equal jsonValueEqual(final QueryValue left, final String key, final Object value) {
+    final var jsonValue = jsonValue(left, key);
+    return Q.equal(jsonValue, value);
+  }
+
+
   public static LessThan lessThan(final FieldDefinition fieldDefinition, final Object value) {
     final String name = fieldDefinition.getName();
     final Value valueCondition = Value.newValue(fieldDefinition, value);
@@ -524,7 +542,7 @@ public class Q {
   public static Condition predicate(final Predicate<MapEx> predicate) {
     return new Condition() {
       @Override
-      public void appendDefaultSql(final Query query, final RecordStore recordStore,
+      public void appendDefaultSql(final QueryStatement statement, final RecordStore recordStore,
         final SqlAppendable sql) {
         throw new UnsupportedOperationException(
           "Predicate conditions cannot be used to create a SQL expression");

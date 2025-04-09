@@ -1,5 +1,7 @@
 package com.revolsys.jdbc.io;
 
+import java.util.Collections;
+
 import com.revolsys.io.PathName;
 import com.revolsys.parallel.ReentrantLockEx;
 import com.revolsys.record.schema.AbstractRecordStore;
@@ -42,6 +44,11 @@ public class JdbcRecordStoreSchema extends RecordStoreSchema {
 
   public String getQuotedDbName() {
     return this.quotedDbName;
+  }
+
+  public boolean isEnum(final PathName typeName) {
+    final var enums = getProperty("enums", Collections.<PathName> emptySet());
+    return enums.contains(typeName);
   }
 
   public boolean isQuoteName() {

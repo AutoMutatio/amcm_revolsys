@@ -18,20 +18,20 @@ public class TableAlias implements TableReference {
   }
 
   @Override
-  public void appendQueryValue(final Query query, final SqlAppendable sql,
+  public void appendQueryValue(final QueryStatement statement, final SqlAppendable sql,
     final QueryValue queryValue) {
-    this.table.appendQueryValue(query, sql, queryValue);
+    this.table.appendQueryValue(statement, sql, queryValue);
   }
 
   @Override
-  public void appendSelect(final Query query, final SqlAppendable string,
+  public void appendSelect(final QueryStatement statement, final SqlAppendable string,
     final QueryValue queryValue) {
     // TODO Auto-generated method stub
 
   }
 
   @Override
-  public void appendSelectAll(final Query query, final SqlAppendable string) {
+  public void appendSelectAll(final QueryStatement statement, final SqlAppendable string) {
     // TODO Auto-generated method stub
 
   }

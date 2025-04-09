@@ -39,15 +39,15 @@ public class ColumnAlias implements QueryValue, ColumnReference {
   }
 
   @Override
-  public void appendDefaultSelect(final Query query, final RecordStore recordStore,
+  public void appendDefaultSelect(final QueryStatement statement, final RecordStore recordStore,
     final SqlAppendable sql) {
-    this.column.appendDefaultSelect(query, recordStore, sql);
+    this.column.appendDefaultSelect(statement, recordStore, sql);
     sql.append(" as ");
     appendAlias(sql);
   }
 
   @Override
-  public void appendDefaultSql(final Query query, final RecordStore recordStore,
+  public void appendDefaultSql(final QueryStatement statement, final RecordStore recordStore,
     final SqlAppendable sql) {
     sql.append(this.alias);
   }

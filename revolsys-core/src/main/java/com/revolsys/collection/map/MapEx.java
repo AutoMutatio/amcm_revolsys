@@ -5,13 +5,16 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import com.revolsys.collection.json.Json;
 import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.json.Jsonable;
 import com.revolsys.data.type.DataType;
 import com.revolsys.data.type.DataTypedValue;
 import com.revolsys.logging.Logs;
 import com.revolsys.util.Property;
 
-public interface MapEx extends MapDefault<String, CharSequence, Object, MapEx>, DataTypedValue {
+public interface MapEx
+  extends MapDefault<String, CharSequence, Object, MapEx>, DataTypedValue, Jsonable {
   static MapEx asEx(final Map<String, ? extends Object> map) {
     if (map instanceof MapEx) {
       return (MapEx)map;
@@ -42,7 +45,8 @@ public interface MapEx extends MapDefault<String, CharSequence, Object, MapEx>, 
 
   @SuppressWarnings("unchecked")
   default <T> T getValueByPath(final CharSequence path) {
-    final String[] propertyPath = path.toString().split("\\.");
+    final String[] propertyPath = path.toString()
+      .split("\\.");
     Object propertyValue = this;
     for (int i = 0; i < propertyPath.length && propertyValue != null; i++) {
       final String propertyName = propertyPath[i];
@@ -63,6 +67,21 @@ public interface MapEx extends MapDefault<String, CharSequence, Object, MapEx>, 
       }
     }
     return (T)propertyValue;
+  }
+
+  @Override
+  default JsonObject toJson() {
+    return JsonObject.hash(this);
+  }
+
+  @Override
+  default String toJsonString() {
+    return Json.toString(this);
+  }
+
+  @Override
+  default String toJsonString(final boolean indent) {
+    return Json.toString(this, indent);
   }
 
   @Override

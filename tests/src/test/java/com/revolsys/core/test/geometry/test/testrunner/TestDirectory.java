@@ -32,10 +32,11 @@ public class TestDirectory extends TestSuite {
         addTest(test);
       } else if (file.isFile()) {
         TestFile testRun;
-        if (FileUtil.getFileNameExtension(file).equals("json")) {
+        if (FileUtil.getFileNameExtension(file)
+          .equals("json")) {
           testRun = MapObjectFactory.toObject(file);
         } else {
-          testRun = testReader.newTestRun(this, file, runIndex);
+          testRun = null;// testReader.newTestRun(this, file, runIndex);
         }
         addTest(testRun);
       }

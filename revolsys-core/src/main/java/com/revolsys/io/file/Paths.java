@@ -194,18 +194,23 @@ public interface Paths {
     }
   }
 
+  static boolean deleteFile(final Path newDirectoryStreamItem) {
+    try {
+      Files.delete(newDirectoryStreamItem);
+
+    } catch (final Throwable e) {
+      Logs.error("Unable to delete file: " + newDirectoryStreamItem, e);
+      return false;
+    }
+    return true;
+  }
+
   static boolean deleteFiles(final Path path, final String glob) {
     boolean success = true;
     try (
       DirectoryStream<Path> newDirectoryStream = Files.newDirectoryStream(path, glob)) {
       for (final Path newDirectoryStreamItem : newDirectoryStream) {
-        try {
-          Files.delete(newDirectoryStreamItem);
-
-        } catch (final Throwable e) {
-          Logs.error("Unable to delete file: " + newDirectoryStreamItem, e);
-          success = false;
-        }
+        success = deleteFile(newDirectoryStreamItem);
       }
     } catch (final Exception e) {
       Logs.error("Unable to delete files: " + path + "  " + glob, e);
@@ -319,7 +324,8 @@ public interface Paths {
   }
 
   static Path getPath(final Path path) {
-    return path.toAbsolutePath().normalize();
+    return path.toAbsolutePath()
+      .normalize();
   }
 
   static Path getPath(final Path parent, final String path) {
@@ -432,7 +438,8 @@ public interface Paths {
 
   static Date lastModifiedDate(final Path path) {
     try {
-      return new Date(Files.getLastModifiedTime(path).toMillis());
+      return new Date(Files.getLastModifiedTime(path)
+        .toMillis());
     } catch (final IOException e) {
       return new Date(0);
     }
@@ -440,7 +447,8 @@ public interface Paths {
 
   static java.sql.Date lastModifiedDateSql(final Path path) {
     try {
-      return new java.sql.Date(Files.getLastModifiedTime(path).toMillis());
+      return new java.sql.Date(Files.getLastModifiedTime(path)
+        .toMillis());
     } catch (final IOException e) {
       return new java.sql.Date(0);
     }
@@ -448,7 +456,8 @@ public interface Paths {
 
   static Instant lastModifiedInstant(final Path path) {
     try {
-      return Files.getLastModifiedTime(path).toInstant();
+      return Files.getLastModifiedTime(path)
+        .toInstant();
     } catch (final IOException e) {
       return Instant.MIN;
     }
@@ -456,7 +465,8 @@ public interface Paths {
 
   static Instant lastModifiedTimestamp(final Path path) {
     try {
-      return Files.getLastModifiedTime(path).toInstant();
+      return Files.getLastModifiedTime(path)
+        .toInstant();
     } catch (final IOException e) {
       return Instant.EPOCH;
     }
@@ -480,7 +490,8 @@ public interface Paths {
         final Stream<Path> pathStream = Files.list(path)) {
         pathStream.forEach(childPath -> {
           final String fileName = getFileName(childPath);
-          if (pattern.matcher(fileName).matches()) {
+          if (pattern.matcher(fileName)
+            .matches()) {
             paths.add(childPath);
           }
         });
@@ -530,7 +541,8 @@ public interface Paths {
 
   static URL toUrl(final Path path) {
     try {
-      return path.toUri().toURL();
+      return path.toUri()
+        .toURL();
     } catch (final MalformedURLException e) {
       throw Exceptions.toRuntimeException(e);
     }

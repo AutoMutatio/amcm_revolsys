@@ -29,7 +29,6 @@ import org.springframework.util.StringValueResolver;
 
 import com.revolsys.logging.Logs;
 import com.revolsys.spring.BeanReference;
-import com.revolsys.spring.TargetBeanFactoryBean;
 import com.revolsys.spring.factory.Parameter;
 import com.revolsys.spring.util.PlaceholderResolvingStringValueResolver;
 
@@ -63,25 +62,25 @@ public class BeanConfigurrer
     final MutablePropertyValues propertyValues = bd.getPropertyValues();
     PropertyValue propertyValue = new PropertyValue(property, value);
     final String beanClassName = bd.getBeanClassName();
-    if (!TargetBeanFactoryBean.class.getName().equals(beanClassName)) {
-      if (Parameter.class.getName().equals(beanClassName)) {
-        final PropertyValue typeValue = propertyValues.getPropertyValue("type");
-        if (typeValue != null) {
-          final String typeClassName = typeValue.getValue().toString();
-          try {
-            final Class<?> typeClass = Class.forName(typeClassName, true, classLoader);
+    if (Parameter.class.getName()
+      .equals(beanClassName)) {
+      final PropertyValue typeValue = propertyValues.getPropertyValue("type");
+      if (typeValue != null) {
+        final String typeClassName = typeValue.getValue()
+          .toString();
+        try {
+          final Class<?> typeClass = Class.forName(typeClassName, true, classLoader);
 
-            final Object convertedValue = new SimpleTypeConverter().convertIfNecessary(value,
-              typeClass);
-            propertyValue = new PropertyValue(property, convertedValue);
-          } catch (final Throwable e) {
-            Logs.error(BeanConfigurrer.class,
-              "Unable to set " + beanName + "." + property + "=" + value, e);
-          }
+          final Object convertedValue = new SimpleTypeConverter().convertIfNecessary(value,
+            typeClass);
+          propertyValue = new PropertyValue(property, convertedValue);
+        } catch (final Throwable e) {
+          Logs.error(BeanConfigurrer.class,
+            "Unable to set " + beanName + "." + property + "=" + value, e);
         }
       }
-      propertyValues.addPropertyValue(propertyValue);
     }
+    propertyValues.addPropertyValue(propertyValue);
   }
 
   private ApplicationContext applicationContext;
@@ -336,7 +335,8 @@ public class BeanConfigurrer
           final Object mapEntryKey = entry.getKey();
           if (mapEntryKey instanceof TypedStringValue) {
             final TypedStringValue typedKey = (TypedStringValue)mapEntryKey;
-            if (typedKey.getValue().equals(mapKey)) {
+            if (typedKey.getValue()
+              .equals(mapKey)) {
               entry.setValue(value);
               found = true;
             }
@@ -345,8 +345,6 @@ public class BeanConfigurrer
         if (!found) {
           sourceMap.put(new TypedStringValue(mapKey), value);
         }
-      } else if (!TargetBeanFactoryBean.class.isAssignableFrom(beanClass)) {
-        Logs.error(this, "Bean class must be a MapFactoryBean, unable to set " + key + "=" + value);
       }
     } catch (final ClassNotFoundException e) {
       Logs.error(this, "Unable to set " + key + "=" + value, e);

@@ -34,7 +34,7 @@ import com.revolsys.record.io.format.esri.gdb.xml.model.Index;
 import com.revolsys.record.io.format.esri.gdb.xml.model.enums.FieldType;
 import com.revolsys.record.io.format.xml.XmlProcessor;
 import com.revolsys.record.property.LengthFieldName;
-import com.revolsys.record.query.Query;
+import com.revolsys.record.query.QueryStatement;
 import com.revolsys.record.query.SqlAppendable;
 import com.revolsys.record.schema.RecordDefinitionImpl;
 import com.revolsys.record.schema.RecordStore;
@@ -190,7 +190,7 @@ public class FileGdbRecordDefinition extends RecordDefinitionImpl {
   }
 
   @Override
-  public void appendSelectAll(final Query query, final SqlAppendable sql) {
+  public void appendSelectAll(final QueryStatement statement, final SqlAppendable sql) {
     boolean first = true;
     for (final Field field : this.deTable.getFields()) {
       final String name = field.getName();

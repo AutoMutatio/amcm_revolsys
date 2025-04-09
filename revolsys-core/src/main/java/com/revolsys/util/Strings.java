@@ -270,7 +270,8 @@ public interface Strings {
     final String searchText) {
     final int searchLength = searchText.length();
     if (searchLength == endIndex - startIndex) {
-      return text.substring(startIndex, endIndex).equals(searchText);
+      return text.substring(startIndex, endIndex)
+        .equals(searchText);
     } else {
       return false;
     }
@@ -347,16 +348,28 @@ public interface Strings {
 
   // Normalize splitting characters into base + combining mark
   static String normalize(final CharSequence text) {
-    return Normalizer.normalize(text, Form.NFD);
+    if (text == null) {
+      return null;
+    } else {
+      return Normalizer.normalize(text, Form.NFD);
+    }
   }
 
   // Normalize preferring combined characters
   static String normalizeNfc(final CharSequence text) {
-    return Normalizer.normalize(text, Form.NFC);
+    if (text == null) {
+      return null;
+    } else {
+      return Normalizer.normalize(text, Form.NFC);
+    }
   }
 
   static String normalizeNfd(final CharSequence text) {
-    return Normalizer.normalize(text, Form.NFD);
+    if (text == null) {
+      return null;
+    } else {
+      return Normalizer.normalize(text, Form.NFD);
+    }
   }
 
   public static String normalizeToUsAscii(final CharSequence cs) {
@@ -386,6 +399,21 @@ public interface Strings {
       }
       return sb.toString();
     }
+  }
+
+  static String padStart(final String string, final int length, final char paddingCharacter) {
+    if (string == null) {
+      return null;
+    }
+    if (string.length() >= length) {
+      return string;
+    }
+    final var sb = new StringBuilder(length);
+    for (int i = string.length(); i < length; i++) {
+      sb.append(paddingCharacter);
+    }
+    sb.append(string);
+    return sb.toString();
   }
 
   static void print(final PrintStream out, final char separator, final Object... values) {
@@ -468,6 +496,15 @@ public interface Strings {
       return null;
     } else {
       return text.replaceAll(from, to);
+    }
+  }
+
+  static String replaceNullCharacters(final String string) {
+    if (string == null) {
+      return null;
+    } else {
+      return string.replace("\u0000", "")
+        .stripTrailing();
     }
   }
 
@@ -784,7 +821,8 @@ public interface Strings {
     if (text == null) {
       return 0;
     } else {
-      return text.strip().length();
+      return text.strip()
+        .length();
     }
   }
 

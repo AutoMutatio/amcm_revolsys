@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -365,6 +366,8 @@ public class JsonWriter implements BaseCloseable {
       } else if (value instanceof final MapSerializer serialzer) {
         final JsonObject map = serialzer.toMap();
         write(map);
+      } else if (value instanceof final Path path) {
+        value(path.toString());
       } else if (value instanceof final Collection list) {
         list(list);
       } else if (value instanceof final Iterable list) {

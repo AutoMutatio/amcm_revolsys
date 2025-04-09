@@ -46,35 +46,35 @@ public class TableReferenceImpl implements TableReference {
   }
 
   @Override
-  public void appendQueryValue(final Query query, final SqlAppendable sql,
+  public void appendQueryValue(final QueryStatement statement, final SqlAppendable sql,
     final QueryValue queryValue) {
     final RecordDefinition recordDefinition = this.recordDefinition;
     if (recordDefinition == null) {
-      queryValue.appendSql(query, null, sql);
+      queryValue.appendSql(statement, null, sql);
     } else {
       final RecordStore recordStore = recordDefinition.getRecordStore();
-      queryValue.appendSql(query, recordStore, sql);
+      queryValue.appendSql(statement, recordStore, sql);
     }
   }
 
   @Override
-  public void appendSelect(final Query query, final SqlAppendable sql,
+  public void appendSelect(final QueryStatement statement, final SqlAppendable sql,
     final QueryValue queryValue) {
     final RecordDefinition recordDefinition = this.recordDefinition;
     if (recordDefinition == null) {
-      queryValue.appendSelect(query, query.getRecordStore(), sql);
+      queryValue.appendSelect(statement, statement.getRecordStore(), sql);
     } else {
-      recordDefinition.appendSelect(query, sql, queryValue);
+      recordDefinition.appendSelect(statement, sql, queryValue);
     }
   }
 
   @Override
-  public void appendSelectAll(final Query query, final SqlAppendable sql) {
+  public void appendSelectAll(final QueryStatement statement, final SqlAppendable sql) {
     if (this.recordDefinition == null) {
       appendColumnPrefix(sql);
       sql.append('*');
     } else {
-      this.recordDefinition.appendSelectAll(query, sql);
+      this.recordDefinition.appendSelectAll(statement, sql);
     }
   }
 

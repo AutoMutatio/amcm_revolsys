@@ -18,13 +18,13 @@ public class BinaryCondition extends AbstractBinaryQueryValue implements Conditi
   }
 
   @Override
-  public void appendDefaultSql(final Query query, final RecordStore recordStore,
+  public void appendDefaultSql(final QueryStatement statement, final RecordStore recordStore,
     final SqlAppendable buffer) {
-    appendLeft(buffer, query, recordStore);
+    appendLeft(statement, recordStore, buffer);
     buffer.append(" ");
     buffer.append(this.operator);
     buffer.append(" ");
-    appendRight(buffer, query, recordStore);
+    appendRight(statement, recordStore, buffer);
   }
 
   @Override

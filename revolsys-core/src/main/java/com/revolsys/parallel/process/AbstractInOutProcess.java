@@ -111,9 +111,6 @@ public abstract class AbstractInOutProcess<I, O> extends AbstractProcess
       }
       destroy();
     }
-    if (hasError) {
-      getProcessNetwork().stop();
-    }
   }
 
   protected abstract void run(Channel<I> in, Channel<O> out);

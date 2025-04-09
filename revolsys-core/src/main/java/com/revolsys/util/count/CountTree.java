@@ -1,20 +1,17 @@
 package com.revolsys.util.count;
 
 import java.util.Map;
-import java.util.TreeMap;
+import java.util.TreeSet;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 import com.revolsys.collection.json.JsonObject;
-import com.revolsys.collection.json.JsonType;
 import com.revolsys.collection.json.Jsonable;
 import com.revolsys.collection.list.ListEx;
 import com.revolsys.collection.list.Lists;
-import com.revolsys.parallel.ReentrantLockEx;
 
 public class CountTree implements Jsonable {
-  private final Map<String, CountTree> counterByKey = new TreeMap<>();
-
-  private final ReentrantLockEx lock = new ReentrantLockEx();
+  private final Map<String, CountTree> counterByKey = new ConcurrentHashMap<>();
 
   private final AtomicLong counter = new AtomicLong();
 
@@ -30,6 +27,10 @@ public class CountTree implements Jsonable {
 
   public long addCount() {
     return this.counter.incrementAndGet();
+  }
+
+  public long addCount(final long count) {
+    return this.counter.addAndGet(count);
   }
 
   public long addCount(final String... path) {
@@ -84,31 +85,50 @@ public class CountTree implements Jsonable {
     return this.counter.get();
   }
 
+  public long getCount(final String key) {
+    return getCounter(key).getCount();
+  }
+
   public CountTree getCounter(final String key) {
-    var counter = this.counterByKey.get(key);
-    if (counter == null) {
-      try (
-        var l = this.lock.lockX()) {
-        counter = this.counterByKey.get(key);
-        if (counter == null) {
-          counter = new CountTree(this.path.clone()
-            .addValue(key));
-          this.counterByKey.put(key, counter);
-        }
-      }
-    }
-    return counter;
+    return this.counterByKey.computeIfAbsent(key, this::newCounter);
+  }
+
+  public boolean isEmpty() {
+    return this.counter.get() == 0 && this.counterByKey.isEmpty();
+  }
+
+  protected CountTree newCounter(final String key) {
+    return new CountTree(this.path.clone()
+      .addValue(key));
+  }
+
+  public CountTree removeCounter(final String key) {
+    this.counterByKey.remove(key);
+    return this;
+  }
+
+  public CountTree setCount(final long count) {
+    this.counter.set(count);
+    return this;
+  }
+
+  public CountTree setCount(final String key, final long count) {
+    getCounter(key).setCount(count);
+    return this;
   }
 
   @Override
-  public JsonType toJson() {
+  public JsonObject toJson() {
     final var json = JsonObject.hash();
     final var count = this.counter.get();
     if (count > 0) {
       json.addValue("$count", count);
     }
-    for (final var node : this.counterByKey.values()) {
-      node.appendJson(json);
+    for (final var key : new TreeSet<>(this.counterByKey.keySet())) {
+      final var node = this.counterByKey.get(key);
+      if (node != null) {
+        node.appendJson(json);
+      }
     }
     return json;
   }

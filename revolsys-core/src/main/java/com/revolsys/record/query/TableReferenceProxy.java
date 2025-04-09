@@ -16,10 +16,6 @@ public interface TableReferenceProxy {
     }
   }
 
-  default DeleteStatement deleteStatement() {
-    return new DeleteStatement().from(getTableReference());
-  }
-
   default ColumnReference getColumn(final CharSequence name) {
     return getTableReference().getColumn(name);
   }

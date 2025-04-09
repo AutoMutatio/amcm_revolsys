@@ -52,6 +52,9 @@ public class JdbcRecordDefinition extends RecordDefinitionImpl {
   public String getTableAlias() {
     final String tableAlias = super.getTableAlias();
     if (tableAlias == null) {
+      if (this.dbTableName == null) {
+        return null;
+      }
       return this.dbTableName.replace("\"", "");
     }
     return tableAlias;

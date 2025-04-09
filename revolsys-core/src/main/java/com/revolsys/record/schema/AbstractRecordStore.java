@@ -27,7 +27,7 @@ import com.revolsys.record.code.CodeTable;
 import com.revolsys.record.io.RecordStoreConnection;
 import com.revolsys.record.io.RecordStoreExtension;
 import com.revolsys.record.property.RecordDefinitionProperty;
-import com.revolsys.record.query.Query;
+import com.revolsys.record.query.QueryStatement;
 import com.revolsys.record.query.QueryValue;
 import com.revolsys.record.query.SqlAppendable;
 import com.revolsys.util.Property;
@@ -47,7 +47,7 @@ public abstract class AbstractRecordStore extends BaseObjectWithProperties imple
 
   private RecordStoreConnection recordStoreConnection;
 
-  private final Map<Class<?>, Consumer3<Query, SqlAppendable, QueryValue>> sqlQueryAppenderByClass = new HashMap<>();
+  private final Map<Class<?>, Consumer3<QueryStatement, SqlAppendable, QueryValue>> sqlQueryAppenderByClass = new HashMap<>();
 
   private GeometryFactory geometryFactory;
 
@@ -157,20 +157,19 @@ public abstract class AbstractRecordStore extends BaseObjectWithProperties imple
   }
 
   protected void addSqlQueryAppender(final Class<?> clazz,
-    final Consumer3<Query, SqlAppendable, QueryValue> appender) {
+    final Consumer3<QueryStatement, SqlAppendable, QueryValue> appender) {
     this.sqlQueryAppenderByClass.put(clazz, appender);
   }
 
   @Override
-  public void appendQueryValue(final Query query, final SqlAppendable sql,
+  public void appendQueryValue(final QueryStatement statement, final SqlAppendable sql,
     final QueryValue queryValue) {
     final Class<?> valueClass = queryValue.getClass();
-    final Consumer3<Query, SqlAppendable, QueryValue> appender = this.sqlQueryAppenderByClass
-      .get(valueClass);
+    final var appender = this.sqlQueryAppenderByClass.get(valueClass);
     if (appender == null) {
-      queryValue.appendDefaultSql(query, this, sql);
+      queryValue.appendDefaultSql(statement, this, sql);
     } else {
-      appender.accept(query, sql, queryValue);
+      appender.accept(statement, sql, queryValue);
     }
   }
 
@@ -208,7 +207,8 @@ public abstract class AbstractRecordStore extends BaseObjectWithProperties imple
     if (fieldName == null) {
       return null;
     } else {
-      final CodeTable codeTable = this.codeTableByFieldName.get(fieldName.toString().toUpperCase());
+      final CodeTable codeTable = this.codeTableByFieldName.get(fieldName.toString()
+        .toUpperCase());
       return codeTable;
     }
   }

@@ -49,6 +49,7 @@ import com.revolsys.io.file.Paths;
 import com.revolsys.net.UrlProxy;
 import com.revolsys.predicate.Predicates;
 import com.revolsys.util.Property;
+import com.revolsys.util.concurrent.Concurrent;
 
 public interface Resource extends org.springframework.core.io.Resource, FileProxy, UrlProxy {
   String CLASSPATH_URL_PREFIX = "classpath:";
@@ -151,7 +152,7 @@ public interface Resource extends org.springframework.core.io.Resource, FileProx
         || location.indexOf(':') == -1) {
         return new PathResource(location);
       } else if (location.startsWith(CLASSPATH_URL_PREFIX)) {
-        final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        final ClassLoader classLoader = Concurrent.contextClassLoader();
         final String path = location.substring(CLASSPATH_URL_PREFIX.length());
         return new ClassPathResource(path, classLoader);
       } else {

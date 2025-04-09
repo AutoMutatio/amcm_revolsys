@@ -50,7 +50,7 @@ public class CollectionValue extends AbstractMultiQueryValue {
   }
 
   @Override
-  public void appendDefaultSql(final Query query, final RecordStore recordStore,
+  public void appendDefaultSql(final QueryStatement statement, final RecordStore recordStore,
     final SqlAppendable sql) {
     sql.append('(');
 
@@ -64,9 +64,9 @@ public class CollectionValue extends AbstractMultiQueryValue {
       final QueryValue queryValue = values[i];
       if (queryValue instanceof Value) {
         final Value value = (Value)queryValue;
-        value.appendDefaultSql(query, recordStore, sql);
+        value.appendDefaultSql(statement, recordStore, sql);
       } else {
-        queryValue.appendSql(query, recordStore, sql);
+        queryValue.appendSql(statement, recordStore, sql);
       }
 
     }

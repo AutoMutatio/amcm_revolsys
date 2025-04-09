@@ -49,10 +49,23 @@ public class AbstractWebController {
       PrintWriter writer = response.getWriter();
       JsonWriter jsonWriter = new JsonWriter(writer);) {
       jsonWriter.write(jsonObject);
+      jsonWriter.newLineForce();
     }
   }
 
-  public static void responseJson(final HttpServletResponse response, final JsonObject jsonObject)
+  public static void responseJson(final HttpServletResponse response, final int statusCode,
+    final Object jsonObject) throws IOException {
+    setContentTypeJson(response);
+    response.setStatus(statusCode);
+    try (
+      PrintWriter writer = response.getWriter();
+      JsonWriter jsonWriter = new JsonWriter(writer);) {
+      jsonWriter.value(jsonObject);
+      jsonWriter.newLineForce();
+    }
+  }
+
+  public static void responseJson(final HttpServletResponse response, final Object jsonObject)
     throws IOException {
     responseJson(response, 200, jsonObject);
   }
