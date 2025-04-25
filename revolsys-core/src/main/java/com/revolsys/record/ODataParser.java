@@ -17,7 +17,9 @@ import com.revolsys.collection.set.Sets;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.record.query.Add;
+import com.revolsys.record.query.AllOperator;
 import com.revolsys.record.query.And;
+import com.revolsys.record.query.AnyOperator;
 import com.revolsys.record.query.CollectionValue;
 import com.revolsys.record.query.Column;
 import com.revolsys.record.query.ColumnReference;
@@ -192,7 +194,8 @@ public class ODataParser {
     .add(Methods.GEO_INTERSECTS, values -> {
       final QueryValue value2 = values.get(1);
       if (value2 instanceof CollectionValue) {
-        final QueryValue newValue = ((CollectionValue)value2).getQueryValues().get(0);
+        final QueryValue newValue = ((CollectionValue)value2).getQueryValues()
+          .get(0);
         values.set(1, newValue);
       }
       return F.envelopeIntersects(values);
@@ -201,7 +204,8 @@ public class ODataParser {
       final QueryValue left = values.get(0);
       QueryValue right = values.get(1);
       if (right instanceof CollectionValue) {
-        right = ((CollectionValue)right).getQueryValues().get(0);
+        right = ((CollectionValue)right).getQueryValues()
+          .get(0);
       }
 
       if (!(left instanceof ColumnReference)) {
@@ -211,7 +215,8 @@ public class ODataParser {
       final ColumnReference field = (ColumnReference)left;
       if (right instanceof Value) {
         final Value value = (Value)right;
-        final String text = value.getValue().toString();
+        final String text = value.getValue()
+          .toString();
         final FieldDefinition fieldDefinition = field.getFieldDefinition();
         final GeometryFactory geometryFactory = fieldDefinition.getGeometryFactory();
         final Geometry geometry = geometryFactory.geometry(text);
@@ -238,8 +243,10 @@ public class ODataParser {
       QueryValue left = args.get(0);
       QueryValue right = args.get(1);
       if (left instanceof Upper && right instanceof Upper) {
-        left = left.getQueryValues().get(0);
-        right = right.getQueryValues().get(0);
+        left = left.getQueryValues()
+          .get(0);
+        right = right.getQueryValues()
+          .get(0);
         if (right instanceof Value) {
           final Value value = (Value)right;
           return Q.iLike(left, "%" + value.getValue() + "%");
@@ -259,8 +266,10 @@ public class ODataParser {
       QueryValue left = args.get(0);
       QueryValue right = args.get(1);
       if (left instanceof Upper && right instanceof Upper) {
-        left = left.getQueryValues().get(0);
-        right = right.getQueryValues().get(0);
+        left = left.getQueryValues()
+          .get(0);
+        right = right.getQueryValues()
+          .get(0);
         if (right instanceof Value) {
           final Value value = (Value)right;
           return Q.iLike(left, value.getValue() + "%");
@@ -280,8 +289,10 @@ public class ODataParser {
       QueryValue left = args.get(0);
       QueryValue right = args.get(1);
       if (left instanceof Upper && right instanceof Upper) {
-        left = left.getQueryValues().get(0);
-        right = right.getQueryValues().get(0);
+        left = left.getQueryValues()
+          .get(0);
+        right = right.getQueryValues()
+          .get(0);
         if (right instanceof Value) {
           final Value value = (Value)right;
           return Q.iLike(left, "%" + value.getValue());
@@ -342,6 +353,8 @@ public class ODataParser {
     .add("div", Divide::new)
     .add("mod", Mod::new)
     .add("in", In::new)
+    .add("any", AnyOperator::new)
+    .add("all", AllOperator::new)
     .getMap();
 
   // Order by preference
@@ -594,7 +607,8 @@ public class ODataParser {
                 final QueryValue any = null;// Expression.any(Expression.simpleProperty(aggregateSource));
 
                 final ExpressionToken et = new ExpressionToken(any, tokensIncludingParens);
-                rt.subList(rt.size() - (i - k), rt.size()).clear();
+                rt.subList(rt.size() - (i - k), rt.size())
+                  .clear();
                 rt.add(et);
                 return rt;
               }
@@ -634,7 +648,8 @@ public class ODataParser {
               final QueryValue methodCall = methodCall(methodName, methodArguments);
 
               final ExpressionToken et = new ExpressionToken(methodCall, tokensIncludingParens);
-              rt.subList(rt.size() - (i - k), rt.size()).clear();
+              rt.subList(rt.size() - (i - k), rt.size())
+                .clear();
               rt.add(et);
 
             } else if (aggregateVariable != null) {
@@ -1047,6 +1062,7 @@ public class ODataParser {
   }
 
   private static String unquote(final String singleQuotedValue) {
-    return singleQuotedValue.substring(1, singleQuotedValue.length() - 1).replace("''", "'");
+    return singleQuotedValue.substring(1, singleQuotedValue.length() - 1)
+      .replace("''", "'");
   }
 }
