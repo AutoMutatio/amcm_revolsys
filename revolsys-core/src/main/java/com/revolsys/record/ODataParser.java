@@ -52,7 +52,7 @@ import com.revolsys.util.Strings;
 public class ODataParser {
 
   public enum AggregateFunction {
-    none, any, all
+    all, any, none
   }
 
   private static class ExpressionToken extends Token {
@@ -77,19 +77,45 @@ public class ODataParser {
 
     public static final String CAST = "cast";
 
+    public static final String CEILING = "ceiling";
+
+    public static final String CONCAT = "concat";
+
     public static final String CONTAINS = "contains";
 
-    public static final String ISOF = "isof";
+    public static final String DAY = "day";
 
     public static final String ENDSWITH = "endswith";
 
-    public static final String STARTSWITH = "startswith";
+    public static final String FLOOR = "floor";
 
-    public static final String SUBSTRINGOF = "substringof";
+    public static final String GEO_DISTANCE = "geo.distance";
+
+    public static final String GEO_INTERSECTS = "geo.intersects";
+
+    public static final String HOUR = "hour";
 
     public static final String INDEXOF = "indexof";
 
+    public static final String ISOF = "isof";
+
+    public static final String LENGTH = "length";
+
+    public static final String MINUTE = "minute";
+
+    public static final String MONTH = "month";
+
     public static final String REPLACE = "replace";
+
+    public static final String ROUND = "round";
+
+    public static final String SECOND = "second";
+
+    public static final String STARTSWITH = "startswith";
+
+    public static final String SUBSTRING = "substring";
+
+    public static final String SUBSTRINGOF = "substringof";
 
     public static final String TOLOWER = "tolower";
 
@@ -97,42 +123,16 @@ public class ODataParser {
 
     public static final String TRIM = "trim";
 
-    public static final String SUBSTRING = "substring";
-
-    public static final String CONCAT = "concat";
-
-    public static final String LENGTH = "length";
-
     public static final String YEAR = "year";
-
-    public static final String MONTH = "month";
-
-    public static final String DAY = "day";
-
-    public static final String HOUR = "hour";
-
-    public static final String MINUTE = "minute";
-
-    public static final String SECOND = "second";
-
-    public static final String ROUND = "round";
-
-    public static final String FLOOR = "floor";
-
-    public static final String CEILING = "ceiling";
-
-    public static final String GEO_INTERSECTS = "geo.intersects";
-
-    public static final String GEO_DISTANCE = "geo.distance";
   }
 
   public static class Token {
 
+    private int end;
+
     public final TokenType type;
 
     public final String value;
-
-    private int end;
 
     public Token(final TokenType type, final String value) {
       this.type = type;
@@ -178,14 +178,55 @@ public class ODataParser {
   }
 
   public static enum TokenType {
-    UNKNOWN, WHITESPACE, QUOTED_STRING, WORD, SYMBOL, NUMBER, OPENPAREN, CLOSEPAREN, EXPRESSION;
+    CLOSEPAREN, EXPRESSION, NUMBER, OPENPAREN, QUOTED_STRING, SYMBOL, UNKNOWN, WHITESPACE, WORD;
   }
 
-  private static Set<String> METHODS = Sets.newHash(Methods.CAST, Methods.ISOF, Methods.ENDSWITH,
-    Methods.STARTSWITH, Methods.SUBSTRINGOF, Methods.INDEXOF, Methods.REPLACE, Methods.TOLOWER,
-    Methods.TOUPPER, Methods.TRIM, Methods.SUBSTRING, Methods.CONCAT, Methods.LENGTH, Methods.YEAR,
-    Methods.MONTH, Methods.DAY, Methods.HOUR, Methods.MINUTE, Methods.SECOND, Methods.ROUND,
-    Methods.FLOOR, Methods.CEILING, Methods.GEO_INTERSECTS, Methods.GEO_DISTANCE, Methods.CONTAINS);
+  // Order by preference
+  private static final Map<String, BiFunction<QueryValue, QueryValue, ? extends QueryValue>> BINARY_OPERATOR_FACTORIES = Maps
+    .<String, BiFunction<QueryValue, QueryValue, ? extends QueryValue>> buildLinkedHash()//
+    .add("or", (a, b) -> {
+      final Or multi = new Or();
+      if (a instanceof final Or multi1) {
+        multi.addConditions(multi1);
+      } else {
+        multi.addCondition((Condition)a);
+      }
+      if (b instanceof final Or multi2) {
+        multi.addConditions(multi2);
+      } else {
+        multi.addCondition((Condition)b);
+      }
+      return multi;
+    })
+    .add("and", (a, b) -> {
+      final And multi = new And();
+      if (a instanceof final And multi1) {
+        multi.addConditions(multi1);
+      } else {
+        multi.addCondition((Condition)a);
+      }
+      if (b instanceof final And multi2) {
+        multi.addConditions(multi2);
+      } else {
+        multi.addCondition((Condition)b);
+      }
+      return multi;
+    })
+    .add("eq", Q.EQUAL)
+    .add("ne", Q.NOT_EQUAL)
+    .add("lt", LessThan::new)
+    .add("gt", GreaterThan::new)
+    .add("le", LessThanEqual::new)
+    .add("ge", GreaterThanEqual::new)
+    .add("add", Add::new)
+    .add("sub", Subtract::new)
+    .add("mul", Multiply::new)
+    .add("div", Divide::new)
+    .add("mod", Mod::new)
+    .add("in", In::new)
+    .add("any", AnyOperator::new)
+    .add("all", AllOperator::new)
+    .getMap();
 
   private static final Map<String, Function<List<QueryValue>, QueryValue>> METHOD_FACTORIES = Maps
     .<String, Function<List<QueryValue>, QueryValue>> buildHash()//
@@ -310,52 +351,11 @@ public class ODataParser {
     })
     .getMap();
 
-  // Order by preference
-  private static final Map<String, BiFunction<QueryValue, QueryValue, ? extends QueryValue>> BINARY_OPERATOR_FACTORIES = Maps
-    .<String, BiFunction<QueryValue, QueryValue, ? extends QueryValue>> buildLinkedHash()//
-    .add("or", (a, b) -> {
-      final Or multi = new Or();
-      if (a instanceof final Or multi1) {
-        multi.addConditions(multi1);
-      } else {
-        multi.addCondition((Condition)a);
-      }
-      if (b instanceof final Or multi2) {
-        multi.addConditions(multi2);
-      } else {
-        multi.addCondition((Condition)b);
-      }
-      return multi;
-    })
-    .add("and", (a, b) -> {
-      final And multi = new And();
-      if (a instanceof final And multi1) {
-        multi.addConditions(multi1);
-      } else {
-        multi.addCondition((Condition)a);
-      }
-      if (b instanceof final And multi2) {
-        multi.addConditions(multi2);
-      } else {
-        multi.addCondition((Condition)b);
-      }
-      return multi;
-    })
-    .add("eq", Q.EQUAL)
-    .add("ne", Q.NOT_EQUAL)
-    .add("lt", LessThan::new)
-    .add("gt", GreaterThan::new)
-    .add("le", LessThanEqual::new)
-    .add("ge", GreaterThanEqual::new)
-    .add("add", Add::new)
-    .add("sub", Subtract::new)
-    .add("mul", Multiply::new)
-    .add("div", Divide::new)
-    .add("mod", Mod::new)
-    .add("in", In::new)
-    .add("any", AnyOperator::new)
-    .add("all", AllOperator::new)
-    .getMap();
+  private static Set<String> METHODS = Sets.newHash(Methods.CAST, Methods.ISOF, Methods.ENDSWITH,
+    Methods.STARTSWITH, Methods.SUBSTRINGOF, Methods.INDEXOF, Methods.REPLACE, Methods.TOLOWER,
+    Methods.TOUPPER, Methods.TRIM, Methods.SUBSTRING, Methods.CONCAT, Methods.LENGTH, Methods.YEAR,
+    Methods.MONTH, Methods.DAY, Methods.HOUR, Methods.MINUTE, Methods.SECOND, Methods.ROUND,
+    Methods.FLOOR, Methods.CEILING, Methods.GEO_INTERSECTS, Methods.GEO_DISTANCE, Methods.CONTAINS);
 
   // Order by preference
   private static final Map<String, Pair<Boolean, Function<QueryValue, QueryValue>>> UNARY_OPERATOR_FACTORIES = Maps
