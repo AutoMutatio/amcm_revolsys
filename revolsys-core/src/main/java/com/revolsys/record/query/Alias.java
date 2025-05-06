@@ -42,7 +42,7 @@ public class Alias implements QueryValue {
 
   @Override
   public int appendParameters(final int index, final PreparedStatement statement) {
-    return index;
+    return this.value.appendParameters(index, statement);
   }
 
   @Override
