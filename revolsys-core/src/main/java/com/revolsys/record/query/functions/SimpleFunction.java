@@ -1,22 +1,29 @@
 package com.revolsys.record.query.functions;
 
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.BiFunction;
 
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.data.type.DataType;
 import com.revolsys.record.query.AbstractMultiQueryValue;
+import com.revolsys.record.query.ColumnIndexes;
 import com.revolsys.record.query.QueryStatement;
 import com.revolsys.record.query.QueryValue;
 import com.revolsys.record.query.SqlAppendable;
+import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordStore;
 import com.revolsys.util.Strings;
 
 public class SimpleFunction extends AbstractMultiQueryValue implements Function {
 
   private final String name;
+
+  private BiFunction<ResultSet, Integer, Object> valueFromResultSet;
 
   public SimpleFunction(final String name, final int expectedParameterCount,
     final List<QueryValue> parameters) {
@@ -146,6 +153,24 @@ public class SimpleFunction extends AbstractMultiQueryValue implements Function 
   @Override
   public <V> V getValue(final MapEx record) {
     return null;
+  }
+
+  @Override
+  public Object getValueFromResultSet(final RecordDefinition recordDefinition,
+    final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings)
+    throws SQLException {
+    final int index = indexes.incrementAndGet();
+    if (this.valueFromResultSet == null) {
+      return resultSet.getString(index);
+    } else {
+      return this.valueFromResultSet.apply(resultSet, index);
+    }
+  }
+
+  public SimpleFunction setValueFromResultSet(
+    final BiFunction<ResultSet, Integer, Object> valueFromResultSet) {
+    this.valueFromResultSet = valueFromResultSet;
+    return this;
   }
 
   @Override
