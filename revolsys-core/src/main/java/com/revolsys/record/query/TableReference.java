@@ -2,6 +2,7 @@ package com.revolsys.record.query;
 
 import java.util.List;
 
+import com.revolsys.collection.json.Json;
 import com.revolsys.collection.list.ListEx;
 import com.revolsys.io.PathName;
 import com.revolsys.record.schema.FieldDefinition;
@@ -59,6 +60,23 @@ public interface TableReference extends From, TableReferenceProxy {
     final QueryValue queryValue);
 
   void appendSelectAll(QueryStatement statement, final SqlAppendable string);
+
+  default QueryValue columnByPath(final String path) {
+    final var parts = path.split("\\.");
+    final var column = getField(parts[0]);
+    QueryValue result = column;
+    if (path.length() > 1) {
+      if (column.getDataType() == Json.JSON_OBJECT || column.getDataType() == Json.JSON_TYPE) {
+        for (int i = 1; i < parts.length; i++) {
+          final var part = parts[i];
+          result = Q.jsonRawValue(result, part).setText(i == parts.length - 1);
+        }
+      } else {
+        throw new IllegalStateException("Field path can only be specified for json fields");
+      }
+    }
+    return result;
+  }
 
   default QueryValue count(final String fieldName) {
     final ColumnReference field = getColumn(fieldName);

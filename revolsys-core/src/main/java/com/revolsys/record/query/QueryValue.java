@@ -186,8 +186,16 @@ public interface QueryValue extends Cloneable, SqlAppendParameters {
   default void setColumn(final ColumnReference column) {
   }
 
-  default Alias toAlias(final String alias) {
-    return new Alias(this, alias);
+  default QueryValue toAlias(final String alias) {
+    if (Property.hasValue(alias)) {
+      return new Alias(this, alias);
+    } else {
+      return this;
+    }
+  }
+
+  default QueryValue toCast(final String type) {
+    return new Cast(this, type);
   }
 
   default String toFormattedString() {

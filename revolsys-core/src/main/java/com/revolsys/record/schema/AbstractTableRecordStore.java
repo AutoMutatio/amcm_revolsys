@@ -47,7 +47,6 @@ import com.revolsys.record.query.UpdateStatement;
 import com.revolsys.util.Property;
 
 public class AbstractTableRecordStore implements RecordDefinitionProxy {
-
   public static JsonObject schemaToJson(final RecordDefinition recordDefinition) {
     final JsonList jsonFields = JsonList.array();
     final String idFieldName = recordDefinition.getIdFieldName();
@@ -73,8 +72,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
       }
       final JsonObject jsonField = JsonObject.hash()
         .addValue("name", fieldName)
-        .addNotEmpty("title", field.getTitle()
-          .replace(" Ind", ""))
+        .addNotEmpty("title", field.getTitle().replace(" Ind", ""))
         .addNotEmpty("description", field.getDescription())
         .addValue("dataType", dataTypeString)
         .addValue("required", field.isRequired());
@@ -160,8 +158,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
   }
 
   protected void addSearchConditions(final Query query, final Or or, String search) {
-    final String searchText = search.strip()
-      .toLowerCase();
+    final String searchText = search.strip().toLowerCase();
     search = '%' + searchText + '%';
     for (final String fieldName : this.searchFieldNames) {
       final QueryValue left = getSearchColumn(fieldName, searchText);
@@ -194,8 +191,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
   }
 
   public Query applySearchCondition(final Query query, final String search) {
-    if (search != null && search.strip()
-      .length() > 0) {
+    if (search != null && search.strip().length() > 0) {
       final Or or = new Or();
       addSearchConditions(query, or, search);
       if (!or.isEmpty()) {
@@ -224,8 +220,8 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
   protected void executeUpdate(final TableRecordStoreConnection connection, final String sql,
     final Object... parameters) {
     if (this.recordStore instanceof JdbcRecordStore) {
-      connection.transactionNewRun(() -> this.recordStore.<JdbcRecordStore> getRecordStore()
-        .executeUpdate(sql, parameters));
+      connection.transactionNewRun(
+        () -> this.recordStore.<JdbcRecordStore> getRecordStore().executeUpdate(sql, parameters));
     }
     throw new UnsupportedOperationException("Must be a JDBC connection");
 
@@ -256,8 +252,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
 
   public Record getRecord(final TableRecordStoreConnection connection, final String fieldName,
     final Object value) {
-    return newQuery(connection).and(fieldName, value)
-      .getRecord();
+    return newQuery(connection).and(fieldName, value).getRecord();
   }
 
   public Record getRecordById(final TableRecordStoreConnection connection, final Object id) {
@@ -376,15 +371,14 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
 
   public void lockTable(final TableRecordStoreConnection connection) {
     if (this.recordStore instanceof JdbcRecordStore) {
-      connection.transactionRun(() -> this.recordStore.<JdbcRecordStore> getRecordStore()
-        .lockTable(this.tablePath));
+      connection.transactionRun(
+        () -> this.recordStore.<JdbcRecordStore> getRecordStore().lockTable(this.tablePath));
     }
   }
 
   public <R extends Record> InsertUpdateBuilder<R> newInsert(
     final TableRecordStoreConnection connection) {
-    return this.<R> newInsertUpdate(connection)
-      .setUpdate(false);
+    return this.<R> newInsertUpdate(connection).setUpdate(false);
   }
 
   public <R extends Record> InsertUpdateBuilder<R> newInsertUpdate(
@@ -437,8 +431,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     } catch (final Exception e) {
     }
 
-    final Query query = newQuery(connection).setOffset(skip)
-      .setLimit(top);
+    final Query query = newQuery(connection).setOffset(skip).setLimit(top);
 
     if (Property.hasValue(select)) {
       for (String selectItem : select.split(",")) {
@@ -486,8 +479,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
 
   public <R extends Record> InsertUpdateBuilder<R> newUpdate(
     final TableRecordStoreConnection connection) {
-    return this.<R> newInsertUpdate(connection)
-      .setInsert(false);
+    return this.<R> newInsertUpdate(connection).setInsert(false);
   }
 
   public UUID newUUID() {
@@ -523,9 +515,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
       }
       final JsonObject jsonField = JsonObject.hash()
         .addValue("name", fieldName)
-        .addNotEmpty("title", field.getTitle()
-          .replace(" Ind", "")
-          .replace(" Code", ""))
+        .addNotEmpty("title", field.getTitle().replace(" Ind", "").replace(" Code", ""))
         .addNotEmpty("description", field.getDescription())
         .addValue("dataType", dataTypeString)
         .addValue("required", field.isRequired());
@@ -680,8 +670,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
       }
       return record.newRecord();
     } catch (final Exception e) {
-      throw Exceptions.toWrapped(e)
-        .property("record", record);
+      throw Exceptions.toWrapped(e).property("record", record);
     }
   }
 
