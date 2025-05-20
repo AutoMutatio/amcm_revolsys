@@ -314,8 +314,7 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
   public Query addOrderBy(final OrderBy order) {
     for (final ListIterator<OrderBy> iterator = this.orderBy.listIterator(); iterator.hasNext();) {
       final OrderBy order2 = iterator.next();
-      if (order2.getField()
-        .equals(order.getField())) {
+      if (order2.getField().equals(order.getField())) {
         iterator.set(order);
         return this;
       }
@@ -598,8 +597,7 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
           sql.append(" GROUP BY ");
           hasGroupBy = true;
         }
-        table.getTableReference()
-          .appendQueryValue(this, sql, groupByItem);
+        table.getTableReference().appendQueryValue(this, sql, groupByItem);
       }
     }
     if (!this.having.isEmpty()) {
@@ -650,8 +648,7 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     if (this.whereCondition != null) {
       clone.whereCondition = this.whereCondition.clone();
     }
-    if (!clone.getSelect()
-      .isEmpty() || clone.whereCondition != null) {
+    if (!clone.getSelect().isEmpty() || clone.whereCondition != null) {
       clone.sql = null;
     }
     return clone;
@@ -669,8 +666,7 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     if (this.whereCondition != null) {
       clone.whereCondition = this.whereCondition.clone(oldTable, newTable);
     }
-    if (!clone.getSelect()
-      .isEmpty() || clone.whereCondition != null) {
+    if (!clone.getSelect().isEmpty() || clone.whereCondition != null) {
       clone.sql = null;
     }
     return clone;
@@ -872,8 +868,7 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     if (sql == null) {
       sql = newSelectSql(orderBy, table, usePlaceholders);
     } else {
-      if (sql.toUpperCase()
-        .startsWith("SELECT * FROM ")) {
+      if (sql.toUpperCase().startsWith("SELECT * FROM ")) {
         final StringBuilderSqlAppendable sqlBuilder = newSqlAppendable();
         sqlBuilder.append("SELECT ");
         if (recordDefinition == null) {
@@ -945,8 +940,7 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
 
   public boolean hasOrderBy(final QueryValue column) {
     for (final OrderBy orderBy : this.orderBy) {
-      if (orderBy.getField()
-        .equals(column)) {
+      if (orderBy.getField().equals(column)) {
         return true;
       }
     }
@@ -1134,7 +1128,7 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
         final ColumnReference column = this.table.getColumn(name.substring(0, dotIndex));
         if (column.getDataType() == Json.JSON_TYPE) {
           final String remainder = name.substring(dotIndex + 1);
-          selectExpression = new SelectAlias(Q.jsonRawValue(column, remainder), remainder);
+          selectExpression = new SelectAlias(Q.jsonValue(column, remainder), remainder);
         } else {
           selectExpression = Q.sql(name);
         }
@@ -1209,8 +1203,7 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
 
   @SuppressWarnings("unchecked")
   public <R extends Reader<V>, V> R reader() {
-    return (R)getRecordDefinition().getRecordStore()
-      .getRecords(this);
+    return (R)getRecordDefinition().getRecordStore().getRecords(this);
   }
 
   public Query readerConsume(final Consumer<RecordReader> action) {
@@ -1238,8 +1231,7 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
       .hasNext();) {
       final QueryValue queryValue = iterator.next();
       if (queryValue instanceof final Column column) {
-        if (column.getName()
-          .equals(name)) {
+        if (column.getName().equals(name)) {
           iterator.remove();
         }
 
