@@ -65,11 +65,12 @@ public interface TableReference extends From, TableReferenceProxy {
     final var parts = path.split("\\.");
     final var column = getField(parts[0]);
     QueryValue result = column;
-    if (path.length() > 1) {
+    if (parts.length > 1) {
       if (column.getDataType() == Json.JSON_OBJECT || column.getDataType() == Json.JSON_TYPE) {
         for (int i = 1; i < parts.length; i++) {
           final var part = parts[i];
-          result = Q.jsonRawValue(result, part).setText(i == parts.length - 1);
+          result = Q.jsonRawValue(result, part)
+            .setText(i == parts.length - 1);
         }
       } else {
         throw new IllegalStateException("Field path can only be specified for json fields");
