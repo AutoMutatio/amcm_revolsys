@@ -186,6 +186,10 @@ public interface QueryValue extends Cloneable, SqlAppendParameters {
   default void setColumn(final ColumnReference column) {
   }
 
+  default Alias toAlias(final String alias) {
+    return new Alias(this, alias);
+  }
+
   default String toFormattedString() {
     return toString();
   }
