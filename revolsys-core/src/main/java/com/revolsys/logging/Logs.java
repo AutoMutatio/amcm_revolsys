@@ -157,8 +157,7 @@ public class Logs {
         logException = exceptions.remove(exceptionCount - 1);
         for (final Throwable throwable : exceptions) {
           if (throwable == sqlException) {
-            messages.add(sqlException.getClass()
-              .getName());
+            messages.add(sqlException.getClass().getName());
             final String wrappedMessage = sqlException.getMessage();
             addMessage(messages, wrappedMessage);
           } else {
@@ -213,11 +212,10 @@ public class Logs {
     for (final var key : Arrays.asList("COMPUTERNAME", "HOSTNAME", "HOST")) {
       final var name = System.getenv(key);
       if (Property.hasValue(name)) {
-        return name.replaceAll("\\..+", "")
-          .replaceAll("[^a-zA-Z0-9_]+", "_");
+        return name.replaceAll("\\..+", "").replaceAll("[^a-zA-Z0-9_]+", "_");
       }
     }
-    return "";
+    return "localhost";
   }
 
   public static boolean isDebugEnabled(final Class<?> logCateogory) {
@@ -257,10 +255,9 @@ public class Logs {
   }
 
   public static void setUncaughtExceptionHandler(final Class<?> logClass) {
-    Thread.currentThread()
-      .setUncaughtExceptionHandler((thread, exception) -> {
-        Logs.error(logClass, exception);
-      });
+    Thread.currentThread().setUncaughtExceptionHandler((thread, exception) -> {
+      Logs.error(logClass, exception);
+    });
   }
 
   public static void warn(final Class<?> clazz, final String message) {
