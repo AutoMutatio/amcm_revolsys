@@ -45,7 +45,12 @@ public class JdbcFieldDefinition extends FieldDefinition {
     final JdbcRecordDefinition recordDefinition, final ResultSetMetaData metaData,
     final ColumnIndexes columnIndexes) throws SQLException {
     final int columnIndex = columnIndexes.incrementAndGet();
-    final String name = metaData.getColumnName(columnIndex);
+    final String baseName = metaData.getColumnName(columnIndex);
+    var name = baseName;
+    var i = 0;
+    while (recordDefinition.hasField(name)) {
+      name = baseName + (++i);
+    }
     final JdbcFieldDefinition newField = clone();
     newField.setName(name);
     recordDefinition.addField(newField);

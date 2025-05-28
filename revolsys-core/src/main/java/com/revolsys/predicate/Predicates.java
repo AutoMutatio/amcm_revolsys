@@ -112,6 +112,10 @@ public interface Predicates {
     return t -> false;
   }
 
+  static <T> Predicate<T> notNull() {
+    return t -> t != null;
+  }
+
   static <T> void retain(final Collection<T> collection, final Predicate<? super T> filter) {
     final Iterator<T> iterator = collection.iterator();
     while (iterator.hasNext()) {

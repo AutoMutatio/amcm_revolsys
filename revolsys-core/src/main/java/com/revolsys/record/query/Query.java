@@ -20,7 +20,7 @@ import java.util.function.Supplier;
 
 import com.revolsys.collection.Collector;
 import com.revolsys.collection.iterator.Reader;
-import com.revolsys.collection.json.Json;
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.list.ListEx;
 import com.revolsys.collection.list.Lists;
 import com.revolsys.collection.map.MapEx;
@@ -212,6 +212,10 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
 
   private Condition having = Condition.ALL;
 
+  private boolean returnCount;
+
+  private final JsonObject resultHeaders = JsonObject.hash();
+
   public Query() {
     this("/Record");
   }
@@ -314,7 +318,8 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
   public Query addOrderBy(final OrderBy order) {
     for (final ListIterator<OrderBy> iterator = this.orderBy.listIterator(); iterator.hasNext();) {
       final OrderBy order2 = iterator.next();
-      if (order2.getField().equals(order.getField())) {
+      if (order2.getField()
+        .equals(order.getField())) {
         iterator.set(order);
         return this;
       }
@@ -345,6 +350,16 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
   @Deprecated
   public Query addParameter(final Object value) {
     this.parameters.add(value);
+    return this;
+  }
+
+  public Query addResultHeader(final String key, final Object value) {
+    this.resultHeaders.addNotEmpty(key, value);
+    return this;
+  }
+
+  public Query addResultHeaders(final MapEx values) {
+    this.resultHeaders.addValues(values);
     return this;
   }
 
@@ -561,6 +576,9 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     final LockMode lockMode = getLockMode();
     final boolean distinct = isDistinct();
     final List<QueryValue> groupBy = getGroupBy();
+    if (this.union != null) {
+      sql.append('(');
+    }
     if (!this.withQueries.isEmpty()) {
       sql.append("WITH ");
       boolean first = true;
@@ -597,7 +615,8 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
           sql.append(" GROUP BY ");
           hasGroupBy = true;
         }
-        table.getTableReference().appendQueryValue(this, sql, groupByItem);
+        table.getTableReference()
+          .appendQueryValue(this, sql, groupByItem);
       }
     }
     if (!this.having.isEmpty()) {
@@ -610,6 +629,7 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     lockMode.append(sql);
 
     if (this.union != null) {
+      sql.append(')');
       this.union.appendSql(sql);
     }
   }
@@ -648,7 +668,8 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     if (this.whereCondition != null) {
       clone.whereCondition = this.whereCondition.clone();
     }
-    if (!clone.getSelect().isEmpty() || clone.whereCondition != null) {
+    if (!clone.getSelect()
+      .isEmpty() || clone.whereCondition != null) {
       clone.sql = null;
     }
     return clone;
@@ -666,7 +687,8 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     if (this.whereCondition != null) {
       clone.whereCondition = this.whereCondition.clone(oldTable, newTable);
     }
-    if (!clone.getSelect().isEmpty() || clone.whereCondition != null) {
+    if (!clone.getSelect()
+      .isEmpty() || clone.whereCondition != null) {
       clone.sql = null;
     }
     return clone;
@@ -834,6 +856,10 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     }
   }
 
+  public JsonObject getResultHeaders() {
+    return this.resultHeaders;
+  }
+
   public List<QueryValue> getSelect() {
     return this.selectExpressions;
   }
@@ -868,7 +894,8 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     if (sql == null) {
       sql = newSelectSql(orderBy, table, usePlaceholders);
     } else {
-      if (sql.toUpperCase().startsWith("SELECT * FROM ")) {
+      if (sql.toUpperCase()
+        .startsWith("SELECT * FROM ")) {
         final StringBuilderSqlAppendable sqlBuilder = newSqlAppendable();
         sqlBuilder.append("SELECT ");
         if (recordDefinition == null) {
@@ -940,7 +967,8 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
 
   public boolean hasOrderBy(final QueryValue column) {
     for (final OrderBy orderBy : this.orderBy) {
-      if (orderBy.getField().equals(column)) {
+      if (orderBy.getField()
+        .equals(column)) {
         return true;
       }
     }
@@ -998,6 +1026,10 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
 
   public boolean isDistinct() {
     return this.distinct;
+  }
+
+  public boolean isReturnCount() {
+    return this.returnCount;
   }
 
   public boolean isSelectEmpty() {
@@ -1117,23 +1149,14 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
       selectExpression = queryValue;
     } else if (select instanceof final CharSequence chars) {
       final String name = chars.toString();
-      final int dotIndex = name.indexOf('.');
-      if (dotIndex == -1) {
-        if (this.table.hasColumn(name)) {
-          selectExpression = this.table.getColumn(name);
-        } else {
-          selectExpression = new Column(name);
+      selectExpression = getTable().columnByPath(name);
+      if (selectExpression == null || !(selectExpression instanceof ColumnReference)) {
+        final var alias = name.substring(name.lastIndexOf('.') + 1);
+        if (selectExpression == null) {
+          selectExpression = Q.sql("NULL");
         }
-      } else {
-        final ColumnReference column = this.table.getColumn(name.substring(0, dotIndex));
-        if (column.getDataType() == Json.JSON_TYPE) {
-          final String remainder = name.substring(dotIndex + 1);
-          selectExpression = new SelectAlias(Q.jsonValue(column, remainder), remainder);
-        } else {
-          selectExpression = Q.sql(name);
-        }
+        selectExpression = selectExpression.toAlias(alias);
       }
-
     } else {
       throw new IllegalArgumentException("Not a valid select expression :" + select);
     }
@@ -1203,7 +1226,8 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
 
   @SuppressWarnings("unchecked")
   public <R extends Reader<V>, V> R reader() {
-    return (R)getRecordDefinition().getRecordStore().getRecords(this);
+    return (R)getRecordDefinition().getRecordStore()
+      .getRecords(this);
   }
 
   public Query readerConsume(final Consumer<RecordReader> action) {
@@ -1231,7 +1255,8 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
       .hasNext();) {
       final QueryValue queryValue = iterator.next();
       if (queryValue instanceof final Column column) {
-        if (column.getName().equals(name)) {
+        if (column.getName()
+          .equals(name)) {
           iterator.remove();
         }
 
@@ -1440,6 +1465,11 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     return this;
   }
 
+  public Query setReturnCount(final boolean returnCount) {
+    this.returnCount = returnCount;
+    return this;
+  }
+
   public Query setSelect(final Collection<?> selectExpressions) {
     this.selectExpressions.clear();
     for (final Object selectExpression : selectExpressions) {
@@ -1536,6 +1566,9 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
   }
 
   public Query unionAll(final Query query) {
+    if (query == this) {
+      throw new IllegalArgumentException("Cannot union query to itself");
+    }
     this.union = new Union(query, false);
     return this;
   }

@@ -144,6 +144,10 @@ public interface QueryValue extends Cloneable, SqlAppendParameters {
     appendSql(statement, recordStore, sql);
   }
 
+  default Cast cast(final String typeName) {
+    return new Cast(this, typeName);
+  }
+
   default void changeRecordDefinition(final RecordDefinition oldRecordDefinition,
     final RecordDefinition newRecordDefinition) {
     if (newRecordDefinition != null) {

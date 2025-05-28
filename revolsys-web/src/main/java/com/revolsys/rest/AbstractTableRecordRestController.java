@@ -120,12 +120,15 @@ public class AbstractTableRecordRestController extends AbstractWebController {
     if (query == null) {
       responseJson(response, JsonObject.hash("value", JsonList.array()));
     }
-    connection.transaction().requiresNew().readOnly().run(() -> {
-      try (
-        final RecordReader records = query.getRecordReader()) {
-        responseRecords(connection, request, response, query, records, count);
-      }
-    });
+    connection.transaction()
+      .requiresNew()
+      .readOnly()
+      .run(() -> {
+        try (
+          final RecordReader records = query.getRecordReader()) {
+          responseRecords(connection, request, response, query, records, count);
+        }
+      });
   }
 
   protected void responseRecords(final TableRecordStoreConnection connection,
@@ -136,24 +139,29 @@ public class AbstractTableRecordRestController extends AbstractWebController {
     } else if ("xlsx".equals(request.getParameter("format"))) {
       responseRecords(response, reader, "Export", "xlsx");
     } else {
-      responseRecordsJson(connection, request, response, query, reader, count, null);
+      responseRecordsJson(connection, request, response, reader, count, null, query.getOffset(),
+        query.getLimit());
     }
   }
 
   public void responseRecordsJson(final TableRecordStoreConnection connection,
     final HttpServletRequest request, final HttpServletResponse response, final Query query,
     final Long count, final JsonObject extraData) throws IOException {
-    connection.transaction().requiresNew().readOnly().run(() -> {
-      try (
-        final RecordReader records = query.getRecordReader()) {
-        responseRecordsJson(connection, request, response, query, records, count, extraData);
-      }
-    });
+    connection.transaction()
+      .requiresNew()
+      .readOnly()
+      .run(() -> {
+        try (
+          final RecordReader records = query.getRecordReader()) {
+          responseRecordsJson(connection, request, response, records, count, extraData, query.getOffset(),
+            query.getLimit());
+        }
+      });
   }
 
   protected void responseRecordsJson(final TableRecordStoreConnection connection,
-    final HttpServletRequest request, final HttpServletResponse response, final Query query,
-    final RecordReader reader, final Long count, final JsonObject extraData) throws IOException {
+    final HttpServletRequest request, final HttpServletResponse response, final RecordReader reader,
+    final Long count, final JsonObject extraData, final int offset, final int limit) throws IOException {
     reader.open();
     setContentTypeJson(response);
     response.setStatus(200);
@@ -170,14 +178,14 @@ public class AbstractTableRecordRestController extends AbstractWebController {
       }
       jsonWriter.setItemsPropertyName("value");
       final int writeCount = jsonWriter.writeAll(reader);
-      final int nextSkip = query.getOffset() + writeCount;
+      final int nextSkip = offset + writeCount;
       boolean writeNext = false;
       if (writeCount != 0) {
         if (count == null) {
-          if (writeCount >= query.getLimit()) {
+          if (writeCount >= limit) {
             writeNext = true;
           }
-        } else if (query.getOffset() + writeCount < count) {
+        } else if (offset + writeCount < count) {
           writeNext = true;
         }
       }

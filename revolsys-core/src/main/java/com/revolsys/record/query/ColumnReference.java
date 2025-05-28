@@ -27,10 +27,6 @@ public interface ColumnReference extends QueryValue {
     return index;
   }
 
-  default Cast cast(final String typeName) {
-    return new Cast(this, typeName);
-  }
-
   ColumnReference clone();
 
   @Override

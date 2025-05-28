@@ -63,11 +63,22 @@ public interface TableReference extends From, TableReferenceProxy {
 
   default QueryValue columnByPath(final String path) {
     final var parts = path.split("\\.");
-    final var column = getField(parts[0]);
+    int fieldNameIndex = 0;
+    // If the column reference starts with a / then check if that type name is
+    // for this table
+    if (parts[0].startsWith("/")) {
+      if (getTablePath().getName()
+        .equals(parts[0].substring(1))) {
+        fieldNameIndex++;
+      } else {
+        return null;
+      }
+    }
+    final var column = getField(parts[fieldNameIndex]);
     QueryValue result = column;
-    if (parts.length > 1) {
+    if (parts.length - fieldNameIndex > 1) {
       if (column.getDataType() == Json.JSON_OBJECT || column.getDataType() == Json.JSON_TYPE) {
-        for (int i = 1; i < parts.length; i++) {
+        for (int i = fieldNameIndex + 1; i < parts.length; i++) {
           final var part = parts[i];
           result = Q.jsonRawValue(result, part)
             .setText(i == parts.length - 1);

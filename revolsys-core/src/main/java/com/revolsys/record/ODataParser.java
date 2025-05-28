@@ -38,7 +38,6 @@ import com.revolsys.record.query.Or;
 import com.revolsys.record.query.Q;
 import com.revolsys.record.query.QueryValue;
 import com.revolsys.record.query.Subtract;
-import com.revolsys.record.query.TableReference;
 import com.revolsys.record.query.Value;
 import com.revolsys.record.query.functions.Distance;
 import com.revolsys.record.query.functions.F;
@@ -510,13 +509,14 @@ public class ODataParser {
     // }
   }
 
-  public static QueryValue parseFilter(final TableReference table, final String value) {
+  public static QueryValue parseFilter(final Function<String, QueryValue> table,
+    final String value) {
     final List<Token> tokens = tokenize(value);
 
     return readExpression(table, tokens);
   }
 
-  private static QueryValue processBinaryExpression(final TableReference table,
+  private static QueryValue processBinaryExpression(final Function<String, QueryValue> table,
     final List<Token> tokens, final String op) {
 
     final int ts = tokens.size();
@@ -542,7 +542,7 @@ public class ODataParser {
     return null;
   }
 
-  private static List<Token> processParentheses(final TableReference table,
+  private static List<Token> processParentheses(final Function<String, QueryValue> table,
     final List<Token> tokens) {
 
     final List<Token> rt = new ArrayList<>();
@@ -690,7 +690,7 @@ public class ODataParser {
 
   }
 
-  private static QueryValue processUnaryExpression(final TableReference table,
+  private static QueryValue processUnaryExpression(final Function<String, QueryValue> table,
     final List<Token> tokens, final String op) {
     final Pair<Boolean, Function<QueryValue, QueryValue>> config = UNARY_OPERATOR_FACTORIES.get(op);
     final boolean whitespaceRequired = config.getValue1();
@@ -746,7 +746,8 @@ public class ODataParser {
     }
   }
 
-  private static QueryValue readExpression(final TableReference table, List<Token> tokens) {
+  private static QueryValue readExpression(final Function<String, QueryValue> table,
+    List<Token> tokens) {
     tokens = trimWhitespace(tokens);
     tokens = processParentheses(table, tokens);
     if (tokens.size() == 2 && tokens.get(0).type == TokenType.WORD
@@ -879,7 +880,7 @@ public class ODataParser {
           return Value.newValue(false);
         }
         try {
-          return table.getColumn(text);
+          return table.apply(text);
         } catch (final Exception e) {
           return new Column(text);
         }
@@ -1031,7 +1032,7 @@ public class ODataParser {
         final Token token = new Token(TokenType.QUOTED_STRING, string);
         rt.add(token);
         current = end;
-      } else if (Character.isLetter(c) || c == '*') {
+      } else if (Character.isLetter(c) || c == '*' || c == '/') {
         final int end = readWord(value, current + 1, length);
         final String tokenString = value.substring(current, end);
         rt.add(new Token(TokenType.WORD, tokenString));

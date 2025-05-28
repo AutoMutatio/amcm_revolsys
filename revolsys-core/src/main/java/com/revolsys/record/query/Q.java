@@ -396,7 +396,6 @@ public class Q {
     return Q.equal(jsonValue, value);
   }
 
-
   public static LessThan lessThan(final FieldDefinition fieldDefinition, final Object value) {
     final String name = fieldDefinition.getName();
     final Value valueCondition = Value.newValue(fieldDefinition, value);
@@ -478,6 +477,10 @@ public class Q {
       .toUpperCase()
       .replaceAll("[^A-Z0-9]", "") + "%";
     return Q.like(left, right);
+  }
+
+  public static StringLiteral literal(final String string) {
+    return new StringLiteral(string);
   }
 
   public static Mod mod(final QueryValue left, final QueryValue right) {
