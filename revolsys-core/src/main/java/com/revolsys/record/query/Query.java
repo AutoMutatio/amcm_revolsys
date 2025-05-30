@@ -300,11 +300,15 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     QueryValue queryValue;
     if (field instanceof QueryValue) {
       queryValue = (QueryValue)field;
-    } else if (field instanceof final CharSequence name) {
-      try {
-        queryValue = this.table.getColumn(name);
-      } catch (final IllegalArgumentException e) {
-        queryValue = new Column(name);
+    } else if (field instanceof final CharSequence fieldName) {
+      if (hasField(fieldName)) {
+        queryValue = getColumn(fieldName);
+      } else {
+        try {
+          queryValue = new ColumnIndex(Integer.parseInt(fieldName.toString()));
+        } catch (final NumberFormatException e) {
+          queryValue = new Column(fieldName);
+        }
       }
     } else if (field instanceof final Integer index) {
       queryValue = new ColumnIndex(index);

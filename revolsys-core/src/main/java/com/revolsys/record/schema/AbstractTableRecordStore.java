@@ -152,7 +152,17 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
             ascending = false;
           }
         }
-        query.addOrderBy(fieldName, ascending);
+        Object orderField;
+        if (hasField(fieldName)) {
+          orderField = getColumn(fieldName);
+        } else {
+          try {
+            orderField = Integer.parseInt(fieldName);
+          } catch (final NumberFormatException e) {
+            orderField = fieldName;
+          }
+        }
+        query.addOrderBy(orderField, ascending);
       }
     }
     applyDefaultSortOrder(query);

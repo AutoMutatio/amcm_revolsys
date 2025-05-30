@@ -287,18 +287,16 @@ public class ODataParser {
           .get(0);
         right = right.getQueryValues()
           .get(0);
-        if (right instanceof Value) {
-          final Value value = (Value)right;
+        if (right instanceof final Value value) {
           return Q.iLike(left, "%" + value.getValue() + "%");
         } else {
           return Q.iLike(left, right);
         }
       } else {
-        if (right instanceof Value) {
-          final Value value = (Value)right;
-          return Q.like(left, "%" + value.getValue() + "%");
+        if (right instanceof final Value value) {
+          return Q.iLike(left, "%" + value.getValue() + "%");
         } else {
-          return Q.like(left, right);
+          return Q.iLike(left, right);
         }
       }
     })

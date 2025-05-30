@@ -75,6 +75,9 @@ public interface TableReference extends From, TableReferenceProxy {
       }
     }
     final var column = getField(parts[fieldNameIndex]);
+    if (column == null) {
+      return new Column(parts[fieldNameIndex]);
+    }
     QueryValue result = column;
     if (parts.length - fieldNameIndex > 1) {
       if (column.getDataType() == Json.JSON_OBJECT || column.getDataType() == Json.JSON_TYPE) {
