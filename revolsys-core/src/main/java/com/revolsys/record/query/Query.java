@@ -490,8 +490,15 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
   }
 
   @Override
-  public void appendFrom(final SqlAppendable string) {
-    this.from.appendFrom(string);
+  public void appendFrom(final SqlAppendable sql) {
+    sql.append('(');
+    appendSql(sql);
+    sql.append(')');
+  }
+
+  @Override
+  public int appendFromParameters(final int index, final PreparedStatement statement) {
+    return appendParameters(index, statement);
   }
 
   public SqlAppendable appendOrderByFields(final SqlAppendable sql, final TableReferenceProxy table,
@@ -524,6 +531,9 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
       }
     }
     index = appendSelectParameters(index, statement);
+    if (this.from != null) {
+      index = this.from.appendFromParameters(index, statement);
+    }
     for (final Join join : getJoins()) {
       index = join.appendParameters(index, statement);
     }
@@ -1049,14 +1059,17 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
   }
 
   public boolean isCustomResult() {
-    if (!getJoins().isEmpty()) {
+    if (this.from instanceof FromAlias) {
+      return true;
+    } else if (this.union != null) {
+      return true;
+    } else if (!getJoins().isEmpty()) {
       return true;
     } else if (!getGroupBy().isEmpty()) {
       return true;
     } else if (this.selectExpressions.isEmpty()) {
       return false;
-    } else if (this.selectExpressions.size() == 1
-      && this.selectExpressions.get(0) instanceof AllColumns) {
+    } else if (isSelectStar()) {
       return false;
     } else {
       return true;
@@ -1073,6 +1086,11 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
 
   public boolean isSelectEmpty() {
     return this.selectExpressions.isEmpty();
+  }
+
+  public boolean isSelectStar() {
+    return this.selectExpressions.size() == 1
+      && this.selectExpressions.get(0) instanceof AllColumns;
   }
 
   public Query join(final BiConsumer<Query, Join> action) {
@@ -1382,6 +1400,12 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     return this;
   }
 
+  public Query selectStar() {
+    this.selectExpressions.clear();
+    this.selectExpressions.add(new AllColumns());
+    return this;
+  }
+
   public Query setBaseFileName(final String baseFileName) {
     this.baseFileName = baseFileName;
     return this;
@@ -1602,6 +1626,10 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
       Logs.error(this, t);
     }
     return string.toString();
+  }
+
+  public Union union() {
+    return this.union;
   }
 
   public Query union(final Query query, final boolean distinct) {

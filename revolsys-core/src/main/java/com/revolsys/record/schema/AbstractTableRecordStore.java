@@ -16,6 +16,8 @@ import org.slf4j.LoggerFactory;
 
 import com.revolsys.collection.json.JsonList;
 import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.list.ListEx;
+import com.revolsys.collection.list.Lists;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.data.identifier.Identifier;
 import com.revolsys.data.type.DataType;
@@ -36,6 +38,7 @@ import com.revolsys.record.io.RecordWriter;
 import com.revolsys.record.query.Cast;
 import com.revolsys.record.query.ColumnReference;
 import com.revolsys.record.query.Condition;
+import com.revolsys.record.query.Count;
 import com.revolsys.record.query.DeleteStatement;
 import com.revolsys.record.query.InsertStatement;
 import com.revolsys.record.query.Or;
@@ -44,6 +47,8 @@ import com.revolsys.record.query.Query;
 import com.revolsys.record.query.QueryValue;
 import com.revolsys.record.query.TableReference;
 import com.revolsys.record.query.UpdateStatement;
+import com.revolsys.record.query.Value;
+import com.revolsys.record.query.functions.F;
 import com.revolsys.util.Property;
 
 public class AbstractTableRecordStore implements RecordDefinitionProxy {
@@ -172,7 +177,6 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
         query.addOrderBy(orderField, ascending);
       }
     }
-    applyDefaultSortOrder(query);
   }
 
   protected void addSearchConditions(final Query query, final Or or, String search) {
@@ -482,6 +486,8 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     final String filter = request.getParameter("$filter");
     final String search = request.getParameter("$search");
     final String orderBy = request.getParameter("$orderby");
+    final String aggregate = request.getParameter("$aggregate");
+
     final boolean count = "true".equals(request.getParameter("$count"));
     int skip = 0;
     try {
@@ -514,6 +520,25 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
       }
     }
 
+    boolean hasAggregate = false;
+    if (Property.hasValue(aggregate)) {
+
+      final ListEx<QueryValue> aggregates = Lists.split(aggregate, ",")
+        .map(element -> parseAggregate(query, element))
+        .toList();
+      if (aggregates.isEmpty()) {
+        return null;
+      }
+      final int selectCount = query.getSelect()
+        .size();
+      for (int i = 1; i <= selectCount; i++) {
+        // Group by all the non-aggregate functions
+        query.addGroupBy(i);
+      }
+      aggregates.forEach(query::select);
+      hasAggregate = true;
+    }
+
     Condition filterCondition = newODataFilter(query, filter);
     if (filterCondition != null) {
       filterCondition = alterCondition(request, connection, query, filterCondition);
@@ -521,6 +546,9 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     }
     applySearchCondition(query, search);
     addQueryOrderBy(query, orderBy);
+    if (!hasAggregate) {
+      applyDefaultSortOrder(query);
+    }
     return query;
   }
 
@@ -555,6 +583,55 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
 
   public UUID newUUID() {
     return UUID.randomUUID();
+  }
+
+  protected QueryValue parseAggregate(final Query query, final String element) {
+    final var parts = element.split(":");
+    final var functionName = parts[0];
+    final var fieldName = parts[1];
+    final var table = getTable();
+    QueryValue field = fieldPathToQueryValue(query, fieldName);
+    if (field == null) {
+      return null;
+    }
+    String alias = functionName;
+    if (parts.length > 2) {
+      alias = parts[2];
+    }
+
+    return switch (functionName) {
+      case "count": {
+        yield Count.count(table, fieldName)
+          .toAlias(alias);
+      }
+      case "countDistinct": {
+        yield Count.distinct(table, fieldName)
+          .toAlias(alias);
+      }
+
+      case "min":
+      case "max":
+      case "sum":
+      case "avg": {
+        boolean castRequired = false;
+        if (field instanceof final FieldDefinition fieldDefinition) {
+          if (!Number.class.isAssignableFrom(fieldDefinition.getTypeClass())) {
+            castRequired = true;
+          }
+        } else {
+          castRequired = true;
+        }
+        if (castRequired) {
+          query
+            .and(Q.equal(F.function("pg_input_is_valid", field, Value.newValue("decimal")), true));
+          field = field.toCast("decimal");
+        }
+        yield F.function(functionName, field)
+          .toAlias(alias);
+      }
+      default:
+      yield null;
+    };
   }
 
   protected QueryValue pathToQueryValueWrap(final QueryValue value, final String function) {

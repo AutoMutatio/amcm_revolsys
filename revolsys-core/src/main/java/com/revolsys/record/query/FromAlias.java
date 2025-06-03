@@ -1,5 +1,7 @@
 package com.revolsys.record.query;
 
+import java.sql.PreparedStatement;
+
 import com.revolsys.record.schema.FieldDefinition;
 
 public class FromAlias implements From {
@@ -23,6 +25,11 @@ public class FromAlias implements From {
   @Override
   public void appendFrom(final SqlAppendable sql) {
     this.from.appendFrom(sql);
+  }
+
+  @Override
+  public int appendFromParameters(final int index, final PreparedStatement statement) {
+    return this.from.appendFromParameters(index, statement);
   }
 
   @Override

@@ -707,15 +707,20 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
       if (selectExpressions.isEmpty()) {
         selectExpressions = recordDefinition.getFieldDefinitions();
       }
-      for (final QueryValue expression : selectExpressions) {
-        final FieldDefinition newField = expression.addField(this, resultRecordDefinition,
-          resultSetMetaData, columnIndexes);
-        if (expression instanceof JdbcFieldDefinition) {
-          final JdbcFieldDefinition field = (JdbcFieldDefinition)expression;
-          if (field.getRecordDefinition() == recordDefinition
-            && recordDefinition.isIdField(field)) {
-            final String name = newField.getName();
-            resultRecordDefinition.setIdFieldName(name);
+      if (query.isSelectStar()) {
+        for (int i = 1; i < resultSetMetaData.getColumnCount() + 1; i++) {
+          addField(resultRecordDefinition, resultSetMetaData, i);
+        }
+      } else {
+        for (final QueryValue expression : selectExpressions) {
+          final FieldDefinition newField = expression.addField(this, resultRecordDefinition,
+            resultSetMetaData, columnIndexes);
+          if (expression instanceof final JdbcFieldDefinition field) {
+            if (field.getRecordDefinition() == recordDefinition
+              && recordDefinition.isIdField(field)) {
+              final String name = newField.getName();
+              resultRecordDefinition.setIdFieldName(name);
+            }
           }
         }
       }
@@ -724,7 +729,7 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
 
       return resultRecordDefinition;
     } catch (final SQLException e) {
-      throw new IllegalArgumentException("Unable to load metadata for " + tablePath);
+      throw new IllegalArgumentException("Unable to load metadata for " + tablePath, e);
     }
   }
 
