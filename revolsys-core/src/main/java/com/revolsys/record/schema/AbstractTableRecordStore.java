@@ -48,6 +48,9 @@ import com.revolsys.util.Property;
 
 public class AbstractTableRecordStore implements RecordDefinitionProxy {
   public static JsonObject schemaToJson(final RecordDefinition recordDefinition) {
+    if (recordDefinition == null) {
+      return JsonObject.EMPTY;
+    }
     final JsonList jsonFields = JsonList.array();
     final String idFieldName = recordDefinition.getIdFieldName();
     final JsonObject jsonSchema = JsonObject.hash()
@@ -73,10 +76,14 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
       final JsonObject jsonField = JsonObject.hash()
         .addValue("name", fieldName)
         .addNotEmpty("title", field.getTitle()
-          .replace(" Ind", ""))
+          .replace(" Ind", "")
+          .replace(" Code", ""))
         .addNotEmpty("description", field.getDescription())
         .addValue("dataType", dataTypeString)
         .addValue("required", field.isRequired());
+      if (recordDefinition.isIdField(fieldName)) {
+        jsonField.addValue("readonly", true);
+      }
       final int length = field.getLength();
       if (length > 0) {
         jsonField.addValue("length", length);
@@ -183,7 +190,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
 
   protected void addSelect(final TableRecordStoreConnection connection, final Query query,
     final String selectItem) {
-    final QueryValue selectClause = pathToQueryValue(selectItem);
+    final QueryValue selectClause = fieldPathToSelect(query, selectItem);
     query.select(selectClause);
   }
 
@@ -243,6 +250,54 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
   public boolean exists(final TableRecordStoreConnection connection,
     final TableRecordStoreQuery query) {
     return connection.transactionCall(() -> getRecordStore().exists(query));
+  }
+
+  public QueryValue fieldPathToQueryValue(final Query query, String path) {
+    String wrapFunction = null;
+    final int tildeIndex = path.lastIndexOf('~');
+    if (tildeIndex != -1) {
+      wrapFunction = path.substring(tildeIndex + 1);
+      path = path.substring(0, tildeIndex);
+    }
+    var queryValue = fieldPathToQueryValueDo(query, path);
+    if (queryValue == null) {
+      queryValue = Q.sql("NULL");
+    }
+    if (wrapFunction != null) {
+      queryValue = pathToQueryValueWrap(queryValue, wrapFunction);
+    }
+    return queryValue;
+  }
+
+  protected QueryValue fieldPathToQueryValueDo(final Query query, final String path) {
+    return getTable().columnByPath(path);
+  }
+
+  public QueryValue fieldPathToSelect(final Query query, String path) {
+    var queryValue = fieldPathToQueryValue(query, path);
+    {
+      // Add alias if needed
+      var alias = path;
+      final var tildeIndex = alias.lastIndexOf('~');
+      if (tildeIndex != -1) {
+        path = path.substring(0, tildeIndex);
+      }
+      final var dotIndex = alias.lastIndexOf('.');
+      if (dotIndex != -1) {
+        alias = path.substring(dotIndex + 1);
+      }
+      if (queryValue instanceof final ColumnReference column) {
+        if (!column.getName()
+          .equals(alias)) {
+          queryValue = queryValue.toAlias(alias);
+        }
+      } else {
+        queryValue = queryValue.toAlias(alias);
+
+      }
+    }
+    return queryValue;
+
   }
 
   public Map<QueryValue, Boolean> getDefaultSortOrder() {
@@ -401,17 +456,19 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     return new TableRecordStoreInsertUpdateBuilder<>(this, connection);
   }
 
-  public Condition newODataFilter(String filter) {
+  public Condition newODataFilter(final Query query, String filter) {
     if (Property.hasValue(filter)) {
       filter = filter.replace("%2B", "+");
-      return (Condition)ODataParser.parseFilter(this::pathToQueryValue, filter);
+      return (Condition)ODataParser.parseFilter(path -> fieldPathToQueryValue(query, path), filter);
     } else {
       return null;
     }
   }
 
   public Query newQuery(final TableRecordStoreConnection connection) {
-    return new TableRecordStoreQuery(this, connection);
+    final var query = new TableRecordStoreQuery(this, connection);
+    query.setBaseFileName(this.typeName);
+    return query;
   }
 
   public Query newQuery(final TableRecordStoreConnection connection,
@@ -425,6 +482,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     final String filter = request.getParameter("$filter");
     final String search = request.getParameter("$search");
     final String orderBy = request.getParameter("$orderby");
+    final boolean count = "true".equals(request.getParameter("$count"));
     int skip = 0;
     try {
       final String value = request.getParameter("$skip");
@@ -446,7 +504,8 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     }
 
     final Query query = newQuery(connection).setOffset(skip)
-      .setLimit(top);
+      .setLimit(top)
+      .setReturnCount(count);
 
     if (Property.hasValue(select)) {
       for (String selectItem : select.split(",")) {
@@ -455,7 +514,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
       }
     }
 
-    Condition filterCondition = newODataFilter(filter);
+    Condition filterCondition = newODataFilter(query, filter);
     if (filterCondition != null) {
       filterCondition = alterCondition(request, connection, query, filterCondition);
       query.and(filterCondition.clone(null, query.getTable()));
@@ -498,90 +557,13 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     return UUID.randomUUID();
   }
 
-  public QueryValue pathToQueryValue(String path) {
-    String wrapFunction = null;
-    final int tildeIndex = path.lastIndexOf('~');
-    if (tildeIndex != -1) {
-      wrapFunction = path.substring(tildeIndex + 1);
-      path = path.substring(0, tildeIndex);
-    }
-    var queryValue = getTable().columnByPath(path);
-    if (queryValue == null) {
-      queryValue = Q.sql("NULL");
-    }
-    if (wrapFunction != null) {
-      queryValue = pathToQueryValueWrap(queryValue, wrapFunction);
-    }
-
-    if (!(queryValue instanceof ColumnReference)) {
-      final var alias = path.substring(path.lastIndexOf('.') + 1);
-      queryValue = queryValue.toAlias(alias);
-    }
-    return queryValue;
-  }
-
   protected QueryValue pathToQueryValueWrap(final QueryValue value, final String function) {
     throw new IllegalArgumentException("Function " + function + "  not supported");
   }
 
   public JsonObject schemaToJson() {
     final RecordDefinition recordDefinition = getRecordDefinition();
-    if (recordDefinition == null) {
-      return JsonObject.EMPTY;
-    }
-    final JsonList jsonFields = JsonList.array();
-    final String idFieldName = recordDefinition.getIdFieldName();
-    final JsonObject jsonSchema = JsonObject.hash()
-      .addValue("typeName", recordDefinition.getPathName())
-      .addValue("title", recordDefinition.getTitle())
-      .addValue("idFieldName", idFieldName)
-      .addValue("geometryFieldName", recordDefinition.getGeometryFieldName())
-      .addValue("fields", jsonFields);
-    final GeometryFactory geometryFactory = recordDefinition.getGeometryFactory();
-    if (geometryFactory != null) {
-      final int coordinateSystemId = geometryFactory.getHorizontalCoordinateSystemId();
-      if (coordinateSystemId > 0) {
-        jsonSchema.addValue("srid", coordinateSystemId);
-      }
-    }
-    for (final FieldDefinition field : recordDefinition.getFields()) {
-      final String fieldName = field.getName();
-      final DataType dataType = field.getDataType();
-      String dataTypeString = dataType.toString();
-      if (dataTypeString.startsWith("List")) {
-        dataTypeString = dataTypeString.substring(4) + "[]";
-      }
-      final JsonObject jsonField = JsonObject.hash()
-        .addValue("name", fieldName)
-        .addNotEmpty("title", field.getTitle()
-          .replace(" Ind", "")
-          .replace(" Code", ""))
-        .addNotEmpty("description", field.getDescription())
-        .addValue("dataType", dataTypeString)
-        .addValue("required", field.isRequired());
-      if (isFieldReadonly(fieldName)) {
-        jsonField.addValue("readonly", true);
-      }
-      final int length = field.getLength();
-      if (length > 0) {
-        jsonField.addValue("length", length);
-      }
-      final int scale = field.getScale();
-      if (scale > 0) {
-        jsonField.addValue("scale", scale);
-      }
-      jsonField//
-        .addNotEmpty("default", field.getDefaultValue())
-        .addNotEmpty("allowedValues", field.getAllowedValues())
-        .addNotEmpty("min", field.getMinValue())
-        .addNotEmpty("max", field.getMaxValue());
-      final CodeTable codeTable = field.getCodeTable();
-      if (codeTable != null) {
-        jsonField.addNotEmpty("codeTable", codeTable.getName());
-      }
-      jsonFields.add(jsonField);
-    }
-    return jsonSchema;
+    return schemaToJson(recordDefinition);
   }
 
   protected void setDefaultSortOrder(final Collection<String> fieldNames) {

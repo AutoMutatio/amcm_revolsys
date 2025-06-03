@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestAttribute;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.revolsys.collection.json.JsonObject;
 import com.revolsys.record.query.Query;
@@ -50,12 +51,11 @@ public class BaseTableRest extends AbstractTableRecordRestController {
   }
 
   @GetMapping(path = "/app/api/{tableName:[A-Za-z0-9_\\\\.]+}")
-  public void listRecords(
+  public @ResponseBody Query listRecords(
     @RequestAttribute("tableConnection") final TableRecordStoreConnection connection,
     final HttpServletRequest request, final HttpServletResponse response,
-    @PathVariable final String tableName) throws IOException {
-    final Query query = newQuery(connection, request, tableName);
-    handleGetRecords(connection, request, response, query);
+    @PathVariable final String tableName) {
+    return newQuery(connection, request, tableName);
   }
 
   @PostMapping(path = "/app/api/{tableName:[A-Za-z0-9_\\\\.]+}", consumes = {

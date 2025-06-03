@@ -46,21 +46,6 @@ public class AbstractTableRecordRestController extends AbstractWebController {
     responseRecordJson(connection, request, response, query);
   }
 
-  public void handleGetRecords(final TableRecordStoreConnection connection,
-    final HttpServletRequest request, final HttpServletResponse response, final Query query)
-    throws IOException {
-    connection.transactionRun(() -> {
-      try (
-        final RecordReader records = query.getRecordReader()) {
-        Long count = null;
-        if (HttpServletUtils.getBooleanParameter(request, "$count")) {
-          count = query.getRecordCount();
-        }
-        responseRecords(connection, request, response, query, records, count);
-      }
-    });
-  }
-
   protected void handleInsertRecord(final TableRecordStoreConnection connection,
     final HttpServletRequest request, final HttpServletResponse response,
     final CharSequence tablePath) throws IOException {
@@ -153,15 +138,16 @@ public class AbstractTableRecordRestController extends AbstractWebController {
       .run(() -> {
         try (
           final RecordReader records = query.getRecordReader()) {
-          responseRecordsJson(connection, request, response, records, count, extraData, query.getOffset(),
-            query.getLimit());
+          responseRecordsJson(connection, request, response, records, count, extraData,
+            query.getOffset(), query.getLimit());
         }
       });
   }
 
   protected void responseRecordsJson(final TableRecordStoreConnection connection,
     final HttpServletRequest request, final HttpServletResponse response, final RecordReader reader,
-    final Long count, final JsonObject extraData, final int offset, final int limit) throws IOException {
+    final Long count, final JsonObject extraData, final int offset, final int limit)
+    throws IOException {
     reader.open();
     setContentTypeJson(response);
     response.setStatus(200);

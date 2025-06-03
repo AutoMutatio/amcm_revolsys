@@ -25,6 +25,7 @@ import com.revolsys.collection.list.ListEx;
 import com.revolsys.collection.list.Lists;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.collection.value.Single;
+import com.revolsys.data.type.DataType;
 import com.revolsys.function.Lambdaable;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.io.PathName;
@@ -177,6 +178,8 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
   private boolean distinct = false;
 
   private Cancellable cancellable;
+
+  private String baseFileName;
 
   private RecordFactory<Record> recordFactory;
 
@@ -757,6 +760,10 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     }
   }
 
+  public String getBaseFileName() {
+    return this.baseFileName;
+  }
+
   @Override
   public Cancellable getCancellable() {
     return this.cancellable;
@@ -773,6 +780,20 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
 
   public List<QueryValue> getGroupBy() {
     return this.groupBy;
+  }
+
+  public Join getJoin(final TableReferenceProxy tableProxy, final String alias) {
+    if (tableProxy != null) {
+      final var table = tableProxy.getTableReference();
+      for (final var join : this.joins) {
+        if (join.getTable() == table) {
+          if (DataType.equal(alias, join.getTableAlias())) {
+            return join;
+          }
+        }
+      }
+    }
+    return null;
   }
 
   public List<Join> getJoins() {
@@ -967,6 +988,20 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
       }
     }
     return this;
+  }
+
+  public boolean hasJoin(final TableReferenceProxy tableProxy, final String alias) {
+    if (tableProxy != null) {
+      final var table = tableProxy.getTableReference();
+      for (final var join : this.joins) {
+        if (join.getTable() == table) {
+          if (DataType.equal(alias, join.getTableAlias())) {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
   }
 
   public boolean hasOrderBy(final QueryValue column) {
@@ -1344,6 +1379,11 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
         select(selectItem);
       }
     }
+    return this;
+  }
+
+  public Query setBaseFileName(final String baseFileName) {
+    this.baseFileName = baseFileName;
     return this;
   }
 
