@@ -1,6 +1,7 @@
 package com.revolsys.record.query;
 
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -980,6 +981,14 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
   @Override
   public <V> V getValue(final MapEx record) {
     return null;
+  }
+
+  @Override
+  public Object getValueFromResultSet(final RecordDefinition recordDefinition,
+    final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings)
+    throws SQLException {
+    return this.selectExpressions.get(0)
+      .getValueFromResultSet(recordDefinition, resultSet, indexes, internStrings);
   }
 
   public String getWhere() {

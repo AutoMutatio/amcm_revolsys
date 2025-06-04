@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
-import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -25,6 +24,7 @@ import com.revolsys.data.identifier.Identifier;
 import com.revolsys.data.type.DataType;
 import com.revolsys.data.type.DataTypes;
 import com.revolsys.exception.Exceptions;
+import com.revolsys.function.Function3;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.io.PathName;
 import com.revolsys.jdbc.JdbcConnection;
@@ -45,6 +45,7 @@ import com.revolsys.record.query.DeleteStatement;
 import com.revolsys.record.query.InsertStatement;
 import com.revolsys.record.query.JoinType;
 import com.revolsys.record.query.Or;
+import com.revolsys.record.query.Parenthesis;
 import com.revolsys.record.query.Q;
 import com.revolsys.record.query.Query;
 import com.revolsys.record.query.QueryValue;
@@ -57,14 +58,14 @@ import com.revolsys.util.Property;
 public class AbstractTableRecordStore implements RecordDefinitionProxy {
   public record VirtualField(AbstractTableRecordStore recordStore, String name,
     Consumer<RecordDefinitionBuilder> addToSchema,
-    BiFunction<Query, VirtualField, QueryValue> newQueryValue) {
+    Function3<Query, VirtualField, String[], QueryValue> newQueryValue) {
 
     public void addToSchema(final RecordDefinitionBuilder builder) {
       this.addToSchema.accept(builder);
     }
 
-    public QueryValue newQueryValue(final Query query) {
-      return this.newQueryValue.apply(query, this);
+    public QueryValue newQueryValue(final Query query, final String... path) {
+      return this.newQueryValue.apply(query, this, path);
     }
   }
 
@@ -219,8 +220,15 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
   }
 
   public void addStringVirtualField(final String name,
-    final BiFunction<Query, VirtualField, QueryValue> newQueryValue) {
+    final Function3<Query, VirtualField, String[], QueryValue> newQueryValue) {
     final var field = new VirtualField(this, name, rd -> rd.addField(name), newQueryValue);
+    addVirtualField(field);
+  }
+
+  public void addVirtualField(final String name, final DataType dataType,
+    final Function3<Query, VirtualField, String[], QueryValue> newQueryValue) {
+    final var field = new VirtualField(this, name, rd -> rd.addField(name, dataType),
+      newQueryValue);
     addVirtualField(field);
   }
 
@@ -304,9 +312,11 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
   }
 
   protected QueryValue fieldPathToQueryValueDo(final Query query, final String path) {
-    final var virtualField = this.virtualFieldByName.get(path);
+    final var parts = path.split("\\.");
+
+    final var virtualField = this.virtualFieldByName.get(parts[0]);
     if (virtualField != null) {
-      return virtualField.newQueryValue(query);
+      return virtualField.newQueryValue(query, parts);
     }
     return getTable().columnByPath(path);
   }
@@ -322,6 +332,26 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
         .on("id", query, joinFieldName);
     }
     return join.getColumn(lookupFieldName);
+  }
+
+  protected QueryValue fieldPathToQueryValueSubQuery(final Query query,
+    final AbstractTableRecordStore otherRs, final String joinFieldName,
+    final String lookupFieldName, final String[] path) {
+    final var otherField = otherRs.getField(lookupFieldName);
+    QueryValue selectField = otherField;
+    if (path.length - 0 > 1) {
+      for (int i = 0 + 1; i < path.length; i++) {
+        final var part = path[i];
+        selectField = Q.jsonRawValue(selectField, part)
+          .setText(i == path.length - 1);
+      }
+    }
+
+    final var joinColumn = query.getColumn(joinFieldName);
+    final var otherQuery = otherRs.newQuery()
+      .select(selectField)
+      .and("id", joinColumn);
+    return new Parenthesis(otherQuery);
   }
 
   public QueryValue fieldPathToSelect(final Query query, String path) {
