@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -19,6 +20,7 @@ import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.list.ListEx;
 import com.revolsys.collection.list.Lists;
 import com.revolsys.collection.map.MapEx;
+import com.revolsys.collection.value.ValueHolder;
 import com.revolsys.data.identifier.Identifier;
 import com.revolsys.data.type.DataType;
 import com.revolsys.data.type.DataTypes;
@@ -41,6 +43,7 @@ import com.revolsys.record.query.Condition;
 import com.revolsys.record.query.Count;
 import com.revolsys.record.query.DeleteStatement;
 import com.revolsys.record.query.InsertStatement;
+import com.revolsys.record.query.JoinType;
 import com.revolsys.record.query.Or;
 import com.revolsys.record.query.Q;
 import com.revolsys.record.query.Query;
@@ -52,6 +55,19 @@ import com.revolsys.record.query.functions.F;
 import com.revolsys.util.Property;
 
 public class AbstractTableRecordStore implements RecordDefinitionProxy {
+  public record VirtualField(AbstractTableRecordStore recordStore, String name,
+    Consumer<RecordDefinitionBuilder> addToSchema,
+    BiFunction<Query, VirtualField, QueryValue> newQueryValue) {
+
+    public void addToSchema(final RecordDefinitionBuilder builder) {
+      this.addToSchema.accept(builder);
+    }
+
+    public QueryValue newQueryValue(final Query query) {
+      return this.newQueryValue.apply(query, this);
+    }
+  }
+
   public static JsonObject schemaToJson(final RecordDefinition recordDefinition) {
     if (recordDefinition == null) {
       return JsonObject.EMPTY;
@@ -110,6 +126,10 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     }
     return jsonSchema;
   }
+
+  private final ValueHolder<JsonObject> schema = ValueHolder.lazy(this::schemaToJson);
+
+  private final Map<String, VirtualField> virtualFieldByName = new LinkedHashMap<>();
 
   private RecordStore recordStore;
 
@@ -198,6 +218,16 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     query.select(selectClause);
   }
 
+  public void addStringVirtualField(final String name,
+    final BiFunction<Query, VirtualField, QueryValue> newQueryValue) {
+    final var field = new VirtualField(this, name, rd -> rd.addField(name), newQueryValue);
+    addVirtualField(field);
+  }
+
+  public void addVirtualField(final VirtualField field) {
+    this.virtualFieldByName.put(field.name(), field);
+  }
+
   protected Condition alterCondition(final HttpServletRequest request,
     final TableRecordStoreConnection connection, final Query query, final Condition condition) {
     return condition;
@@ -274,7 +304,24 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
   }
 
   protected QueryValue fieldPathToQueryValueDo(final Query query, final String path) {
+    final var virtualField = this.virtualFieldByName.get(path);
+    if (virtualField != null) {
+      return virtualField.newQueryValue(query);
+    }
     return getTable().columnByPath(path);
+  }
+
+  protected QueryValue fieldPathToQueryValueJoin(final Query query,
+    final AbstractTableRecordStore joinRs, final String joinAlias, final String joinFieldName,
+    final String lookupFieldName) {
+    var join = query.getJoin(joinRs, joinAlias);
+    if (join == null) {
+      join = query.join(JoinType.JOIN)
+        .table(joinRs)//
+        .setAlias(joinAlias)
+        .on("id", query, joinFieldName);
+    }
+    return join.getColumn(lookupFieldName);
   }
 
   public QueryValue fieldPathToSelect(final Query query, String path) {
@@ -354,6 +401,10 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
   @SuppressWarnings("unchecked")
   public <R extends RecordStore> R getRecordStore() {
     return (R)this.recordStore;
+  }
+
+  protected JsonObject getSchema() {
+    return this.schema.get();
   }
 
   protected QueryValue getSearchColumn(final String fieldName, final String searchText) {
@@ -575,6 +626,17 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     }
   }
 
+  protected RecordDefinition newSchema() {
+    RecordDefinition schema = getRecordDefinition();
+    if (!this.virtualFieldByName.isEmpty()) {
+      final var builder = new RecordDefinitionBuilder(schema);
+      this.virtualFieldByName.values()
+        .forEach(field -> field.addToSchema(builder));
+      schema = builder.getRecordDefinition();
+    }
+    return schema;
+  }
+
   public <R extends Record> InsertUpdateBuilder<R> newUpdate(
     final TableRecordStoreConnection connection) {
     return this.<R> newInsertUpdate(connection)
@@ -601,8 +663,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
 
     return switch (functionName) {
       case "count": {
-        yield Count.count(table, fieldName)
-          .toAlias(alias);
+        yield Count.STAR.toAlias(alias);
       }
       case "countDistinct": {
         yield Count.distinct(table, fieldName)
@@ -639,8 +700,8 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
   }
 
   public JsonObject schemaToJson() {
-    final RecordDefinition recordDefinition = getRecordDefinition();
-    return schemaToJson(recordDefinition);
+    final RecordDefinition schema = newSchema();
+    return schemaToJson(schema);
   }
 
   protected void setDefaultSortOrder(final Collection<String> fieldNames) {

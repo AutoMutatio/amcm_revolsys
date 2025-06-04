@@ -47,7 +47,8 @@ public class BaseTableRest extends AbstractTableRecordRestController {
     final HttpServletRequest request, final HttpServletResponse response,
     @PathVariable final String tableName) throws IOException {
     final AbstractTableRecordStore recordStore = getTableRecordStore(connection, tableName);
-    responseSchema(response, recordStore);
+    final JsonObject jsonSchema = recordStore.schemaToJson();
+    responseJson(response, jsonSchema);
   }
 
   @GetMapping(path = "/app/api/{tableName:[A-Za-z0-9_\\\\.]+}")
@@ -66,12 +67,6 @@ public class BaseTableRest extends AbstractTableRecordRestController {
     final HttpServletRequest request, final HttpServletResponse response,
     @PathVariable final String tableName) throws IOException {
     listRecords(connection, request, response, tableName);
-  }
-
-  public void responseSchema(final HttpServletResponse response,
-    final AbstractTableRecordStore recordStore) throws IOException {
-    final JsonObject jsonSchema = recordStore.schemaToJson();
-    responseJson(response, jsonSchema);
   }
 
 }
