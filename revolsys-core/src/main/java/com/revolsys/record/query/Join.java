@@ -115,8 +115,11 @@ public class Join implements QueryValue, TableReferenceProxy {
   public ColumnReference getColumn(final CharSequence name) {
     if (this.table == null) {
       return new ColumnWithPrefix(this.tableName, new Column(this, name));
-    } else if (this.table.hasColumn(name)) {
-      return new Column(this, name);
+    } else {
+      final var column = this.table.getColumn(name);
+      if (column != null) {
+        return new ColumnWithPrefix(this.alias, column);
+      }
     }
     throw new IllegalArgumentException("Column not found: " + this.table.getTableReference()
       .getTablePath() + "." + name);
@@ -164,7 +167,8 @@ public class Join implements QueryValue, TableReferenceProxy {
   }
 
   public Join on(final String fromFieldName, final Object value) {
-    final Condition condition = this.table.equal(fromFieldName, value);
+    final var fromField = getColumn(fromFieldName);
+    final var condition = Q.equal(fromField, value);
     return and(condition);
   }
 
@@ -190,8 +194,8 @@ public class Join implements QueryValue, TableReferenceProxy {
 
   public Join on(final String fromFieldName, final TableReferenceProxy toTable,
     final String toFieldName) {
-    final ColumnReference fromColumn = getColumn(fromFieldName);
-    final ColumnReference toColumn = toTable.getColumn(toFieldName);
+    final var fromColumn = getColumn(fromFieldName);
+    final var toColumn = toTable.getColumn(toFieldName);
     return on(fromColumn, toColumn);
   }
 

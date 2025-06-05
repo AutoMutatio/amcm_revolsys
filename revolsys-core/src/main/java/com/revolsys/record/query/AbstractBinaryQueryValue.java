@@ -129,8 +129,11 @@ public abstract class AbstractBinaryQueryValue implements QueryValue {
   private void init(final QueryValue left, final QueryValue right) {
     this.left = left;
     this.right = right;
-    if (left instanceof final ColumnReference column && right instanceof final Value value) {
-      value.setColumn(column);
+    if (left != null && right instanceof final Value value) {
+      final var column = left.getColumn();
+      if (column != null) {
+        value.setColumn(column);
+      }
     }
   }
 

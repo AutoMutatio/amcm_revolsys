@@ -36,6 +36,11 @@ public interface ColumnReference extends QueryValue {
     return getName();
   }
 
+  @Override
+  default ColumnReference getColumn() {
+    return this;
+  }
+
   default DataType getDataType() {
     final var fieldDefinition = getFieldDefinition();
     if (fieldDefinition == null) {

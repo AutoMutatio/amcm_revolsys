@@ -10,6 +10,7 @@ import com.revolsys.collection.json.Json;
 import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.record.query.ColumnIndexes;
+import com.revolsys.record.query.ColumnReference;
 import com.revolsys.record.query.Condition;
 import com.revolsys.record.query.Q;
 import com.revolsys.record.query.QueryStatement;
@@ -78,6 +79,12 @@ public class JsonValue extends SimpleFunction {
     return Q.equal(this, queryValue);
   }
 
+  @Override
+  public ColumnReference getColumn() {
+    return getQueryValues().get(0)
+      .getColumn();
+  }
+
   public String getPath() {
     return this.path;
   }
@@ -103,7 +110,7 @@ public class JsonValue extends SimpleFunction {
   public Object getValueFromResultSet(final RecordDefinition recordDefinition,
     final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings)
     throws SQLException {
-    return resultSet.getObject(indexes.incrementAndGet());
+    return getColumn().getValueFromResultSet(recordDefinition, resultSet, indexes, internStrings);
   }
 
   public boolean isText() {

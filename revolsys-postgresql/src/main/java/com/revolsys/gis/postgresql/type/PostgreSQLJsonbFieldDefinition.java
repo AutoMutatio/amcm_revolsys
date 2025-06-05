@@ -8,6 +8,7 @@ import java.util.Map;
 import org.postgresql.util.PGobject;
 
 import com.revolsys.collection.json.Json;
+import com.revolsys.collection.json.JsonType;
 import com.revolsys.jdbc.field.JdbcFieldDefinition;
 import com.revolsys.record.query.ColumnIndexes;
 import com.revolsys.record.schema.RecordDefinition;
@@ -17,8 +18,17 @@ public class PostgreSQLJsonbFieldDefinition extends JdbcFieldDefinition {
   public PostgreSQLJsonbFieldDefinition(final String dbName, final String name, final int sqlType,
     final String dbDataType, final int length, final int scale, final boolean required,
     final String description, final Map<String, Object> properties) {
-    super(dbName, name, Json.JSON_TYPE, sqlType, dbDataType, length, scale, required, description,
-      properties);
+    super(
+      dbName,
+        name,
+        Json.JSON_TYPE,
+        sqlType,
+        dbDataType,
+        length,
+        scale,
+        required,
+        description,
+        properties);
   }
 
   @Override
@@ -56,5 +66,28 @@ public class PostgreSQLJsonbFieldDefinition extends JdbcFieldDefinition {
     }
     return parameterIndex + 1;
 
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public <V> V toFieldValue(final Object value) {
+    if (value instanceof final Number number) {
+      return (V)number;
+    } else if (value instanceof final JsonType json) {
+      return (V)json;
+    } else if (value instanceof final String string) {
+      final char firstChar = string.charAt(0);
+      return (V)switch (firstChar) {
+        case '[': {
+          yield Json.parse(string);
+        }
+        case '{': {
+          yield Json.parse(string);
+        }
+        default:
+        yield string;
+      };
+    }
+    return super.toFieldValue(value);
   }
 }

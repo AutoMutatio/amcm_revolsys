@@ -63,7 +63,7 @@ public interface TableReference extends From, TableReferenceProxy {
 
   default QueryValue columnByPath(final String path) {
     final var parts = path.split("\\.");
-    var fieldName = parts[0];
+    final var fieldName = parts[0];
     final var column = getField(fieldName);
     if (column == null) {
       return new Column(fieldName);
@@ -93,10 +93,8 @@ public interface TableReference extends From, TableReferenceProxy {
     QueryValue right;
     if (value == null) {
       return new IsNull(field);
-    } else if (value instanceof ColumnReference) {
-      right = (ColumnReference)value;
-    } else if (value instanceof QueryValue) {
-      right = (QueryValue)value;
+    } else if (value instanceof final QueryValue queryValue) {
+      right = queryValue;
     } else {
       right = new Value(field, value);
     }

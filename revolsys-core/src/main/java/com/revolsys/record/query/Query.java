@@ -780,6 +780,15 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     return this.cancellable;
   }
 
+  @Override
+  public ColumnReference getColumn() {
+    if (this.selectExpressions.size() == 1) {
+      return this.selectExpressions.get(0)
+        .getColumn();
+    }
+    return null;
+  }
+
   public From getFrom() {
     return this.from;
   }

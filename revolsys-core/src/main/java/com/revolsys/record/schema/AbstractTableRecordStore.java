@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import com.revolsys.collection.json.JsonList;
 import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.json.JsonType;
 import com.revolsys.collection.list.ListEx;
 import com.revolsys.collection.list.Lists;
 import com.revolsys.collection.map.MapEx;
@@ -323,15 +324,23 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
 
   protected QueryValue fieldPathToQueryValueJoin(final Query query,
     final AbstractTableRecordStore joinRs, final String joinAlias, final String joinFieldName,
-    final String lookupFieldName) {
+    final String lookupFieldName, final String[] path) {
     var join = query.getJoin(joinRs, joinAlias);
     if (join == null) {
-      join = query.join(JoinType.JOIN)
+      join = query.join(JoinType.LEFT_OUTER_JOIN)
         .table(joinRs)//
         .setAlias(joinAlias)
         .on("id", query, joinFieldName);
     }
-    return join.getColumn(lookupFieldName);
+    final var column = join.getColumn(lookupFieldName);
+    QueryValue selectField = column;
+    if (path.length > 1) {
+      for (int i = 1; i < path.length; i++) {
+        final var part = path[i];
+        selectField = Q.jsonRawValue(selectField, part);
+      }
+    }
+    return selectField;
   }
 
   protected QueryValue fieldPathToQueryValueSubQuery(final Query query,
@@ -339,11 +348,10 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     final String lookupFieldName, final String[] path) {
     final var otherField = otherRs.getField(lookupFieldName);
     QueryValue selectField = otherField;
-    if (path.length - 0 > 1) {
-      for (int i = 0 + 1; i < path.length; i++) {
+    if (path.length > 1) {
+      for (int i = 1; i < path.length; i++) {
         final var part = path[i];
-        selectField = Q.jsonRawValue(selectField, part)
-          .setText(i == path.length - 1);
+        selectField = Q.jsonRawValue(selectField, part);
       }
     }
 
@@ -369,11 +377,11 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
       }
       if (queryValue instanceof final ColumnReference column) {
         if (!column.getName()
-          .equals(alias)) {
-          queryValue = queryValue.toAlias(alias);
+          .equals(path)) {
+          queryValue = queryValue.toAlias(path);
         }
       } else {
-        queryValue = queryValue.toAlias(alias);
+        queryValue = queryValue.toAlias(path);
 
       }
     }
@@ -704,15 +712,15 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
       case "max":
       case "sum":
       case "avg": {
-        boolean castRequired = false;
-        if (field instanceof final FieldDefinition fieldDefinition) {
-          if (!Number.class.isAssignableFrom(fieldDefinition.getTypeClass())) {
-            castRequired = true;
-          }
-        } else {
-          castRequired = true;
+        Class<?> columnClass = Object.class;
+        final var baseColumn = field.getColumn();
+        if (baseColumn instanceof final FieldDefinition fieldDefinition) {
+          columnClass = fieldDefinition.getTypeClass();
         }
-        if (castRequired) {
+        if (JsonType.class.isAssignableFrom(columnClass)) {
+          query.and(Q.equal(F.function("jsonb_typeof", field), "number"));
+          field = field.toCast("decimal");
+        } else if (!Number.class.isAssignableFrom(columnClass)) {
           query
             .and(Q.equal(F.function("pg_input_is_valid", field, Value.newValue("decimal")), true));
           field = field.toCast("decimal");

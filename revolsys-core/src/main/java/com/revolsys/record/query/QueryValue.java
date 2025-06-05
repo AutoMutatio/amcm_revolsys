@@ -161,6 +161,10 @@ public interface QueryValue extends Cloneable, SqlAppendParameters {
 
   QueryValue clone(TableReference oldTable, TableReference newTable);
 
+  default ColumnReference getColumn() {
+    return null;
+  }
+
   default int getFieldIndex() {
     return -1;
   }

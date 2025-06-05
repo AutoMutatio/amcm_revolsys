@@ -160,9 +160,16 @@ public class Q {
     return new Divide(left, right);
   }
 
-  public static Equal equal(final ColumnReference fieldDefinition, final Object value) {
-    final Value valueCondition = Value.newValue(fieldDefinition, value);
-    return new Equal(fieldDefinition, valueCondition);
+  public static Condition equal(final ColumnReference field, final Object value) {
+    QueryValue right;
+    if (value == null) {
+      return new IsNull(field);
+    } else if (value instanceof final QueryValue queryValue) {
+      right = queryValue;
+    } else {
+      right = new Value(field, value);
+    }
+    return new Equal(field, right);
   }
 
   public static Equal equal(final ColumnReference field, final QueryValue right) {
@@ -196,7 +203,7 @@ public class Q {
     return new Equal(leftCondition, right);
   }
 
-  public static Equal equal(final TableReferenceProxy table, final CharSequence fieldName,
+  public static Condition equal(final TableReferenceProxy table, final CharSequence fieldName,
     final Object value) {
     final var column = table.getColumn(fieldName);
     return equal(column, value);

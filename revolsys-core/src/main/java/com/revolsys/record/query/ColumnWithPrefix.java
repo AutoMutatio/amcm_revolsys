@@ -86,6 +86,11 @@ public class ColumnWithPrefix implements QueryValue, ColumnReference {
   }
 
   @Override
+  public ColumnReference getColumn() {
+    return this.column;
+  }
+
+  @Override
   public FieldDefinition getFieldDefinition() {
     return this.column.getFieldDefinition();
   }
