@@ -977,7 +977,8 @@ public class ODataParser {
         }
       } else if (c == '\'') {
         instring = true;
-      } else if (Character.isLetterOrDigit(c) || c == '/' || c == '_' || c == '.' || c == '*') {
+      } else if (Character.isLetterOrDigit(c) || c == '/' || c == '_' || c == '.' || c == '*'
+        || c == '~') {
       } else {
         return rt;
       }

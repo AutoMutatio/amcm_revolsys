@@ -331,7 +331,7 @@ public class Json {
   }
 
   /**
-   * Write any object as a json string without any identation or formatting.
+   * Write any object as a JSON string without any indentation or formatting.
    *
    * @param value The value to write
    * @return
@@ -346,7 +346,9 @@ public class Json {
     } else if (value instanceof final Boolean bool) {
       return DataTypes.toString(bool);
     } else if (value instanceof final CharSequence chars) {
-      return chars.toString();
+      final var s = new StringBuilder();
+      JsonWriterUtil.appendText(s, value);
+      return s.toString();
     } else {
       return toString(value, false);
     }

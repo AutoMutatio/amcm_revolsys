@@ -362,28 +362,16 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     return new Parenthesis(otherQuery);
   }
 
-  public QueryValue fieldPathToSelect(final Query query, String path) {
+  public QueryValue fieldPathToSelect(final Query query, final String path) {
     var queryValue = fieldPathToQueryValue(query, path);
-    {
-      // Add alias if needed
-      var alias = path;
-      final var tildeIndex = alias.lastIndexOf('~');
-      if (tildeIndex != -1) {
-        path = path.substring(0, tildeIndex);
-      }
-      final var dotIndex = alias.lastIndexOf('.');
-      if (dotIndex != -1) {
-        alias = path.substring(dotIndex + 1);
-      }
-      if (queryValue instanceof final ColumnReference column) {
-        if (!column.getName()
-          .equals(path)) {
-          queryValue = queryValue.toAlias(path);
-        }
-      } else {
+    // Add alias if needed
+    if (queryValue instanceof final ColumnReference column) {
+      if (!column.getName()
+        .equals(path)) {
         queryValue = queryValue.toAlias(path);
-
       }
+    } else {
+      queryValue = queryValue.toAlias(path);
     }
     return queryValue;
 
