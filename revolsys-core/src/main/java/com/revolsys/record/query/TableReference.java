@@ -75,8 +75,7 @@ public interface TableReference extends From, TableReferenceProxy {
       if (column.getDataType() == Json.JSON_OBJECT || column.getDataType() == Json.JSON_TYPE) {
         for (int i = 0 + 1; i < parts.length; i++) {
           final var part = parts[i];
-          result = Q.jsonRawValue(result, part)
-            .setText(i == parts.length - 1);
+          result = Q.jsonRawValue(result, part);
         }
       } else {
         throw new IllegalStateException("Field path can only be specified for json fields");

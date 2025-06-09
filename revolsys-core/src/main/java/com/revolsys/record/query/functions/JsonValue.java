@@ -3,7 +3,6 @@ package com.revolsys.record.query.functions;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.List;
 
 import com.revolsys.collection.json.Json;
@@ -35,9 +34,9 @@ public class JsonValue extends SimpleFunction {
     final QueryValue pathParameter = parameters.get(1);
     if (Value.isString(pathParameter)) {
       this.displayPath = (String)((Value)pathParameter).getValue();
-      if (this.displayPath.matches("\\w+(\\.\\w+)*")) {
+      if (this.displayPath.matches("[\\s\\w]+(\\.[\\w\\s]+)*")) {
         this.path = "$." + this.displayPath;
-      } else if (this.displayPath.matches("\\$(\\.\\w+)*")) {
+      } else if (this.displayPath.matches("\\$(\\.[\\w\\s]+)*")) {
         this.path = this.displayPath;
       } else {
         throw new IllegalArgumentException(
@@ -48,10 +47,6 @@ public class JsonValue extends SimpleFunction {
       throw new IllegalArgumentException(
         "JSON_VALUE path parameter is not a string: " + pathParameter);
     }
-  }
-
-  public JsonValue(final QueryValue... parameters) {
-    this(Arrays.asList(parameters));
   }
 
   @Override

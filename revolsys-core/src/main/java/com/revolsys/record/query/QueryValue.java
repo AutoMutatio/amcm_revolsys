@@ -116,7 +116,11 @@ public interface QueryValue extends Cloneable, SqlAppendParameters {
 
   default void appendDefaultSelect(final QueryStatement statement, final RecordStore recordStore,
     final SqlAppendable sql) {
-    recordStore.appendQueryValue(statement, sql, this);
+    if (recordStore == null) {
+      appendDefaultSql(statement, null, sql);
+    } else {
+      recordStore.appendQueryValue(statement, sql, this);
+    }
   }
 
   void appendDefaultSql(QueryStatement statement, RecordStore recordStore, SqlAppendable sql);
