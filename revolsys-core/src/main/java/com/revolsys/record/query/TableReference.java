@@ -8,6 +8,7 @@ import com.revolsys.io.PathName;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordDefinitionProxy;
+import com.revolsys.record.schema.RecordStore;
 
 public interface TableReference extends From, TableReferenceProxy {
   static TableReference getTableReference(final RecordDefinitionProxy recordDefinition) {
@@ -19,19 +20,22 @@ public interface TableReference extends From, TableReferenceProxy {
   }
 
   @Override
-  default void appendFrom(final SqlAppendable sql) {
+  default void appendFrom(final QueryStatement statement, final RecordStore recordStore,
+    final SqlAppendable sql) {
     final String tableName = getQualifiedTableName();
     sql.append(tableName);
   }
 
   @Override
-  default void appendFromWithAlias(final SqlAppendable sql) {
+  default void appendFromWithAlias(final QueryStatement statement, final RecordStore recordStore,
+    final SqlAppendable sql) {
     final String tableAlias = getTableAlias();
-    appendFromWithAlias(sql, tableAlias);
+    appendFromWithAlias(statement, recordStore, sql, tableAlias);
   }
 
-  default void appendFromWithAlias(final SqlAppendable sql, final String tableAlias) {
-    appendFrom(sql);
+  default void appendFromWithAlias(final QueryStatement statement, final RecordStore recordStore,
+    final SqlAppendable sql, final String tableAlias) {
+    appendFrom(statement, recordStore, sql);
     if (tableAlias != null) {
       sql.append(" \"");
       sql.append(tableAlias);
@@ -39,13 +43,11 @@ public interface TableReference extends From, TableReferenceProxy {
     }
   }
 
-  default void appendFromWithAsAlias(final SqlAppendable sql) {
+  @Override
+  default void appendFromWithAsAlias(final QueryStatement statement, final RecordStore recordStore,
+    final SqlAppendable sql) {
     final String tableAlias = getTableAlias();
-    appendFromWithAsAlias(sql, tableAlias);
-  }
-
-  default void appendFromWithAsAlias(final SqlAppendable sql, final String tableAlias) {
-    appendFrom(sql);
+    appendFrom(statement, recordStore, sql);
     if (tableAlias != null) {
       sql.append(" AS \"");
       sql.append(tableAlias);

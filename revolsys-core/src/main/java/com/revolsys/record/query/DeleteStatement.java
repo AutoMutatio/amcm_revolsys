@@ -21,7 +21,7 @@ public class DeleteStatement implements QueryStatement {
 
   public void appendSql(final SqlAppendable sql) {
     sql.append("DELETE FROM ");
-    this.from.appendFromWithAlias(sql);
+    appendFromWithAlias(sql, this.from);
     final Condition where = this.where;
     if (where != null && !where.isEmpty()) {
       sql.append(" WHERE  ");

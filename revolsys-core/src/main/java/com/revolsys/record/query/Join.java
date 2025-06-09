@@ -41,9 +41,9 @@ public class Join implements QueryValue, TableReferenceProxy {
     sql.append(' ');
     if (this.table != null) {
       if (this.alias == null) {
-        this.table.appendFromWithAlias(sql);
+        statement.appendFromWithAlias(sql, this.table);
       } else {
-        this.table.appendFromWithAlias(sql, this.alias);
+        statement.appendFromWithAlias(sql, new FromAlias(this.table, this.alias));
       }
     } else if (this.tableName != null) {
       sql.append(this.tableName);
@@ -66,22 +66,6 @@ public class Join implements QueryValue, TableReferenceProxy {
   @Override
   public int appendParameters(final int index, final PreparedStatement statement) {
     return this.condition.appendParameters(index, statement);
-  }
-
-  private void appendSql(final SqlAppendable sql) {
-    sql.append(' ');
-    sql.append(this.joinType);
-    sql.append(' ');
-    if (this.table != null) {
-      this.table.appendFromWithAlias(sql);
-    }
-    if (this.statement != null) {
-      this.statement.appendSql(null, null, sql);
-    }
-    if (!this.condition.isEmpty()) {
-      sql.append(" ON ");
-      sql.append(this.condition);
-    }
   }
 
   @Override
@@ -234,15 +218,23 @@ public class Join implements QueryValue, TableReferenceProxy {
     return this;
   }
 
-  public String toSql() {
-    final StringBuilderSqlAppendable string = SqlAppendable.stringBuilder();
-    appendSql(string);
-    return string.toString();
-  }
-
   @Override
   public String toString() {
-    return toSql();
+    final StringBuilderSqlAppendable sql = SqlAppendable.stringBuilder();
+    sql.append(' ');
+    sql.append(this.joinType);
+    sql.append(' ');
+    if (this.table != null) {
+      new Query().appendFromWithAlias(sql, this.table);
+    }
+    if (this.statement != null) {
+      this.statement.appendSql(null, null, sql);
+    }
+    if (!this.condition.isEmpty()) {
+      sql.append(" ON ");
+      sql.append(this.condition);
+    }
+    return sql.toString();
   }
 
 }

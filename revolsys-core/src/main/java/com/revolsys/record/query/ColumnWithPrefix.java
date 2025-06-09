@@ -34,7 +34,9 @@ public class ColumnWithPrefix implements QueryValue, ColumnReference {
   @Override
   public void appendColumnPrefix(final SqlAppendable string) {
     if (this.columnPrefix != null) {
+      string.append('"');
       string.append(this.columnPrefix);
+      string.append('"');
       string.append(".");
     }
   }

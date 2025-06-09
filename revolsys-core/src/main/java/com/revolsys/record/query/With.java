@@ -2,6 +2,8 @@ package com.revolsys.record.query;
 
 import java.sql.PreparedStatement;
 
+import com.revolsys.record.schema.RecordStore;
+
 public class With extends FromAlias implements SqlAppendParameters {
 
   private Query query;
@@ -33,7 +35,7 @@ public class With extends FromAlias implements SqlAppendParameters {
   }
 
   @Override
-  public void appendFrom(final SqlAppendable sql) {
+  public void appendFrom(QueryStatement statement, RecordStore recordStore, final SqlAppendable sql) {
     final var alias = alias();
     sql.append(alias);
   }

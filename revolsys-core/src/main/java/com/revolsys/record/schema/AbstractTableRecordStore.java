@@ -22,6 +22,7 @@ import com.revolsys.collection.list.Lists;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.collection.value.ValueHolder;
 import com.revolsys.data.identifier.Identifier;
+import com.revolsys.data.type.CollectionDataType;
 import com.revolsys.data.type.DataType;
 import com.revolsys.data.type.DataTypes;
 import com.revolsys.exception.Exceptions;
@@ -39,6 +40,7 @@ import com.revolsys.record.code.CodeTable;
 import com.revolsys.record.io.RecordReader;
 import com.revolsys.record.io.RecordWriter;
 import com.revolsys.record.query.Cast;
+import com.revolsys.record.query.Column;
 import com.revolsys.record.query.ColumnReference;
 import com.revolsys.record.query.Condition;
 import com.revolsys.record.query.Count;
@@ -54,6 +56,7 @@ import com.revolsys.record.query.TableReference;
 import com.revolsys.record.query.UpdateStatement;
 import com.revolsys.record.query.Value;
 import com.revolsys.record.query.functions.F;
+import com.revolsys.record.query.functions.Unnest;
 import com.revolsys.util.Property;
 
 public class AbstractTableRecordStore implements RecordDefinitionProxy {
@@ -206,10 +209,19 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
       .toLowerCase();
     search = '%' + searchText + '%';
     for (final String fieldName : this.searchFieldNames) {
-      final QueryValue left = getSearchColumn(fieldName, searchText);
-      if (left != null) {
-        final Condition condition = query.newCondition(left, Q.ILIKE, search);
-        or.addCondition(condition);
+      final var column = getTable().getColumn(fieldName);
+      if (column != null && column.getDataType() instanceof CollectionDataType) {
+        or.addCondition(newQuery().select(Value.newValue(1))
+          .setFrom(new Unnest(column).toFromAlias(fieldName + "A"))
+          .and(new Column(fieldName + "A"), Q.ILIKE, Value.toValue(search))
+          .asExists());
+
+      } else {
+        final QueryValue left = getSearchColumn(fieldName, searchText);
+        if (left != null) {
+          final Condition condition = query.newCondition(left, Q.ILIKE, search);
+          or.addCondition(condition);
+        }
       }
     }
   }
@@ -436,11 +448,15 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
   protected QueryValue getSearchColumn(final String fieldName, final String searchText) {
     final ColumnReference column = getTable().getColumn(fieldName);
     final DataType dataType = column.getDataType();
-    if (dataType != null && dataType != DataTypes.STRING) {
-      if (!dataType.isNumeric() || dataType.isValid(searchText)) {
-        return new Cast(column, "text");
-      } else {
-        return null;
+    if (dataType != null) {
+      if (dataType instanceof CollectionDataType) {
+        return new Cast(new Column(column.getName()), "text");
+      } else if (dataType != DataTypes.STRING) {
+        if (!dataType.isNumeric() || dataType.isValid(searchText)) {
+          return new Cast(column, "text");
+        } else {
+          return null;
+        }
       }
     }
     return column;

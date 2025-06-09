@@ -491,7 +491,7 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
   }
 
   @Override
-  public void appendFrom(final SqlAppendable sql) {
+  public void appendFrom(QueryStatement statement, RecordStore recordStore, final SqlAppendable sql) {
     sql.append('(');
     appendSql(sql);
     sql.append(')');
@@ -617,7 +617,7 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     appendSelect(sql);
     if (from != null) {
       sql.append(" FROM ");
-      from.appendFromWithAlias(sql);
+      appendFromWithAlias(sql, from);
     }
     for (final Join join : joins) {
       appendQueryValue(sql, join);
@@ -1185,7 +1185,7 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     if (from == null) {
       from = this.table;
     }
-    from.appendFromWithAlias(sql);
+    appendFromWithAlias(sql, from);
     appendWhere(sql, true);
     return sql.toSqlString();
   }

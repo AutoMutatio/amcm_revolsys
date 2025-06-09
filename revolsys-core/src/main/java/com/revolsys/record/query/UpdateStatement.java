@@ -52,7 +52,7 @@ public class UpdateStatement extends AbstractReturningQueryStatement<UpdateState
       sql.append(' ');
     }
     sql.append("UPDATE ");
-    getTable().appendFromWithAlias(sql);
+    appendFromWithAlias(sql, getTable());
 
     if (this.setClauses.isEmpty()) {
       throw new IllegalStateException("Update statement must set at least one value");
@@ -67,7 +67,7 @@ public class UpdateStatement extends AbstractReturningQueryStatement<UpdateState
         } else {
           sql.append(", ");
         }
-        from.appendFrom(sql);
+        appendFrom(sql, from);
       }
       sql.append(' ');
     }

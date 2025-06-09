@@ -5,10 +5,15 @@ import java.sql.SQLException;
 import java.util.List;
 
 import com.revolsys.record.query.ColumnIndexes;
+import com.revolsys.record.query.From;
+import com.revolsys.record.query.QueryStatement;
 import com.revolsys.record.query.QueryValue;
+import com.revolsys.record.query.SqlAppendable;
+import com.revolsys.record.query.TableReference;
 import com.revolsys.record.schema.RecordDefinition;
+import com.revolsys.record.schema.RecordStore;
 
-public class Unnest extends UnaryFunction {
+public class Unnest extends UnaryFunction implements From {
 
   public static final String NAME = "unnest";
 
@@ -18,6 +23,17 @@ public class Unnest extends UnaryFunction {
 
   public Unnest(final QueryValue parameter) {
     super(NAME, parameter);
+  }
+
+  @Override
+  public void appendFrom(final QueryStatement statement, final RecordStore recordStore,
+    final SqlAppendable string) {
+    appendDefaultSql(statement, recordStore, string);
+  }
+
+  @Override
+  public TableReference getTableReference() {
+    return null;
   }
 
   @Override

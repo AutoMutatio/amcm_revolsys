@@ -3,6 +3,7 @@ package com.revolsys.record.query;
 import java.sql.PreparedStatement;
 
 import com.revolsys.record.schema.FieldDefinition;
+import com.revolsys.record.schema.RecordStore;
 
 public class FromAlias implements From {
   private From from;
@@ -23,8 +24,9 @@ public class FromAlias implements From {
   }
 
   @Override
-  public void appendFrom(final SqlAppendable sql) {
-    this.from.appendFrom(sql);
+  public void appendFrom(final QueryStatement statement, final RecordStore recordStore,
+    final SqlAppendable sql) {
+    this.from.appendFrom(statement, recordStore, sql);
   }
 
   @Override
@@ -33,10 +35,21 @@ public class FromAlias implements From {
   }
 
   @Override
-  public void appendFromWithAlias(final SqlAppendable sql) {
-    appendFrom(sql);
-    sql.append(" ");
+  public void appendFromWithAlias(final QueryStatement statement, final RecordStore recordStore,
+    final SqlAppendable sql) {
+    appendFrom(statement, recordStore, sql);
+    sql.append(" \"");
     sql.append(this.alias);
+    sql.append('"');
+  }
+
+  @Override
+  public void appendFromWithAsAlias(final QueryStatement statement, final RecordStore recordStore,
+    final SqlAppendable sql) {
+    appendFrom(statement, recordStore, sql);
+    sql.append(" AS \"");
+    sql.append(this.alias);
+    sql.append('"');
   }
 
   protected FromAlias from(final From from) {
