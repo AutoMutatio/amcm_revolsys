@@ -267,7 +267,7 @@ public class Transaction {
   }
 
   public static void assertInTransaction() {
-    assert !isActive() : "Must be called in a transaction";
+    assert isActive() : "Must be called in a transaction";
   }
 
   public static TransactionContext getContext() {

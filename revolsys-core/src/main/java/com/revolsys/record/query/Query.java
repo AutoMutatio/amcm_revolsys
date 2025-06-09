@@ -422,9 +422,15 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     return this;
   }
 
-  public Query and(final QueryValue fieldName,
+  public Query and(final QueryValue field,
     final BiFunction<QueryValue, QueryValue, Condition> operator, final Object value) {
-    final Condition condition = newCondition(fieldName, operator, value);
+    final Condition condition = newCondition(field, operator, value);
+    return and(condition);
+  }
+
+  public Query and(final QueryValue field,
+    final java.util.function.Function<QueryValue, Condition> operator) {
+    final var condition = operator.apply(field);
     return and(condition);
   }
 
@@ -491,7 +497,8 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
   }
 
   @Override
-  public void appendFrom(QueryStatement statement, RecordStore recordStore, final SqlAppendable sql) {
+  public void appendFrom(final QueryStatement statement, final RecordStore recordStore,
+    final SqlAppendable sql) {
     sql.append('(');
     appendSql(sql);
     sql.append(')');
@@ -1155,26 +1162,6 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     final java.util.function.Function<QueryValue, Condition> operator) {
     final ColumnReference column = this.table.getColumn(fieldName);
     final Condition condition = operator.apply(column);
-    return condition;
-  }
-
-  @Override
-  public Condition newCondition(final QueryValue left,
-    final BiFunction<QueryValue, QueryValue, Condition> operator, final Object value) {
-    Condition condition;
-    if (value == null) {
-      condition = new IsNull(left);
-    } else {
-      QueryValue right;
-      if (value instanceof QueryValue) {
-        right = (QueryValue)value;
-      } else if (left instanceof ColumnReference) {
-        right = new Value((ColumnReference)left, value);
-      } else {
-        right = Value.newValue(value);
-      }
-      condition = operator.apply(left, right);
-    }
     return condition;
   }
 
