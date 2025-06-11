@@ -58,6 +58,16 @@ public class Value implements QueryValue {
     return newValue(JdbcFieldDefinitions.newFieldDefinition(value), value);
   }
 
+  public static Value newValue(final QueryValue fieldValue, final Object value) {
+    ColumnReference columnRef;
+    if (fieldValue instanceof final ColumnReference col) {
+      columnRef = col;
+    } else {
+      columnRef = JdbcFieldDefinitions.newFieldDefinition(value);
+    }
+    return newValue(columnRef, value);
+  }
+
   public static Value newValue(final RecordDefinitionProxy table, final String fieldName,
     final Object value) {
     final var field = table.getColumn(fieldName);

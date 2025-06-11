@@ -100,7 +100,7 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     final RecordDefinition recordDefinition = field.getRecordDefinition();
     final Query query = new Query(recordDefinition);
     final Value valueCondition = Value.newValue(field, value);
-    final BinaryCondition equal = Q.equal(field, valueCondition);
+    final var equal = Q.equal(field, valueCondition);
     query.setWhereCondition(equal);
     return query;
   }
@@ -113,7 +113,7 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     } else {
       final Query query = Query.newQuery(recordDefinition);
       final Value valueCondition = Value.newValue(fieldDefinition, value);
-      final BinaryCondition equal = Q.equal(name, valueCondition);
+      final var equal = Q.equal(name, valueCondition);
       query.setWhereCondition(equal);
       return query;
     }

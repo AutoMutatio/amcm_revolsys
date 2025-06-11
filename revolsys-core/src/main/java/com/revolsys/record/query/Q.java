@@ -160,47 +160,27 @@ public class Q {
     return new Divide(left, right);
   }
 
-  public static Condition equal(final ColumnReference field, final Object value) {
+  public static Condition equal(final QueryValue field, final Object value) {
     QueryValue right;
     if (value == null) {
       return new IsNull(field);
+    } else if (value instanceof final Value queryValue) {
+      if (queryValue.getValue() == null) {
+        return new IsNull(field);
+      } else {
+        right = queryValue;
+      }
     } else if (value instanceof final QueryValue queryValue) {
       right = queryValue;
     } else {
-      right = new Value(field, value);
+      right = Value.newValue(field, value);
     }
     return new Equal(field, right);
   }
 
-  public static Equal equal(final ColumnReference field, final QueryValue right) {
-    return new Equal(field, right);
-  }
-
-  public static Equal equal(final QueryValue left, final Object value) {
-    final Value valueCondition = Value.newValue(value);
-    return new Equal(left, valueCondition);
-  }
-
-  public static Condition equal(final QueryValue left, final QueryValue right) {
-    if (right == null) {
-      return new IsNull(left);
-    } else if (right instanceof Value) {
-      final Value value = (Value)right;
-      if (value.getValue() == null) {
-        return new IsNull(left);
-      }
-    }
-    return new Equal(left, right);
-  }
-
-  public static Equal equal(final String name, final Object value) {
-    final Value valueCondition = Value.newValue(value);
-    return equal(name, valueCondition);
-  }
-
-  public static Equal equal(final String left, final QueryValue right) {
-    final Column leftCondition = new Column(left);
-    return new Equal(leftCondition, right);
+  public static Condition equal(final String name, final Object value) {
+    final Column leftCondition = new Column(name);
+    return equal(leftCondition, value);
   }
 
   public static Condition equal(final TableReferenceProxy table, final CharSequence fieldName,
@@ -398,9 +378,10 @@ public class Q {
     return jsonValue(column, name);
   }
 
-  public static Equal jsonValueEqual(final QueryValue left, final String key, final Object value) {
+  public static Condition jsonValueEqual(final QueryValue left, final String key,
+    final Object value) {
     final var jsonValue = jsonValue(left, key);
-    return Q.equal(jsonValue, value);
+    return equal(jsonValue, value);
   }
 
   public static LessThan lessThan(final FieldDefinition fieldDefinition, final Object value) {
@@ -502,30 +483,27 @@ public class Q {
     return new Not(condition);
   }
 
-  public static NotEqual notEqual(final ColumnReference column, final Object value) {
-    final Value valueCondition = Value.newValue(column, value);
-    return new NotEqual(column, valueCondition);
-  }
-
-  public static Condition notEqual(final QueryValue left, final QueryValue right) {
-    if (right == null) {
-      return new IsNotNull(left);
-    } else if (right instanceof Value) {
-      final Value value = (Value)right;
-      if (value.getValue() == null) {
-        return new IsNotNull(left);
+  public static Condition notEqual(final QueryValue field, final Object value) {
+    QueryValue right;
+    if (value == null) {
+      return new IsNotNull(field);
+    } else if (value instanceof final Value queryValue) {
+      if (queryValue.getValue() == null) {
+        return new IsNotNull(field);
+      } else {
+        right = queryValue;
       }
+    } else if (value instanceof final QueryValue queryValue) {
+      right = queryValue;
+    } else {
+      right = Value.newValue(field, value);
     }
-    return new NotEqual(left, right);
+    return new NotEqual(field, right);
   }
 
   public static Condition notEqual(final String name, final Object value) {
-    return notEqual(name, Value.newValue(value));
-  }
-
-  public static Condition notEqual(final String name, final QueryValue right) {
     final QueryValue column = new Column(name);
-    return notEqual(column, right);
+    return notEqual(column, value);
   }
 
   public static Not notExists(final QueryValue expression) {
