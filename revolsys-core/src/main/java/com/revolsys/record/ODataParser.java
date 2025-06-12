@@ -1036,7 +1036,7 @@ public class ODataParser {
         final String tokenString = value.substring(current, end);
         rt.add(new Token(TokenType.WORD, tokenString));
         current = end;
-      } else if (Character.isDigit(c) || 'c' == '-') {
+      } else if (Character.isDigit(c) || c == '-') {
         final Token token = readDigits(value, current);
         rt.add(token);
         current = token.getEnd();
