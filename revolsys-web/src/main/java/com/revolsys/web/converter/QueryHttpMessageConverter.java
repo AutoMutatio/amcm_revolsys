@@ -20,18 +20,20 @@ import com.revolsys.record.io.format.csv.Csv;
 import com.revolsys.record.io.format.json.JsonRecordWriter;
 import com.revolsys.record.io.format.xlsx.Xlsx;
 import com.revolsys.record.query.Query;
+import com.revolsys.util.Property;
 import com.revolsys.web.HttpServletUtils;
 
 public class QueryHttpMessageConverter extends AbstractHttpMessageConverter<Query> {
 
   private static final MediaType CSV = MediaType.parseMediaType(Csv.MIME_TYPE);
 
+  private static final MediaType XLSX = MediaType.parseMediaType(Xlsx.MEDIA_TYPE);
+
   public QueryHttpMessageConverter() {
-    super(
-      StandardCharsets.UTF_8,
-        MediaType.APPLICATION_JSON,
-        CSV,
-        MediaType.parseMediaType(Xlsx.MEDIA_TYPE));
+    super(StandardCharsets.UTF_8, MediaType.APPLICATION_JSON, CSV, XLSX);
+    // when adding more types in the implementation of
+    // org.springframework.web.servlet.config.annotation.WebMvcConfigurer
+    // register the file etensions
   }
 
   @Override
@@ -65,16 +67,22 @@ public class QueryHttpMessageConverter extends AbstractHttpMessageConverter<Quer
           if (MediaType.APPLICATION_JSON.equalsTypeAndSubtype(contentType)) {
             writeJson(outputMessage, query, reader);
           } else {
+            final var request = ((ServletRequestAttributes)RequestContextHolder
+              .currentRequestAttributes()).getRequest();
+
             final var simpleMediaType = contentType.getType() + "/" + contentType.getSubtype();
             final var writerFactory = IoFactory.factoryByMediaType(RecordWriterFactory.class,
               simpleMediaType);
-            var baseFileName = query.getBaseFileName();
-            if (baseFileName == null) {
-              baseFileName = query.getTablePath()
-                .getName();
+            var fileName = request.getParameter("fileName");
+            if (!Property.hasValue(fileName)) {
+              var baseFileName = query.getBaseFileName();
+              if (baseFileName == null) {
+                baseFileName = query.getTablePath()
+                  .getName();
+              }
+              fileName = baseFileName + "." + writerFactory.getFileExtension(simpleMediaType);
             }
-            headers.add("Content-Disposition", "attachment; filename=" + baseFileName + "."
-              + writerFactory.getFileExtension(simpleMediaType));
+            headers.add("Content-Disposition", "attachment; filename=" + fileName);
 
             try (
               var out = outputMessage.getBody();

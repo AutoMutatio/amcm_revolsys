@@ -8,6 +8,8 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+import com.revolsys.collection.list.ListEx;
+import com.revolsys.collection.list.Lists;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.data.identifier.Identifier;
 import com.revolsys.data.type.DataType;
@@ -582,6 +584,23 @@ public class Q {
       }
     }
     return i;
+  }
+
+  public static QueryValue sql(final DataType dataType, final Object... fragments) {
+    final ListEx<QueryValue> values = Lists.newArray(fragments)
+      .map(fragment -> {
+        if (fragment instanceof final QueryValue queryValue) {
+          return queryValue;
+        } else {
+          return sql(fragment.toString());
+        }
+      })
+      .toList();
+    if (values.size() == 1) {
+      return values.get(0);
+    } else {
+      return new SqlFragments(dataType, values);
+    }
   }
 
   public static SqlCondition sql(final String sql) {
