@@ -109,4 +109,13 @@ public class JsonBigDecimal extends BigDecimal implements JsonType {
     return false;
   }
 
+  @Override
+  public String toJsonString() {
+    return toPlainString();
+  }
+
+  @Override
+  public String toJsonString(final boolean indent) {
+    return toPlainString();
+  }
 }
