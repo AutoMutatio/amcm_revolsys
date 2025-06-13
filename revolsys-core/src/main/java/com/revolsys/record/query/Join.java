@@ -189,8 +189,7 @@ public class Join implements QueryValue, TableReferenceProxy {
   }
 
   public Join recordDefinition(final RecordDefinitionProxy recordDefinition) {
-    this.table = recordDefinition.getRecordDefinition();
-    return this;
+    return table(recordDefinition.getRecordDefinition());
   }
 
   public Join setAlias(final String alias) {
@@ -204,13 +203,19 @@ public class Join implements QueryValue, TableReferenceProxy {
   }
 
   public Join table(final TableRecordStoreFactory tableFactory, final CharSequence pathName) {
-    this.table = tableFactory.getRecordDefinition(pathName);
+    return table(tableFactory.getRecordDefinition(pathName));
+  }
+
+  public Join table(final TableReference table) {
+    this.table = table;
+    if (table != null && this.alias == null) {
+      this.alias = table.getTableAlias();
+    }
     return this;
   }
 
   public Join table(final TableReferenceProxy table) {
-    this.table = table.getTableReference();
-    return this;
+    return table(table.getTableReference());
   }
 
   public Join tableName(final String tableName) {
