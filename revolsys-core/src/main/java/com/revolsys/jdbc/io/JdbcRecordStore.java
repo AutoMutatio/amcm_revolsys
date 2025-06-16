@@ -20,6 +20,7 @@ import com.revolsys.jdbc.JdbcUtils;
 import com.revolsys.jdbc.field.JdbcFieldDefinition;
 import com.revolsys.record.Record;
 import com.revolsys.record.query.Query;
+import com.revolsys.record.query.QueryStatement;
 import com.revolsys.record.query.SqlAppendable;
 import com.revolsys.record.query.StringBuilderSqlAppendable;
 import com.revolsys.record.schema.RecordDefinition;
@@ -84,7 +85,7 @@ public interface JdbcRecordStore extends RecordStore {
 
   default void lockTable(final PathName typeName) {
     final StringBuilderSqlAppendable sql = SqlAppendable.stringBuilder("LOCK TABLE ");
-    getRecordDefinition(typeName).appendFrom(sql);
+    getRecordDefinition(typeName).appendFrom(QueryStatement.EMPTY, this, sql);
     sql.append(" IN SHARE MODE");
     final String s = sql.toSqlString();
     try (

@@ -73,6 +73,15 @@ public abstract class AbstractUnaryQueryValue implements QueryValue {
   }
 
   @Override
+  public ColumnReference getColumn() {
+    if (this.value == null) {
+      return null;
+    } else {
+      return this.value.getColumn();
+    }
+  }
+
+  @Override
   public List<QueryValue> getQueryValues() {
     return Collections.singletonList(this.value);
   }

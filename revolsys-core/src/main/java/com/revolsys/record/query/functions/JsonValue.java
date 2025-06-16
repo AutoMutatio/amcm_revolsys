@@ -3,13 +3,13 @@ package com.revolsys.record.query.functions;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.List;
 
 import com.revolsys.collection.json.Json;
 import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.record.query.ColumnIndexes;
+import com.revolsys.record.query.ColumnReference;
 import com.revolsys.record.query.Condition;
 import com.revolsys.record.query.Q;
 import com.revolsys.record.query.QueryStatement;
@@ -34,9 +34,9 @@ public class JsonValue extends SimpleFunction {
     final QueryValue pathParameter = parameters.get(1);
     if (Value.isString(pathParameter)) {
       this.displayPath = (String)((Value)pathParameter).getValue();
-      if (this.displayPath.matches("\\w+(\\.\\w+)*")) {
+      if (this.displayPath.matches("[\\s\\w]+(\\.[\\w\\s]+)*")) {
         this.path = "$." + this.displayPath;
-      } else if (this.displayPath.matches("\\$(\\.\\w+)*")) {
+      } else if (this.displayPath.matches("\\$(\\.[\\w\\s]+)*")) {
         this.path = this.displayPath;
       } else {
         throw new IllegalArgumentException(
@@ -47,10 +47,6 @@ public class JsonValue extends SimpleFunction {
       throw new IllegalArgumentException(
         "JSON_VALUE path parameter is not a string: " + pathParameter);
     }
-  }
-
-  public JsonValue(final QueryValue... parameters) {
-    this(Arrays.asList(parameters));
   }
 
   @Override
@@ -78,6 +74,12 @@ public class JsonValue extends SimpleFunction {
     return Q.equal(this, queryValue);
   }
 
+  @Override
+  public ColumnReference getColumn() {
+    return getQueryValues().get(0)
+      .getColumn();
+  }
+
   public String getPath() {
     return this.path;
   }
@@ -103,7 +105,7 @@ public class JsonValue extends SimpleFunction {
   public Object getValueFromResultSet(final RecordDefinition recordDefinition,
     final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings)
     throws SQLException {
-    return resultSet.getObject(indexes.incrementAndGet());
+    return getColumn().getValueFromResultSet(recordDefinition, resultSet, indexes, internStrings);
   }
 
   public boolean isText() {

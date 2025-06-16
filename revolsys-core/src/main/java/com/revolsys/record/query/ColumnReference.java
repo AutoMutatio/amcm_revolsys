@@ -27,10 +27,6 @@ public interface ColumnReference extends QueryValue {
     return index;
   }
 
-  default Cast cast(final String typeName) {
-    return new Cast(this, typeName);
-  }
-
   ColumnReference clone();
 
   @Override
@@ -38,6 +34,11 @@ public interface ColumnReference extends QueryValue {
 
   default String getAliasName() {
     return getName();
+  }
+
+  @Override
+  default ColumnReference getColumn() {
+    return this;
   }
 
   default DataType getDataType() {

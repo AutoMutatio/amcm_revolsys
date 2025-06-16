@@ -21,6 +21,18 @@ public class JsonObjectHttpMessageConverter extends AbstractHttpMessageConverter
 
   public static final Charset DEFAULT_CHARSET = StandardCharsets.ISO_8859_1;
 
+  public static Charset getCharset(final HttpMessage message) {
+    final var headers = message.getHeaders();
+    final var contentType = headers.getContentType();
+    if (contentType != null) {
+      final var charset = contentType.getCharset();
+      if (charset != null) {
+        return charset;
+      }
+    }
+    return StandardCharsets.UTF_8;
+  }
+
   public JsonObjectHttpMessageConverter() {
     super(StandardCharsets.UTF_8, MediaType.APPLICATION_JSON);
   }
@@ -32,18 +44,6 @@ public class JsonObjectHttpMessageConverter extends AbstractHttpMessageConverter
       headers.setContentType(MediaType.APPLICATION_JSON);
     }
     super.addDefaultHeaders(headers, value, type);
-  }
-
-  private Charset getCharset(final HttpMessage message) {
-    final var headers = message.getHeaders();
-    final var contentType = headers.getContentType();
-    if (contentType != null) {
-      final var charset = contentType.getCharset();
-      if (charset != null) {
-        return charset;
-      }
-    }
-    return StandardCharsets.UTF_8;
   }
 
   @Override

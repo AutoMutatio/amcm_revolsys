@@ -37,7 +37,9 @@ public class Alias implements QueryValue {
   @Override
   public void appendDefaultSql(final QueryStatement statement, final RecordStore recordStore,
     final SqlAppendable sql) {
-    sql.append(this.alias);
+    this.value.appendDefaultSql(statement, recordStore, sql);
+    sql.append(" as ");
+    appendAlias(sql);
   }
 
   @Override

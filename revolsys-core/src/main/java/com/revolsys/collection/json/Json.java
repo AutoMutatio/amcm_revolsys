@@ -23,6 +23,7 @@ import com.revolsys.io.JavaIo;
 import com.revolsys.util.Property;
 
 public class Json {
+
   private static class JsonDataType extends AbstractDataType {
 
     public JsonDataType() {
@@ -46,8 +47,8 @@ public class Json {
     protected Object toObjectDo(final Object value) {
       if (value instanceof JsonType) {
         return value;
-      } else if (value instanceof Jsonable) {
-        return ((Jsonable)value).asJson();
+      } else if (value instanceof final Jsonable jsonable) {
+        return jsonable.asJson();
       } else if (value instanceof Map) {
         return new JsonObjectHash((Map<? extends String, ? extends Object>)value);
       } else if (value instanceof List) {
@@ -55,6 +56,10 @@ public class Json {
       } else if (value instanceof String) {
         final Object read = JsonParser.read((String)value);
         if (read instanceof JsonType) {
+          return read;
+        } else if (read instanceof Boolean) {
+          return read;
+        } else if (read instanceof String) {
           return read;
         } else {
           return value;
@@ -319,6 +324,34 @@ public class Json {
     final String fieldName) {
     final String value = (String)record.get(fieldName);
     return toObjectMap(value);
+  }
+
+  public static <V> V parse(final String json) {
+    return JsonParser.read(json);
+  }
+
+  /**
+   * Write any object as a JSON string without any indentation or formatting.
+   *
+   * @param value The value to write
+   * @return
+   */
+  public static String toJsonString(final Object value) {
+    if (value == null) {
+      return null;
+    } else if (value instanceof final Jsonable jsonable) {
+      return jsonable.toJsonString();
+    } else if (value instanceof final Number number) {
+      return DataTypes.toString(number);
+    } else if (value instanceof final Boolean bool) {
+      return DataTypes.toString(bool);
+    } else if (value instanceof final CharSequence chars) {
+      final var s = new StringBuilder();
+      JsonWriterUtil.appendText(s, value);
+      return s.toString();
+    } else {
+      return toString(value, false);
+    }
   }
 
   public static JsonObject toMap(final Object source) {

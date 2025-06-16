@@ -17,7 +17,9 @@ import com.revolsys.collection.set.Sets;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.record.query.Add;
+import com.revolsys.record.query.AllOperator;
 import com.revolsys.record.query.And;
+import com.revolsys.record.query.AnyOperator;
 import com.revolsys.record.query.CollectionValue;
 import com.revolsys.record.query.Column;
 import com.revolsys.record.query.ColumnReference;
@@ -36,7 +38,6 @@ import com.revolsys.record.query.Or;
 import com.revolsys.record.query.Q;
 import com.revolsys.record.query.QueryValue;
 import com.revolsys.record.query.Subtract;
-import com.revolsys.record.query.TableReference;
 import com.revolsys.record.query.Value;
 import com.revolsys.record.query.functions.Distance;
 import com.revolsys.record.query.functions.F;
@@ -50,7 +51,7 @@ import com.revolsys.util.Strings;
 public class ODataParser {
 
   public enum AggregateFunction {
-    none, any, all
+    all, any, none
   }
 
   private static class ExpressionToken extends Token {
@@ -75,19 +76,45 @@ public class ODataParser {
 
     public static final String CAST = "cast";
 
+    public static final String CEILING = "ceiling";
+
+    public static final String CONCAT = "concat";
+
     public static final String CONTAINS = "contains";
 
-    public static final String ISOF = "isof";
+    public static final String DAY = "day";
 
     public static final String ENDSWITH = "endswith";
 
-    public static final String STARTSWITH = "startswith";
+    public static final String FLOOR = "floor";
 
-    public static final String SUBSTRINGOF = "substringof";
+    public static final String GEO_DISTANCE = "geo.distance";
+
+    public static final String GEO_INTERSECTS = "geo.intersects";
+
+    public static final String HOUR = "hour";
 
     public static final String INDEXOF = "indexof";
 
+    public static final String ISOF = "isof";
+
+    public static final String LENGTH = "length";
+
+    public static final String MINUTE = "minute";
+
+    public static final String MONTH = "month";
+
     public static final String REPLACE = "replace";
+
+    public static final String ROUND = "round";
+
+    public static final String SECOND = "second";
+
+    public static final String STARTSWITH = "startswith";
+
+    public static final String SUBSTRING = "substring";
+
+    public static final String SUBSTRINGOF = "substringof";
 
     public static final String TOLOWER = "tolower";
 
@@ -95,42 +122,16 @@ public class ODataParser {
 
     public static final String TRIM = "trim";
 
-    public static final String SUBSTRING = "substring";
-
-    public static final String CONCAT = "concat";
-
-    public static final String LENGTH = "length";
-
     public static final String YEAR = "year";
-
-    public static final String MONTH = "month";
-
-    public static final String DAY = "day";
-
-    public static final String HOUR = "hour";
-
-    public static final String MINUTE = "minute";
-
-    public static final String SECOND = "second";
-
-    public static final String ROUND = "round";
-
-    public static final String FLOOR = "floor";
-
-    public static final String CEILING = "ceiling";
-
-    public static final String GEO_INTERSECTS = "geo.intersects";
-
-    public static final String GEO_DISTANCE = "geo.distance";
   }
 
   public static class Token {
 
+    private int end;
+
     public final TokenType type;
 
     public final String value;
-
-    private int end;
 
     public Token(final TokenType type, final String value) {
       this.type = type;
@@ -176,128 +177,8 @@ public class ODataParser {
   }
 
   public static enum TokenType {
-    UNKNOWN, WHITESPACE, QUOTED_STRING, WORD, SYMBOL, NUMBER, OPENPAREN, CLOSEPAREN, EXPRESSION;
+    CLOSEPAREN, EXPRESSION, NUMBER, OPENPAREN, QUOTED_STRING, SYMBOL, UNKNOWN, WHITESPACE, WORD;
   }
-
-  private static Set<String> METHODS = Sets.newHash(Methods.CAST, Methods.ISOF, Methods.ENDSWITH,
-    Methods.STARTSWITH, Methods.SUBSTRINGOF, Methods.INDEXOF, Methods.REPLACE, Methods.TOLOWER,
-    Methods.TOUPPER, Methods.TRIM, Methods.SUBSTRING, Methods.CONCAT, Methods.LENGTH, Methods.YEAR,
-    Methods.MONTH, Methods.DAY, Methods.HOUR, Methods.MINUTE, Methods.SECOND, Methods.ROUND,
-    Methods.FLOOR, Methods.CEILING, Methods.GEO_INTERSECTS, Methods.GEO_DISTANCE, Methods.CONTAINS);
-
-  private static final Map<String, Function<List<QueryValue>, QueryValue>> METHOD_FACTORIES = Maps
-    .<String, Function<List<QueryValue>, QueryValue>> buildHash()//
-    .add(Methods.TOUPPER, Upper::new)
-    .add(Methods.TOLOWER, Lower::new)
-    .add(Methods.GEO_INTERSECTS, values -> {
-      final QueryValue value2 = values.get(1);
-      if (value2 instanceof CollectionValue) {
-        final QueryValue newValue = ((CollectionValue)value2).getQueryValues().get(0);
-        values.set(1, newValue);
-      }
-      return F.envelopeIntersects(values);
-    })
-    .add(Methods.GEO_DISTANCE, values -> {
-      final QueryValue left = values.get(0);
-      QueryValue right = values.get(1);
-      if (right instanceof CollectionValue) {
-        right = ((CollectionValue)right).getQueryValues().get(0);
-      }
-
-      if (!(left instanceof ColumnReference)) {
-        throw new IllegalArgumentException(
-          "geo.intersections first argument must be a column reference");
-      }
-      final ColumnReference field = (ColumnReference)left;
-      if (right instanceof Value) {
-        final Value value = (Value)right;
-        final String text = value.getValue().toString();
-        final FieldDefinition fieldDefinition = field.getFieldDefinition();
-        final GeometryFactory geometryFactory = fieldDefinition.getGeometryFactory();
-        final Geometry geometry = geometryFactory.geometry(text);
-        right = Value.newValue(fieldDefinition, geometry);
-      } else if (right instanceof Column) {
-        final Column value = (Column)right;
-        final String text = value.getName();
-        if (text.startsWith("geometry'")) {
-          final FieldDefinition fieldDefinition = field.getFieldDefinition();
-          final GeometryFactory geometryFactory = fieldDefinition.getGeometryFactory();
-          final Geometry geometry = geometryFactory.geometry(text);
-          right = Value.newValue(fieldDefinition, geometry);
-        } else {
-          throw new IllegalArgumentException(
-            "geo.intersections second argument must be a geometry: " + right);
-        }
-      } else {
-        throw new IllegalArgumentException(
-          "geo.intersections second argument must be a geometry: " + right);
-      }
-      return new Distance(left, right);
-    })
-    .add(Methods.CONTAINS, args -> {
-      QueryValue left = args.get(0);
-      QueryValue right = args.get(1);
-      if (left instanceof Upper && right instanceof Upper) {
-        left = left.getQueryValues().get(0);
-        right = right.getQueryValues().get(0);
-        if (right instanceof Value) {
-          final Value value = (Value)right;
-          return Q.iLike(left, "%" + value.getValue() + "%");
-        } else {
-          return Q.iLike(left, right);
-        }
-      } else {
-        if (right instanceof Value) {
-          final Value value = (Value)right;
-          return Q.like(left, "%" + value.getValue() + "%");
-        } else {
-          return Q.like(left, right);
-        }
-      }
-    })
-    .add(Methods.STARTSWITH, args -> {
-      QueryValue left = args.get(0);
-      QueryValue right = args.get(1);
-      if (left instanceof Upper && right instanceof Upper) {
-        left = left.getQueryValues().get(0);
-        right = right.getQueryValues().get(0);
-        if (right instanceof Value) {
-          final Value value = (Value)right;
-          return Q.iLike(left, value.getValue() + "%");
-        } else {
-          return Q.iLike(left, right);
-        }
-      } else {
-        if (right instanceof Value) {
-          final Value value = (Value)right;
-          return Q.like(left, value.getValue() + "%");
-        } else {
-          return Q.like(left, right);
-        }
-      }
-    })
-    .add(Methods.ENDSWITH, args -> {
-      QueryValue left = args.get(0);
-      QueryValue right = args.get(1);
-      if (left instanceof Upper && right instanceof Upper) {
-        left = left.getQueryValues().get(0);
-        right = right.getQueryValues().get(0);
-        if (right instanceof Value) {
-          final Value value = (Value)right;
-          return Q.iLike(left, "%" + value.getValue());
-        } else {
-          return Q.iLike(left, right);
-        }
-      } else {
-        if (right instanceof Value) {
-          final Value value = (Value)right;
-          return Q.like(left, "%" + value.getValue());
-        } else {
-          return Q.like(left, right);
-        }
-      }
-    })
-    .getMap();
 
   // Order by preference
   private static final Map<String, BiFunction<QueryValue, QueryValue, ? extends QueryValue>> BINARY_OPERATOR_FACTORIES = Maps
@@ -342,7 +223,136 @@ public class ODataParser {
     .add("div", Divide::new)
     .add("mod", Mod::new)
     .add("in", In::new)
+    .add("any", AnyOperator::new)
+    .add("all", AllOperator::new)
     .getMap();
+
+  private static final Map<String, Function<List<QueryValue>, QueryValue>> METHOD_FACTORIES = Maps
+    .<String, Function<List<QueryValue>, QueryValue>> buildHash()//
+    .add(Methods.TOUPPER, Upper::new)
+    .add(Methods.TOLOWER, Lower::new)
+    .add(Methods.GEO_INTERSECTS, values -> {
+      final QueryValue value2 = values.get(1);
+      if (value2 instanceof CollectionValue) {
+        final QueryValue newValue = ((CollectionValue)value2).getQueryValues()
+          .get(0);
+        values.set(1, newValue);
+      }
+      return F.envelopeIntersects(values);
+    })
+    .add(Methods.GEO_DISTANCE, values -> {
+      final QueryValue left = values.get(0);
+      QueryValue right = values.get(1);
+      if (right instanceof CollectionValue) {
+        right = ((CollectionValue)right).getQueryValues()
+          .get(0);
+      }
+
+      if (!(left instanceof ColumnReference)) {
+        throw new IllegalArgumentException(
+          "geo.intersections first argument must be a column reference");
+      }
+      final ColumnReference field = (ColumnReference)left;
+      if (right instanceof Value) {
+        final Value value = (Value)right;
+        final String text = value.getValue()
+          .toString();
+        final FieldDefinition fieldDefinition = field.getFieldDefinition();
+        final GeometryFactory geometryFactory = fieldDefinition.getGeometryFactory();
+        final Geometry geometry = geometryFactory.geometry(text);
+        right = Value.newValue(fieldDefinition, geometry);
+      } else if (right instanceof Column) {
+        final Column value = (Column)right;
+        final String text = value.getName();
+        if (text.startsWith("geometry'")) {
+          final FieldDefinition fieldDefinition = field.getFieldDefinition();
+          final GeometryFactory geometryFactory = fieldDefinition.getGeometryFactory();
+          final Geometry geometry = geometryFactory.geometry(text);
+          right = Value.newValue(fieldDefinition, geometry);
+        } else {
+          throw new IllegalArgumentException(
+            "geo.intersections second argument must be a geometry: " + right);
+        }
+      } else {
+        throw new IllegalArgumentException(
+          "geo.intersections second argument must be a geometry: " + right);
+      }
+      return new Distance(left, right);
+    })
+    .add(Methods.CONTAINS, args -> {
+      QueryValue left = args.get(0);
+      QueryValue right = args.get(1);
+      if (left instanceof Upper && right instanceof Upper) {
+        left = left.getQueryValues()
+          .get(0);
+        right = right.getQueryValues()
+          .get(0);
+        if (right instanceof final Value value) {
+          return Q.iLike(left, "%" + value.getValue() + "%");
+        } else {
+          return Q.iLike(left, right);
+        }
+      } else {
+        if (right instanceof final Value value) {
+          return Q.iLike(left, "%" + value.getValue() + "%");
+        } else {
+          return Q.iLike(left, right);
+        }
+      }
+    })
+    .add(Methods.STARTSWITH, args -> {
+      QueryValue left = args.get(0);
+      QueryValue right = args.get(1);
+      if (left instanceof Upper && right instanceof Upper) {
+        left = left.getQueryValues()
+          .get(0);
+        right = right.getQueryValues()
+          .get(0);
+        if (right instanceof Value) {
+          final Value value = (Value)right;
+          return Q.iLike(left, value.getValue() + "%");
+        } else {
+          return Q.iLike(left, right);
+        }
+      } else {
+        if (right instanceof Value) {
+          final Value value = (Value)right;
+          return Q.like(left, value.getValue() + "%");
+        } else {
+          return Q.like(left, right);
+        }
+      }
+    })
+    .add(Methods.ENDSWITH, args -> {
+      QueryValue left = args.get(0);
+      QueryValue right = args.get(1);
+      if (left instanceof Upper && right instanceof Upper) {
+        left = left.getQueryValues()
+          .get(0);
+        right = right.getQueryValues()
+          .get(0);
+        if (right instanceof Value) {
+          final Value value = (Value)right;
+          return Q.iLike(left, "%" + value.getValue());
+        } else {
+          return Q.iLike(left, right);
+        }
+      } else {
+        if (right instanceof Value) {
+          final Value value = (Value)right;
+          return Q.like(left, "%" + value.getValue());
+        } else {
+          return Q.like(left, right);
+        }
+      }
+    })
+    .getMap();
+
+  private static Set<String> METHODS = Sets.newHash(Methods.CAST, Methods.ISOF, Methods.ENDSWITH,
+    Methods.STARTSWITH, Methods.SUBSTRINGOF, Methods.INDEXOF, Methods.REPLACE, Methods.TOLOWER,
+    Methods.TOUPPER, Methods.TRIM, Methods.SUBSTRING, Methods.CONCAT, Methods.LENGTH, Methods.YEAR,
+    Methods.MONTH, Methods.DAY, Methods.HOUR, Methods.MINUTE, Methods.SECOND, Methods.ROUND,
+    Methods.FLOOR, Methods.CEILING, Methods.GEO_INTERSECTS, Methods.GEO_DISTANCE, Methods.CONTAINS);
 
   // Order by preference
   private static final Map<String, Pair<Boolean, Function<QueryValue, QueryValue>>> UNARY_OPERATOR_FACTORIES = Maps
@@ -497,13 +507,14 @@ public class ODataParser {
     // }
   }
 
-  public static QueryValue parseFilter(final TableReference table, final String value) {
+  public static QueryValue parseFilter(final Function<String, QueryValue> table,
+    final String value) {
     final List<Token> tokens = tokenize(value);
 
     return readExpression(table, tokens);
   }
 
-  private static QueryValue processBinaryExpression(final TableReference table,
+  private static QueryValue processBinaryExpression(final Function<String, QueryValue> table,
     final List<Token> tokens, final String op) {
 
     final int ts = tokens.size();
@@ -529,7 +540,7 @@ public class ODataParser {
     return null;
   }
 
-  private static List<Token> processParentheses(final TableReference table,
+  private static List<Token> processParentheses(final Function<String, QueryValue> table,
     final List<Token> tokens) {
 
     final List<Token> rt = new ArrayList<>();
@@ -594,7 +605,8 @@ public class ODataParser {
                 final QueryValue any = null;// Expression.any(Expression.simpleProperty(aggregateSource));
 
                 final ExpressionToken et = new ExpressionToken(any, tokensIncludingParens);
-                rt.subList(rt.size() - (i - k), rt.size()).clear();
+                rt.subList(rt.size() - (i - k), rt.size())
+                  .clear();
                 rt.add(et);
                 return rt;
               }
@@ -634,7 +646,8 @@ public class ODataParser {
               final QueryValue methodCall = methodCall(methodName, methodArguments);
 
               final ExpressionToken et = new ExpressionToken(methodCall, tokensIncludingParens);
-              rt.subList(rt.size() - (i - k), rt.size()).clear();
+              rt.subList(rt.size() - (i - k), rt.size())
+                .clear();
               rt.add(et);
 
             } else if (aggregateVariable != null) {
@@ -675,7 +688,7 @@ public class ODataParser {
 
   }
 
-  private static QueryValue processUnaryExpression(final TableReference table,
+  private static QueryValue processUnaryExpression(final Function<String, QueryValue> table,
     final List<Token> tokens, final String op) {
     final Pair<Boolean, Function<QueryValue, QueryValue>> config = UNARY_OPERATOR_FACTORIES.get(op);
     final boolean whitespaceRequired = config.getValue1();
@@ -731,7 +744,8 @@ public class ODataParser {
     }
   }
 
-  private static QueryValue readExpression(final TableReference table, List<Token> tokens) {
+  private static QueryValue readExpression(final Function<String, QueryValue> table,
+    List<Token> tokens) {
     tokens = trimWhitespace(tokens);
     tokens = processParentheses(table, tokens);
     if (tokens.size() == 2 && tokens.get(0).type == TokenType.WORD
@@ -864,7 +878,7 @@ public class ODataParser {
           return Value.newValue(false);
         }
         try {
-          return table.getColumn(text);
+          return table.apply(text);
         } catch (final Exception e) {
           return new Column(text);
         }
@@ -963,7 +977,8 @@ public class ODataParser {
         }
       } else if (c == '\'') {
         instring = true;
-      } else if (Character.isLetterOrDigit(c) || c == '/' || c == '_' || c == '.' || c == '*') {
+      } else if (Character.isLetterOrDigit(c) || c == '/' || c == '_' || c == '.' || c == '*'
+        || c == '~') {
       } else {
         return rt;
       }
@@ -1016,12 +1031,12 @@ public class ODataParser {
         final Token token = new Token(TokenType.QUOTED_STRING, string);
         rt.add(token);
         current = end;
-      } else if (Character.isLetter(c) || c == '*') {
+      } else if (Character.isLetter(c) || c == '*' || c == '/') {
         final int end = readWord(value, current + 1, length);
         final String tokenString = value.substring(current, end);
         rt.add(new Token(TokenType.WORD, tokenString));
         current = end;
-      } else if (Character.isDigit(c) || 'c' == '-') {
+      } else if (Character.isDigit(c) || c == '-') {
         final Token token = readDigits(value, current);
         rt.add(token);
         current = token.getEnd();
@@ -1047,6 +1062,7 @@ public class ODataParser {
   }
 
   private static String unquote(final String singleQuotedValue) {
-    return singleQuotedValue.substring(1, singleQuotedValue.length() - 1).replace("''", "'");
+    return singleQuotedValue.substring(1, singleQuotedValue.length() - 1)
+      .replace("''", "'");
   }
 }

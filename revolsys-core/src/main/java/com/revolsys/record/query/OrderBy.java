@@ -66,8 +66,7 @@ public class OrderBy implements Cloneable {
   }
 
   public boolean isField(final String fieldName) {
-    if (this.field instanceof ColumnReference) {
-      final ColumnReference column = (ColumnReference)this.field;
+    if (this.field instanceof final ColumnReference column) {
       if (column.getName()
         .equalsIgnoreCase(fieldName)) {
         return true;

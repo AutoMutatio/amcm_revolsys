@@ -27,7 +27,8 @@ public class In extends AbstractBinaryQueryValue implements Condition {
       right = new CollectionValue(Arrays.asList(((Value)right).getValue()));
       setRight(right);
     }
-    if (left instanceof final ColumnReference column && right instanceof CollectionValue) {
+    final var column = left.getColumn();
+    if (column != null && right instanceof CollectionValue) {
       right.setColumn(column);
     }
   }

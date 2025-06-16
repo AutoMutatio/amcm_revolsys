@@ -7,7 +7,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
-import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.sql.Clob;
 import java.sql.SQLException;
@@ -162,9 +161,12 @@ public class JsonParser implements Iterator<JsonParser.EventType>, Closeable {
   @SuppressWarnings("unchecked")
   public static <V> V read(final String value) {
     if (value == null) {
-      return (V)JsonObject.hash();
+      return null;
     } else {
-      return (V)read(new StringReader(value));
+      try (
+        var reader = new StringReader(value)) {
+        return (V)read(reader);
+      }
     }
   }
 
@@ -534,7 +536,7 @@ public class JsonParser implements Iterator<JsonParser.EventType>, Closeable {
         this.currentCharacter = this.reader.read();
       }
     }
-    this.nextValue = new BigDecimal(text.toString());
+    this.nextValue = new JsonBigDecimal(text.toString());
   }
 
   private void processString() throws IOException {

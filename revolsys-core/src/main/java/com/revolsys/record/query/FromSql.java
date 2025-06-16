@@ -15,7 +15,7 @@ public class FromSql implements From {
   }
 
   @Override
-  public void appendFrom(final SqlAppendable sql) {
+  public void appendFrom(QueryStatement statement, RecordStore recordStore, final SqlAppendable sql) {
     if (this.useParenthesis) {
       sql.append('(');
     }

@@ -22,7 +22,9 @@ public class Union {
     if (!this.distinct) {
       sql.append("ALL ");
     }
+    sql.append('(');
     this.query.appendSql(sql);
+    sql.append(')');
   }
 
   @Override
