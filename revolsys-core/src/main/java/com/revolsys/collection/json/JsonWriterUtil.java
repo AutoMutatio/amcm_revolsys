@@ -32,7 +32,7 @@ public final class JsonWriterUtil {
   }
 
   public static void appendList(final Appendable appendable,
-    final Collection<? extends Object> values) throws IOException {
+    final Iterable<? extends Object> values) throws IOException {
     appendable.append('[');
     boolean first = true;
     for (final Object value : values) {
@@ -85,6 +85,9 @@ public final class JsonWriterUtil {
     try {
       if (value == null) {
         appendable.append("null");
+      } else if (value instanceof JsonType) {
+        final JsonType jsonType = (JsonType)value;
+        jsonType.appendJson(appendable);
       } else if (value instanceof Boolean) {
         if ((Boolean)value) {
           appendable.append("true");
@@ -99,9 +102,6 @@ public final class JsonWriterUtil {
         } else {
           appendable.append(Doubles.toString(doubleValue));
         }
-      } else if (value instanceof JsonType) {
-        final JsonType jsonType = (JsonType)value;
-        jsonType.appendJson(appendable);
       } else if (value instanceof Jsonable) {
         final JsonType json = ((Jsonable)value).asJson();
         if (json != null) {
@@ -110,6 +110,9 @@ public final class JsonWriterUtil {
       } else if (value instanceof Collection) {
         final Collection<? extends Object> list = (Collection<? extends Object>)value;
         appendList(appendable, list);
+      } else if (value instanceof Iterable) {
+        final Iterable<? extends Object> iterable = (Iterable<? extends Object>)value;
+        appendList(appendable, iterable);
       } else if (value instanceof Map) {
         final Map<Object, Object> map = (Map<Object, Object>)value;
         appendMap(appendable, map);
@@ -118,7 +121,8 @@ public final class JsonWriterUtil {
         appendable.append('"');
         charSequence(appendable, string);
         appendable.append('"');
-      } else if (value.getClass().isArray()) {
+      } else if (value.getClass()
+        .isArray()) {
         final List<? extends Object> list = Lists.arrayToList(value);
         appendList(appendable, list);
       } else {
@@ -278,7 +282,8 @@ public final class JsonWriterUtil {
       out.write('"');
       charSequence(out, string);
       out.write('"');
-    } else if (value.getClass().isArray()) {
+    } else if (value.getClass()
+      .isArray()) {
       final List<? extends Object> list = Lists.arrayToList(value);
       write(out, list, indent, writeNulls);
     } else {

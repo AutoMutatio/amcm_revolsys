@@ -18,7 +18,11 @@ public class ColumnWithPrefix implements QueryValue, ColumnReference {
   private final ColumnReference column;
 
   public ColumnWithPrefix(final CharSequence columnPrefix, final ColumnReference column) {
-    this.columnPrefix = columnPrefix.toString();
+    if (columnPrefix == null) {
+      this.columnPrefix = null;
+    } else {
+      this.columnPrefix = columnPrefix.toString();
+    }
     this.column = column;
   }
 
@@ -30,19 +34,21 @@ public class ColumnWithPrefix implements QueryValue, ColumnReference {
   @Override
   public void appendColumnPrefix(final SqlAppendable string) {
     if (this.columnPrefix != null) {
+      string.append('"');
       string.append(this.columnPrefix);
+      string.append('"');
       string.append(".");
     }
   }
 
   @Override
-  public void appendDefaultSelect(final Query query, final RecordStore recordStore,
+  public void appendDefaultSelect(final QueryStatement statement, final RecordStore recordStore,
     final SqlAppendable sql) {
     appendColumnNameWithPrefix(sql);
   }
 
   @Override
-  public void appendDefaultSql(final Query query, final RecordStore recordStore,
+  public void appendDefaultSql(final QueryStatement statement, final RecordStore recordStore,
     final SqlAppendable sql) {
     appendColumnNameWithPrefix(sql);
   }
@@ -79,6 +85,11 @@ public class ColumnWithPrefix implements QueryValue, ColumnReference {
       }
     }
     return false;
+  }
+
+  @Override
+  public ColumnReference getColumn() {
+    return this.column;
   }
 
   @Override

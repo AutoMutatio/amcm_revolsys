@@ -4,16 +4,19 @@ import java.io.File;
 import java.nio.file.Path;
 import java.sql.Array;
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import org.springframework.beans.DirectFieldAccessor;
 
+import com.revolsys.collection.iterator.BaseIterable;
 import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.data.identifier.Identifier;
@@ -36,11 +39,13 @@ import com.revolsys.record.io.RecordReader;
 import com.revolsys.record.io.RecordStoreConnection;
 import com.revolsys.record.io.RecordStoreFactory;
 import com.revolsys.record.io.RecordWriter;
+import com.revolsys.record.query.ColumnIndexes;
 import com.revolsys.record.query.Condition;
 import com.revolsys.record.query.DeleteStatement;
 import com.revolsys.record.query.InsertStatement;
 import com.revolsys.record.query.Q;
 import com.revolsys.record.query.Query;
+import com.revolsys.record.query.QueryStatement;
 import com.revolsys.record.query.QueryValue;
 import com.revolsys.record.query.SqlAppendable;
 import com.revolsys.record.query.TableReferenceImpl;
@@ -62,8 +67,11 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
       final Number number = (Number)queryValue;
       sql.append(DataTypes.toString(number));
     } else {
-      final String string = DataTypes.toString(queryValue).replaceAll("'", "''");
-      sql.append('\'').append(string).append('\'');
+      final String string = DataTypes.toString(queryValue)
+        .replaceAll("'", "''");
+      sql.append('\'')
+        .append(string)
+        .append('\'');
     }
   }
 
@@ -95,6 +103,7 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
 
   /**
    * Construct a new initialized record store.
+   *
    * @param connectionProperties
    * @return
    */
@@ -110,7 +119,8 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
   }
 
   static <T extends RecordStore> T newRecordStore(final Path file) {
-    return newRecordStore(file.toUri().toString());
+    return newRecordStore(file.toUri()
+      .toString());
   }
 
   @SuppressWarnings("unchecked")
@@ -220,14 +230,14 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
     }
   }
 
-  default void appendQueryValue(final Query query, final SqlAppendable sql,
+  default void appendQueryValue(final QueryStatement statement, final SqlAppendable sql,
     final QueryValue queryValue) {
-    queryValue.appendDefaultSql(query, this, sql);
+    queryValue.appendDefaultSql(statement, this, sql);
   }
 
-  default void appendSelect(final Query query, final SqlAppendable sql,
+  default void appendSelect(final QueryStatement statement, final SqlAppendable sql,
     final QueryValue queryValue) {
-    queryValue.appendDefaultSelect(query, this, sql);
+    queryValue.appendDefaultSelect(statement, this, sql);
   }
 
   default void appendSqlValue(final SqlAppendable sql, final Object queryValue) {
@@ -285,6 +295,32 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
       }
     }
     return count;
+  }
+
+  default DeleteStatement deleteStatement(final PathName pathName) {
+    return new DeleteStatement().from(getRecordDefinition(pathName));
+  }
+
+  default int executeInsertCount(final InsertStatement insertStatement) {
+    throw new UnsupportedOperationException("InsertStatement not implemented");
+  }
+
+  default <V> V executeInsertRecords(final InsertStatement insertStatement,
+    final Function<BaseIterable<Record>, V> action) {
+    throw new UnsupportedOperationException("InsertStatement not implemented");
+  }
+
+  default int executeUpdateCount(final UpdateStatement queryStatement) {
+    throw new UnsupportedOperationException("UpdateStatement not implemented");
+  }
+
+  default <V> V executeUpdateRecords(final UpdateStatement insertStatement,
+    final Function<BaseIterable<Record>, V> action) {
+    throw new UnsupportedOperationException("UpdateStatement not implemented");
+  }
+
+  default boolean exists(final Query query) {
+    return query.getRecordCount() > 0;
   }
 
   default RecordDefinition findRecordDefinition(final PathName typePath) {
@@ -474,6 +510,12 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
 
   String getUsername();
 
+  default Object getValueFromResultSet(final RecordDefinition recordDefinition,
+    final String dataType, final ResultSet resultSet, final ColumnIndexes indexes,
+    final boolean internStrings) {
+    throw new UnsupportedOperationException();
+  }
+
   default boolean hasSchema(final PathName schemaName) {
     return getSchema(schemaName) != null;
   }
@@ -509,14 +551,14 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
     throw new UnsupportedOperationException("Insert not supported");
   }
 
-  default int insertRecords(final InsertStatement insertStatement) {
-    throw new UnsupportedOperationException("InsertStatement not implemented");
-  }
-
   default void insertRecords(final Iterable<? extends Record> records) {
     for (final Record record : records) {
       insertRecord(record);
     }
+  }
+
+  default InsertStatement insertStatement(final PathName pathName) {
+    return new InsertStatement().into(getRecordDefinition(pathName));
   }
 
   default boolean isClosed() {
@@ -558,7 +600,8 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
   }
 
   default <R extends Record> InsertUpdateBuilder<R> newInsert(final PathName pathName) {
-    return this.<R> newInsertUpdate(pathName).setUpdate(false);
+    return this.<R> newInsertUpdate(pathName)
+      .setUpdate(false);
   }
 
   default <R extends Record> InsertUpdateBuilder<R> newInsertUpdate(final PathName pathName) {
@@ -713,7 +756,8 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
   }
 
   default <R extends Record> InsertUpdateBuilder<R> newUpdate(final PathName pathName) {
-    return this.<R> newInsertUpdate(pathName).setInsert(false);
+    return this.<R> newInsertUpdate(pathName)
+      .setInsert(false);
   }
 
   default void refreshCodeTable(final PathName pathName) {
@@ -781,8 +825,8 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
     return i;
   }
 
-  default int updateRecords(final UpdateStatement updateStatement) {
-    throw new UnsupportedOperationException("Update not supported: " + updateStatement);
+  default UpdateStatement updateStatement(final PathName pathName) {
+    return new UpdateStatement().table(getRecordDefinition(pathName));
   }
 
   default void write(final Record record, final RecordState state) {

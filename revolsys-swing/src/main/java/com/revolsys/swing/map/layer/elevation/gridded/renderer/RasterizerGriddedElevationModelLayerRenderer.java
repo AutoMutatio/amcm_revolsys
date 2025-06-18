@@ -25,6 +25,7 @@ import com.revolsys.swing.map.layer.elevation.gridded.renderer.jocl.GriddedEleva
 import com.revolsys.swing.map.layer.elevation.gridded.renderer.jocl.JoclGriddedElevationModelImageRasterizer;
 import com.revolsys.swing.map.view.ViewRenderer;
 import com.revolsys.swing.menu.MenuFactory;
+import com.revolsys.util.concurrent.Concurrent;
 
 public class RasterizerGriddedElevationModelLayerRenderer
   extends AbstractGriddedElevationModelLayerRenderer {
@@ -219,16 +220,16 @@ public class RasterizerGriddedElevationModelLayerRenderer
             synchronized (this) {
               if (this.redraw && this.worker == null) {
                 this.redraw = false;
-                this.worker = new Thread(() -> {
-                  synchronized (this) {
-                    if (this.worker == Thread.currentThread()) {
-                      this.image.redraw();
-                      this.worker = null;
+                this.worker = Concurrent.virtual("GridRenderer")
+                  .start(() -> {
+                    synchronized (this) {
+                      if (this.worker == Thread.currentThread()) {
+                        this.image.redraw();
+                        this.worker = null;
+                      }
+                      layer.redraw();
                     }
-                    layer.redraw();
-                  }
-                });
-                this.worker.start();
+                  });
               }
             }
           }

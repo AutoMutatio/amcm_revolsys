@@ -81,7 +81,8 @@ public class ODataServiceDocumentMetadataProcessor extends AbstractProcessor
         response.setStatusCode(HttpStatusCode.OK.getStatusCode());
       } else {
         final ODataSerializer serializer = ODataSerializer.createSerializer(requestedContentType);
-        response.setContent(serializer.serviceDocument(this.serviceMetadata, this.serviceRoot)
+        final String serviceRoot = request.getAttribute("serviceRoot");
+        response.setContent(serializer.serviceDocument(this.serviceMetadata, serviceRoot)
           .getContent());
         response.setStatusCode(HttpStatusCode.OK.getStatusCode());
         response.setHeader(HttpHeader.CONTENT_TYPE, requestedContentType.toContentTypeString());

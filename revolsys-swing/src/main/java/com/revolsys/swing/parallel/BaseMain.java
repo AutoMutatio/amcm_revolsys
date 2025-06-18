@@ -21,6 +21,7 @@ import com.revolsys.swing.logging.ListLoggingAppender;
 import com.revolsys.swing.logging.LoggingEventPanel;
 import com.revolsys.util.Property;
 import com.revolsys.util.Strings;
+import com.revolsys.util.concurrent.Concurrent;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -59,7 +60,7 @@ public class BaseMain implements UncaughtExceptionHandler {
   public void logError(final Throwable e) {
     try {
       final Instant timestamp = Instant.now();
-      final String threadName = Thread.currentThread().getName();
+      final String threadName = Concurrent.threadName();
       final String stackTrace = e.getMessage() + "\n" + Strings.toString("\n", e.getStackTrace());
       LoggingEventPanel.showDialog(timestamp, Level.ERROR, getClass().getName(),
         "Unable to start application:" + e.getMessage(), threadName, stackTrace);
@@ -111,7 +112,8 @@ public class BaseMain implements UncaughtExceptionHandler {
     }
     JFrame.setDefaultLookAndFeelDecorated(true);
     JDialog.setDefaultLookAndFeelDecorated(true);
-    ToolTipManager.sharedInstance().setInitialDelay(100);
+    ToolTipManager.sharedInstance()
+      .setInitialDelay(100);
   }
 
   public void setLookAndFeelName(final String lookAndFeelName) {
@@ -147,7 +149,8 @@ public class BaseMain implements UncaughtExceptionHandler {
       }
     }
     final Logger logger = LogbackUtil.getLogger(logClass);
-    final String name = logger.getClass().getName();
+    final String name = logger.getClass()
+      .getName();
     final LoggingEvent event = new LoggingEvent();
     event.setLoggerName(name);
     event.setLevel(Level.INFO);

@@ -13,62 +13,64 @@ import com.revolsys.transaction.TransactionBuilder;
 
 public class RecordStoreQuery extends Query {
 
-  private final RecordStore recordStore;
-
   public RecordStoreQuery(final RecordStore recordStore) {
-    this.recordStore = recordStore;
+    super(recordStore);
   }
 
   public RecordStoreQuery(final RecordStore recordStore, final TableReferenceProxy table) {
-    super(table);
-    this.recordStore = recordStore;
+    super(recordStore, table);
   }
 
   @Override
   public int deleteRecords() {
-    return transactionCall(() -> this.recordStore.deleteRecords(this));
+    return transactionCall(() -> getRecordStore().deleteRecords(this));
+  }
+
+  @Override
+  public boolean exists() {
+    return getRecordStore().exists(this);
   }
 
   @SuppressWarnings("unchecked")
   @Override
   public <R extends Record> R getRecord() {
-    return transactionCall(() -> (R)this.recordStore.getRecord(this));
+    return transactionCall(() -> (R)getRecordStore().getRecord(this));
   }
 
   @Override
   public long getRecordCount() {
-    return transactionCall(() -> this.recordStore.getRecordCount(this));
+    return transactionCall(() -> getRecordStore().getRecordCount(this));
   }
 
   @Override
   public RecordReader getRecordReader() {
-    return this.recordStore.getRecords(this);
+    return getRecordStore().getRecords(this);
   }
 
   @Override
   public Record insertRecord(final Supplier<Record> newRecordSupplier) {
-    return transactionCall(() -> this.recordStore.insertRecord(this, newRecordSupplier));
+    return transactionCall(() -> getRecordStore().insertRecord(this, newRecordSupplier));
   }
 
   @Override
   protected StringBuilderSqlAppendable newSqlAppendable() {
     final StringBuilderSqlAppendable sql = super.newSqlAppendable();
-    sql.setRecordStore(this.recordStore);
+    sql.setRecordStore(getRecordStore());
     return sql;
   }
 
   @Override
   public TransactionBuilder transaction() {
-    return this.recordStore.transaction();
+    return getRecordStore().transaction();
   }
 
   @Override
   public Record updateRecord(final Consumer<Record> updateAction) {
-    return transactionCall(() -> this.recordStore.updateRecord(this, updateAction));
+    return transactionCall(() -> getRecordStore().updateRecord(this, updateAction));
   }
 
   @Override
   public int updateRecords(final Consumer<? super ChangeTrackRecord> updateAction) {
-    return transactionCall(() -> this.recordStore.updateRecords(this, updateAction));
+    return transactionCall(() -> getRecordStore().updateRecords(this, updateAction));
   }
 }

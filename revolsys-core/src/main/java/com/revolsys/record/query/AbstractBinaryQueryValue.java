@@ -30,12 +30,12 @@ public abstract class AbstractBinaryQueryValue implements QueryValue {
     init(left, right);
   }
 
-  protected void appendLeft(final SqlAppendable sql, final Query query,
-    final RecordStore recordStore) {
+  protected void appendLeft(final QueryStatement statement, final RecordStore recordStore,
+    final SqlAppendable sql) {
     if (this.left == null) {
       sql.append("NULL");
     } else {
-      this.left.appendSql(query, recordStore, sql);
+      this.left.appendSql(statement, recordStore, sql);
     }
     sql.append(" ");
   }
@@ -59,13 +59,13 @@ public abstract class AbstractBinaryQueryValue implements QueryValue {
     return index;
   }
 
-  protected void appendRight(final SqlAppendable sql, final Query query,
-    final RecordStore recordStore) {
+  protected void appendRight(final QueryStatement statement, final RecordStore recordStore,
+    final SqlAppendable sql) {
     sql.append(" ");
     if (this.right == null) {
       sql.append("NULL");
     } else {
-      this.right.appendSql(query, recordStore, sql);
+      this.right.appendSql(statement, recordStore, sql);
     }
   }
 
@@ -129,8 +129,11 @@ public abstract class AbstractBinaryQueryValue implements QueryValue {
   private void init(final QueryValue left, final QueryValue right) {
     this.left = left;
     this.right = right;
-    if (left instanceof final ColumnReference column && right instanceof final Value value) {
-      value.setColumn(column);
+    if (left != null && right instanceof final Value value) {
+      final var column = left.getColumn();
+      if (column != null) {
+        value.setColumn(column);
+      }
     }
   }
 

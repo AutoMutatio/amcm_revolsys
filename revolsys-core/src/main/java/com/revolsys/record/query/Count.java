@@ -7,6 +7,9 @@ import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordStore;
 
 public class Count extends AbstractUnaryQueryValue {
+
+  public static final Count STAR = new Count("*");
+
   public static Count count(final Query query, final String columnName) {
     final TableReference table = query.getTable();
     return count(table, columnName);
@@ -37,13 +40,13 @@ public class Count extends AbstractUnaryQueryValue {
   }
 
   @Override
-  public void appendDefaultSql(final Query query, final RecordStore recordStore,
+  public void appendDefaultSql(final QueryStatement statement, final RecordStore recordStore,
     final SqlAppendable buffer) {
     buffer.append("count(");
     if (this.distinct) {
       buffer.append("distinct ");
     }
-    super.appendDefaultSql(query, recordStore, buffer);
+    super.appendDefaultSql(statement, recordStore, buffer);
     buffer.append(")");
   }
 

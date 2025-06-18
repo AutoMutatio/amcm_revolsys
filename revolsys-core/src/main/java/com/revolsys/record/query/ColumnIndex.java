@@ -17,7 +17,7 @@ public class ColumnIndex implements QueryValue {
   }
 
   @Override
-  public void appendDefaultSql(final Query query, final RecordStore recordStore,
+  public void appendDefaultSql(final QueryStatement statement, final RecordStore recordStore,
     final SqlAppendable sql) {
     sql.append(Integer.toString(this.index));
   }

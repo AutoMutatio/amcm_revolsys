@@ -27,22 +27,24 @@ public class Alias implements QueryValue {
   }
 
   @Override
-  public void appendDefaultSelect(final Query query, final RecordStore recordStore,
+  public void appendDefaultSelect(final QueryStatement statement, final RecordStore recordStore,
     final SqlAppendable sql) {
-    this.value.appendDefaultSelect(query, recordStore, sql);
+    this.value.appendDefaultSelect(statement, recordStore, sql);
     sql.append(" as ");
     appendAlias(sql);
   }
 
   @Override
-  public void appendDefaultSql(final Query query, final RecordStore recordStore,
+  public void appendDefaultSql(final QueryStatement statement, final RecordStore recordStore,
     final SqlAppendable sql) {
-    sql.append(this.alias);
+    this.value.appendDefaultSql(statement, recordStore, sql);
+    sql.append(" as ");
+    appendAlias(sql);
   }
 
   @Override
   public int appendParameters(final int index, final PreparedStatement statement) {
-    return index;
+    return this.value.appendParameters(index, statement);
   }
 
   @Override

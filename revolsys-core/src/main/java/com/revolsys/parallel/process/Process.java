@@ -8,10 +8,7 @@ public interface Process extends Runnable, BeanNameAware {
 
   String getBeanName();
 
-  ProcessNetwork getProcessNetwork();
-
   default void initialize() {
   }
 
-  void setProcessNetwork(final ProcessNetwork processNetwork);
 }

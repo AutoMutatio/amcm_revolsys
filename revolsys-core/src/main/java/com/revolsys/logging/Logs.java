@@ -2,6 +2,7 @@ package com.revolsys.logging;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -13,8 +14,14 @@ import org.slf4j.LoggerFactory;
 import com.revolsys.collection.map.LruMap;
 import com.revolsys.exception.Exceptions;
 import com.revolsys.exception.WrappedRuntimeException;
+import com.revolsys.util.Property;
+
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.spi.LoggingEvent;
 
 public class Logs {
+
+  public static final String HOST_NAME = initHostName();
 
   private static Map<String, Boolean> LOGGED_ERRORS = new LruMap<>(1000);
 
@@ -55,16 +62,12 @@ public class Logs {
   }
 
   public static void debug(final String name, final String message) {
-    final Logger logger = getLogger(name);
+    final Logger logger = logger(name);
     logger.debug(message);
   }
 
   public static void debug(final String name, final String message, final Throwable e) {
-    final StringBuilder messageText = new StringBuilder();
-    final Throwable logException = getMessageAndException(messageText, message, e);
-
-    final Logger logger = getLogger(name);
-    logger.debug(messageText.toString(), logException);
+    logger(name).debug(message, e);
   }
 
   public static void debug(final String name, final Throwable e) {
@@ -103,16 +106,12 @@ public class Logs {
   }
 
   public static void error(final String name, final String message) {
-    final Logger logger = getLogger(name);
+    final Logger logger = logger(name);
     logger.error(message);
   }
 
   public static void error(final String name, final String message, final Throwable e) {
-    final StringBuilder messageText = new StringBuilder();
-    final Throwable logException = getMessageAndException(messageText, message, e);
-
-    final Logger logger = getLogger(name);
-    logger.error(messageText.toString(), logException);
+    logger(name).error(message, e);
   }
 
   public static void error(final String name, final Throwable e) {
@@ -121,35 +120,17 @@ public class Logs {
   }
 
   public static void errorOnce(final Object object, final String message, final Throwable e) {
-    final StringBuilder messageText = new StringBuilder();
-    final Throwable logException = getMessageAndException(messageText, message, e);
-
-    final String combinedMessage = messageText.toString();
-    if (!LOGGED_ERRORS.containsKey(combinedMessage)) {
-      LOGGED_ERRORS.put(combinedMessage, Boolean.TRUE);
-      final Logger logger = getLogger(object);
-      logger.error(combinedMessage, logException);
+    if (!LOGGED_ERRORS.containsKey(message)) {
+      LOGGED_ERRORS.put(message, Boolean.TRUE);
+      final Logger logger = logger(object);
+      logger.error(message, e);
     }
   }
 
-  public static Logger getLogger(final Class<?> clazz) {
-    final String name = clazz.getName();
-    return getLogger(name);
-  }
-
-  public static Logger getLogger(final Object object) {
-    if (object instanceof String) {
-      return getLogger((String)object);
-    } else if (object instanceof Class<?>) {
-      return getLogger((Class<?>)object);
-    } else {
-      final Class<? extends Object> clazz = object.getClass();
-      return getLogger(clazz);
-    }
-  }
-
-  public static Logger getLogger(final String name) {
-    return LoggerFactory.getLogger(name);
+  public static LoggingEvent event(final Object object, final Level level, final String message) {
+    final var logger = (ch.qos.logback.classic.Logger)logger(object);
+    final var logClass = ch.qos.logback.classic.Logger.FQCN;
+    return new LoggingEvent(logClass, logger, level, message, null, new Object[0]);
   }
 
   public static Throwable getMessageAndException(final StringBuilder messageText,
@@ -219,16 +200,22 @@ public class Logs {
   }
 
   public static void info(final String name, final String message) {
-    final Logger logger = getLogger(name);
+    final Logger logger = logger(name);
     logger.info(message);
   }
 
   public static void info(final String name, final String message, final Throwable e) {
-    final StringBuilder messageText = new StringBuilder();
-    final Throwable logException = getMessageAndException(messageText, message, e);
+    logger(name).info(message, e);
+  }
 
-    final Logger logger = getLogger(name);
-    logger.info(messageText.toString(), logException);
+  private static final String initHostName() {
+    for (final var key : Arrays.asList("COMPUTERNAME", "HOSTNAME", "HOST")) {
+      final var name = System.getenv(key);
+      if (Property.hasValue(name)) {
+        return name.replaceAll("\\..+", "").replaceAll("[^a-zA-Z0-9_]+", "_");
+      }
+    }
+    return "localhost";
   }
 
   public static boolean isDebugEnabled(final Class<?> logCateogory) {
@@ -239,6 +226,28 @@ public class Logs {
   public static boolean isDebugEnabled(final Object logCateogory) {
     final Class<?> logClass = logCateogory.getClass();
     return isDebugEnabled(logClass);
+  }
+
+  public static Logger logger(final Class<?> clazz) {
+    final String name = clazz.getName();
+    return logger(name);
+  }
+
+  public static Logger logger(final Object object) {
+    if (object == null) {
+      return logger(Logger.ROOT_LOGGER_NAME);
+    } else if (object instanceof final CharSequence chars) {
+      return logger(chars.toString());
+    } else if (object instanceof final Class<?> clazz) {
+      return logger(clazz);
+    } else {
+      final Class<? extends Object> clazz = object.getClass();
+      return logger(clazz);
+    }
+  }
+
+  public static Logger logger(final String name) {
+    return LoggerFactory.getLogger(name);
   }
 
   public static void setUncaughtExceptionHandler() {
@@ -282,16 +291,12 @@ public class Logs {
   }
 
   public static void warn(final String name, final String message) {
-    final Logger logger = getLogger(name);
+    final Logger logger = logger(name);
     logger.warn(message);
   }
 
   public static void warn(final String name, final String message, final Throwable e) {
-    final StringBuilder messageText = new StringBuilder();
-    final Throwable logException = getMessageAndException(messageText, message, e);
-
-    final Logger logger = getLogger(name);
-    logger.warn(messageText.toString(), logException);
+    logger(name).warn(message, e);
   }
 
   public static void warn(final String name, final Throwable e) {

@@ -34,22 +34,22 @@ public class Join implements QueryValue, TableReferenceProxy {
   }
 
   @Override
-  public void appendDefaultSql(final Query query, final RecordStore recordStore,
+  public void appendDefaultSql(final QueryStatement statement, final RecordStore recordStore,
     final SqlAppendable sql) {
     sql.append(' ');
     sql.append(this.joinType.toString());
     sql.append(' ');
     if (this.table != null) {
       if (this.alias == null) {
-        this.table.appendFromWithAlias(sql);
+        statement.appendFromWithAlias(sql, this.table);
       } else {
-        this.table.appendFromWithAlias(sql, this.alias);
+        statement.appendFromWithAlias(sql, new FromAlias(this.table, this.alias));
       }
     } else if (this.tableName != null) {
       sql.append(this.tableName);
     }
     if (this.statement != null) {
-      this.statement.appendDefaultSelect(query, recordStore, sql);
+      this.statement.appendDefaultSelect(statement, recordStore, sql);
       if (this.alias != null) {
         sql.append(" ");
         sql.append('"');
@@ -59,29 +59,13 @@ public class Join implements QueryValue, TableReferenceProxy {
     }
     if (!this.condition.isEmpty()) {
       sql.append(" ON ");
-      this.condition.appendSql(query, recordStore, sql);
+      this.condition.appendSql(statement, recordStore, sql);
     }
   }
 
   @Override
   public int appendParameters(final int index, final PreparedStatement statement) {
     return this.condition.appendParameters(index, statement);
-  }
-
-  private void appendSql(final SqlAppendable sql) {
-    sql.append(' ');
-    sql.append(this.joinType);
-    sql.append(' ');
-    if (this.table != null) {
-      this.table.appendFromWithAlias(sql);
-    }
-    if (this.statement != null) {
-      this.statement.appendSql(null, null, sql);
-    }
-    if (!this.condition.isEmpty()) {
-      sql.append(" ON ");
-      sql.append(this.condition);
-    }
   }
 
   @Override
@@ -115,11 +99,14 @@ public class Join implements QueryValue, TableReferenceProxy {
   public ColumnReference getColumn(final CharSequence name) {
     if (this.table == null) {
       return new ColumnWithPrefix(this.tableName, new Column(this, name));
-    } else if (this.table.hasColumn(name)) {
-      return new Column(this, name);
+    } else {
+      final var column = this.table.getColumn(name);
+      if (column != null) {
+        return new ColumnWithPrefix(this.alias, column);
+      }
     }
-    throw new IllegalArgumentException(
-      "Column not found: " + this.table.getTableReference().getTablePath() + "." + name);
+    throw new IllegalArgumentException("Column not found: " + this.table.getTableReference()
+      .getTablePath() + "." + name);
   }
 
   public Condition getCondition() {
@@ -158,8 +145,14 @@ public class Join implements QueryValue, TableReferenceProxy {
     return null;
   }
 
+  public Join on(final QueryValue left, final QueryValue right) {
+    final Equal condition = new Equal(left, right);
+    return and(condition);
+  }
+
   public Join on(final String fromFieldName, final Object value) {
-    final Condition condition = this.table.equal(fromFieldName, value);
+    final var fromField = getColumn(fromFieldName);
+    final var condition = Q.equal(fromField, value);
     return and(condition);
   }
 
@@ -185,10 +178,9 @@ public class Join implements QueryValue, TableReferenceProxy {
 
   public Join on(final String fromFieldName, final TableReferenceProxy toTable,
     final String toFieldName) {
-    final ColumnReference fromColumn = getColumn(fromFieldName);
-    final ColumnReference toColumn = toTable.getColumn(toFieldName);
-    final Equal condition = new Equal(fromColumn, toColumn);
-    return and(condition);
+    final var fromColumn = getColumn(fromFieldName);
+    final var toColumn = toTable.getColumn(toFieldName);
+    return on(fromColumn, toColumn);
   }
 
   public Join or(final Condition condition) {
@@ -197,8 +189,7 @@ public class Join implements QueryValue, TableReferenceProxy {
   }
 
   public Join recordDefinition(final RecordDefinitionProxy recordDefinition) {
-    this.table = recordDefinition.getRecordDefinition();
-    return this;
+    return table(recordDefinition.getRecordDefinition());
   }
 
   public Join setAlias(final String alias) {
@@ -212,13 +203,19 @@ public class Join implements QueryValue, TableReferenceProxy {
   }
 
   public Join table(final TableRecordStoreFactory tableFactory, final CharSequence pathName) {
-    this.table = tableFactory.getRecordDefinition(pathName);
+    return table(tableFactory.getRecordDefinition(pathName));
+  }
+
+  public Join table(final TableReference table) {
+    this.table = table;
+    if (table != null && this.alias == null) {
+      this.alias = table.getTableAlias();
+    }
     return this;
   }
 
   public Join table(final TableReferenceProxy table) {
-    this.table = table.getTableReference();
-    return this;
+    return table(table.getTableReference());
   }
 
   public Join tableName(final String tableName) {
@@ -226,15 +223,23 @@ public class Join implements QueryValue, TableReferenceProxy {
     return this;
   }
 
-  public String toSql() {
-    final StringBuilderSqlAppendable string = SqlAppendable.stringBuilder();
-    appendSql(string);
-    return string.toString();
-  }
-
   @Override
   public String toString() {
-    return toSql();
+    final StringBuilderSqlAppendable sql = SqlAppendable.stringBuilder();
+    sql.append(' ');
+    sql.append(this.joinType);
+    sql.append(' ');
+    if (this.table != null) {
+      new Query().appendFromWithAlias(sql, this.table);
+    }
+    if (this.statement != null) {
+      this.statement.appendSql(null, null, sql);
+    }
+    if (!this.condition.isEmpty()) {
+      sql.append(" ON ");
+      sql.append(this.condition);
+    }
+    return sql.toString();
   }
 
 }

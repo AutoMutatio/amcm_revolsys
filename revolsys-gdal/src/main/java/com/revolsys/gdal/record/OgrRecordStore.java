@@ -45,6 +45,7 @@ import com.revolsys.record.query.LeftUnaryCondition;
 import com.revolsys.record.query.Like;
 import com.revolsys.record.query.OrderBy;
 import com.revolsys.record.query.Query;
+import com.revolsys.record.query.QueryStatement;
 import com.revolsys.record.query.QueryValue;
 import com.revolsys.record.query.RightUnaryCondition;
 import com.revolsys.record.query.SqlAppendable;
@@ -92,7 +93,7 @@ public class OgrRecordStore extends AbstractRecordStore {
   }
 
   @Override
-  public void appendQueryValue(final Query query, final SqlAppendable sql,
+  public void appendQueryValue(final QueryStatement statement, final SqlAppendable sql,
     final QueryValue condition) {
     try {
       if (condition instanceof Like || condition instanceof ILike) {
@@ -100,7 +101,7 @@ public class OgrRecordStore extends AbstractRecordStore {
         final QueryValue left = like.getLeft();
         final QueryValue right = like.getRight();
         sql.append("UPPER(");
-        appendQueryValue(query, sql, left);
+        appendQueryValue(statement, sql, left);
         sql.append(") LIKE ");
         if (right instanceof Value) {
           final Value valueCondition = (Value)right;
@@ -112,7 +113,7 @@ public class OgrRecordStore extends AbstractRecordStore {
           }
           sql.append("'");
         } else {
-          appendQueryValue(query, sql, right);
+          appendQueryValue(statement, sql, right);
         }
       } else if (condition instanceof LeftUnaryCondition) {
         final LeftUnaryCondition unaryCondition = (LeftUnaryCondition)condition;
@@ -120,12 +121,12 @@ public class OgrRecordStore extends AbstractRecordStore {
         final QueryValue right = unaryCondition.getValue();
         sql.append(operator);
         sql.append(" ");
-        appendQueryValue(query, sql, right);
+        appendQueryValue(statement, sql, right);
       } else if (condition instanceof RightUnaryCondition) {
         final RightUnaryCondition unaryCondition = (RightUnaryCondition)condition;
         final QueryValue left = unaryCondition.getValue();
         final String operator = unaryCondition.getOperator();
-        appendQueryValue(query, sql, left);
+        appendQueryValue(statement, sql, left);
         sql.append(" ");
         sql.append(operator);
       } else if (condition instanceof BinaryCondition) {
@@ -133,11 +134,11 @@ public class OgrRecordStore extends AbstractRecordStore {
         final QueryValue left = binaryCondition.getLeft();
         final String operator = binaryCondition.getOperator();
         final QueryValue right = binaryCondition.getRight();
-        appendQueryValue(query, sql, left);
+        appendQueryValue(statement, sql, left);
         sql.append(" ");
         sql.append(operator);
         sql.append(" ");
-        appendQueryValue(query, sql, right);
+        appendQueryValue(statement, sql, right);
       } else if (condition instanceof AbstractMultiCondition) {
         final AbstractMultiCondition multipleCondition = (AbstractMultiCondition)condition;
         sql.append("(");
@@ -151,7 +152,7 @@ public class OgrRecordStore extends AbstractRecordStore {
             sql.append(operator);
             sql.append(" ");
           }
-          appendQueryValue(query, sql, subCondition);
+          appendQueryValue(statement, sql, subCondition);
         }
         sql.append(")");
       } else if (condition instanceof Value) {
@@ -212,9 +213,9 @@ public class OgrRecordStore extends AbstractRecordStore {
           sql.append("1 = 0");
         } else {
           sql.append("Intersects(");
-          appendQueryValue(query, sql, boundingBox1Value);
+          appendQueryValue(statement, sql, boundingBox1Value);
           sql.append(",");
-          appendQueryValue(query, sql, boundingBox2Value);
+          appendQueryValue(statement, sql, boundingBox2Value);
           sql.append(")");
         }
       } else if (condition instanceof WithinDistance) {
@@ -226,15 +227,15 @@ public class OgrRecordStore extends AbstractRecordStore {
           sql.append("1 = 0");
         } else {
           sql.append("Distance(");
-          appendQueryValue(query, sql, geometry1Value);
+          appendQueryValue(statement, sql, geometry1Value);
           sql.append(", ");
-          appendQueryValue(query, sql, geometry2Value);
+          appendQueryValue(statement, sql, geometry2Value);
           sql.append(") <= ");
-          appendQueryValue(query, sql, distanceValue);
+          appendQueryValue(statement, sql, distanceValue);
           sql.append(")");
         }
       } else {
-        condition.appendDefaultSql(query, this, sql);
+        condition.appendDefaultSql(statement, this, sql);
       }
     } catch (final IOException e) {
       throw Exceptions.toRuntimeException(e);

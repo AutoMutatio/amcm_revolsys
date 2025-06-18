@@ -131,7 +131,7 @@ public class ODataEntityCollectionProcessor extends AbstractProcessor
       selectList = UriHelper.buildContextURLSelectList(entityType, null, selectOption);
     }
 
-    final ContextURL contextUrl = newContextUrl().selectList(selectList)
+    final ContextURL contextUrl = newContextUrl(request).selectList(selectList)
       .entitySetOrSingletonOrType(entityType.getName())
       .build();
 

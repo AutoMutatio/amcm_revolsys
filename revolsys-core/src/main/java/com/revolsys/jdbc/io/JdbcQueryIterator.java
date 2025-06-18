@@ -29,8 +29,6 @@ public class JdbcQueryIterator extends AbstractIterator<Record>
   implements RecordReader, RecordIterator {
   private JdbcConnection connection;
 
-  private final int fetchSize = 10;
-
   private List<QueryValue> selectExpressions = new ArrayList<>();
 
   private Query query;
@@ -93,12 +91,10 @@ public class JdbcQueryIterator extends AbstractIterator<Record>
       close();
       if (cancelled) {
         throw new NoSuchElementException();
+      } else if (e2 == null) {
+        throw Exceptions.toRuntimeException(e);
       } else {
-        if (e2 == null) {
-          throw Exceptions.toRuntimeException(e);
-        } else {
-          throw e2;
-        }
+        throw e2;
       }
     } catch (final RuntimeException e) {
       close();
@@ -155,13 +151,14 @@ public class JdbcQueryIterator extends AbstractIterator<Record>
     final String sql = this.recordStore.getSelectSql(query);
     try {
       this.statement = this.connection.prepareStatement(sql);
-      this.statement.setFetchSize(this.fetchSize);
+      this.statement.setFetchSize(this.query.fetchSize());
 
       this.resultSet = this.recordStore.getResultSet(this.statement, query);
       final ResultSetMetaData resultSetMetaData = this.resultSet.getMetaData();
 
-      if (this.recordDefinition == null || !query.getJoins().isEmpty()
-        || this.recordStore != this.recordDefinition.getRecordStore() || query.getSql() != null) {
+      if (this.recordDefinition == null || !query.getJoins()
+        .isEmpty() || this.recordStore != this.recordDefinition.getRecordStore()
+        || query.getSql() != null) {
         this.recordDefinition = this.recordStore.getRecordDefinition(tableName, resultSetMetaData,
           dbTableName);
         query.setRecordDefinition(this.recordDefinition);
@@ -169,7 +166,7 @@ public class JdbcQueryIterator extends AbstractIterator<Record>
         this.recordDefinition = this.recordStore.getRecordDefinition(query, resultSetMetaData);
       }
       this.selectExpressions = query.getSelectExpressions();
-      if (this.selectExpressions.isEmpty()) {
+      if (this.selectExpressions.isEmpty() || query.isSelectStar()) {
         this.selectExpressions = (List)this.recordDefinition.getFieldDefinitions();
       }
 

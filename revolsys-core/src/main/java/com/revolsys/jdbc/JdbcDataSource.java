@@ -1,11 +1,8 @@
 package com.revolsys.jdbc;
 
-import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.SQLFeatureNotSupportedException;
 import java.util.function.Function;
-import java.util.logging.Logger;
 
 import javax.sql.DataSource;
 
@@ -13,29 +10,43 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.UncategorizedSQLException;
 import org.springframework.jdbc.support.SQLErrorCodeSQLExceptionTranslator;
 
+import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.value.ValueHolder;
 import com.revolsys.transaction.ActiveTransactionContext;
 import com.revolsys.transaction.Transaction;
 import com.revolsys.transaction.TransactionContext;
+import com.revolsys.transaction.Transactionable;
 
-public class JdbcDataSource implements DataSource {
+public abstract class JdbcDataSource implements DataSource, Transactionable {
 
   public static interface ConnectionConsumer {
+    static ConnectionConsumer EMPTY = t -> {
+    };
+
     void accept(Connection connection) throws SQLException;
+
+    default ConnectionConsumer andThen(final ConnectionConsumer after) {
+      if (after == null) {
+        return this;
+      } else {
+        return v -> {
+          accept(v);
+          after.accept(v);
+        };
+      }
+    }
   }
+
+  public SQLErrorCodeSQLExceptionTranslator DEFAULT_ERROR_HANDLER = new SQLErrorCodeSQLExceptionTranslator();
 
   private final Object key = new Object();
 
-  private final DataSource dataSource;
+  protected final ValueHolder<SQLErrorCodeSQLExceptionTranslator> exceptionTranslator = ValueHolder
+    .lazy(this::newExceptionTranslator);
 
-  private final SQLErrorCodeSQLExceptionTranslator exceptionTranslator;
+  private final Function<ActiveTransactionContext, JdbcConnectionTransactionResource> resourceConstructor = this::newConnectionTransactionResource;
 
-  private final Function<ActiveTransactionContext, JdbcConnectionTransactionResource> resourceConstructor = context -> new JdbcConnectionTransactionResource(
-    context, this);
-
-  public JdbcDataSource(final DataSource dataSource) {
-    super();
-    this.dataSource = dataSource;
-    this.exceptionTranslator = new SQLErrorCodeSQLExceptionTranslator(dataSource);
+  public JdbcDataSource() {
   }
 
   public void addConnectionInitializer(final ActiveTransactionContext activeContext,
@@ -46,29 +57,43 @@ public class JdbcDataSource implements DataSource {
 
   @Override
   public JdbcConnection getConnection() throws SQLException {
-    return getConnection(null);
+    return getConnection(null, JsonObject.EMPTY);
   }
 
   /**
    * Return a new JDBC connection. The client caller must close the connection.
    */
   public JdbcConnection getConnection(final ConnectionConsumer initializer) throws SQLException {
+    return getConnection(initializer, JsonObject.EMPTY);
+
+  }
+
+  public JdbcConnection getConnection(final ConnectionConsumer initializer,
+    final JsonObject properties) throws SQLException {
     final TransactionContext context = Transaction.getContext();
     if (context instanceof final ActiveTransactionContext activeContext) {
-      return activeContext.getResource(this.key, this.resourceConstructor)
-        .addConnectionInitializer(initializer)
-        .newJdbcConnection();
+      try {
+        return activeContext.getResource(this.key, this.resourceConstructor)
+          .addConnectionInitializer(initializer)
+          .getJdbcConnection();
+      } catch (RuntimeException | SQLException e) {
+        return activeContext.setRollbackOnly(e);
+      }
     } else {
-      final Connection connection = getConnectionInternal();
-      if (connection == null) {
-        return null;
-      } else {
+      final JdbcConnection connection = newJdbcConnection(properties);
+      if (connection.hasConnection()) {
         if (initializer != null) {
           initializer.accept(connection);
         }
-        return new JdbcConnection(this, connection, true);
+      } else {
+        throw new SQLException("No connection");
       }
+      return connection;
     }
+  }
+
+  public JdbcConnection getConnection(final JsonObject properties) throws SQLException {
+    return getConnection(null, properties);
   }
 
   @Override
@@ -77,14 +102,10 @@ public class JdbcDataSource implements DataSource {
     throw new UnsupportedOperationException("Username/password connections are not supported");
   }
 
-  Connection getConnectionInternal() throws SQLException {
-    return this.dataSource.getConnection();
-  }
-
   public DataAccessException getException(final String task, final String sql,
     final SQLException e) {
-    final DataAccessException translatedException = this.exceptionTranslator.translate(task, sql,
-      e);
+    final var translatedException = this.exceptionTranslator.getValue()
+      .translate(task, sql, e);
     if (translatedException == null) {
       return new UncategorizedSQLException(task, sql, e);
     } else {
@@ -92,40 +113,10 @@ public class JdbcDataSource implements DataSource {
     }
   }
 
-  @Override
-  public int getLoginTimeout() throws SQLException {
-    return this.dataSource.getLoginTimeout();
-  }
+  protected abstract JdbcConnectionTransactionResource newConnectionTransactionResource(
+    final ActiveTransactionContext context);
 
-  @Override
-  public PrintWriter getLogWriter() throws SQLException {
-    return this.dataSource.getLogWriter();
-  }
+  protected abstract SQLErrorCodeSQLExceptionTranslator newExceptionTranslator();
 
-  @Override
-  public Logger getParentLogger() throws SQLFeatureNotSupportedException {
-    return this.dataSource.getParentLogger();
-  }
-
-  @Override
-  public boolean isWrapperFor(final Class<?> iface) throws SQLException {
-    return this.dataSource.isWrapperFor(iface);
-  }
-
-  @Override
-  public void setLoginTimeout(final int seconds) throws SQLException {
-    this.dataSource.setLoginTimeout(seconds);
-  }
-
-  @Override
-  public void setLogWriter(final PrintWriter out) throws SQLException {
-    this.dataSource.setLogWriter(out);
-  }
-
-  @Override
-  public <T> T unwrap(final Class<T> iface) throws SQLException {
-    return this.dataSource.unwrap(iface);
-
-  }
-
+  protected abstract JdbcConnection newJdbcConnection(JsonObject properties) throws SQLException;
 }

@@ -25,8 +25,23 @@ public interface Collectors {
     return map(Maps.factoryLinkedHash(), keyFunction);
   }
 
+  static <IN, K, V> Collector<IN, Map<K, V>> map(final Function<IN, K> keyFunction,
+    final Function<IN, V> valueFunction) {
+    return map(Maps.factoryLinkedHash(), keyFunction, valueFunction);
+  }
+
   static <K, V> Collector<V, Map<K, V>> map(final Function<V, K> keyFunction) {
     return map(Maps.factoryLinkedHash(), keyFunction);
+  }
+
+  static <IN, K, V, M extends Map<K, V>> Collector<IN, M> map(final Supplier<M> supplier,
+    final Function<IN, K> keyFunction, final Function<IN, V> valueFunction) {
+    final BiConsumer<M, IN> collect = (map, in) -> {
+      final var key = keyFunction.apply(in);
+      final var value = valueFunction.apply(in);
+      map.put(key, value);
+    };
+    return new SimpleCollector<>(supplier, collect);
   }
 
   static <K, V, M extends Map<K, V>> Collector<V, M> map(final Supplier<M> supplier,
@@ -60,6 +75,31 @@ public interface Collectors {
 
   static <K, V> Collector<V, Map<K, ListEx<V>>> mapList(final Function<V, K> keyFunction) {
     return mapCollection(Maps.factoryLinkedHash(), Lists.factoryArray(), keyFunction);
+  }
+
+  static <IN, K1, K2, V> Collector<IN, Map<K1, Map<K2, V>>> mapMap(
+    final Function<IN, K1> key1Function, final Function<IN, K2> key2Function,
+    final Function<IN, V> valueFunction) {
+    return mapMap(Maps.factoryLinkedHash(), Maps.factoryLinkedHash(), key1Function, key2Function,
+      valueFunction);
+  }
+
+  static <K1, K2, V> Collector<V, Map<K1, Map<K2, V>>> mapMap(final Function<V, K1> key1Function,
+    final Function<V, K2> key2Function) {
+    return mapMap(key1Function, key2Function, v -> v);
+  }
+
+  static <IN, K1, K2, V, M1 extends Map<K1, M2>, M2 extends Map<K2, V>> Collector<IN, M1> mapMap(
+    final Supplier<M1> supplier1, final Supplier<M2> supplier2, final Function<IN, K1> key1Function,
+    final Function<IN, K2> key2Function, final Function<IN, V> valueFunction) {
+    final BiConsumer<M1, IN> collect = (map, in) -> {
+      final var key1 = key1Function.apply(in);
+      final var key2 = key2Function.apply(in);
+      final var value = valueFunction.apply(in);
+      final var map2 = map.computeIfAbsent(key1, k -> supplier2.get());
+      map2.put(key2, value);
+    };
+    return new SimpleCollector<>(supplier1, collect);
   }
 
   static <K, V> Collector<V, Map<K, V>> treeMap(final Function<V, K> keyFunction) {

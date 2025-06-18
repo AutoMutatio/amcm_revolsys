@@ -2,7 +2,10 @@ package com.revolsys.record.io.format.csv;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.Collection;
 
+import com.revolsys.collection.json.Json;
+import com.revolsys.collection.json.Jsonable;
 import com.revolsys.data.type.DataType;
 import com.revolsys.exception.Exceptions;
 import com.revolsys.geometry.model.Geometry;
@@ -24,6 +27,8 @@ public class CsvRecordWriter extends AbstractRecordWriter {
   private boolean useQuotes;
 
   private boolean paused = false;
+
+  private boolean jsonFormat = false;
 
   private String newLine = "\n";
 
@@ -124,6 +129,10 @@ public class CsvRecordWriter extends AbstractRecordWriter {
     this.ewkt = ewkt;
   }
 
+  public void setJsonFormat(final boolean jsonFormat) {
+    this.jsonFormat = jsonFormat;
+  }
+
   public void setMaxFieldLength(final int maxFieldLength) {
     this.maxFieldLength = maxFieldLength;
   }
@@ -196,7 +205,17 @@ public class CsvRecordWriter extends AbstractRecordWriter {
             }
           } else if (value != null) {
             final DataType dataType = field.getDataType();
-            final String stringValue = dataType.toString(value);
+
+            final String stringValue;
+            if (this.jsonFormat && value instanceof final Collection<?> collection) {
+              final StringBuilder s = new StringBuilder();
+              Json.appendJson(collection, s);
+              stringValue = s.toString();
+            } else if (this.jsonFormat && value instanceof final Jsonable json) {
+              stringValue = json.toJsonString(false);
+            } else {
+              stringValue = dataType.toString(value);
+            }
             if (this.useQuotes && dataType.isRequiresQuotes()) {
               string(stringValue);
             } else {

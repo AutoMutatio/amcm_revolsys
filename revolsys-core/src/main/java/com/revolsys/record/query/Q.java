@@ -1,11 +1,16 @@
 package com.revolsys.record.query;
 
+import java.sql.PreparedStatement;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.Predicate;
 
+import com.revolsys.collection.list.ListEx;
+import com.revolsys.collection.list.Lists;
+import com.revolsys.collection.map.MapEx;
 import com.revolsys.data.identifier.Identifier;
 import com.revolsys.data.type.DataType;
 import com.revolsys.data.type.DataTypes;
@@ -17,11 +22,17 @@ import com.revolsys.record.schema.RecordStore;
 import com.revolsys.util.Property;
 
 public class Q {
+  public static BiFunction<QueryValue, QueryValue, QueryValue> ADD = Add::new;
+
   public static BiFunction<QueryValue, QueryValue, Condition> ILIKE = ILike::new;
 
   public static Function<QueryValue, Condition> IS_NOT_NULL = IsNotNull::new;
 
   public static Function<QueryValue, Condition> IS_NULL = IsNull::new;
+
+  public static BiFunction<QueryValue, QueryValue, Condition> IS_DISTINCT_FROM = IsDistinctFrom::new;
+
+  public static BiFunction<QueryValue, QueryValue, Condition> IS_NOT_DISTINCT_FROM = IsNotDistinctFrom::new;
 
   public static BiFunction<QueryValue, QueryValue, Condition> EQUAL = Q::equal;
 
@@ -151,43 +162,30 @@ public class Q {
     return new Divide(left, right);
   }
 
-  public static Equal equal(final ColumnReference fieldDefinition, final Object value) {
-    final Value valueCondition = Value.newValue(fieldDefinition, value);
-    return new Equal(fieldDefinition, valueCondition);
-  }
-
-  public static Equal equal(final ColumnReference field, final QueryValue right) {
+  public static Condition equal(final QueryValue field, final Object value) {
+    QueryValue right;
+    if (value == null) {
+      return new IsNull(field);
+    } else if (value instanceof final Value queryValue) {
+      if (queryValue.getValue() == null) {
+        return new IsNull(field);
+      } else {
+        right = queryValue;
+      }
+    } else if (value instanceof final QueryValue queryValue) {
+      right = queryValue;
+    } else {
+      right = Value.newValue(field, value);
+    }
     return new Equal(field, right);
   }
 
-  public static Equal equal(final QueryValue left, final Object value) {
-    final Value valueCondition = Value.newValue(value);
-    return new Equal(left, valueCondition);
+  public static Condition equal(final String name, final Object value) {
+    final Column leftCondition = new Column(name);
+    return equal(leftCondition, value);
   }
 
-  public static Condition equal(final QueryValue left, final QueryValue right) {
-    if (right == null) {
-      return new IsNull(left);
-    } else if (right instanceof Value) {
-      final Value value = (Value)right;
-      if (value.getValue() == null) {
-        return new IsNull(left);
-      }
-    }
-    return new Equal(left, right);
-  }
-
-  public static Equal equal(final String name, final Object value) {
-    final Value valueCondition = Value.newValue(value);
-    return equal(name, valueCondition);
-  }
-
-  public static Equal equal(final String left, final QueryValue right) {
-    final Column leftCondition = new Column(left);
-    return new Equal(leftCondition, right);
-  }
-
-  public static Equal equal(final TableReferenceProxy table, final CharSequence fieldName,
+  public static Condition equal(final TableReferenceProxy table, final CharSequence fieldName,
     final Object value) {
     final var column = table.getColumn(fieldName);
     return equal(column, value);
@@ -326,6 +324,11 @@ public class Q {
     return new In(left, collectionValue);
   }
 
+  public static In in(final String name, final Object... values) {
+    final List<Object> list = Arrays.asList(values);
+    return new In(name, list);
+  }
+
   public static In in(final TableReferenceProxy table, final CharSequence fieldName,
     final Object... values) {
     final var column = table.getColumn(fieldName);
@@ -369,6 +372,18 @@ public class Q {
 
   public static JsonValue jsonValue(final QueryValue left, final String right) {
     return jsonValue(left, Value.newValue(right));
+  }
+
+  public static JsonValue jsonValue(final TableReferenceProxy table, final String fieldName,
+    final String name) {
+    final var column = table.getColumn(fieldName);
+    return jsonValue(column, name);
+  }
+
+  public static Condition jsonValueEqual(final QueryValue left, final String key,
+    final Object value) {
+    final var jsonValue = jsonValue(left, key);
+    return equal(jsonValue, value);
   }
 
   public static LessThan lessThan(final FieldDefinition fieldDefinition, final Object value) {
@@ -454,6 +469,10 @@ public class Q {
     return Q.like(left, right);
   }
 
+  public static StringLiteral literal(final String string) {
+    return new StringLiteral(string);
+  }
+
   public static Mod mod(final QueryValue left, final QueryValue right) {
     return new Mod(left, right);
   }
@@ -466,30 +485,27 @@ public class Q {
     return new Not(condition);
   }
 
-  public static NotEqual notEqual(final ColumnReference column, final Object value) {
-    final Value valueCondition = Value.newValue(column, value);
-    return new NotEqual(column, valueCondition);
-  }
-
-  public static Condition notEqual(final QueryValue left, final QueryValue right) {
-    if (right == null) {
-      return new IsNotNull(left);
-    } else if (right instanceof Value) {
-      final Value value = (Value)right;
-      if (value.getValue() == null) {
-        return new IsNotNull(left);
+  public static Condition notEqual(final QueryValue field, final Object value) {
+    QueryValue right;
+    if (value == null) {
+      return new IsNotNull(field);
+    } else if (value instanceof final Value queryValue) {
+      if (queryValue.getValue() == null) {
+        return new IsNotNull(field);
+      } else {
+        right = queryValue;
       }
+    } else if (value instanceof final QueryValue queryValue) {
+      right = queryValue;
+    } else {
+      right = Value.newValue(field, value);
     }
-    return new NotEqual(left, right);
+    return new NotEqual(field, right);
   }
 
   public static Condition notEqual(final String name, final Object value) {
-    return notEqual(name, Value.newValue(value));
-  }
-
-  public static Condition notEqual(final String name, final QueryValue right) {
     final QueryValue column = new Column(name);
-    return notEqual(column, right);
+    return notEqual(column, value);
   }
 
   public static Not notExists(final QueryValue expression) {
@@ -511,6 +527,39 @@ public class Q {
 
   public static Or or(final List<? extends Condition> conditions) {
     return new Or(conditions);
+  }
+
+  public static Condition predicate(final Predicate<MapEx> predicate) {
+    return new Condition() {
+      @Override
+      public void appendDefaultSql(final QueryStatement statement, final RecordStore recordStore,
+        final SqlAppendable sql) {
+        throw new UnsupportedOperationException(
+          "Predicate conditions cannot be used to create a SQL expression");
+      }
+
+      @Override
+      public int appendParameters(final int index, final PreparedStatement statement) {
+        throw new UnsupportedOperationException(
+          "Predicate conditions cannot be used to append SQL parameters");
+      }
+
+      @Override
+      public Condition clone() {
+        return this;
+      }
+
+      @Override
+      public Condition clone(final TableReference oldTable, final TableReference newTable) {
+        return this;
+      }
+
+      @Override
+      public boolean test(final MapEx record) {
+        return predicate.test(record);
+      }
+    };
+
   }
 
   public static void setValue(final int index, final Condition condition, final Object value) {
@@ -535,6 +584,23 @@ public class Q {
       }
     }
     return i;
+  }
+
+  public static QueryValue sql(final DataType dataType, final Object... fragments) {
+    final ListEx<QueryValue> values = Lists.newArray(fragments)
+      .map(fragment -> {
+        if (fragment instanceof final QueryValue queryValue) {
+          return queryValue;
+        } else {
+          return sql(fragment.toString());
+        }
+      })
+      .toList();
+    if (values.size() == 1) {
+      return values.get(0);
+    } else {
+      return new SqlFragments(dataType, values);
+    }
   }
 
   public static SqlCondition sql(final String sql) {

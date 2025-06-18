@@ -18,6 +18,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.UUID;
+import java.util.function.Function;
 
 import javax.sql.DataSource;
 
@@ -25,6 +26,8 @@ import jakarta.annotation.PreDestroy;
 
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
+import com.revolsys.collection.iterator.BaseIterable;
+import com.revolsys.collection.list.ListEx;
 import com.revolsys.collection.map.Maps;
 import com.revolsys.data.identifier.Identifier;
 import com.revolsys.data.type.DataType;
@@ -34,6 +37,8 @@ import com.revolsys.io.PathName;
 import com.revolsys.io.PathUtil;
 import com.revolsys.jdbc.JdbcConnection;
 import com.revolsys.jdbc.JdbcDataSource;
+import com.revolsys.jdbc.JdbcDataSourceWrapper;
+import com.revolsys.jdbc.JdbcDatabaseFactory;
 import com.revolsys.jdbc.field.JdbcFieldAdder;
 import com.revolsys.jdbc.field.JdbcFieldDefinition;
 import com.revolsys.jdbc.field.JdbcFieldFactory;
@@ -48,8 +53,11 @@ import com.revolsys.record.io.RecordReader;
 import com.revolsys.record.io.RecordStoreExtension;
 import com.revolsys.record.io.RecordWriter;
 import com.revolsys.record.property.GlobalIdProperty;
+import com.revolsys.record.query.AbstractReturningQueryStatement;
 import com.revolsys.record.query.ColumnIndexes;
+import com.revolsys.record.query.ColumnReference;
 import com.revolsys.record.query.DeleteStatement;
+import com.revolsys.record.query.InsertStatement;
 import com.revolsys.record.query.Q;
 import com.revolsys.record.query.Query;
 import com.revolsys.record.query.QueryValue;
@@ -60,12 +68,14 @@ import com.revolsys.record.query.UpdateStatement;
 import com.revolsys.record.schema.AbstractRecordStore;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
+import com.revolsys.record.schema.RecordDefinitionBuilder;
 import com.revolsys.record.schema.RecordDefinitionImpl;
 import com.revolsys.record.schema.RecordDefinitionProxy;
 import com.revolsys.record.schema.RecordStore;
 import com.revolsys.record.schema.RecordStoreSchema;
 import com.revolsys.record.schema.RecordStoreSchemaElement;
 import com.revolsys.transaction.Transaction;
+import com.revolsys.util.BaseCloseable;
 import com.revolsys.util.Booleans;
 import com.revolsys.util.Property;
 
@@ -115,7 +125,7 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
 
   private final Object writerKey = new Object();
 
-  private boolean useUpperCaseNames = true;
+  private boolean useUpperCaseNames = false;
 
   public AbstractJdbcRecordStore() {
     this(ArrayRecord.FACTORY);
@@ -201,7 +211,8 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
   }
 
   /**
-   * Add a new field definition for record definitions that don't have a primary key.
+   * Add a new field definition for record definitions that don't have a primary
+   * key.
    *
    * @param recordDefinition
    */
@@ -239,7 +250,7 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
       try {
         super.close();
         if (this.databaseFactory != null && this.dataSource != null) {
-          JdbcDatabaseFactory.closeDataSource(this.dataSource);
+          BaseCloseable.closeValue(this.dataSource);
         }
       } finally {
         this.allSchemaNames.clear();
@@ -315,23 +326,116 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
     });
   }
 
-  void executeInsert(final RecordDefinition recordDefinition, final PreparedStatement statement,
-    final Record record) throws SQLException {
+  void executeInsert(final JdbcConnection connection, final RecordDefinition recordDefinition,
+    final String sql, final PreparedStatement statement, final Record record) {
     try {
       executeUpdate(statement);
-    } catch (final SQLException e) {
-      throw e;
-    }
-    try (
-      final ResultSet generatedKeyResultSet = statement.getGeneratedKeys()) {
-      if (generatedKeyResultSet.next()) {
-        setGeneratedValues(recordDefinition, generatedKeyResultSet, record);
+      try (
+        final ResultSet generatedKeyResultSet = statement.getGeneratedKeys()) {
+        if (generatedKeyResultSet.next()) {
+          setGeneratedValues(recordDefinition, generatedKeyResultSet, record);
+        }
       }
+    } catch (final SQLException e) {
+      throw connection.getException("insert", sql, e);
     }
+  }
+
+  @Override
+  public int executeInsertCount(final InsertStatement queryStatement) {
+    return executeQueryStatementCount(queryStatement);
+  }
+
+  @Override
+  public <V> V executeInsertRecords(final InsertStatement insert,
+    final Function<BaseIterable<Record>, V> action) {
+    return executeReturningStatementRecords(insert, action);
+  }
+
+  protected int executeQueryStatementCount(
+    final AbstractReturningQueryStatement<?> queryStatement) {
+    final String sql = queryStatement.toSql();
+    return transactionCall(() -> {
+      try (
+        JdbcConnection connection = getJdbcConnection()) {
+        // It's important to have this in an inner try. Otherwise the exceptions
+        // won't get caught on closing the writer and the transaction won't get
+        // rolled back.
+        try (
+          final PreparedStatement statement = connection.prepareStatement(sql)) {
+          queryStatement.appendParameters(1, statement);
+          return statement.executeUpdate();
+        } catch (final SQLException e) {
+          final var sqlString = queryStatement.toString();
+          throw connection.getException("execute", sqlString, e);
+        }
+      }
+    });
+  }
+
+  private <V> V executeReturningStatementRecords(
+    final AbstractReturningQueryStatement<?> queryStatement,
+    final Function<BaseIterable<Record>, V> action) {
+    return transactionCall(() -> {
+      queryStatement.ensureReturning();
+      final String sql = queryStatement.toSql();
+      try (
+        JdbcConnection connection = getJdbcConnection()) {
+        // It's important to have this in an inner try. Otherwise the exceptions
+        // won't get caught on closing the writer and the transaction won't get
+        // rolled back.
+
+        try (
+          final PreparedStatement statement = connection.prepareStatement(sql)) {
+          queryStatement.appendParameters(1, statement);
+          ListEx<? extends ColumnReference> columns;
+          RecordDefinition recordDefinition;
+          if (queryStatement.isReturningAll()) {
+            recordDefinition = queryStatement.getRecordDefinition();
+            columns = recordDefinition.getFields();
+          } else {
+            columns = queryStatement.getReturning();
+            final var rdBuilder = new RecordDefinitionBuilder(queryStatement.getRecordDefinition()
+              .getName());
+            queryStatement.getReturning()
+              .forEach(column -> {
+                if (column instanceof final FieldDefinition field) {
+                  rdBuilder.addField(field);
+                } else if (column instanceof final FieldDefinition field) {
+                  rdBuilder.addField(field);
+                } else {
+                  rdBuilder.addField(column.getName(), column.getDataType());
+                }
+              });
+            recordDefinition = rdBuilder.getRecordDefinition();
+          }
+          try (
+            var resultSet = statement.executeQuery();
+            final var records = new JdbcResultSetIterator(this, recordDefinition, columns,
+              resultSet);) {
+            return action.apply(records);
+          }
+        } catch (final SQLException e) {
+          final var sqlString = queryStatement.toString();
+          throw connection.getException("execute", sqlString, e);
+        }
+      }
+    });
   }
 
   public void executeUpdate(final PreparedStatement statement) throws SQLException {
     statement.executeUpdate();
+  }
+
+  @Override
+  public int executeUpdateCount(final UpdateStatement queryStatement) {
+    return executeQueryStatementCount(queryStatement);
+  }
+
+  @Override
+  public <V> V executeUpdateRecords(final UpdateStatement update,
+    final Function<BaseIterable<Record>, V> action) {
+    return executeReturningStatementRecords(update, action);
   }
 
   public Set<String> getAllSchemaNames() {
@@ -482,7 +586,7 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
   }
 
   public Record getNextRecord(final RecordDefinition recordDefinition,
-    final List<QueryValue> expressions, final RecordFactory<Record> recordFactory,
+    final List<? extends QueryValue> expressions, final RecordFactory<Record> recordFactory,
     final ResultSet resultSet) {
     final Record record = recordFactory.newRecord(recordDefinition);
     if (record != null) {
@@ -603,15 +707,20 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
       if (selectExpressions.isEmpty()) {
         selectExpressions = recordDefinition.getFieldDefinitions();
       }
-      for (final QueryValue expression : selectExpressions) {
-        final FieldDefinition newField = expression.addField(this, resultRecordDefinition,
-          resultSetMetaData, columnIndexes);
-        if (expression instanceof JdbcFieldDefinition) {
-          final JdbcFieldDefinition field = (JdbcFieldDefinition)expression;
-          if (field.getRecordDefinition() == recordDefinition
-            && recordDefinition.isIdField(field)) {
-            final String name = newField.getName();
-            resultRecordDefinition.setIdFieldName(name);
+      if (query.isSelectStar()) {
+        for (int i = 1; i < resultSetMetaData.getColumnCount() + 1; i++) {
+          addField(resultRecordDefinition, resultSetMetaData, i);
+        }
+      } else {
+        for (final QueryValue expression : selectExpressions) {
+          final FieldDefinition newField = expression.addField(this, resultRecordDefinition,
+            resultSetMetaData, columnIndexes);
+          if (expression instanceof final JdbcFieldDefinition field) {
+            if (field.getRecordDefinition() == recordDefinition
+              && recordDefinition.isIdField(field)) {
+              final String name = newField.getName();
+              resultRecordDefinition.setIdFieldName(name);
+            }
           }
         }
       }
@@ -620,7 +729,7 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
 
       return resultRecordDefinition;
     } catch (final SQLException e) {
-      throw new IllegalArgumentException("Unable to load metadata for " + tablePath);
+      throw new IllegalArgumentException("Unable to load metadata for " + tablePath, e);
     }
   }
 
@@ -729,7 +838,7 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
               record);
           }
         }
-        executeInsert(recordDefinition, statement, record);
+        executeInsert(connection, recordDefinition, sql, statement, record);
         return record;
       }
     });
@@ -968,11 +1077,12 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
   }
 
   @Override
-  public RecordWriter newRecordWriter(final RecordDefinitionProxy recordDefinition) {
+  public JdbcRecordWriter newRecordWriter(final RecordDefinitionProxy recordDefinition) {
     return newRecordWriter(recordDefinition, 0);
   }
 
-  protected JdbcRecordWriter newRecordWriter(final RecordDefinitionProxy recordDefinition,
+  @Override
+  public JdbcRecordWriter newRecordWriter(final RecordDefinitionProxy recordDefinition,
     final int batchSize) {
     Transaction.assertInTransaction();
     final JdbcConnection connection = getJdbcConnection();
@@ -1000,9 +1110,11 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
   }
 
   /**
-  * Create the field definition for the row identifier column for tables that don't have a primary key.
-  * @return
-  */
+   * Create the field definition for the row identifier column for tables that
+   * don't have a primary key.
+   *
+   * @return
+   */
   protected JdbcFieldDefinition newRowIdFieldDefinition() {
     return null;
   }
@@ -1166,7 +1278,7 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
     if (dataSource instanceof final JdbcDataSource jdbcDataSource) {
       this.dataSource = jdbcDataSource;
     } else {
-      this.dataSource = new JdbcDataSource(dataSource);
+      this.dataSource = new JdbcDataSourceWrapper(dataSource);
     }
   }
 
@@ -1286,28 +1398,6 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
         }
         parameterIndex = setIdEqualsValues(statement, parameterIndex, recordDefinition, record);
         executeUpdate(statement);
-      }
-    });
-  }
-
-  @Override
-  public int updateRecords(final UpdateStatement update) {
-
-    final String sql = update.toSql();
-    return transactionCall(() -> {
-      // It's important to have this in an inner try. Otherwise the exceptions
-      // won't get caught on closing the writer and the transaction won't get
-      // rolled back.
-      try (
-        JdbcConnection connection = getJdbcConnection()) {
-        try (
-          final PreparedStatement statement = connection.prepareStatement(sql)) {
-
-          update.appendParameters(1, statement);
-          return statement.executeUpdate();
-        } catch (final SQLException e) {
-          throw connection.getException("update", sql, e);
-        }
       }
     });
   }

@@ -29,7 +29,8 @@ public class ODataQueryIterator extends AbstractIterator<Record>
       final Record record = recordFactory.newRecord(recordDefinition);
       if (record != null) {
         record.setState(RecordState.INITIALIZING);
-        for (final FieldDefinition field : record.getRecordDefinition().getFields()) {
+        for (final FieldDefinition field : record.getRecordDefinition()
+          .getFields()) {
           final String name = field.getName();
           final Object value = recordJson.getValue(name);
           record.setValue(field, value);
@@ -65,7 +66,8 @@ public class ODataQueryIterator extends AbstractIterator<Record>
     this.recordConverter = recordConverter;
     this.request = request;
     this.recordDefinition = recordDefinition;
-    this.queryLabel = request.getUri().toString();
+    this.queryLabel = request.getUri()
+      .toString();
   }
 
   public ODataQueryIterator(final HttpRequestBuilderFactory requestFactory,
@@ -75,7 +77,8 @@ public class ODataQueryIterator extends AbstractIterator<Record>
     this.recordConverter = recordFactoryConverter(recordDefinition, recordFactory);
     this.request = request;
     this.recordDefinition = recordDefinition;
-    this.queryLabel = request.getUri().toString();
+    this.queryLabel = request.getUri()
+      .toString();
   }
 
   public ODataQueryIterator(final ODataRecordStore recordStore,
@@ -95,13 +98,15 @@ public class ODataQueryIterator extends AbstractIterator<Record>
   }
 
   void executeRequest() {
-    final JsonObject json = this.request.getJson();
+    final JsonObject json = this.request.responseAsJson();
     if (json == null) {
       this.nextURI = null;
       this.results = Collections.emptyIterator();
     } else {
       this.nextURI = json.getURI("@odata.nextLink");
-      this.results = json.getJsonList("value").jsonObjects().iterator();
+      this.results = json.getJsonList("value")
+        .jsonObjects()
+        .iterator();
     }
   }
 

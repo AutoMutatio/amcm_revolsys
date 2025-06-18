@@ -16,12 +16,13 @@ public class Channels {
     }
   }
 
-  public static void copy(final FileChannel in, final WritableByteChannel out) throws IOException {
+  public static long copy(final FileChannel in, final WritableByteChannel out) throws IOException {
     final long size = in.size();
     long count = 0;
     while (count < size) {
       count += in.transferTo(count, size, out);
     }
+    return size;
   }
 
   public static void copy(final ReadableByteChannel in, final FileChannel out) throws IOException {
@@ -61,10 +62,35 @@ public class Channels {
     }
   }
 
+  public static long copy(final ReadableByteChannel in, final WritableByteChannel out)
+    throws IOException {
+    if (in instanceof final FileChannel fileChannel) {
+      return copy(fileChannel, out);
+    } else {
+      long size = 0;
+      final ByteBuffer buffer = ByteBuffer.allocateDirect(8192);
+      while (true) {
+        buffer.clear();
+        final int readCount = in.read(buffer);
+        if (readCount < 0) {
+          break;
+        }
+        buffer.flip();
+        int writeCount = 0;
+        while (writeCount < readCount) {
+          writeCount += out.write(buffer);
+          size += writeCount;
+        }
+      }
+      buffer.clear();
+      return size;
+    }
+  }
+
   public static long copy(final ReadableByteChannel in, final WritableByteChannel out,
     final long size) throws IOException {
-    if (in instanceof FileChannel) {
-      copy(in, out, size);
+    if (in instanceof final FileChannel fileChannel) {
+      copy(fileChannel, out);
       return size;
     } else {
       final ByteBuffer buffer = ByteBuffer.allocateDirect(8192);

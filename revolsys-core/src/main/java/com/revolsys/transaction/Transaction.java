@@ -15,6 +15,7 @@ public class Transaction {
     <V> V call(Callable<V> action);
 
     void run(RunAction action);
+
   }
 
   static class MandatoryBuilder implements Builder {
@@ -122,7 +123,7 @@ public class Transaction {
         try (
           var context = new ActiveTransactionContext(this.initializers)) {
           try {
-            return ScopedValue.where(CONTEXT, context).call(action);
+            return where(context).call(action);
           } catch (final Throwable t) {
             return context.setRollbackOnly(t);
           }
@@ -141,8 +142,12 @@ public class Transaction {
       } else {
         try (
           var context = new ActiveTransactionContext(this.initializers)) {
-          final Runnable runnable = runnable(context, action);
-          ScopedValue.where(CONTEXT, context).run(runnable);
+          try {
+            final Runnable runnable = runnable(context, action);
+            where(context).run(runnable);
+          } catch (final Throwable t) {
+            context.setRollbackOnly(t);
+          }
         }
       }
     }
@@ -162,9 +167,9 @@ public class Transaction {
     public <V> V call(final Callable<V> action) {
       try (
         var s = suspend();
-        ActiveTransactionContext context = new ActiveTransactionContext(this, this.initializers)) {
+        var context = new ActiveTransactionContext(this.initializers)) {
         try {
-          return ScopedValue.where(CONTEXT, context).call(action);
+          return where(context).call(action);
         } catch (final Throwable t) {
           return context.setRollbackOnly(t);
         }
@@ -175,15 +180,56 @@ public class Transaction {
     public void run(final RunAction action) {
       try (
         var s = suspend();
-        ActiveTransactionContext context = new ActiveTransactionContext(this, this.initializers)) {
-        final Runnable runnable = runnable(context, action);
-        ScopedValue.where(CONTEXT, context).run(runnable);
+        var context = new ActiveTransactionContext(this.initializers)) {
+        try {
+          final Runnable runnable = runnable(context, action);
+          where(context).run(runnable);
+        } catch (final Throwable t) {
+          context.setRollbackOnly(t);
+        }
       }
     }
   }
 
   public interface RunAction {
     void run() throws Exception;
+  }
+
+  public static class SavedBuilder extends TransactionDefinition<SavedBuilder> implements Builder {
+
+    private final TransactionContext context;
+
+    public SavedBuilder(final TransactionContext context) {
+      super();
+      this.context = context;
+    }
+
+    @Override
+    public <V> V call(final Callable<V> action) {
+      try (
+        var s = suspend()) {
+        try {
+          return ScopedValue.where(CONTEXT, this.context)
+            .call(action);
+        } catch (final Throwable t) {
+          return this.context.setRollbackOnly(t);
+        }
+      }
+    }
+
+    @Override
+    public void run(final RunAction action) {
+      try (
+        var s = suspend()) {
+        try {
+          final Runnable runnable = runnable(this.context, action);
+          ScopedValue.where(CONTEXT, this.context)
+            .run(runnable);
+        } catch (final Throwable t) {
+          this.context.setRollbackOnly(t);
+        }
+      }
+    }
   }
 
   static class SupportsBuilder implements Builder {
@@ -221,7 +267,7 @@ public class Transaction {
   }
 
   public static void assertInTransaction() {
-    assert !isActive() : "Must be called in a transaction";
+    assert isActive() : "Must be called in a transaction";
   }
 
   public static TransactionContext getContext() {
@@ -233,7 +279,8 @@ public class Transaction {
   }
 
   public static boolean isActive() {
-    return hasContext() && CONTEXT.get().isActive();
+    return hasContext() && CONTEXT.get()
+      .isActive();
   }
 
   public static void rollback() {
@@ -256,6 +303,10 @@ public class Transaction {
     };
   }
 
+  public static SavedBuilder save() {
+    return new SavedBuilder(getContext());
+  }
+
   private static BaseCloseable suspend() {
     final TransactionContext context = getContext();
     if (context instanceof final ActiveTransactionContext mapContext) {
@@ -267,6 +318,10 @@ public class Transaction {
 
   public static TransactionBuilder transaction() {
     return TransactionBuilder.BUILDER;
+  }
+
+  private static Carrier where(final ActiveTransactionContext context) {
+    return ScopedValue.where(CONTEXT, context);
   }
 
   static Carrier where(final TransactionContext context) {

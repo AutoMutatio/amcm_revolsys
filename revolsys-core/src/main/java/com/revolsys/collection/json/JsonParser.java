@@ -7,7 +7,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.StringReader;
-import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.sql.Clob;
 import java.sql.SQLException;
@@ -100,6 +99,9 @@ public class JsonParser implements Iterator<JsonParser.EventType>, Closeable {
 
   @SuppressWarnings("unchecked")
   public static <V> V read(final InputStream in) {
+    if (in == null) {
+      return null;
+    }
     return (V)read(FileUtil.newUtf8Reader(in));
   }
 
@@ -125,11 +127,23 @@ public class JsonParser implements Iterator<JsonParser.EventType>, Closeable {
 
   @SuppressWarnings("unchecked")
   public static <V> V read(final Reader in) {
+    if (in == null) {
+      return null;
+    }
     try (
       final JsonParser parser = new JsonParser(in)) {
       if (parser.hasNext()) {
         final EventType event = parser.next();
         if (event == EventType.startDocument) {
+          final Object value = parser.getValue();
+          if (value instanceof EventType) {
+            return null;
+          }
+          if (parser.hasNext() && parser.next() != EventType.endDocument) {
+            throw new IllegalStateException("Extra content at end of file: " + parser);
+          }
+          return (V)value;
+        } else if (event == EventType.startArray) {
           final Object value = parser.getValue();
           if (value instanceof EventType) {
             return null;
@@ -145,11 +159,14 @@ public class JsonParser implements Iterator<JsonParser.EventType>, Closeable {
   }
 
   @SuppressWarnings("unchecked")
-  public static <V> V read(final String in) {
-    if (in == null) {
-      return (V)JsonObject.hash();
+  public static <V> V read(final String value) {
+    if (value == null) {
+      return null;
     } else {
-      return (V)read(new StringReader(in));
+      try (
+        var reader = new StringReader(value)) {
+        return (V)read(reader);
+      }
     }
   }
 
@@ -519,7 +536,7 @@ public class JsonParser implements Iterator<JsonParser.EventType>, Closeable {
         this.currentCharacter = this.reader.read();
       }
     }
-    this.nextValue = new BigDecimal(text.toString());
+    this.nextValue = new JsonBigDecimal(text.toString());
   }
 
   private void processString() throws IOException {
@@ -532,7 +549,9 @@ public class JsonParser implements Iterator<JsonParser.EventType>, Closeable {
           case -1:
           break;
           case 'b':
-            text.setLength(text.length() - 1);
+            if (text.length() > 0) {
+              text.setLength(text.length() - 1);
+            }
           break;
           case '"':
             text.append('"');
@@ -585,7 +604,7 @@ public class JsonParser implements Iterator<JsonParser.EventType>, Closeable {
   public void remove() {
   }
 
-  /** Skip to next attribute in any object.*/
+  /** Skip to next attribute in any object. */
   public String skipToAttribute() {
     while (hasNext()) {
       final EventType eventType = next();
@@ -600,7 +619,7 @@ public class JsonParser implements Iterator<JsonParser.EventType>, Closeable {
    * Skip through the document until the specified object attribute name is
    * found.
    *
-   * @param parser The parser.
+   * @param parser    The parser.
    * @param fieldName The name of the attribute to skip through.
    */
   public boolean skipToAttribute(final String fieldName) {
@@ -623,7 +642,7 @@ public class JsonParser implements Iterator<JsonParser.EventType>, Closeable {
     return false;
   }
 
-  /** Skip to next attribute in the same object.*/
+  /** Skip to next attribute in the same object. */
   public String skipToNextAttribute() {
     int objectCount = 0;
     while (hasNext()) {

@@ -20,15 +20,26 @@ import com.revolsys.jdbc.JdbcUtils;
 import com.revolsys.jdbc.field.JdbcFieldDefinition;
 import com.revolsys.record.Record;
 import com.revolsys.record.query.Query;
+import com.revolsys.record.query.QueryStatement;
 import com.revolsys.record.query.SqlAppendable;
 import com.revolsys.record.query.StringBuilderSqlAppendable;
 import com.revolsys.record.schema.RecordDefinition;
+import com.revolsys.record.schema.RecordDefinitionProxy;
 import com.revolsys.record.schema.RecordStore;
 
 public interface JdbcRecordStore extends RecordStore {
 
   default void execteBatch(final PreparedStatement statement) throws SQLException {
     statement.executeBatch();
+  }
+
+  default boolean executeCall(final String sql, final Object... parameters) {
+    return transactionCall(() -> {
+      try (
+        final JdbcConnection connection = getJdbcConnection()) {
+        return connection.executeCall(sql, parameters);
+      }
+    });
   }
 
   default int executeUpdate(final String sql, final Object... parameters) {
@@ -74,7 +85,7 @@ public interface JdbcRecordStore extends RecordStore {
 
   default void lockTable(final PathName typeName) {
     final StringBuilderSqlAppendable sql = SqlAppendable.stringBuilder("LOCK TABLE ");
-    getRecordDefinition(typeName).appendFrom(sql);
+    getRecordDefinition(typeName).appendFrom(QueryStatement.EMPTY, this, sql);
     sql.append(" IN SHARE MODE");
     final String s = sql.toSqlString();
     try (
@@ -95,6 +106,11 @@ public interface JdbcRecordStore extends RecordStore {
       throw getException("lock", sql, e);
     }
   }
+
+  @Override
+  JdbcRecordWriter newRecordWriter(RecordDefinitionProxy recordDefinition);
+
+  JdbcRecordWriter newRecordWriter(RecordDefinitionProxy recordDefinition, int batchSize);
 
   default int selectInt(final String sql, final Object... parameters) {
     return transactionCall(() -> {

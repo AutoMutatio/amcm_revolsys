@@ -8,12 +8,14 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.prefs.BackingStoreException;
@@ -24,11 +26,14 @@ import com.revolsys.data.type.DataType;
 import com.revolsys.data.type.DataTypes;
 import com.revolsys.util.BaseCloneable;
 import com.revolsys.util.Property;
+import com.revolsys.util.Strings;
 
 public interface Maps {
   public static final Supplier<Map<?, ?>> FACTORY_TREE = TreeMap::new;
 
   public static final Supplier<Map<?, ?>> FACTORY_LINKED_HASH = LinkedHashMap::new;
+
+  public static final Supplier<Map<?, ?>> FACTORY_CONCURRENT_HASH = ConcurrentHashMap::new;
 
   public static final Supplier<Map<?, ?>> FACTORY_HASH = HashMap::new;
 
@@ -53,9 +58,9 @@ public interface Maps {
     return count;
   }
 
-  static <K, V, C extends Collection<V>> boolean addToCollection(final Supplier<C> supplier,
-    final Map<K, C> map, final K key, final V value) {
-    final C values = get(map, key, supplier);
+  static <K, V, C extends Collection<V>, M extends Map<K, C>> boolean addToCollection(
+    final Supplier<C> supplier, final M map, final K key, final V value) {
+    final var values = get(map, key, supplier);
     return values.add(value);
   }
 
@@ -259,6 +264,13 @@ public interface Maps {
   @SuppressWarnings({
     "unchecked", "rawtypes"
   })
+  static <K, V> Supplier<Map<K, V>> factoryConcurrentHash() {
+    return (Supplier)FACTORY_CONCURRENT_HASH;
+  }
+
+  @SuppressWarnings({
+    "unchecked", "rawtypes"
+  })
   static <K, V> Supplier<Map<K, V>> factoryHash() {
     return (Supplier)FACTORY_HASH;
   }
@@ -299,8 +311,8 @@ public interface Maps {
    * Get the value for the key from the map. If the value was null return
    * default Value instead. The default value will be added to the map.
    *
-   * @param map The map.
-   * @param key The key to return the value for.
+   * @param map          The map.
+   * @param key          The key to return the value for.
    * @param defaultValue The default value.
    * @return The value.
    */
@@ -699,6 +711,15 @@ public interface Maps {
     return new LazyValueMap<>(loadFunction);
   }
 
+  static <K, VI, VO> Map<K, VO> mapValues(final Map<K, VI> map, final Function<VI, VO> mapper) {
+    final Map<K, VO> outMap = new LinkedHashMap<>();
+    map.forEach((key, inValue) -> {
+      final var outValue = mapper.apply(inValue);
+      outMap.put(key, outValue);
+    });
+    return outMap;
+  }
+
   static <K, V> void mergeCollection(final Map<K, Collection<V>> map,
     final Map<K, Collection<V>> otherMap) {
     for (final Entry<K, Collection<V>> entry : otherMap.entrySet()) {
@@ -718,7 +739,7 @@ public interface Maps {
     }
   }
 
-  static <V, K> HashMap<K, V> newHash() {
+  static <K, V> HashMap<K, V> newHash() {
     return new HashMap<>();
   }
 
@@ -901,8 +922,38 @@ public interface Maps {
     }
   }
 
+  static void replaceNullCharacters(final List<?> list) {
+    for (final ListIterator<Object> iterator = ((List)list).listIterator(); iterator.hasNext();) {
+      final Object listItem = iterator.next();
+      if (listItem instanceof final String string) {
+        final var replaced = Strings.replaceNullCharacters(string);
+        if (replaced.length() != string.length()) {
+          iterator.set(replaced);
+        }
+      }
+    }
+  }
+
+  static void replaceNullCharacters(final MapEx sourceData) {
+    for (final var key : sourceData.keySet()) {
+      final Object value = sourceData.get(key);
+      if (value instanceof final MapEx map) {
+        replaceNullCharacters(map);
+      } else if (value instanceof final List list) {
+
+        replaceNullCharacters(list);
+      } else if (value instanceof final String string) {
+        final var replaced = Strings.replaceNullCharacters(string);
+        if (replaced.length() != string.length()) {
+          sourceData.addValue(key, value);
+        }
+      }
+    }
+  }
+
   /**
-   * Retain the value for the key in the map if the map's value is not equal to the value.
+   * Retain the value for the key in the map if the map's value is not equal to
+   * the value.
    * This can be used to create a set of keys values that need to be updated.
    *
    * @param map
@@ -921,7 +972,8 @@ public interface Maps {
   }
 
   /**
-   * Retain the value for the key in the map if the map's value is not equal to the value.
+   * Retain the value for the key in the map if the map's value is not equal to
+   * the value.
    * This can be used to create a set of keys values that need to be updated.
    *
    * @param map

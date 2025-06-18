@@ -160,7 +160,8 @@ public class ArrayRecord extends BaseRecord {
     final Object newValue = fieldDefinition.toFieldValue(getState(), value);
     final int index = fieldDefinition.getIndex();
     final Object oldValue = getValueInternal(index);
-    if (!isInitializing() && !fieldDefinition.equals(oldValue, newValue)) {
+    if (!isInitializing() && !fieldDefinition.equals(oldValue, newValue)
+      && !fieldDefinition.isGenerated()) {
       updated = true;
       updateState();
     }

@@ -21,7 +21,9 @@ import com.revolsys.record.Record;
 import com.revolsys.record.RecordFactory;
 import com.revolsys.record.code.CodeTable;
 import com.revolsys.record.property.RecordDefinitionProperty;
-import com.revolsys.record.query.Query;
+import com.revolsys.record.query.DeleteStatement;
+import com.revolsys.record.query.InsertStatement;
+import com.revolsys.record.query.QueryStatement;
 import com.revolsys.record.query.QueryValue;
 import com.revolsys.record.query.SqlAppendable;
 import com.revolsys.record.query.TableReference;
@@ -56,21 +58,21 @@ public interface RecordDefinition extends Cloneable, GeometryFactoryProxy, Recor
   void addProperty(RecordDefinitionProperty property);
 
   @Override
-  default void appendQueryValue(final Query query, final SqlAppendable sql,
+  default void appendQueryValue(final QueryStatement statement, final SqlAppendable sql,
     final QueryValue queryValue) {
     final RecordStore recordStore = getRecordStore();
-    queryValue.appendSql(query, recordStore, sql);
+    queryValue.appendSql(statement, recordStore, sql);
   }
 
   @Override
-  default void appendSelect(final Query query, final SqlAppendable sql,
+  default void appendSelect(final QueryStatement statement, final SqlAppendable sql,
     final QueryValue queryValue) {
     final RecordStore recordStore = getRecordStore();
-    queryValue.appendSelect(query, recordStore, sql);
+    queryValue.appendSelect(statement, recordStore, sql);
   }
 
   @Override
-  default void appendSelectAll(final Query query, final SqlAppendable sql) {
+  default void appendSelectAll(final QueryStatement statement, final SqlAppendable sql) {
     boolean first = true;
     for (final FieldDefinition field : getFields()) {
       if (first) {
@@ -79,11 +81,19 @@ public interface RecordDefinition extends Cloneable, GeometryFactoryProxy, Recor
         sql.append(", ");
       }
       final RecordStore recordStore = getRecordStore();
-      field.appendSelect(query, recordStore, sql);
+      field.appendSelect(statement, recordStore, sql);
     }
   }
 
-  void deleteRecord(Record record);
+  default void deleteRecord(final Identifier id) {
+    getRecordStore().deleteRecord(getTablePath(), id);
+  }
+
+  void deleteRecord(Record record);;
+
+  default DeleteStatement deleteStatement() {
+    return getRecordStore().deleteStatement(getPathName());
+  }
 
   void destroy();
 
@@ -358,6 +368,10 @@ public interface RecordDefinition extends Cloneable, GeometryFactoryProxy, Recor
 
   @Override
   boolean hasIdField();
+
+  default InsertStatement insertStatement() {
+    return getRecordStore().insertStatement(getPathName());
+  }
 
   boolean isFieldRequired(CharSequence name);
 

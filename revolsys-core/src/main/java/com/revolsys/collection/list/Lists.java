@@ -453,7 +453,7 @@ public interface Lists {
       final String[] parts = text.split(regex);
       return newArray(parts);
     } else {
-      return ListEx.empty();
+      return Lists.newArray();
     }
   }
 

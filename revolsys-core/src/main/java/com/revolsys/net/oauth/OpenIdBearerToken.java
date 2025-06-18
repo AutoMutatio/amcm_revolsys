@@ -4,8 +4,6 @@ import com.revolsys.collection.json.JsonObject;
 
 public class OpenIdBearerToken extends BearerToken {
 
-  private JsonWebToken jwt;
-
   private final String refreshToken;
 
   private final String idToken;
@@ -13,8 +11,8 @@ public class OpenIdBearerToken extends BearerToken {
   private final OpenIdConnectClient client;
 
   public OpenIdBearerToken(final OpenIdConnectClient client, final JsonObject config,
-    final OpenIdResource resource) {
-    super(config, resource.getResource());
+    final OpenIdScope resource) {
+    super(config, resource.getScope());
     this.client = client;
     this.refreshToken = config.getString("refresh_token");
     this.idToken = config.getString("id_token");
@@ -22,7 +20,7 @@ public class OpenIdBearerToken extends BearerToken {
     final long expireTime = System.currentTimeMillis() + expiresIn * 1000;
     setExpireTime(expireTime);
     final String returnedScope = config.getString("scope");
-    setScope(resource.getResource(), returnedScope);
+    setScope(resource.getScope(), returnedScope);
   }
 
   public OpenIdBearerToken(final OpenIdConnectClient client, final JsonObject config,
@@ -46,19 +44,8 @@ public class OpenIdBearerToken extends BearerToken {
     return this.idToken;
   }
 
-  protected JsonWebToken getJwt() {
-    if (this.jwt == null) {
-      this.jwt = new JsonWebToken(this.idToken);
-    }
-    return this.jwt;
-  }
-
   public String getRefreshToken() {
     return this.refreshToken;
-  }
-
-  public String getStringClaim(final String name) {
-    return getJwt().getString(name);
   }
 
   public OpenIdBearerToken getValid() {
@@ -67,6 +54,11 @@ public class OpenIdBearerToken extends BearerToken {
     } else {
       return this;
     }
+  }
+
+  @Override
+  protected JsonWebToken initJwt() {
+    return new JsonWebToken(this.idToken);
   }
 
   public OpenIdBearerToken refreshToken() {
@@ -78,11 +70,4 @@ public class OpenIdBearerToken extends BearerToken {
     }
   }
 
-  public String toStringDump() {
-    return this.jwt.toStringDump();
-  }
-
-  public String toStringJwt() {
-    return this.jwt.toString();
-  }
 }

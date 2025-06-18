@@ -15,22 +15,34 @@ public interface Jsonable {
     return appendable;
   }
 
+  default Appendable appendJsonFormatted(final Appendable appendable) {
+    final JsonType json = asJson();
+    if (json != null) {
+      json.appendJsonFormatted(appendable);
+    }
+    return appendable;
+  }
+
   /**
-   * Cast this object as a {@link JsonType} instance representing the data in this instance. If
-   * this class is a {@link JsonType} it maybe returned instead of a copy. This method should only
-   * be used if the changes to the returned instance are expected to update this instance or to
+   * Cast this object as a {@link JsonType} instance representing the data in this
+   * instance. If
+   * this class is a {@link JsonType} it maybe returned instead of a copy. This
+   * method should only
+   * be used if the changes to the returned instance are expected to update this
+   * instance or to
    * serialize the result.
    *
-   *@return The instance.
+   * @return The instance.
    */
   default JsonType asJson() {
     return toJson();
   }
 
   /**
-   * Create a new {@link JsonType} instance representing the data in this instance.
+   * Create a new {@link JsonType} instance representing the data in this
+   * instance.
    *
-   *@return The new instance.
+   * @return The new instance.
    */
   JsonType toJson();
 
@@ -53,6 +65,16 @@ public interface Jsonable {
     try (
       Writer writer = JavaIo.createWriter(target)) {
       appendJson(writer);
+    } catch (final IOException e) {
+      throw Exceptions.toRuntimeException(e);
+    }
+
+  }
+
+  default void writeToFormatted(final Object target) {
+    try (
+      Writer writer = JavaIo.createWriter(target)) {
+      appendJsonFormatted(writer);
     } catch (final IOException e) {
       throw Exceptions.toRuntimeException(e);
     }

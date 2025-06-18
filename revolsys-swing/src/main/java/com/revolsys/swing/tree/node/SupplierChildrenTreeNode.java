@@ -9,14 +9,14 @@ import javax.swing.Icon;
 import com.revolsys.swing.tree.BaseTreeNode;
 
 public class SupplierChildrenTreeNode extends LazyLoadTreeNode {
-  private final Supplier<Iterable<Object>> children;
+  private final Supplier<Iterable<?>> children;
 
-  public SupplierChildrenTreeNode(final String name, final Icon icon,
-    final Supplier<Iterable<Object>> children) {
+  public <I extends Iterable<?>> SupplierChildrenTreeNode(final String name, final Icon icon,
+    final Supplier<I> children) {
     super(null);
     setName(name);
     setIcon(icon);
-    this.children = children;
+    this.children = (Supplier)children;
   }
 
   @Override

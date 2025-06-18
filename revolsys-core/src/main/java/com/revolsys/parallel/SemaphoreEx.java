@@ -1,14 +1,16 @@
 package com.revolsys.parallel;
 
+import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.Semaphore;
-import java.util.concurrent.StructuredTaskScope;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import com.revolsys.collection.iterator.BaseIterable;
 import com.revolsys.exception.Exceptions;
 import com.revolsys.util.BaseCloseable;
 
@@ -32,50 +34,31 @@ public class SemaphoreEx extends Semaphore {
     return this.release;
   }
 
-  public <V> void forEach(final ExecutorService executor, final Iterable<V> values,
+  // TODO replace this with new code
+  public <V> long forEach(final ExecutorService executor, final BaseIterable<V> values,
     final Consumer<V> action) {
-    if (values != null && action != null) {
-      values.forEach(value -> {
-        try {
-          acquire();
-          executor.execute(() -> {
-            action.accept(value);
-            release();
-          });
-        } catch (final InterruptedException e) {
-          throw Exceptions.toRuntimeException(e);
+    if (action == null) {
+      throw new NullPointerException("action");
+    }
+    if (values != null) {
+      return values.forEachCount(value -> {
+        if (!executor.isShutdown()) {
+          try {
+            acquire();
+            executor.execute(() -> {
+              action.accept(value);
+              release();
+            });
+          } catch (final RejectedExecutionException e) {
+            // Ignore as shutdown
+          } catch (final InterruptedException e) {
+            throw Exceptions.toRuntimeException(e);
+          }
         }
       });
     }
-  }
+    return 0;
 
-  public <V> void forEach(final StructuredTaskScope<?> scope, final Iterable<V> values,
-    final Consumer<V> action) throws InterruptedException {
-    if (values != null && action != null) {
-      values.forEach(value -> {
-        try {
-          acquire();
-          scope.fork(() -> {
-            action.accept(value);
-            release();
-            return null;
-          });
-        } catch (final InterruptedException e) {
-          throw Exceptions.toRuntimeException(e);
-        }
-      });
-      scope.join();
-    }
-  }
-
-  public <V> void forEach(final Supplier<ExecutorService> executorSupplier,
-    final Iterable<V> values, final Consumer<V> action) {
-    if (values != null && action != null) {
-      try (
-        final var executor = executorSupplier.get()) {
-        forEach(executor, values, action);
-      }
-    }
   }
 
   public CompletableFuture<Void> runAsync(final Runnable runnable, final Executor executor) {
@@ -98,12 +81,30 @@ public class SemaphoreEx extends Semaphore {
     }
   }
 
-  public <V> void virtualForEach(final Iterable<V> values, final Consumer<V> action) {
-    if (values != null && action != null) {
-      try (
-        final var executor = Executors.newVirtualThreadPerTaskExecutor()) {
-        forEach(executor, values, action);
+  public boolean tryAcquire(final Duration duration) {
+    return tryAcquire(1, duration);
+  }
+
+  public boolean tryAcquire(final int permits, final Duration duration) {
+    try {
+      if (duration.isZero()) {
+        // Don't wait
+        return tryAcquire();
+      } else if (duration.isNegative()) {
+        // Wait indefinitely
+        acquire();
+        return true;
+      } else {
+        final var seconds = duration.getSeconds();
+        final var nano = duration.getNano();
+        if (nano == 0 || seconds > 9223372034L) {
+          return tryAcquire(permits, seconds, TimeUnit.SECONDS);
+        } else {
+          return tryAcquire(permits, duration.toNanos(), TimeUnit.NANOSECONDS);
+        }
       }
+    } catch (final InterruptedException e) {
+      throw Exceptions.toRuntimeException(e);
     }
   }
 

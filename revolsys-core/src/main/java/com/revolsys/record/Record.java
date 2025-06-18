@@ -30,6 +30,7 @@ import com.revolsys.data.identifier.TypedIdentifier;
 import com.revolsys.data.type.DataType;
 import com.revolsys.data.type.DataTypes;
 import com.revolsys.exception.Exceptions;
+import com.revolsys.function.Lambdaable;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.BoundingBoxProxy;
 import com.revolsys.geometry.model.Geometry;
@@ -45,7 +46,7 @@ import com.revolsys.util.Property;
 import com.revolsys.util.Strings;
 
 public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordDefinitionProxy,
-  BoundingBoxProxy, Jsonable, JsonWritable {
+  BoundingBoxProxy, Jsonable, JsonWritable, Lambdaable<Record> {
   String EVENT_RECORD_CHANGED = "_recordChanged";
 
   String EXCLUDE_GEOMETRY = Record.class.getName() + ".excludeGeometry";
@@ -185,8 +186,7 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
   }
 
   default Record addValues(final MapEx values) {
-    if (values instanceof Record) {
-      final Record record = (Record)values;
+    if (values instanceof final Record record) {
       setValues(record);
     } else if (values != null) {
       setValues(values, new ArrayList<>(values.keySet()));
@@ -311,11 +311,6 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
     return CompareUtil.compare(value1, value2, nullsFirst);
   }
 
-  default Record consume(final Consumer<Record> action) {
-    action.accept(this);
-    return this;
-  }
-
   default boolean contains(final Iterable<? extends Record> records) {
     for (final Record record : records) {
       if (isSame(record)) {
@@ -394,6 +389,15 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
     return false;
   }
 
+  default boolean equalValue(final String fieldName, final Map<String, ? extends Object> map,
+    final CharSequence otherFieldName) {
+    if (map != null) {
+      final Object value = map.get(otherFieldName);
+      return equalValue(fieldName, value);
+    }
+    return false;
+  }
+
   default boolean equalValueExclude(final CharSequence fieldName, final Object value,
     final CharSequence... excludeFieldNames) {
     final FieldDefinition fieldDefinition = getFieldDefinition(fieldName);
@@ -450,7 +454,9 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
   }
 
   /**
-   * Equal if the keys and values in the map are equal to those field values on the record.
+   * Equal if the keys and values in the map are equal to those field values on
+   * the record.
+   *
    * @param map
    */
   default boolean equalValues(final Map<String, ? extends Object> map) {
@@ -481,6 +487,7 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
 
   /**
    * Equal if the map has all the fields and values of this record
+   *
    * @param map
    */
   default boolean equalValuesAll(final Map<String, ? extends Object> map) {
@@ -506,6 +513,7 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
 
   /**
    * Equal if the map has all the fields and values of this record
+   *
    * @param map
    */
   default boolean equalValuesExclude(final Map<String, Object> map,
@@ -575,7 +583,8 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
   }
 
   /**
-   * Return the list of field names that are different between this record and the other map.
+   * Return the list of field names that are different between this record and the
+   * other map.
    * Compares all the field names from this record.
    *
    * @param map The map to compare
@@ -586,9 +595,10 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
   }
 
   /**
-   * Return the list of field names that are different between this record and the other map.
+   * Return the list of field names that are different between this record and the
+   * other map.
    *
-   * @param map The map to compare
+   * @param map        The map to compare
    * @param fieldNames The field names to compare
    */
   default List<String> getDifferentFieldNames(final Map<String, Object> map,
@@ -606,9 +616,10 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
   }
 
   /**
-   * Return the list of field names that are different between this record and the other map.
+   * Return the list of field names that are different between this record and the
+   * other map.
    *
-   * @param map The map to compare
+   * @param map               The map to compare
    * @param excludeFieldNames The field names to not compare
    */
   default List<String> getDifferentFieldNamesExclude(final Map<String, Object> map,
@@ -1200,7 +1211,8 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
   }
 
   /**
-   * Remove the first record in the collection of records that is {{@link #isSame(Record)}} as this record.
+   * Remove the first record in the collection of records that is
+   * {{@link #isSame(Record)}} as this record.
    *
    * @param records
    * @return The index of the removed record.
@@ -1275,7 +1287,7 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
   /**
    * Set the value of the field with the specified name.
    *
-   * @param name The name of the field.
+   * @param name  The name of the field.
    * @param value The new value.
    */
 
@@ -1429,10 +1441,10 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
 
   default void setValues(final Record record) {
     if (record != null) {
-      final List<FieldDefinition> fields = getFieldDefinitions();
-      for (final FieldDefinition fieldDefintion : fields) {
+      final var fields = getFieldDefinitions();
+      for (final var fieldDefintion : fields) {
         if (!isIdField(fieldDefintion)) {
-          final String name = fieldDefintion.getName();
+          final var name = fieldDefintion.getName();
           if (record.hasField(name)) {
             final Object value = record.getValue(name);
             fieldDefintion.setValue(this, value);
@@ -1444,8 +1456,8 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
 
   default void setValuesAll(final Record record) {
     if (record != null) {
-      final List<FieldDefinition> fields = getFieldDefinitions();
-      for (final FieldDefinition fieldDefintion : fields) {
+      final var fields = getFieldDefinitions();
+      for (final var fieldDefintion : fields) {
         final String name = fieldDefintion.getName();
         final Object value = record.getValue(name);
         fieldDefintion.setValue(this, value);
@@ -1517,6 +1529,11 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
   @Override
   default String toJsonString() {
     return toJson().toJsonString();
+  }
+
+  @Override
+  default String toJsonString(final boolean indent) {
+    return MapEx.super.toJsonString(indent);
   }
 
   default void validateField(final FieldDefinition field) {

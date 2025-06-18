@@ -1,6 +1,6 @@
 package com.revolsys.exception;
 
-public class WrappedRuntimeException extends RuntimeException {
+public class WrappedRuntimeException extends ExceptionWithProperties {
   private static final long serialVersionUID = 1L;
 
   public WrappedRuntimeException(final String message, final Throwable cause) {
@@ -8,13 +8,15 @@ public class WrappedRuntimeException extends RuntimeException {
   }
 
   public WrappedRuntimeException(final Throwable cause) {
-    super(cause);
+    super(null, cause);
   }
 
+  @Override
   public <T extends Throwable> T getCause(final Class<T> clazz) {
     return Exceptions.getCause(this, clazz);
   }
 
+  @Override
   public boolean isException(final Class<? extends Throwable> clazz) {
     final Throwable cause = getCause();
     if (cause == null) {
@@ -27,4 +29,5 @@ public class WrappedRuntimeException extends RuntimeException {
       return false;
     }
   }
+
 }

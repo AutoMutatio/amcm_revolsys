@@ -1,6 +1,7 @@
 package com.revolsys.record.query;
 
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -18,16 +19,20 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-import com.revolsys.collection.json.Json;
+import com.revolsys.collection.Collector;
+import com.revolsys.collection.iterator.Reader;
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.list.ListEx;
 import com.revolsys.collection.list.Lists;
 import com.revolsys.collection.map.MapEx;
+import com.revolsys.collection.value.Single;
+import com.revolsys.data.type.DataType;
 import com.revolsys.function.Lambdaable;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.io.PathName;
-import com.revolsys.jdbc.JdbcUtils;
 import com.revolsys.jdbc.field.JdbcFieldDefinition;
 import com.revolsys.jdbc.field.JdbcFieldDefinitions;
+import com.revolsys.logging.Logs;
 import com.revolsys.predicate.Predicates;
 import com.revolsys.properties.BaseObjectWithProperties;
 import com.revolsys.record.ArrayChangeTrackRecord;
@@ -51,8 +56,7 @@ import com.revolsys.util.Property;
 import com.revolsys.util.count.LabelCounters;
 
 public class Query extends BaseObjectWithProperties implements Cloneable, CancellableProxy,
-  Transactionable, QueryValue, TableReferenceProxy, Lambdaable<Query> {
-
+  Transactionable, QueryValue, TableReferenceProxy, Lambdaable<Query>, From, QueryStatement {
   private static void addFilter(final Query query, final RecordDefinition recordDefinition,
     final Map<String, ?> filter, final AbstractMultiCondition multipleCondition) {
     if (filter != null && !filter.isEmpty()) {
@@ -96,7 +100,7 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     final RecordDefinition recordDefinition = field.getRecordDefinition();
     final Query query = new Query(recordDefinition);
     final Value valueCondition = Value.newValue(field, value);
-    final BinaryCondition equal = Q.equal(field, valueCondition);
+    final var equal = Q.equal(field, valueCondition);
     query.setWhereCondition(equal);
     return query;
   }
@@ -109,7 +113,7 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     } else {
       final Query query = Query.newQuery(recordDefinition);
       final Value valueCondition = Value.newValue(fieldDefinition, value);
-      final BinaryCondition equal = Q.equal(name, valueCondition);
+      final var equal = Q.equal(name, valueCondition);
       query.setWhereCondition(equal);
       return query;
     }
@@ -168,11 +172,15 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     return query;
   }
 
+  private int fetchSize = 100;
+
   private List<Join> joins = new ArrayList<>();
 
   private boolean distinct = false;
 
   private Cancellable cancellable;
+
+  private String baseFileName;
 
   private RecordFactory<Record> recordFactory;
 
@@ -202,9 +210,15 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
 
   private final List<WithQuery> withQueries = new ArrayList<>();
 
+  private RecordStore recordStore;
+
   private Union union;
 
   private Condition having = Condition.ALL;
+
+  private boolean returnCount;
+
+  private final JsonObject resultHeaders = JsonObject.hash();
 
   public Query() {
     this("/Record");
@@ -216,6 +230,15 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
 
   public Query(final PathName typePath, final Condition whereCondition) {
     this(new TableReferenceImpl(typePath), whereCondition);
+  }
+
+  public Query(final RecordStore recordStore) {
+    this.recordStore = recordStore;
+  }
+
+  public Query(final RecordStore recordStore, final TableReferenceProxy table) {
+    this.recordStore = recordStore;
+    this.table = table.getTableReference();
   }
 
   public Query(final String typePath) {
@@ -235,16 +258,18 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     setWhereCondition(whereCondition);
   }
 
+  public Query accept(final Consumer<Query> action) {
+    action.accept(this);
+    return this;
+  }
+
   public Query addGroupBy(final Object groupByItem) {
-    if (groupByItem instanceof QueryValue) {
-      final QueryValue queryValue = (QueryValue)groupByItem;
+    if (groupByItem instanceof final QueryValue queryValue) {
       this.groupBy.add(queryValue);
-    } else if (groupByItem instanceof CharSequence) {
-      final CharSequence fieldName = (CharSequence)groupByItem;
+    } else if (groupByItem instanceof final CharSequence fieldName) {
       final ColumnReference column = this.table.getColumn(fieldName);
       this.groupBy.add(column);
-    } else if (groupByItem instanceof Integer) {
-      final Integer index = (Integer)groupByItem;
+    } else if (groupByItem instanceof final Integer index) {
       final ColumnIndex columnIndex = new ColumnIndex(index);
       this.groupBy.add(columnIndex);
     } else {
@@ -279,15 +304,17 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     QueryValue queryValue;
     if (field instanceof QueryValue) {
       queryValue = (QueryValue)field;
-    } else if (field instanceof CharSequence) {
-      final CharSequence name = (CharSequence)field;
-      try {
-        queryValue = this.table.getColumn(name);
-      } catch (final IllegalArgumentException e) {
-        queryValue = new Column(name);
+    } else if (field instanceof final CharSequence fieldName) {
+      if (hasField(fieldName)) {
+        queryValue = getColumn(fieldName);
+      } else {
+        try {
+          queryValue = new ColumnIndex(Integer.parseInt(fieldName.toString()));
+        } catch (final NumberFormatException e) {
+          queryValue = new Column(fieldName);
+        }
       }
-    } else if (field instanceof Integer) {
-      final Integer index = (Integer)field;
+    } else if (field instanceof final Integer index) {
       queryValue = new ColumnIndex(index);
     } else {
       throw new IllegalArgumentException("Not a field name: " + field);
@@ -331,6 +358,16 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
   @Deprecated
   public Query addParameter(final Object value) {
     this.parameters.add(value);
+    return this;
+  }
+
+  public Query addResultHeader(final String key, final Object value) {
+    this.resultHeaders.addNotEmpty(key, value);
+    return this;
+  }
+
+  public Query addResultHeaders(final MapEx values) {
+    this.resultHeaders.addValues(values);
     return this;
   }
 
@@ -383,6 +420,18 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
       setWhereCondition(whereCondition);
     }
     return this;
+  }
+
+  public Query and(final QueryValue field,
+    final BiFunction<QueryValue, QueryValue, Condition> operator, final Object value) {
+    final Condition condition = newCondition(field, operator, value);
+    return and(condition);
+  }
+
+  public Query and(final QueryValue field,
+    final java.util.function.Function<QueryValue, Condition> operator) {
+    final var condition = operator.apply(field);
+    return and(condition);
   }
 
   public Query and(final String fieldName,
@@ -442,9 +491,22 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
   }
 
   @Override
-  public void appendDefaultSql(final Query query, final RecordStore recordStore,
+  public void appendDefaultSql(final QueryStatement statement, final RecordStore recordStore,
     final SqlAppendable sql) {
     appendSql(sql);
+  }
+
+  @Override
+  public void appendFrom(final QueryStatement statement, final RecordStore recordStore,
+    final SqlAppendable sql) {
+    sql.append('(');
+    appendSql(sql);
+    sql.append(')');
+  }
+
+  @Override
+  public int appendFromParameters(final int index, final PreparedStatement statement) {
+    return appendParameters(index, statement);
   }
 
   public SqlAppendable appendOrderByFields(final SqlAppendable sql, final TableReferenceProxy table,
@@ -477,6 +539,9 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
       }
     }
     index = appendSelectParameters(index, statement);
+    if (this.from != null) {
+      index = this.from.appendFromParameters(index, statement);
+    }
     for (final Join join : getJoins()) {
       index = join.appendParameters(index, statement);
     }
@@ -506,7 +571,11 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
         } else {
           sql.append(", ");
         }
-        table.appendSelect(this, sql, selectItem);
+        if (table == null) {
+          selectItem.appendSelect(this, this.recordStore, sql);
+        } else {
+          table.appendSelect(this, sql, selectItem);
+        }
       }
     }
   }
@@ -525,13 +594,16 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
   protected void appendSql(final SqlAppendable sql, final TableReferenceProxy table,
     final List<OrderBy> orderBy) {
     From from = getFrom();
-    if (from == null) {
+    if (from == null && table != null) {
       from = table.getTableReference();
     }
     final List<Join> joins = getJoins();
     final LockMode lockMode = getLockMode();
     final boolean distinct = isDistinct();
     final List<QueryValue> groupBy = getGroupBy();
+    if (this.union != null) {
+      sql.append('(');
+    }
     if (!this.withQueries.isEmpty()) {
       sql.append("WITH ");
       boolean first = true;
@@ -550,12 +622,14 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
       sql.append("DISTINCT ");
     }
     appendSelect(sql);
-    sql.append(" FROM ");
-    from.appendFromWithAlias(sql);
-    for (final Join join : joins) {
-      JdbcUtils.appendQueryValue(sql, this, join);
+    if (from != null) {
+      sql.append(" FROM ");
+      appendFromWithAlias(sql, from);
     }
-    JdbcUtils.appendWhere(sql, this, sql.isUsePlaceholders());
+    for (final Join join : joins) {
+      appendQueryValue(sql, join);
+    }
+    appendWhere(sql, sql.isUsePlaceholders());
 
     if (groupBy != null) {
       boolean hasGroupBy = false;
@@ -572,7 +646,7 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     }
     if (!this.having.isEmpty()) {
       sql.append(" HAVING ");
-      JdbcUtils.appendQueryValue(sql, this, this.having);
+      appendQueryValue(sql, this.having);
     }
 
     addOrderBy(sql, table, orderBy);
@@ -580,7 +654,16 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     lockMode.append(sql);
 
     if (this.union != null) {
+      sql.append(')');
       this.union.appendSql(sql);
+    }
+  }
+
+  public void appendWhere(final SqlAppendable sql, final boolean usePlaceholders) {
+    final Condition where = getWhereCondition();
+    if (!where.isEmpty()) {
+      sql.append(" WHERE ");
+      appendQueryValue(sql, where);
     }
   }
 
@@ -636,13 +719,27 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     return clone;
   }
 
+  public <O> O collect(final Collector<Record, O> collector) {
+    final var result = collector.newResult();
+    forEachRecord(value -> collector.collect(result, value));
+    return result;
+  }
+
   public int deleteRecords() {
-    return getRecordDefinition().getRecordStore()
-      .deleteRecords(this);
+    return getRecordStore().deleteRecords(this);
   }
 
   public boolean exists() {
     return getRecordCount() != 0;
+  }
+
+  public int fetchSize() {
+    return this.fetchSize;
+  }
+
+  public Query fetchSize(final int fetchSize) {
+    this.fetchSize = fetchSize;
+    return this;
   }
 
   /**
@@ -681,21 +778,49 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     }
   }
 
+  public String getBaseFileName() {
+    return this.baseFileName;
+  }
+
   @Override
   public Cancellable getCancellable() {
     return this.cancellable;
+  }
+
+  @Override
+  public ColumnReference getColumn() {
+    if (this.selectExpressions.size() == 1) {
+      return this.selectExpressions.get(0)
+        .getColumn();
+    }
+    return null;
   }
 
   public From getFrom() {
     return this.from;
   }
 
+  @Override
   public FieldDefinition getGeometryField() {
     return getRecordDefinition().getGeometryField();
   }
 
   public List<QueryValue> getGroupBy() {
     return this.groupBy;
+  }
+
+  public Join getJoin(final TableReferenceProxy tableProxy, final String alias) {
+    if (tableProxy != null) {
+      final var table = tableProxy.getTableReference();
+      for (final var join : this.joins) {
+        if (join.getTable() == table) {
+          if (DataType.equal(alias, join.getTableAlias())) {
+            return join;
+          }
+        }
+      }
+    }
+    return null;
   }
 
   public List<Join> getJoins() {
@@ -736,10 +861,10 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
   }
 
   public long getRecordCount() {
-    return getRecordDefinition().getRecordStore()
-      .getRecordCount(this);
+    return getRecordStore().getRecordCount(this);
   }
 
+  @Override
   public RecordDefinition getRecordDefinition() {
     if (this.table == null) {
       return null;
@@ -748,14 +873,14 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     }
   }
 
+  @Override
   @SuppressWarnings("unchecked")
   public <V extends Record> RecordFactory<V> getRecordFactory() {
     return (RecordFactory<V>)this.recordFactory;
   }
 
   public RecordReader getRecordReader() {
-    return getRecordDefinition().getRecordStore()
-      .getRecords(this);
+    return getRecordStore().getRecords(this);
   }
 
   public ListEx<Record> getRecords() {
@@ -764,8 +889,27 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     return records;
   }
 
-  public RecordStore getRecordStore() {
-    return getRecordDefinition().getRecordStore();
+  @SuppressWarnings("unchecked")
+  @Override
+  public <R extends RecordStore> R getRecordStore() {
+    if (this.recordStore == null) {
+      final var recordDefinition = getRecordDefinition();
+      if (recordDefinition == null) {
+        if (this.from == null) {
+          return null;
+        } else {
+          return this.from.getRecordStore();
+        }
+      } else {
+        return recordDefinition.getRecordStore();
+      }
+    } else {
+      return (R)this.recordStore;
+    }
+  }
+
+  public JsonObject getResultHeaders() {
+    return this.resultHeaders;
   }
 
   public List<QueryValue> getSelect() {
@@ -855,6 +999,14 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     return null;
   }
 
+  @Override
+  public Object getValueFromResultSet(final RecordDefinition recordDefinition,
+    final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings)
+    throws SQLException {
+    return this.selectExpressions.get(0)
+      .getValueFromResultSet(recordDefinition, resultSet, indexes, internStrings);
+  }
+
   public String getWhere() {
     return this.whereCondition.toFormattedString();
   }
@@ -871,6 +1023,20 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
       }
     }
     return this;
+  }
+
+  public boolean hasJoin(final TableReferenceProxy tableProxy, final String alias) {
+    if (tableProxy != null) {
+      final var table = tableProxy.getTableReference();
+      for (final var join : this.joins) {
+        if (join.getTable() == table) {
+          if (DataType.equal(alias, join.getTableAlias())) {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
   }
 
   public boolean hasOrderBy(final QueryValue column) {
@@ -909,8 +1075,7 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
       if (newRecord == null) {
         return null;
       } else {
-        getRecordDefinition().getRecordStore()
-          .insertRecord(newRecord);
+        getRecordStore().insertRecord(newRecord);
         return newRecord;
       }
     } else {
@@ -919,14 +1084,17 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
   }
 
   public boolean isCustomResult() {
-    if (!getJoins().isEmpty()) {
+    if (this.from instanceof FromAlias) {
+      return true;
+    } else if (this.union != null) {
+      return true;
+    } else if (!getJoins().isEmpty()) {
       return true;
     } else if (!getGroupBy().isEmpty()) {
       return true;
     } else if (this.selectExpressions.isEmpty()) {
       return false;
-    } else if (this.selectExpressions.size() == 1
-      && this.selectExpressions.get(0) instanceof AllColumns) {
+    } else if (isSelectStar()) {
       return false;
     } else {
       return true;
@@ -937,8 +1105,17 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     return this.distinct;
   }
 
+  public boolean isReturnCount() {
+    return this.returnCount;
+  }
+
   public boolean isSelectEmpty() {
     return this.selectExpressions.isEmpty();
+  }
+
+  public boolean isSelectStar() {
+    return this.selectExpressions.size() == 1
+      && this.selectExpressions.get(0) instanceof AllColumns;
   }
 
   public Query join(final BiConsumer<Query, Join> action) {
@@ -988,28 +1165,6 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     return condition;
   }
 
-  @Override
-  public Condition newCondition(final QueryValue left,
-    final BiFunction<QueryValue, QueryValue, Condition> operator, final Object value) {
-    Condition condition;
-    if (value == null) {
-      condition = new IsNull(left);
-    } else {
-      QueryValue right;
-      if (value instanceof QueryValue) {
-        right = (QueryValue)value;
-      } else {
-        if (left instanceof ColumnReference) {
-          right = new Value((ColumnReference)left, value);
-        } else {
-          right = Value.newValue(value);
-        }
-      }
-      condition = operator.apply(left, right);
-    }
-    return condition;
-  }
-
   public String newDeleteSql() {
     final StringBuilderSqlAppendable sql = newSqlAppendable();
     sql.append("DELETE FROM ");
@@ -1017,8 +1172,8 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     if (from == null) {
       from = this.table;
     }
-    from.appendFromWithAlias(sql);
-    JdbcUtils.appendWhere(sql, this, true);
+    appendFromWithAlias(sql, from);
+    appendWhere(sql, true);
     return sql.toSqlString();
   }
 
@@ -1052,27 +1207,18 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
 
   public QueryValue newSelectClause(final Object select) {
     QueryValue selectExpression;
-    if (select instanceof QueryValue) {
-      selectExpression = (QueryValue)select;
-    } else if (select instanceof CharSequence) {
-      final String name = ((CharSequence)select).toString();
-      final int dotIndex = name.indexOf('.');
-      if (dotIndex == -1) {
-        if (this.table.hasColumn(name)) {
-          selectExpression = this.table.getColumn(name);
-        } else {
-          selectExpression = new Column(name);
+    if (select instanceof final QueryValue queryValue) {
+      selectExpression = queryValue;
+    } else if (select instanceof final CharSequence chars) {
+      final String name = chars.toString();
+      selectExpression = getTable().columnByPath(name);
+      if (selectExpression == null || !(selectExpression instanceof ColumnReference)) {
+        final var alias = name.substring(name.lastIndexOf('.') + 1);
+        if (selectExpression == null) {
+          selectExpression = Q.sql("NULL");
         }
-      } else {
-        final ColumnReference column = this.table.getColumn(name.substring(0, dotIndex));
-        if (column.getDataType() == Json.JSON_TYPE) {
-          final String remainder = name.substring(dotIndex + 1);
-          selectExpression = new SelectAlias(Q.jsonRawValue(column, remainder), remainder);
-        } else {
-          selectExpression = Q.sql(name);
-        }
+        selectExpression = selectExpression.toAlias(alias);
       }
-
     } else {
       throw new IllegalArgumentException("Not a valid select expression :" + select);
     }
@@ -1124,8 +1270,7 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     final Condition whereCondition = getWhereCondition();
     if (whereCondition.isEmpty()) {
       setWhereCondition(condition);
-    } else if (whereCondition instanceof Or) {
-      final Or or = (Or)whereCondition;
+    } else if (whereCondition instanceof final Or or) {
       or.or(condition);
     } else {
       setWhereCondition(new Or(whereCondition, condition));
@@ -1139,6 +1284,12 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
       addOrderBy(orderByItem);
     }
     return this;
+  }
+
+  @SuppressWarnings("unchecked")
+  public <R extends Reader<V>, V> R reader() {
+    return (R)getRecordDefinition().getRecordStore()
+      .getRecords(this);
   }
 
   public Query readerConsume(final Consumer<RecordReader> action) {
@@ -1156,12 +1307,16 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     }
   }
 
+  public Query recordStore(final RecordStore recordStore) {
+    this.recordStore = recordStore;
+    return this;
+  }
+
   public void removeSelect(final String name) {
     for (final Iterator<QueryValue> iterator = this.selectExpressions.iterator(); iterator
       .hasNext();) {
       final QueryValue queryValue = iterator.next();
-      if (queryValue instanceof Column) {
-        final Column column = (Column)queryValue;
+      if (queryValue instanceof final Column column) {
         if (column.getName()
           .equals(name)) {
           iterator.remove();
@@ -1250,6 +1405,17 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     return this;
   }
 
+  public Query selectStar() {
+    this.selectExpressions.clear();
+    this.selectExpressions.add(new AllColumns());
+    return this;
+  }
+
+  public Query setBaseFileName(final String baseFileName) {
+    this.baseFileName = baseFileName;
+    return this;
+  }
+
   public Query setCancellable(final Cancellable cancellable) {
     this.cancellable = cancellable;
     return this;
@@ -1266,19 +1432,19 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
   }
 
   public Query setFrom(final From from, final String alias) {
-    this.from = new FromAlias(from, alias);
-    return this;
+    final var fromAlias = new FromAlias(from, alias);
+    return setFrom(fromAlias);
   }
 
   public Query setFrom(final String from) {
-    this.from = new FromSql(from);
-    return this;
+    final var fromSql = new FromSql(from);
+    return setFrom(fromSql);
   }
 
   public Query setFrom(final String from, final String alias) {
     final FromSql fromSql = new FromSql(from);
-    this.from = new FromAlias(fromSql, alias);
-    return this;
+    final var fromAlias = new FromAlias(fromSql, alias);
+    return setFrom(fromAlias);
   }
 
   public Query setGroupBy(final List<?> groupBy) {
@@ -1358,6 +1524,7 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
   public Query setRecordDefinition(final RecordDefinition recordDefinition) {
     if (this.table == null) {
       this.table = recordDefinition;
+
     }
     if (this.whereCondition != null) {
       this.whereCondition.changeRecordDefinition(getRecordDefinition(), recordDefinition);
@@ -1368,6 +1535,11 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
   @SuppressWarnings("unchecked")
   public Query setRecordFactory(final RecordFactory<?> recordFactory) {
     this.recordFactory = (RecordFactory<Record>)recordFactory;
+    return this;
+  }
+
+  public Query setReturnCount(final boolean returnCount) {
+    this.returnCount = returnCount;
     return this;
   }
 
@@ -1421,6 +1593,10 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     return this;
   }
 
+  public <R extends Record> Single<R> singleRecord() {
+    return Single.ofNullable(getRecord());
+  }
+
   public <V extends Record> void sort(final List<V> records) {
     final List<OrderBy> orderBy = getOrderBy();
     if (!orderBy.isEmpty()) {
@@ -1452,9 +1628,13 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
         string.append(this.parameters);
       }
     } catch (final Throwable t) {
-      t.printStackTrace();
+      Logs.error(this, t);
     }
     return string.toString();
+  }
+
+  public Union union() {
+    return this.union;
   }
 
   public Query union(final Query query, final boolean distinct) {
@@ -1463,6 +1643,9 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
   }
 
   public Query unionAll(final Query query) {
+    if (query == this) {
+      throw new IllegalArgumentException("Cannot union query to itself");
+    }
     this.union = new Union(query, false);
     return this;
   }
@@ -1473,8 +1656,7 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
       return null;
     } else {
       updateAction.accept(record);
-      getRecordDefinition().getRecordStore()
-        .updateRecord(record);
+      getRecordStore().updateRecord(record);
       return record;
     }
   }

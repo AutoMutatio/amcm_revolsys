@@ -42,11 +42,11 @@ import com.revolsys.jdbc.field.JdbcFieldDefinition;
 import com.revolsys.jdbc.io.AbstractJdbcRecordStore;
 import com.revolsys.jdbc.io.JdbcRecordDefinition;
 import com.revolsys.jdbc.io.JdbcRecordStoreSchema;
+import com.revolsys.jdbc.io.JdbcRecordWriter;
 import com.revolsys.logging.Logs;
-import com.revolsys.record.io.RecordWriter;
 import com.revolsys.record.query.CollectionValue;
 import com.revolsys.record.query.ColumnReference;
-import com.revolsys.record.query.Query;
+import com.revolsys.record.query.QueryStatement;
 import com.revolsys.record.query.QueryValue;
 import com.revolsys.record.query.SqlAppendable;
 import com.revolsys.record.query.Value;
@@ -62,7 +62,9 @@ import com.revolsys.spring.resource.UrlResource;
 
 public class GeoPackageRecordStore extends AbstractJdbcRecordStore {
 
-  private static final int APPLICATION_ID = ByteBuffer.wrap("GPKG".getBytes()).asIntBuffer().get();
+  private static final int APPLICATION_ID = ByteBuffer.wrap("GPKG".getBytes())
+    .asIntBuffer()
+    .get();
 
   private Path file;
 
@@ -89,10 +91,11 @@ public class GeoPackageRecordStore extends AbstractJdbcRecordStore {
     addSqlQueryAppender(EnvelopeIntersects.class, this::appendEvelopeIntersects);
   }
 
-  private void appendEvelopeIntersects(final Query query, final SqlAppendable sql,
+  private void appendEvelopeIntersects(final QueryStatement statement, final SqlAppendable sql,
     final QueryValue queryValue) {
     final EnvelopeIntersects envelopeIntersects = (EnvelopeIntersects)queryValue;
-    final JdbcRecordDefinition recordDefinition = (JdbcRecordDefinition)query.getRecordDefinition();
+    final JdbcRecordDefinition recordDefinition = (JdbcRecordDefinition)statement
+      .getRecordDefinition();
     final QueryValue boundingBox1Value = envelopeIntersects.getBoundingBox1Value();
     final QueryValue boundingBox2Value = envelopeIntersects.getBoundingBox2Value();
     if (boundingBox1Value instanceof ColumnReference && boundingBox2Value instanceof Value) {
@@ -147,7 +150,8 @@ public class GeoPackageRecordStore extends AbstractJdbcRecordStore {
 
   @Override
   protected RecordDefinition createRecordDefinitionDo(final RecordDefinition oldRecordDefinition) {
-    final String tableName = oldRecordDefinition.getPathName().getName();
+    final String tableName = oldRecordDefinition.getPathName()
+      .getName();
 
     final RecordDefinitionBuilder newRdBuilder = new RecordDefinitionBuilder(tableName)
       .setGeometryFactory(oldRecordDefinition.getGeometryFactory());
@@ -162,7 +166,8 @@ public class GeoPackageRecordStore extends AbstractJdbcRecordStore {
     }
     newRdBuilder.setIdFieldName(idFieldName);
     for (final FieldDefinition field : oldRecordDefinition.getFields()) {
-      if (!field.getName().equals(idFieldName)) {
+      if (!field.getName()
+        .equals(idFieldName)) {
         final FieldDefinition newField = field.clone();
         newRdBuilder.addField(newField);
       }
@@ -258,7 +263,8 @@ public class GeoPackageRecordStore extends AbstractJdbcRecordStore {
   private void executeSql(final String task, final String sql) {
     try (
       JdbcConnection connection = getJdbcConnection()) {
-      if (sql.strip().length() > 0) {
+      if (sql.strip()
+        .length() > 0) {
         try (
           Statement statement = connection.createStatement()) {
           statement.execute(sql);
@@ -272,7 +278,8 @@ public class GeoPackageRecordStore extends AbstractJdbcRecordStore {
   private void executeSqlNoFunctions(final String task, final String sql) {
     try (
       JdbcConnection connection = super.getJdbcConnection()) {
-      if (sql.strip().length() > 0) {
+      if (sql.strip()
+        .length() > 0) {
         try (
           Statement statement = connection.createStatement()) {
           statement.execute(sql);
@@ -449,7 +456,7 @@ public class GeoPackageRecordStore extends AbstractJdbcRecordStore {
   }
 
   @Override
-  public RecordWriter newRecordWriter(final RecordDefinitionProxy recordDefinition) {
+  public JdbcRecordWriter newRecordWriter(final RecordDefinitionProxy recordDefinition) {
     final RecordDefinition rd = getRecordDefinition(recordDefinition);
     return super.newRecordWriter(rd);
   }
@@ -507,8 +514,10 @@ public class GeoPackageRecordStore extends AbstractJdbcRecordStore {
                   length = Integer.parseInt(dataType.substring(5, dataType.length() - 1));
                   dataType = "TEXT";
                 }
-                final boolean required = columnsRs.getString("notnull").equals("1");
-                final boolean primaryKey = columnsRs.getString("pk").equals("1");
+                final boolean required = columnsRs.getString("notnull")
+                  .equals("1");
+                final boolean primaryKey = columnsRs.getString("pk")
+                  .equals("1");
                 if (primaryKey) {
                   idFieldNames.add(fieldName);
                 }

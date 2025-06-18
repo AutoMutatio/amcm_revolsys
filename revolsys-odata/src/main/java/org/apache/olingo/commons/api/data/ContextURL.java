@@ -294,14 +294,6 @@ public final class ContextURL {
   }
 
   /**
-   * Get the service root.
-   * @return the service root
-   */
-  public URI getServiceRoot() {
-    return this.serviceRoot;
-  }
-
-  /**
    * Get the set suffix.
    * @return the set suffix
    */

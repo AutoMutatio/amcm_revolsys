@@ -29,13 +29,13 @@ public class Between extends AbstractUnaryQueryValue implements Condition {
   }
 
   @Override
-  public void appendDefaultSql(final Query query, final RecordStore recordStore,
+  public void appendDefaultSql(final QueryStatement statement, final RecordStore recordStore,
     final SqlAppendable buffer) {
-    super.appendDefaultSql(query, recordStore, buffer);
+    super.appendDefaultSql(statement, recordStore, buffer);
     buffer.append(" BETWEEN ");
-    this.min.appendSql(query, recordStore, buffer);
+    this.min.appendSql(statement, recordStore, buffer);
     buffer.append(" AND ");
-    this.max.appendSql(query, recordStore, buffer);
+    this.max.appendSql(statement, recordStore, buffer);
   }
 
   @Override

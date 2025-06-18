@@ -16,6 +16,7 @@ import com.revolsys.data.identifier.TypedIdentifier;
 import com.revolsys.data.type.DataType;
 import com.revolsys.data.type.DataTypes;
 import com.revolsys.date.Dates;
+import com.revolsys.exception.Exceptions;
 import com.revolsys.jdbc.field.JdbcFieldDefinition;
 import com.revolsys.jdbc.field.JdbcFieldDefinitions;
 import com.revolsys.record.code.CodeTable;
@@ -55,6 +56,22 @@ public class Value implements QueryValue {
 
   public static Value newValue(final Object value) {
     return newValue(JdbcFieldDefinitions.newFieldDefinition(value), value);
+  }
+
+  public static Value newValue(final QueryValue fieldValue, final Object value) {
+    ColumnReference columnRef;
+    if (fieldValue instanceof final ColumnReference col) {
+      columnRef = col;
+    } else {
+      columnRef = JdbcFieldDefinitions.newFieldDefinition(value);
+    }
+    return newValue(columnRef, value);
+  }
+
+  public static Value newValue(final RecordDefinitionProxy table, final String fieldName,
+    final Object value) {
+    final var field = table.getColumn(fieldName);
+    return newValue(field, value);
   }
 
   public static String toString(final Object displayValue) {
@@ -150,7 +167,7 @@ public class Value implements QueryValue {
   }
 
   @Override
-  public void appendDefaultSql(final Query query, final RecordStore recordStore,
+  public void appendDefaultSql(final QueryStatement statement, final RecordStore recordStore,
     final SqlAppendable sql) {
     if (sql.isUsePlaceholders()) {
       if (this.jdbcField == null) {
@@ -180,7 +197,8 @@ public class Value implements QueryValue {
         return this.jdbcField.setPreparedStatementValue(statement, index, null);
       }
     } catch (final SQLException e) {
-      throw new RuntimeException("Unable to set value: " + this.queryValue, e);
+      throw Exceptions.wrap("Unable to set value", e)
+        .property("value", this.queryValue);
     }
   }
 

@@ -9,22 +9,38 @@ public class OrderBy implements Cloneable {
 
   private String collate;
 
+  private Boolean nullsFirst;
+
   public OrderBy(final QueryValue field, final boolean ascending) {
     this.field = field;
     this.ascending = ascending;
   }
 
-  public void appendSql(final Query query, final TableReferenceProxy table,
+  public void appendSql(final QueryStatement statement, final TableReferenceProxy table,
     final SqlAppendable sql) {
-    table.getTableReference().appendSelect(query, sql, this.field);
+    table.getTableReference()
+      .appendSelect(statement, sql, this.field);
     if (!this.ascending) {
       sql.append(" desc");
+    }
+    if (this.nullsFirst != null) {
+      sql.append(" nulls ");
+      if (this.nullsFirst) {
+        sql.append("first");
+      } else {
+        sql.append("last");
+      }
     }
 
     if (this.collate != null) {
       sql.append(" collate ");
       sql.append(this.collate);
     }
+  }
+
+  public OrderBy ascending(final boolean ascending) {
+    this.ascending = ascending;
+    return this;
   }
 
   @Override
@@ -36,6 +52,11 @@ public class OrderBy implements Cloneable {
     }
   }
 
+  public OrderBy collate(final String collate) {
+    this.collate = collate;
+    return this;
+  }
+
   public QueryValue getField() {
     return this.field;
   }
@@ -45,22 +66,17 @@ public class OrderBy implements Cloneable {
   }
 
   public boolean isField(final String fieldName) {
-    if (this.field instanceof ColumnReference) {
-      final ColumnReference column = (ColumnReference)this.field;
-      if (column.getName().equalsIgnoreCase(fieldName)) {
+    if (this.field instanceof final ColumnReference column) {
+      if (column.getName()
+        .equalsIgnoreCase(fieldName)) {
         return true;
       }
     }
     return false;
   }
 
-  public OrderBy setAscending(final boolean ascending) {
-    this.ascending = ascending;
-    return this;
-  }
-
-  public OrderBy setCollate(final String collate) {
-    this.collate = collate;
+  public OrderBy nullsFirst(final boolean nullsFirst) {
+    this.nullsFirst = nullsFirst;
     return this;
   }
 

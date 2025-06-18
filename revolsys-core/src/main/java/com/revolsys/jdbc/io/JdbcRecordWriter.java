@@ -13,6 +13,7 @@ import jakarta.annotation.PreDestroy;
 
 import org.springframework.dao.DataAccessException;
 
+import com.revolsys.data.identifier.Identifier;
 import com.revolsys.exception.Exceptions;
 import com.revolsys.io.AbstractRecordWriter;
 import com.revolsys.io.PathName;
@@ -55,7 +56,7 @@ public class JdbcRecordWriter extends AbstractRecordWriter {
 
   private CategoryLabelCountMap statistics;
 
-  private boolean throwExceptions = false;
+  private boolean throwExceptions = true;
 
   private Map<JdbcRecordDefinition, JdbcRecordWriterTypeData> typeDeleteData = new HashMap<>();
 
@@ -166,6 +167,33 @@ public class JdbcRecordWriter extends AbstractRecordWriter {
 
   public synchronized void commit() {
     flush();
+  }
+
+  public void deleteRecord(final Identifier id) {
+    final JdbcRecordDefinition recordDefinition = (JdbcRecordDefinition)getRecordDefinition();
+    deleteRecord(recordDefinition, id);
+  }
+
+  public void deleteRecord(final JdbcRecordDefinition recordDefinition, final Identifier id) {
+    try {
+      flushIfRequired(recordDefinition);
+      JdbcRecordWriterTypeData data = this.typeDeleteData.get(recordDefinition);
+      if (data == null) {
+        final String sql = getDeleteSql(recordDefinition);
+        try {
+          final PreparedStatement statement = this.connection.prepareStatement(sql);
+          data = new JdbcRecordWriterTypeData(this, recordDefinition, sql, statement, false);
+          this.typeDeleteData.put(recordDefinition, data);
+        } catch (final SQLException e) {
+          this.connection.getException("Prepare Delete SQL", sql, e);
+        }
+      }
+      final PreparedStatement statement = data.getStatement();
+      setIdEqualsValues(statement, 1, recordDefinition, id);
+      data.executeUpdate();
+    } catch (final SQLException e) {
+      throw Exceptions.toRuntimeException(e);
+    }
   }
 
   private void deleteRecord(final JdbcRecordDefinition recordDefinition, final Record record)
@@ -401,6 +429,17 @@ public class JdbcRecordWriter extends AbstractRecordWriter {
 
   public void setFlushBetweenTypes(final boolean flushBetweenTypes) {
     this.flushBetweenTypes = flushBetweenTypes;
+  }
+
+  private int setIdEqualsValues(final PreparedStatement statement, int parameterIndex,
+    final JdbcRecordDefinition recordDefinition, final Identifier id) throws SQLException {
+    int i = 0;
+    for (final FieldDefinition idField : recordDefinition.getIdFields()) {
+      final Object value = id.getValue(i++);
+      parameterIndex = ((JdbcFieldDefinition)idField).setPreparedStatementValue(statement,
+        parameterIndex++, value);
+    }
+    return parameterIndex;
   }
 
   private int setIdEqualsValues(final PreparedStatement statement, int parameterIndex,

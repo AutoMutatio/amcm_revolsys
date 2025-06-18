@@ -141,7 +141,7 @@ public class XhtmlRecordWriter extends AbstractRecordWriter {
   private void writeHeader() {
     setIndent(isIndent());
     if (this.wrap) {
-      this.out.startDocument("UTF-8", "1.0");
+      this.out.startDocument("UTF-8", "1.1");
       this.out.startTag(HtmlElem.HTML);
 
       this.out.startTag(HtmlElem.HEAD);

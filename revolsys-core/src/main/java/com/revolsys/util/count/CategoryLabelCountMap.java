@@ -14,6 +14,7 @@ import java.util.TreeSet;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.data.type.DataTypes;
 import com.revolsys.io.PathNameProxy;
 import com.revolsys.record.io.RecordWriter;
@@ -65,7 +66,7 @@ public class CategoryLabelCountMap implements Emptyable {
   }
 
   public void addCount(final CharSequence category, final PathNameProxy pathNameProxy,
-    final long count) {
+      final long count) {
     final LabelCounters labelCountMap = getLabelCountMap(category);
     labelCountMap.addCount(pathNameProxy, count);
   }
@@ -168,7 +169,7 @@ public class CategoryLabelCountMap implements Emptyable {
   }
 
   public synchronized void setLabelCounters(final CharSequence category,
-    final LabelCounters labelCountMap) {
+      final LabelCounters labelCountMap) {
     if (category != null) {
       final String categoryName = Strings.toString(" ", this.prefix, category);
       labelCountMap.setLogCounts(this.logCounts);
@@ -192,6 +193,22 @@ public class CategoryLabelCountMap implements Emptyable {
     this.prefix = prefix;
   }
 
+  public JsonObject toJson() {
+    if (isEmpty()) {
+      return JsonObject.EMPTY;
+    } else {
+      final JsonObject json = JsonObject.tree();
+      for (final var label : getCategories()) {
+        final var counts = getLabelCountMap(label);
+        if (counts != null) {
+          json.add(label, counts.toJson());
+        }
+      }
+      json.removeEmptyProperties();
+      return json;
+    }
+  }
+
   public String toTsv() {
     return toTsv("CATEGORY", "NAME", "COUNT");
   }
@@ -204,7 +221,7 @@ public class CategoryLabelCountMap implements Emptyable {
 
   public void toTsv(final Writer out, final String... titles) {
     try (
-      TsvWriter tsv = Tsv.plainWriter(out)) {
+        TsvWriter tsv = Tsv.plainWriter(out)) {
       tsv.write(Arrays.asList(titles));
       long total = 0;
       for (final Entry<String, LabelCounters> entry : this.labelCountMapByCategory.entrySet()) {
@@ -225,7 +242,7 @@ public class CategoryLabelCountMap implements Emptyable {
   }
 
   public void writeCounts(final Object target, final String labelTitle,
-    final Iterable<String> categoryNames) {
+      final Iterable<String> categoryNames) {
     final RecordDefinitionBuilder recordDefinitionBuilder = new RecordDefinitionBuilder("Counts");
     recordDefinitionBuilder.addField(labelTitle, DataTypes.STRING, 50);
     final Set<String> allLabels = new TreeSet<>();
@@ -241,7 +258,7 @@ public class CategoryLabelCountMap implements Emptyable {
     }
     final RecordDefinition recordDefinition = recordDefinitionBuilder.getRecordDefinition();
     try (
-      RecordWriter recordWriter = RecordWriter.newRecordWriter(recordDefinition, target)) {
+        RecordWriter recordWriter = RecordWriter.newRecordWriter(recordDefinition, target)) {
       final List<Object> row = new ArrayList<>(matchedCategoryNames.size() + 1);
       for (final String label : allLabels) {
         row.clear();

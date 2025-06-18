@@ -11,6 +11,7 @@ import org.apache.olingo.commons.api.edm.EdmNavigationProperty;
 import org.apache.olingo.commons.api.http.HttpStatusCode;
 import org.apache.olingo.commons.core.edm.EdmBindingTarget;
 import org.apache.olingo.server.api.ODataApplicationException;
+import org.apache.olingo.server.api.ODataRequest;
 import org.apache.olingo.server.api.ServiceMetadata;
 import org.apache.olingo.server.api.processor.Processor;
 
@@ -19,18 +20,12 @@ import com.revolsys.odata.model.ODataEntityType;
 
 public abstract class AbstractProcessor implements Processor {
 
-  protected final String serviceRoot;
-
-  protected final URI serviceRootUri;
-
   protected ServiceMetadata serviceMetadata;
 
   protected final ODataEdmProvider provider;
 
   public AbstractProcessor(final ODataEdmProvider provider) {
     this.provider = provider;
-    this.serviceRoot = provider.getServiceRoot();
-    this.serviceRootUri = URI.create(this.serviceRoot);
   }
 
   public ODataEntityType getEntityType(final EdmEntitySet edmEntitySet)
@@ -72,10 +67,10 @@ public abstract class AbstractProcessor implements Processor {
     this.serviceMetadata = serviceMetadata;
   }
 
-  protected Builder newContextUrl() {
+  protected Builder newContextUrl(final ODataRequest request) {
     return ContextURL//
       .with()
-      .serviceRoot(this.serviceRootUri);
+      .serviceRoot(request.<URI> getAttribute("serviceRootUri"));
   }
 
 }

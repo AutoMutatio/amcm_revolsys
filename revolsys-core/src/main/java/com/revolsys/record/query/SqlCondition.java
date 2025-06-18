@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.function.BiFunction;
 
 import com.revolsys.data.type.DataType;
+import com.revolsys.exception.ExceptionWithProperties;
 import com.revolsys.jdbc.field.JdbcFieldDefinition;
 import com.revolsys.jdbc.field.JdbcFieldDefinitions;
 import com.revolsys.record.schema.FieldDefinition;
@@ -72,7 +73,7 @@ public class SqlCondition implements Condition {
   }
 
   @Override
-  public void appendDefaultSql(final Query query, final RecordStore recordStore,
+  public void appendDefaultSql(final QueryStatement statement, final RecordStore recordStore,
     final SqlAppendable buffer) {
     buffer.append(this.sql);
   }
@@ -96,7 +97,7 @@ public class SqlCondition implements Condition {
       try {
         index = jdbcAttribute.setPreparedStatementValue(statement, index, value);
       } catch (final SQLException e) {
-        throw new RuntimeException("Unable to set value: " + value, e);
+        throw new ExceptionWithProperties("Unable to set value", e).property("value", value);
       }
     }
     return index;

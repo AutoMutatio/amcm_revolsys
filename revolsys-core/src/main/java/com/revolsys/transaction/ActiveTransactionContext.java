@@ -181,6 +181,19 @@ public class ActiveTransactionContext implements TransactionContext {
     }
   }
 
+  @Override
+  public void setRollbackOnly() {
+    this.rollbackOnly = true;
+  }
+
+  @Override
+  public <V> V setRollbackOnly(final Throwable e) {
+    for (final var resource : this.resources.values()) {
+      resource.setHasError();
+    }
+    return TransactionContext.super.setRollbackOnly(e);
+  }
+
   BaseCloseable suspend() {
     for (final var r : this.resources.values()) {
       try {
@@ -189,15 +202,19 @@ public class ActiveTransactionContext implements TransactionContext {
         addException(e);
       }
     }
-    return () -> {
-      for (final var r : this.resources.values()) {
-        try {
-          r.resume();
-        } catch (final Throwable e) {
-          addException(e);
-        }
+    return () -> 
+      resume()
+    ;
+  }
+
+  private void resume() {
+    for (final var r : this.resources.values()) {
+      try {
+        r.resume();
+      } catch (final Throwable e) {
+        addException(e);
       }
-    };
+    }
   }
 
 }

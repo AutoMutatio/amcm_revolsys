@@ -2,11 +2,13 @@ package com.revolsys.record.query;
 
 import java.util.List;
 
+import com.revolsys.collection.json.Json;
 import com.revolsys.collection.list.ListEx;
 import com.revolsys.io.PathName;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordDefinitionProxy;
+import com.revolsys.record.schema.RecordStore;
 
 public interface TableReference extends From, TableReferenceProxy {
   static TableReference getTableReference(final RecordDefinitionProxy recordDefinition) {
@@ -18,32 +20,69 @@ public interface TableReference extends From, TableReferenceProxy {
   }
 
   @Override
-  default void appendFrom(final SqlAppendable sql) {
+  default void appendFrom(final QueryStatement statement, final RecordStore recordStore,
+    final SqlAppendable sql) {
     final String tableName = getQualifiedTableName();
     sql.append(tableName);
   }
 
   @Override
-  default void appendFromWithAlias(final SqlAppendable sql) {
+  default void appendFromWithAlias(final QueryStatement statement, final RecordStore recordStore,
+    final SqlAppendable sql) {
     final String tableAlias = getTableAlias();
-    appendFromWithAlias(sql, tableAlias);
+    appendFromWithAlias(statement, recordStore, sql, tableAlias);
   }
 
-  default void appendFromWithAlias(final SqlAppendable sql, final String tableAlias) {
-    appendFrom(sql);
+  default void appendFromWithAlias(final QueryStatement statement, final RecordStore recordStore,
+    final SqlAppendable sql, final String tableAlias) {
+    appendFrom(statement, recordStore, sql);
     if (tableAlias != null) {
-      sql.append(" ");
-      sql.append('"');
+      sql.append(" \"");
       sql.append(tableAlias);
       sql.append('"');
     }
   }
 
-  void appendQueryValue(final Query query, final SqlAppendable sql, final QueryValue queryValue);
+  @Override
+  default void appendFromWithAsAlias(final QueryStatement statement, final RecordStore recordStore,
+    final SqlAppendable sql) {
+    final String tableAlias = getTableAlias();
+    appendFrom(statement, recordStore, sql);
+    if (tableAlias != null) {
+      sql.append(" AS \"");
+      sql.append(tableAlias);
+      sql.append('"');
+    }
+  }
 
-  void appendSelect(final Query query, final SqlAppendable string, final QueryValue queryValue);
+  void appendQueryValue(final QueryStatement statement, final SqlAppendable sql,
+    final QueryValue queryValue);
 
-  void appendSelectAll(Query query, final SqlAppendable string);
+  void appendSelect(final QueryStatement statement, final SqlAppendable string,
+    final QueryValue queryValue);
+
+  void appendSelectAll(QueryStatement statement, final SqlAppendable string);
+
+  default QueryValue columnByPath(final String path) {
+    final var parts = path.split("\\.");
+    final var fieldName = parts[0];
+    final var column = getField(fieldName);
+    if (column == null) {
+      return new Column(fieldName);
+    }
+    QueryValue result = column;
+    if (parts.length - 0 > 1) {
+      if (column.getDataType() == Json.JSON_OBJECT || column.getDataType() == Json.JSON_TYPE) {
+        for (int i = 0 + 1; i < parts.length; i++) {
+          final var part = parts[i];
+          result = Q.jsonRawValue(result, part);
+        }
+      } else {
+        throw new IllegalStateException("Field path can only be specified for json fields");
+      }
+    }
+    return result;
+  }
 
   default QueryValue count(final String fieldName) {
     final ColumnReference field = getColumn(fieldName);
@@ -55,10 +94,8 @@ public interface TableReference extends From, TableReferenceProxy {
     QueryValue right;
     if (value == null) {
       return new IsNull(field);
-    } else if (value instanceof ColumnReference) {
-      right = (ColumnReference)value;
-    } else if (value instanceof QueryValue) {
-      right = (QueryValue)value;
+    } else if (value instanceof final QueryValue queryValue) {
+      right = queryValue;
     } else {
       right = new Value(field, value);
     }

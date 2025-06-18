@@ -47,8 +47,6 @@ public abstract class ODataEdmProvider extends CsdlEdmProvider {
 
   private ODataHttpHandler handler;
 
-  private String serviceRoot;
-
   private final Map<PathName, CsdlTerm> termByName = new HashMap<>();
 
   private final Map<PathName, List<CsdlFunction>> functionByName = new LinkedHashMap<>();
@@ -203,10 +201,6 @@ public abstract class ODataEdmProvider extends CsdlEdmProvider {
     return this.schemas;
   }
 
-  public String getServiceRoot() {
-    return this.serviceRoot;
-  }
-
   @Override
   public CsdlTerm getTerm(final PathName termName) {
     return this.termByName.get(termName);
@@ -232,10 +226,6 @@ public abstract class ODataEdmProvider extends CsdlEdmProvider {
 
   protected void setRecordStore(final RecordStore recordStore) {
     this.recordStore = recordStore;
-  }
-
-  public void setServiceRoot(final String serviceRoot) {
-    this.serviceRoot = serviceRoot;
   }
 
 }
