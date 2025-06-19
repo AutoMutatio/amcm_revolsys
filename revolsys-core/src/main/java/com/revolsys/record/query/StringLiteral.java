@@ -50,6 +50,10 @@ public class StringLiteral implements QueryValue {
     }
   }
 
+  public String getString() {
+    return this.string;
+  }
+
   @SuppressWarnings("unchecked")
   @Override
   public <V> V getValue(final MapEx record) {
