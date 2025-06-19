@@ -17,6 +17,8 @@ import org.apache.http.client.methods.RequestBuilder;
 import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.json.JsonParser;
 import com.revolsys.http.HttpRequestBuilder;
+import com.revolsys.http.HttpRequestBuilderFactory;
+import com.revolsys.http.SecretStore;
 import com.revolsys.io.map.ObjectFactoryConfig;
 import com.revolsys.net.http.ApacheHttpException;
 import com.revolsys.net.http.exception.AuthenticationException;
@@ -26,6 +28,7 @@ import com.revolsys.spring.resource.Resource;
 import com.revolsys.util.Strings;
 
 public class OpenIdConnectClient extends BaseObjectWithProperties implements BearerTokenFactory {
+  public static final String TYPE_CLIENT_ID = "oidcClientId";
 
   public static OpenIdConnectClient google() {
     return newClient("https://accounts.google.com/.well-known/openid-configuration");
@@ -57,6 +60,14 @@ public class OpenIdConnectClient extends BaseObjectWithProperties implements Bea
       if (client == null) {
         client = factoryConfig.getValue(defaultPrefix + "OidcClient");
       }
+      if (client == null) {
+        final String tenantId = config.getString("tenantId");
+        if (tenantId != null) {
+          client = OpenIdConnectClient.microsoft(tenantId);
+        } else {
+          client = OpenIdConnectClient.microsoftCommon();
+        }
+      }
     } else {
       client = newClient(url);
     }
@@ -84,6 +95,15 @@ public class OpenIdConnectClient extends BaseObjectWithProperties implements Bea
       client.setUrl(url);
       return client;
     }
+  }
+
+  public static HttpRequestBuilderFactory newHttpRequestBuilder(
+    final ObjectFactoryConfig factoryConfig, final JsonObject config) {
+    final var scope = OpenIdScope.forString(config.getString("scope"));
+    final var secretId = factoryConfig.getString("secretId");
+    final JsonObject authConfig = SecretStore.getSecretJsonObject(factoryConfig, secretId);
+    return OpenIdConnectClient.newClient(factoryConfig, authConfig, null)
+      .newHttpRequestBuilderFactory(scope);
   }
 
   private final String issuer;

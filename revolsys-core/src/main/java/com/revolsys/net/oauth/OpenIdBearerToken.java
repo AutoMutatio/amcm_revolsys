@@ -58,7 +58,11 @@ public class OpenIdBearerToken extends BearerToken {
 
   @Override
   protected JsonWebToken initJwt() {
-    return new JsonWebToken(this.idToken);
+    if (this.idToken == null) {
+      return super.initJwt();
+    } else {
+      return new JsonWebToken(this.idToken);
+    }
   }
 
   public OpenIdBearerToken refreshToken() {

@@ -59,7 +59,11 @@ public class BearerToken {
   }
 
   protected JsonWebToken initJwt() {
-    return new JsonWebToken(this.accessToken);
+    if (this.accessToken == null) {
+      return null;
+    } else {
+      return new JsonWebToken(this.accessToken);
+    }
   }
 
   public boolean isExpired() {

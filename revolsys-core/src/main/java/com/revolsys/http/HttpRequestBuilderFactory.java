@@ -9,6 +9,7 @@ import org.apache.http.impl.client.HttpClientBuilder;
 
 import com.revolsys.collection.json.JsonObject;
 import com.revolsys.io.map.ObjectFactoryConfig;
+import com.revolsys.net.oauth.OpenIdConnectClient;
 import com.revolsys.util.LazyMap;
 import com.revolsys.util.UriBuilder;
 
@@ -87,6 +88,7 @@ public class HttpRequestBuilderFactory {
     final Map<String, BiFunction<ObjectFactoryConfig, JsonObject, HttpRequestBuilderFactory>> factories) {
     factories.put(OpenIdRefreshTokenRequestBuilderFactory.TYPE,
       OpenIdRefreshTokenRequestBuilderFactory::newFactory);
+    factories.put(OpenIdConnectClient.TYPE_CLIENT_ID, OpenIdConnectClient::newHttpRequestBuilder);
   }
 
   public static HttpRequestBuilderFactory newFactory(final ObjectFactoryConfig factoryConfig,
