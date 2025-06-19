@@ -371,19 +371,13 @@ public class Q {
   }
 
   public static JsonValue jsonValue(final QueryValue left, final String right) {
-    return jsonValue(left, Value.newValue(right));
+    return jsonValue(left, Q.literal(right));
   }
 
   public static JsonValue jsonValue(final TableReferenceProxy table, final String fieldName,
     final String name) {
     final var column = table.getColumn(fieldName);
     return jsonValue(column, name);
-  }
-
-  public static Condition jsonValueEqual(final QueryValue left, final String key,
-    final Object value) {
-    final var jsonValue = jsonValue(left, key);
-    return equal(jsonValue, value);
   }
 
   public static LessThan lessThan(final FieldDefinition fieldDefinition, final Object value) {
