@@ -68,7 +68,7 @@ public interface TableReference extends From, TableReferenceProxy {
     final var fieldName = parts[0];
     final var column = getField(fieldName);
     if (column == null) {
-      return new Column(fieldName);
+      return new UnknownColumn(fieldName);
     }
     QueryValue result = column;
     if (parts.length - 0 > 1) {

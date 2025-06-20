@@ -145,6 +145,10 @@ public class Join implements QueryValue, TableReferenceProxy {
     return null;
   }
 
+  public JoinType joinType() {
+    return this.joinType;
+  }
+
   public Join on(final QueryValue left, final QueryValue right) {
     final Equal condition = new Equal(left, right);
     return and(condition);

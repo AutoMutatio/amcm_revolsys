@@ -280,7 +280,18 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
 
   public Query addJoin(final Join join) {
     this.joins.add(join);
+    this.joins.sort((a, b) -> {
+      if (a == b) {
+        return 0;
+      } else if (a.joinType() == JoinType.COMMA) {
+        if (b.joinType() != JoinType.COMMA) {
+          return 1;
+        }
+      }
+      return -1;
+    });
     return this;
+
   }
 
   public Query addOrderBy(final CharSequence field) {
@@ -706,7 +717,7 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     clone.table = this.table;
     clone.selectExpressions = QueryValue.cloneQueryValues(oldTable, newTable,
       clone.selectExpressions);
-    clone.joins = QueryValue.cloneQueryValues(oldTable, newTable, this.joins);
+    clone.joins = QueryValue.cloneQueryValues(oldTable, newTable, getJoins());
     clone.parameters = new ArrayList<>(this.parameters);
     clone.orderBy = new ArrayList<>(this.orderBy);
     if (this.whereCondition != null) {
@@ -812,7 +823,7 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
   public Join getJoin(final TableReferenceProxy tableProxy, final String alias) {
     if (tableProxy != null) {
       final var table = tableProxy.getTableReference();
-      for (final var join : this.joins) {
+      for (final var join : getJoins()) {
         if (join.getTable() == table) {
           if (DataType.equal(alias, join.getTableAlias())) {
             return join;
@@ -1028,7 +1039,7 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
   public boolean hasJoin(final TableReferenceProxy tableProxy, final String alias) {
     if (tableProxy != null) {
       final var table = tableProxy.getTableReference();
-      for (final var join : this.joins) {
+      for (final var join : getJoins()) {
         if (join.getTable() == table) {
           if (DataType.equal(alias, join.getTableAlias())) {
             return true;
@@ -1124,7 +1135,7 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
 
   public Join join(final JoinType joinType) {
     final Join join = new Join(joinType);
-    this.joins.add(join);
+    addJoin(join);
     return join;
   }
 
