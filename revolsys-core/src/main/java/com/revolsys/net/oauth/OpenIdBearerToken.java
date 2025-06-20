@@ -1,8 +1,9 @@
 package com.revolsys.net.oauth;
 
 import com.revolsys.collection.json.JsonObject;
+import com.revolsys.http.OpenIdRefreshTokenRequestBuilderFactory;
 
-public class OpenIdBearerToken extends BearerToken {
+public class OpenIdBearerToken extends AbstractRefereshableBearerToken {
 
   private final String refreshToken;
 
@@ -65,6 +66,12 @@ public class OpenIdBearerToken extends BearerToken {
     }
   }
 
+  @Override
+  public OpenIdRefreshTokenRequestBuilderFactory newHttpRequestBuilderFactory() {
+    return OpenIdRefreshTokenRequestBuilderFactory.newFactory(this);
+  }
+
+  @Override
   public OpenIdBearerToken refreshToken() {
     if (this.refreshToken == null || this.client == null) {
       return null;

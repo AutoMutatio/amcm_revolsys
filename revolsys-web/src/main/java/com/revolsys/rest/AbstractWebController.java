@@ -32,6 +32,15 @@ public class AbstractWebController {
 
   private static final String UTF_8 = StandardCharsets.UTF_8.toString();
 
+  public static JsonObject readJsonBody(final HttpServletRequest request) throws IOException {
+    final JsonObject json;
+    try (
+      Reader reader = request.getReader()) {
+      json = JsonParser.read(reader);
+    }
+    return json;
+  }
+
   public static void responseJson(final HttpServletResponse response, final int statusCode,
     final JsonObject jsonObject) throws IOException {
     setContentTypeJson(response);
@@ -91,15 +100,6 @@ public class AbstractWebController {
     final String contentType) {
     response.setCharacterEncoding(UTF_8);
     response.setContentType(contentType);
-  }
-
-  public JsonObject readJsonBody(final HttpServletRequest request) throws IOException {
-    final JsonObject json;
-    try (
-      Reader reader = request.getReader()) {
-      json = JsonParser.read(reader);
-    }
-    return json;
   }
 
   protected void responseRecords(final HttpServletResponse response, final RecordReader reader,

@@ -1,7 +1,7 @@
 package com.revolsys.net.oauth;
 
 import com.revolsys.collection.value.ValueHolder;
-import com.revolsys.http.HttpRequestBuilderFactory;
+import com.revolsys.http.BearerTokenRequestBuilderFactory;
 
 public interface BearerTokenFactory {
   default ValueHolder<BearerToken> lazyValue(final OpenIdScope scope) {
@@ -11,7 +11,7 @@ public interface BearerTokenFactory {
       .build();
   }
 
-  default HttpRequestBuilderFactory newHttpRequestBuilderFactory(final OpenIdScope scope) {
+  default BearerTokenRequestBuilderFactory newHttpRequestBuilderFactory(final OpenIdScope scope) {
     return newTokenRefresh(scope).newHttpRequestBuilderFactory();
   }
 

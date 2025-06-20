@@ -65,6 +65,10 @@ public class OpenIdRefreshTokenRequestBuilderFactory extends BearerTokenRequestB
     this.tokenChanged = tokenChanged;
   }
 
+  public String claim(final String key) {
+    return getBearerToken().getStringClaim(key);
+  }
+
   @Override
   protected BearerToken refreshTokenDo(final BearerToken token) {
     final OpenIdBearerToken newToken = this.client.tokenRefresh(this.refreshToken, this.scope);
@@ -73,5 +77,9 @@ public class OpenIdRefreshTokenRequestBuilderFactory extends BearerTokenRequestB
       this.tokenChanged.accept(this.refreshToken);
     }
     return newToken;
+  }
+
+  public String tenantId() {
+    return getBearerToken().getStringClaim("tid");
   }
 }
