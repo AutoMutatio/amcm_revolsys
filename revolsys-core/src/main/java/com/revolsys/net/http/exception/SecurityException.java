@@ -1,6 +1,8 @@
 package com.revolsys.net.http.exception;
 
-public class SecurityException extends RuntimeException {
+import com.revolsys.exception.ExceptionWithProperties;
+
+public class SecurityException extends ExceptionWithProperties {
 
   private static final long serialVersionUID = 1L;
 
