@@ -288,7 +288,7 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
           return 1;
         }
       }
-      return -1;
+      return 1;
     });
     return this;
 
