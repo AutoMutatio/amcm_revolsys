@@ -1,6 +1,10 @@
 package com.revolsys.record.query;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 import com.revolsys.collection.map.MapEx;
+import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordStore;
 
 public class Parenthesis extends AbstractUnaryQueryValue implements Condition {
@@ -33,6 +37,14 @@ public class Parenthesis extends AbstractUnaryQueryValue implements Condition {
       return super.equals(obj);
     }
     return false;
+  }
+
+  @Override
+  public Object getValueFromResultSet(final RecordDefinition recordDefinition,
+    final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings)
+    throws SQLException {
+    return getQueryValues().get(0)
+      .getValueFromResultSet(recordDefinition, resultSet, indexes, internStrings);
   }
 
   @Override

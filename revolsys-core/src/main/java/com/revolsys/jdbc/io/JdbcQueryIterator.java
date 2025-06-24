@@ -166,7 +166,7 @@ public class JdbcQueryIterator extends AbstractIterator<Record>
         this.recordDefinition = this.recordStore.getRecordDefinition(query, resultSetMetaData);
       }
       this.selectExpressions = query.getSelectExpressions();
-      if (this.selectExpressions.isEmpty()) {
+      if (this.selectExpressions.isEmpty() || query.isSelectStar()) {
         this.selectExpressions = (List)this.recordDefinition.getFieldDefinitions();
       }
 

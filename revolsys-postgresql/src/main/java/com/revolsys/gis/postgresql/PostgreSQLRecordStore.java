@@ -161,9 +161,6 @@ public class PostgreSQLRecordStore extends AbstractJdbcRecordStore {
       sql.append("'");
     }
     sql.append(")");
-    if (jsonValue.isText()) {
-      sql.append("::text");
-    }
   }
 
   @Override

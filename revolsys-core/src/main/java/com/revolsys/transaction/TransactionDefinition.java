@@ -1,6 +1,6 @@
 package com.revolsys.transaction;
 
-class TransactionDefinition<V extends TransactionDefinition<V>> {
+public class TransactionDefinition<V extends TransactionDefinition<V>> {
   static final int TIMEOUT_DEFAULT = -1;
 
   private Isolation isolation = Isolation.DEFAULT;

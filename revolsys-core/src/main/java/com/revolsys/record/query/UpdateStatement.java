@@ -26,8 +26,10 @@ public class UpdateStatement extends AbstractReturningQueryStatement<UpdateState
   public int appendParameters(int index, final PreparedStatement statement) {
     index = SqlAppendParameters.appendParameters(statement, index, this.withClauses);
     index = SqlAppendParameters.appendParameters(statement, index, this.setClauses);
-    for (final var set : this.fromClauses) {
-      index = set.appendFromParameters(index, statement);
+    for (final var fromClause : this.fromClauses) {
+      if (!(fromClause instanceof With)) {
+        index = fromClause.appendFromParameters(index, statement);
+      }
     }
     final Condition where = getWhere();
     if (!where.isEmpty()) {
@@ -52,7 +54,7 @@ public class UpdateStatement extends AbstractReturningQueryStatement<UpdateState
       sql.append(' ');
     }
     sql.append("UPDATE ");
-    getTable().appendFromWithAlias(sql);
+    appendFromWithAlias(sql, getTable());
 
     if (this.setClauses.isEmpty()) {
       throw new IllegalStateException("Update statement must set at least one value");
@@ -67,7 +69,7 @@ public class UpdateStatement extends AbstractReturningQueryStatement<UpdateState
         } else {
           sql.append(", ");
         }
-        from.appendFrom(sql);
+        appendFrom(sql, from);
       }
       sql.append(' ');
     }

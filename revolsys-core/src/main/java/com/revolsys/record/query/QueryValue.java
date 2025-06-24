@@ -116,7 +116,11 @@ public interface QueryValue extends Cloneable, SqlAppendParameters {
 
   default void appendDefaultSelect(final QueryStatement statement, final RecordStore recordStore,
     final SqlAppendable sql) {
-    recordStore.appendQueryValue(statement, sql, this);
+    if (recordStore == null) {
+      appendDefaultSql(statement, null, sql);
+    } else {
+      recordStore.appendQueryValue(statement, sql, this);
+    }
   }
 
   void appendDefaultSql(QueryStatement statement, RecordStore recordStore, SqlAppendable sql);
@@ -144,6 +148,10 @@ public interface QueryValue extends Cloneable, SqlAppendParameters {
     appendSql(statement, recordStore, sql);
   }
 
+  default Cast cast(final String typeName) {
+    return new Cast(this, typeName);
+  }
+
   default void changeRecordDefinition(final RecordDefinition oldRecordDefinition,
     final RecordDefinition newRecordDefinition) {
     if (newRecordDefinition != null) {
@@ -156,6 +164,10 @@ public interface QueryValue extends Cloneable, SqlAppendParameters {
   }
 
   QueryValue clone(TableReference oldTable, TableReference newTable);
+
+  default ColumnReference getColumn() {
+    return null;
+  }
 
   default int getFieldIndex() {
     return -1;
@@ -186,8 +198,16 @@ public interface QueryValue extends Cloneable, SqlAppendParameters {
   default void setColumn(final ColumnReference column) {
   }
 
-  default Alias toAlias(final String alias) {
-    return new Alias(this, alias);
+  default QueryValue toAlias(final String alias) {
+    if (Property.hasValue(alias)) {
+      return new Alias(this, alias);
+    } else {
+      return this;
+    }
+  }
+
+  default QueryValue toCast(final String type) {
+    return new Cast(this, type);
   }
 
   default String toFormattedString() {

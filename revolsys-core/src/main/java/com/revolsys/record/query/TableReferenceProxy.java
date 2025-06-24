@@ -29,7 +29,11 @@ public interface TableReferenceProxy {
   }
 
   default <R extends RecordStore> R getRecordStore() {
-    return getTableReference().getRecordDefinition()
+    final var tableReference = getTableReference();
+    if (tableReference == null) {
+      return null;
+    }
+    return tableReference.getRecordDefinition()
       .getRecordStore();
   }
 

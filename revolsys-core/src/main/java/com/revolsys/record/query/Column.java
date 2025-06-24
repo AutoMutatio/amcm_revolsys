@@ -16,6 +16,8 @@ public class Column implements QueryValue, ColumnReference {
 
   private final String name;
 
+  private String alias;
+
   private TableReferenceProxy table;
 
   public Column(final CharSequence name) {
@@ -84,7 +86,7 @@ public class Column implements QueryValue, ColumnReference {
 
   @Override
   public ColumnReference clone(final TableReference oldTable, final TableReference newTable) {
-    if (oldTable != newTable) {
+    if (oldTable != newTable && !(this.table instanceof Join)) {
       final ColumnReference newColumn = newTable.getColumn(this.name);
       if (newColumn != null) {
         return newColumn;
@@ -161,7 +163,11 @@ public class Column implements QueryValue, ColumnReference {
   public Object getValueFromResultSet(final RecordDefinition recordDefinition,
     final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings)
     throws SQLException {
-    final FieldDefinition field = recordDefinition.getField(this.name);
+    var name = this.name;
+    if (this.alias != null) {
+      name = this.alias;
+    }
+    final FieldDefinition field = recordDefinition.getField(name);
     return field.getValueFromResultSet(recordDefinition, resultSet, indexes, internStrings);
   }
 
@@ -169,7 +175,11 @@ public class Column implements QueryValue, ColumnReference {
   public Object getValueFromResultSet(final RecordDefinition recordDefinition,
     final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings,
     final String alias) throws SQLException {
-    FieldDefinition field = recordDefinition.getField(this.name);
+    var name = this.name;
+    if (this.alias != null) {
+      name = this.alias;
+    }
+    FieldDefinition field = recordDefinition.getField(name);
     if (field == null) {
       field = recordDefinition.getField(alias);
     }
@@ -179,6 +189,12 @@ public class Column implements QueryValue, ColumnReference {
   @Override
   public int hashCode() {
     return this.name.hashCode();
+  }
+
+  @Override
+  public QueryValue toAlias(final String alias) {
+    this.alias = alias;
+    return ColumnReference.super.toAlias(alias);
   }
 
   @SuppressWarnings("unchecked")

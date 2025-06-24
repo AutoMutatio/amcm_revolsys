@@ -85,6 +85,9 @@ public final class JsonWriterUtil {
     try {
       if (value == null) {
         appendable.append("null");
+      } else if (value instanceof JsonType) {
+        final JsonType jsonType = (JsonType)value;
+        jsonType.appendJson(appendable);
       } else if (value instanceof Boolean) {
         if ((Boolean)value) {
           appendable.append("true");
@@ -99,9 +102,6 @@ public final class JsonWriterUtil {
         } else {
           appendable.append(Doubles.toString(doubleValue));
         }
-      } else if (value instanceof JsonType) {
-        final JsonType jsonType = (JsonType)value;
-        jsonType.appendJson(appendable);
       } else if (value instanceof Jsonable) {
         final JsonType json = ((Jsonable)value).asJson();
         if (json != null) {

@@ -53,7 +53,7 @@ public class InsertStatement extends AbstractReturningQueryStatement<InsertState
   @Override
   public void appendSql(final SqlAppendable sql) {
     sql.append("INSERT INTO ");
-    getTable().appendFromWithAsAlias(sql);
+    appendFromWithAsAlias(sql, getTable());
     sql.append('\n');
     appendColumns(sql);
     sql.append('\n');

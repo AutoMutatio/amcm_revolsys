@@ -23,7 +23,9 @@ public class AllColumns implements QueryValue {
   @Override
   public void appendDefaultSql(final QueryStatement statement, final RecordStore recordStore,
     final SqlAppendable sql) {
-    this.table.appendColumnPrefix(sql);
+    if (this.table != null) {
+      this.table.appendColumnPrefix(sql);
+    }
     sql.append("*");
   }
 

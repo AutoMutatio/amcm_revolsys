@@ -444,24 +444,23 @@ public interface Dates {
       return null;
     } else if (value instanceof LocalDate) {
       return (LocalDate)value;
-    } else if (value instanceof Instant) {
-      final Instant instant = (Instant)value;
+    } else if (value instanceof final Instant instant) {
       return instant.atZone(UTC)
         .toLocalDate();
-    } else if (value instanceof java.sql.Date) {
-      final java.sql.Date date = (java.sql.Date)value;
+    } else if (value instanceof final java.sql.Date date) {
       return date.toLocalDate();
-    } else if (value instanceof Date) {
-      final Date date = (Date)value;
+    } else if (value instanceof final Date date) {
       return getLocalDate(date.toInstant());
-    } else if (value instanceof Calendar) {
-      final Calendar calendar = (Calendar)value;
+    } else if (value instanceof final Calendar calendar) {
       return getLocalDate(calendar.toInstant());
-    } else if (value instanceof TemporalAccessor) {
-      final TemporalAccessor temporal = (TemporalAccessor)value;
+    } else if (value instanceof final TemporalAccessor temporal) {
       return LocalDate.from(temporal);
     } else {
-      return LocalDate.parse(value.toString());
+      var s = value.toString();
+      if (s.length() > 10) {
+        s = s.substring(0, 10);
+      }
+      return LocalDate.parse(s);
     }
   }
 

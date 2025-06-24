@@ -7,6 +7,9 @@ import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordStore;
 
 public class Count extends AbstractUnaryQueryValue {
+
+  public static final Count STAR = new Count("*");
+
   public static Count count(final Query query, final String columnName) {
     final TableReference table = query.getTable();
     return count(table, columnName);

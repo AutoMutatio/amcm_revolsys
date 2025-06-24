@@ -30,6 +30,10 @@ public interface ConditionBuilder {
     return addCondition(condition);
   }
 
+  default ConditionBuilder addCondition(final QueryValue left, final Object value) {
+    return addCondition(left, Q.EQUAL, value);
+  }
+
   default ConditionBuilder addCondition(final TableReferenceProxy table,
     final CharSequence fieldName, final BiFunction<QueryValue, QueryValue, Condition> operator,
     final Object value) {
