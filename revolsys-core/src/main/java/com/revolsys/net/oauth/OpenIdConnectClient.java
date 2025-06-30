@@ -102,8 +102,17 @@ public class OpenIdConnectClient extends BaseObjectWithProperties implements Bea
     final var scope = OpenIdScope.forString(config.getString("scope"));
     final var secretId = factoryConfig.getString("secretId");
     final JsonObject authConfig = SecretStore.getSecretJsonObject(factoryConfig, secretId);
-    return OpenIdConnectClient.newClient(factoryConfig, authConfig, null)
-      .newHttpRequestBuilderFactory(scope);
+    final var client = OpenIdConnectClient.newClient(factoryConfig, authConfig, null);
+    if (authConfig.hasValue("clientSecret")) {
+      return client.newHttpRequestBuilderFactory(scope);
+    } else {
+      final BearerTokenFactory federatedFactory = factoryConfig.getValue("oidcFederatedFactory");
+      final BearerTokenFactory tokenFactory = s -> {
+        final var token = federatedFactory.newToken(s);
+        return client.tokenClientCredentialsAssertion(token, s.getScope());
+      };
+      return tokenFactory.newHttpRequestBuilderFactory(scope);
+    }
   }
 
   private final String issuer;
@@ -331,6 +340,19 @@ public class OpenIdConnectClient extends BaseObjectWithProperties implements Bea
 
   public OpenIdBearerToken tokenClientCredentials(final String scope) {
     final var requestBuilder = tokenBuilder("client_credentials", true);
+    if (scope != null) {
+      requestBuilder.addParameter("scope", scope);
+    }
+    return getOpenIdBearerToken(requestBuilder, scope);
+  }
+
+  public OpenIdBearerToken tokenClientCredentialsAssertion(final BearerToken token,
+    final String scope) {
+    final var requestBuilder = tokenBuilder("client_credentials", true);
+    requestBuilder
+      .addParameter("client_assertion_type",
+        "urn:ietf:params:oauth:client-assertion-type:jwt-bearer")
+      .addParameter("client_assertion", token.getAccessToken());
     if (scope != null) {
       requestBuilder.addParameter("scope", scope);
     }
