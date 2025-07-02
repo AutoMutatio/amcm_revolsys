@@ -51,7 +51,7 @@ public abstract class AbstractRecordTableModel extends AbstractTableModel {
     }
   }
 
-  protected void appendJsonList(final StringBuilder string, final List<?> list) {
+  protected void appendList(final StringBuilder string, final List<?> list) {
     string.append('[');
     boolean first = true;
     for (final Object value : list) {
@@ -113,7 +113,7 @@ public abstract class AbstractRecordTableModel extends AbstractTableModel {
   protected void appendJsonValue(final StringBuilder string, final Object value) {
     if (value instanceof List<?>) {
       final List<?> list = (List<?>)value;
-      appendJsonList(string, list);
+      appendList(string, list);
     } else if (value instanceof Map<?, ?>) {
       @SuppressWarnings("unchecked")
       final Map<String, ?> map = (Map<String, ?>)value;

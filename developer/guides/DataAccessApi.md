@@ -42,7 +42,7 @@ The Revolsys libraries use the [JSON](https://www.json.org/json-en.html) encoded
 
 Parsing and access to Json data is in the `com.revolsys.record.io.format.json` package.
 
-The `JsonObject` interface is an extended version of the `java.util.Map` for json encoded data. `JsonList`
+The `JsonObject` interface is an extended version of the `java.util.Map` for json encoded data. `ListEx`
 is an extended version of `java.util.List` for json encoded data. In may places `JsonObject` should be
 used instead of `Map<String, Object>` instances.
 

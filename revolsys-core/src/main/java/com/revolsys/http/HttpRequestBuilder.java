@@ -61,7 +61,6 @@ import org.apache.http.protocol.HTTP;
 import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.util.Args;
 
-import com.revolsys.collection.json.JsonList;
 import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.json.JsonParser;
 import com.revolsys.collection.list.ListEx;
@@ -182,7 +181,7 @@ public class HttpRequestBuilder {
     }
   }
 
-  public static JsonList getJsonList(final HttpResponse response) {
+  public static ListEx<Object> getList(final HttpResponse response) {
     final var entity = response.getEntity();
     try (
       var in = entity.getContent()) {
@@ -615,7 +614,7 @@ public class HttpRequestBuilder {
     "unchecked", "rawtypes"
   })
   public <V> ListEx<V> getList() {
-    return (ListEx)responseAsJsonList();
+    return (ListEx)responseAsList();
   }
 
   public String getMethod() {
@@ -774,11 +773,11 @@ public class HttpRequestBuilder {
 
   }
 
-  public JsonList responseAsJsonList() {
+  public ListEx<Object> responseAsList() {
     if (!this.headerNames.contains("Accept")) {
       setHeader("Accept", "application/json");
     }
-    final Function<HttpResponse, JsonList> function = HttpRequestBuilder::getJsonList;
+    final Function<HttpResponse, ListEx<Object>> function = HttpRequestBuilder::getList;
     return execute(function);
   }
 

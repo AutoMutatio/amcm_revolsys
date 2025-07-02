@@ -1,5 +1,6 @@
 package com.revolsys.collection.list;
 
+import java.io.IOException;
 import java.util.AbstractList;
 import java.util.Collection;
 import java.util.Collections;
@@ -21,14 +22,15 @@ import javax.measure.Unit;
 import com.revolsys.collection.iterator.BaseIterable;
 import com.revolsys.collection.json.Json;
 import com.revolsys.collection.json.JsonType;
+import com.revolsys.collection.json.JsonWriterUtil;
 import com.revolsys.data.type.DataType;
 import com.revolsys.data.type.DataTypes;
+import com.revolsys.exception.Exceptions;
 import com.revolsys.util.Property;
 
 import tech.units.indriya.quantity.Quantities;
 
-public interface ListEx<T> extends List<T>, Cloneable, BaseIterable<T> {
-
+public interface ListEx<T> extends List<T>, Cloneable, BaseIterable<T>, JsonType {
   static class EmptyList<E> extends AbstractList<E> implements RandomAccess, ListEx<E> {
 
     @Override
@@ -162,7 +164,57 @@ public interface ListEx<T> extends List<T>, Cloneable, BaseIterable<T> {
     return this;
   }
 
+  default ListEx<T> addValuesClone(final Collection<?> values) {
+    for (Object value : values) {
+      if (value != null) {
+        value = JsonType.toJsonClone(value);
+      }
+      add((T)value);
+    }
+    return this;
+  }
+
+  @Override
+  default Appendable appendJson(final Appendable appendable) {
+    try {
+      appendable.append('[');
+      boolean first = true;
+      for (final Object value : this) {
+        if (first) {
+          first = false;
+        } else {
+          appendable.append(',');
+        }
+        JsonWriterUtil.appendValue(appendable, value);
+      }
+      appendable.append(']');
+      return appendable;
+    } catch (final IOException e) {
+      throw Exceptions.toRuntimeException(e);
+    }
+  }
+
+  @Override
   ListEx<T> clone();
+
+  @Override
+  default boolean equals(final Object object,
+    final Collection<? extends CharSequence> excludeFieldNames) {
+    if (object instanceof List<?>) {
+      final List<?> list2 = (List<?>)object;
+      if (size() == list2.size()) {
+        for (int i = 0; i < size(); i++) {
+          final Object value11 = get(i);
+          final Object value21 = list2.get(i);
+          if (!DataType.equal(value11, value21, excludeFieldNames)) {
+            return false;
+          }
+        }
+        return true;
+      }
+    }
+    return false;
+  }
 
   default Double getDouble(final int index) {
     final var value = getValue(index);
@@ -278,6 +330,7 @@ public interface ListEx<T> extends List<T>, Cloneable, BaseIterable<T> {
     return List.super.parallelStream();
   }
 
+  @Override
   default boolean removeEmptyProperties() {
     boolean removed = false;
     for (final Iterator<T> iterator = iterator(); iterator.hasNext();) {
@@ -354,6 +407,7 @@ public interface ListEx<T> extends List<T>, Cloneable, BaseIterable<T> {
     return array;
   }
 
+  @Override
   default String toJsonString(final boolean indent) {
     return Json.toString(this, indent);
   }

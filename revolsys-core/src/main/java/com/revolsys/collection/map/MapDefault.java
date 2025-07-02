@@ -18,7 +18,6 @@ import java.util.function.Supplier;
 import com.revolsys.collection.iterator.BaseIterable;
 import com.revolsys.collection.iterator.Iterables;
 import com.revolsys.collection.json.Json;
-import com.revolsys.collection.json.JsonList;
 import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.json.JsonType;
 import com.revolsys.collection.list.ListEx;
@@ -364,19 +363,6 @@ public interface MapDefault<K, KA, V, M extends MapDefault<K, KA, V, M>>
       return Iterables.fromIterator(iterator);
     } else {
       throw new IllegalArgumentException("Cannot convert to iterable:" + value);
-    }
-  }
-
-  default JsonList getJsonList(final KA name) {
-    return getTypedValue(name, Json.JSON_LIST, JsonList.EMPTY);
-  }
-
-  default JsonList getJsonList(final KA name, final JsonList defaultValue) {
-    final JsonList value = getJsonList(name);
-    if (value == null) {
-      return defaultValue;
-    } else {
-      return value;
     }
   }
 

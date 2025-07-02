@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.revolsys.collection.list.ListEx;
 import com.revolsys.collection.list.Lists;
 import com.revolsys.data.type.DataType;
 import com.revolsys.data.type.DataTypes;
@@ -376,7 +377,7 @@ public class JsonWriter implements BaseCloseable {
         final JsonType json = jsonable.toJson();
         if (value instanceof final JsonObject map) {
           write(map);
-        } else if (value instanceof final JsonList list) {
+        } else if (value instanceof final ListEx<?> list) {
           list(list);
         } else {
           value(json);

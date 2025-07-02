@@ -35,7 +35,7 @@ public class JsonSchemaWriter {
     close();
   }
 
-  private Collection<Object> toJsonList(final Collection<?> collection) {
+  private Collection<Object> toList(final Collection<?> collection) {
     final List<Object> list = new ArrayList<>();
     for (final Object object : collection) {
       final Object jsonValue = toJsonValue(object);
@@ -72,7 +72,7 @@ public class JsonSchemaWriter {
       value = toJsonMap(objectMap);
     } else if (value instanceof Collection) {
       final Collection<?> collection = (Collection<?>)value;
-      value = toJsonList(collection);
+      value = toList(collection);
     } else {
       jsonValue = DataTypes.toString(value);
     }

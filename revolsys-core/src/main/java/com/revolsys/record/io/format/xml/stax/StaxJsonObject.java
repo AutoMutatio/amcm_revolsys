@@ -3,11 +3,12 @@ package com.revolsys.record.io.format.xml.stax;
 import java.util.Collection;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Supplier;
 
-import com.revolsys.collection.json.JsonList;
 import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.json.Jsonable;
 import com.revolsys.collection.list.ListEx;
+import com.revolsys.collection.list.Lists;
 import com.revolsys.data.type.DataTypes;
 import com.revolsys.record.io.format.xml.XmlComplexType;
 import com.revolsys.record.io.format.xml.XmlElement;
@@ -48,6 +49,10 @@ public class StaxJsonObject implements Jsonable {
     } else {
       this.properties.addValue(name, value);
     }
+  }
+
+  public <V> V ensureValue(final String key, final Supplier<V> factory) {
+    return this.properties.ensureValue(key, factory);
   }
 
   @Override
@@ -130,11 +135,8 @@ public class StaxJsonObject implements Jsonable {
         final Object value = handler.handleElementValue(in, callback);
         if (value != null) {
           if (handler.isList()) {
-            JsonList list = StaxJsonObject.this.properties.getValue(name);
-            if (list == null) {
-              list = JsonList.array();
-              addValue(name, list);
-            }
+            final ListEx<Object> list = StaxJsonObject.this.properties.ensureValue(name,
+              Lists.factoryArray());
             list.add(value);
           } else {
             addValue(name, value);

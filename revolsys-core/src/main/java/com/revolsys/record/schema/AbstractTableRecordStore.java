@@ -14,7 +14,6 @@ import jakarta.servlet.http.HttpServletRequest;
 
 import org.slf4j.LoggerFactory;
 
-import com.revolsys.collection.json.JsonList;
 import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.json.JsonType;
 import com.revolsys.collection.list.ListEx;
@@ -77,7 +76,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     if (recordDefinition == null) {
       return JsonObject.EMPTY;
     }
-    final JsonList jsonFields = JsonList.array();
+    final ListEx<JsonObject> jsonFields = Lists.newArray();
     final String idFieldName = recordDefinition.getIdFieldName();
     final JsonObject jsonSchema = JsonObject.hash()
       .addValue("typeName", recordDefinition.getPathName())

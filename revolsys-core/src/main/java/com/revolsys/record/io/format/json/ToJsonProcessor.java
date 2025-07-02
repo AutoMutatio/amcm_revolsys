@@ -4,8 +4,9 @@ import java.math.BigDecimal;
 import java.util.ArrayDeque;
 import java.util.Deque;
 
-import com.revolsys.collection.json.JsonList;
 import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.list.ListEx;
+import com.revolsys.collection.list.Lists;
 import com.revolsys.reactive.chars.ValueProcessor;
 
 public class ToJsonProcessor<V> implements JsonProcessor {
@@ -26,6 +27,7 @@ public class ToJsonProcessor<V> implements JsonProcessor {
     }
   }
 
+  @SuppressWarnings("unchecked")
   private void applyValue(final JsonStatus status, final Object value) {
     if (this.values.isEmpty()) {
       this.values.push(value);
@@ -39,9 +41,8 @@ public class ToJsonProcessor<V> implements JsonProcessor {
         } else {
           json.addValue(label, value);
         }
-      } else if (parent instanceof JsonList) {
-        final JsonList list = (JsonList)parent;
-        list.add(value);
+      } else if (parent instanceof final ListEx<?> list) {
+        ((ListEx<Object>)list).add(value);
       } else {
         throw new IllegalStateException("Parent not an object or array: " + parent);
       }
@@ -63,7 +64,8 @@ public class ToJsonProcessor<V> implements JsonProcessor {
 
   @Override
   public void endArray(final JsonStatus status) {
-    final JsonList array = (JsonList)this.values.pop();
+    @SuppressWarnings("unchecked")
+    final ListEx<Object> array = (ListEx<Object>)this.values.pop();
     applyValue(status, array);
   }
 
@@ -96,7 +98,7 @@ public class ToJsonProcessor<V> implements JsonProcessor {
 
   @Override
   public void startArray(final JsonStatus status) {
-    this.values.push(JsonList.array());
+    this.values.push(Lists.newArray());
   }
 
   @Override
