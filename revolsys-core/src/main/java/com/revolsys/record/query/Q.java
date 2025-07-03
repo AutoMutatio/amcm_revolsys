@@ -365,7 +365,13 @@ public class Q {
   }
 
   public static JsonValue jsonRawValue(final QueryValue left, final String right) {
-    return jsonRawValue(left, Value.newValue(right)).setText(false);
+    return jsonRawValue(left, Q.literal(right));
+  }
+
+  public static JsonValue jsonRawValue(final TableReferenceProxy table, final String fieldName,
+    final String name) {
+    final var column = table.getColumn(fieldName);
+    return jsonRawValue(column, name);
   }
 
   public static JsonValue jsonValue(final QueryValue left, final QueryValue right) {

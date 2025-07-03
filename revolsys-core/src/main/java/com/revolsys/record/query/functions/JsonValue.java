@@ -73,7 +73,8 @@ public class JsonValue extends SimpleFunction {
   }
 
   public Condition equal(final Object value) {
-    final var queryValue = Value.newValue(value);
+    final var column = getColumn();
+    final var queryValue = Value.newValue(column, value);
     return Q.equal(this, queryValue);
   }
 
