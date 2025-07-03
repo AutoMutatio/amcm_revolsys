@@ -1,6 +1,8 @@
 package com.revolsys.record;
 
 import java.math.BigDecimal;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -977,6 +979,8 @@ public class ODataParser {
         }
       } else if (c == '\'') {
         instring = true;
+      } else if (c == '%') {
+        rt += 2;
       } else if (Character.isLetterOrDigit(c) || c == '/' || c == '_' || c == '.' || c == '*'
         || c == '~') {
       } else {
@@ -1033,7 +1037,8 @@ public class ODataParser {
         current = end;
       } else if (Character.isLetter(c) || c == '*' || c == '/') {
         final int end = readWord(value, current + 1, length);
-        final String tokenString = value.substring(current, end);
+        String tokenString = value.substring(current, end);
+        tokenString = URLDecoder.decode(tokenString, StandardCharsets.UTF_8);
         rt.add(new Token(TokenType.WORD, tokenString));
         current = end;
       } else if (Character.isDigit(c) || c == '-') {
