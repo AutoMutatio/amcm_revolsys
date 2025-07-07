@@ -12,6 +12,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.revolsys.collection.json.JsonObject;
+import com.revolsys.exception.WrappedIoException;
 import com.revolsys.io.IoFactory;
 import com.revolsys.record.io.RecordReader;
 import com.revolsys.record.io.RecordWriter;
@@ -85,11 +86,15 @@ public class QueryHttpMessageConverter extends AbstractHttpMessageConverter<Quer
             headers.add("Content-Disposition", "attachment; filename=" + fileName);
 
             try (
-              var out = outputMessage.getBody();
-              RecordWriter recordWriter = writerFactory.newRecordWriter("", reader, out,
-                StandardCharsets.UTF_8)) {
-              recordWriter.setProperty("maxFieldLength", 32000);
-              recordWriter.writeAll(reader);
+              var out = outputMessage.getBody()) {
+              try (
+                RecordWriter recordWriter = writerFactory.newRecordWriter("", reader, out,
+                  StandardCharsets.UTF_8)) {
+                recordWriter.setProperty("maxFieldLength", 32000);
+                recordWriter.writeAll(reader);
+              } catch (final WrappedIoException e) {
+                // Ignore these errors
+              }
             }
           }
         }
@@ -101,43 +106,47 @@ public class QueryHttpMessageConverter extends AbstractHttpMessageConverter<Quer
     final var offset = query.getOffset();
     final var limit = query.getLimit();
     try (
-      var out = outputMessage.getBody();
-      var writer = new OutputStreamWriter(out, StandardCharsets.UTF_8);
-      var jsonWriter = new JsonRecordWriter(reader, writer);) {
-      final JsonObject header = JsonObject.hash();
-      jsonWriter.setHeader(header);
-      Long count = null;
-      if (query.isReturnCount()) {
-        count = query.getRecordCount();
-      }
-      if (count != null) {
-        header.addValue("@odata.count", count);
-      }
-      final var resultHeaders = query.getResultHeaders();
-      if (resultHeaders != null) {
-        header.addValues(resultHeaders);
-      }
-      jsonWriter.setItemsPropertyName("value");
-      final int writeCount = jsonWriter.writeAll(reader);
-      final int nextSkip = offset + writeCount;
-      boolean writeNext = false;
-      if (writeCount != 0) {
-        if (count == null) {
-          if (writeCount >= limit) {
+      var out = outputMessage.getBody()) {
+      try (
+        var writer = new OutputStreamWriter(out, StandardCharsets.UTF_8);
+        var jsonWriter = new JsonRecordWriter(reader, writer);) {
+        final JsonObject header = JsonObject.hash();
+        jsonWriter.setHeader(header);
+        Long count = null;
+        if (query.isReturnCount()) {
+          count = query.getRecordCount();
+        }
+        if (count != null) {
+          header.addValue("@odata.count", count);
+        }
+        final var resultHeaders = query.getResultHeaders();
+        if (resultHeaders != null) {
+          header.addValues(resultHeaders);
+        }
+        jsonWriter.setItemsPropertyName("value");
+        final int writeCount = jsonWriter.writeAll(reader);
+        final int nextSkip = offset + writeCount;
+        boolean writeNext = false;
+        if (writeCount != 0) {
+          if (count == null) {
+            if (writeCount >= limit) {
+              writeNext = true;
+            }
+          } else if (offset + writeCount < count) {
             writeNext = true;
           }
-        } else if (offset + writeCount < count) {
-          writeNext = true;
         }
-      }
 
-      if (writeNext) {
-        final var request = ((ServletRequestAttributes)RequestContextHolder
-          .currentRequestAttributes()).getRequest();
-        final String nextLink = HttpServletUtils.getFullRequestUriBuilder(request)
-          .setParameter("$skip", nextSkip)
-          .buildString();
-        jsonWriter.setFooter(JsonObject.hash("@odata.nextLink", nextLink));
+        if (writeNext) {
+          final var request = ((ServletRequestAttributes)RequestContextHolder
+            .currentRequestAttributes()).getRequest();
+          final String nextLink = HttpServletUtils.getFullRequestUriBuilder(request)
+            .setParameter("$skip", nextSkip)
+            .buildString();
+          jsonWriter.setFooter(JsonObject.hash("@odata.nextLink", nextLink));
+        }
+      } catch (WrappedIoException | IOException e) {
+        // Don't log these errors
       }
     }
   }
