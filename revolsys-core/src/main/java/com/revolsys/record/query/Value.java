@@ -42,16 +42,28 @@ public class Value implements QueryValue {
   }
 
   public static Value newValue(final ColumnReference field, final Object value) {
-    return new Value(field, value);
+    if (field == null) {
+      return newValue(value);
+    } else {
+      return new Value(field, value);
+    }
   }
 
   public static Value newValue(final FieldDefinition field, final Object value) {
-    return new Value(field, value);
+    if (field == null) {
+      return newValue(value);
+    } else {
+      return new Value(field, value);
+    }
   }
 
   public static Value newValue(final FieldDefinition field, final Object value,
     final boolean dontConvert) {
-    return new Value(field, value, dontConvert);
+    if (field == null) {
+      return newValue(value);
+    } else {
+      return new Value(field, value, dontConvert);
+    }
   }
 
   public static Value newValue(final Object value) {

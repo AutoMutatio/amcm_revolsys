@@ -46,7 +46,7 @@ public class Q {
 
   public static BiFunction<QueryValue, QueryValue, Condition> LESS_THAN_EQUAL = LessThanEqual::new;
 
-  public static BiFunction<QueryValue, QueryValue, Condition> IN = In::new;
+  public static BiFunction<QueryValue, QueryValue, Condition> IN = In::create;
 
   public static Add add(final QueryValue left, final QueryValue right) {
     return new Add(left, right);
@@ -310,23 +310,22 @@ public class Q {
 
   public static In in(final ColumnReference fieldDefinition,
     final Collection<? extends Object> values) {
-    return new In(fieldDefinition, values);
+    return In.create(fieldDefinition, values);
   }
 
   public static In in(final ColumnReference fieldDefinition, final Object... values) {
     final List<Object> list = Arrays.asList(values);
-    return new In(fieldDefinition, list);
+    return In.create(fieldDefinition, list);
   }
 
   public static In in(final String name, final Collection<? extends Object> values) {
     final Column left = new Column(name);
-    final CollectionValue collectionValue = new CollectionValue(values);
-    return new In(left, collectionValue);
+    return In.create(left, values);
   }
 
   public static In in(final String name, final Object... values) {
     final List<Object> list = Arrays.asList(values);
-    return new In(name, list);
+    return in(name, list);
   }
 
   public static In in(final TableReferenceProxy table, final CharSequence fieldName,

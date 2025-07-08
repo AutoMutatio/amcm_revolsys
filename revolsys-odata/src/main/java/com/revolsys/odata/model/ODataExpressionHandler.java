@@ -61,7 +61,7 @@ public class ODataExpressionHandler {
     BINARY_HANDLERS.put(BinaryOperatorKind.GE, Q.GREATER_THAN_EQUAL);
     BINARY_HANDLERS.put(BinaryOperatorKind.GT, Q.GREATER_THAN);
     // TODO BINARY_HANDLERS.put(BinaryOperatorKind.HAS, Add::new);
-    BINARY_HANDLERS.put(BinaryOperatorKind.IN, In::new);
+    BINARY_HANDLERS.put(BinaryOperatorKind.IN, In::create);
     BINARY_HANDLERS.put(BinaryOperatorKind.LE, (v1, v2) -> {
       if (v1 instanceof WithinDistance) {
         final WithinDistance wd = (WithinDistance)v1;

@@ -74,17 +74,20 @@ public class QueryHttpMessageConverter extends AbstractHttpMessageConverter<Quer
             final var simpleMediaType = contentType.getType() + "/" + contentType.getSubtype();
             final var writerFactory = IoFactory.factoryByMediaType(RecordWriterFactory.class,
               simpleMediaType);
-            var fileName = request.getParameter("fileName");
-            if (!Property.hasValue(fileName)) {
-              var baseFileName = query.getBaseFileName();
-              if (baseFileName == null) {
-                baseFileName = query.getTablePath()
-                  .getName();
+            if ("true".equals(request.getParameter("inline"))) {
+              headers.add("Content-Disposition", "inline");
+            } else {
+              var fileName = request.getParameter("fileName");
+              if (!Property.hasValue(fileName)) {
+                var baseFileName = query.getBaseFileName();
+                if (baseFileName == null) {
+                  baseFileName = query.getTablePath()
+                    .getName();
+                }
+                fileName = baseFileName + "." + writerFactory.getFileExtension(simpleMediaType);
               }
-              fileName = baseFileName + "." + writerFactory.getFileExtension(simpleMediaType);
+              headers.add("Content-Disposition", "attachment; filename=" + fileName);
             }
-            headers.add("Content-Disposition", "attachment; filename=" + fileName);
-
             try (
               var out = outputMessage.getBody()) {
               try (
