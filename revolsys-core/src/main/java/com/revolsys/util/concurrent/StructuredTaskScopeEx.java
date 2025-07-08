@@ -14,7 +14,7 @@ import java.util.stream.Stream;
 import com.revolsys.collection.iterator.ForEachHandler;
 import com.revolsys.collection.iterator.ForEachMethods;
 import com.revolsys.collection.iterator.Iterables;
-import com.revolsys.collection.iterator.RunableMethods;
+import com.revolsys.collection.iterator.RunnableMethods;
 import com.revolsys.collection.list.ListEx;
 import com.revolsys.collection.list.Lists;
 import com.revolsys.exception.Exceptions;
@@ -302,7 +302,7 @@ public class StructuredTaskScopeEx<V> extends StructuredTaskScope<V>
    * Use the @{link {@link #run(Runnable)} method to for a subtask
    *
    * @param forEach The handler that loops through
-   * @see RunableMethods
+   * @see RunnableMethods
    */
   public void run(final ForEachHandler<Runnable> forEach) {
     final Consumer<Runnable> forkAction = this::run;
@@ -313,7 +313,7 @@ public class StructuredTaskScopeEx<V> extends StructuredTaskScope<V>
    * Use the @{link {@link #run(Runnable)} method to for a subtask
    *
    * @param forEach The handler that loops through
-   * @see RunableMethods
+   * @see RunnableMethods
    */
   public void run(final Runnable... tasks) {
     for (final Runnable task : tasks) {

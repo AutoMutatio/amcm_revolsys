@@ -9,36 +9,26 @@ import com.revolsys.data.type.DataTypes;
 import com.revolsys.record.schema.RecordStore;
 
 public class In extends AbstractBinaryQueryValue implements Condition {
-
-  public In(final ColumnReference field, final Collection<? extends Object> values) {
-    this(field, new CollectionValue(field, values));
-  }
-
-  public In(final QueryValue left, final CollectionValue values) {
-    super(left, values);
-    if (left instanceof final ColumnReference column) {
-      values.setColumn(column);
-    }
-  }
-
-  public In(final QueryValue left, QueryValue right) {
-    super(left, right);
-    if (right instanceof Value) {
-      right = new CollectionValue(Arrays.asList(((Value)right).getValue()));
-      setRight(right);
-    }
+  public static In create(final QueryValue left, final Collection<? extends Object> conditions) {
     final var column = left.getColumn();
-    if (column != null && right instanceof CollectionValue) {
-      right.setColumn(column);
+    final var right = new CollectionValue(column, conditions);
+    return create(left, right);
+  }
+
+  public static In create(final QueryValue left, QueryValue right) {
+    final var column = left.getColumn();
+    if (right instanceof Value) {
+      right = new CollectionValue(column, Arrays.asList(((Value)right).getValue()));
+    } else {
+      if (column != null && right instanceof CollectionValue) {
+        right.setColumn(column);
+      }
     }
+    return new In(left, right);
   }
 
-  public In(final String name, final Collection<? extends Object> values) {
-    this(new Column(name), new CollectionValue(values));
-  }
-
-  public In(final String name, final Object... values) {
-    this(name, Arrays.asList(values));
+  private In(final QueryValue left, final QueryValue right) {
+    super(left, right);
   }
 
   @Override
