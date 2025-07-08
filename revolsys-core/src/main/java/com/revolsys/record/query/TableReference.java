@@ -141,8 +141,7 @@ public interface TableReference extends From, TableReferenceProxy {
 
   default Condition in(final String fieldName, final List<?> list) {
     final ColumnReference field = getColumn(fieldName);
-    final CollectionValue right = new CollectionValue(field, list);
-    return new In(field, right);
+    return In.create(field, list);
   }
 
   default IsNotNull isNotNull(final CharSequence fieldName) {

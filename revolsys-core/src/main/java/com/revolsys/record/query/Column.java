@@ -168,7 +168,11 @@ public class Column implements QueryValue, ColumnReference {
       name = this.alias;
     }
     final FieldDefinition field = recordDefinition.getField(name);
-    return field.getValueFromResultSet(recordDefinition, resultSet, indexes, internStrings);
+    if (field == null) {
+      return null;
+    } else {
+      return field.getValueFromResultSet(recordDefinition, resultSet, indexes, internStrings);
+    }
   }
 
   @Override

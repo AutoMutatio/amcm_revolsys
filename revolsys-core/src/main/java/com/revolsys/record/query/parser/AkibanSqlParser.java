@@ -38,7 +38,6 @@ import com.revolsys.record.code.CodeTable;
 import com.revolsys.record.query.And;
 import com.revolsys.record.query.Between;
 import com.revolsys.record.query.Cast;
-import com.revolsys.record.query.CollectionValue;
 import com.revolsys.record.query.Column;
 import com.revolsys.record.query.Condition;
 import com.revolsys.record.query.ILike;
@@ -93,7 +92,8 @@ public class AkibanSqlParser implements SqlParser {
       return (V)new Between(column, min, max);
     } else if (expression instanceof BinaryLogicalOperatorNode) {
       final BinaryLogicalOperatorNode binaryOperatorNode = (BinaryLogicalOperatorNode)expression;
-      final String operator = binaryOperatorNode.getOperator().toUpperCase();
+      final String operator = binaryOperatorNode.getOperator()
+        .toUpperCase();
       final ValueNode leftValueNode = binaryOperatorNode.getLeftOperand();
       final ValueNode rightValueNode = binaryOperatorNode.getRightOperand();
       final Condition leftCondition = toQueryValue(recordDefinition, leftValueNode);
@@ -166,8 +166,7 @@ public class AkibanSqlParser implements SqlParser {
       } else {
         throw new IllegalArgumentException("Unsupported binary operator " + operator);
       }
-    } else if (expression instanceof ColumnReference) {
-      final ColumnReference column = (ColumnReference)expression;
+    } else if (expression instanceof final ColumnReference column) {
       String columnName = column.getColumnName();
       columnName = columnName.replaceAll("\"", "");
       if (recordDefinition == null) {
@@ -193,8 +192,7 @@ public class AkibanSqlParser implements SqlParser {
       final ValueNode operand = notNode.getOperand();
       final Condition condition = toQueryValue(recordDefinition, operand);
       return (V)new Not(condition);
-    } else if (expression instanceof InListOperatorNode) {
-      final InListOperatorNode inListOperatorNode = (InListOperatorNode)expression;
+    } else if (expression instanceof final InListOperatorNode inListOperatorNode) {
       final ValueNode leftOperand = inListOperatorNode.getLeftOperand();
       final QueryValue leftCondition = toQueryValue(recordDefinition, leftOperand);
 
@@ -204,9 +202,8 @@ public class AkibanSqlParser implements SqlParser {
         final QueryValue itemCondition = toQueryValue(recordDefinition, itemValueNode);
         conditions.add(itemCondition);
       }
-      return (V)new In(leftCondition, new CollectionValue(conditions));
-    } else if (expression instanceof IsNullNode) {
-      final IsNullNode isNullNode = (IsNullNode)expression;
+      return (V)In.create(leftCondition, conditions);
+    } else if (expression instanceof final IsNullNode isNullNode) {
       final ValueNode operand = isNullNode.getOperand();
       final QueryValue value = toQueryValue(recordDefinition, operand);
       if (isNullNode.getNodeType() == NodeTypes.IS_NOT_NULL_NODE) {
@@ -226,28 +223,27 @@ public class AkibanSqlParser implements SqlParser {
       // } else {
       // return (V)parenthesisCondition;
       // }
-    } else if (expression instanceof RowConstructorNode) {
-      final RowConstructorNode rowConstructorNode = (RowConstructorNode)expression;
+    } else if (expression instanceof final RowConstructorNode rowConstructorNode) {
       final ValueNodeList values = rowConstructorNode.getNodeList();
       final ValueNode valueNode = values.get(0);
       return (V)toQueryValue(recordDefinition, valueNode);
-    } else if (expression instanceof UserTypeConstantNode) {
-      final UserTypeConstantNode constant = (UserTypeConstantNode)expression;
+    } else if (expression instanceof final UserTypeConstantNode constant) {
       final Object objectValue = constant.getObjectValue();
       return (V)Value.newValue(objectValue);
-    } else if (expression instanceof ConstantNode) {
-      final ConstantNode constant = (ConstantNode)expression;
+    } else if (expression instanceof final ConstantNode constant) {
       final Object value = constant.getValue();
       return (V)Value.newValue(value);
     } else if (expression instanceof SimpleStringOperatorNode) {
       final SimpleStringOperatorNode operatorNode = (SimpleStringOperatorNode)expression;
-      final String functionName = operatorNode.getMethodName().toUpperCase();
+      final String functionName = operatorNode.getMethodName()
+        .toUpperCase();
       final ValueNode operand = operatorNode.getOperand();
       final QueryValue condition = toQueryValue(recordDefinition, operand);
       return (V)new SimpleFunction(functionName, condition);
     } else if (expression instanceof CastNode) {
       final CastNode castNode = (CastNode)expression;
-      final String typeName = castNode.getType().getSQLstring();
+      final String typeName = castNode.getType()
+        .getSQLstring();
       final ValueNode operand = castNode.getCastOperand();
       final QueryValue condition = toQueryValue(recordDefinition, operand);
       return (V)new Cast(condition, typeName);
@@ -292,7 +288,9 @@ public class AkibanSqlParser implements SqlParser {
     if (this.recordDefinition == null) {
       tableName = "Unknown";
     } else {
-      tableName = this.recordDefinition.getPath().substring(1).replace('/', '.');
+      tableName = this.recordDefinition.getPath()
+        .substring(1)
+        .replace('/', '.');
     }
     this.sqlPrefix = "SELECT * FROM " + tableName + " WHERE";
 
@@ -335,7 +333,8 @@ public class AkibanSqlParser implements SqlParser {
       return (V)new Between(column, min, max);
     } else if (expression instanceof BinaryLogicalOperatorNode) {
       final BinaryLogicalOperatorNode binaryOperatorNode = (BinaryLogicalOperatorNode)expression;
-      final String operator = binaryOperatorNode.getOperator().toUpperCase();
+      final String operator = binaryOperatorNode.getOperator()
+        .toUpperCase();
       final ValueNode leftValueNode = binaryOperatorNode.getLeftOperand();
       final ValueNode rightValueNode = binaryOperatorNode.getRightOperand();
       final QueryValue leftValue = toQueryValue(leftValueNode);
@@ -392,8 +391,9 @@ public class AkibanSqlParser implements SqlParser {
                       rightCondition = Value.newValue(fieldDefinition, convertedValue);
                     }
                   } catch (final Throwable t) {
-                    throw new IllegalArgumentException(name + "='" + value + "' is not a valid "
-                      + fieldDefinition.getDataType().getValidationName());
+                    throw new IllegalArgumentException(
+                      name + "='" + value + "' is not a valid " + fieldDefinition.getDataType()
+                        .getValidationName());
                   }
                 } else {
                   Object id;
@@ -465,7 +465,7 @@ public class AkibanSqlParser implements SqlParser {
         final QueryValue itemCondition = toQueryValue(itemValueNode);
         conditions.add(itemCondition);
       }
-      return (V)new In(leftCondition, new CollectionValue(conditions));
+      return (V)In.create(leftCondition, conditions);
     } else if (expression instanceof IsNullNode) {
       final IsNullNode isNullNode = (IsNullNode)expression;
       final ValueNode operand = isNullNode.getOperand();
@@ -502,13 +502,15 @@ public class AkibanSqlParser implements SqlParser {
       return (V)Value.newValue(value);
     } else if (expression instanceof SimpleStringOperatorNode) {
       final SimpleStringOperatorNode operatorNode = (SimpleStringOperatorNode)expression;
-      final String functionName = operatorNode.getMethodName().toUpperCase();
+      final String functionName = operatorNode.getMethodName()
+        .toUpperCase();
       final ValueNode operand = operatorNode.getOperand();
       final QueryValue condition = toQueryValue(operand);
       return (V)new SimpleFunction(functionName, condition);
     } else if (expression instanceof CastNode) {
       final CastNode castNode = (CastNode)expression;
-      final String typeName = castNode.getType().getSQLstring();
+      final String typeName = castNode.getType()
+        .getSQLstring();
       final ValueNode operand = castNode.getCastOperand();
       final QueryValue condition = toQueryValue(operand);
       return (V)new Cast(condition, typeName);
