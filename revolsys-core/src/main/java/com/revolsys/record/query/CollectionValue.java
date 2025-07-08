@@ -35,10 +35,13 @@ public class CollectionValue extends AbstractMultiQueryValue {
     this(field);
     for (final Object value : values) {
       QueryValue queryValue;
-      if (value instanceof QueryValue) {
-        queryValue = (QueryValue)value;
+      if (value instanceof final QueryValue qv) {
+        queryValue = qv;
+        if (field != null) {
+          qv.setColumn(field);
+        }
       } else {
-        queryValue = Value.newValue(value);
+        queryValue = Value.newValue(field, value);
       }
       addValue(queryValue);
     }
