@@ -422,7 +422,7 @@
       <dependency>
         <groupId>com.nimbusds</groupId>
         <artifactId>nimbus-jose-jwt</artifactId>
-        <version>9.41.2</version>
+        <version>10.3.1</version>
       </dependency>
       <dependency>
         <groupId>org.postgresql</groupId>
@@ -475,7 +475,7 @@
       <dependency>
         <groupId>com.github.jsqlparser</groupId>
         <artifactId>jsqlparser</artifactId>
-        <version>5.1</version>
+        <version>5.3</version>
       </dependency>
       <dependency>
         <groupId>com.revolsys.open</groupId>
@@ -561,7 +561,7 @@
     <org.gdal.version>2.4.0</org.gdal.version>
     <org.slf4j.version>2.0.17</org.slf4j.version>
     <org.springframework.version>6.2.8</org.springframework.version>
-    <org.springframework.boot.version>3.3.7</org.springframework.boot.version>
+    <org.springframework.boot.version>3.5.3</org.springframework.boot.version>
     <org.springboot.version>${org.springframework.boot.version}</org.springboot.version>
   </properties>
 </project>
