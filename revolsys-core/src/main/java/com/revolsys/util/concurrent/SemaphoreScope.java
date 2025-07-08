@@ -4,10 +4,10 @@ import java.util.function.Consumer;
 
 import com.revolsys.collection.iterator.ForEachHandler;
 import com.revolsys.collection.iterator.ForEachMethods;
-import com.revolsys.collection.iterator.RunableMethods;
+import com.revolsys.collection.iterator.RunnableMethods;
 import com.revolsys.parallel.SemaphoreEx;
 
-public class SemaphoreScope implements ForEachMethods, RunableMethods {
+public class SemaphoreScope implements ForEachMethods, RunnableMethods<SemaphoreScope> {
   private final SemaphoreEx semaphore;
 
   private final ThreadFactoryEx threadFactory;
@@ -24,12 +24,14 @@ public class SemaphoreScope implements ForEachMethods, RunableMethods {
   }
 
   @Override
-  public <V> void run(final ForEachHandler<Runnable> forEach) {
+  public SemaphoreScope run(final ForEachHandler<Runnable> forEach) {
     this.threadFactory
       .scope(scope -> forEach.forEach(action -> scope.fork(this.semaphore, action)));
+    return this;
   }
 
-  public <V> void run(final Runnable action) {
+  public SemaphoreScope run(final Runnable action) {
     this.threadFactory.scope(scope -> scope.fork(this.semaphore, action));
+    return this;
   }
 }

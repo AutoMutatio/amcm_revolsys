@@ -224,7 +224,7 @@ public class ODataParser {
     .add("mul", Multiply::new)
     .add("div", Divide::new)
     .add("mod", Mod::new)
-    .add("in", In::new)
+    .add("in", In::create)
     .add("any", AnyOperator::new)
     .add("all", AllOperator::new)
     .getMap();

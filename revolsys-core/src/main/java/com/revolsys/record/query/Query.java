@@ -67,9 +67,8 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
           final Object value = entry.getValue();
           if (value == null) {
             multipleCondition.addCondition(Q.isNull(name));
-          } else if (value instanceof Collection) {
-            final Collection<?> values = (Collection<?>)value;
-            multipleCondition.addCondition(new In(name, values));
+          } else if (value instanceof final Collection<?> values) {
+            multipleCondition.addCondition(Q.in(name, values));
           } else {
             multipleCondition.addCondition(Q.equal(name, value));
           }
@@ -77,9 +76,8 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
           final Object value = entry.getValue();
           if (value == null) {
             multipleCondition.addCondition(Q.isNull(name));
-          } else if (value instanceof Collection) {
-            final Collection<?> values = (Collection<?>)value;
-            multipleCondition.addCondition(new In(fieldDefinition, values));
+          } else if (value instanceof final Collection<?> values) {
+            multipleCondition.addCondition(Q.in(fieldDefinition, values));
           } else {
             multipleCondition.addCondition(Q.equal(fieldDefinition, value));
           }
