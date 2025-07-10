@@ -10,15 +10,15 @@ import com.revolsys.util.Property;
 
 public class WhereConditionBuilder implements TableReferenceProxy {
 
-  private TableReference table;
+  private TableReferenceProxy table;
 
   private Condition condition;
 
-  public WhereConditionBuilder(final TableReference table) {
+  public WhereConditionBuilder(final TableReferenceProxy table) {
     this(table, Condition.ALL);
   }
 
-  public WhereConditionBuilder(final TableReference table, final Condition condition) {
+  public WhereConditionBuilder(final TableReferenceProxy table, final Condition condition) {
     this.table = table;
     if (condition == null) {
       this.condition = Condition.ALL;
@@ -160,13 +160,18 @@ public class WhereConditionBuilder implements TableReferenceProxy {
     if (this.table == null) {
       return null;
     } else {
-      return this.table.getTablePath();
+      return this.table.getTableReference()
+        .getTablePath();
     }
   }
 
   @Override
   public TableReference getTableReference() {
-    return this.table;
+    if (this.table == null) {
+      return null;
+    } else {
+      return this.table.getTableReference();
+    }
   }
 
   public String getWhere() {

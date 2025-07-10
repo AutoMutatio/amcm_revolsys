@@ -45,14 +45,16 @@ public abstract class AbstractBinaryQueryValue implements QueryValue {
     if (this.left != null) {
       if (this.right instanceof final ColumnReference column
         && !(this.left instanceof ColumnReference)) {
-        this.left.setColumn(column);
+        final var c = column.getColumn();
+        this.left.setColumn(c);
       }
       index = this.left.appendParameters(index, statement);
     }
     if (this.right != null) {
       if (this.left instanceof final ColumnReference column
         && !(this.right instanceof ColumnReference)) {
-        this.right.setColumn(column);
+        final var c = column.getColumn();
+        this.right.setColumn(c);
       }
       index = this.right.appendParameters(index, statement);
     }

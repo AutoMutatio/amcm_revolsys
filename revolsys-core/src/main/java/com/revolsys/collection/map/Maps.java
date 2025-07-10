@@ -504,6 +504,19 @@ public interface Maps {
     }
   }
 
+  /**
+   * Returns the list associated with the specified key in the given map.
+   * <p>
+   * If the key is not already associated with a list, this method creates a new
+   * {@link ArrayList}, associates it with the key in the map, and returns it.
+   * </p>
+   *
+   * @param map the map containing lists of values
+   * @param key the key whose associated list is to be returned
+   * @param <K> the type of keys in the map
+   * @param <V> the type of elements in the lists
+   * @return the existing or newly created list associated with the given key
+   */
   static <K, V> List<V> getList(final Map<K, List<V>> map, final K key) {
     List<V> list = map.get(key);
     if (list == null) {

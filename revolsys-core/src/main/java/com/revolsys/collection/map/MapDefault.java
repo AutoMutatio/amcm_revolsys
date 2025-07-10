@@ -385,12 +385,7 @@ public interface MapDefault<K, KA, V, M extends MapDefault<K, KA, V, M>>
   }
 
   default JsonObject getJsonObject(final KA name, final JsonObject defaultValue) {
-    final JsonObject value = getJsonObject(name);
-    if (value == null) {
-      return defaultValue;
-    } else {
-      return value;
-    }
+    return getTypedValue(name, Json.JSON_OBJECT, defaultValue);
   }
 
   default <T extends V> ListEx<T> getList(final KA name) {

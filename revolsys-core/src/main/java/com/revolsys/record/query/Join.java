@@ -1,6 +1,7 @@
 package com.revolsys.record.query;
 
 import java.sql.PreparedStatement;
+import java.util.function.Consumer;
 
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.exception.Exceptions;
@@ -147,6 +148,12 @@ public class Join implements QueryValue, TableReferenceProxy {
 
   public JoinType joinType() {
     return this.joinType;
+  }
+
+  public Join on(final Consumer<WhereConditionBuilder> action) {
+    final WhereConditionBuilder builder = new WhereConditionBuilder(this, this.condition);
+    this.condition = builder.build(action);
+    return this;
   }
 
   public Join on(final QueryValue left, final QueryValue right) {
