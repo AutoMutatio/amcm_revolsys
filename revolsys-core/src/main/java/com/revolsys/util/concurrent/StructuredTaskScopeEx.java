@@ -146,6 +146,35 @@ public class StructuredTaskScopeEx<V> extends StructuredTaskScope<V>
     }
   }
 
+  @Override
+  public <T> void channelWorkerThreads(final int workerCount, final Channel<T> channel,
+    final Consumer<T> inputHandler) {
+    for (int i = 0; i < workerCount && !channel.isClosed(); i++) {
+      try {
+        channel.readConnect();
+      } catch (final IllegalStateException e) {
+        return;
+      }
+    }
+    for (int i = 0; i < workerCount && !channel.isClosed(); i++) {
+      run(() -> {
+        try {
+          while (!channel.isClosed()) {
+            final T value = channel.read();
+            inputHandler.accept(value);
+          }
+        } catch (RuntimeException | Error e) {
+          if (channel.isClosed() || Exceptions.isInterruptException(e)) {
+            return;
+          }
+          Logs.error(this, "Shutdown: Task handler error", e);
+        } finally {
+          channel.readDisconnect();
+        }
+      });
+    }
+  }
+
   private void done() {
     try (
       var l = this.lock.lockX()) {
@@ -273,29 +302,6 @@ public class StructuredTaskScopeEx<V> extends StructuredTaskScope<V>
   @Override
   public boolean isCancelled() {
     return this.cancelled;
-  }
-
-  @Override
-  public StructuredTaskScopeEx<V> join() {
-    try {
-      while (true) {
-        try (
-          var l = this.lock.lockX()) {
-          if (this.cancelled) {
-            shutdown();
-            break;
-          } else if (this.count.get() == 0) {
-            break;
-          }
-          this.done.await();
-
-        }
-      }
-      super.join();
-    } catch (final InterruptedException e) {
-      throw Exceptions.toRuntimeException(e);
-    }
-    return this;
   }
 
   /**
