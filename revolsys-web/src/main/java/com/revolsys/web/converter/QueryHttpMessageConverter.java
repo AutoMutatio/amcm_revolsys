@@ -106,6 +106,12 @@ public class QueryHttpMessageConverter extends AbstractHttpMessageConverter<Quer
 
   private void writeJson(final HttpOutputMessage outputMessage, final Query query,
     final RecordReader reader) throws IOException {
+    Long count = null;
+    if (query.isReturnCount()) {
+      count = query.getRecordCount();
+    }
+    final var resultHeaders = query.getResultHeaders();
+
     final var offset = query.getOffset();
     final var limit = query.getLimit();
     try (
@@ -115,14 +121,10 @@ public class QueryHttpMessageConverter extends AbstractHttpMessageConverter<Quer
         var jsonWriter = new JsonRecordWriter(reader, writer);) {
         final JsonObject header = JsonObject.hash();
         jsonWriter.setHeader(header);
-        Long count = null;
-        if (query.isReturnCount()) {
-          count = query.getRecordCount();
-        }
+
         if (count != null) {
           header.addValue("@odata.count", count);
         }
-        final var resultHeaders = query.getResultHeaders();
         if (resultHeaders != null) {
           header.addValues(resultHeaders);
         }
