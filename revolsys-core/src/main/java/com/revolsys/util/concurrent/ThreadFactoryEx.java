@@ -25,15 +25,15 @@ import com.revolsys.collection.iterator.BaseIterable;
 import com.revolsys.collection.iterator.ForEachHandler;
 import com.revolsys.collection.iterator.ForEachMethods;
 import com.revolsys.collection.iterator.Iterables;
-import com.revolsys.collection.iterator.RunableMethods;
+import com.revolsys.collection.iterator.RunnableMethods;
 import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.json.Jsonable;
 import com.revolsys.collection.list.Lists;
 import com.revolsys.collection.set.Sets;
 import com.revolsys.parallel.SemaphoreEx;
 
-public class ThreadFactoryEx
-  implements ThreadFactory, ForEachMethods, RunableMethods, ExecutorService, Jsonable {
+public class ThreadFactoryEx implements ThreadFactory, ForEachMethods,
+  RunnableMethods<ThreadFactoryEx>, ExecutorService, Jsonable {
   private static final Set<Reference<ThreadFactoryEx>> FACTORIES = ConcurrentHashMap.newKeySet();
 
   private static final ReferenceQueue<ThreadFactoryEx> FACTORY_QUEUE = new ReferenceQueue<>();
@@ -220,17 +220,18 @@ public class ThreadFactoryEx
   }
 
   @Override
-  public <V> void run(final ForEachHandler<Runnable> forEach) {
-    scope(scope -> scope.run(forEach));
+  public ThreadFactoryEx run(final ForEachHandler<Runnable> forEach) {
+    return scope(scope -> scope.run(forEach));
   }
 
-  public <V> void run(final Runnable action) {
-    scope(scope -> scope.run(action));
+  public <V> ThreadFactoryEx run(final Runnable action) {
+    return scope(scope -> scope.run(action));
   }
 
-  public <V> void scope(final Consumer<StructuredTaskScopeEx<V>> action) {
+  public <V> ThreadFactoryEx scope(final Consumer<StructuredTaskScopeEx<V>> action) {
     new LambdaStructuredTaskScope.Builder<V>(this.name, this).throwErrors()
       .join(action);
+    return this;
   }
 
   public <V> V scope(final String name, final Function<StructuredTaskScopeEx<V>, V> action) {
