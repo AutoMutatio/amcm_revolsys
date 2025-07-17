@@ -135,8 +135,7 @@ public interface TableReference extends From, TableReferenceProxy {
 
   default ILike iLike(final String fieldName, final Object value) {
     final ColumnReference field = getColumn(fieldName);
-    final Value valueCondition = Value.newValue(value);
-    return new ILike(field, valueCondition);
+    return Q.iLike(field, value);
   }
 
   default Condition in(final String fieldName, final List<?> list) {

@@ -186,7 +186,7 @@ public class AkibanSqlParser implements SqlParser {
       final ValueNode rightValueNode = likeEscapeOperatorNode.getLeftOperand();
       final QueryValue leftCondition = toQueryValue(recordDefinition, leftValueNode);
       final QueryValue rightCondition = toQueryValue(recordDefinition, rightValueNode);
-      return (V)new ILike(leftCondition, rightCondition);
+      return (V)ILike.create(leftCondition, rightCondition);
     } else if (expression instanceof NotNode) {
       final NotNode notNode = (NotNode)expression;
       final ValueNode operand = notNode.getOperand();
@@ -448,7 +448,7 @@ public class AkibanSqlParser implements SqlParser {
       final ValueNode rightValueNode = likeEscapeOperatorNode.getLeftOperand();
       final QueryValue leftCondition = toQueryValue(leftValueNode);
       final QueryValue rightCondition = toQueryValue(rightValueNode);
-      return (V)new ILike(leftCondition, rightCondition);
+      return (V)ILike.create(leftCondition, rightCondition);
     } else if (expression instanceof NotNode) {
       final NotNode notNode = (NotNode)expression;
       final ValueNode operand = notNode.getOperand();

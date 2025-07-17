@@ -16,6 +16,7 @@ import com.revolsys.record.query.QueryStatement;
 import com.revolsys.record.query.QueryValue;
 import com.revolsys.record.query.SqlAppendable;
 import com.revolsys.record.query.StringLiteral;
+import com.revolsys.record.query.StringValue;
 import com.revolsys.record.query.Value;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordStore;
@@ -33,7 +34,9 @@ public class JsonValue extends SimpleFunction {
   public JsonValue(final List<QueryValue> parameters) {
     super(NAME, 2, parameters);
     final QueryValue pathParameter = parameters.get(1);
-    if (pathParameter instanceof final StringLiteral literal) {
+    if (pathParameter instanceof final StringValue value) {
+      this.displayPath = value.getString();
+    } else if (pathParameter instanceof final StringLiteral literal) {
       this.displayPath = literal.getString();
     } else if (Value.isString(pathParameter)) {
       this.displayPath = (String)((Value)pathParameter).getValue();
