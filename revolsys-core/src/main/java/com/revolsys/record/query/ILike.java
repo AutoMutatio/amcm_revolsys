@@ -2,9 +2,17 @@ package com.revolsys.record.query;
 
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.data.type.DataType;
+import com.revolsys.record.query.functions.JsonValue;
 import com.revolsys.util.Property;
 
 public class ILike extends BinaryCondition {
+
+  public static ILike create(final QueryValue left, final QueryValue right) {
+    if (left instanceof final JsonValue jsonValue) {
+      jsonValue.setText(true);
+    }
+    return new ILike(left, right);
+  }
 
   public ILike(final QueryValue left, final QueryValue right) {
     super(left, "ILIKE", right);
@@ -17,7 +25,7 @@ public class ILike extends BinaryCondition {
 
   @Override
   public ILike newCondition(final QueryValue left, final QueryValue right) {
-    return new ILike(left, right);
+    return create(left, right);
   }
 
   @Override

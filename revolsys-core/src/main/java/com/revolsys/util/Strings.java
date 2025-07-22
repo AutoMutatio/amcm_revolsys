@@ -42,6 +42,58 @@ public interface Strings {
   static final Pattern InCombiningDiacriticalMarks = Pattern
     .compile("\\p{InCombiningDiacriticalMarks}+");
 
+  /**
+   * * Remove any control characters
+   * * Replace \r with \n and have a max of 2 \n
+   * * Replace multiple ' ' or \t with a single space
+   * * Ignore whitespace at start/end of line
+   * @param text
+   * @return
+   */
+  public static String cleanDuplicateWhitespace(final String text) {
+    final var s = new StringBuilder();
+    int newLineCount = 0;
+    char lastChar = '\u0000';
+    for (int i = 0; i < text.length(); i++) {
+      final var c = text.charAt(i);
+
+      if (c <= 0x07 || c >= 0x0E && c <= 0x1B) {
+        // Ignore control characters
+      } else if (c == '\r' || c == '\n') {
+        lastChar = '\n';
+        newLineCount++;
+      } else if (c == ' ' || c == '\t') {
+        if (lastChar == '\n' || lastChar == '\u0000') {
+          // skip
+        } else {
+          // Don't write whitespace here. The next non-whitepsace character will
+          // cause a whitespace to be written
+          lastChar = ' ';
+        }
+      } else {
+        if (lastChar == ' ') {
+          // Write out the whitsspace
+          s.append(' ');
+        } else if (lastChar == '\n') {
+          // Write out max 2 new line characters
+          s.append('\n');
+          if (newLineCount > 1) {
+            s.append('\n');
+          }
+        }
+        newLineCount = 0;
+        s.append(c);
+        lastChar = c;
+      }
+
+    }
+    if (lastChar != '\n') {
+      // Always end with a newline
+      s.append('\n');
+    }
+    return s.toString();
+  }
+
   static String cleanString(String text) {
     if (text == null) {
       return "";

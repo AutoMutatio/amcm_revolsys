@@ -51,10 +51,10 @@ public class Json {
         return jsonable.asJson();
       } else if (value instanceof Map) {
         return new JsonObjectHash((Map<? extends String, ? extends Object>)value);
-      } else if (value instanceof List) {
-        return JsonList.array((List<?>)value);
-      } else if (value instanceof String) {
-        final Object read = JsonParser.read((String)value);
+      } else if (value instanceof final List<?> list) {
+        return JsonList.array(list);
+      } else if (value instanceof final String string) {
+        final Object read = JsonParser.read(string);
         if (read instanceof JsonType) {
           return read;
         } else if (read instanceof Boolean) {

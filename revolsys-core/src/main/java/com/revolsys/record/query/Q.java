@@ -24,7 +24,7 @@ import com.revolsys.util.Property;
 public class Q {
   public static BiFunction<QueryValue, QueryValue, QueryValue> ADD = Add::new;
 
-  public static BiFunction<QueryValue, QueryValue, Condition> ILIKE = ILike::new;
+  public static BiFunction<QueryValue, QueryValue, Condition> ILIKE = ILike::create;
 
   public static BiFunction<QueryValue, QueryValue, Condition> LIKE = Like::new;
 
@@ -278,30 +278,29 @@ public class Q {
   }
 
   public static ILike iLike(final ColumnReference column, final Object value) {
-    final String name = column.getName();
-    final Value valueCondition = Value.newValue(column, value);
-    return iLike(name, valueCondition);
+    final var valueCondition = stringValue(value);
+    return iLike(column, valueCondition);
   }
 
   public static ILike iLike(final QueryValue left, final Object value) {
-    final Value valueCondition = Value.newValue(value);
-    return new ILike(left, valueCondition);
+    final var valueCondition = stringValue(value);
+    return ILike.create(left, valueCondition);
   }
 
   public static ILike iLike(final String name, final Object value) {
-    final Value valueCondition = Value.newValue(value);
+    final var valueCondition = stringValue(value);
     return iLike(name, valueCondition);
   }
 
   public static ILike iLike(final String left, final QueryValue right) {
     final Column leftCondition = new Column(left);
-    return new ILike(leftCondition, right);
+    return ILike.create(leftCondition, right);
   }
 
   public static Condition iLike(final String left, final String right) {
     final Column leftCondition = new Column(left);
-    final Value valueCondition = Value.newValue("%" + right + "%");
-    return new ILike(leftCondition, valueCondition);
+    final var valueCondition = Q.stringValue("%" + right + "%");
+    return ILike.create(leftCondition, valueCondition);
   }
 
   public static ILike iLike(final TableReferenceProxy table, final CharSequence fieldName,
@@ -364,7 +363,7 @@ public class Q {
   }
 
   public static JsonValue jsonRawValue(final QueryValue left, final String right) {
-    return jsonRawValue(left, Q.literal(right));
+    return jsonRawValue(left, Q.stringValue(right));
   }
 
   public static JsonValue jsonRawValue(final TableReferenceProxy table, final String fieldName,
@@ -378,7 +377,7 @@ public class Q {
   }
 
   public static JsonValue jsonValue(final QueryValue left, final String right) {
-    return jsonValue(left, Q.literal(right));
+    return jsonValue(left, Q.stringValue(right));
   }
 
   public static JsonValue jsonValue(final TableReferenceProxy table, final String fieldName,
@@ -429,23 +428,17 @@ public class Q {
   }
 
   public static Like like(final FieldDefinition fieldDefinition, final Object value) {
-    final String name = fieldDefinition.getName();
-    final Value valueCondition = Value.newValue(fieldDefinition, value);
-    return like(name, valueCondition);
+    final var valueCondition = stringValue(value);
+    return like(fieldDefinition, valueCondition);
   }
 
   public static Like like(final QueryValue left, final Object value) {
-    final QueryValue valueCondition;
-    if (value instanceof QueryValue) {
-      valueCondition = (QueryValue)value;
-    } else {
-      valueCondition = Value.newValue(value);
-    }
+    final var valueCondition = stringValue(value);
     return new Like(left, valueCondition);
   }
 
   public static Like like(final String name, final Object value) {
-    final Value valueCondition = Value.newValue(value);
+    final var valueCondition = stringValue(value);
     return like(name, valueCondition);
   }
 
@@ -464,9 +457,9 @@ public class Q {
     } else {
       left = F.regexpReplace(F.upper(fieldName), "[^A-Z0-9]", "", "g");
     }
-    final String right = "%" + DataTypes.toString(value)
+    final var right = Q.stringValue("%" + DataTypes.toString(value)
       .toUpperCase()
-      .replaceAll("[^A-Z0-9]", "") + "%";
+      .replaceAll("[^A-Z0-9]", "") + "%");
     return Q.like(left, right);
   }
 
@@ -622,6 +615,20 @@ public class Q {
 
   public static QueryValue sqlExpression(final String sql, final DataType dataType) {
     return new SqlExpression(sql, dataType);
+  }
+
+  private static QueryValue stringValue(final Object value) {
+    final QueryValue valueCondition;
+    if (value instanceof QueryValue) {
+      valueCondition = (QueryValue)value;
+    } else {
+      valueCondition = Q.stringValue(value.toString());
+    }
+    return valueCondition;
+  }
+
+  public static StringValue stringValue(final String string) {
+    return new StringValue(string);
   }
 
   public static Subtract subtract(final QueryValue left, final QueryValue right) {
