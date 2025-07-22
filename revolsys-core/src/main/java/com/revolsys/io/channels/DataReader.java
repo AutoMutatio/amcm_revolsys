@@ -291,6 +291,8 @@ public interface DataReader extends BaseCloseable {
     return count > 0;
   }
 
+  String toFullString();
+
   void unreadByte(byte b);
 
   default void unreadByte(final int b) {

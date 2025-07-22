@@ -457,6 +457,22 @@ public abstract class AbstractDataReader extends InputStream implements DataRead
   }
 
   @Override
+  public String toFullString() {
+    final int originalPosition = this.buffer.position();
+    final int originalLimit = this.buffer.limit();
+    try {
+      this.buffer.position(0);
+
+      final byte[] data = new byte[this.buffer.limit()];
+      this.buffer.get(data);
+      return new String(data, StandardCharsets.US_ASCII);
+    } finally {
+      this.buffer.position(originalPosition);
+      this.buffer.position(originalLimit);
+    }
+  }
+
+  @Override
   public String toString() {
     return toString(this.buffer);
   }
@@ -490,9 +506,8 @@ public abstract class AbstractDataReader extends InputStream implements DataRead
         c = ' ';
         after = new byte[0];
       }
-      return new String(before, StandardCharsets.US_ASCII) + "█"
-        + ((Character)c).toString().replaceAll("[\\n\\r]", "\\\\n") + "█"
-        + new String(after, StandardCharsets.US_ASCII);
+      return new String(before, StandardCharsets.US_ASCII) + "█" + ((Character)c).toString()
+        .replaceAll("[\\n\\r]", "\\\\n") + "█" + new String(after, StandardCharsets.US_ASCII);
     } catch (final Exception e) {
       e.printStackTrace();
     } finally {
