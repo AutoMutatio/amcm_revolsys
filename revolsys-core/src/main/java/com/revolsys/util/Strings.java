@@ -351,6 +351,14 @@ public interface Strings {
     return -1;
   }
 
+  static boolean isBlank(final String text) {
+    if (text == null) {
+      return true;
+    } else {
+      return text.isBlank();
+    }
+  }
+
   static boolean isEqualTrim(final String oldValue, final String newValue) {
     final boolean oldHasValue = Property.hasValue(oldValue);
     final boolean newHasValue = Property.hasValue(newValue);
@@ -370,6 +378,14 @@ public interface Strings {
       } else {
         return true;
       }
+    }
+  }
+
+  static boolean isNotBlank(final String text) {
+    if (text == null) {
+      return false;
+    } else {
+      return !text.isBlank();
     }
   }
 

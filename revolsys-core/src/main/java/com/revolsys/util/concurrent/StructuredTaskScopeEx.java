@@ -14,7 +14,7 @@ import java.util.stream.Stream;
 import com.revolsys.collection.iterator.ForEachHandler;
 import com.revolsys.collection.iterator.ForEachMethods;
 import com.revolsys.collection.iterator.Iterables;
-import com.revolsys.collection.iterator.RunableMethods;
+import com.revolsys.collection.iterator.RunnableMethods;
 import com.revolsys.collection.list.ListEx;
 import com.revolsys.collection.list.Lists;
 import com.revolsys.exception.Exceptions;
@@ -124,10 +124,14 @@ public class StructuredTaskScopeEx<V> extends StructuredTaskScope<V>
 
   public <T> void channelWorkerThreads(final int workerCount, final Channel<T> channel,
     final Consumer<T> inputHandler) {
-    for (int i = 0; i < workerCount; i++) {
-      channel.readConnect();
+    for (int i = 0; i < workerCount && !channel.isClosed(); i++) {
+      try {
+        channel.readConnect();
+      } catch (final IllegalStateException e) {
+        return;
+      }
     }
-    for (int i = 0; i < workerCount; i++) {
+    for (int i = 0; i < workerCount && !channel.isClosed(); i++) {
       run(() -> {
         try {
           while (!channel.isClosed()) {
@@ -302,7 +306,7 @@ public class StructuredTaskScopeEx<V> extends StructuredTaskScope<V>
    * Use the @{link {@link #run(Runnable)} method to for a subtask
    *
    * @param forEach The handler that loops through
-   * @see RunableMethods
+   * @see RunnableMethods
    */
   public void run(final ForEachHandler<Runnable> forEach) {
     final Consumer<Runnable> forkAction = this::run;
@@ -313,7 +317,7 @@ public class StructuredTaskScopeEx<V> extends StructuredTaskScope<V>
    * Use the @{link {@link #run(Runnable)} method to for a subtask
    *
    * @param forEach The handler that loops through
-   * @see RunableMethods
+   * @see RunnableMethods
    */
   public void run(final Runnable... tasks) {
     for (final Runnable task : tasks) {

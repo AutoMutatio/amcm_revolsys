@@ -26,6 +26,8 @@ public class Q {
 
   public static BiFunction<QueryValue, QueryValue, Condition> ILIKE = ILike::create;
 
+  public static BiFunction<QueryValue, QueryValue, Condition> LIKE = Like::new;
+
   public static Function<QueryValue, Condition> IS_NOT_NULL = IsNotNull::new;
 
   public static Function<QueryValue, Condition> IS_NULL = IsNull::new;
