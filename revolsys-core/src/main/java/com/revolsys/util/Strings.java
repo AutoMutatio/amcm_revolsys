@@ -54,8 +54,8 @@ public class Strings {
     for (int i = ' '; i < 255; i++) {
       ALLOWED_CHARACTERS.add((char)i);
     }
-    // Unicode Block “Latin Extended-A”
-    for (int c = '\u0100'; c < '\u017F'; c++) {
+    // Unicode Block “Latin Extended-A & B”
+    for (int c = '\u0100'; c < '\u024F'; c++) {
       ALLOWED_CHARACTERS.add((char)c);
     }
     // Unicode Block “Greek and Coptic”
@@ -84,6 +84,14 @@ public class Strings {
     }
     // Unicode Block “Dingbats”
     for (int c = '\u2700'; c < '\u27BF'; c++) {
+      ALLOWED_CHARACTERS.add((char)c);
+    }
+    // Unicode Block “high surrogate”
+    for (int c = '\uDC00'; c < '\uDFFF'; c++) {
+      ALLOWED_CHARACTERS.add((char)c);
+    }
+    // Unicode Block “high surrogate”
+    for (int c = '\uD800'; c < '\uDBFF'; c++) {
       ALLOWED_CHARACTERS.add((char)c);
     }
     // Unicode Block “Alphabetic Presentation Forms”
@@ -410,7 +418,7 @@ public class Strings {
     if (ALLOWED_CHARACTERS.contains(character)) {
       return true;
     } else {
-      if (UNKNOWN_CHARS.add(character)) {
+      if (character < '\uF000' && UNKNOWN_CHARS.add(character)) {
         System.err.println(character + "\t" + Integer.toHexString(character));
         System.err.flush();
       }
@@ -426,6 +434,20 @@ public class Strings {
     for (int i = 0; i < s.length(); i++) {
       final var c = s.charAt(i);
       if (!isCharAllowed(c)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  public static boolean isCharAllowedOrPrivate(final CharSequence s) {
+    if (s == null) {
+      return true;
+    }
+
+    for (int i = 0; i < s.length(); i++) {
+      final var c = s.charAt(i);
+      if (!isCharAllowed(c) && c < '\uF000') {
         return false;
       }
     }
