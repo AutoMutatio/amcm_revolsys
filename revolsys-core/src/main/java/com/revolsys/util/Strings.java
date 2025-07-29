@@ -428,15 +428,7 @@ public class Strings {
     return -1;
   }
 
-  static boolean isBlank(final String text) {
-    if (text == null) {
-      return true;
-    } else {
-      return text.isBlank();
-    }
-  }
-
-  static boolean isBlank(final String text) {
+  public static boolean isBlank(final String text) {
     if (text == null) {
       return true;
     } else {
@@ -516,15 +508,7 @@ public class Strings {
     }
   }
 
-  static boolean isNotBlank(final String text) {
-    if (text == null) {
-      return false;
-    } else {
-      return !text.isBlank();
-    }
-  }
-
-  static boolean isNotBlank(final String text) {
+  public static boolean isNotBlank(final String text) {
     if (text == null) {
       return false;
     } else {
