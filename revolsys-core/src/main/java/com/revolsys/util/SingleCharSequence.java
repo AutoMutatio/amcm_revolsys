@@ -27,11 +27,10 @@ public class SingleCharSequence implements CharSequence {
   }
 
   public static CharSequence valueOf(final char c) {
+    if (c < 128) {
+      return CACHE[c];
+    }
     return new SingleCharSequence(c);
-  }
-
-  public static CharSequence valueOf(final int c) {
-    return valueOf((char)c);
   }
 
   private final char character;

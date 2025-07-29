@@ -44,59 +44,71 @@ public class Strings {
 
   private static Set<Character> ALLOWED_CHARACTERS = new HashSet<>();
 
+  private static Set<UnicodeBlock> ALLOWED_BLOCKS = Sets.newHash(//
+    UnicodeBlock.LATIN_EXTENDED_A, //
+    UnicodeBlock.LATIN_EXTENDED_B, //
+    UnicodeBlock.GREEK, //
+    UnicodeBlock.GENERAL_PUNCTUATION, //
+    UnicodeBlock.SUPERSCRIPTS_AND_SUBSCRIPTS, //
+    UnicodeBlock.LETTERLIKE_SYMBOLS, //
+    UnicodeBlock.MATHEMATICAL_OPERATORS, //
+    UnicodeBlock.MISCELLANEOUS_SYMBOLS, //
+    UnicodeBlock.DINGBATS, //
+    UnicodeBlock.ALPHABETIC_PRESENTATION_FORMS, //
+    UnicodeBlock.LATIN_1_SUPPLEMENT, //
+    UnicodeBlock.LOW_SURROGATES, //
+    UnicodeBlock.HIGH_SURROGATES, //
+    UnicodeBlock.HIGH_PRIVATE_USE_SURROGATES, //
+    UnicodeBlock.HIGH_SURROGATES, //
+    UnicodeBlock.PRIVATE_USE_AREA, //
+    UnicodeBlock.SUPPLEMENTARY_PRIVATE_USE_AREA_A, //
+    UnicodeBlock.SUPPLEMENTARY_PRIVATE_USE_AREA_B, //
+    UnicodeBlock.BOX_DRAWING, //
+    UnicodeBlock.CYRILLIC, //
+    UnicodeBlock.CYRILLIC_EXTENDED_A, //
+    UnicodeBlock.CYRILLIC_EXTENDED_B, //
+    UnicodeBlock.CYRILLIC_EXTENDED_C, //
+    UnicodeBlock.CYRILLIC_EXTENDED_D, //
+    UnicodeBlock.CYRILLIC_SUPPLEMENTARY, //
+    UnicodeBlock.GEOMETRIC_SHAPES, //
+    UnicodeBlock.GEOMETRIC_SHAPES_EXTENDED, //
+    UnicodeBlock.SPACING_MODIFIER_LETTERS, //
+    UnicodeBlock.SPECIALS, //
+    UnicodeBlock.MISCELLANEOUS_TECHNICAL, //
+    UnicodeBlock.MISCELLANEOUS_MATHEMATICAL_SYMBOLS_A, //
+    UnicodeBlock.MISCELLANEOUS_MATHEMATICAL_SYMBOLS_B, //
+    UnicodeBlock.MISCELLANEOUS_SYMBOLS_AND_ARROWS, //
+    UnicodeBlock.MISCELLANEOUS_SYMBOLS_AND_PICTOGRAPHS, //
+    UnicodeBlock.PHONETIC_EXTENSIONS, //
+    UnicodeBlock.PHONETIC_EXTENSIONS_SUPPLEMENT, //
+    UnicodeBlock.ARROWS, //
+    UnicodeBlock.GREEK_EXTENDED, //
+    UnicodeBlock.HEBREW, //
+    UnicodeBlock.ARABIC, //
+    UnicodeBlock.IPA_EXTENSIONS, //
+    UnicodeBlock.GUJARATI, //
+    UnicodeBlock.SINHALA, //
+    UnicodeBlock.NUMBER_FORMS, //
+    UnicodeBlock.SINHALA, //
+    UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS, //
+    UnicodeBlock.HANGUL_SYLLABLES, //
+    UnicodeBlock.CJK_COMPATIBILITY, //
+    UnicodeBlock.CJK_COMPATIBILITY_FORMS, //
+    UnicodeBlock.CJK_COMPATIBILITY_IDEOGRAPHS, //
+    UnicodeBlock.CJK_COMPATIBILITY_IDEOGRAPHS_SUPPLEMENT, //
+    UnicodeBlock.CURRENCY_SYMBOLS, //
+    UnicodeBlock.VARIATION_SELECTORS, //
+    UnicodeBlock.VARIATION_SELECTORS_SUPPLEMENT //
+  // UnicodeBlock.BASIC_LATIN Done using characters as it includes control
+  // characters
+  );
+
   static {
-    for (int i = 0; i < '\t'; i++) {
+    for (int i = '\b'; i <= '\r'; i++) {
       ALLOWED_CHARACTERS.add((char)i);
     }
-    for (int i = 14; i < ' '; i++) {
+    for (int i = 28; i < 0x7F; i++) {
       ALLOWED_CHARACTERS.add((char)i);
-    }
-    for (int i = ' '; i < 255; i++) {
-      ALLOWED_CHARACTERS.add((char)i);
-    }
-    // Unicode Block “Latin Extended-A & B”
-    for (int c = '\u0100'; c < '\u024F'; c++) {
-      ALLOWED_CHARACTERS.add((char)c);
-    }
-    // Unicode Block “Greek and Coptic”
-    for (int c = '\u0370'; c < '\u03FF'; c++) {
-      ALLOWED_CHARACTERS.add((char)c);
-    }
-    // Unicode Block “General Punctuation”
-    for (int c = '\u2000'; c < '\u206F'; c++) {
-      ALLOWED_CHARACTERS.add((char)c);
-    }
-    // Unicode Block “Superscripts and Subscripts”
-    for (int c = '\u2070'; c < '\u209F'; c++) {
-      ALLOWED_CHARACTERS.add((char)c);
-    }
-    // Unicode Block “Letterlike Symbols”
-    for (int c = '\u2100'; c < '\u214F'; c++) {
-      ALLOWED_CHARACTERS.add((char)c);
-    }
-    // Unicode Block “Mathematical Operators”
-    for (int c = '\u2200'; c < '\u22FF'; c++) {
-      ALLOWED_CHARACTERS.add((char)c);
-    }
-    // Unicode Block “Miscellaneous Symbols”
-    for (int c = '\u2600'; c < '\u26FF'; c++) {
-      ALLOWED_CHARACTERS.add((char)c);
-    }
-    // Unicode Block “Dingbats”
-    for (int c = '\u2700'; c < '\u27BF'; c++) {
-      ALLOWED_CHARACTERS.add((char)c);
-    }
-    // Unicode Block “high surrogate”
-    for (int c = '\uDC00'; c < '\uDFFF'; c++) {
-      ALLOWED_CHARACTERS.add((char)c);
-    }
-    // Unicode Block “high surrogate”
-    for (int c = '\uD800'; c < '\uDBFF'; c++) {
-      ALLOWED_CHARACTERS.add((char)c);
-    }
-    // Unicode Block “Alphabetic Presentation Forms”
-    for (int c = '\uFB00'; c < '\uFB4F'; c++) {
-      ALLOWED_CHARACTERS.add((char)c);
     }
   }
 
@@ -104,6 +116,8 @@ public class Strings {
 
   public static final Pattern InCombiningDiacriticalMarks = Pattern
     .compile("\\p{InCombiningDiacriticalMarks}+");
+
+  public static final char CHAR_REPLACEMENT = '\uFFFD';
 
   /**
    * * Remove any control characters
@@ -415,11 +429,13 @@ public class Strings {
   }
 
   public static boolean isCharAllowed(final char character) {
-    if (ALLOWED_CHARACTERS.contains(character)) {
+    final var block = UnicodeBlock.of(character);
+    if (ALLOWED_BLOCKS.contains(block) || ALLOWED_CHARACTERS.contains(character)) {
       return true;
     } else {
-      if (character < '\uF000' && UNKNOWN_CHARS.add(character)) {
-        System.err.println(character + "\t" + Integer.toHexString(character));
+
+      if (UNKNOWN_CHARS.add(character)) {
+        System.err.println(block + "|" + character + "|\t" + Integer.toHexString(character));
         System.err.flush();
       }
       return false;
@@ -447,11 +463,19 @@ public class Strings {
 
     for (int i = 0; i < s.length(); i++) {
       final var c = s.charAt(i);
-      if (!isCharAllowed(c) && c < '\uF000') {
+      if (!(isCharAllowed(c) || isCharPrivate(c))) {
         return false;
       }
     }
     return true;
+  }
+
+  public static boolean isCharInBlock(final int c, final UnicodeBlock block) {
+    return UnicodeBlock.of(c) == block;
+  }
+
+  public static boolean isCharPrivate(final int c) {
+    return isCharInBlock(c, UnicodeBlock.PRIVATE_USE_AREA);
   }
 
   public static boolean isEqualTrim(final String oldValue, final String newValue) {
