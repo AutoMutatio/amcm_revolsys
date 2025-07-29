@@ -428,6 +428,22 @@ public class Strings {
     return -1;
   }
 
+  static boolean isBlank(final String text) {
+    if (text == null) {
+      return true;
+    } else {
+      return text.isBlank();
+    }
+  }
+
+  static boolean isBlank(final String text) {
+    if (text == null) {
+      return true;
+    } else {
+      return text.isBlank();
+    }
+  }
+
   public static boolean isCharAllowed(final char character) {
     final var block = UnicodeBlock.of(character);
     if (ALLOWED_BLOCKS.contains(block) || ALLOWED_CHARACTERS.contains(character)) {
@@ -497,6 +513,22 @@ public class Strings {
       } else {
         return true;
       }
+    }
+  }
+
+  static boolean isNotBlank(final String text) {
+    if (text == null) {
+      return false;
+    } else {
+      return !text.isBlank();
+    }
+  }
+
+  static boolean isNotBlank(final String text) {
+    if (text == null) {
+      return false;
+    } else {
+      return !text.isBlank();
     }
   }
 
