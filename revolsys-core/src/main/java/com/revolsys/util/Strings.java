@@ -7,16 +7,13 @@ import java.text.Normalizer.Form;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.revolsys.collection.list.ListEx;
 import com.revolsys.collection.list.Lists;
-import com.revolsys.collection.set.Sets;
 import com.revolsys.data.type.DataType;
 import com.revolsys.data.type.DataTypes;
 
@@ -41,78 +38,6 @@ public class Strings {
     + "\u00C7"//
     + "\u0150\u0170"//
   ;
-
-  private static Set<Character> ALLOWED_CHARACTERS = new HashSet<>();
-
-  private static Set<UnicodeBlock> ALLOWED_BLOCKS = Sets.newHash(//
-    UnicodeBlock.LATIN_EXTENDED_A, //
-    UnicodeBlock.LATIN_EXTENDED_B, //
-    UnicodeBlock.GREEK, //
-    UnicodeBlock.GENERAL_PUNCTUATION, //
-    UnicodeBlock.SUPERSCRIPTS_AND_SUBSCRIPTS, //
-    UnicodeBlock.LETTERLIKE_SYMBOLS, //
-    UnicodeBlock.MATHEMATICAL_OPERATORS, //
-    UnicodeBlock.MISCELLANEOUS_SYMBOLS, //
-    UnicodeBlock.DINGBATS, //
-    UnicodeBlock.ALPHABETIC_PRESENTATION_FORMS, //
-    UnicodeBlock.LATIN_1_SUPPLEMENT, //
-    UnicodeBlock.LOW_SURROGATES, //
-    UnicodeBlock.HIGH_SURROGATES, //
-    UnicodeBlock.HIGH_PRIVATE_USE_SURROGATES, //
-    UnicodeBlock.HIGH_SURROGATES, //
-    UnicodeBlock.PRIVATE_USE_AREA, //
-    UnicodeBlock.SUPPLEMENTARY_PRIVATE_USE_AREA_A, //
-    UnicodeBlock.SUPPLEMENTARY_PRIVATE_USE_AREA_B, //
-    UnicodeBlock.BOX_DRAWING, //
-    UnicodeBlock.CYRILLIC, //
-    UnicodeBlock.CYRILLIC_EXTENDED_A, //
-    UnicodeBlock.CYRILLIC_EXTENDED_B, //
-    UnicodeBlock.CYRILLIC_EXTENDED_C, //
-    UnicodeBlock.CYRILLIC_EXTENDED_D, //
-    UnicodeBlock.CYRILLIC_SUPPLEMENTARY, //
-    UnicodeBlock.GEOMETRIC_SHAPES, //
-    UnicodeBlock.GEOMETRIC_SHAPES_EXTENDED, //
-    UnicodeBlock.SPACING_MODIFIER_LETTERS, //
-    UnicodeBlock.SPECIALS, //
-    UnicodeBlock.MISCELLANEOUS_TECHNICAL, //
-    UnicodeBlock.MISCELLANEOUS_MATHEMATICAL_SYMBOLS_A, //
-    UnicodeBlock.MISCELLANEOUS_MATHEMATICAL_SYMBOLS_B, //
-    UnicodeBlock.MISCELLANEOUS_SYMBOLS_AND_ARROWS, //
-    UnicodeBlock.MISCELLANEOUS_SYMBOLS_AND_PICTOGRAPHS, //
-    UnicodeBlock.PHONETIC_EXTENSIONS, //
-    UnicodeBlock.PHONETIC_EXTENSIONS_SUPPLEMENT, //
-    UnicodeBlock.ARROWS, //
-    UnicodeBlock.GREEK_EXTENDED, //
-    UnicodeBlock.HEBREW, //
-    UnicodeBlock.ARABIC, //
-    UnicodeBlock.IPA_EXTENSIONS, //
-    UnicodeBlock.GUJARATI, //
-    UnicodeBlock.SINHALA, //
-    UnicodeBlock.NUMBER_FORMS, //
-    UnicodeBlock.SINHALA, //
-    UnicodeBlock.CJK_UNIFIED_IDEOGRAPHS, //
-    UnicodeBlock.HANGUL_SYLLABLES, //
-    UnicodeBlock.CJK_COMPATIBILITY, //
-    UnicodeBlock.CJK_COMPATIBILITY_FORMS, //
-    UnicodeBlock.CJK_COMPATIBILITY_IDEOGRAPHS, //
-    UnicodeBlock.CJK_COMPATIBILITY_IDEOGRAPHS_SUPPLEMENT, //
-    UnicodeBlock.CURRENCY_SYMBOLS, //
-    UnicodeBlock.VARIATION_SELECTORS, //
-    UnicodeBlock.VARIATION_SELECTORS_SUPPLEMENT //
-  // UnicodeBlock.BASIC_LATIN Done using characters as it includes control
-  // characters
-  );
-
-  static {
-    for (int i = '\b'; i <= '\r'; i++) {
-      ALLOWED_CHARACTERS.add((char)i);
-    }
-    for (int i = 28; i < 0x7F; i++) {
-      ALLOWED_CHARACTERS.add((char)i);
-    }
-  }
-
-  private static Set<Character> UNKNOWN_CHARS = Sets.newHash();
 
   public static final Pattern InCombiningDiacriticalMarks = Pattern
     .compile("\\p{InCombiningDiacriticalMarks}+");
@@ -434,48 +359,6 @@ public class Strings {
     } else {
       return text.isBlank();
     }
-  }
-
-  public static boolean isCharAllowed(final char character) {
-    final var block = UnicodeBlock.of(character);
-    if (ALLOWED_BLOCKS.contains(block) || ALLOWED_CHARACTERS.contains(character)) {
-      return true;
-    } else {
-
-      if (UNKNOWN_CHARS.add(character)) {
-        System.err.println(block + "|" + character + "|\t" + Integer.toHexString(character));
-        System.err.flush();
-      }
-      return false;
-    }
-  }
-
-  public static boolean isCharAllowed(final CharSequence s) {
-    if (s == null) {
-      return true;
-    }
-
-    for (int i = 0; i < s.length(); i++) {
-      final var c = s.charAt(i);
-      if (!isCharAllowed(c)) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  public static boolean isCharAllowedOrPrivate(final CharSequence s) {
-    if (s == null) {
-      return true;
-    }
-
-    for (int i = 0; i < s.length(); i++) {
-      final var c = s.charAt(i);
-      if (!(isCharAllowed(c) || isCharPrivate(c))) {
-        return false;
-      }
-    }
-    return true;
   }
 
   public static boolean isCharInBlock(final int c, final UnicodeBlock block) {

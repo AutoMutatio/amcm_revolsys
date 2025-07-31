@@ -315,6 +315,14 @@ public class Doubles {
     return left * right.doubleValue();
   }
 
+  public static double orDefault(final double value, final double defaultValue) {
+    if (Double.isFinite(value)) {
+      return value;
+    } else {
+      return defaultValue;
+    }
+  }
+
   public static boolean overlaps(final double min1, final double max1, final double min2,
     final double max2) {
     if (min1 > max1) {
