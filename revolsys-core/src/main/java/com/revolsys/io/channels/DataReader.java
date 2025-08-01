@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.channels.ClosedChannelException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
@@ -148,12 +149,20 @@ public interface DataReader extends BaseCloseable {
   boolean isClosed();
 
   default boolean isEof() {
-    final int b = read();
-    if (b < 0) {
-      return true;
-    } else {
-      unreadByte((byte)b);
-      return false;
+    try {
+      final int b = read();
+      if (b < 0) {
+        return true;
+      } else {
+        unreadByte((byte)b);
+        return false;
+      }
+    } catch (final RuntimeException e) {
+      if (Exceptions.hasCause(e, ClosedChannelException.class)) {
+        return true;
+      } else {
+        throw e;
+      }
     }
   }
 
@@ -290,6 +299,8 @@ public interface DataReader extends BaseCloseable {
     }
     return count > 0;
   }
+
+  String toFullString();
 
   void unreadByte(byte b);
 
