@@ -10,9 +10,6 @@ public class SingleHexCharSequence extends SingleCharSequence {
   }
 
   public static CharSequence valueOf(final char c, final String hex) {
-    if (c == 0 || "0".equals(hex)) {
-      Debug.noOp();
-    }
     if (c < 128) {
       return CACHE[c];
     }

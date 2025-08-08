@@ -930,4 +930,8 @@ public class Strings {
       return text.toUpperCase();
     }
   }
+
+  public static final char LINE_SEPARATOR = '\u2028';
+
+  public static final char PARAGRAPH_SEPARATOR = '\u2029';
 }
