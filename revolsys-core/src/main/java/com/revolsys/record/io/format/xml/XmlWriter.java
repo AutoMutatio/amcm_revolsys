@@ -116,45 +116,72 @@ public class XmlWriter extends Writer {
     }
   }
 
+  private static String charToAttributeEscapeString(final char ch) {
+    return switch (ch) {
+      case 0 -> "";
+      case '&' -> "&amp;";
+      case '<' -> "&lt;";
+      case '>' -> "&gt;";
+      case '"' -> "&quot;";
+      case 9 -> "&#09;";
+      case 10 -> "&#10;";
+      case 13 -> "&#13;";
+      case 0xFFFE -> "�";
+      case 0xFFFF -> "�";
+      default -> {
+        // Reject all other control characters
+        if (ch < 32) {
+          yield "�";
+        } else {
+          yield null;
+        }
+      }
+    };
+  }
+
+  public static String charToHex(final char ch) {
+    final var hexString = Integer.toHexString(ch);
+    if (hexString.length() % 2 == 1) {
+      return "0" + hexString;
+    } else {
+      return hexString;
+    }
+  }
+
+  private static String charToTextEscapeString(final char ch) {
+    return switch (ch) {
+      case 0 -> "";
+      case '&' -> "&amp;";
+      case '<' -> "&lt;";
+      case '>' -> "&gt;";
+      case 9 -> null;
+      case 10 -> null;
+      case 13 -> null;
+      case 0xFFFE -> "�";
+      case 0xFFFF -> "�";
+      default -> {
+        // Reject all other control characters
+        if (ch < 32) {
+          yield "�";
+        } else {
+          yield null;
+        }
+      }
+    };
+  }
+
+  private static String toCharacterReference(final char ch) {
+    return "&#x" + charToHex(ch) + ";";
+  }
+
   public static void writeAttributeContent(final Writer out, final String buffer) {
     try {
 
       final int lastIndex = buffer.length();
       int index = 0;
-      String escapeString = null;
       for (int i = 0; i < lastIndex; i++) {
         final char ch = buffer.charAt(index);
-        switch (ch) {
-          case 0:
-            escapeString = "";
-          break;
-          case '&':
-            escapeString = "&amp;";
-          break;
-          case '<':
-            escapeString = "&lt;";
-          break;
-          case '>':
-            escapeString = "&gt;";
-          break;
-          case '"':
-            escapeString = "&quot;";
-          break;
-          case 9:
-            escapeString = "&#9;";
-          break;
-          case 10:
-            escapeString = "&#10;";
-          break;
-          case 13:
-            escapeString = "&#13;";
-          break;
-          default:
-            if (ch < 32) {
-              escapeString = "&#x00" + Integer.toHexString(ch) + ";";
-            }
-          break;
-        }
+        var escapeString = charToAttributeEscapeString(ch);
         if (escapeString != null) {
           if (i > index) {
             out.write(buffer, index, i - index);
@@ -177,33 +204,9 @@ public class XmlWriter extends Writer {
     try {
       int index = offest;
       final int lastIndex = index + length;
-      String escapeString = null;
       for (int i = index; i < lastIndex; i++) {
         final char ch = buffer[i];
-        switch (ch) {
-          case '0':
-            escapeString = "";
-          break;
-          case '&':
-            escapeString = "&amp;";
-          break;
-          case '<':
-            escapeString = "&lt;";
-          break;
-          case '>':
-            escapeString = "&gt;";
-          break;
-          case 9:
-          case 10:
-          case 13:
-          // Accept these control characters
-          break;
-          default:
-            if (ch < 32) {
-              escapeString = "&#x00" + Integer.toHexString(ch) + ";";
-            }
-          break;
-        }
+        var escapeString = charToTextEscapeString(ch);
         if (escapeString != null) {
           if (i > index) {
             out.write(buffer, index, i - index);
@@ -232,33 +235,9 @@ public class XmlWriter extends Writer {
     try {
       int index = offest;
       final int lastIndex = index + length;
-      String escapeString = null;
       for (int i = index; i < lastIndex; i++) {
         final char ch = buffer.charAt(i);
-        switch (ch) {
-          case 0:
-            escapeString = "";
-          break;
-          case '&':
-            escapeString = "&amp;";
-          break;
-          case '<':
-            escapeString = "&lt;";
-          break;
-          case '>':
-            escapeString = "&gt;";
-          break;
-          case 9:
-          case 10:
-          case 13:
-          // Accept these control characters
-          break;
-          default:
-            if (ch < 32) {
-              escapeString = "&#x00" + Integer.toHexString(ch) + ";";
-            }
-          break;
-        }
+        var escapeString = charToTextEscapeString(ch);
         if (escapeString != null) {
           if (i > index) {
             out.write(buffer, index, i - index);
@@ -402,32 +381,11 @@ public class XmlWriter extends Writer {
 
   private void appendChar(final char ch) {
     try {
-      switch (ch) {
-        case '&':
-          this.out.append("&amp;");
-        break;
-        case '<':
-          this.out.append("&lt;");
-        break;
-        case '>':
-          this.out.append("&gt;");
-        break;
-        case 9:
-        case 10:
-        case 13:
-          this.out.append(ch);
-        break;
-        default:
-          if (ch < 32) {
-            if (ch < 32) {
-              this.out.append("&#x");
-              this.out.append(Integer.toHexString(ch));
-              this.out.append(';');
-            }
-          } else {
-            this.out.append(ch);
-          }
-        break;
+      final var escapeString = charToTextEscapeString(ch);
+      if (escapeString == null) {
+        this.out.append(ch);
+      } else {
+        this.out.append(escapeString);
       }
     } catch (final IOException e) {
       throw Exceptions.toRuntimeException(e);
@@ -918,7 +876,7 @@ public class XmlWriter extends Writer {
     try {
       closeStartTag();
       this.out.write("&#");
-      this.out.write(ch);
+      this.out.write(charToHex(ch));
       this.out.write(';');
       setElementHasContent();
     } catch (final IOException e) {
@@ -1494,41 +1452,9 @@ public class XmlWriter extends Writer {
     try {
       final int lastIndex = offset + length;
       int index = offset;
-      String escapeString = null;
       for (int i = offset; i < lastIndex; i++) {
         final char ch = buffer[i];
-        switch (ch) {
-          case 0:
-            escapeString = "";
-          break;
-          case '&':
-            escapeString = "&amp;";
-          break;
-          case '<':
-            escapeString = "&lt;";
-          break;
-          case '>':
-            escapeString = "&gt;";
-          break;
-          case '"':
-            escapeString = "&quot;";
-          break;
-          case 9:
-            escapeString = "&#9;";
-          break;
-          case 10:
-            escapeString = "&#10;";
-          break;
-          case 13:
-            escapeString = "&#13;";
-          break;
-          default:
-            // Reject all other control characters
-            if (ch < 32) {
-              escapeString = "&#x00" + Integer.toHexString(ch) + ";";
-            }
-          break;
-        }
+        var escapeString = charToAttributeEscapeString(ch);
         if (escapeString != null) {
           if (i > index) {
             this.out.write(buffer, index, i - index);
@@ -1571,34 +1497,9 @@ public class XmlWriter extends Writer {
     try {
       int index = offest;
       final int lastIndex = index + length;
-      String escapeString = null;
       for (int i = index; i < lastIndex; i++) {
         final char ch = buffer[i];
-        switch (ch) {
-          case 0:
-            escapeString = "";
-          break;
-          case '&':
-            escapeString = "&amp;";
-          break;
-          case '<':
-            escapeString = "&lt;";
-          break;
-          case '>':
-            escapeString = "&gt;";
-          break;
-          case 9:
-          case 10:
-          case 13:
-          // Accept these control characters
-          break;
-          default:
-            // Reject all other control characters
-            if (ch < 32) {
-              escapeString = "&#x00" + Integer.toHexString(ch) + ";";
-            }
-          break;
-        }
+        var escapeString = charToTextEscapeString(ch);
         if (escapeString != null) {
           if (i > index) {
             this.out.write(buffer, index, i - index);
@@ -1631,34 +1532,9 @@ public class XmlWriter extends Writer {
     try {
       int index = offest;
       final int lastIndex = index + length;
-      String escapeString = null;
       for (int i = index; i < lastIndex; i++) {
         final char ch = chars.charAt(i);
-        switch (ch) {
-          case 0:
-            escapeString = "";
-          break;
-          case '&':
-            escapeString = "&amp;";
-          break;
-          case '<':
-            escapeString = "&lt;";
-          break;
-          case '>':
-            escapeString = "&gt;";
-          break;
-          case 9:
-          case 10:
-          case 13:
-          // Accept these control characters
-          break;
-          default:
-            // Reject all other control characters
-            if (ch < 32) {
-              escapeString = "&#x00" + Integer.toHexString(ch) + ";";
-            }
-          break;
-        }
+        var escapeString = charToTextEscapeString(ch);
         if (escapeString != null) {
           if (i > index) {
             this.out.append(chars, index, i);
