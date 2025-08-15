@@ -333,7 +333,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     return getTable().columnByPath(path);
   }
 
-  protected QueryValue fieldPathToQueryValueJoin(final Query query,
+  protected QueryValue fieldPathToQueryValueJoin(final Query query, final String sourceFieldName,
     final AbstractTableRecordStore joinRs, final String joinAlias, final String joinFieldName,
     final String lookupFieldName, final String[] path) {
     var join = query.getJoin(joinRs, joinAlias);
@@ -341,7 +341,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
       join = query.join(JoinType.LEFT_OUTER_JOIN)
         .table(joinRs)//
         .setAlias(joinAlias)
-        .on("id", query, joinFieldName);
+        .on(joinFieldName, query, sourceFieldName);
     }
     final var column = join.getColumn(lookupFieldName);
     QueryValue selectField = column;
