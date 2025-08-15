@@ -59,6 +59,13 @@ public class TableRecordStoreQuery extends Query {
     return this.recordStore.newRecord(this.connection);
   }
 
+  public TableRecordStoreQuery selectVirtual(final String... columnNames) {
+    for (final var columnName : columnNames) {
+      this.recordStore.addSelect(this.connection, this, columnName);
+    }
+    return this;
+  }
+
   @Override
   public TransactionBuilder transaction() {
     return this.connection.transaction();

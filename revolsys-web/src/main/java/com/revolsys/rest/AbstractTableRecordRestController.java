@@ -22,6 +22,7 @@ import com.revolsys.record.query.Query;
 import com.revolsys.record.schema.AbstractTableRecordStore;
 import com.revolsys.record.schema.TableRecordStoreConnection;
 import com.revolsys.record.schema.TableRecordStoreFactory;
+import com.revolsys.record.schema.TableRecordStoreQuery;
 import com.revolsys.web.HttpServletUtils;
 
 public class AbstractTableRecordRestController extends AbstractWebController {
@@ -86,7 +87,7 @@ public class AbstractTableRecordRestController extends AbstractWebController {
     return true;
   }
 
-  protected Query newQuery(final TableRecordStoreConnection connection,
+  protected TableRecordStoreQuery newQuery(final TableRecordStoreConnection connection,
     final HttpServletRequest request, final CharSequence tablePath) {
     final AbstractTableRecordStore recordStore = getTableRecordStore(connection, tablePath);
     return recordStore.newQuery(connection, request, Integer.MAX_VALUE);

@@ -326,7 +326,6 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
 
   protected QueryValue fieldPathToQueryValueDo(final Query query, final String path) {
     final var parts = path.split("\\.");
-
     final var virtualField = this.virtualFieldByName.get(parts[0]);
     if (virtualField != null) {
       return virtualField.newQueryValue(query, parts);
@@ -562,18 +561,20 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     }
   }
 
-  public Query newQuery(final TableRecordStoreConnection connection) {
+  public TableRecordStoreQuery newQuery(final TableRecordStoreConnection connection) {
     final var query = new TableRecordStoreQuery(this, connection);
     query.setBaseFileName(this.typeName);
     return query;
   }
 
-  public Query newQuery(final TableRecordStoreConnection connection,
+  public TableRecordStoreQuery newQuery(final TableRecordStoreConnection connection,
     final Consumer<Query> configurer) {
-    return newQuery(connection).accept(configurer);
+    final var query = newQuery(connection);
+    query.accept(configurer);
+    return query;
   }
 
-  public Query newQuery(final TableRecordStoreConnection connection,
+  public TableRecordStoreQuery newQuery(final TableRecordStoreConnection connection,
     final HttpServletRequest request, final int maxSize) {
     final String select = request.getParameter("$select");
     final String filter = request.getParameter("$filter");
@@ -602,7 +603,8 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     } catch (final Exception e) {
     }
 
-    final Query query = newQuery(connection).setOffset(skip)
+    final var query = newQuery(connection);
+    query.setOffset(skip)
       .setLimit(top)
       .setReturnCount(count);
 
