@@ -818,6 +818,17 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     return this.groupBy;
   }
 
+  public Join getJoin(final String alias, final Predicate<Join> joinEqual) {
+    for (final var join : getJoins()) {
+      if (DataType.equal(alias, join.getTableAlias())) {
+        if (joinEqual.test(join)) {
+          return join;
+        }
+      }
+    }
+    return null;
+  }
+
   public Join getJoin(final TableReferenceProxy tableProxy, final String alias) {
     if (tableProxy != null) {
       final var table = tableProxy.getTableReference();

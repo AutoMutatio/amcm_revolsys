@@ -581,6 +581,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     final String search = request.getParameter("$search");
     final String orderBy = request.getParameter("$orderby");
     final String aggregate = request.getParameter("$aggregate");
+    final boolean distinct = "true".equals(request.getParameter("$distinct"));
 
     final boolean count = "true".equals(request.getParameter("$count"));
     int skip = 0;
@@ -606,7 +607,8 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     final var query = newQuery(connection);
     query.setOffset(skip)
       .setLimit(top)
-      .setReturnCount(count);
+      .setReturnCount(count)
+      .setDistinct(distinct);
 
     if (Property.hasValue(select)) {
       for (String selectItem : select.split(",")) {
@@ -641,7 +643,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     }
     applySearchCondition(query, search);
     addQueryOrderBy(query, orderBy);
-    if (!hasAggregate) {
+    if (!hasAggregate && !distinct) {
       applyDefaultSortOrder(query);
     }
     return query;

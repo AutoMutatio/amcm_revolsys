@@ -123,6 +123,10 @@ public class Join implements QueryValue, TableReferenceProxy {
     }
   }
 
+  public QueryValue getStatement() {
+    return this.statement;
+  }
+
   public TableReference getTable() {
     return this.table;
   }
