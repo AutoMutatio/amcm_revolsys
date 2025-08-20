@@ -924,6 +924,9 @@ public class ODataParser {
       } else if (token.type == TokenType.QUOTED_STRING) {
         final String value = unquote(token.value);
         values.add(value);
+      } else if (token.type == TokenType.NUMBER) {
+        final var number = new BigDecimal(token.value);
+        values.add(number);
       } else if (token.type == TokenType.WORD) {
         if ("geometry".equals(token.value)) {
         } else if ("geography".equals(token.value)) {

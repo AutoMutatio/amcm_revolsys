@@ -25,6 +25,7 @@ import com.revolsys.data.identifier.Identifier;
 import com.revolsys.data.type.CollectionDataType;
 import com.revolsys.data.type.DataType;
 import com.revolsys.data.type.DataTypes;
+import com.revolsys.exception.ExceptionWithProperties;
 import com.revolsys.exception.Exceptions;
 import com.revolsys.function.Function3;
 import com.revolsys.geometry.model.GeometryFactory;
@@ -224,6 +225,19 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
         }
       }
     }
+  }
+
+  protected void addSelect(final TableRecordStoreConnection connection, final Query query,
+    final Object selectItem) {
+    QueryValue selectClause;
+    if (selectItem instanceof final QueryValue queryValue) {
+      selectClause = queryValue;
+    } else if (selectItem instanceof final CharSequence fieldName) {
+      selectClause = fieldPathToSelect(query, fieldName.toString());
+    } else {
+      throw new ExceptionWithProperties("Invalid select item").property("field", selectItem);
+    }
+    query.select(selectClause);
   }
 
   protected void addSelect(final TableRecordStoreConnection connection, final Query query,

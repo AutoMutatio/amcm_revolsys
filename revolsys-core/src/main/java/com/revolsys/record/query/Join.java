@@ -99,7 +99,11 @@ public class Join implements QueryValue, TableReferenceProxy {
   @Override
   public ColumnReference getColumn(final CharSequence name) {
     if (this.table == null) {
-      return new ColumnWithPrefix(this.tableName, new Column(this, name));
+      var tableName = this.tableName;
+      if (this.alias != null) {
+        tableName = this.alias;
+      }
+      return new ColumnWithPrefix(tableName, new Column(this, name));
     } else {
       final var column = this.table.getColumn(name);
       if (column != null) {
