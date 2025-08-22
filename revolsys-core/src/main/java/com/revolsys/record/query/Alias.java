@@ -22,7 +22,7 @@ public class Alias implements QueryValue {
 
   protected void appendAlias(final SqlAppendable sql) {
     sql.append('"');
-    sql.append(this.alias);
+    sql.append(this.alias.replaceAll("\"", "\"\""));
     sql.append('"');
   }
 
