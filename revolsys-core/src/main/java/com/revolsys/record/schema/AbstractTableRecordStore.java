@@ -47,6 +47,7 @@ import com.revolsys.record.query.Condition;
 import com.revolsys.record.query.Count;
 import com.revolsys.record.query.DeleteStatement;
 import com.revolsys.record.query.InsertStatement;
+import com.revolsys.record.query.Join;
 import com.revolsys.record.query.JoinType;
 import com.revolsys.record.query.Or;
 import com.revolsys.record.query.Parenthesis;
@@ -54,6 +55,7 @@ import com.revolsys.record.query.Q;
 import com.revolsys.record.query.Query;
 import com.revolsys.record.query.QueryValue;
 import com.revolsys.record.query.TableReference;
+import com.revolsys.record.query.TableReferenceProxy;
 import com.revolsys.record.query.UpdateStatement;
 import com.revolsys.record.query.Value;
 import com.revolsys.record.query.functions.F;
@@ -173,6 +175,25 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
         this.defaultSortOrder.put(field, ascending);
       }
     }
+  }
+
+  public Join addJoin(final Query query, final AbstractTableRecordStore joinRs,
+    final String joinAlias, final String joinFieldName, final QueryValue sourceIdField) {
+    var join = query.getJoin(joinAlias, joinRs);
+    if (join == null) {
+      join = query.join(JoinType.LEFT_OUTER_JOIN)
+        .table(joinRs)//
+        .setAlias(joinAlias)
+        .on(joinFieldName, sourceIdField);
+    }
+    return join;
+  }
+
+  public Join addJoin(final Query query, final AbstractTableRecordStore joinRs,
+    final String joinAlias, final String joinFieldName, final TableReferenceProxy sourceTable,
+    final String sourceFieldName) {
+    final var sourceField = sourceTable.getColumn(sourceFieldName);
+    return addJoin(query, joinRs, joinAlias, joinFieldName, sourceField);
   }
 
   public void addQueryOrderBy(final Query query, final String orderBy) {
@@ -350,13 +371,8 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
   protected QueryValue fieldPathToQueryValueJoin(final Query query, final String sourceFieldName,
     final AbstractTableRecordStore joinRs, final String joinAlias, final String joinFieldName,
     final String lookupFieldName, final String[] path) {
-    var join = query.getJoin(joinRs, joinAlias);
-    if (join == null) {
-      join = query.join(JoinType.LEFT_OUTER_JOIN)
-        .table(joinRs)//
-        .setAlias(joinAlias)
-        .on(joinFieldName, query, sourceFieldName);
-    }
+    final var join = addJoin(query, joinRs, joinAlias, joinFieldName, query, sourceFieldName);
+
     final var column = join.getColumn(lookupFieldName);
     QueryValue selectField = column;
     if (path.length > 1) {

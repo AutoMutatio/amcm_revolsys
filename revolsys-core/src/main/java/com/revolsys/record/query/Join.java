@@ -69,6 +69,18 @@ public class Join implements QueryValue, TableReferenceProxy {
     return this.condition.appendParameters(index, statement);
   }
 
+  /**
+   * Return a column that is the alias for the join. Useful for things link Unnest
+   * @return
+   */
+  public ColumnReference asAliasColumn() {
+    if (this.alias == null) {
+      throw new IllegalStateException("Join doesn't have an alias");
+    } else {
+      return new Column(this.alias);
+    }
+  }
+
   @Override
   public Join clone() {
     try {
