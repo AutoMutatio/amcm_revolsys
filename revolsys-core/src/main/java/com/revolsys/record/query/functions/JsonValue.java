@@ -46,9 +46,10 @@ public class JsonValue extends SimpleFunction {
       throw new IllegalArgumentException(
         "JSON_VALUE path parameter is not a string: " + pathParameter);
     }
-    if (this.displayPath.matches("[\\s\\w]+(\\.[\\w\\s]+)*")) {
+    final String validCharacters = "[^.]+";
+    if (this.displayPath.matches(validCharacters + "(\\." + validCharacters + ")*")) {
       this.path = "$." + this.displayPath;
-    } else if (this.displayPath.matches("\\$(\\.[\\w\\s]+)*")) {
+    } else if (this.displayPath.matches("\\$(\\.[" + validCharacters + ")*")) {
       this.path = this.displayPath;
     } else {
       throw new IllegalArgumentException(
@@ -66,7 +67,7 @@ public class JsonValue extends SimpleFunction {
     buffer.append("(");
     jsonParameter.appendSql(statement, recordStore, buffer);
     buffer.append(", '");
-    buffer.append(this.path);
+    buffer.append(this.path.replaceAll("'", "''"));
     buffer.append("')");
   }
 
