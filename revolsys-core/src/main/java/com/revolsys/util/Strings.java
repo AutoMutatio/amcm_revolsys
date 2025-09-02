@@ -44,6 +44,10 @@ public class Strings {
 
   public static final char CHAR_REPLACEMENT = '\uFFFD';
 
+  public static final char LINE_SEPARATOR = '\u2028';
+
+  public static final char PARAGRAPH_SEPARATOR = '\u2029';
+
   /**
    * * Remove any control characters
    * * Replace \r with \n and have a max of 2 \n
@@ -552,6 +556,16 @@ public class Strings {
     return removeFromEnd(string, length);
   }
 
+  public static String removeNullTerminator(final String s) {
+    if (s == null) {
+      return null;
+    } else if (s.endsWith("\u0000")) {
+      return s.substring(0, s.length() - 1);
+    } else {
+      return s;
+    }
+  }
+
   public static String replace(final String text, final String from, final String to) {
     if (text == null) {
       return null;
@@ -930,8 +944,4 @@ public class Strings {
       return text.toUpperCase();
     }
   }
-
-  public static final char LINE_SEPARATOR = '\u2028';
-
-  public static final char PARAGRAPH_SEPARATOR = '\u2029';
 }
