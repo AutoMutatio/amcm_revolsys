@@ -556,6 +556,18 @@ public class Strings {
     return removeFromEnd(string, length);
   }
 
+  public static String removeFromLastIndexOf(final String string, final int c) {
+    if (string == null) {
+      return string;
+    }
+    final int index = string.lastIndexOf(c);
+    if (index == -1) {
+      return string;
+    } else {
+      return string.substring(0, index);
+    }
+  }
+
   public static String removeNullTerminator(final String s) {
     if (s == null) {
       return null;
