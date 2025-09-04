@@ -1,5 +1,6 @@
 package com.revolsys.io;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -24,6 +25,10 @@ import com.revolsys.util.BaseCloseable;
 import com.revolsys.util.Property;
 
 public class IoUtil {
+
+  public static void copy(final byte[] text, final File file) {
+    copy(new ByteArrayInputStream(text), file);
+  }
 
   public static void copy(final File src, final File dest) {
     if (src != null && dest != null) {
