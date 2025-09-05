@@ -278,16 +278,7 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
 
   public Query addJoin(final Join join) {
     this.joins.add(join);
-    this.joins.sort((a, b) -> {
-      if (a == b) {
-        return 0;
-      } else if (a.joinType() == JoinType.COMMA) {
-        if (b.joinType() != JoinType.COMMA) {
-          return 1;
-        }
-      }
-      return 1;
-    });
+    sortJoins();
     return this;
 
   }
@@ -833,6 +824,7 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
   }
 
   public List<Join> getJoins() {
+    sortJoins();
     return this.joins;
   }
 
@@ -1612,6 +1604,19 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
       final Comparator<Record> comparator = Records.newComparatorOrderBy(orderBy);
       records.sort(comparator);
     }
+  }
+
+  private void sortJoins() {
+    this.joins.sort((a, b) -> {
+      if (a == b) {
+        return 0;
+      } else if (a.joinType() == JoinType.COMMA) {
+        if (b.joinType() != JoinType.COMMA) {
+          return 1;
+        }
+      }
+      return -1;
+    });
   }
 
   @Override
