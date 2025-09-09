@@ -28,6 +28,11 @@ public interface DataType {
     }
   }
 
+  static boolean equalExact(final Object object1, final Object object2) {
+    final DataType dataType = DataTypes.getDataType(object1);
+    return dataType.equalsExact(object1, object2);
+  }
+
   default int compareNullFirst(final Object object1, final Object object2) {
     if (object1 == null) {
       if (object2 == null) {
@@ -45,7 +50,8 @@ public interface DataType {
 
           return value1.compareTo(value2);
         } catch (final Throwable e) {
-          return object1.toString().compareTo(object2.toString());
+          return object1.toString()
+            .compareTo(object2.toString());
         }
       }
     }
@@ -57,6 +63,8 @@ public interface DataType {
     final Collection<? extends CharSequence> excludeFieldNames) {
     return equals(object1, object2);
   }
+
+  boolean equalsExact(Object value1, Object value2);
 
   Class<?> getJavaClass();
 
