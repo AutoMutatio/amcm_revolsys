@@ -87,6 +87,21 @@ public class Json {
     }
 
     @Override
+    protected boolean equalsExactNotNull(final Object value1, final Object value2) {
+      final var list1 = (List<?>)value1;
+      final var list2 = (List<?>)value1;
+      if (list1.size() != list2.size()) {
+        return false;
+      }
+      for (int i = 0; i < list1.size(); i++) {
+        if (!DataType.equalExact(value1, value2)) {
+          return false;
+        }
+      }
+      return true;
+    }
+
+    @Override
     public boolean equalsNotNull(final Object object1, final Object object2) {
       return object1.equals(object2);
     }
@@ -134,6 +149,31 @@ public class Json {
 
     public JsonObjectDataType(final String name, final Class<?> javaClass) {
       super(name, javaClass, true);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public boolean equalsExactNotNull(final Object object1, final Object object2) {
+      final Map<Object, Object> map1 = (Map<Object, Object>)object1;
+      final Map<Object, Object> map2 = (Map<Object, Object>)object2;
+      if (map1.size() == map2.size()) {
+        final Set<Object> keys1 = map1.keySet();
+        final Set<Object> keys2 = map2.keySet();
+        if (keys1.equals(keys2)) {
+          for (final Object key : keys1) {
+            final Object value1 = map1.get(key);
+            final Object value2 = map2.get(key);
+            if (!DataType.equalExact(value1, value2)) {
+              return false;
+            }
+          }
+        } else {
+          return false;
+        }
+        return true;
+      } else {
+        return false;
+      }
     }
 
     @SuppressWarnings("unchecked")

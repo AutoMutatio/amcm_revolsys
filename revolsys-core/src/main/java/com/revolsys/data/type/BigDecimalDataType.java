@@ -9,13 +9,9 @@ public class BigDecimalDataType extends AbstractDataType {
   }
 
   @Override
-  protected boolean equalsNotNull(final Object value1, final Object value2) {
-    return super.equalsNotNull(value1, value2);
-  }
-
-  @Override
   protected Object toObjectDo(final Object value) {
-    final String string = DataTypes.toString(value).replaceAll(",", "");
+    final String string = DataTypes.toString(value)
+      .replaceAll(",", "");
     if ("-".equals(string) || "+".equals(string)) {
       return BigDecimal.ZERO;
     }

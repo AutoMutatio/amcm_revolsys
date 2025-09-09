@@ -7,6 +7,25 @@ public class Bytes {
     return (byte)(left + right.byteValue());
   }
 
+  public static boolean contains(final byte[] values, final byte[] match) {
+    for (int i = 0; i < values.length; i++) {
+      boolean matched = true;
+      for (int j = 0; j < match.length; j++) {
+        if (i + j >= values.length) {
+          return false;
+        }
+        if (values[i + j] != match[j]) {
+          matched = false;
+        }
+      }
+      if (matched) {
+        return true;
+      }
+
+    }
+    return false;
+  }
+
   public static byte divide(final byte left, final Number right) {
     return (byte)(left / right.byteValue());
   }

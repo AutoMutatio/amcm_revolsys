@@ -11,14 +11,20 @@ import com.revolsys.io.IgnoreCloseDelegatingOutputStream;
 
 public class Base64Util {
 
+  public static byte[] decode(final String string) {
+    return Base64.getDecoder()
+      .decode(string);
+  }
+
   public static String decodeToString(final String string) {
-    final byte[] data = Base64.getDecoder().decode(string);
+    final byte[] data = decode(string);
     return new String(data);
   }
 
   public static String encodeToString(final String string) {
     final byte[] bytes = string.getBytes();
-    return Base64.getEncoder().encodeToString(bytes);
+    return Base64.getEncoder()
+      .encodeToString(bytes);
   }
 
   public static InputStream wrap(final InputStream in, final boolean close) {
