@@ -32,6 +32,13 @@ public interface JsonObject extends MapEx, JsonType {
       if (object instanceof Map<?, ?>) {
         final Map<?, ?> map = (Map<?, ?>)object;
         return map.isEmpty();
+      } else if (object instanceof final Jsonable jsonable) {
+        final var json = jsonable.toJson();
+        if (json instanceof Map<?, ?>) {
+          return json.isEmpty();
+        } else {
+          return false;
+        }
       } else {
         return false;
       }
