@@ -110,15 +110,19 @@ public class ArrayChangeTrackRecord extends ArrayRecord implements ChangeTrackRe
   protected boolean setValue(final FieldDefinition field, final Object value) {
     try (
       var l = this.lock.lockX()) {
+      final RecordState state = getState();
+      if (state == RecordState.INITIALIZING) {
+        return super.setValue(field, value);
+      }
       boolean updated = false;
       final int fieldIndex = field.getIndex();
       final String fieldName = field.getName();
 
       final Object newValue = field.toFieldValue(value);
+
       final Object oldValue = getValue(fieldIndex);
       RecordState newState = null;
-      if (!DataType.equal(oldValue, newValue)) {
-        final RecordState state = getState();
+      if (!DataType.equalExact(newValue, oldValue)) {
         switch (state) {
           case INITIALIZING:
           // Allow modification on initialization

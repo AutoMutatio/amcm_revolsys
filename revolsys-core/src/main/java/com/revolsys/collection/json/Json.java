@@ -5,6 +5,8 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -23,7 +25,6 @@ import com.revolsys.io.JavaIo;
 import com.revolsys.util.Property;
 
 public class Json {
-
   private static class JsonDataType extends AbstractDataType {
 
     public JsonDataType() {
@@ -87,6 +88,21 @@ public class Json {
     }
 
     @Override
+    protected boolean equalsExactNotNull(final Object value1, final Object value2) {
+      final var list1 = (List<?>)value1;
+      final var list2 = (List<?>)value1;
+      if (list1.size() != list2.size()) {
+        return false;
+      }
+      for (int i = 0; i < list1.size(); i++) {
+        if (!DataType.equalExact(value1, value2)) {
+          return false;
+        }
+      }
+      return true;
+    }
+
+    @Override
     public boolean equalsNotNull(final Object object1, final Object object2) {
       return object1.equals(object2);
     }
@@ -134,6 +150,31 @@ public class Json {
 
     public JsonObjectDataType(final String name, final Class<?> javaClass) {
       super(name, javaClass, true);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public boolean equalsExactNotNull(final Object object1, final Object object2) {
+      final Map<Object, Object> map1 = (Map<Object, Object>)object1;
+      final Map<Object, Object> map2 = (Map<Object, Object>)object2;
+      if (map1.size() == map2.size()) {
+        final Set<Object> keys1 = map1.keySet();
+        final Set<Object> keys2 = map2.keySet();
+        if (keys1.equals(keys2)) {
+          for (final Object key : keys1) {
+            final Object value1 = map1.get(key);
+            final Object value2 = map2.get(key);
+            if (!DataType.equalExact(value1, value2)) {
+              return false;
+            }
+          }
+        } else {
+          return false;
+        }
+        return true;
+      } else {
+        return false;
+      }
     }
 
     @SuppressWarnings("unchecked")
@@ -320,6 +361,22 @@ public class Json {
     }
   }
 
+  public static boolean equals(final Object value1, final Object value2) {
+    if (value1 == null) {
+      return value2 == null;
+    } else if (value2 == null) {
+      return false;
+    } else {
+      final var json1 = toJson(value1);
+      final var json2 = toJson(value2);
+      if (json1 instanceof JsonType) {
+        return json1.equals(json2);
+      } else {
+        return DataType.equal(json1, json2);
+      }
+    }
+  }
+
   public static Map<String, Object> getMap(final Map<String, Object> record,
     final String fieldName) {
     final String value = (String)record.get(fieldName);
@@ -328,6 +385,38 @@ public class Json {
 
   public static <V> V parse(final String json) {
     return JsonParser.read(json);
+  }
+
+  public static Object toJson(final Object value) {
+    if (value instanceof final JsonType json) {
+      return json;
+    } else if (value instanceof final Jsonable jsonable1) {
+      return jsonable1.toJson();
+    } else if (value instanceof final Byte number) {
+      return new JsonBigDecimal(number);
+    } else if (value instanceof final Short number) {
+      return new JsonBigDecimal(number);
+    } else if (value instanceof final Integer number) {
+      return new JsonBigDecimal(number);
+    } else if (value instanceof final Long number) {
+      return new JsonBigDecimal(number);
+    } else if (value instanceof final Float number) {
+      return new JsonBigDecimal(number);
+    } else if (value instanceof final Double number) {
+      return new JsonBigDecimal(number);
+    } else if (value instanceof final Double number) {
+      return new JsonBigDecimal(number);
+    } else if (value instanceof final BigInteger number) {
+      return new JsonBigDecimal(number);
+    } else if (value instanceof final BigDecimal number) {
+      return new JsonBigDecimal(number.toPlainString());
+    } else if (value instanceof final Number number) {
+      return new JsonBigDecimal(DataTypes.toString(number));
+    } else if (value instanceof final Boolean bool) {
+      return bool;
+    } else {
+      return DataTypes.toString(value);
+    }
   }
 
   /**

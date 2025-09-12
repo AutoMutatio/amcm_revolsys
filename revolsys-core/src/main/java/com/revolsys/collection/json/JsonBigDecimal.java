@@ -94,6 +94,24 @@ public class JsonBigDecimal extends BigDecimal implements JsonType {
   }
 
   @Override
+  public boolean equals(final Object value) {
+    if (value == null) {
+      return false;
+    } else if (value instanceof final BigDecimal decimal) {
+      return super.equals(decimal);
+    } else if (value instanceof final BigInteger integer) {
+      return super.equals(new BigDecimal(integer));
+    } else {
+      try {
+        return super.equals(new BigDecimal(value.toString()));
+      } catch (final Exception e) {
+        return false;
+      }
+    }
+
+  }
+
+  @Override
   public boolean equals(final Object object,
     final Collection<? extends CharSequence> excludeFieldNames) {
     return super.equals(object);
