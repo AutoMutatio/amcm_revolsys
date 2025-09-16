@@ -1633,6 +1633,10 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
         if (this.limit != Integer.MAX_VALUE) {
           string.append("\n LIMIT " + this.limit);
         }
+        final var lockMode = getLockMode();
+        if (lockMode != LockMode.NONE) {
+          string.append(lockMode.getClause());
+        }
       } else {
         string.append(this.sql);
       }
