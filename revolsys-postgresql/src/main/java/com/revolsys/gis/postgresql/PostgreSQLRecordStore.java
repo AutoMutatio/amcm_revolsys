@@ -51,6 +51,7 @@ import com.revolsys.record.query.SqlAppendable;
 import com.revolsys.record.query.functions.EnvelopeIntersects;
 import com.revolsys.record.query.functions.JsonValue;
 import com.revolsys.record.schema.FieldDefinition;
+import com.revolsys.record.schema.LockMode;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordStoreSchemaElement;
 import com.revolsys.util.Property;
@@ -213,6 +214,11 @@ public class PostgreSQLRecordStore extends AbstractJdbcRecordStore {
     if (limit != Integer.MAX_VALUE) {
       sql += " LIMIT " + limit;
     }
+    final var lockMode = query.getLockMode();
+    if (lockMode != LockMode.NONE) {
+      sql += lockMode.getClause();
+    }
+
     return sql;
   }
 

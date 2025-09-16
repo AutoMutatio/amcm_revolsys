@@ -42,9 +42,8 @@ public class TiledGriddedElevationModelLayer
 
   private String filePrefix = null;
 
-  private final List<Double> resolutions = Lists.newArray(new double[] {
-    2000.0, 1000.0, 500.0, 200.0, 100.0, 50.0, 20.0, 10.0, 5.0, 2.0, 1.0
-  });
+  private final List<Double> resolutions = Lists.newArrayDouble(2000.0, 1000.0, 500.0, 200.0, 100.0,
+    50.0, 20.0, 10.0, 5.0, 2.0, 1.0);
 
   private int tileSizePixels = 1000;
 
