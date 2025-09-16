@@ -144,6 +144,26 @@ public interface BaseIterable<T> extends Iterable<T>, ForEachHandler<T> {
     return i;
   }
 
+  default void forEachIndex(final BiConsumer<Integer, ? super T> action) {
+    int i = 0;
+    try (
+      var c = closeable()) {
+      final Iterator<T> iterator = iterator();
+      if (iterator != null) {
+        try (
+          var ic = BaseCloseable.of(iterator)) {
+          while (iterator.hasNext()) {
+            final T item = iterator.next();
+            if (item != null) {
+              action.accept(i++, item);
+            }
+          }
+        } catch (final ExitLoopException e) {
+        }
+      }
+    }
+  }
+
   default T getFirst() {
     try (
       var c = closeable()) {
