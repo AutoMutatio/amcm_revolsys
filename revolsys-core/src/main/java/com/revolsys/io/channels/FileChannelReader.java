@@ -73,25 +73,24 @@ public class FileChannelReader extends AbstractDataReader implements BaseCloseab
     return this.position;
   }
 
-  public ByteBuffer readByteByteBuffer(long offset, final int size) {
-    final ByteBuffer buffer = ByteBuffer.allocateDirect(size);
-    do {
-      try {
-        final int count = this.channel.read(buffer, offset);
-        if (count == -1) {
-          if (buffer.limit() == 0) {
-            throw new EndOfFileException();
-          }
-          break;
+  @Override
+  public int readAll(final long offset, final ByteBuffer buffer) {
+    final int size = buffer.remaining();
+    try {
+      long position = offset;
+      while (buffer.hasRemaining()) {
+        final var count = this.channel.read(buffer, position);
+        if (count < 0) {
+          throw new EndOfFileException();
         } else {
-          offset += count;
+          position += count;
         }
-      } catch (final IOException e) {
-        throw Exceptions.toRuntimeException(e);
       }
-    } while (buffer.hasRemaining());
+    } catch (final IOException e) {
+      throw Exceptions.toRuntimeException(e);
+    }
     buffer.flip();
-    return buffer;
+    return size;
   }
 
   @Override
@@ -109,6 +108,14 @@ public class FileChannelReader extends AbstractDataReader implements BaseCloseab
       this.position += count;
       return count;
     }
+  }
+
+  @Override
+  public byte[] readNBytes(final long offset, final int size) {
+    final var bytes = new byte[size];
+    final var buffer = ByteBuffer.wrap(bytes);
+    readAll(offset, buffer);
+    return bytes;
   }
 
   @Override

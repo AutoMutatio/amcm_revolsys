@@ -5,7 +5,7 @@ import java.util.function.BiFunction;
 import com.revolsys.collection.map.IntHashMap;
 import com.revolsys.elevation.cloud.las.LasPointCloud;
 import com.revolsys.elevation.cloud.las.LasPointCloudIterator;
-import com.revolsys.io.channels.ChannelReader;
+import com.revolsys.io.channels.AbstractDataReader;
 
 public enum LasZipCompressorType {
   POINTWISE(1, LasZipPointwiseIterator::new), //
@@ -29,12 +29,12 @@ public enum LasZipCompressorType {
     }
   }
 
-  private final BiFunction<LasPointCloud, ChannelReader, LasPointCloudIterator> iteratorConstructor;
+  private final BiFunction<LasPointCloud, AbstractDataReader, LasPointCloudIterator> iteratorConstructor;
 
   private final int id;
 
   private LasZipCompressorType(final int id,
-    final BiFunction<LasPointCloud, ChannelReader, LasPointCloudIterator> iteratorConstructor) {
+    final BiFunction<LasPointCloud, AbstractDataReader, LasPointCloudIterator> iteratorConstructor) {
     this.id = id;
     this.iteratorConstructor = iteratorConstructor;
   }
@@ -44,7 +44,7 @@ public enum LasZipCompressorType {
   }
 
   public LasPointCloudIterator newIterator(final LasPointCloud pointCloud,
-    final ChannelReader reader) {
+    final AbstractDataReader reader) {
     return this.iteratorConstructor.apply(pointCloud, reader);
   }
 }

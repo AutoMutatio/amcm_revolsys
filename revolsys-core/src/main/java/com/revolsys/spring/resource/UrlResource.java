@@ -24,7 +24,7 @@ import org.springframework.util.StringUtils;
 
 import com.revolsys.exception.Exceptions;
 import com.revolsys.io.FileUtil;
-import com.revolsys.io.channels.ChannelReader;
+import com.revolsys.io.channels.AbstractDataReader;
 import com.revolsys.io.channels.HttpChannelReader;
 import com.revolsys.io.channels.HttpSeekableByteChannel;
 import com.revolsys.io.file.Paths;
@@ -42,7 +42,8 @@ public class UrlResource extends AbstractResource {
       userpass = username + ":" + password;
     }
     final byte[] bytes = userpass.getBytes(StandardCharsets.ISO_8859_1);
-    final String encoded = Base64.getEncoder().encodeToString(bytes);
+    final String encoded = Base64.getEncoder()
+      .encodeToString(bytes);
     return "Basic " + encoded;
   }
 
@@ -329,7 +330,8 @@ public class UrlResource extends AbstractResource {
           throw new FileNotFoundException(getDescription() + " is not a file URL: " + url);
         }
         try {
-          final String filePath = ResourceUtils.toURI(url).getSchemeSpecificPart();
+          final String filePath = ResourceUtils.toURI(url)
+            .getSchemeSpecificPart();
           final int queryIndex = filePath.indexOf('?');
           if (queryIndex == -1) {
             return new File(filePath);
@@ -408,7 +410,8 @@ public class UrlResource extends AbstractResource {
             final String userInfo = this.username.replace(":", "%3A") + ":"
               + this.password.replace(":", "%3A");
             final URI uri = new URI(protocol, userInfo, host, port, path, query, fragment);
-            con = uri.toURL().openConnection();
+            con = uri.toURL()
+              .openConnection();
           } catch (final Exception e) {
             throw Exceptions.wrap("Error opening file: " + toString(), e);
           }
@@ -550,7 +553,7 @@ public class UrlResource extends AbstractResource {
   }
 
   @Override
-  public ChannelReader newChannelReader(final ByteBuffer byteBuffer) {
+  public AbstractDataReader newChannelReader(final ByteBuffer byteBuffer) {
     if (getProtocol().startsWith("http")) {
       return new HttpChannelReader(this.url);
     } else {
