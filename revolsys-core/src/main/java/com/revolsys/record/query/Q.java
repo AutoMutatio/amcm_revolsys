@@ -330,6 +330,13 @@ public class Q {
   }
 
   public static In in(final TableReferenceProxy table, final CharSequence fieldName,
+    final Collection<?> values) {
+    final var column = table.getColumn(fieldName);
+    final var collection = new CollectionValue(column, values);
+    return In.create(column, collection);
+  }
+
+  public static In in(final TableReferenceProxy table, final CharSequence fieldName,
     final Object... values) {
     final var column = table.getColumn(fieldName);
     final var list = Lists.newArray(values);
