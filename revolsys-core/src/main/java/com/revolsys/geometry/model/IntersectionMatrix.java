@@ -161,7 +161,10 @@ public class IntersectionMatrix implements Cloneable {
    *@param  other  an <code>IntersectionMatrix</code> to copy
    */
   public IntersectionMatrix(final IntersectionMatrix other) {
-    this(other.dimension1, other.dimension2);
+    this.matrix = new Dimension[3][3];
+    setAll(Dimension.FALSE);
+    this.dimension1 = other.dimension1;
+    this.dimension2 = other.dimension2;
     this.matrix[INTERIOR][INTERIOR] = other.matrix[INTERIOR][INTERIOR];
     this.matrix[INTERIOR][BOUNDARY] = other.matrix[INTERIOR][BOUNDARY];
     this.matrix[INTERIOR][EXTERIOR] = other.matrix[INTERIOR][EXTERIOR];
