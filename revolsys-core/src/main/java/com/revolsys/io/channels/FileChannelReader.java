@@ -89,7 +89,6 @@ public class FileChannelReader extends AbstractDataReader implements BaseCloseab
     } catch (final IOException e) {
       throw Exceptions.toRuntimeException(e);
     }
-    buffer.flip();
     return size;
   }
 
