@@ -114,6 +114,9 @@ public class FileChannelReader extends AbstractDataReader implements BaseCloseab
     final var bytes = new byte[size];
     final var buffer = ByteBuffer.wrap(bytes);
     readAll(offset, buffer);
+    if (buffer.position() != size) {
+      throw new IllegalStateException("Couldn't read all bytes");
+    }
     return bytes;
   }
 
