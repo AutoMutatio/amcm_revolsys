@@ -25,7 +25,8 @@ import com.revolsys.collection.list.Lists;
 import com.revolsys.collection.map.Maps;
 import com.revolsys.exception.Exceptions;
 import com.revolsys.geometry.coordinatesystem.model.CoordinateSystem;
-import com.revolsys.io.channels.ChannelReader;
+import com.revolsys.io.channels.AbstractDataReader;
+import com.revolsys.io.channels.DataReader;
 import com.revolsys.io.file.Paths;
 import com.revolsys.io.filter.FileNameExtensionFilter;
 import com.revolsys.record.Available;
@@ -213,30 +214,32 @@ public interface IoFactory extends Available {
     return Lists.toArray(IoFactoryRegistry.mediaTypesByClass.get(factoryClass));
   }
 
-  public static ChannelReader newChannelReader(final Resource resource) {
+  public static AbstractDataReader newChannelReader(final Resource resource) {
     final ReadableByteChannel channel = newReadableByteChannel(resource);
     if (channel == null) {
       return null;
     } else {
-      return new ChannelReader(channel);
+      return DataReader.create(channel);
     }
   }
 
-  public static ChannelReader newChannelReader(final Resource resource, final ByteBuffer buffer) {
+  public static AbstractDataReader newChannelReader(final Resource resource,
+    final ByteBuffer buffer) {
     final ReadableByteChannel channel = newReadableByteChannel(resource);
     if (channel == null) {
       return null;
     } else {
-      return new ChannelReader(channel, buffer);
+      return DataReader.create(channel, buffer);
     }
   }
 
-  public static ChannelReader newChannelReader(final Resource resource, final int bufferSize) {
+  public static AbstractDataReader newChannelReader(final Resource resource, final int bufferSize) {
     final ReadableByteChannel channel = newReadableByteChannel(resource);
     if (channel == null) {
       return null;
     } else {
-      return new ChannelReader(channel, bufferSize);
+      final var buffer = ByteBuffer.allocate(bufferSize);
+      return DataReader.create(channel, buffer);
     }
   }
 
@@ -276,7 +279,8 @@ public interface IoFactory extends Available {
         final String baseName = resource.getBaseName();
         for (ZipEntry zipEntry = in.getNextEntry(); zipEntry != null; zipEntry = in
           .getNextEntry()) {
-          if (zipEntry.getName().equals(baseName)) {
+          if (zipEntry.getName()
+            .equals(baseName)) {
             return Channels.newChannel(in);
           }
         }
@@ -298,7 +302,8 @@ public interface IoFactory extends Available {
       @Override
       public int compare(final FileNameExtensionFilter filter1,
         final FileNameExtensionFilter filter2) {
-        return filter1.getDescription().compareTo(filter2.getDescription());
+        return filter1.getDescription()
+          .compareTo(filter2.getDescription());
       }
     });
   }

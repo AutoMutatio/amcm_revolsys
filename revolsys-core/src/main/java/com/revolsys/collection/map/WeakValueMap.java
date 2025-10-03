@@ -12,7 +12,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-final class WeakValueMap<K, V> extends AbstractMap<K, V> {
+public final class WeakValueMap<K, V> extends AbstractMap<K, V> {
   private final class Entry extends SimpleEntry<K, V> {
     private static final long serialVersionUID = 1L;
 
@@ -63,7 +63,8 @@ final class WeakValueMap<K, V> extends AbstractMap<K, V> {
       if (o instanceof Map.Entry<?, ?>) {
         final Map.Entry<?, ?> entry = (Map.Entry<?, ?>)o;
 
-        return entry.getValue().equals(get(entry.getKey()));
+        return entry.getValue()
+          .equals(get(entry.getKey()));
       } else {
         return false;
       }
@@ -77,7 +78,8 @@ final class WeakValueMap<K, V> extends AbstractMap<K, V> {
 
       for (final Map.Entry<K, ValueReference<K, V>> i : WeakValueMap.this.backingMap.entrySet()) {
         final K key = i.getKey();
-        final V value = i.getValue().get();
+        final V value = i.getValue()
+          .get();
 
         if (value != null) {
           iterationSet.add(new Entry(key, value));

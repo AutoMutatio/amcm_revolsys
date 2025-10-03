@@ -4,7 +4,6 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.ByteOrder;
 
-import com.revolsys.io.channels.ChannelReader;
 import com.revolsys.io.channels.DataReader;
 import com.revolsys.math.arithmeticcoding.ArithmeticDecoder;
 
@@ -29,7 +28,7 @@ public class ArithmeticDecoderByteArray extends ArithmeticDecoder {
         final byte[] bytes = new byte[this.size];
         reader.getBytes(bytes);
         final InputStream in = new ByteArrayInputStream(bytes);
-        final DataReader newReader = new ChannelReader(in);
+        final var newReader = DataReader.create(in);
         newReader.setByteOrder(ByteOrder.LITTLE_ENDIAN);
         init(newReader, true);
       }

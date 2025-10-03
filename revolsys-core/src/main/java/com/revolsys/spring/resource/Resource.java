@@ -42,7 +42,7 @@ import com.revolsys.io.FileNames;
 import com.revolsys.io.FileProxy;
 import com.revolsys.io.FileUtil;
 import com.revolsys.io.IoUtil;
-import com.revolsys.io.channels.ChannelReader;
+import com.revolsys.io.channels.AbstractDataReader;
 import com.revolsys.io.channels.ChannelWriter;
 import com.revolsys.io.channels.DataReader;
 import com.revolsys.io.file.Paths;
@@ -500,25 +500,27 @@ public interface Resource extends org.springframework.core.io.Resource, FileProx
     return newChannelReader(8192, ByteOrder.BIG_ENDIAN);
   }
 
-  default ChannelReader newChannelReader(final ByteBuffer byteBuffer) {
+  default AbstractDataReader newChannelReader(final ByteBuffer byteBuffer) {
     final ReadableByteChannel in = newReadableByteChannel();
     if (in == null) {
       return null;
     } else {
-      return new ChannelReader(in, byteBuffer);
+      return DataReader.create(in, byteBuffer);
     }
   }
 
-  default DataReader newChannelReader(final int capacity) {
+  default AbstractDataReader newChannelReader(final int capacity) {
     return newChannelReader(capacity, ByteOrder.BIG_ENDIAN);
   }
 
-  default DataReader newChannelReader(final int capacity, final ByteOrder byteOrder) {
+  default AbstractDataReader newChannelReader(final int capacity, final ByteOrder byteOrder) {
     final ReadableByteChannel in = newReadableByteChannel();
     if (in == null) {
       return null;
     } else {
-      return new ChannelReader(in, capacity, byteOrder);
+      final var buffer = ByteBuffer.allocate(capacity);
+      return DataReader.create(in, buffer)
+        .setByteOrder(byteOrder);
     }
   }
 

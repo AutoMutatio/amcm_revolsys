@@ -3,8 +3,6 @@ package com.revolsys.io.channels;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.SeekableByteChannel;
 
@@ -17,31 +15,9 @@ public class ChannelReader extends AbstractDataReader implements BaseCloseable {
 
   private final ReadableByteChannel channel;
 
-  public ChannelReader() {
-    this((ReadableByteChannel)null);
-  }
-
-  public ChannelReader(final InputStream in) {
-    this(Channels.newChannel(in));
-  }
-
-  public ChannelReader(final ReadableByteChannel channel) {
-    this(channel, 8192);
-  }
-
-  public ChannelReader(final ReadableByteChannel channel, final ByteBuffer buffer) {
+  protected ChannelReader(final ReadableByteChannel channel, final ByteBuffer buffer) {
     super(buffer, channel instanceof SeekableByteChannel);
     this.channel = channel;
-  }
-
-  public ChannelReader(final ReadableByteChannel channel, final int capacity) {
-    this(channel, ByteBuffer.allocateDirect(capacity));
-  }
-
-  public ChannelReader(final ReadableByteChannel channel, final int capacity,
-    final ByteOrder byteOrder) {
-    this(channel, ByteBuffer.allocateDirect(capacity));
-    setByteOrder(byteOrder);
   }
 
   @Override
@@ -109,22 +85,6 @@ public class ChannelReader extends AbstractDataReader implements BaseCloseable {
     } else {
       return super.position();
     }
-  }
-
-  public ByteBuffer readByteByteBuffer(final long offset, final int size) {
-    final long position = position();
-    final ByteBuffer buffer = ByteBuffer.allocateDirect(size);
-    seek(offset);
-    do {
-      try {
-        getChannel().read(buffer);
-      } catch (final IOException e) {
-        throw Exceptions.toRuntimeException(e);
-      }
-    } while (buffer.hasRemaining());
-    seek(position);
-    buffer.flip();
-    return buffer;
   }
 
   @Override

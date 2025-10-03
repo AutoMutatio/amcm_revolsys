@@ -182,7 +182,13 @@ public interface BaseIterable<T> extends Iterable<T>, ForEachHandler<T> {
 
   @SuppressWarnings("unchecked")
   default <V> BaseIterable<V> instanceOf(final Class<? super V> clazz) {
-    return filter(clazz::isInstance).map(v -> (V)v);
+    return filter(v -> {
+      if (clazz.isInstance(v)) {
+        return true;
+      } else {
+        return false;
+      }
+    }).map(v -> (V)v);
   }
 
   default String join(final String separator) {

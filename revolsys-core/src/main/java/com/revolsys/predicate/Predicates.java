@@ -113,7 +113,13 @@ public interface Predicates {
   }
 
   static <T> Predicate<T> notNull() {
-    return t -> t != null;
+    return t -> {
+      if (t == null) {
+        return false;
+      } else {
+        return true;
+      }
+    };
   }
 
   static <T> void retain(final Collection<T> collection, final Predicate<? super T> filter) {

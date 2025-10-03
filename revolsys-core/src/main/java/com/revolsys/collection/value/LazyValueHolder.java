@@ -214,7 +214,7 @@ public class LazyValueHolder<T> implements ValueHolder<T>, BaseCloseable {
 
   public boolean isInitialized() {
     return this.valueRef.get()
-        .isLoaded();
+      .isLoaded();
   }
 
   public void refresh() {
@@ -249,7 +249,7 @@ public class LazyValueHolder<T> implements ValueHolder<T>, BaseCloseable {
       return updateRef.setValue(value);
     } else {
       return this.valueRef.get()
-          .getValue();
+        .getValue();
     }
   }
 
@@ -263,8 +263,7 @@ public class LazyValueHolder<T> implements ValueHolder<T>, BaseCloseable {
     final Predicate<V> validator = v -> {
       final var valueTimestamp = getValueReference().timestamp();
       final var cacheTimestamp = timestamp.get();
-      return valueTimestamp
-          .equals(cacheTimestamp);
+      return valueTimestamp.equals(cacheTimestamp);
     };
     final Supplier<V> supplier = () -> {
       final var ref = getValueReference();
@@ -273,8 +272,8 @@ public class LazyValueHolder<T> implements ValueHolder<T>, BaseCloseable {
       return converter.apply(value);
     };
     return new Builder<V>().validator(validator)
-        .valueSupplier(supplier)
-        .build();
+      .valueSupplier(supplier)
+      .build();
   }
 
   @Override
