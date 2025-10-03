@@ -717,6 +717,9 @@ public class ODataParser {
     int rt = start;
     boolean wasDigits = true;
     final int length = text.length();
+    if (text.charAt(start) == '-') {
+      rt++;
+    }
     while (rt < length) {
       final char c = text.charAt(rt);
       if (Character.isDigit(c)) {
@@ -932,6 +935,20 @@ public class ODataParser {
         } else if ("geography".equals(token.value)) {
           throw new RuntimeException(
             "Unable to read expression with tokens: " + token + ":" + tokens);
+        }
+      } else if (token.type == TokenType.NUMBER) {
+        final String text = token.value;
+        if (text.indexOf('.') == -1) {
+          try {
+            final int value = Integer.parseInt(text);
+            values.add(value);
+          } catch (final NumberFormatException e) {
+            final long value = Long.parseLong(text);
+            values.add(value);
+          }
+        } else {
+          final double value = Double.parseDouble(text);
+          values.add(value);
         }
       } else {
         throw new RuntimeException(
