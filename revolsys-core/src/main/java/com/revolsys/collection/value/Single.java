@@ -342,7 +342,7 @@ public abstract class Single<T> implements ValueHolder<T> {
     }
   }
 
-  private Single() {
+  Single() {
   }
 
   @Override
