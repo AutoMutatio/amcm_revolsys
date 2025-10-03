@@ -374,30 +374,6 @@ public interface Lists {
     return list;
   }
 
-  static ListEx<Double> newArray(final double... values) {
-    if (values == null) {
-      return ListEx.empty();
-    } else {
-      final ListEx<Double> list = new ArrayListEx<>();
-      for (final double value : values) {
-        list.add(value);
-      }
-      return list;
-    }
-  }
-
-  static ListEx<Integer> newArray(final int... values) {
-    if (values == null) {
-      return ListEx.empty();
-    } else {
-      final ListEx<Integer> list = new ArrayListEx<>();
-      for (final int value : values) {
-        list.add(value);
-      }
-      return list;
-    }
-  }
-
   static <V> ListEx<V> newArray(@SuppressWarnings("unchecked") final V... values) {
     final ArrayListEx<V> list = new ArrayListEx<>();
     addAll(list, values);
