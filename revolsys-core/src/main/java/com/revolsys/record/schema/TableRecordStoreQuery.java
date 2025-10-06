@@ -7,6 +7,7 @@ import com.revolsys.record.ChangeTrackRecord;
 import com.revolsys.record.Record;
 import com.revolsys.record.io.RecordReader;
 import com.revolsys.record.query.Query;
+import com.revolsys.record.query.QueryValue;
 import com.revolsys.transaction.TransactionBuilder;
 
 public class TableRecordStoreQuery extends Query {
@@ -57,6 +58,15 @@ public class TableRecordStoreQuery extends Query {
   @Override
   public Record newRecord() {
     return this.recordStore.newRecord(this.connection);
+  }
+
+  @Override
+  public QueryValue newSelectClause(final Object select) {
+    if (select instanceof final String str) {
+      return this.recordStore.fieldPathToQueryValue(this, str);
+    } else {
+      return super.newSelectClause(select);
+    }
   }
 
   @Override

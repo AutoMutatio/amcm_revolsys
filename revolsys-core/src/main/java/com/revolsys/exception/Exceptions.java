@@ -212,11 +212,14 @@ public interface Exceptions {
     }
 
     final var trace = getTrace(e);
-    removeCommonTrace(trace, e.getCause());
 
     if (!trace.isEmpty()) {
+      final var traceToAddToFull = trace.clone();
+      removeCommonTrace(traceToAddToFull, e.getCause());
+      traceToAddToFull.map(StackTraceElement::toString)
+        .forEach(fullTrace::add);
+
       final var traceJson = trace.map(StackTraceElement::toString);
-      traceJson.forEach(fullTrace::add);
       json.addValue("trace", traceJson);
     }
 
