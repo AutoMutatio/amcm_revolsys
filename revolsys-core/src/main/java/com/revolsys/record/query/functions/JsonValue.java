@@ -7,6 +7,7 @@ import java.util.List;
 
 import com.revolsys.collection.json.Json;
 import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.json.JsonString;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.record.query.ColumnIndexes;
 import com.revolsys.record.query.ColumnReference;
@@ -76,9 +77,20 @@ public class JsonValue extends SimpleFunction {
     return index;
   }
 
+  /**
+   * Create an Equal condition for the json value. If the value was a string but contains a number it will be converted to a number. Use equalString to force string comparison.
+   * @param value
+   * @return
+   */
   public Condition equal(final Object value) {
     final var column = getColumn();
     final var queryValue = Value.newValue(column, value);
+    return Q.equal(this, queryValue);
+  }
+
+  public Condition equalString(final String value) {
+    final var column = getColumn();
+    final var queryValue = Value.newValue(column, new JsonString(value));
     return Q.equal(this, queryValue);
   }
 
