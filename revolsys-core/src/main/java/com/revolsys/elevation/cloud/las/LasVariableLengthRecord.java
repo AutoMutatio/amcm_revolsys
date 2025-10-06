@@ -30,10 +30,10 @@ public class LasVariableLengthRecord implements Cloneable {
     final String description, final Object value) {
     this(pointCloud.getHeader(), key, description);
     final LasVariableLengthRecordConverter converter = LasPointCloudHeader
-      .getVariableLengthRecordConverter(this.key);
+      .getVariableLengthRecordConverter(key);
     if (converter == null) {
       throw new IllegalArgumentException(
-        "Setting LAS record type " + this.key + "=" + value + " is not supported");
+        "Setting LAS record type " + key + "=" + value + " is not supported");
     }
     this.value = value;
     this.valueInitialized = true;

@@ -1,8 +1,8 @@
 package com.revolsys.util.count;
 
+import java.lang.ScopedValue.CallableOp;
 import java.lang.ScopedValue.Carrier;
 import java.util.UUID;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.Consumer;
 
@@ -35,7 +35,8 @@ public class ProgressTree implements Jsonable {
     scoped(tree).run(action);
   }
 
-  public static <V> V childTemp(final String type, final String name, final Callable<V> action) {
+  public static <V, T extends Exception> V childTemp(final String type, final String name,
+    final CallableOp<V, T> action) {
     count(type);
     try {
       if (name == null) {
@@ -62,8 +63,7 @@ public class ProgressTree implements Jsonable {
   public static void childTemp(final String type, String name, final Runnable action) {
     count(type);
     if (name == null) {
-      name = UUID.randomUUID()
-        .toString();
+      name = UUID.randomUUID().toString();
     }
     if (SCOPED_VALUE.isBound()) {
       final var parent = getTree();
@@ -151,8 +151,7 @@ public class ProgressTree implements Jsonable {
 
   @Override
   public JsonObject toJson() {
-    final var result = JsonObject.hash()
-      .addValue("$type", this.type);
+    final var result = JsonObject.hash().addValue("$type", this.type);
     if (!this.counts.isEmpty()) {
       result.addValue("$counts", this.counts);
     }
