@@ -1,9 +1,12 @@
 package com.revolsys.util.concurrent;
 
 import java.util.Objects;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Phaser;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -29,6 +32,12 @@ public class Parallel
   private final Phaser phaser = new Phaser(1);
 
   private final Consumer<Runnable> forkAction = this::run;
+
+  private final AtomicBoolean terminated = new AtomicBoolean(false);
+
+  private final Queue<Thread> threads = new ConcurrentLinkedQueue<>();
+
+  private final Thread thread = Thread.currentThread();
 
   public Parallel(final ThreadFactory threadFactory) {
     this.threadFactory = threadFactory;
@@ -158,20 +167,45 @@ public class Parallel
     }
   }
 
-  public void join() {
-    this.phaser.arriveAndAwaitAdvance();
-    if (!this.exceptions.isEmpty()) {
-      if (this.exceptions.size() == 1) {
-        final var exception = this.exceptions.get(0);
-        if (exception instanceof final Error error) {
-          throw error;
-        } else {
-          throw Exceptions.toRuntimeException(exception);
-        }
-      } else {
-        throw new MultipleException(this.exceptions);
-      }
+  private void interruptThreads() {
+    threads.forEach(thread -> thread.interrupt());
+  }
 
+  public boolean isAlive() {
+    return !this.terminated.get();
+  }
+
+  public boolean isTerminated() {
+    return this.terminated.get();
+  }
+
+  public void join() {
+    try {
+      try {
+        this.phaser.awaitAdvanceInterruptibly(phaser.arrive());
+        if (!this.exceptions.isEmpty()) {
+          if (this.exceptions.size() == 1) {
+            final var exception = this.exceptions.get(0);
+            if (exception instanceof final Error error) {
+              throw error;
+            } else {
+              throw Exceptions.toRuntimeException(exception);
+            }
+          } else {
+            throw new MultipleException(this.exceptions);
+          }
+        }
+      } catch (final InterruptedException e) {
+        throw Exceptions.toRuntimeException(e);
+      }
+    } catch (RuntimeException | Error e) {
+      interruptThreads();
+      if (!exceptions.isEmpty()) {
+        this.exceptions.forEach(suppressed -> e.addSuppressed(suppressed));
+      }
+      throw e;
+    } finally {
+      this.terminated.set(true);
     }
   }
 
@@ -202,13 +236,24 @@ public class Parallel
   }
 
   public Parallel run(final Runnable runnable) {
+    if (thread != Thread.currentThread()) {
+      throw new IllegalStateException("Parallel can only be used in a single thread");
+    }
+    if (isTerminated()) {
+      throw new IllegalStateException("Parallel has been terminated");
+    }
     Parallel.this.phaser.register();
     this.threadFactory.newThread(() -> {
+      final var thread = Thread.currentThread();
       try {
-        runnable.run();
+        if (isAlive()) {
+          threads.add(thread);
+          runnable.run();
+        }
       } catch (final Throwable e) {
         this.exceptions.add(e);
       } finally {
+        threads.remove(thread);
         Parallel.this.phaser.arriveAndDeregister();
       }
     }).start();
