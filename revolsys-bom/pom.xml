@@ -84,12 +84,12 @@
       <dependency>
         <groupId>commons-codec</groupId>
         <artifactId>commons-codec</artifactId>
-        <version>1.18.0</version>
+        <version>1.19.0</version>
       </dependency>
       <dependency>
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-compress</artifactId>
-        <version>1.27.1</version>
+        <version>1.28.0</version>
       </dependency>
       <dependency>
         <groupId>commons-fileupload</groupId>
@@ -99,7 +99,7 @@
       <dependency>
         <groupId>commons-io</groupId>
         <artifactId>commons-io</artifactId>
-        <version>2.19.0</version>
+        <version>2.20.0</version>
       </dependency>
       <dependency>
         <groupId>org.apache.commons</groupId>
@@ -161,7 +161,7 @@
       <dependency>
         <groupId>jakarta.xml.bind</groupId>
         <artifactId>jakarta.xml.bind-api</artifactId>
-        <version>4.0.2</version>
+        <version>4.0.4</version>
       </dependency>
       <dependency>
         <groupId>jakarta.servlet</groupId>
@@ -250,7 +250,7 @@
       <dependency>
         <groupId>org.docx4j</groupId>
         <artifactId>docx4j-JAXB-MOXy</artifactId>
-        <version>11.5.3</version>
+        <version>11.5.6</version>
       </dependency>
       <dependency>
         <groupId>org.apache.commons</groupId>
@@ -422,12 +422,12 @@
       <dependency>
         <groupId>com.nimbusds</groupId>
         <artifactId>nimbus-jose-jwt</artifactId>
-        <version>10.3.1</version>
+        <version>10.5</version>
       </dependency>
       <dependency>
         <groupId>org.postgresql</groupId>
         <artifactId>postgresql</artifactId>
-        <version>42.7.7</version>
+        <version>42.7.8</version>
       </dependency>
       <dependency>
         <groupId>org.junit</groupId>
@@ -453,7 +453,7 @@
       <dependency>
         <groupId>org.xerial</groupId>
         <artifactId>sqlite-jdbc</artifactId>
-        <version>3.50.2.0</version>
+        <version>3.50.3.0</version>
       </dependency>
       <dependency>
         <groupId>com.fasterxml.jackson</groupId>
@@ -552,16 +552,16 @@
     </dependencies>
   </dependencyManagement>
   <properties>
-    <ch.qos.logback.version>1.5.18</ch.qos.logback.version>
-    <com.fasterxml.jackson.version>2.19.1</com.fasterxml.jackson.version>
-    <org.apache.logging.log4j>2.25.0</org.apache.logging.log4j>
+    <ch.qos.logback.version>1.5.19</ch.qos.logback.version>
+    <com.fasterxml.jackson.version>2.20.0</com.fasterxml.jackson.version>
+    <org.apache.logging.log4j>2.25.2</org.apache.logging.log4j>
     <org.apache.pdfbox.version>3.0.5</org.apache.pdfbox.version>
     <org.apache.xmlgraphics.batik.version>1.19</org.apache.xmlgraphics.batik.version>
     <org.apache.xmlgraphics.commons.version>2.11</org.apache.xmlgraphics.commons.version>
     <org.gdal.version>2.4.0</org.gdal.version>
     <org.slf4j.version>2.0.17</org.slf4j.version>
-    <org.springframework.version>6.2.8</org.springframework.version>
-    <org.springframework.boot.version>3.5.3</org.springframework.boot.version>
+    <org.springframework.version>6.2.11</org.springframework.version>
+    <org.springframework.boot.version>3.5.6</org.springframework.boot.version>
     <org.springboot.version>${org.springframework.boot.version}</org.springboot.version>
   </properties>
 </project>
