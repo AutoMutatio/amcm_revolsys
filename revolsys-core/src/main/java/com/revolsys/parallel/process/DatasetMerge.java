@@ -157,8 +157,7 @@ public final class DatasetMerge<SR, TR, K> implements Cloneable {
       Objects.requireNonNull(this.merger.targetRecordToId, "targetRecordToId");
       Objects.requireNonNull(this.merger.sourceRecords, "sourceRecords");
       Objects.requireNonNull(this.merger.targetRecords, "targetRecords");
-      return this.merger.clone()
-        .run();
+      return this.merger.clone().run();
     }
 
     public Builder<SR2, TR2, K2> sourceRecords(final Iterable<? extends SR2> sourceRecords) {
@@ -329,12 +328,12 @@ public final class DatasetMerge<SR, TR, K> implements Cloneable {
     }
 
     Concurrent.virtual()
-      .scope(scope -> {
-        scope.fork(this::processRecords);
-        scope.fork(this::processDelete);
-        scope.fork(this::processInsert);
-        scope.fork(this::processUpdate);
-      });
+      .parallel(//
+        this::processRecords, //
+        this::processDelete, //
+        this::processInsert, //
+        this::processUpdate//
+      );
 
     return this.counts;
   }

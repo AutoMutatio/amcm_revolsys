@@ -1,6 +1,6 @@
 package com.revolsys.transaction;
 
-import java.util.concurrent.Callable;
+import java.lang.ScopedValue.CallableOp;
 
 import com.revolsys.transaction.Transaction.RunAction;
 
@@ -9,11 +9,11 @@ public interface Transactionable {
     return TransactionBuilder.BUILDER;
   }
 
-  default <V> V transactionCall(final Callable<V> action) {
+  default <V, T extends Exception> V transactionCall(final CallableOp<V, T> action) {
     return transaction().required().call(action);
   }
 
-  default <V> V transactionNewCall(final Callable<V> action) {
+  default <V, T extends Exception> V transactionNewCall(final CallableOp<V, T> action) {
     return transaction().requiresNew().call(action);
   }
 

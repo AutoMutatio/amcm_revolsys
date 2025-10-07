@@ -28,10 +28,10 @@ jobs:
         echo "BRANCH=${BRANCH}" >> $GITHUB_ENV
 
 #### JAVA VERSION ####
-    - name: Set up JDK 17
-      uses: actions/setup-java@v4
+    - name: Set up JDK 5
+      uses: actions/setup-java@v5
       with:
-        java-version: '17'
+        java-version: '25'
         distribution: 'microsoft'
 
 #### Initialize Environment ####

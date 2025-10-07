@@ -30,9 +30,8 @@ import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.json.Jsonable;
 import com.revolsys.collection.list.Lists;
 import com.revolsys.collection.set.Sets;
-import com.revolsys.parallel.SemaphoreEx;
 
-public class ThreadFactoryEx implements ThreadFactory, ForEachMethods,
+public class ThreadFactoryEx implements ThreadFactory, ForEachMethods<ThreadFactoryEx>,
   RunnableMethods<ThreadFactoryEx>, ExecutorService, Jsonable {
   private static final Set<Reference<ThreadFactoryEx>> FACTORIES = ConcurrentHashMap.newKeySet();
 
@@ -50,9 +49,7 @@ public class ThreadFactoryEx implements ThreadFactory, ForEachMethods,
   }
 
   public static BaseIterable<ThreadFactoryEx> factories() {
-    return Iterables.fromIterable(FACTORIES)
-      .map(Reference::get)
-      .filter(f -> f != null);
+    return Iterables.fromIterable(FACTORIES).map(Reference::get).filter(f -> f != null);
   }
 
   private static boolean hideThread(final String name) {
@@ -138,8 +135,13 @@ public class ThreadFactoryEx implements ThreadFactory, ForEachMethods,
   }
 
   @Override
-  public <V> void forEach(final ForEachHandler<V> forEach, final Consumer<? super V> action) {
-    this.scope(scope -> forEach.forEach(scope.forkConsumerValue(action)));
+  public <V> ThreadFactoryEx forEach(final ForEachHandler<V> forEach,
+    final Consumer<? super V> action) {
+    try (
+      var parallel = new Parallel(this)) {
+      parallel.forEach(forEach, action);
+    }
+    return this;
   }
 
   public boolean hasThreads() {
@@ -219,47 +221,41 @@ public class ThreadFactoryEx implements ThreadFactory, ForEachMethods,
     return Executors.newThreadPerTaskExecutor(this);
   }
 
-  @Override
-  public ThreadFactoryEx run(final ForEachHandler<Runnable> forEach) {
-    return scope(scope -> scope.run(forEach));
+  public Parallel parallel() {
+    return new Parallel(this);
   }
 
-  public <V> ThreadFactoryEx run(final Runnable action) {
-    return scope(scope -> scope.run(action));
-  }
-
-  public <V> ThreadFactoryEx scope(final Consumer<StructuredTaskScopeEx<V>> action) {
-    new LambdaStructuredTaskScope.Builder<V>(this.name, this).throwErrors()
-      .join(action);
+  public ThreadFactoryEx parallel(final Consumer<Parallel> action) {
+    try (
+      var parallel = new Parallel(this)) {
+      action.accept(parallel);
+    }
     return this;
   }
 
-  public <V> V scope(final String name, final Function<StructuredTaskScopeEx<V>, V> action) {
-    return new LambdaStructuredTaskScope.Builder<V>(name, this).throwErrors()
-      .join(action);
+  public ThreadFactoryEx parallel(final Runnable... tasks) {
+    try (
+      var parallel = new Parallel(this)) {
+      parallel.run(tasks);
+    }
+    return this;
   }
 
-  public <V> void scopeBuild(final String name,
-    final Consumer<LambdaStructuredTaskScope.Builder<V>> action) {
-    action.accept(new LambdaStructuredTaskScope.Builder<V>(name, this));
+  @Override
+  public ThreadFactoryEx run(final ForEachHandler<Runnable> forEach) {
+    try (
+      var parallel = parallel()) {
+      parallel.run(forEach);
+    }
+    return this;
   }
 
-  public <V> V scopeBuild(final String name,
-    final Function<LambdaStructuredTaskScope.Builder<V>, V> action) {
-    return action.apply(new LambdaStructuredTaskScope.Builder<V>(name, this));
-  }
-
-  public <V> void scopeConsume(final String name, final Consumer<StructuredTaskScopeEx<V>> action) {
-    new LambdaStructuredTaskScope.Builder<V>(name, this).throwErrors()
-      .join(action);
-  }
-
-  public SemaphoreScope semaphore(final int permits) {
-    return semaphore(new SemaphoreEx(permits));
-  }
-
-  public SemaphoreScope semaphore(final SemaphoreEx semaphore) {
-    return new SemaphoreScope(semaphore, this);
+  public ThreadFactoryEx run(final Runnable action) {
+    try (
+      var parallel = parallel()) {
+      parallel.run(action);
+    }
+    return this;
   }
 
   @Override
@@ -305,10 +301,11 @@ public class ThreadFactoryEx implements ThreadFactory, ForEachMethods,
   public JsonObject toJson() {
     final var json = JsonObject.hash()
       .addValue("name", this.name)
-      .addValue("threads", Iterables.fromIterable(this.threads)
-        .filter(ThreadFactoryEx::hideThread)
-        .map(this::toJson)
-        .toList());
+      .addValue("threads",
+        Iterables.fromIterable(this.threads)
+          .filter(ThreadFactoryEx::hideThread)
+          .map(this::toJson)
+          .toList());
     json.removeEmptyProperties();
     return json;
   }
