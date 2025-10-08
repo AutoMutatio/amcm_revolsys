@@ -16,7 +16,6 @@ import com.revolsys.collection.iterator.RunnableMethods;
 import com.revolsys.collection.list.ListEx;
 import com.revolsys.collection.list.Lists;
 import com.revolsys.exception.Exceptions;
-import com.revolsys.exception.MultipleException;
 import com.revolsys.logging.Logs;
 import com.revolsys.parallel.channel.Channel;
 import com.revolsys.parallel.channel.ChannelOutput;
@@ -168,7 +167,7 @@ public class Parallel
   }
 
   private void interruptThreads() {
-    threads.forEach(thread -> thread.interrupt());
+    this.threads.forEach(Thread::interrupt);
   }
 
   public boolean isAlive() {
@@ -182,25 +181,16 @@ public class Parallel
   public void join() {
     try {
       try {
-        this.phaser.awaitAdvanceInterruptibly(phaser.arrive());
+        this.phaser.awaitAdvanceInterruptibly(this.phaser.arrive());
         if (!this.exceptions.isEmpty()) {
-          if (this.exceptions.size() == 1) {
-            final var exception = this.exceptions.get(0);
-            if (exception instanceof final Error error) {
-              throw error;
-            } else {
-              throw Exceptions.toRuntimeException(exception);
-            }
-          } else {
-            throw new MultipleException(this.exceptions);
-          }
+          throw Exceptions.toRuntime(this.exceptions);
         }
       } catch (final InterruptedException e) {
         throw Exceptions.toRuntimeException(e);
       }
     } catch (RuntimeException | Error e) {
       interruptThreads();
-      if (!exceptions.isEmpty()) {
+      if (!this.exceptions.isEmpty()) {
         this.exceptions.forEach(suppressed -> e.addSuppressed(suppressed));
       }
       throw e;
@@ -236,7 +226,7 @@ public class Parallel
   }
 
   public Parallel run(final Runnable runnable) {
-    if (thread != Thread.currentThread()) {
+    if (this.thread != Thread.currentThread()) {
       throw new IllegalStateException("Parallel can only be used in a single thread");
     }
     if (isTerminated()) {
@@ -247,16 +237,17 @@ public class Parallel
       final var thread = Thread.currentThread();
       try {
         if (isAlive()) {
-          threads.add(thread);
+          this.threads.add(thread);
           runnable.run();
         }
       } catch (final Throwable e) {
         this.exceptions.add(e);
       } finally {
-        threads.remove(thread);
+        this.threads.remove(thread);
         Parallel.this.phaser.arriveAndDeregister();
       }
-    }).start();
+    })
+      .start();
     return this;
   }
 }

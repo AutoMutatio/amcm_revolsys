@@ -4,19 +4,35 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.channels.Channels;
 import java.nio.channels.ClosedChannelException;
+import java.nio.channels.FileChannel;
+import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 import com.revolsys.exception.Exceptions;
 import com.revolsys.util.BaseCloseable;
 
-interface ByteFilter {
-  boolean accept(byte b);
-}
-
 public interface DataReader extends BaseCloseable {
   public static ByteFilter WHITESPACE = Character::isWhitespace;
+
+  static AbstractDataReader create(final InputStream in) {
+    final var channel = Channels.newChannel(in);
+    return create(channel);
+  }
+
+  static AbstractDataReader create(final ReadableByteChannel channel) {
+    return create(channel, ByteBuffer.allocate(8192));
+  }
+
+  static AbstractDataReader create(final ReadableByteChannel channel, final ByteBuffer buffer) {
+    if (channel instanceof final FileChannel fileChannel) {
+      return new FileChannelReader(fileChannel, buffer, true);
+    } else {
+      return new ChannelReader(channel, buffer);
+    }
+  }
 
   InputStream asInputStream();
 
@@ -196,6 +212,29 @@ public interface DataReader extends BaseCloseable {
   int read(byte[] bytes, int offset, int length) throws IOException;
 
   int read(ByteBuffer buffer);
+
+  int readAll(ByteBuffer buffer);
+
+  default int readAll(final long offset, final ByteBuffer buffer) {
+    final long position = position();
+    seek(offset);
+    final var size = readAll(buffer);
+    seek(position);
+    return size;
+  }
+
+  default ByteBuffer readNByteBuffer(final long offset, final int size) {
+    final var buffer = ByteBuffer.allocate(size);
+    readAll(offset, buffer);
+    return buffer;
+  }
+
+  byte[] readNBytes(final int size) throws IOException;
+
+  default byte[] readNBytes(final long offset, final int size) {
+    seek(offset);
+    return getBytes(size);
+  }
 
   void seek(long position);
 
