@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.ByteBuffer;
 
 import com.revolsys.exception.Exceptions;
 
@@ -12,7 +13,7 @@ public class HttpChannelReader extends ChannelReader {
   private final URL url;
 
   public HttpChannelReader(final URL url) {
-    super(new HttpSeekableByteChannel(url));
+    super(new HttpSeekableByteChannel(url), ByteBuffer.allocateDirect(8192));
     this.url = url;
   }
 

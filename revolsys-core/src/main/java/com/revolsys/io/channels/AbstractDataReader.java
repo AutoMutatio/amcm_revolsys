@@ -383,6 +383,23 @@ public abstract class AbstractDataReader extends InputStream implements DataRead
     }
   }
 
+  @Override
+  public int readAll(final ByteBuffer buffer) {
+    final int size = buffer.remaining();
+    try {
+      while (buffer.hasRemaining()) {
+        final var count = readInternal(buffer);
+        if (count < 0) {
+          throw new EndOfFileException();
+        }
+      }
+    } catch (final IOException e) {
+      throw Exceptions.toRuntimeException(e);
+    }
+    buffer.flip();
+    return size;
+  }
+
   protected abstract int readInternal(ByteBuffer buffer) throws IOException;
 
   protected ByteBuffer readTempBytes(final int count) {
