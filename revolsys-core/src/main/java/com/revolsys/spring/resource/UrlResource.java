@@ -80,7 +80,7 @@ public class UrlResource extends AbstractResource {
       final String urlString = path.toString();
       initUrl(new URL(urlString));
       this.cleanedUrl = getCleanedUrl(this.url, urlString);
-    } catch (final Throwable ex) {
+    } catch (final IOException ex) {
       throw Exceptions.toRuntimeException(ex);
     }
   }
@@ -99,7 +99,7 @@ public class UrlResource extends AbstractResource {
       final String urlString = path.toString();
       initUrl(new URL(urlString));
       this.cleanedUrl = getCleanedUrl(this.url, urlString);
-    } catch (final Throwable ex) {
+    } catch (final IOException ex) {
       throw Exceptions.toRuntimeException(ex);
     }
   }
@@ -137,7 +137,7 @@ public class UrlResource extends AbstractResource {
       this.uri = uri;
       initUrl(uri.toURL());
       this.cleanedUrl = getCleanedUrl(this.url, uri.toString());
-    } catch (final Throwable ex) {
+    } catch (final IOException ex) {
       throw Exceptions.toRuntimeException(ex);
     }
   }
