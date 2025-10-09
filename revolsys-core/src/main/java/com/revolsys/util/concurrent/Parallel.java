@@ -21,6 +21,7 @@ import com.revolsys.parallel.channel.Channel;
 import com.revolsys.parallel.channel.ChannelOutput;
 import com.revolsys.parallel.channel.store.Buffer;
 import com.revolsys.util.BaseCloseable;
+import com.revolsys.util.Debug;
 
 public class Parallel
   implements BaseCloseable, ForEachMethods<Parallel>, RunnableMethods<Parallel> {
@@ -191,7 +192,13 @@ public class Parallel
     } catch (RuntimeException | Error e) {
       interruptThreads();
       if (!this.exceptions.isEmpty()) {
-        this.exceptions.forEach(suppressed -> e.addSuppressed(suppressed));
+        this.exceptions.forEach(suppressed -> {
+          if (e == suppressed) {
+            Debug.noOp();
+          } else {
+            e.addSuppressed(suppressed);
+          }
+        });
       }
       throw e;
     } finally {
@@ -225,6 +232,7 @@ public class Parallel
     return this;
   }
 
+  @Override
   public Parallel run(final Runnable runnable) {
     if (this.thread != Thread.currentThread()) {
       throw new IllegalStateException("Parallel can only be used in a single thread");
