@@ -76,7 +76,13 @@ public class OnConflictDoUpdate implements OnConflictAction {
    * @param column
    */
   public void setExcluded(final ColumnReference column) {
-    this.setExpressions.put(column, new Excluded(column));
+    final Excluded excluded;
+    if (column instanceof final Excluded e) {
+      excluded = e;
+    } else {
+      excluded = new Excluded(column);
+    }
+    this.setExpressions.put(column, excluded);
   }
 
   public OnConflictDoUpdate where(final Consumer<WhereConditionBuilder> action) {

@@ -50,7 +50,7 @@ public class PostgreSQLArrayFieldDefinition extends JdbcFieldDefinition {
 
   @Override
   public Object getValueFromResultSet(final RecordDefinition recordDefinition,
-    final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings)
+    int fieldIndex, final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings)
     throws SQLException {
     final Object value = resultSet.getObject(indexes.incrementAndGet());
     if (value instanceof Array) {
@@ -61,7 +61,7 @@ public class PostgreSQLArrayFieldDefinition extends JdbcFieldDefinition {
       while (arrayResultSet.next()) {
         columnIndex.columnIndex = 1;
         final Object elementValue = this.elementField.getValueFromResultSet(recordDefinition,
-          arrayResultSet, columnIndex, internStrings);
+          fieldIndex, arrayResultSet, columnIndex, internStrings);
         values.add(elementValue);
       }
       return values;

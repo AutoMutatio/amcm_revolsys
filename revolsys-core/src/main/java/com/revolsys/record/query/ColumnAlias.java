@@ -130,10 +130,10 @@ public class ColumnAlias implements QueryValue, ColumnReference {
 
   @Override
   public Object getValueFromResultSet(final RecordDefinition recordDefinition,
-    final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings)
+    int fieldIndex, final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings)
     throws SQLException {
-    return this.column.getValueFromResultSet(recordDefinition, resultSet, indexes, internStrings,
-      this.alias);
+    return this.column.getValueFromResultSet(recordDefinition, fieldIndex, resultSet, indexes,
+      internStrings, this.alias);
   }
 
   @Override

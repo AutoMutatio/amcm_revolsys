@@ -16,6 +16,12 @@ public interface TableReferenceProxy {
     }
   }
 
+  default <V> V column(final CharSequence fieldName,
+    final java.util.function.Function<QueryValue, V> operator) {
+    final ColumnReference column = getColumn(fieldName);
+    return operator.apply(column);
+  }
+
   default ColumnReference getColumn(final CharSequence name) {
     return getTableReference().getColumn(name);
   }

@@ -102,9 +102,9 @@ public class Alias implements QueryValue {
 
   @Override
   public Object getValueFromResultSet(final RecordDefinition recordDefinition,
-    final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings)
+    int fieldIndex, final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings)
     throws SQLException {
-    return this.value.getValueFromResultSet(recordDefinition, resultSet, indexes, internStrings);
+    return this.value.getValueFromResultSet(recordDefinition, fieldIndex, resultSet, indexes, internStrings);
   }
 
   @Override

@@ -18,7 +18,14 @@ import com.revolsys.record.schema.RecordStore;
 
 public class JsonContainsKey extends AbstractUnaryQueryValue implements Condition {
 
-  private final String key;
+  private String key;
+
+  private QueryValue keyValue;
+
+  public JsonContainsKey(final QueryValue left, final QueryValue keyValue) {
+    super(left);
+    this.keyValue = keyValue;
+  }
 
   public JsonContainsKey(final QueryValue left, final String key) {
     super(left);
@@ -34,7 +41,12 @@ public class JsonContainsKey extends AbstractUnaryQueryValue implements Conditio
   public void appendDefaultSql(final QueryStatement statement, final RecordStore recordStore,
     final SqlAppendable sql) {
     getValue().appendSql(statement, recordStore, sql);
-    sql.append(" ?? ?");
+    sql.append(" ?? ");
+    if (this.keyValue != null) {
+      this.keyValue.appendSql(statement, recordStore, sql);
+    } else {
+      sql.append("?");
+    }
   }
 
   @Override
@@ -43,10 +55,14 @@ public class JsonContainsKey extends AbstractUnaryQueryValue implements Conditio
     if (left != null) {
       index = left.appendParameters(index, statement);
     }
-    try {
-      statement.setString(index++, this.key);
-    } catch (final SQLException e) {
-      Exceptions.throwUncheckedException(e);
+    if (this.keyValue != null) {
+      index = this.keyValue.appendParameters(index, statement);
+    } else {
+      try {
+        statement.setString(index++, this.key);
+      } catch (final SQLException e) {
+        Exceptions.throwUncheckedException(e);
+      }
     }
     return index;
   }

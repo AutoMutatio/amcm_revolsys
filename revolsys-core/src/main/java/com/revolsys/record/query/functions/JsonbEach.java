@@ -5,6 +5,7 @@ import java.sql.SQLException;
 
 import com.revolsys.record.query.Column;
 import com.revolsys.record.query.ColumnIndexes;
+import com.revolsys.record.query.ColumnWithPrefix;
 import com.revolsys.record.query.From;
 import com.revolsys.record.query.FromAlias;
 import com.revolsys.record.query.QueryStatement;
@@ -14,35 +15,32 @@ import com.revolsys.record.query.TableReference;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordStore;
 
-public class ArrayElements extends UnaryFunction implements From {
+public class JsonbEach extends UnaryFunction implements From {
 
   public class Alias extends FromAlias {
-    private final Column column;
+    private final ColumnWithPrefix key;
+
+    private final ColumnWithPrefix value;
 
     Alias(final String alias) {
-      super(ArrayElements.this, alias);
-      this.column = new Column(alias);
+      super(JsonbEach.this, alias);
+      this.key = new ColumnWithPrefix(alias, new Column("key"));
+      this.value = new ColumnWithPrefix(alias, new Column("value"));
     }
 
-    public Column getColumn() {
-      return this.column;
+    public ColumnWithPrefix key() {
+      return this.key;
+    }
+
+    public ColumnWithPrefix value() {
+      return this.value;
     }
   }
 
-  public static ArrayElements jsonbArrayElements(final QueryValue parameter) {
-    return new ArrayElements("jsonb_array_elements", parameter);
-  }
+  public static final String NAME = "jsonb_each";
 
-  public static ArrayElements jsonbObjectKeys(final QueryValue parameter) {
-    return new ArrayElements("jsonb_object_keys", parameter);
-  }
-
-  public static ArrayElements unnest(final QueryValue parameter) {
-    return new ArrayElements("unnest", parameter);
-  }
-
-  public ArrayElements(final String name, final QueryValue parameter) {
-    super(name, parameter);
+  public JsonbEach(final QueryValue parameter) {
+    super(NAME, parameter);
   }
 
   @Override

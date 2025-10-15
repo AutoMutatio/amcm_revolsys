@@ -1001,11 +1001,11 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
   }
 
   @Override
-  public Object getValueFromResultSet(final RecordDefinition recordDefinition,
+  public Object getValueFromResultSet(final RecordDefinition recordDefinition, final int fieldIndex,
     final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings)
     throws SQLException {
     return this.selectExpressions.get(0)
-      .getValueFromResultSet(recordDefinition, resultSet, indexes, internStrings);
+      .getValueFromResultSet(recordDefinition, fieldIndex, resultSet, indexes, internStrings);
   }
 
   public String getWhere() {
@@ -1135,8 +1135,28 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     return this;
   }
 
+  public Query join(final JoinType joinType, final TableReferenceProxy table) {
+    join(joinType).table(table);
+    return this;
+  }
+
   public Join join(final TableReferenceProxy table) {
     return join(JoinType.JOIN).table(table);
+  }
+
+  public Query joinComma(final QueryValue from) {
+    join(JoinType.COMMA).statement(from);
+    return this;
+  }
+
+  public Query joinTable(final TableReferenceProxy table) {
+    join(JoinType.JOIN).table(table);
+    return this;
+  }
+
+  public Query joinTableComma(final TableReferenceProxy table) {
+    join(JoinType.COMMA).table(table);
+    return this;
   }
 
   @Override
