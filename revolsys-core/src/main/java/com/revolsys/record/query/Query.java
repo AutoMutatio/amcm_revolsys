@@ -278,7 +278,6 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
 
   public Query addJoin(final Join join) {
     this.joins.add(join);
-    sortJoins();
     return this;
 
   }
@@ -1630,9 +1629,15 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     this.joins.sort((a, b) -> {
       if (a == b) {
         return 0;
-      } else if (a.joinType() == JoinType.COMMA) {
-        if (b.joinType() != JoinType.COMMA) {
-          return 1;
+      } else {
+        final var joinType1 = a.joinType();
+        final var joinType2 = b.joinType();
+        if (joinType1 == JoinType.COMMA) {
+          if (joinType2 == JoinType.COMMA) {
+            return 0;
+          } else {
+            return 1;
+          }
         }
       }
       return -1;
