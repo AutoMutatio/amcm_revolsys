@@ -175,8 +175,8 @@ public class JdbcRecordWriterTypeData {
       for (int i = 1; i <= metaData.getColumnCount(); i++) {
         final String name = metaData.getColumnName(i);
         final JdbcFieldDefinition field = (JdbcFieldDefinition)this.recordDefinition.getField(name);
-        final Object value = field.getValueFromResultSet(this.recordDefinition, rs, columnIndexes,
-          false);
+        final Object value = field.getValueFromResultSet(this.recordDefinition, i - 1, rs,
+          columnIndexes, false);
         record.setValue(name, value);
       }
     } finally {

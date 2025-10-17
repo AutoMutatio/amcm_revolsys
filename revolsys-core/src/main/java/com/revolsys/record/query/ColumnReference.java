@@ -71,9 +71,9 @@ public interface ColumnReference extends QueryValue {
   }
 
   default Object getValueFromResultSet(final RecordDefinition recordDefinition,
-    final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings,
-    final String aliasName) throws SQLException {
-    return getValueFromResultSet(recordDefinition, resultSet, indexes, internStrings);
+    final int fieldIndex, final ResultSet resultSet, final ColumnIndexes indexes,
+    final boolean internStrings, final String aliasName) throws SQLException {
+    return getValueFromResultSet(recordDefinition, fieldIndex, resultSet, indexes, internStrings);
   }
 
   @SuppressWarnings("unchecked")

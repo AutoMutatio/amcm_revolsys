@@ -137,13 +137,13 @@ public class ConditionHolder implements Condition {
 
   @Override
   public Object getValueFromResultSet(final RecordDefinition recordDefinition,
-    final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings)
+    int fieldIndex, final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings)
     throws SQLException {
     if (this.condition == null) {
       return null;
     } else {
-      return this.condition.getValueFromResultSet(recordDefinition, resultSet, indexes,
-        internStrings);
+      return this.condition.getValueFromResultSet(recordDefinition, fieldIndex, resultSet,
+        indexes, internStrings);
     }
   }
 

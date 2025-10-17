@@ -49,7 +49,9 @@ public class ThreadFactoryEx implements ThreadFactory, ForEachMethods<ThreadFact
   }
 
   public static BaseIterable<ThreadFactoryEx> factories() {
-    return Iterables.fromIterable(FACTORIES).map(Reference::get).filter(f -> f != null);
+    return Iterables.fromIterable(FACTORIES)
+      .map(Reference::get)
+      .filter(f -> f != null);
   }
 
   private static boolean hideThread(final String name) {
@@ -250,11 +252,18 @@ public class ThreadFactoryEx implements ThreadFactory, ForEachMethods<ThreadFact
     return this;
   }
 
+  @Override
   public ThreadFactoryEx run(final Runnable action) {
     try (
       var parallel = parallel()) {
       parallel.run(action);
     }
+    return this;
+  }
+
+  public ThreadFactoryEx sequential(final Consumer<Sequential> action) {
+    final var sequential = new Sequential();
+    action.accept(sequential);
     return this;
   }
 
@@ -301,11 +310,10 @@ public class ThreadFactoryEx implements ThreadFactory, ForEachMethods<ThreadFact
   public JsonObject toJson() {
     final var json = JsonObject.hash()
       .addValue("name", this.name)
-      .addValue("threads",
-        Iterables.fromIterable(this.threads)
-          .filter(ThreadFactoryEx::hideThread)
-          .map(this::toJson)
-          .toList());
+      .addValue("threads", Iterables.fromIterable(this.threads)
+        .filter(ThreadFactoryEx::hideThread)
+        .map(this::toJson)
+        .toList());
     json.removeEmptyProperties();
     return json;
   }

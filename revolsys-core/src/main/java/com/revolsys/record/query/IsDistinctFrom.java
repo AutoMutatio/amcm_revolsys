@@ -6,7 +6,7 @@ import com.revolsys.data.type.DataType;
 public class IsDistinctFrom extends BinaryCondition {
 
   public IsDistinctFrom(final QueryValue left, final QueryValue right) {
-    super(left, "IS NOT DISTINCT FROM", right);
+    super(left, "IS DISTINCT FROM", right);
   }
 
   @Override

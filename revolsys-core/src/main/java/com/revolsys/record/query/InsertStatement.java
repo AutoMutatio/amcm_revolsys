@@ -320,13 +320,13 @@ public class InsertStatement extends AbstractReturningQueryStatement<InsertState
   }
 
   private OnConflictDoUpdate onConflictDoUpdate() {
-    OnConflictDoUpdate onConfigDoUpdate;
     if (this.onConflictAction instanceof final OnConflictDoUpdate update) {
-      onConfigDoUpdate = update;
+      return update;
     } else {
-      this.onConflictAction = onConfigDoUpdate = new OnConflictDoUpdate(this);
+      final var onConfigDoUpdate = new OnConflictDoUpdate(this);
+      this.onConflictAction = onConfigDoUpdate;
+      return onConfigDoUpdate;
     }
-    return onConfigDoUpdate;
   }
 
   @Override
