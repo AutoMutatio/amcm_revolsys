@@ -189,6 +189,9 @@ public class Column implements QueryValue, ColumnReference {
     if (field == null) {
       field = recordDefinition.getField(alias);
     }
+    if (field == null) {
+      return recordDefinition.getField(fieldIndex);
+    }
     return field.getValueFromResultSet(recordDefinition, fieldIndex, resultSet, indexes,
       internStrings);
   }
