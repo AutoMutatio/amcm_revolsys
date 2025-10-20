@@ -59,7 +59,7 @@ import com.revolsys.record.query.TableReferenceProxy;
 import com.revolsys.record.query.UpdateStatement;
 import com.revolsys.record.query.Value;
 import com.revolsys.record.query.functions.F;
-import com.revolsys.record.query.functions.Unnest;
+import com.revolsys.record.query.functions.ArrayElements;
 import com.revolsys.util.Property;
 
 public class AbstractTableRecordStore implements RecordDefinitionProxy {
@@ -234,7 +234,8 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
       final var column = getTable().getColumn(fieldName);
       if (column != null && column.getDataType() instanceof CollectionDataType) {
         or.addCondition(newQuery().select(Value.newValue(1))
-          .setFrom(new Unnest(column).toFromAlias(fieldName + "A"))
+          .setFrom(ArrayElements.unnest(column)
+            .toFromAlias(fieldName + "A"))
           .and(new Column(fieldName + "A"), Q.ILIKE, Value.toValue(search))
           .asExists());
 

@@ -78,6 +78,12 @@ public class WhereConditionBuilder implements TableReferenceProxy {
     return this;
   }
 
+  public WhereConditionBuilder and(final QueryValue left,
+    final BiFunction<QueryValue, QueryValue, Condition> operator, final Object value) {
+    final Condition condition = newCondition(left, operator, value);
+    return and(condition);
+  }
+
   public WhereConditionBuilder and(final String fieldName,
     final BiFunction<QueryValue, QueryValue, Condition> operator, final Object value) {
     final Condition condition = newCondition(fieldName, operator, value);

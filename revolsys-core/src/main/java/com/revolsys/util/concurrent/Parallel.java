@@ -195,7 +195,7 @@ public class Parallel
         this.exceptions.forEach(suppressed -> {
           if (e == suppressed) {
             Debug.noOp();
-          } else {
+          } else if (e != suppressed) {
             e.addSuppressed(suppressed);
           }
         });
@@ -254,8 +254,7 @@ public class Parallel
         this.threads.remove(thread);
         Parallel.this.phaser.arriveAndDeregister();
       }
-    })
-      .start();
+    }).start();
     return this;
   }
 }

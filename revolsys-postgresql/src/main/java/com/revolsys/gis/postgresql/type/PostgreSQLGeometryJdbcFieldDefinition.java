@@ -65,7 +65,7 @@ public class PostgreSQLGeometryJdbcFieldDefinition extends JdbcFieldDefinition {
 
   @Override
   public Object getValueFromResultSet(final RecordDefinition recordDefinition,
-    final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings)
+    int fieldIndex, final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings)
     throws SQLException {
     final Object postgresValue = resultSet.getObject(indexes.incrementAndGet());
     final Object value = toJava(postgresValue);

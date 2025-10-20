@@ -156,13 +156,15 @@ public class SimpleFunction extends AbstractMultiQueryValue implements Function 
   }
 
   @Override
-  public Object getValueFromResultSet(final RecordDefinition recordDefinition,
+  public Object getValueFromResultSet(final RecordDefinition recordDefinition, final int fieldIndex,
     final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings)
     throws SQLException {
-    final int index = indexes.incrementAndGet();
     if (this.valueFromResultSet == null) {
-      return resultSet.getString(index);
+      final var field = recordDefinition.getField(fieldIndex);
+      return field.getValueFromResultSet(recordDefinition, fieldIndex, resultSet, indexes,
+        internStrings);
     } else {
+      final int index = indexes.incrementAndGet();
       return this.valueFromResultSet.apply(resultSet, index);
     }
   }

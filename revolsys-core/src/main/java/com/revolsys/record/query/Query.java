@@ -278,7 +278,6 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
 
   public Query addJoin(final Join join) {
     this.joins.add(join);
-    sortJoins();
     return this;
 
   }
@@ -1015,11 +1014,11 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
   }
 
   @Override
-  public Object getValueFromResultSet(final RecordDefinition recordDefinition,
+  public Object getValueFromResultSet(final RecordDefinition recordDefinition, final int fieldIndex,
     final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings)
     throws SQLException {
     return this.selectExpressions.get(0)
-      .getValueFromResultSet(recordDefinition, resultSet, indexes, internStrings);
+      .getValueFromResultSet(recordDefinition, fieldIndex, resultSet, indexes, internStrings);
   }
 
   public String getWhere() {
@@ -1149,8 +1148,28 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     return this;
   }
 
+  public Query join(final JoinType joinType, final TableReferenceProxy table) {
+    join(joinType).table(table);
+    return this;
+  }
+
   public Join join(final TableReferenceProxy table) {
     return join(JoinType.JOIN).table(table);
+  }
+
+  public Query joinComma(final QueryValue from) {
+    join(JoinType.COMMA).statement(from);
+    return this;
+  }
+
+  public Query joinTable(final TableReferenceProxy table) {
+    join(JoinType.JOIN).table(table);
+    return this;
+  }
+
+  public Query joinTableComma(final TableReferenceProxy table) {
+    join(JoinType.COMMA).table(table);
+    return this;
   }
 
   @Override
@@ -1631,9 +1650,15 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     this.joins.sort((a, b) -> {
       if (a == b) {
         return 0;
-      } else if (a.joinType() == JoinType.COMMA) {
-        if (b.joinType() != JoinType.COMMA) {
-          return 1;
+      } else {
+        final var joinType1 = a.joinType();
+        final var joinType2 = b.joinType();
+        if (joinType1 == JoinType.COMMA) {
+          if (joinType2 == JoinType.COMMA) {
+            return 0;
+          } else {
+            return 1;
+          }
         }
       }
       return -1;

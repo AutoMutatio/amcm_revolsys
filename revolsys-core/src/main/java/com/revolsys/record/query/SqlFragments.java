@@ -41,7 +41,7 @@ public class SqlFragments extends AbstractMultiQueryValue {
 
   @Override
   public Object getValueFromResultSet(final RecordDefinition recordDefinition,
-    final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings)
+    int fieldIndex, final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings)
     throws SQLException {
     final int index = indexes.incrementAndGet();
     final Object value = resultSet.getObject(index);
