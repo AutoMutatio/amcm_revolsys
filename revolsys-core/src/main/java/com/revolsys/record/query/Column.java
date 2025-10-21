@@ -160,7 +160,7 @@ public class Column implements QueryValue, ColumnReference {
   }
 
   @Override
-  public Object getValueFromResultSet(final RecordDefinition recordDefinition,
+  public Object getValueFromResultSet(final RecordDefinition recordDefinition, final int fieldIndex,
     final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings)
     throws SQLException {
     var name = this.name;
@@ -169,14 +169,16 @@ public class Column implements QueryValue, ColumnReference {
     }
     final FieldDefinition field = recordDefinition.getField(name);
     if (field == null) {
-      return null;
+      return recordDefinition.getField(fieldIndex)
+        .getValueFromResultSet(recordDefinition, fieldIndex, resultSet, indexes, internStrings);
     } else {
-      return field.getValueFromResultSet(recordDefinition, resultSet, indexes, internStrings);
+      return field.getValueFromResultSet(recordDefinition, fieldIndex, resultSet, indexes,
+        internStrings);
     }
   }
 
   @Override
-  public Object getValueFromResultSet(final RecordDefinition recordDefinition,
+  public Object getValueFromResultSet(final RecordDefinition recordDefinition, final int fieldIndex,
     final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings,
     final String alias) throws SQLException {
     var name = this.name;
@@ -187,7 +189,11 @@ public class Column implements QueryValue, ColumnReference {
     if (field == null) {
       field = recordDefinition.getField(alias);
     }
-    return field.getValueFromResultSet(recordDefinition, resultSet, indexes, internStrings);
+    if (field == null) {
+      return recordDefinition.getField(fieldIndex);
+    }
+    return field.getValueFromResultSet(recordDefinition, fieldIndex, resultSet, indexes,
+      internStrings);
   }
 
   @Override

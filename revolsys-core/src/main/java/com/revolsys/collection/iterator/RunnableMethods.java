@@ -3,7 +3,13 @@ package com.revolsys.collection.iterator;
 import java.util.stream.Stream;
 
 public interface RunnableMethods<T extends RunnableMethods<T>> {
-  T run(ForEachHandler<Runnable> values);
+  @SuppressWarnings("unchecked")
+  default T run(final ForEachHandler<Runnable> values) {
+    values.forEach(this::run);
+    return (T)this;
+  }
+
+  T run(Runnable runnable);
 
   @SuppressWarnings("unchecked")
   default T run(final Runnable... values) {

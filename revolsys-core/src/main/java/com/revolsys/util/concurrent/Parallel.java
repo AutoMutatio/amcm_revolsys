@@ -191,7 +191,11 @@ public class Parallel
     } catch (RuntimeException | Error e) {
       interruptThreads();
       if (!this.exceptions.isEmpty()) {
-        this.exceptions.forEach(suppressed -> e.addSuppressed(suppressed));
+        this.exceptions.forEach(suppressed -> {
+          if (e != suppressed) {
+            e.addSuppressed(suppressed);
+          }
+        });
       }
       throw e;
     } finally {
@@ -225,6 +229,7 @@ public class Parallel
     return this;
   }
 
+  @Override
   public Parallel run(final Runnable runnable) {
     if (this.thread != Thread.currentThread()) {
       throw new IllegalStateException("Parallel can only be used in a single thread");

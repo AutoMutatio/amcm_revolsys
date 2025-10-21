@@ -190,7 +190,7 @@ public interface QueryValue extends Cloneable, SqlAppendParameters {
   }
 
   default Object getValueFromResultSet(final RecordDefinition recordDefinition,
-    final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings)
+    int fieldIndex, final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings)
     throws SQLException {
     throw new UnsupportedOperationException("getValueFromResultSet not implemented");
   }
