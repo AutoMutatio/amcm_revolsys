@@ -33,7 +33,7 @@ public class JdbcBlobFieldDefinition extends JdbcFieldDefinition {
 
   @Override
   public Object getValueFromResultSet(final RecordDefinition recordDefinition,
-    final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings)
+    int fieldIndex, final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings)
     throws SQLException {
     final Blob blob = resultSet.getBlob(indexes.incrementAndGet());
     return toFieldValue(blob);

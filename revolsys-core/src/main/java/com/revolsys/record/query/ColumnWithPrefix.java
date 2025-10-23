@@ -131,10 +131,10 @@ public class ColumnWithPrefix implements QueryValue, ColumnReference {
 
   @Override
   public Object getValueFromResultSet(final RecordDefinition recordDefinition,
-    final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings)
+    int fieldIndex, final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings)
     throws SQLException {
-    return getColumn().getValueFromResultSet(recordDefinition, resultSet, indexes, internStrings,
-      null);
+    return getColumn().getValueFromResultSet(recordDefinition, fieldIndex, resultSet, indexes,
+      internStrings, null);
   }
 
   @Override

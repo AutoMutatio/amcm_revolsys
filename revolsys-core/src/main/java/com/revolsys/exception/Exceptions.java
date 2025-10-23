@@ -10,10 +10,12 @@ import java.net.http.HttpTimeoutException;
 import java.nio.channels.ClosedByInterruptException;
 import java.sql.SQLException;
 import java.sql.SQLTimeoutException;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Function;
 
+import com.revolsys.collection.iterator.BaseIterable;
 import com.revolsys.collection.iterator.Iterables;
 import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.list.ListEx;
@@ -163,6 +165,11 @@ public interface Exceptions {
     }
   }
 
+  static ListEx<JsonObject> toJson(final BaseIterable<? extends Throwable> exceptions) {
+    return exceptions.map(Exceptions::toJson)
+      .toList();
+  }
+
   static JsonObject toJson(final StackTraceElement element) {
     return JsonObject.hash()
       .addNotEmpty("c", element.getClassName())
@@ -242,21 +249,42 @@ public interface Exceptions {
     return json;
   }
 
-  static RuntimeException toRuntimeException(final Throwable e) {
+  static ExceptionWithProperties toProperties(final Throwable e) {
+    if (e == null) {
+      return null;
+    } else if (e instanceof final ExceptionWithProperties re) {
+      return re;
+    } else {
+      return new ExceptionWithProperties(e);
+    }
+  }
+
+  static RuntimeException toRuntime(final List<? extends Throwable> exceptions) {
+    if (exceptions.size() == 1) {
+      final var exception = exceptions.get(0);
+      if (exception instanceof final Error error) {
+        throw error;
+      } else {
+        return toRuntimeException(exception);
+      }
+    } else {
+      return new MultipleException(exceptions);
+    }
+  }
+
+  static RuntimeException toRuntimeException(final Exception e) {
     if (e == null) {
       return null;
     } else if (e instanceof final WrappedRuntimeException re) {
-      throw re;
+      return re;
     } else if (isInterruptException(e)) {
       return wrap(e, WrappedInterruptedException.class, WrappedInterruptedException::new);
     } else if (isTimeoutException(e)) {
       return wrap(e, WrappedTimeoutException.class, WrappedTimeoutException::new);
     } else if (hasCause(e, IOException.class)) {
       return new WrappedIoException(e);
-    } else if (e instanceof final Error error) {
-      throw error;
     } else if (e instanceof final RuntimeException re) {
-      throw re;
+      return re;
     } else if (e instanceof InvocationTargetException) {
       final Throwable cause = e.getCause();
       return toRuntimeException(cause);
@@ -264,7 +292,19 @@ public interface Exceptions {
       final Throwable cause = e.getCause();
       return toRuntimeException(cause);
     } else {
-      throw new WrappedRuntimeException(e);
+      return new WrappedRuntimeException(e);
+    }
+  }
+
+  static RuntimeException toRuntimeException(final Throwable e) {
+    if (e instanceof final RuntimeException runtime) {
+      return runtime;
+    } else if (e instanceof final Exception exception) {
+      return toRuntimeException(exception);
+    } else if (e instanceof final Error error) {
+      return new WrappedRuntimeException(error);
+    } else {
+      return new WrappedRuntimeException(e);
     }
   }
 
@@ -282,7 +322,7 @@ public interface Exceptions {
     if (e == null) {
       return null;
     } else if (e instanceof final WrappedRuntimeException re) {
-      throw re;
+      return re;
     } else if (isInterruptException(e)) {
       return new WrappedInterruptedException(e);
     } else if (isTimeoutException(e)) {
@@ -290,9 +330,9 @@ public interface Exceptions {
     } else if (hasCause(e, IOException.class)) {
       return new WrappedIoException(e);
     } else if (e instanceof Error) {
-      throw new WrappedRuntimeException(e);
+      return new WrappedRuntimeException(e);
     } else if (e instanceof RuntimeException) {
-      throw new WrappedRuntimeException(e);
+      return new WrappedRuntimeException(e);
     } else if (e instanceof InvocationTargetException) {
       final Throwable cause = e.getCause();
       return toWrapped(cause);
@@ -300,7 +340,7 @@ public interface Exceptions {
       final Throwable cause = e.getCause();
       return toWrapped(cause);
     } else {
-      throw new WrappedRuntimeException(e);
+      return new WrappedRuntimeException(e);
     }
   }
 
@@ -360,7 +400,7 @@ public interface Exceptions {
       if (e instanceof final Error error) {
         throw error;
       } else if (e instanceof final RuntimeException re) {
-        throw re;
+        return re;
       }
     }
     return constructor.apply(e);

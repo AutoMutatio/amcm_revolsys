@@ -30,7 +30,7 @@ import com.revolsys.geometry.model.Point;
 import com.revolsys.io.MapSerializer;
 import com.revolsys.io.StringWriter;
 import com.revolsys.io.ZipUtil;
-import com.revolsys.io.channels.ChannelReader;
+import com.revolsys.io.channels.AbstractDataReader;
 import com.revolsys.io.channels.DataReader;
 import com.revolsys.properties.BaseObjectWithProperties;
 import com.revolsys.record.io.format.html.HtmlWriter;
@@ -78,7 +78,7 @@ public class LasPointCloud extends BaseObjectWithProperties
 
   private List<LasPoint> points = new ArrayList<>();
 
-  private ChannelReader reader;
+  private AbstractDataReader reader;
 
   private Resource resource;
 
@@ -92,7 +92,8 @@ public class LasPointCloud extends BaseObjectWithProperties
     setProperties(properties);
     this.resource = resource;
     this.lasResource = resource;
-    if (resource.getFileNameExtension().equals("zip")) {
+    if (resource.getFileNameExtension()
+      .equals("zip")) {
       final Pair<Resource, GeometryFactory> result = ZipUtil
         .getZipResourceAndGeometryFactory(resource, ".las", this.geometryFactory);
       this.lasResource = result.getValue1();
@@ -229,7 +230,7 @@ public class LasPointCloud extends BaseObjectWithProperties
     if (this.allLoaded || !this.points.isEmpty()) {
       return this.points;
     } else {
-      ChannelReader reader = this.reader;
+      AbstractDataReader reader = this.reader;
       this.reader = null;
       if (reader == null) {
         reader = open();
@@ -301,8 +302,8 @@ public class LasPointCloud extends BaseObjectWithProperties
     }
   }
 
-  private ChannelReader open() {
-    final ChannelReader reader;
+  private AbstractDataReader open() {
+    final AbstractDataReader reader;
     if (this.lasResource == null) {
       reader = null;
     } else {

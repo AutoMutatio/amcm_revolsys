@@ -595,8 +595,8 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
       int fieldIndex = 0;
       for (final QueryValue expression : expressions) {
         try {
-          final Object value = expression.getValueFromResultSet(recordDefinition, resultSet,
-            indexes, false);
+          final Object value = expression.getValueFromResultSet(recordDefinition, fieldIndex,
+            resultSet, indexes, false);
           record.setValue(fieldIndex, value);
           fieldIndex++;
         } catch (final SQLException e) {
@@ -1307,7 +1307,7 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
       for (int i = 1; i <= metaData.getColumnCount(); i++) {
         final String name = metaData.getColumnName(i);
         final JdbcFieldDefinition field = (JdbcFieldDefinition)recordDefinition.getField(name);
-        final Object value = field.getValueFromResultSet(recordDefinition, rs, columnIndexes,
+        final Object value = field.getValueFromResultSet(recordDefinition, i - 1, rs, columnIndexes,
           false);
         record.setValue(name, value);
       }

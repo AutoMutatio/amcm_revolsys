@@ -9,35 +9,34 @@ import com.revolsys.jdbc.io.AbstractJdbcRecordStore;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordStore;
 
-public class Cast extends AbstractUnaryQueryValue {
+public class JsonCast extends AbstractUnaryQueryValue {
   private final String dataType;
 
   private JdbcFieldDefinition convertedField;
 
-  public Cast(final QueryValue queryValue, final String dataType) {
+  public JsonCast(final QueryValue queryValue, final String dataType) {
     super(queryValue);
     this.dataType = dataType;
   }
 
   @Override
   public void appendDefaultSql(final QueryStatement statement, final RecordStore recordStore,
-      final SqlAppendable buffer) {
-    buffer.append("CAST(");
+    final SqlAppendable buffer) {
+    buffer.append("(");
     super.appendDefaultSql(statement, recordStore, buffer);
-    buffer.append(" AS ");
+    buffer.append(" #>> '{}' )::");
     buffer.append(this.dataType);
-    buffer.append(")");
   }
 
   @Override
-  public Cast clone() {
-    return (Cast) super.clone();
+  public JsonCast clone() {
+    return (JsonCast)super.clone();
   }
 
   @Override
   public boolean equals(final Object obj) {
-    if (obj instanceof Cast) {
-      final Cast condition = (Cast) obj;
+    if (obj instanceof JsonCast) {
+      final JsonCast condition = (JsonCast)obj;
       if (DataType.equal(condition.getDataType(), getDataType())) {
         return super.equals(condition);
       }
@@ -50,15 +49,16 @@ public class Cast extends AbstractUnaryQueryValue {
   }
 
   @Override
-  public Object getValueFromResultSet(final RecordDefinition recordDefinition, int fieldIndex,
-      final ResultSet resultSet,
-      final ColumnIndexes indexes, final boolean internStrings) throws SQLException {
+  public Object getValueFromResultSet(final RecordDefinition recordDefinition, final int fieldIndex,
+    final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings)
+    throws SQLException {
     if (this.convertedField == null) {
-      final var recordStore = (AbstractJdbcRecordStore) recordDefinition.getRecordStore();
-      this.convertedField = recordStore.getFieldAdder(this.dataType).newField(null, null, "", "", 0, this.dataType, 0,
-          0, false, null);
+      final var recordStore = (AbstractJdbcRecordStore)recordDefinition.getRecordStore();
+      this.convertedField = recordStore.getFieldAdder(this.dataType)
+        .newField(null, null, "", "", 0, this.dataType, 0, 0, false, null);
     }
-    return this.convertedField.getValueFromResultSet(recordDefinition, fieldIndex, resultSet, indexes, internStrings);
+    return this.convertedField.getValueFromResultSet(recordDefinition, fieldIndex, resultSet,
+      indexes, internStrings);
   }
 
   @Override

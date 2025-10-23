@@ -66,7 +66,7 @@ public final class DataTypes {
           throw new IllegalArgumentException("Unknown URI: " + string, e);
         }
       }
-    } catch (final Throwable e) {
+    } catch (final URISyntaxException e) {
       throw Exceptions.toRuntimeException(e);
     }
   });
@@ -74,8 +74,10 @@ public final class DataTypes {
   public static final DataType BASE64_BINARY = new SimpleDataType("base64Binary", byte[].class);
 
   public static final DataType BASE64_URL_BINARY = new FunctionDataType("base64UrlBinary",
-    byte[].class, s -> Base64.getUrlDecoder().decode(s.toString()),
-    v -> Base64.getUrlEncoder().encodeToString((byte[])v));
+    byte[].class, s -> Base64.getUrlDecoder()
+      .decode(s.toString()),
+    v -> Base64.getUrlEncoder()
+      .encodeToString((byte[])v));
 
   public static final DataType BINARY = new SimpleDataType("binary", byte[].class);
 
@@ -224,7 +226,8 @@ public final class DataTypes {
     } else if (value instanceof Path) {
       final Path path = (Path)value;
       try {
-        return path.toUri().toURL();
+        return path.toUri()
+          .toURL();
       } catch (final MalformedURLException e) {
         throw new IllegalArgumentException("Cannot get url " + path, e);
       }
@@ -355,7 +358,8 @@ public final class DataTypes {
   }
 
   public static void register(final DataType type) {
-    final String name = type.getName().toLowerCase();
+    final String name = type.getName()
+      .toLowerCase();
     if (!NAME_TYPE_MAP.containsKey(name)) {
       NAME_TYPE_MAP.put(name, type);
     }

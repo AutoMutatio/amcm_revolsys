@@ -359,7 +359,7 @@ public class IoUtil {
   public static long size(final InputStream in) {
     try {
       long size = 0;
-      final byte[] buffer = new byte[8196];
+      final byte[] buffer = new byte[8192];
       while (true) {
         final int count = in.read(buffer);
         if (count >= 0) {

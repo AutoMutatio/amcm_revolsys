@@ -100,14 +100,15 @@ public interface QueryValue extends Cloneable, SqlAppendParameters {
     }
   }
 
-  static Object getValueFromResultSet(final RecordDefinition recordDefinition, final String name,
-    final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings)
-    throws SQLException {
+  static Object getValueFromResultSet(final RecordDefinition recordDefinition, int fieldIndex,
+    final String name, final ResultSet resultSet, final ColumnIndexes indexes,
+    final boolean internStrings) throws SQLException {
     final FieldDefinition field = recordDefinition.getField(name);
     if (field == null) {
       return null;
     } else {
-      return field.getValueFromResultSet(recordDefinition, resultSet, indexes, internStrings);
+      return field.getValueFromResultSet(recordDefinition, fieldIndex, resultSet, indexes,
+        internStrings);
     }
   }
 
@@ -202,7 +203,7 @@ public interface QueryValue extends Cloneable, SqlAppendParameters {
     return dataType.toObject(value);
   }
 
-  default Object getValueFromResultSet(final RecordDefinition recordDefinition,
+  default Object getValueFromResultSet(final RecordDefinition recordDefinition, int fieldIndex,
     final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings)
     throws SQLException {
     throw new UnsupportedOperationException("getValueFromResultSet not implemented");
