@@ -12,6 +12,7 @@ import static java.time.temporal.ChronoField.YEAR;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.sql.Time;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -20,6 +21,7 @@ import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -98,11 +100,9 @@ public interface Dates {
     .toFormatter()
     .withZone(UTC);
 
-  DateTimeFormatter ISO_DATE = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-    .withZone(UTC);
+  DateTimeFormatter ISO_DATE = DateTimeFormatter.ofPattern("yyyy-MM-dd").withZone(UTC);
 
-  DateTimeFormatter ISO_TIME = DateTimeFormatter.ofPattern("HH:mm:ss")
-    .withZone(UTC);
+  DateTimeFormatter ISO_TIME = DateTimeFormatter.ofPattern("HH:mm:ss").withZone(UTC);
 
   static Set<DayOfWeek> days(final int... days) {
     final Set<DayOfWeek> daysOfWeek = new TreeSet<>();
@@ -170,8 +170,7 @@ public interface Dates {
     if (date == null) {
       return null;
     } else {
-      return DateTimeFormatter.ofPattern(pattern)
-        .format(date);
+      return DateTimeFormatter.ofPattern(pattern).format(date);
     }
   }
 
@@ -194,8 +193,7 @@ public interface Dates {
         final Calendar calendar = new GregorianCalendar(year, month, day, hour, minute, second);
         if (millisecond != 0) {
           BigDecimal number = new BigDecimal("0." + millisecond);
-          number = number.multiply(BigDecimal.valueOf(100))
-            .setScale(0, RoundingMode.HALF_DOWN);
+          number = number.multiply(BigDecimal.valueOf(100)).setScale(0, RoundingMode.HALF_DOWN);
           millisecond = number.intValue();
           calendar.set(Calendar.MILLISECOND, millisecond);
         }
@@ -262,8 +260,7 @@ public interface Dates {
         final Calendar calendar = new GregorianCalendar(year, month, day, hour, minute, second);
         if (millisecond != 0) {
           BigDecimal number = new BigDecimal("0." + millisecond);
-          number = number.multiply(BigDecimal.valueOf(1000))
-            .setScale(0, RoundingMode.HALF_DOWN);
+          number = number.multiply(BigDecimal.valueOf(1000)).setScale(0, RoundingMode.HALF_DOWN);
           millisecond = number.intValue();
           calendar.set(Calendar.MILLISECOND, millisecond);
         }
@@ -303,8 +300,7 @@ public interface Dates {
     } else if (value instanceof LocalDate) {
       final LocalDate date = (LocalDate)value;
       final ZoneId zoneId = ZoneId.systemDefault();
-      return date.atStartOfDay(zoneId)
-        .toInstant();
+      return date.atStartOfDay(zoneId).toInstant();
     } else if (value instanceof TemporalAccessor) {
       final TemporalAccessor temporal = (TemporalAccessor)value;
       return Instant.from(temporal);
@@ -445,8 +441,7 @@ public interface Dates {
     } else if (value instanceof LocalDate) {
       return (LocalDate)value;
     } else if (value instanceof final Instant instant) {
-      return instant.atZone(UTC)
-        .toLocalDate();
+      return instant.atZone(UTC).toLocalDate();
     } else if (value instanceof final java.sql.Date date) {
       return date.toLocalDate();
     } else if (value instanceof final Date date) {
@@ -476,8 +471,7 @@ public interface Dates {
       return date;
     } else if (value instanceof Instant) {
       final Instant instant = (Instant)value;
-      final LocalDate date = instant.atZone(UTC)
-        .toLocalDate();
+      final LocalDate date = instant.atZone(UTC).toLocalDate();
       return getSqlDate(date);
     } else if (value instanceof LocalDate) {
       final LocalDate date = (LocalDate)value;
@@ -505,8 +499,7 @@ public interface Dates {
         final Calendar calendar = new GregorianCalendar(year, month, day);
         if (millisecond != 0) {
           BigDecimal number = new BigDecimal("0." + millisecond);
-          number = number.multiply(BigDecimal.valueOf(1000))
-            .setScale(0, RoundingMode.HALF_DOWN);
+          number = number.multiply(BigDecimal.valueOf(1000)).setScale(0, RoundingMode.HALF_DOWN);
           millisecond = number.intValue();
           calendar.set(Calendar.MILLISECOND, millisecond);
         }
@@ -527,6 +520,22 @@ public interface Dates {
     } else {
       final long time = date.getTime();
       return new java.sql.Date(time);
+    }
+  }
+
+  static LocalTime getTime(final Object value) {
+    if (value == null) {
+      return null;
+    } else if (value instanceof final LocalTime time) {
+      return time;
+    } else if (value instanceof final Time time) {
+      return time.toLocalTime();
+    } else if (value instanceof final Date date) {
+      return new Time(date.getTime()).toLocalTime();
+    } else if (value instanceof final TemporalAccessor temporal) {
+      return LocalTime.from(temporal);
+    } else {
+      return LocalTime.parse(value.toString());
     }
   }
 
@@ -874,6 +883,15 @@ public interface Dates {
     } else {
       final java.sql.Date date = getSqlDate(value);
       return toSqlDateString(date);
+    }
+  }
+
+  static String toTimeIsoString(final Object value) {
+    if (value == null) {
+      return null;
+    } else {
+      final var time = getTime(value);
+      return time.toString();
     }
   }
 
