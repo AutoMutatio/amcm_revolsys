@@ -808,6 +808,15 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     return this.groupBy;
   }
 
+  public Join getJoin(final String alias) {
+    for (final var join : getJoins()) {
+      if (DataType.equal(alias, join.getTableAlias())) {
+        return join;
+      }
+    }
+    return null;
+  }
+
   public Join getJoin(final TableReferenceProxy tableProxy, final String alias) {
     if (tableProxy != null) {
       final var table = tableProxy.getTableReference();
@@ -1239,6 +1248,8 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
         }
         selectExpression = selectExpression.toAlias(alias);
       }
+    } else if (select instanceof final Number number) {
+      return Value.newValue(number);
     } else {
       throw new IllegalArgumentException("Not a valid select expression :" + select);
     }

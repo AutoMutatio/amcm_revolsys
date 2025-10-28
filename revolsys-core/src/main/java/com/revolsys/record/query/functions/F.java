@@ -7,6 +7,7 @@ import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.BoundingBoxProxy;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryFactory;
+import com.revolsys.record.query.BinaryCondition;
 import com.revolsys.record.query.Column;
 import com.revolsys.record.query.ColumnReference;
 import com.revolsys.record.query.Query;
@@ -16,6 +17,20 @@ import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
 
 public class F {
+
+  public static SimpleFunction arrayAgg(final QueryValue value) {
+    return new SimpleFunction("array_agg", value);
+  }
+
+  public static BinaryCondition containsAllKeys(final QueryValue left, final QueryValue right) {
+    return new BinaryCondition(left, "?&", right);
+  }
+
+  public static BinaryCondition containsAnyKeys(final QueryValue left, final QueryValue right) {
+    // ?| is escaped to ??| as ? is a placeholder
+    return new BinaryCondition(left, "??|", right);
+  }
+
   public static WithinDistance dWithin(final FieldDefinition field, final Geometry geometry,
     final double distance) {
     final Value geometryValue = Value.newValue(field, geometry);

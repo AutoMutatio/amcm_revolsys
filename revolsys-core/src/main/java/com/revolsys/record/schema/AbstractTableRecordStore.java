@@ -46,6 +46,7 @@ import com.revolsys.record.query.Condition;
 import com.revolsys.record.query.Count;
 import com.revolsys.record.query.DeleteStatement;
 import com.revolsys.record.query.InsertStatement;
+import com.revolsys.record.query.Join;
 import com.revolsys.record.query.JoinType;
 import com.revolsys.record.query.Or;
 import com.revolsys.record.query.Parenthesis;
@@ -53,10 +54,11 @@ import com.revolsys.record.query.Q;
 import com.revolsys.record.query.Query;
 import com.revolsys.record.query.QueryValue;
 import com.revolsys.record.query.TableReference;
+import com.revolsys.record.query.TableReferenceProxy;
 import com.revolsys.record.query.UpdateStatement;
 import com.revolsys.record.query.Value;
-import com.revolsys.record.query.functions.F;
 import com.revolsys.record.query.functions.ArrayElements;
+import com.revolsys.record.query.functions.F;
 import com.revolsys.util.Property;
 
 public class AbstractTableRecordStore implements RecordDefinitionProxy {
@@ -130,6 +132,18 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
       jsonFields.add(jsonField);
     }
     return jsonSchema;
+  }
+
+  private static QueryValue toQueryValue(final TableReferenceProxy table,
+    final Object valueOrFieldName) {
+    if (valueOrFieldName instanceof final QueryValue queryValue) {
+      return queryValue;
+    } else if (valueOrFieldName instanceof final String fieldName) {
+      return table.getColumn(fieldName);
+    } else {
+      throw new IllegalArgumentException(
+        "Must be a QueryValue or String: " + valueOrFieldName.getClass());
+    }
   }
 
   private final ValueHolder<JsonObject> schema = ValueHolder.lazy(this::schemaToJson);
@@ -336,15 +350,9 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
   }
 
   protected QueryValue fieldPathToQueryValueJoin(final Query query,
-    final AbstractTableRecordStore joinRs, final String joinAlias, final String joinFieldName,
+    final AbstractTableRecordStore joinRs, final String joinAlias, final String queryJoinFieldName,
     final String lookupFieldName, final String[] path) {
-    var join = query.getJoin(joinRs, joinAlias);
-    if (join == null) {
-      join = query.join(JoinType.LEFT_OUTER_JOIN)
-        .table(joinRs)//
-        .setAlias(joinAlias)
-        .on("id", query, joinFieldName);
-    }
+    final var join = requireJoin(query, queryJoinFieldName, joinRs, joinAlias, "id");
     final var column = join.getColumn(lookupFieldName);
     QueryValue selectField = column;
     if (path.length > 1) {
@@ -740,6 +748,32 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
 
   protected QueryValue pathToQueryValueWrap(final QueryValue value, final String function) {
     throw new IllegalArgumentException("Function " + function + "  not supported");
+  }
+
+  /**
+   * Get or create a join between the query and the target record store with the specified alias.
+   *
+   * @param query The query to create the join for.
+   * @param queryFieldOrValue The field name or query value to create the on condition for the query.
+   * @param targetRs The target record store to join to.
+   * @param targetAlias The alias for the join.
+   * @param targetFieldOrValue The field name or query value to create the on condition for the target.
+   * @return
+   */
+  protected Join requireJoin(final Query query, final Object queryFieldOrValue,
+    final AbstractTableRecordStore targetRs, final String targetAlias,
+    final Object targetFieldOrValue) {
+    var join = query.getJoin(targetRs, targetAlias);
+    if (join == null) {
+      final QueryValue queryCondition = toQueryValue(query, queryFieldOrValue);
+
+      join = query.join(JoinType.LEFT_OUTER_JOIN)
+        .table(targetRs)//
+        .setAlias(targetAlias);
+      final QueryValue targetCondition = toQueryValue(join, targetFieldOrValue);
+      join.on(targetCondition, queryCondition);
+    }
+    return join;
   }
 
   public JsonObject schemaToJson() {
