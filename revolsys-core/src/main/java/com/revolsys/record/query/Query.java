@@ -795,6 +795,16 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     return null;
   }
 
+  @Override
+  public ColumnReference getColumn(final CharSequence name) {
+    final var tableReference = getTableReference();
+    if (tableReference == null) {
+      return new Column(name);
+    } else {
+      return tableReference.getColumn(name);
+    }
+  }
+
   public From getFrom() {
     return this.from;
   }
@@ -806,6 +816,15 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
 
   public List<QueryValue> getGroupBy() {
     return this.groupBy;
+  }
+
+  public Join getJoin(final String alias) {
+    for (final var join : getJoins()) {
+      if (DataType.equal(alias, join.getTableAlias())) {
+        return join;
+      }
+    }
+    return null;
   }
 
   public Join getJoin(final TableReferenceProxy tableProxy, final String alias) {
@@ -1239,6 +1258,8 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
         }
         selectExpression = selectExpression.toAlias(alias);
       }
+    } else if (select instanceof final Number number) {
+      return Value.newValue(number);
     } else {
       throw new IllegalArgumentException("Not a valid select expression :" + select);
     }
