@@ -644,7 +644,9 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     Condition filterCondition = newODataFilter(query, filter);
     if (filterCondition != null) {
       filterCondition = alterCondition(request, connection, query, filterCondition);
-      query.and(filterCondition.clone(null, query.getTable()));
+      if (filterCondition != null) {
+        query.and(filterCondition.clone(null, query.getTable()));
+      }
     }
     applySearchCondition(query, search);
     addQueryOrderBy(query, orderBy);

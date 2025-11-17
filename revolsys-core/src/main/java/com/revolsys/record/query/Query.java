@@ -795,6 +795,16 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     return null;
   }
 
+  @Override
+  public ColumnReference getColumn(final CharSequence name) {
+    final var tableReference = getTableReference();
+    if (tableReference == null) {
+      return new Column(name);
+    } else {
+      return tableReference.getColumn(name);
+    }
+  }
+
   public From getFrom() {
     return this.from;
   }
