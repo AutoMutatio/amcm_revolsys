@@ -94,7 +94,7 @@ public interface SwingUtil {
   static final Font FONT = new Font(Font.SANS_SERIF, Font.PLAIN, 11);
 
   static void addAction(final JComponent component, final KeyStroke keyStroke,
-      final String actionKey, final Runnable runnable) {
+    final String actionKey, final Runnable runnable) {
     final InputMap inputMap = component.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
     inputMap.put(keyStroke, actionKey);
 
@@ -102,19 +102,20 @@ public interface SwingUtil {
     final RunnableAction action = new RunnableAction(actionKey, runnable);
     actionMap.put(actionKey, action);
     if (component instanceof JComboBox) {
-      final JComboBox comboBox = (JComboBox) component;
-      final JComponent editorComponent = (JComponent) comboBox.getEditor().getEditorComponent();
+      final JComboBox comboBox = (JComboBox)component;
+      final JComponent editorComponent = (JComponent)comboBox.getEditor()
+        .getEditorComponent();
       addAction(editorComponent, keyStroke, actionKey, runnable);
     }
   }
 
   static JComponent addField(final Container panel, final String fieldName,
-      final Object fieldValue) {
+    final Object fieldValue) {
     return addField(panel, fieldName, fieldName, fieldValue);
   }
 
   static JComponent addField(final Container panel, final String fieldName, final String label,
-      final DataType dataType, final Object fieldValue) {
+    final DataType dataType, final Object fieldValue) {
     addLabel(panel, label);
     final JComponent field = SwingUtil.newField(dataType, fieldName, fieldValue);
     panel.add(field);
@@ -122,7 +123,7 @@ public interface SwingUtil {
   }
 
   static JComponent addField(final Container panel, final String fieldName, final String label,
-      final Object fieldValue) {
+    final Object fieldValue) {
     addLabel(panel, label);
     final JComponent field = SwingUtil.newField(fieldValue.getClass(), fieldName, fieldValue);
     panel.add(field);
@@ -137,7 +138,7 @@ public interface SwingUtil {
   }
 
   static void addLabelledReadOnlyTextField(final JPanel container, final String fieldName,
-      final Object value) {
+    final Object value) {
     if (value != null) {
       final String string = DataTypes.toString(value);
       final int length = Math.max(1, string.length());
@@ -146,40 +147,40 @@ public interface SwingUtil {
   }
 
   static void addLabelledReadOnlyTextField(final JPanel container, final String fieldName,
-      final Object value, final int length) {
+    final Object value, final int length) {
     addLabel(container, fieldName);
     addReadOnlyTextField(container, fieldName, value, length);
   }
 
   static void addLayer(final JLayeredPane layeredPane, final JComponent component,
-      final Integer layerIndex) {
+    final Integer layerIndex) {
     layeredPane.add(component, layerIndex);
   }
 
   static JComponent addObjectField(final Container container, final Object object,
-      final String fieldName) {
+    final String fieldName) {
     return addObjectField(container, object, fieldName, fieldName);
   }
 
   static JComponent addObjectField(final Container container, final Object object,
-      final String fieldName, final DataType dataType) {
+    final String fieldName, final DataType dataType) {
     return addObjectField(container, object, fieldName, fieldName, dataType);
   }
 
   static JComponent addObjectField(final Container panel, final Object object,
-      final String fieldName, final String label) {
+    final String fieldName, final String label) {
     final Object fieldValue = Property.get(object, fieldName);
     return addField(panel, fieldName, label, fieldValue);
   }
 
   static JComponent addObjectField(final Container panel, final Object object,
-      final String fieldName, final String label, final DataType dataType) {
+    final String fieldName, final String label, final DataType dataType) {
     final Object fieldValue = Property.get(object, fieldName);
     return addField(panel, fieldName, label, dataType, fieldValue);
   }
 
   static void addReadOnlyTextField(final JPanel container, final String fieldName,
-      final Object value, final int length) {
+    final Object value, final int length) {
     final TextField field = new TextField(fieldName, value, length);
     field.setEditable(false);
     container.add(field);
@@ -223,8 +224,8 @@ public interface SwingUtil {
     final int windowHeight = window.getHeight();
 
     final Rectangle bounds = getScreenBounds();
-    final int width = Math.min(windowWidth, bounds.width - 20 - (windowX - (int) bounds.getX()));
-    final int height = Math.min(windowHeight, bounds.height - 20 - (windowY - (int) bounds.getY()));
+    final int width = Math.min(windowWidth, bounds.width - 20 - (windowX - (int)bounds.getX()));
+    final int height = Math.min(windowHeight, bounds.height - 20 - (windowY - (int)bounds.getY()));
     window.setSize(width, height);
   }
 
@@ -237,7 +238,7 @@ public interface SwingUtil {
 
   static Component componentFocus() {
     final KeyboardFocusManager keyboardFocusManager = KeyboardFocusManager
-        .getCurrentKeyboardFocusManager();
+      .getCurrentKeyboardFocusManager();
     return keyboardFocusManager.getFocusOwner();
   }
 
@@ -275,17 +276,26 @@ public interface SwingUtil {
     }
   }
 
+  static void fillScreen(final Window window) {
+    window.pack();
+    final Rectangle bounds = getScreenBounds();
+    final int width = bounds.width - 40;
+    final int height = bounds.height - 40;
+    window.setLocation(20, 20);
+    window.setSize(width, height);
+  }
+
   static Component getInvoker(final JMenuItem menuItem) {
     MenuContainer menuContainer = menuItem.getParent();
     while (menuContainer != null && !(menuContainer instanceof JPopupMenu)) {
       if (menuContainer instanceof MenuItem) {
-        menuContainer = ((MenuItem) menuContainer).getParent();
+        menuContainer = ((MenuItem)menuContainer).getParent();
       } else {
         menuContainer = null;
       }
     }
     if (menuContainer != null) {
-      final JPopupMenu menu = (JPopupMenu) menuContainer;
+      final JPopupMenu menu = (JPopupMenu)menuContainer;
       final Component invoker = menu.getInvoker();
       return invoker;
     } else {
@@ -295,7 +305,7 @@ public interface SwingUtil {
   }
 
   static Rectangle getScreenBounds() {
-    return getScreenBounds((Component) null);
+    return getScreenBounds((Component)null);
   }
 
   static Rectangle getScreenBounds(Component component) {
@@ -324,13 +334,14 @@ public interface SwingUtil {
     final Rectangle newBounds = new Rectangle(x, y, width, height);
     Rectangle firstBounds = null;
     final GraphicsEnvironment graphicsEnvironment = GraphicsEnvironment
-        .getLocalGraphicsEnvironment();
+      .getLocalGraphicsEnvironment();
     for (final GraphicsDevice device : graphicsEnvironment.getScreenDevices()) {
       for (final GraphicsConfiguration config : device.getConfigurations()) {
         final Rectangle bounds = config.getBounds();
         final Rectangle intersection = bounds.intersection(newBounds);
         if (intersection.getWidth() > 100 && intersection.getHeight() > 100) {
-          final Insets insets = Toolkit.getDefaultToolkit().getScreenInsets(config);
+          final Insets insets = Toolkit.getDefaultToolkit()
+            .getScreenInsets(config);
           return applyInsets(bounds, insets);
         } else if (firstBounds == null) {
           firstBounds = bounds;
@@ -340,7 +351,8 @@ public interface SwingUtil {
     final GraphicsDevice defaultScreenDevice = graphicsEnvironment.getDefaultScreenDevice();
     for (final GraphicsConfiguration config : defaultScreenDevice.getConfigurations()) {
       final Rectangle bounds = config.getBounds();
-      final Insets insets = Toolkit.getDefaultToolkit().getScreenInsets(config);
+      final Insets insets = Toolkit.getDefaultToolkit()
+        .getScreenInsets(config);
       return applyInsets(bounds, insets);
     }
     return firstBounds;
@@ -356,13 +368,14 @@ public interface SwingUtil {
   static Rectangle getScreenBounds(final Point point) {
     Rectangle firstBounds = null;
     final GraphicsEnvironment graphicsEnvironment = GraphicsEnvironment
-        .getLocalGraphicsEnvironment();
+      .getLocalGraphicsEnvironment();
     for (final GraphicsDevice device : graphicsEnvironment.getScreenDevices()) {
       for (final GraphicsConfiguration config : device.getConfigurations()) {
         final Rectangle bounds = config.getBounds();
 
         if (point != null && bounds.contains(point)) {
-          final Insets insets = Toolkit.getDefaultToolkit().getScreenInsets(config);
+          final Insets insets = Toolkit.getDefaultToolkit()
+            .getScreenInsets(config);
           return applyInsets(bounds, insets);
         } else if (firstBounds == null) {
           firstBounds = bounds;
@@ -372,7 +385,8 @@ public interface SwingUtil {
     final GraphicsDevice defaultScreenDevice = graphicsEnvironment.getDefaultScreenDevice();
     for (final GraphicsConfiguration config : defaultScreenDevice.getConfigurations()) {
       final Rectangle bounds = config.getBounds();
-      final Insets insets = Toolkit.getDefaultToolkit().getScreenInsets(config);
+      final Insets insets = Toolkit.getDefaultToolkit()
+        .getScreenInsets(config);
       return applyInsets(bounds, insets);
     }
     return firstBounds;
@@ -380,7 +394,8 @@ public interface SwingUtil {
 
   static int getTabIndex(final JTabbedPane tabs, final String title) {
     for (int i = 0; i < tabs.getTabCount(); i++) {
-      if (tabs.getTitleAt(i).equals(title)) {
+      if (tabs.getTitleAt(i)
+        .equals(title)) {
         return i;
       }
 
@@ -390,9 +405,9 @@ public interface SwingUtil {
 
   static JTextComponent getTextComponent(final Component component) {
     if (component instanceof JTextComponent) {
-      return (JTextComponent) component;
+      return (JTextComponent)component;
     } else if (component instanceof JComboBox) {
-      final JComboBox<?> comboBox = (JComboBox<?>) component;
+      final JComboBox<?> comboBox = (JComboBox<?>)component;
       final ComboBoxEditor editor = comboBox.getEditor();
       final Component editorComponent = editor.getEditorComponent();
       return getTextComponent(editorComponent);
@@ -402,26 +417,26 @@ public interface SwingUtil {
   }
 
   @SuppressWarnings({
-      "unchecked"
+    "unchecked"
   })
   static <V> V getValue(final JComponent component) {
     if (component instanceof Field) {
-      final Field field = (Field) component;
-      return (V) field.getFieldValue();
+      final Field field = (Field)component;
+      return (V)field.getFieldValue();
     } else if (component instanceof JTextComponent) {
-      final JTextComponent textComponent = (JTextComponent) component;
+      final JTextComponent textComponent = (JTextComponent)component;
       final String text = textComponent.getText();
       if (Property.hasValue(text)) {
-        return (V) text;
+        return (V)text;
       } else {
         return null;
       }
     } else if (component instanceof JList) {
-      final JList list = (JList) component;
-      return (V) list.getSelectedValue();
+      final JList list = (JList)component;
+      return (V)list.getSelectedValue();
     } else if (component instanceof JCheckBox) {
-      final JCheckBox checkBox = (JCheckBox) component;
-      return (V) (Object) checkBox.isSelected();
+      final JCheckBox checkBox = (JCheckBox)component;
+      return (V)(Object)checkBox.isSelected();
     } else {
       return null;
     }
@@ -429,7 +444,7 @@ public interface SwingUtil {
 
   static Window getWindowAncestor(final Component component) {
     if (component instanceof Window) {
-      return (Window) component;
+      return (Window)component;
     } else if (component == null) {
       return null;
     } else {
@@ -543,7 +558,7 @@ public interface SwingUtil {
   static boolean isModifierKeyDown(final InputEvent event) {
     final int modifiersEx = event.getModifiersEx();
     final int flag = modifiersEx & (InputEvent.SHIFT_DOWN_MASK | InputEvent.ALT_DOWN_MASK
-        | InputEvent.ALT_GRAPH_DOWN_MASK | InputEvent.CTRL_DOWN_MASK | InputEvent.META_DOWN_MASK);
+      | InputEvent.ALT_GRAPH_DOWN_MASK | InputEvent.CTRL_DOWN_MASK | InputEvent.META_DOWN_MASK);
     return flag != 0;
   }
 
@@ -556,9 +571,9 @@ public interface SwingUtil {
   static boolean isScrollReversed() {
     if (OS.isMac()) {
       final String[] cmdAttribs = new String[] {
-          "/usr/bin/defaults", "read",
-          System.getProperty("user.home") + "/Library/Preferences/.GlobalPreferences.plist",
-          "com.apple.swipescrolldirection"
+        "/usr/bin/defaults", "read",
+        System.getProperty("user.home") + "/Library/Preferences/.GlobalPreferences.plist",
+        "com.apple.swipescrolldirection"
       };
       Process process = null;
       InputStream in = null;
@@ -568,14 +583,16 @@ public interface SwingUtil {
       final List<String> lines = new ArrayList<>();
       try {
 
-        process = Runtime.getRuntime().exec(cmdAttribs);
+        process = Runtime.getRuntime()
+          .exec(cmdAttribs);
         in = process.getInputStream();
         out = process.getOutputStream();
         err = process.getErrorStream();
         inr = new BufferedReader(FileUtil.newUtf8Reader(in));
         String line = inr.readLine();
         while (line != null) {
-          line = line.toLowerCase().strip();
+          line = line.toLowerCase()
+            .strip();
           lines.add(line);
           line = inr.readLine();
         }
@@ -609,25 +626,27 @@ public interface SwingUtil {
   }
 
   static ComboBox<Identifier> newComboBox(final CodeTable codeTable, final boolean required,
-      final int maxLength) {
+    final int maxLength) {
     return newComboBox("fieldValue", codeTable, required, maxLength, false);
   }
 
   static ComboBox<Identifier> newComboBox(final String fieldName, final CodeTable codeTable,
-      final boolean required, final int maxLength, final boolean idSuffix) {
+    final boolean required, final int maxLength, final boolean idSuffix) {
     if (codeTable == null) {
       return null;
     } else {
       final ComboBox<Identifier> comboBox = CodeTableComboBoxModel.newComboBox(fieldName, codeTable,
-          !required, idSuffix);
-      if (comboBox.getModel().getSize() > 0) {
+        !required, idSuffix);
+      if (comboBox.getModel()
+        .getSize() > 0) {
         comboBox.setSelectedIndex(0);
       }
       int longestLength = -1;
       for (final Identifier identifier : codeTable.getIdentifiers()) {
         int length = 0;
         if (idSuffix) {
-          length += identifier.toString().length() + 3;
+          length += identifier.toString()
+            .length() + 3;
         }
         final List<Object> values = codeTable.getValues(identifier);
         if (values != null && !values.isEmpty()) {
@@ -653,8 +672,8 @@ public interface SwingUtil {
       final ComboBoxEditor editor = comboBox.getEditor();
       final Component editorComponent = editor.getEditorComponent();
       if (editorComponent instanceof JTextComponent) {
-        final JTextField textComponent = (JTextField) editorComponent;
-        textComponent.setColumns((int) (longestLength * 0.8));
+        final JTextField textComponent = (JTextField)editorComponent;
+        textComponent.setColumns((int)(longestLength * 0.8));
         final MenuFactory menu = MenuFactory.getPopupMenuFactory(textComponent);
         MenuFactory.addToComponent(comboBox, menu);
       } else {
@@ -681,20 +700,20 @@ public interface SwingUtil {
 
   @SuppressWarnings("unchecked")
   static <T extends JComponent> T newField(final Class<?> fieldClass, final String fieldName,
-      final Object fieldValue) {
+    final Object fieldValue) {
     JComponent field;
     if (Number.class.isAssignableFrom(fieldClass)) {
       final NumberTextField numberTextField = new NumberTextField(fieldName, DataTypes.DOUBLE, 10,
-          2);
+        2);
       if (fieldValue instanceof Number) {
-        final Number number = (Number) fieldValue;
+        final Number number = (Number)fieldValue;
         numberTextField.setFieldValue(number);
       }
       field = numberTextField;
     } else if (Date.class.isAssignableFrom(fieldClass)) {
       final DateField dateField = newDateField(fieldName);
       if (fieldValue instanceof Date) {
-        final Date date = (Date) fieldValue;
+        final Date date = (Date)fieldValue;
         dateField.setDate(date);
       }
       field = dateField;
@@ -703,7 +722,7 @@ public interface SwingUtil {
       objectField.setFieldValue(fieldValue);
       field = objectField;
     } else if (Color.class.isAssignableFrom(fieldClass)) {
-      field = new ColorChooserField(fieldName, (Color) fieldValue);
+      field = new ColorChooserField(fieldName, (Color)fieldValue);
     } else if (Boolean.class.isAssignableFrom(fieldClass)) {
       field = new CheckBox(fieldName, fieldValue);
     } else {
@@ -713,7 +732,7 @@ public interface SwingUtil {
       field = textField;
     }
     if (field instanceof JTextField) {
-      final JTextField textField = (JTextField) field;
+      final JTextField textField = (JTextField)field;
       final int preferedWidth = textField.getPreferredSize().width;
       textField.setMinimumSize(new Dimension(preferedWidth, 0));
       textField.setMaximumSize(new Dimension(preferedWidth, Integer.MAX_VALUE));
@@ -721,17 +740,17 @@ public interface SwingUtil {
     }
     field.setFont(FONT);
 
-    return (T) field;
+    return (T)field;
   }
 
   static <T extends JComponent> T newField(final DataType dataType, final String fieldName,
-      final Object fieldValue) {
+    final Object fieldValue) {
     return newField(dataType.getJavaClass(), fieldName, fieldValue);
   }
 
   @SuppressWarnings("unchecked")
   static <T extends Field> T newField(final FieldDefinition fieldDefinition,
-      final boolean editable) {
+    final boolean editable) {
     final String fieldName = fieldDefinition.getName();
     final boolean required = fieldDefinition.isRequired();
     final int length = fieldDefinition.getLength();
@@ -766,7 +785,7 @@ public interface SwingUtil {
         if (component == null) {
           field = newComboBox(fieldName, codeTable, required, -1, false);
         } else {
-          field = ((Field) component).clone();
+          field = ((Field)component).clone();
         }
       } else {
         field = new ObjectLabelField(fieldName, columns, codeTable);
@@ -780,7 +799,7 @@ public interface SwingUtil {
       final Number minValue = fieldDefinition.getMinValue();
       final Number maxValue = fieldDefinition.getMaxValue();
       final NumberTextField numberTextField = new NumberTextField(fieldName, type, length, scale,
-          minValue, maxValue);
+        minValue, maxValue);
       field = numberTextField;
     } else if (Date.class.isAssignableFrom(javaClass)) {
       field = newDateField(fieldName);
@@ -790,18 +809,18 @@ public interface SwingUtil {
       field = newTextField(fieldName, columns);
     }
     if (field instanceof JTextField) {
-      final JTextField textField = (JTextField) field;
+      final JTextField textField = (JTextField)field;
       final int preferedWidth = textField.getPreferredSize().width;
       textField.setMinimumSize(new Dimension(preferedWidth, 0));
       textField.setMaximumSize(new Dimension(preferedWidth, Integer.MAX_VALUE));
     }
 
-    ((JComponent) field).setFont(FONT);
-    return (T) field;
+    ((JComponent)field).setFont(FONT);
+    return (T)field;
   }
 
   static <T extends Field> T newField(final RecordDefinition recordDefinition,
-      final String fieldName, final boolean editable) {
+    final String fieldName, final boolean editable) {
     final FieldDefinition fieldDefinition = recordDefinition.getField(fieldName);
     if (fieldDefinition == null) {
       throw new IllegalArgumentException("Cannot find field " + fieldName);
@@ -827,7 +846,7 @@ public interface SwingUtil {
   }
 
   static JFileChooser newFileChooser(final String title, final Preferences preferences,
-      final PreferenceKey preference) {
+    final PreferenceKey preference) {
     final JFileChooser fileChooser = new JFileChooser();
     fileChooser.setDialogTitle(title);
     final String currentDirectoryName = preferences.getValue(preference);
@@ -841,11 +860,11 @@ public interface SwingUtil {
   }
 
   static JFileChooser newFileChooser(final String title, final String preferencesGroup,
-      final String preferenceName) {
+    final String preferenceName) {
     final JFileChooser fileChooser = new JFileChooser();
     fileChooser.setDialogTitle(title);
     final String currentDirectoryName = PreferencesUtil.getUserString(preferencesGroup,
-        preferenceName);
+      preferenceName);
     if (Property.hasValue(currentDirectoryName)) {
       final File directory = new File(currentDirectoryName);
       if (directory.exists() && directory.canRead()) {
@@ -882,7 +901,7 @@ public interface SwingUtil {
   }
 
   static void saveFileChooserDirectory(final Class<?> preferencesClass, final String preferenceName,
-      final JFileChooser fileChooser) {
+    final JFileChooser fileChooser) {
     final File currentDirectory = fileChooser.getCurrentDirectory();
     final String path = FileUtil.getCanonicalPath(currentDirectory);
     PreferencesUtil.setString(preferencesClass, preferenceName, path);
@@ -892,7 +911,7 @@ public interface SwingUtil {
     if (component != null) {
       component.setEnabled(enabled);
       if (component instanceof Container) {
-        final Container container = (Container) component;
+        final Container container = (Container)component;
         for (final Component child : container.getComponents()) {
           setDescendantsEnabled(child, enabled);
         }
@@ -903,10 +922,10 @@ public interface SwingUtil {
   static void setFieldValue(final JComponent field, final Object value) {
     if (SwingUtilities.isEventDispatchThread()) {
       if (field instanceof Field) {
-        final Field fieldObject = (Field) field;
+        final Field fieldObject = (Field)field;
         fieldObject.setFieldValue(value);
       } else if (field instanceof JLabel) {
-        final JLabel label = (JLabel) field;
+        final JLabel label = (JLabel)field;
         String string;
         if (value == null) {
           string = "";
@@ -915,7 +934,7 @@ public interface SwingUtil {
         }
         label.setText(string);
       } else if (field instanceof JTextField) {
-        final JTextField textField = (JTextField) field;
+        final JTextField textField = (JTextField)field;
         String string;
         if (value == null) {
           string = "";
@@ -924,7 +943,7 @@ public interface SwingUtil {
         }
         textField.setText(string);
       } else if (field instanceof JTextArea) {
-        final JTextArea textField = (JTextArea) field;
+        final JTextArea textField = (JTextArea)field;
         String string;
         if (value == null) {
           string = "";
@@ -1021,13 +1040,13 @@ public interface SwingUtil {
     final Dimension screenSize = toolkit.getScreenSize();
     final double screenWidth = screenSize.getWidth();
     final double screenHeight = screenSize.getHeight();
-    final Dimension size = new Dimension((int) (screenWidth - minusX), (int) (screenHeight - minusY));
+    final Dimension size = new Dimension((int)(screenWidth - minusX), (int)(screenHeight - minusY));
     window.setBounds(minusX / 2, minusY / 2, size.width, size.height);
     window.setPreferredSize(size);
   }
 
   static void setSizeAndMaximize(final JFrame frame, final int minusX, final int minusY) {
-    final Rectangle bounds = getScreenBounds((Point) null);
+    final Rectangle bounds = getScreenBounds((Point)null);
     final Dimension size = new Dimension(bounds.width - minusX, bounds.height - minusY);
     frame.setPreferredSize(size);
     frame.pack();
@@ -1082,7 +1101,7 @@ public interface SwingUtil {
 
   static Window windowActive() {
     final KeyboardFocusManager keyboardFocusManager = KeyboardFocusManager
-        .getCurrentKeyboardFocusManager();
+      .getCurrentKeyboardFocusManager();
     final Window activeWindow = keyboardFocusManager.getActiveWindow();
     if (activeWindow == null) {
       final Window[] windows = Window.getOwnerlessWindows();
