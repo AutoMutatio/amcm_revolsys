@@ -228,6 +228,11 @@ public class Join implements QueryValue, TableReferenceProxy {
     return this;
   }
 
+  @SuppressWarnings("unchecked")
+  public <QV extends QueryValue> QV statement() {
+    return (QV)this.statement;
+  }
+
   public Join statement(final QueryValue statement) {
     this.statement = statement;
     return this;

@@ -58,8 +58,8 @@ import com.revolsys.record.query.TableReference;
 import com.revolsys.record.query.TableReferenceProxy;
 import com.revolsys.record.query.UpdateStatement;
 import com.revolsys.record.query.Value;
-import com.revolsys.record.query.functions.F;
 import com.revolsys.record.query.functions.ArrayElements;
+import com.revolsys.record.query.functions.F;
 import com.revolsys.util.Property;
 
 public class AbstractTableRecordStore implements RecordDefinitionProxy {
@@ -104,9 +104,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
       }
       final JsonObject jsonField = JsonObject.hash()
         .addValue("name", fieldName)
-        .addNotEmpty("title", field.getTitle()
-          .replace(" Ind", "")
-          .replace(" Code", ""))
+        .addNotEmpty("title", field.getTitle().replace(" Ind", "").replace(" Code", ""))
         .addNotEmpty("description", field.getDescription())
         .addValue("dataType", dataTypeString)
         .addValue("required", field.isRequired());
@@ -133,6 +131,18 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
       jsonFields.add(jsonField);
     }
     return jsonSchema;
+  }
+
+  private static QueryValue toQueryValue(final TableReferenceProxy table,
+    final Object valueOrFieldName) {
+    if (valueOrFieldName instanceof final QueryValue queryValue) {
+      return queryValue;
+    } else if (valueOrFieldName instanceof final String fieldName) {
+      return table.getColumn(fieldName);
+    } else {
+      throw new IllegalArgumentException(
+        "Must be a QueryValue or String: " + valueOrFieldName.getClass());
+    }
   }
 
   private final ValueHolder<JsonObject> schema = ValueHolder.lazy(this::schemaToJson);
@@ -227,15 +237,13 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
   }
 
   protected void addSearchConditions(final Query query, final Or or, String search) {
-    final String searchText = search.strip()
-      .toLowerCase();
+    final String searchText = search.strip().toLowerCase();
     search = '%' + searchText + '%';
     for (final String fieldName : this.searchFieldNames) {
       final var column = getTable().getColumn(fieldName);
       if (column != null && column.getDataType() instanceof CollectionDataType) {
         or.addCondition(newQuery().select(Value.newValue(1))
-          .setFrom(ArrayElements.unnest(column)
-            .toFromAlias(fieldName + "A"))
+          .setFrom(ArrayElements.unnest(column).toFromAlias(fieldName + "A"))
           .and(new Column(fieldName + "A"), Q.ILIKE, Value.toValue(search))
           .asExists());
 
@@ -301,8 +309,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
   }
 
   public Query applySearchCondition(final Query query, final String search) {
-    if (search != null && search.strip()
-      .length() > 0) {
+    if (search != null && search.strip().length() > 0) {
       final Or or = new Or();
       addSearchConditions(query, or, search);
       if (!or.isEmpty()) {
@@ -331,8 +338,8 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
   protected void executeUpdate(final TableRecordStoreConnection connection, final String sql,
     final Object... parameters) {
     if (this.recordStore instanceof JdbcRecordStore) {
-      connection.transactionNewRun(() -> this.recordStore.<JdbcRecordStore> getRecordStore()
-        .executeUpdate(sql, parameters));
+      connection.transactionNewRun(
+        () -> this.recordStore.<JdbcRecordStore> getRecordStore().executeUpdate(sql, parameters));
     }
     throw new UnsupportedOperationException("Must be a JDBC connection");
 
@@ -370,10 +377,9 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
   }
 
   protected QueryValue fieldPathToQueryValueJoin(final Query query, final String sourceFieldName,
-    final AbstractTableRecordStore joinRs, final String joinAlias, final String joinFieldName,
+    final AbstractTableRecordStore joinRs, final String joinAlias, final String queryJoinFieldName,
     final String lookupFieldName, final String[] path) {
-    final var join = addJoin(query, joinRs, joinAlias, joinFieldName, query, sourceFieldName);
-
+    final var join = requireJoin(query, queryJoinFieldName, joinRs, joinAlias, "id");
     final var column = join.getColumn(lookupFieldName);
     QueryValue selectField = column;
     if (path.length > 1) {
@@ -398,9 +404,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     }
 
     final var joinColumn = query.getColumn(joinFieldName);
-    final var otherQuery = otherRs.newQuery()
-      .select(selectField)
-      .and("id", joinColumn);
+    final var otherQuery = otherRs.newQuery().select(selectField).and("id", joinColumn);
     return new Parenthesis(otherQuery);
   }
 
@@ -408,8 +412,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     var queryValue = fieldPathToQueryValue(query, path);
     // Add alias if needed
     if (queryValue instanceof final ColumnReference column) {
-      if (!column.getName()
-        .equals(path)) {
+      if (!column.getName().equals(path)) {
         queryValue = queryValue.toAlias(path);
       }
     } else {
@@ -439,8 +442,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
 
   public Record getRecord(final TableRecordStoreConnection connection, final String fieldName,
     final Object value) {
-    return newQuery(connection).and(fieldName, value)
-      .getRecord();
+    return newQuery(connection).and(fieldName, value).getRecord();
   }
 
   public Record getRecordById(final TableRecordStoreConnection connection, final Object id) {
@@ -567,15 +569,14 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
 
   public void lockTable(final TableRecordStoreConnection connection) {
     if (this.recordStore instanceof JdbcRecordStore) {
-      connection.transactionRun(() -> this.recordStore.<JdbcRecordStore> getRecordStore()
-        .lockTable(this.tablePath));
+      connection.transactionRun(
+        () -> this.recordStore.<JdbcRecordStore> getRecordStore().lockTable(this.tablePath));
     }
   }
 
   public <R extends Record> InsertUpdateBuilder<R> newInsert(
     final TableRecordStoreConnection connection) {
-    return this.<R> newInsertUpdate(connection)
-      .setUpdate(false);
+    return this.<R> newInsertUpdate(connection).setUpdate(false);
   }
 
   public <R extends Record> InsertUpdateBuilder<R> newInsertUpdate(
@@ -636,10 +637,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     }
 
     final var query = newQuery(connection);
-    query.setOffset(skip)
-      .setLimit(top)
-      .setReturnCount(count)
-      .setDistinct(distinct);
+    query.setOffset(skip).setLimit(top).setReturnCount(count).setDistinct(distinct);
 
     if (Property.hasValue(select)) {
       for (String selectItem : select.split(",")) {
@@ -657,8 +655,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
       if (aggregates.isEmpty()) {
         return null;
       }
-      final int selectCount = query.getSelect()
-        .size();
+      final int selectCount = query.getSelect().size();
       for (int i = 1; i <= selectCount; i++) {
         // Group by all the non-aggregate functions
         query.addGroupBy(i);
@@ -670,7 +667,9 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     Condition filterCondition = newODataFilter(query, filter);
     if (filterCondition != null) {
       filterCondition = alterCondition(request, connection, query, filterCondition);
-      query.and(filterCondition.clone(null, query.getTable()));
+      if (filterCondition != null) {
+        query.and(filterCondition.clone(null, query.getTable()));
+      }
     }
     applySearchCondition(query, search);
     addQueryOrderBy(query, orderBy);
@@ -707,8 +706,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     RecordDefinition schema = getRecordDefinition();
     if (!this.virtualFieldByName.isEmpty()) {
       final var builder = new RecordDefinitionBuilder(schema);
-      this.virtualFieldByName.values()
-        .forEach(field -> field.addToSchema(builder));
+      this.virtualFieldByName.values().forEach(field -> field.addToSchema(builder));
       schema = builder.getRecordDefinition();
     }
     return schema;
@@ -716,8 +714,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
 
   public <R extends Record> InsertUpdateBuilder<R> newUpdate(
     final TableRecordStoreConnection connection) {
-    return this.<R> newInsertUpdate(connection)
-      .setInsert(false);
+    return this.<R> newInsertUpdate(connection).setInsert(false);
   }
 
   public UUID newUUID() {
@@ -743,8 +740,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
         yield Count.STAR.toAlias(alias);
       }
       case "countDistinct": {
-        yield Count.distinct(table, fieldName)
-          .toAlias(alias);
+        yield Count.distinct(table, fieldName).toAlias(alias);
       }
 
       case "min":
@@ -764,8 +760,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
             .and(Q.equal(F.function("pg_input_is_valid", field, Value.newValue("decimal")), true));
           field = field.toCast("decimal");
         }
-        yield F.function(functionName, field)
-          .toAlias(alias);
+        yield F.function(functionName, field).toAlias(alias);
       }
       default:
       yield null;
@@ -774,6 +769,32 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
 
   protected QueryValue pathToQueryValueWrap(final QueryValue value, final String function) {
     throw new IllegalArgumentException("Function " + function + "  not supported");
+  }
+
+  /**
+   * Get or create a join between the query and the target record store with the specified alias.
+   *
+   * @param query The query to create the join for.
+   * @param queryFieldOrValue The field name or query value to create the on condition for the query.
+   * @param targetRs The target record store to join to.
+   * @param targetAlias The alias for the join.
+   * @param targetFieldOrValue The field name or query value to create the on condition for the target.
+   * @return
+   */
+  protected Join requireJoin(final Query query, final Object queryFieldOrValue,
+    final AbstractTableRecordStore targetRs, final String targetAlias,
+    final Object targetFieldOrValue) {
+    var join = query.getJoin(targetRs, targetAlias);
+    if (join == null) {
+      final QueryValue queryCondition = toQueryValue(query, queryFieldOrValue);
+
+      join = query.join(JoinType.LEFT_OUTER_JOIN)
+        .table(targetRs)//
+        .setAlias(targetAlias);
+      final QueryValue targetCondition = toQueryValue(join, targetFieldOrValue);
+      join.on(targetCondition, queryCondition);
+    }
+    return join;
   }
 
   public JsonObject schemaToJson() {
@@ -907,8 +928,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
       }
       return record.newRecord();
     } catch (final Exception e) {
-      throw Exceptions.toWrapped(e)
-        .property("record", record);
+      throw Exceptions.toWrapped(e).property("record", record);
     }
   }
 
