@@ -49,6 +49,16 @@ public class TableRecordStoreQuery extends Query {
     return this.recordStore.getRecordReader(this.connection, this);
   }
 
+  @SuppressWarnings("unchecked")
+  public <RS extends AbstractTableRecordStore> RS getTableRecordStore() {
+    return (RS)this.recordStore;
+  }
+
+  @SuppressWarnings("unchecked")
+  public <RS extends AbstractTableRecordStore> RS getTableRecordStore(final CharSequence name) {
+    return (RS)this.connection.getTableRecordStore(name);
+  }
+
   @Override
   public Record insertRecord(final Supplier<Record> newRecordSupplier) {
     return transactionCall(

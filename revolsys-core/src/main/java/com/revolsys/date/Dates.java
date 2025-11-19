@@ -43,33 +43,54 @@ import java.util.regex.Pattern;
 
 import com.revolsys.data.type.DataTypes;
 import com.revolsys.logging.Logs;
+import com.revolsys.util.BaseCloseable;
 
 public interface Dates {
-  public static class Timer {
-    private long startTime = System.currentTimeMillis();
+  public static class Timer implements BaseCloseable {
+    private Instant startTime = Instant.now();
 
-    private long stepStartTime = this.startTime;
+    private long stepStartTime = this.startTime.toEpochMilli();
 
-    private Timer() {
+    private Instant endTime = null;
+
+    public Timer() {
 
     }
 
-    public void clear() {
-      this.startTime = System.currentTimeMillis();
-      this.stepStartTime = this.startTime;
+    public Timer clear() {
+      this.startTime = Instant.now();
+      this.stepStartTime = this.startTime.toEpochMilli();
+      return this;
+    }
+
+    @Override
+    public void close() {
+      stop();
     }
 
     public Duration duration() {
-      return Duration.between(Instant.now(), Instant.ofEpochMilli(this.startTime));
+      Instant end;
+      if (this.endTime == null) {
+        end = Instant.now();
+      } else {
+        end = this.endTime;
+      }
+      return Duration.between(this.startTime, end);
     }
 
-    public void printStep(final String message) {
+    public Timer printStep(final String message) {
       this.stepStartTime = printEllapsedTime(message, this.stepStartTime);
-
+      return this;
     }
 
-    public void printTotal(final String message) {
-      printEllapsedTime(message, this.startTime);
+    public Timer printTotal(final String message) {
+      printEllapsedTime(message, this.startTime.toEpochMilli());
+      return this;
+    }
+
+    public Timer stop() {
+      this.endTime = Instant.now();
+      return this;
     }
   }
 
