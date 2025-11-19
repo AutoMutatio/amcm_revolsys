@@ -68,6 +68,7 @@ public class TimerCounterTableModel extends AbstractTableModel {
   }
 
   public void clear() {
+    this.labels.clear();
     this.timerByLabel.clear();
   }
 
@@ -98,15 +99,13 @@ public class TimerCounterTableModel extends AbstractTableModel {
 
   @Override
   public Object getValueAt(final int rowIndex, final int columnIndex) {
-    final int rowCount = getRowCount();
-    if (rowIndex >= 0 && rowIndex < rowCount) {
+    if (rowIndex >= 0 && rowIndex < this.labels.size()) {
       final var label = this.labels.get(rowIndex);
       final var timerCounter = this.timerByLabel.get(label);
       return switch (columnIndex) {
         case 0 -> label;
         case 1 -> timerCounter.count();
-        case 2 -> timerCounter.duration()
-          .truncatedTo(ChronoUnit.SECONDS);
+        case 2 -> timerCounter.duration().truncatedTo(ChronoUnit.SECONDS);
         default -> null;
       };
     }
@@ -117,10 +116,8 @@ public class TimerCounterTableModel extends AbstractTableModel {
   public BaseJTable newTable() {
     final var table = super.newTable();
     table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
-    table.getColumn(1)
-      .setMaxWidth(100);
-    table.getColumn(2)
-      .setMaxWidth(100);
+    table.getColumn(1).setMaxWidth(100);
+    table.getColumn(2).setMaxWidth(100);
     return table;
   }
 

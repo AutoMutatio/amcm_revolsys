@@ -2,6 +2,7 @@ package com.revolsys.util.concurrent;
 
 import java.util.Objects;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Phaser;
 import java.util.concurrent.Semaphore;
@@ -13,7 +14,6 @@ import java.util.function.Function;
 import com.revolsys.collection.iterator.ForEachHandler;
 import com.revolsys.collection.iterator.ForEachMethods;
 import com.revolsys.collection.iterator.RunnableMethods;
-import com.revolsys.collection.list.ListEx;
 import com.revolsys.collection.list.Lists;
 import com.revolsys.exception.Exceptions;
 import com.revolsys.logging.Logs;
@@ -25,7 +25,7 @@ import com.revolsys.util.Debug;
 
 public class Parallel
   implements BaseCloseable, ForEachMethods<Parallel>, RunnableMethods<Parallel> {
-  private final ListEx<Throwable> exceptions = Lists.newArray();
+  private final ConcurrentLinkedDeque<Throwable> exceptions = new ConcurrentLinkedDeque<>();
 
   private final ThreadFactory threadFactory;
 
@@ -41,6 +41,10 @@ public class Parallel
 
   public Parallel(final ThreadFactory threadFactory) {
     this.threadFactory = threadFactory;
+  }
+
+  public void addException(final Throwable e) {
+    this.exceptions.add(e);
   }
 
   @Override
@@ -184,7 +188,7 @@ public class Parallel
       try {
         this.phaser.awaitAdvanceInterruptibly(this.phaser.arrive());
         if (!this.exceptions.isEmpty()) {
-          throw Exceptions.toRuntime(this.exceptions);
+          throw Exceptions.toRuntime(Lists.toArray(this.exceptions));
         }
       } catch (final InterruptedException e) {
         throw Exceptions.toRuntimeException(e);
@@ -249,7 +253,7 @@ public class Parallel
           runnable.run();
         }
       } catch (final Throwable e) {
-        this.exceptions.add(e);
+        addException(e);
       } finally {
         this.threads.remove(thread);
         Parallel.this.phaser.arriveAndDeregister();
