@@ -45,7 +45,9 @@ public class AliasTable {
     config.forEach(mapping -> {
       final var value = mapping.getString("value");
       final var aliases = mapping.<String> getList("aliases");
-      addAlias(value, aliases);
+      if (value != null) {
+        addAlias(value, aliases);
+      }
     });
     return this;
   }

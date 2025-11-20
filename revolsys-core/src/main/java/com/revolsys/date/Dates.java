@@ -473,6 +473,9 @@ public interface Dates {
       return LocalDate.from(temporal);
     } else {
       var s = value.toString();
+      if (s.length() == 0) {
+        return null;
+      }
       if (s.length() > 10) {
         s = s.substring(0, 10);
       }
