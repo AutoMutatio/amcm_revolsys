@@ -28,6 +28,9 @@ public class JsonLogbackEncoder extends EncoderBase<ILoggingEvent> {
 
   @Override
   public byte[] encode(final ILoggingEvent event) {
+    if (event == null) {
+      return null;
+    }
     try (
       var out = new ByteArrayOutputStream()) {
       try (
@@ -117,7 +120,7 @@ public class JsonLogbackEncoder extends EncoderBase<ILoggingEvent> {
     if (Property.hasValue(message)) {
       return message;
     } else {
-      var cause = exception.getCause();
+      final var cause = exception.getCause();
       return getMessage(cause);
     }
   }
