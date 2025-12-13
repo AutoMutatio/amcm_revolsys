@@ -1,6 +1,7 @@
 package com.revolsys.core.test.io.test;
 
-import java.io.StringWriter;
+import java.io.ByteArrayOutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 import org.junit.jupiter.api.Assertions;
@@ -20,41 +21,50 @@ Aliquam erat volutpat. Curabitur vel elit vehicula, faucibus justo a, lobortis o
 Curabitur hendrerit ligula a mauris placerat, sed mattis eros molestie. Vivamus sit amet vestibulum mi, ac faucibus mi turpis duis.
 """;
 
-  public void doQuoted(final String inString, final String expectedOut) {
-    final StringWriter outText = new StringWriter();
+  public void assertEqual(final ByteArrayOutputStream actual, final CharSequence expected) {
+    final var actualString = new String(actual.toByteArray(), StandardCharsets.UTF_8);
+    Assertions.assertEquals(expected.toString(), actualString);
+  }
 
+  public void doQuoted(final String inString) {
+    final var bytes = new ByteArrayOutputStream();
     try (
-      var writer = new DsvWriter(outText, ',')) {
+      var writer = new DsvWriter(bytes, ',')) {
       writer.quotedString(inString);
     }
-    Assertions.assertEquals(expectedOut, outText.toString());
+    String expected;
+    if (inString == null || inString.length() == 0) {
+      expected = "";
+    } else {
+      expected = '"' + inString.replaceAll("\"", "\"\"") + '"';
+    }
+    assertEqual(bytes, expected);
   }
 
   public void doRaw(final String inString, final String expectedOut) {
-    final StringWriter outText = new StringWriter();
-
+    final var bytes = new ByteArrayOutputStream();
     try (
-      var writer = new DsvWriter(outText, ',')) {
+      var writer = new DsvWriter(bytes, ',')) {
       writer.rawString(inString);
     }
-    Assertions.assertEquals(expectedOut, outText.toString());
+    assertEqual(bytes, expectedOut);
   }
 
   @Test
   void escaped() {
-    doQuoted(null, "");
-    doQuoted("", "");
-    doQuoted("hello", "\"hello\"");
-    doQuoted("\"Paul\"", "\"\"\"Paul\"\"\"");
-    doQuoted("hi \"Paul\"", "\"hi \"\"Paul\"\"\"");
-    doQuoted("hi \"Paul\" how are you", "\"hi \"\"Paul\"\" how are you\"");
+    doQuoted(null);
+    doQuoted("");
+    doQuoted("hello");
+    doQuoted("\"Paul\"");
+    doQuoted("hi \"Paul\"");
+    doQuoted("hi \"Paul\" how are you");
 
     for (final var length : Arrays.asList(1023, 1024, 1025, 2047, 2048, 2049)) {
       final var t = this.longText.substring(0, length);
-      doQuoted(t, '"' + t + '"');
+      doQuoted(t);
 
       final var t2 = this.longText.substring(0, length) + '"';
-      doQuoted(t2, '"' + t2.replaceAll("\"", "\"\"") + '"');
+      doQuoted(t2);
     }
   }
 

@@ -1,10 +1,9 @@
 package com.revolsys.record.io.format.csv;
 
-import java.io.IOException;
-import java.io.Writer;
+import java.io.OutputStream;
 import java.nio.CharBuffer;
 
-import com.revolsys.exception.WrappedIoException;
+import com.revolsys.record.io.BufferedWriterEx;
 import com.revolsys.util.BaseCloseable;
 
 public class DsvWriter implements BaseCloseable {
@@ -15,34 +14,26 @@ public class DsvWriter implements BaseCloseable {
     });
   }
 
-  private final CharBuffer eol = CharBuffer.wrap(new char[] {
+  private final char[] eol = new char[] {
     '\r', '\n'
-  });
+  };
 
-  private final CharBuffer quote = CharBuffer.wrap(new char[] {
-    '"'
-  });
+  private final char quote = '"';
 
   private int inQuotedCount = 0;
 
-  private final Writer writer;
+  private final BufferedWriterEx writer;
 
-  private final CharBuffer fieldSeparator;
+  private final char fieldSeparator;
 
-  private final char[] charsBuffer = new char[1024];
-
-  private final CharBuffer charBuffer = CharBuffer.wrap(this.charsBuffer);
-
-  public DsvWriter(final Writer writer, final char fieldSeparator) {
-    final char[] separatorChars = {
-      fieldSeparator
-    };
-    this(writer, separatorChars);
+  public DsvWriter(final BufferedWriterEx writer, final char fieldSeparator) {
+    this.writer = writer;
+    this.fieldSeparator = fieldSeparator;
   }
 
-  public DsvWriter(final Writer writer, final char[] fieldSeparator) {
-    this.writer = writer;
-    this.fieldSeparator = CharBuffer.wrap(fieldSeparator);
+  public DsvWriter(final OutputStream out, final char fieldSeparator) {
+    final var writer = new BufferedWriterEx(out);
+    this(writer, fieldSeparator);
   }
 
   @Override
@@ -56,7 +47,8 @@ public class DsvWriter implements BaseCloseable {
    * @return this
    */
   public DsvWriter endRecord() {
-    return rawCharsClear(this.eol);
+    this.writer.write(this.eol);
+    return this;
   }
 
   /**
@@ -69,36 +61,25 @@ public class DsvWriter implements BaseCloseable {
     if (string == null || string.length() == 0) {
       return this;
     }
-    try {
-      int start = 0;
-      final int length = string.length();
-      for (int i = 0; i < length; i++) {
-        final var end = i + 1;
-        final var writeCount = end - start;
-        final var c = string.charAt(i);
-        if (c == '"' || end == length || writeCount == this.charsBuffer.length) {
-          string.getChars(start, end, this.charsBuffer, 0);
-          this.charBuffer.clear();
-          this.charBuffer.limit(writeCount);
-          this.writer.append(this.charBuffer);
-          start = i + 1;
-        }
-        if (c == '"') {
-          rawCharsClear(this.quote);
-        }
+    int start = 0;
+    final int length = string.length();
+    for (int i = 0; i < length; i++) {
+      final var end = i + 1;
+      final var writeCount = end - start;
+      final var c = string.charAt(i);
+      if (c == '"' || end == length) {
+        this.writer.write(string, start, writeCount);
+        start = i + 1;
       }
-    } catch (final IOException e) {
-      throw new WrappedIoException(e);
+      if (c == '"') {
+        this.writer.append(this.quote);
+      }
     }
     return this;
   }
 
   public void flush() {
-    try {
-      this.writer.flush();
-    } catch (final IOException e) {
-      throw new WrappedIoException(e);
-    }
+    this.writer.flush();
   }
 
   /**
@@ -124,10 +105,10 @@ public class DsvWriter implements BaseCloseable {
    * @return this
    */
   public DsvWriter quoteEnd() {
+    this.inQuotedCount--;
     if (this.inQuotedCount == 0) {
-      rawCharsClear(this.quote);
+      this.writer.append(this.quote);
     }
-    this.inQuotedCount++;
     return this;
   }
 
@@ -139,7 +120,7 @@ public class DsvWriter implements BaseCloseable {
    */
   public DsvWriter quoteStart() {
     if (this.inQuotedCount == 0) {
-      rawCharsClear(this.quote);
+      this.writer.append(this.quote);
     }
     this.inQuotedCount++;
     return this;
@@ -152,11 +133,7 @@ public class DsvWriter implements BaseCloseable {
    * @return this
    */
   public DsvWriter rawChars(final char[] chars) {
-    try {
-      this.writer.write(chars);
-    } catch (final IOException e) {
-      throw new WrappedIoException(e);
-    }
+    this.writer.write(chars);
     return this;
   }
 
@@ -167,17 +144,8 @@ public class DsvWriter implements BaseCloseable {
    * @return this
    */
   public DsvWriter rawChars(final CharBuffer chars) {
-    try {
-      this.writer.append(chars);
-    } catch (final IOException e) {
-      throw new WrappedIoException(e);
-    }
+    this.writer.append(chars);
     return this;
-  }
-
-  public DsvWriter rawCharsClear(final CharBuffer chars) {
-    chars.clear();
-    return rawChars(chars);
   }
 
   /**
@@ -187,25 +155,7 @@ public class DsvWriter implements BaseCloseable {
    * @return this
    */
   public DsvWriter rawString(final String string) {
-    if (string == null) {
-      return this;
-    }
-    // Write in blocks of 1024 bytes as the underlying StreamEncoder
-    // creates a new char[] array for each string to write
-    try {
-      int offset = 0;
-      final int length = string.length();
-      while (offset < length) {
-        final int writeCount = Math.min(this.charsBuffer.length, length - offset);
-        string.getChars(offset, offset + writeCount, this.charsBuffer, 0);
-        this.charBuffer.clear();
-        this.charBuffer.limit(writeCount);
-        this.writer.append(this.charBuffer);
-        offset += writeCount;
-      }
-    } catch (final IOException e) {
-      throw new WrappedIoException(e);
-    }
+    this.writer.write(string);
     return this;
   }
 
@@ -215,7 +165,8 @@ public class DsvWriter implements BaseCloseable {
    * @return this
    */
   public DsvWriter separator() {
-    return rawCharsClear(this.fieldSeparator);
+    this.writer.append(this.fieldSeparator);
+    return this;
   }
 
 }
