@@ -2,7 +2,6 @@ package com.revolsys.rest;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.PrintWriter;
 import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 
@@ -27,6 +26,7 @@ import com.revolsys.record.io.format.csv.Csv;
 import com.revolsys.record.io.format.csv.CsvRecordWriter;
 import com.revolsys.record.io.format.json.JsonRecordWriter;
 import com.revolsys.record.schema.RecordDefinition;
+import com.revolsys.web.HttpServletUtils;
 
 public class AbstractWebController {
 
@@ -37,7 +37,7 @@ public class AbstractWebController {
     setContentTypeJson(response);
     response.setStatus(statusCode);
     try (
-      PrintWriter writer = response.getWriter();
+      var writer = HttpServletUtils.getWriter(response);
       JsonWriter jsonWriter = new JsonWriter(writer);) {
       jsonWriter.write(jsonObject);
       jsonWriter.newLineForce();
@@ -49,7 +49,7 @@ public class AbstractWebController {
     setContentTypeJson(response);
     response.setStatus(statusCode);
     try (
-      PrintWriter writer = response.getWriter();
+      var writer = HttpServletUtils.getWriter(response);
       JsonWriter jsonWriter = new JsonWriter(writer);) {
       jsonWriter.value(jsonObject);
       jsonWriter.newLineForce();
@@ -75,7 +75,7 @@ public class AbstractWebController {
       response.setStatus(200);
       final RecordDefinition recordDefinition = record.getRecordDefinition();
       try (
-        PrintWriter writer = response.getWriter();
+        var writer = HttpServletUtils.getWriter(response);
         JsonRecordWriter jsonWriter = new JsonRecordWriter(recordDefinition, writer);) {
         jsonWriter.setProperty(IoConstants.SINGLE_OBJECT_PROPERTY, true);
         jsonWriter.write(record);
@@ -138,7 +138,7 @@ public class AbstractWebController {
     response.setStatus(200);
     final Csv csv = (Csv)IoFactory.factoryByFileExtension(RecordWriterFactory.class, "csv");
     try (
-      PrintWriter writer = response.getWriter();
+      var writer = HttpServletUtils.getWriter(response);
       CsvRecordWriter recordWriter = csv.newRecordWriter(reader, writer)) {
       recordWriter.setMaxFieldLength(32000);
       recordWriter.writeAll(reader);
@@ -150,7 +150,7 @@ public class AbstractWebController {
     setContentTypeJson(response);
     response.setStatus(200);
     try (
-      PrintWriter writer = response.getWriter()) {
+      var writer = HttpServletUtils.getWriter(response)) {
       final JsonObject result = JsonObject.hash("@odata.count", records.size())
         .addValue("value", records);
       writer.write(result.toJsonString(true));

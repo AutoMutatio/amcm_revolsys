@@ -32,7 +32,7 @@ public class DsvWriter implements BaseCloseable {
   }
 
   public DsvWriter(final OutputStream out, final char fieldSeparator) {
-    final var writer = new BufferedWriterEx(out);
+    final var writer = BufferedWriterEx.forStream(out);
     this(writer, fieldSeparator);
   }
 

@@ -2,7 +2,6 @@ package com.revolsys.collection.json;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -19,6 +18,7 @@ import com.revolsys.io.MapSerializer;
 import com.revolsys.number.Doubles;
 import com.revolsys.number.Numbers;
 import com.revolsys.record.Record;
+import com.revolsys.record.io.BufferedWriterEx;
 import com.revolsys.record.io.format.json.JsonStringEncodingWriter;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
@@ -52,15 +52,27 @@ public class JsonWriter implements BaseCloseable {
     this.out = out;
     this.indent = indent;
     this.encodingOut = new JsonStringEncodingWriter(out);
+  }
 
+  public JsonWriter(final OutputStream out) {
+    final var bufferedWriter = BufferedWriterEx.forStream(out);
+    this(bufferedWriter, true);
   }
 
   public JsonWriter(final OutputStream out, final boolean indent) {
-    this(new OutputStreamWriter(out), indent);
+    final var bufferedWriter = BufferedWriterEx.forStream(out);
+    this(bufferedWriter, indent);
   }
 
-  public JsonWriter(final Writer out) {
-    this(out, true);
+  public JsonWriter(final Writer writer) {
+    final var bufferedWriter = BufferedWriterEx.forWriter(writer);
+    this(bufferedWriter, true);
+  }
+
+  public JsonWriter(final Writer writer, final boolean indent) {
+    this.out = BufferedWriterEx.forWriter(writer);
+    this.indent = indent;
+    this.encodingOut = new JsonStringEncodingWriter(writer);
   }
 
   private void blockEnd(final JsonWriterState startState, final JsonWriterState endState) {

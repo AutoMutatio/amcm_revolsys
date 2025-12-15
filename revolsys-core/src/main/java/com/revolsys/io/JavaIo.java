@@ -3,12 +3,10 @@ package com.revolsys.io;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
 import java.net.URI;
@@ -24,6 +22,7 @@ import java.util.ServiceLoader;
 import com.revolsys.collection.list.Lists;
 import com.revolsys.exception.Exceptions;
 import com.revolsys.logging.Logs;
+import com.revolsys.record.io.BufferedWriterEx;
 import com.revolsys.spring.resource.Resource;
 
 public class JavaIo {
@@ -139,17 +138,17 @@ public class JavaIo {
       return Files.newBufferedWriter(path, StandardOpenOption.CREATE,
         StandardOpenOption.TRUNCATE_EXISTING);
     } else if (target instanceof final File file) {
-      return new FileWriter(file);
+      return FileUtil.getWriter(file);
     } else if (target instanceof final OutputStream out) {
-      return new OutputStreamWriter(out, StandardCharsets.UTF_8);
+      return BufferedWriterEx.forStream(out);
     } else if (target instanceof final URI uri) {
       if ("file".equals(uri.getScheme())) {
-        return new FileWriter(new File(uri));
+        return FileUtil.getWriter(new File(uri));
       }
     } else if (target instanceof final URL url) {
       if ("file".equals(url.getProtocol())) {
         try {
-          return new FileWriter(new File(url.toURI()));
+          return FileUtil.getWriter(new File(url.toURI()));
         } catch (final URISyntaxException e) {
           throw new IllegalArgumentException(e);
         }

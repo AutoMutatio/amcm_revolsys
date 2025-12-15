@@ -111,7 +111,7 @@ Curabitur hendrerit ligula a mauris placerat, sed mattis eros molestie. Vivamus 
   public void doTest(final String expected, final Consumer<BufferedWriterEx> action) {
     final var bytes = new ByteArrayOutputStream();
     try (
-      var writer = new BufferedWriterEx(bytes, 1024);) {
+      var writer = BufferedWriterEx.forStream(bytes, 1024);) {
       action.accept(writer);
     }
     assertEqual(bytes, expected);

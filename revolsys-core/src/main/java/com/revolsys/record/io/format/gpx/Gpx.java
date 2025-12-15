@@ -2,7 +2,6 @@ package com.revolsys.record.io.format.gpx;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 
 import com.revolsys.collection.map.MapEx;
@@ -12,6 +11,7 @@ import com.revolsys.io.FileUtil;
 import com.revolsys.record.Record;
 import com.revolsys.record.RecordFactory;
 import com.revolsys.record.io.AbstractRecordIoFactory;
+import com.revolsys.record.io.BufferedWriterEx;
 import com.revolsys.record.io.RecordReader;
 import com.revolsys.record.io.RecordWriter;
 import com.revolsys.record.io.RecordWriterFactory;
@@ -62,7 +62,7 @@ public class Gpx extends AbstractRecordIoFactory implements RecordWriterFactory 
   public RecordWriter newRecordWriter(final String baseName,
     final RecordDefinitionProxy recordDefinition, final OutputStream outputStream,
     final Charset charset) {
-    final OutputStreamWriter writer = FileUtil.newUtf8Writer(outputStream);
+    final var writer = BufferedWriterEx.forStream(outputStream);
     return new GpxRecordWriter(recordDefinition, writer);
   }
 }
