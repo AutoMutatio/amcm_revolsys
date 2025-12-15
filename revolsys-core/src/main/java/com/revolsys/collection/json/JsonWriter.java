@@ -51,7 +51,7 @@ public class JsonWriter implements BaseCloseable {
   public JsonWriter(final Appendable out, final boolean indent) {
     this.out = out;
     this.indent = indent;
-    this.encodingOut = new JsonStringEncodingWriter(out);
+    this.encodingOut = new JsonStringEncodingWriter(this.out);
   }
 
   public JsonWriter(final OutputStream out) {
@@ -72,7 +72,7 @@ public class JsonWriter implements BaseCloseable {
   public JsonWriter(final Writer writer, final boolean indent) {
     this.out = BufferedWriterEx.forWriter(writer);
     this.indent = indent;
-    this.encodingOut = new JsonStringEncodingWriter(writer);
+    this.encodingOut = new JsonStringEncodingWriter(this.out);
   }
 
   private void blockEnd(final JsonWriterState startState, final JsonWriterState endState) {
