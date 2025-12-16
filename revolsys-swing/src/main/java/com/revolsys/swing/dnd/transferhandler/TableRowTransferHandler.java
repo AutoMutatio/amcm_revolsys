@@ -3,9 +3,10 @@ package com.revolsys.swing.dnd.transferhandler;
 import java.awt.Cursor;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.dnd.DragSource;
+import java.io.IOException;
 
-import javax.activation.DataHandler;
 import javax.swing.JComponent;
 import javax.swing.JTable;
 import javax.swing.TransferHandler;
@@ -17,9 +18,8 @@ import com.revolsys.util.Reorderable;
 public class TableRowTransferHandler extends TransferHandler {
   private static final long serialVersionUID = 1L;
 
-  private final DataFlavor localObjectFlavor = new DataFlavor(Integer.class, "Integer Row Index");
-
-  private final String mimeType = this.localObjectFlavor.getMimeType();
+  private static final DataFlavor localObjectFlavor = new DataFlavor(Integer.class,
+    "Integer Row Index");
 
   private final JTable table;
 
@@ -31,7 +31,7 @@ public class TableRowTransferHandler extends TransferHandler {
   public boolean canImport(final TransferHandler.TransferSupport info) {
     if (info.getComponent() == this.table) {
       if (info.isDrop()) {
-        if (info.isDataFlavorSupported(this.localObjectFlavor)) {
+        if (info.isDataFlavorSupported(localObjectFlavor)) {
           this.table.setCursor(DragSource.DefaultMoveDrop);
           return true;
         }
@@ -46,8 +46,26 @@ public class TableRowTransferHandler extends TransferHandler {
     assert c == this.table;
     final int selectedRow = this.table.getSelectedRow();
     if (c == this.table) {
+      return new Transferable() {
 
-      return new DataHandler(selectedRow, this.mimeType);
+        @Override
+        public Object getTransferData(DataFlavor flavor)
+          throws UnsupportedFlavorException, IOException {
+          return selectedRow;
+        }
+
+        @Override
+        public DataFlavor[] getTransferDataFlavors() {
+          return new DataFlavor[] {
+            localObjectFlavor
+          };
+        }
+
+        @Override
+        public boolean isDataFlavorSupported(DataFlavor flavor) {
+          return localObjectFlavor == flavor;
+        }
+      };
     } else {
       return null;
     }
@@ -84,7 +102,8 @@ public class TableRowTransferHandler extends TransferHandler {
         if (index > rowFrom) {
           index--;
         }
-        target.getSelectionModel().addSelectionInterval(index, index);
+        target.getSelectionModel()
+          .addSelectionInterval(index, index);
         return true;
       }
     } catch (final Exception e) {

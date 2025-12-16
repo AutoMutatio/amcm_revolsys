@@ -27,7 +27,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 
-import org.apache.commons.beanutils.MethodUtils;
+import org.apache.commons.lang3.reflect.MethodUtils;
 
 import com.revolsys.exception.Exceptions;
 import com.revolsys.logging.Logs;
@@ -118,8 +118,12 @@ public final class JavaBeanUtil {
     Arrays.sort(methods, new Comparator<Method>() {
       @Override
       public int compare(final Method method1, final Method method2) {
-        final String name1 = method1.getName().replaceAll("^(set|get|is)", "").toLowerCase();
-        final String name2 = method2.getName().replaceAll("^(set|get|is)", "").toLowerCase();
+        final String name1 = method1.getName()
+          .replaceAll("^(set|get|is)", "")
+          .toLowerCase();
+        final String name2 = method2.getName()
+          .replaceAll("^(set|get|is)", "")
+          .toLowerCase();
         final int nameCompare = name1.compareTo(name2);
         return nameCompare;
       }
@@ -130,9 +134,11 @@ public final class JavaBeanUtil {
   public static String getPropertyName(final String methodName) {
     String propertyName;
     if (methodName.startsWith("is")) {
-      propertyName = methodName.substring(2, 3).toLowerCase() + methodName.substring(3);
+      propertyName = methodName.substring(2, 3)
+        .toLowerCase() + methodName.substring(3);
     } else {
-      propertyName = methodName.substring(3, 4).toLowerCase() + methodName.substring(4);
+      propertyName = methodName.substring(3, 4)
+        .toLowerCase() + methodName.substring(4);
     }
     return propertyName;
   }

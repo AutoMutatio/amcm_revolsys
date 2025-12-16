@@ -32,9 +32,6 @@
  */
 package com.revolsys.geometry.model.impl;
 
-import org.apache.commons.beanutils.ConvertUtils;
-import org.apache.commons.beanutils.Converter;
-
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryFactory;
@@ -56,26 +53,6 @@ import com.revolsys.number.Doubles;
  */
 public class BoundingBoxDoubleGeometryFactory extends BaseBoundingBox {
   private static final long serialVersionUID = 1L;
-
-  static {
-    ConvertUtils.register(new Converter() {
-
-      @Override
-      public Object convert(@SuppressWarnings("rawtypes") final Class paramClass,
-        final Object paramObject) {
-        if (paramObject == null) {
-          return null;
-        } else if (BoundingBox.class.isAssignableFrom(paramClass)) {
-          if (paramObject instanceof BoundingBox) {
-            return paramObject;
-          } else {
-            return BoundingBox.bboxNew(paramObject.toString());
-          }
-        }
-        return null;
-      }
-    }, BoundingBox.class);
-  }
 
   private final double[] bounds;
 

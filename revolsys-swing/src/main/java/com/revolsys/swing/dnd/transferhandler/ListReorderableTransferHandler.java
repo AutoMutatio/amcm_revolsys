@@ -3,9 +3,10 @@ package com.revolsys.swing.dnd.transferhandler;
 import java.awt.Cursor;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.dnd.DragSource;
+import java.io.IOException;
 
-import javax.activation.DataHandler;
 import javax.swing.JComponent;
 import javax.swing.JList;
 import javax.swing.ListModel;
@@ -18,11 +19,9 @@ import com.revolsys.util.Reorderable;
 public class ListReorderableTransferHandler extends TransferHandler {
   private static final long serialVersionUID = 1L;
 
+  private static final DataFlavor localObjectFlavor = new DataFlavor(int[].class, "Integer[]");
+
   private final JList list;
-
-  private final DataFlavor localObjectFlavor = new DataFlavor(int[].class, "Integer[]");
-
-  private final String mimeType = this.localObjectFlavor.getMimeType();
 
   public ListReorderableTransferHandler(final JList list) {
     this.list = list;
@@ -47,7 +46,26 @@ public class ListReorderableTransferHandler extends TransferHandler {
     assert c == this.list;
     final int[] selectedRows = this.list.getSelectedIndices();
     if (c == this.list) {
-      return new DataHandler(selectedRows, this.mimeType);
+      return new Transferable() {
+
+        @Override
+        public Object getTransferData(DataFlavor flavor)
+          throws UnsupportedFlavorException, IOException {
+          return selectedRows;
+        }
+
+        @Override
+        public DataFlavor[] getTransferDataFlavors() {
+          return new DataFlavor[] {
+            localObjectFlavor
+          };
+        }
+
+        @Override
+        public boolean isDataFlavorSupported(DataFlavor flavor) {
+          return localObjectFlavor == flavor;
+        }
+      };
     } else {
       return null;
     }

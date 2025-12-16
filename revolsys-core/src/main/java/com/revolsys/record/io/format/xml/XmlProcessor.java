@@ -28,18 +28,13 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 
-import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.beanutils.BeanUtilsBean;
-import org.apache.commons.beanutils.ConvertUtilsBean;
-import org.apache.commons.beanutils.Converter;
-import org.apache.commons.beanutils.converters.IntegerConverter;
-import org.apache.commons.beanutils.converters.ShortConverter;
-
-import com.revolsys.beans.EnumConverter;
+import com.revolsys.data.type.DataType;
+import com.revolsys.data.type.DataTypes;
 import com.revolsys.exception.Exceptions;
 import com.revolsys.record.io.format.xml.stax.StaxReader;
 import com.revolsys.spring.resource.Resource;
 import com.revolsys.util.CaseConverter;
+import com.revolsys.util.Property;
 
 /**
  * <p>
@@ -181,7 +176,7 @@ public abstract class XmlProcessor {
 
   private Map<String, Class<?>> tagNameClassMap = new HashMap<>();
 
-  private final Map<QName, Converter> typePathConverterMap = new HashMap<>();
+  private final Map<QName, DataType> typePathConverterMap = new HashMap<>();
 
   /**
    * Construct a new XmlProcessor for the XML Namespace URI.
@@ -191,8 +186,8 @@ public abstract class XmlProcessor {
   protected XmlProcessor(final String namespaceUri) {
     initConverters();
     this.namespaceUri = namespaceUri;
-    this.typePathConverterMap.put(XmlConstants.XS_SHORT, new ShortConverter());
-    this.typePathConverterMap.put(XmlConstants.XS_INT, new IntegerConverter());
+    this.typePathConverterMap.put(XmlConstants.XS_SHORT, DataTypes.SHORT);
+    this.typePathConverterMap.put(XmlConstants.XS_INT, DataTypes.INT);
     this.methodCache = getMethodCache(getClass());
   }
 
@@ -245,7 +240,8 @@ public abstract class XmlProcessor {
         }
         return (T)object;
       } else {
-        final T object = objectClass.newInstance();
+        final T object = objectClass.getDeclaredConstructor()
+          .newInstance();
         if (object instanceof Collection) {
           final Collection<Object> collection = (Collection<Object>)object;
           while (parser.nextTag() == XMLStreamConstants.START_ELEMENT) {
@@ -254,7 +250,8 @@ public abstract class XmlProcessor {
           }
         } else {
           while (parser.nextTag() == XMLStreamConstants.START_ELEMENT) {
-            final String tagName = parser.getName().getLocalPart();
+            final String tagName = parser.getName()
+              .getLocalPart();
             final Object value = process(parser);
             try {
               String propertyName;
@@ -263,7 +260,7 @@ public abstract class XmlProcessor {
               } else {
                 propertyName = tagName;
               }
-              BeanUtils.setProperty(object, propertyName, value);
+              Property.set(object, propertyName, value);
             } catch (final Throwable e) {
               e.printStackTrace();
             }
@@ -271,6 +268,8 @@ public abstract class XmlProcessor {
         }
         return object;
       }
+    } catch (final InvocationTargetException | NoSuchMethodException e) {
+      throw Exceptions.toRuntimeException(e);
     } catch (final InstantiationException e) {
       throw new IllegalArgumentException(e);
     } catch (final IllegalAccessException e) {
@@ -341,10 +340,10 @@ public abstract class XmlProcessor {
       }
     } else {
       final String xsiLocalName = xsiName.getLocalPart();
-      final Converter converter = this.typePathConverterMap.get(xsiName);
-      if (converter != null) {
+      final var dataType = this.typePathConverterMap.get(xsiName);
+      if (dataType != null) {
         final String text = parser.getElementText();
-        return (T)converter.convert(null, text);
+        return (T)dataType.toObject(text);
       } else if (this.tagNameClassMap.containsKey(xsiLocalName)) {
         objectClass = this.tagNameClassMap.get(xsiLocalName);
         hasMapping = true;
@@ -398,10 +397,10 @@ public abstract class XmlProcessor {
       }
     } else {
       final String xsiLocalName = xsiName.getLocalPart();
-      final Converter converter = this.typePathConverterMap.get(xsiName);
-      if (converter != null) {
+      final var dataType = this.typePathConverterMap.get(xsiName);
+      if (dataType != null) {
         final String text = parser.getElementText();
-        return (T)converter.convert(null, text);
+        return (T)dataType.toObject(text);
       } else if (this.tagNameClassMap.containsKey(xsiLocalName)) {
         objectClass = this.tagNameClassMap.get(xsiLocalName);
         hasMapping = true;
@@ -459,10 +458,7 @@ public abstract class XmlProcessor {
   }
 
   public void registerEnumConverter(final Class<? extends Enum> enumClass) {
-    final BeanUtilsBean beanUtilsBean = BeanUtilsBean.getInstance();
-    final ConvertUtilsBean convertUtils = beanUtilsBean.getConvertUtils();
-    final EnumConverter enumConverter = new EnumConverter();
-    convertUtils.register(enumConverter, enumClass);
+    // TODO
   }
 
   /**

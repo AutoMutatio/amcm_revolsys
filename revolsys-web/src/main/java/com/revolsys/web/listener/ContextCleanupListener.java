@@ -12,7 +12,6 @@ import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletContextEvent;
 import jakarta.servlet.ServletContextListener;
 
-import org.apache.commons.beanutils.BeanUtilsBean;
 import org.springframework.beans.CachedIntrospectionResults;
 import org.springframework.beans.factory.DisposableBean;
 
@@ -54,7 +53,6 @@ public class ContextCleanupListener implements ServletContextListener {
     EpsgCoordinateSystems.clear();
     cleanupAttributes(event.getServletContext());
 
-    BeanUtilsBean.setInstance(null);
     CachedIntrospectionResults.clearClassLoader(contextClassLoader);
     CachedIntrospectionResults.clearClassLoader(CachedIntrospectionResults.class.getClassLoader());
     CachedIntrospectionResults.clearClassLoader(ClassLoader.getSystemClassLoader());

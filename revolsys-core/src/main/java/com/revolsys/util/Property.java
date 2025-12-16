@@ -22,7 +22,7 @@ import java.util.function.Consumer;
 
 import javax.swing.JComponent;
 
-import org.apache.commons.beanutils.MethodUtils;
+import org.apache.commons.lang3.reflect.MethodUtils;
 import org.springframework.core.annotation.AnnotationUtils;
 
 import com.revolsys.beans.NonWeakListener;

@@ -2,7 +2,7 @@ package com.revolsys.io.map;
 
 import java.lang.reflect.InvocationTargetException;
 
-import org.apache.commons.beanutils.MethodUtils;
+import org.apache.commons.lang3.reflect.MethodUtils;
 
 import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.json.JsonObjectHash;

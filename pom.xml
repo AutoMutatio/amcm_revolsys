@@ -5,7 +5,7 @@
   <artifactId>revolsys-parent</artifactId>
   <packaging>pom</packaging>
   <name>Revolution Systems Open Library</name>
-  <!-- VERSION --><version>MAIN-SNAPSHOT</version>
+  <!-- VERSION --><version>0-SNAPSHOT</version>
   <description>The parent module of the Revolution Systems Open Library.</description>
   <url>http://revolsys.github.com/com.revolsys.open/</url>
 
