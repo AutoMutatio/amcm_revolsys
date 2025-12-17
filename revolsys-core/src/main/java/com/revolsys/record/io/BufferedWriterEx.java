@@ -199,6 +199,10 @@ public class BufferedWriterEx extends Writer {
     }
   }
 
+  public void newLine() {
+    append('\n');
+  }
+
   @Override
   public void write(final char[] chars) {
     if (chars == null) {

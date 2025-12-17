@@ -135,8 +135,9 @@ public class JavaIo {
     } else if (target instanceof final Writer writer) {
       return writer;
     } else if (target instanceof final Path path) {
-      return Files.newBufferedWriter(path, StandardOpenOption.CREATE,
+      final var out = Files.newOutputStream(path, StandardOpenOption.CREATE,
         StandardOpenOption.TRUNCATE_EXISTING);
+      return BufferedWriterEx.forStream(out);
     } else if (target instanceof final File file) {
       return FileUtil.getWriter(file);
     } else if (target instanceof final OutputStream out) {
