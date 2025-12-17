@@ -1,12 +1,12 @@
 module com.revolsys.core {
 
-  requires java.base;
+  requires transitive java.base;
 
   requires java.desktop;
 
   requires java.net.http;
 
-  requires java.sql;
+  requires transitive java.sql;
 
   requires java.prefs;
 
@@ -20,9 +20,9 @@ module com.revolsys.core {
 
   requires java.measure;
 
-  requires jakarta.annotation;
+  requires static jakarta.annotation;
 
-  requires jakarta.servlet;
+  requires static jakarta.servlet;
 
   requires tech.units.indriya;
 
@@ -30,7 +30,7 @@ module com.revolsys.core {
 
   requires org.apache.commons.imaging;
 
-  requires org.docx4j.core;
+  requires static org.docx4j.core;
 
   requires org.apache.xmpbox;
 
@@ -565,4 +565,12 @@ module com.revolsys.core {
   exports com.revolsys.util.count;
 
   exports com.revolsys.util.metrics;
+
+  uses com.revolsys.io.IoFactory;
+
+  uses com.revolsys.io.JavaIo;
+
+  uses com.revolsys.util.ServiceInitializer;
+
+  uses java.net.spi.URLStreamHandlerProvider;
 }
