@@ -72,6 +72,22 @@ public class FunctionDataType extends AbstractDataType {
 
   private final Function3<Object, Object, Collection<? extends CharSequence>, Boolean> equalsExcludesFunction;
 
+  public FunctionDataType(final String name, final boolean requiresQuotes, final Class<?> javaClass,
+    final Function<Object, ?> function) {
+    this(name, javaClass, requiresQuotes, function);
+  }
+
+  public FunctionDataType(final String name, final boolean requiresQuotes, final Class<?> javaClass,
+    final Function<Object, ?> toObjectFunction, final Function<Object, String> toStringFunction) {
+    this(name, javaClass, requiresQuotes, toObjectFunction, toStringFunction);
+  }
+
+  public FunctionDataType(final String name, final boolean requiresQuotes, final Class<?> javaClass,
+    final Function<Object, ?> toObjectFunction, final Function<Object, String> toStringFunction,
+    final BiFunction<?, ?, Boolean> equalsFunction) {
+    this(name, javaClass, requiresQuotes, toObjectFunction, toStringFunction, equalsFunction, null);
+  }
+
   public FunctionDataType(final String name, final Class<?> javaClass, final boolean requiresQuotes,
     final Function<Object, ?> function) {
     this(name, javaClass, requiresQuotes, function, null, null, null);
@@ -106,22 +122,18 @@ public class FunctionDataType extends AbstractDataType {
       if (equalsExcludesFunction == null) {
         this.equalsFunction = Object::equals;
       } else {
-        this.equalsFunction = (value1, value2) -> {
-          return equalsNotNull(value1, value2, Collections.emptySet());
-        };
+        this.equalsFunction = (value1, value2) -> equalsNotNull(value1, value2,
+          Collections.emptySet());
       }
     } else {
       this.equalsFunction = (BiFunction)equalsFunction;
     }
     if (equalsExcludesFunction == null) {
       if (equalsFunction == null) {
-        this.equalsExcludesFunction = (value1, value2, excludeFieldNames) -> {
-          return value1.equals(value2);
-        };
+        this.equalsExcludesFunction = (value1, value2, excludeFieldNames) -> value1.equals(value2);
       } else {
-        this.equalsExcludesFunction = (value1, value2, excludeFieldNames) -> {
-          return this.equalsFunction.apply(value1, value2);
-        };
+        this.equalsExcludesFunction = (value1, value2, excludeFieldNames) -> this.equalsFunction
+          .apply(value1, value2);
       }
     } else {
       this.equalsExcludesFunction = equalsExcludesFunction;

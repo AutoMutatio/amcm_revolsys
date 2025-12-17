@@ -1,7 +1,6 @@
 package com.revolsys.rest;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -152,7 +151,7 @@ public class AbstractTableRecordRestController extends AbstractWebController {
     setContentTypeJson(response);
     response.setStatus(200);
     try (
-      PrintWriter writer = response.getWriter();
+      var writer = HttpServletUtils.getWriter(response);
       JsonRecordWriter jsonWriter = new JsonRecordWriter(reader, writer);) {
       final JsonObject header = JsonObject.hash();
       jsonWriter.setHeader(header);

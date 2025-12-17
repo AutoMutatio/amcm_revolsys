@@ -2,7 +2,6 @@ package com.revolsys.record.io.format.tsv;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.Charset;
 
@@ -15,6 +14,7 @@ import com.revolsys.io.map.MapWriterFactory;
 import com.revolsys.record.Record;
 import com.revolsys.record.RecordFactory;
 import com.revolsys.record.io.AbstractRecordIoFactory;
+import com.revolsys.record.io.BufferedWriterEx;
 import com.revolsys.record.io.RecordReader;
 import com.revolsys.record.io.RecordWriter;
 import com.revolsys.record.io.RecordWriterFactory;
@@ -110,8 +110,7 @@ public class Tsv extends AbstractRecordIoFactory implements RecordWriterFactory,
   public RecordWriter newRecordWriter(final String baseName,
     final RecordDefinitionProxy recordDefinition, final OutputStream outputStream,
     final Charset charset) {
-    final OutputStreamWriter writer = new OutputStreamWriter(outputStream, charset);
-
+    final var writer = BufferedWriterEx.forStream(outputStream, charset);
     return new CsvRecordWriter(recordDefinition, writer, Tsv.FIELD_SEPARATOR, true, true);
   }
 }

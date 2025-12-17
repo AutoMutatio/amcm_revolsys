@@ -2,7 +2,6 @@ package com.revolsys.web.converter;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
@@ -16,6 +15,7 @@ import org.springframework.lang.Nullable;
 
 import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.json.JsonParser;
+import com.revolsys.record.io.BufferedWriterEx;
 
 public class JsonObjectHttpMessageConverter extends AbstractHttpMessageConverter<JsonObject> {
 
@@ -73,7 +73,7 @@ public class JsonObjectHttpMessageConverter extends AbstractHttpMessageConverter
     final Charset charset = getCharset(outputMessage);
     try (
       var out = outputMessage.getBody();
-      var writer = new OutputStreamWriter(out, charset)) {
+      var writer = BufferedWriterEx.forStream(out, charset)) {
       if (value == null) {
         writer.write("null");
       } else {

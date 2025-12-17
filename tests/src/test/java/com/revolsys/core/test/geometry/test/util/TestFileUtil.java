@@ -33,17 +33,17 @@
 package com.revolsys.core.test.geometry.test.util;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.RandomAccessFile;
 import java.util.List;
 import java.util.Vector;
+
+import com.revolsys.io.FileUtil;
 
 /**
  * Useful file utilities.
@@ -150,11 +150,9 @@ public class TestFileUtil {
    */
   public static void setContents(final String textFileName, final String contents)
     throws IOException {
-    final FileWriter fileWriter = new FileWriter(textFileName, false);
-    final BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
-    bufferedWriter.write(contents);
-    bufferedWriter.flush();
-    bufferedWriter.close();
+    final var fileWriter = FileUtil.getWriter(new File(textFileName));
+    fileWriter.write(contents);
+    fileWriter.flush();
     fileWriter.close();
   }
 }

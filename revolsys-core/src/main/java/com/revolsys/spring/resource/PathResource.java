@@ -17,7 +17,6 @@
 package com.revolsys.spring.resource;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -43,6 +42,7 @@ import org.springframework.core.io.WritableResource;
 import org.springframework.util.Assert;
 
 import com.revolsys.exception.Exceptions;
+import com.revolsys.io.FileUtil;
 import com.revolsys.io.PathUtil;
 import com.revolsys.io.channels.Channels;
 
@@ -87,7 +87,8 @@ public class PathResource extends AbstractResource implements WritableResource {
    */
   public PathResource(final String path) {
     Assert.notNull(path, "Path must not be null");
-    this.path = Paths.get(path).normalize();
+    this.path = Paths.get(path)
+      .normalize();
   }
 
   /**
@@ -97,7 +98,8 @@ public class PathResource extends AbstractResource implements WritableResource {
    */
   public PathResource(final URI uri) {
     Assert.notNull(uri, "URI must not be null");
-    this.path = Paths.get(uri).normalize();
+    this.path = Paths.get(uri)
+      .normalize();
   }
 
   /**
@@ -235,7 +237,8 @@ public class PathResource extends AbstractResource implements WritableResource {
 
   @Override
   public String getDescription() {
-    return this.path.toAbsolutePath().toString();
+    return this.path.toAbsolutePath()
+      .toString();
   }
 
   /**
@@ -252,7 +255,8 @@ public class PathResource extends AbstractResource implements WritableResource {
    */
   @Override
   public String getFilename() {
-    return this.path.getFileName().toString();
+    return this.path.getFileName()
+      .toString();
   }
 
   /**
@@ -274,7 +278,8 @@ public class PathResource extends AbstractResource implements WritableResource {
   public Instant getLastModifiedInstant() {
     final Path path = getPath();
     try {
-      return Files.getLastModifiedTime(path).toInstant();
+      return Files.getLastModifiedTime(path)
+        .toInstant();
     } catch (final IOException e) {
       throw Exceptions.toRuntimeException(e);
     }
@@ -332,7 +337,8 @@ public class PathResource extends AbstractResource implements WritableResource {
   @Override
   public URL getURL() {
     try {
-      return this.path.toUri().toURL();
+      return this.path.toUri()
+        .toURL();
     } catch (final MalformedURLException e) {
       throw Exceptions.toRuntimeException(e);
     }
@@ -376,7 +382,8 @@ public class PathResource extends AbstractResource implements WritableResource {
     // we can not use the super class method since it uses conversion to a File
     // and
     // only Paths on the default file system can be converted to a File
-    return Files.getLastModifiedTime(this.path).toMillis();
+    return Files.getLastModifiedTime(this.path)
+      .toMillis();
   }
 
   @Override
@@ -440,12 +447,8 @@ public class PathResource extends AbstractResource implements WritableResource {
 
   @Override
   public Writer newWriter(final Charset charset) {
-    try {
-      final File file = getFile();
-      return new FileWriter(file, charset);
-    } catch (final IOException e) {
-      throw Exceptions.toRuntimeException(e);
-    }
+    final File file = getFile();
+    return FileUtil.getWriter(file, charset);
   }
 
 }

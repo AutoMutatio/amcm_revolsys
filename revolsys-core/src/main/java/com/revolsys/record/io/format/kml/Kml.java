@@ -1,7 +1,6 @@
 package com.revolsys.record.io.format.kml;
 
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 
 import com.revolsys.collection.map.MapEx;
@@ -95,7 +94,7 @@ public class Kml extends GeometryRecordReaderFactory
   public RecordWriter newRecordWriter(final String baseName,
     final RecordDefinitionProxy recordDefinition, final OutputStream outputStream,
     final Charset charset) {
-    final OutputStreamWriter writer = FileUtil.newUtf8Writer(outputStream);
+    final var writer = FileUtil.newUtf8Writer(outputStream);
     return new KmlRecordWriter(recordDefinition, writer);
   }
 }
