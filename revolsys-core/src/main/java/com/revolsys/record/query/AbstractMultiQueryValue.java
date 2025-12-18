@@ -13,6 +13,8 @@ public abstract class AbstractMultiQueryValue implements QueryValue {
 
   protected QueryValue[] values = EMPTY_ARRAY;
 
+  private ColumnReference column;
+
   public AbstractMultiQueryValue() {
   }
 
@@ -89,6 +91,11 @@ public abstract class AbstractMultiQueryValue implements QueryValue {
   }
 
   @Override
+  public ColumnReference getColumn() {
+    return column;
+  }
+
+  @Override
   public List<QueryValue> getQueryValues() {
     return Arrays.asList(this.values);
   }
@@ -124,6 +131,11 @@ public abstract class AbstractMultiQueryValue implements QueryValue {
       }
     }
     return false;
+  }
+
+  @Override
+  public void setColumn(ColumnReference column) {
+    this.column = column;
   }
 
   public void setQueryValue(final int i, final QueryValue value) {

@@ -14,6 +14,8 @@ public abstract class AbstractBinaryQueryValue implements QueryValue {
 
   private QueryValue right;
 
+  private ColumnReference column;
+
   public AbstractBinaryQueryValue(final List<QueryValue> parameters) {
     final int parameterCount = parameters.size();
     if (parameterCount == 2) {
@@ -113,6 +115,11 @@ public abstract class AbstractBinaryQueryValue implements QueryValue {
     return false;
   }
 
+  @Override
+  public ColumnReference getColumn() {
+    return column;
+  }
+
   @SuppressWarnings("unchecked")
   public <V extends QueryValue> V getLeft() {
     return (V)this.left;
@@ -137,6 +144,11 @@ public abstract class AbstractBinaryQueryValue implements QueryValue {
         value.setColumn(column);
       }
     }
+  }
+
+  @Override
+  public void setColumn(ColumnReference column) {
+    this.column = column;
   }
 
   public void setLeft(final QueryValue left) {
