@@ -1,11 +1,9 @@
 package com.revolsys.io;
 
 import java.io.BufferedOutputStream;
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.ClosedChannelException;
@@ -18,6 +16,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 
 import com.revolsys.exception.Exceptions;
+import com.revolsys.record.io.BufferedWriterEx;
 
 public class FileBackedOutputStreamBuffer extends OutputStream implements Appendable {
 
@@ -172,8 +171,7 @@ public class FileBackedOutputStreamBuffer extends OutputStream implements Append
   }
 
   public java.io.Writer newWriter() {
-    return new BufferedWriter(
-      new OutputStreamWriter(new IgnoreCloseDelegatingOutputStream(this), StandardCharsets.UTF_8));
+    return BufferedWriterEx.forStream(new IgnoreCloseDelegatingOutputStream(this));
   }
 
   private void requireFile() throws IOException {

@@ -381,6 +381,11 @@ public class HttpRequestBuilder {
     return this;
   }
 
+  public HttpRequestBuilder addHeaders(final ListEx<Header> headers) {
+    headers.forEach(this::addHeader);
+    return this;
+  }
+
   public HttpRequestBuilder addParameter(final NameValuePair parameter) {
     if (parameter != null) {
       if (this.parameters == null) {

@@ -1,7 +1,6 @@
 package com.revolsys.record.io.format.geojson;
 
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
@@ -13,6 +12,7 @@ import com.revolsys.geometry.coordinatesystem.model.CoordinateSystem;
 import com.revolsys.geometry.coordinatesystem.model.systems.EpsgCoordinateSystems;
 import com.revolsys.geometry.io.GeometryReader;
 import com.revolsys.io.FileUtil;
+import com.revolsys.record.io.BufferedWriterEx;
 import com.revolsys.record.io.GeometryRecordReaderFactory;
 import com.revolsys.record.io.RecordWriter;
 import com.revolsys.record.io.RecordWriterFactory;
@@ -93,7 +93,7 @@ public class GeoJson extends GeometryRecordReaderFactory implements RecordWriter
   public RecordWriter newRecordWriter(final String baseName,
     final RecordDefinitionProxy recordDefinition, final OutputStream outputStream,
     final Charset charset) {
-    final OutputStreamWriter writer = FileUtil.newUtf8Writer(outputStream);
+    final var writer = BufferedWriterEx.forStream(outputStream);
     return new GeoJsonRecordWriter(writer, recordDefinition);
   }
 }

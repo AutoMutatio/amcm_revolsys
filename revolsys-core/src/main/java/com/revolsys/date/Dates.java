@@ -22,6 +22,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.SignStyle;
@@ -613,6 +614,10 @@ public interface Dates {
     final String timeString = toEllapsedTime(startTime, endTime);
     Logs.info(object, message + " " + timeString);
     return endTime;
+  }
+
+  static LocalDate localDateUtc() {
+    return LocalDate.now(ZoneOffset.UTC);
   }
 
   private static DateTimeFormatter newRfc1123() {
