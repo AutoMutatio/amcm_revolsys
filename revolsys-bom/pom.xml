@@ -84,7 +84,7 @@
       <dependency>
         <groupId>commons-codec</groupId>
         <artifactId>commons-codec</artifactId>
-        <version>1.19.0</version>
+        <version>1.20.0</version>
       </dependency>
       <dependency>
         <groupId>org.apache.commons</groupId>
@@ -99,12 +99,12 @@
       <dependency>
         <groupId>commons-io</groupId>
         <artifactId>commons-io</artifactId>
-        <version>2.20.0</version>
+        <version>2.21.0</version>
       </dependency>
       <dependency>
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-jexl3</artifactId>
-        <version>3.5.0</version>
+        <version>3.6.1</version>
         <exclusions>
           <exclusion>
             <groupId>commons-logging</groupId>
@@ -166,27 +166,27 @@
       <dependency>
         <groupId>jakarta.servlet</groupId>
         <artifactId>jakarta.servlet-api</artifactId>
-        <version>6.0.0</version>
+        <version>6.1.0</version>
       </dependency>
       <dependency>
         <groupId>jakarta.websocket</groupId>
         <artifactId>jakarta.websocket-api</artifactId>
-        <version>2.1.1</version>
+        <version>2.2.0</version>
       </dependency>
       <dependency>
         <groupId>jakarta.servlet.jsp</groupId>
         <artifactId>jakarta.servlet.jsp-api</artifactId>
-        <version>3.1.1</version>
+        <version>4.0.0</version>
       </dependency>
       <dependency>
         <groupId>jakarta.websocket</groupId>
         <artifactId>jakarta.websocket-client-api</artifactId>
-        <version>2.1.1</version>
+        <version>2.2.0</version>
       </dependency>
       <dependency>
         <groupId>jakarta.annotation</groupId>
         <artifactId>jakarta.annotation-api</artifactId>
-        <version>2.1.1</version>
+        <version>3.0.0</version>
       </dependency>
       <dependency>
         <groupId>org.apache.logging.log4j</groupId>
@@ -250,7 +250,7 @@
       <dependency>
         <groupId>org.docx4j</groupId>
         <artifactId>docx4j-JAXB-MOXy</artifactId>
-        <version>11.5.6</version>
+        <version>11.5.8</version>
       </dependency>
       <dependency>
         <groupId>org.apache.commons</groupId>
@@ -422,7 +422,7 @@
       <dependency>
         <groupId>com.nimbusds</groupId>
         <artifactId>nimbus-jose-jwt</artifactId>
-        <version>10.5</version>
+        <version>10.6</version>
       </dependency>
       <dependency>
         <groupId>org.postgresql</groupId>
@@ -432,7 +432,7 @@
       <dependency>
         <groupId>org.junit</groupId>
         <artifactId>junit-bom</artifactId>
-        <version>5.13.3</version>
+        <version>6.0.1</version>
         <type>pom</type>
         <scope>import</scope>
       </dependency>
@@ -453,7 +453,7 @@
       <dependency>
         <groupId>org.xerial</groupId>
         <artifactId>sqlite-jdbc</artifactId>
-        <version>3.50.3.0</version>
+        <version>3.51.1.0</version>
       </dependency>
       <dependency>
         <groupId>com.fasterxml.jackson</groupId>
@@ -552,16 +552,16 @@
     </dependencies>
   </dependencyManagement>
   <properties>
-    <ch.qos.logback.version>1.5.19</ch.qos.logback.version>
-    <com.fasterxml.jackson.version>2.20.0</com.fasterxml.jackson.version>
-    <org.apache.logging.log4j>2.25.2</org.apache.logging.log4j>
-    <org.apache.pdfbox.version>3.0.5</org.apache.pdfbox.version>
+    <ch.qos.logback.version>1.5.22</ch.qos.logback.version>
+    <com.fasterxml.jackson.version>2.20.1</com.fasterxml.jackson.version>
+    <org.apache.logging.log4j>2.25.3</org.apache.logging.log4j>
+    <org.apache.pdfbox.version>3.0.6</org.apache.pdfbox.version>
     <org.apache.xmlgraphics.batik.version>1.19</org.apache.xmlgraphics.batik.version>
     <org.apache.xmlgraphics.commons.version>2.11</org.apache.xmlgraphics.commons.version>
     <org.gdal.version>2.4.0</org.gdal.version>
     <org.slf4j.version>2.0.17</org.slf4j.version>
-    <org.springframework.version>6.2.11</org.springframework.version>
-    <org.springframework.boot.version>3.5.6</org.springframework.boot.version>
+    <org.springframework.version>7.0.2</org.springframework.version>
+    <org.springframework.boot.version>4.0.1</org.springframework.boot.version>
     <org.springboot.version>${org.springframework.boot.version}</org.springboot.version>
   </properties>
 </project>
