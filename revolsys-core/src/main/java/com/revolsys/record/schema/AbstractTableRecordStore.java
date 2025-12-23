@@ -65,14 +65,27 @@ import com.revolsys.util.Property;
 public class AbstractTableRecordStore implements RecordDefinitionProxy {
   public record VirtualField(AbstractTableRecordStore recordStore, String name,
     Consumer<RecordDefinitionBuilder> addToSchema,
-    Function3<Query, VirtualField, String[], QueryValue> newQueryValue) {
+    Function3<Query, VirtualField, String[], QueryValue> newQueryValue, boolean autoExtraPath) {
+
+    public VirtualField(AbstractTableRecordStore recordStore, String name,
+      Consumer<RecordDefinitionBuilder> addToSchema,
+      Function3<Query, VirtualField, String[], QueryValue> newQueryValue) {
+      this(recordStore, name, addToSchema, newQueryValue, false);
+    }
 
     public void addToSchema(final RecordDefinitionBuilder builder) {
       this.addToSchema.accept(builder);
     }
 
     public QueryValue newQueryValue(final Query query, final String... path) {
-      return this.newQueryValue.apply(query, this, path);
+      QueryValue result = this.newQueryValue.apply(query, this, path);
+      if (this.autoExtraPath && path.length > 1) {
+        for (int i = 1; i < path.length; i++) {
+          final var part = path[i];
+          result = Q.jsonRawValue(result, part);
+        }
+      }
+      return result;
     }
   }
 
@@ -282,11 +295,20 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     addVirtualField(field);
   }
 
-  public void addVirtualField(final String name, final DataType dataType,
+  public VirtualField addVirtualField(final String name, final DataType dataType, boolean autoPath,
+    final Function3<Query, VirtualField, String[], QueryValue> newQueryValue) {
+    final var field = new VirtualField(this, name, rd -> rd.addField(name, dataType), newQueryValue,
+      autoPath);
+    addVirtualField(field);
+    return field;
+  }
+
+  public VirtualField addVirtualField(final String name, final DataType dataType,
     final Function3<Query, VirtualField, String[], QueryValue> newQueryValue) {
     final var field = new VirtualField(this, name, rd -> rd.addField(name, dataType),
       newQueryValue);
     addVirtualField(field);
+    return field;
   }
 
   public void addVirtualField(final VirtualField field) {
@@ -351,13 +373,18 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
   }
 
   public QueryValue fieldPathToQueryValue(final Query query, String path) {
+    return fieldPathToQueryValue(query, this, path);
+  }
+
+  public QueryValue fieldPathToQueryValue(final Query query, TableReferenceProxy table,
+    String path) {
     String wrapFunction = null;
     final int tildeIndex = path.lastIndexOf('~');
     if (tildeIndex != -1) {
       wrapFunction = path.substring(tildeIndex + 1);
       path = path.substring(0, tildeIndex);
     }
-    var queryValue = fieldPathToQueryValueDo(query, path);
+    var queryValue = fieldPathToQueryValueDo(query, table, path);
     if (queryValue == null) {
       queryValue = Q.sql("NULL");
     }
@@ -367,28 +394,14 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     return queryValue;
   }
 
-  protected QueryValue fieldPathToQueryValueDo(final Query query, final String path) {
+  private QueryValue fieldPathToQueryValueDo(final Query query, TableReferenceProxy table,
+    final String path) {
     final var parts = path.split("\\.");
     final var virtualField = this.virtualFieldByName.get(parts[0]);
     if (virtualField != null) {
       return virtualField.newQueryValue(query, parts);
     }
-    return getTable().columnByPath(path);
-  }
-
-  protected QueryValue fieldPathToQueryValueJoin(final Query query, final String sourceFieldName,
-    final AbstractTableRecordStore joinRs, final String joinAlias, final String queryJoinFieldName,
-    final String lookupFieldName, final String[] path) {
-    final var join = requireJoin(query, queryJoinFieldName, joinRs, joinAlias, "id");
-    final var column = join.getColumn(lookupFieldName);
-    QueryValue selectField = column;
-    if (path.length > 1) {
-      for (int i = 1; i < path.length; i++) {
-        final var part = path[i];
-        selectField = Q.jsonRawValue(selectField, part);
-      }
-    }
-    return selectField;
+    return table.getTableReference().columnByPath(path);
   }
 
   protected QueryValue fieldPathToQueryValueSubQuery(final Query query,

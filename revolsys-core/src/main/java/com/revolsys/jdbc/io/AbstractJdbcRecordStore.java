@@ -31,7 +31,6 @@ import com.revolsys.collection.list.ListEx;
 import com.revolsys.collection.map.Maps;
 import com.revolsys.data.identifier.Identifier;
 import com.revolsys.data.type.DataType;
-import com.revolsys.data.type.DataTypes;
 import com.revolsys.exception.Exceptions;
 import com.revolsys.io.PathName;
 import com.revolsys.io.PathUtil;
@@ -104,6 +103,8 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
   private List<String> excludeTablePatterns = new ArrayList<>();
 
   private final Map<String, JdbcFieldAdder> fieldDefinitionAdders = new HashMap<>();
+
+  private final Map<Integer, JdbcFieldAdder> fieldDefinitionAdderByTypeId = new HashMap<>();
 
   private boolean flushBetweenTypes;
 
@@ -178,7 +179,7 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
   protected JdbcFieldDefinition addField(final JdbcRecordDefinition recordDefinition,
     final String dbColumnName, final String name, final int sqlType, final String dbDataType,
     final int length, final int scale, final boolean required, final String description) {
-    final JdbcFieldAdder fieldAdder = getFieldAdder(dbDataType);
+    final JdbcFieldAdder fieldAdder = getFieldAdder(dbDataType, sqlType);
     return (JdbcFieldDefinition)fieldAdder.addField(this, recordDefinition, dbColumnName, name,
       sqlType, dbDataType, length, scale, required, description);
   }
@@ -194,6 +195,11 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
     final String fieldName = toUpperIfNeeded(name);
     addField(recordDefinition, name, fieldName, sqlType, dataType, length, scale, required,
       description);
+  }
+
+  public void addFieldAdder(final int typeId, final JdbcFieldFactory fieldFactory) {
+    final var fieldAdder = new JdbcFieldFactoryAdder(fieldFactory);
+    this.fieldDefinitionAdderByTypeId.put(typeId, fieldAdder);
   }
 
   protected void addFieldAdder(final String sqlTypeName, final DataType dataType) {
@@ -395,18 +401,17 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
             columns = recordDefinition.getFields();
           } else {
             columns = queryStatement.getReturning();
-            final var rdBuilder = new RecordDefinitionBuilder(queryStatement.getRecordDefinition()
-              .getName());
-            queryStatement.getReturning()
-              .forEach(column -> {
-                if (column instanceof final FieldDefinition field) {
-                  rdBuilder.addField(field);
-                } else if (column instanceof final FieldDefinition field) {
-                  rdBuilder.addField(field);
-                } else {
-                  rdBuilder.addField(column.getName(), column.getDataType());
-                }
-              });
+            final var rdBuilder = new RecordDefinitionBuilder(
+              queryStatement.getRecordDefinition().getName());
+            queryStatement.getReturning().forEach(column -> {
+              if (column instanceof final FieldDefinition field) {
+                rdBuilder.addField(field);
+              } else if (column instanceof final FieldDefinition field) {
+                rdBuilder.addField(field);
+              } else {
+                rdBuilder.addField(column.getName(), column.getDataType());
+              }
+            });
             recordDefinition = rdBuilder.getRecordDefinition();
           }
           try (
@@ -496,7 +501,18 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
   public JdbcFieldAdder getFieldAdder(final String dataType) {
     JdbcFieldAdder fieldAdder = this.fieldDefinitionAdders.get(dataType);
     if (fieldAdder == null) {
-      fieldAdder = new JdbcFieldAdder(DataTypes.OBJECT);
+      fieldAdder = JdbcFieldAdder.OBJECT;
+    }
+    return fieldAdder;
+  }
+
+  public JdbcFieldAdder getFieldAdder(final String dataType, int typeId) {
+    JdbcFieldAdder fieldAdder = this.fieldDefinitionAdders.get(dataType);
+    if (fieldAdder == null) {
+      fieldAdder = this.fieldDefinitionAdderByTypeId.get(typeId);
+      if (fieldAdder == null) {
+        fieldAdder = JdbcFieldAdder.OBJECT;
+      }
     }
     return fieldAdder;
   }
@@ -619,8 +635,7 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
       query.setSql(null);
       query.clearOrderBy();
       final String sql;
-      if (query.isDistinct() || !query.getGroupBy()
-        .isEmpty()) {
+      if (query.isDistinct() || !query.getGroupBy().isEmpty()) {
         sql = "select count(mainquery.*) from (" + query.getSelectSql() + ") mainquery";
       } else {
         query.setSelect(Q.sql("count(*)"));
@@ -1024,8 +1039,7 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
         return null;
       }
     } else {
-      return Identifier.newIdentifier(UUID.randomUUID()
-        .toString());
+      return Identifier.newIdentifier(UUID.randomUUID().toString());
     }
   }
 
@@ -1228,13 +1242,11 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
               if (columnsRs.wasNull()) {
                 scale = -1;
               }
-              final boolean required = !columnsRs.getString("IS_NULLABLE")
-                .equals("YES");
+              final boolean required = !columnsRs.getString("IS_NULLABLE").equals("YES");
               final String description = columnsRs.getString("REMARKS");
               final JdbcFieldDefinition field = addField(recordDefinition, dbColumnName, name,
                 sqlType, dataType, length, scale, required, description);
-              final boolean generated = columnsRs.getString("IS_GENERATEDCOLUMN")
-                .equals("YES");
+              final boolean generated = columnsRs.getString("IS_GENERATEDCOLUMN").equals("YES");
               field.setGenerated(generated);
             }
           }
