@@ -266,7 +266,11 @@ public class Join implements QueryValue, TableReferenceProxy {
     sql.append(this.joinType);
     sql.append(' ');
     if (this.table != null) {
-      new Query().appendFromWithAlias(sql, this.table);
+      if (this.alias == null) {
+        new Query().appendFromWithAlias(sql, this.table);
+      } else {
+        new Query().appendFromWithAlias(sql, new FromAlias(this.table, this.alias));
+      }
     }
     if (this.statement != null) {
       this.statement.appendSql(null, null, sql);
