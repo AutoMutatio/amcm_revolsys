@@ -174,7 +174,6 @@ public class BufferedWriterEx extends Writer {
         flushBuffer();
         this.writer.close();
       } catch (final IOException e) {
-        throw new WrappedIoException(e);
       }
     }
   }

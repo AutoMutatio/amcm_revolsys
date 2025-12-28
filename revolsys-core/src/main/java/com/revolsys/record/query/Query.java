@@ -827,6 +827,25 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     return null;
   }
 
+  public Join getJoin(final String alias, final Predicate<Join> joinEqual) {
+    for (final var join : getJoins()) {
+      if (DataType.equal(alias, join.getTableAlias())) {
+        if (joinEqual.test(join)) {
+          return join;
+        }
+      }
+    }
+    return null;
+  }
+
+  public Join getJoin(final String alias, final TableReferenceProxy tableProxy) {
+    if (tableProxy != null) {
+      final var table = tableProxy.getTableReference();
+      return getJoin(alias, join -> table == join.getTable());
+    }
+    return null;
+  }
+
   public Join getJoin(final TableReferenceProxy tableProxy, final String alias) {
     if (tableProxy != null) {
       final var table = tableProxy.getTableReference();
@@ -1405,6 +1424,13 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     for (final String fieldName : fieldNames) {
       final ColumnReference column = table.getColumn(fieldName);
       this.selectExpressions.add(column);
+    }
+    return this;
+  }
+
+  public Query selectAdd(final Object... select) {
+    for (final Object selectItem : select) {
+      select(selectItem);
     }
     return this;
   }

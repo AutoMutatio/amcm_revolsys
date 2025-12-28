@@ -11,6 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.swing.JTable;
 
 import com.revolsys.date.Dates.Timer;
+import com.revolsys.parallel.ReentrantLockEx;
 import com.revolsys.record.io.format.tsv.Tsv;
 import com.revolsys.record.io.format.tsv.TsvWriter;
 import com.revolsys.swing.parallel.Invoke;
@@ -28,9 +29,16 @@ public class TimerTableModel extends AbstractTableModel {
 
   private final List<String> labels = new ArrayList<>();
 
+  private final ReentrantLockEx labelsLock = new ReentrantLockEx();
+
   public Timer addTimer(final String label) {
     return this.timerByLabel.computeIfAbsent(label, newLabel -> {
-      this.labels.add(newLabel);
+      try (
+        var _ = labelsLock.lockX()) {
+        if (!labels.contains(newLabel)) {
+          this.labels.add(newLabel);
+        }
+      }
       final var timer = new Timer() {
         @Override
         public void close() {
@@ -73,8 +81,7 @@ public class TimerTableModel extends AbstractTableModel {
 
   @Override
   public Object getValueAt(final int rowIndex, final int columnIndex) {
-    final int rowCount = getRowCount();
-    if (rowIndex >= 0 && rowIndex < rowCount) {
+    if (rowIndex >= 0 && rowIndex < this.labels.size()) {
       final var label = this.labels.get(rowIndex);
       return switch (columnIndex) {
         case 0 -> label;
@@ -93,8 +100,7 @@ public class TimerTableModel extends AbstractTableModel {
   public BaseJTable newTable() {
     final var table = super.newTable();
     table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
-    table.getColumn(1)
-      .setMaxWidth(100);
+    table.getColumn(1).setMaxWidth(100);
     return table;
   }
 

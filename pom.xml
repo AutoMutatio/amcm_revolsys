@@ -233,7 +233,7 @@
           <dependency>
             <groupId>io.github.devacfr.maven.skins</groupId>
             <artifactId>reflow-velocity-tools</artifactId>
-            <version>2.3.4</version>
+            <version>2.3.5</version>
           </dependency>
           <dependency>
             <groupId>net.trajano.wagon</groupId>
@@ -362,12 +362,12 @@
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>versions-maven-plugin</artifactId>
-          <version>2.19.1</version>
+          <version>2.20.1</version>
         </plugin>
         <plugin>
           <groupId>org.jetbrains.kotlin</groupId>
           <artifactId>kotlin-maven-plugin</artifactId>
-          <version>2.2.20</version>
+          <version>2.3.0</version>
         </plugin>
       </plugins>
     </pluginManagement>

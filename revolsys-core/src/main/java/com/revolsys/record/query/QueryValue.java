@@ -20,11 +20,13 @@ import com.revolsys.record.query.functions.EnvelopeIntersects;
 import com.revolsys.record.query.functions.WithinDistance;
 import com.revolsys.record.query.parser.JSqlParser;
 import com.revolsys.record.query.parser.SqlParser;
+import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordStore;
 import com.revolsys.util.Property;
 
 public interface QueryValue extends Cloneable, SqlAppendParameters {
+
   static <V extends QueryValue> List<V> cloneQueryValues(final TableReference oldTable,
     final TableReference newTable, final List<V> values) {
     final List<V> clonedValues = new ArrayList<>();
@@ -95,6 +97,18 @@ public interface QueryValue extends Cloneable, SqlAppendParameters {
       return boundingBox;
     } else {
       return null;
+    }
+  }
+
+  static Object getValueFromResultSet(final RecordDefinition recordDefinition, int fieldIndex,
+    final String name, final ResultSet resultSet, final ColumnIndexes indexes,
+    final boolean internStrings) throws SQLException {
+    final FieldDefinition field = recordDefinition.getField(name);
+    if (field == null) {
+      return null;
+    } else {
+      return field.getValueFromResultSet(recordDefinition, fieldIndex, resultSet, indexes,
+        internStrings);
     }
   }
 
@@ -189,8 +203,8 @@ public interface QueryValue extends Cloneable, SqlAppendParameters {
     return dataType.toObject(value);
   }
 
-  default Object getValueFromResultSet(final RecordDefinition recordDefinition,
-    final int fieldIndex, final ResultSet resultSet, final ColumnIndexes indexes,
+  default Object getValueFromResultSet(final RecordDefinition recordDefinition, final int fieldIndex,
+    final ResultSet resultSet, final ColumnIndexes indexes,
     final boolean internStrings) throws SQLException {
     final var field = recordDefinition.getField(fieldIndex);
     return field.getValueFromResultSet(recordDefinition, fieldIndex, resultSet, indexes,

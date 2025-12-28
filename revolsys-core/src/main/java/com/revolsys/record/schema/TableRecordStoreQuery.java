@@ -24,6 +24,11 @@ public class TableRecordStoreQuery extends Query {
   }
 
   @Override
+  public TableRecordStoreQuery clone() {
+    return (TableRecordStoreQuery)super.clone();
+  }
+
+  @Override
   public int deleteRecords() {
     return transactionCall(() -> this.recordStore.getRecordStore()
       .deleteRecords(this));
@@ -68,6 +73,20 @@ public class TableRecordStoreQuery extends Query {
   @Override
   public Record newRecord() {
     return this.recordStore.newRecord(this.connection);
+  }
+
+  public TableRecordStoreQuery selectVirtual(final Iterable<Object> fields) {
+    for (final var field : fields) {
+      this.recordStore.addSelect(this.connection, this, field);
+    }
+    return this;
+  }
+
+  public TableRecordStoreQuery selectVirtual(final String... columnNames) {
+    for (final var columnName : columnNames) {
+      this.recordStore.addSelect(this.connection, this, columnName);
+    }
+    return this;
   }
 
   @Override

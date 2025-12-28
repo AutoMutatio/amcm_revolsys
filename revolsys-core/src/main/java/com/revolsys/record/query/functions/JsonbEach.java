@@ -55,12 +55,13 @@ public class JsonbEach extends UnaryFunction implements From {
   }
 
   @Override
-  public Object getValueFromResultSet(final RecordDefinition recordDefinition, final int fieldIndex,
-    final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings)
-    throws SQLException {
-    final QueryValue parameter = getParameter();
-    return parameter.getValueFromResultSet(recordDefinition, fieldIndex, resultSet, indexes,
-      internStrings);
+  public Object getValueFromResultSet(RecordDefinition recordDefinition, int fieldIndex,
+    ResultSet resultSet, ColumnIndexes indexes, boolean internStrings) throws SQLException {
+    throw new UnsupportedOperationException("jsonb_each can only be used in a from clause");
+  }
+
+  public QueryValue jsonField() {
+    return getParameter();
   }
 
   @Override

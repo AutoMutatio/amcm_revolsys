@@ -14,16 +14,17 @@ import com.revolsys.record.query.Query;
 import com.revolsys.record.schema.AbstractTableRecordStore;
 import com.revolsys.record.schema.TableRecordStoreConnection;
 import com.revolsys.record.schema.TableRecordStoreFactory;
+import com.revolsys.record.schema.TableRecordStoreQuery;
 
 public class BaseTableRecordRestController extends AbstractTableRecordRestController {
 
   protected final PathName tablePath;
 
-  protected final String typeName;
+  protected final String tableName;
 
   public BaseTableRecordRestController(final PathName tablePath) {
     this.tablePath = tablePath;
-    this.typeName = tablePath.getName();
+    this.tableName = tablePath.getName();
   }
 
   protected <RS extends AbstractTableRecordStore> RS getTableRecordStore(
@@ -34,7 +35,7 @@ public class BaseTableRecordRestController extends AbstractTableRecordRestContro
   protected void handleGetRecord(final TableRecordStoreConnection connection,
     final HttpServletRequest request, final HttpServletResponse response, final String fieldName,
     final Object value) throws IOException {
-    final Query query = getTableRecordStore(connection, this.typeName).newQuery(connection)//
+    final Query query = getTableRecordStore(connection, this.tableName).newQuery(connection)//
       .and(fieldName, value);
     handleGetRecord(connection, request, response, query);
   }
@@ -58,7 +59,7 @@ public class BaseTableRecordRestController extends AbstractTableRecordRestContro
     responseRecordJson(response, record);
   }
 
-  protected Query newQuery(final TableRecordStoreConnection connection,
+  protected TableRecordStoreQuery newQuery(final TableRecordStoreConnection connection,
     final HttpServletRequest request) {
     return super.newQuery(connection, request, this.tablePath);
   }
