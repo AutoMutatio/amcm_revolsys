@@ -3,9 +3,12 @@ package com.revolsys.util;
 import java.security.SecureRandom;
 import java.util.Base64;
 import java.util.Comparator;
+import java.util.Objects;
 import java.util.UUID;
 
 import com.revolsys.collection.list.Lists;
+import com.revolsys.exception.ExceptionWithProperties;
+import com.revolsys.number.Longs;
 
 public class Uuid {
   public static final Comparator<UUID> COMPARATOR = Uuid::compare;
@@ -28,20 +31,41 @@ public class Uuid {
     } else if (object2 == null) {
       return -1;
     } else {
-      return uuid1.toString()
-        .compareTo(object2.toString());
+      return uuid1.toString().compareTo(object2.toString());
     }
   }
 
   public static int compare(final UUID uuid1, final UUID uuid2) {
-    return uuid1.toString()
-      .compareTo(uuid2.toString());
+    return uuid1.toString().compareTo(uuid2.toString());
+  }
+
+  public static UUID custom(byte[] namespace, int bits, long value) {
+    Objects.checkIndex(bits, 61);
+    long l1 = Longs.toLong(namespace, 0);
+    l1 &= 0xFFFFFFFFFFFF0FFFL; // Clear Variant
+    l1 |= 0x0000000000008000L; // Set Variant
+
+    long l2 = Longs.toLong(namespace, 8);
+    l2 &= 0x0FFFFFFFFFFFFFFFL; // Clear Variant
+    l2 |= 0x8000000000000000L; // Set Variant
+
+    final long mask = (1L << bits) - 1;
+    if ((value & mask) != value) {
+      throw new ExceptionWithProperties("Value is greater than number of allowed bits")
+        .property("bits", bits)
+        .property("value", value);
+    }
+    l2 &= ~mask;
+    l2 |= value;
+    return new UUID(l1, l2);
   }
 
   public static Iterable<UUID> fromString(final String... ids) {
-    return Lists.newArray(ids)
-      .filter(s -> !s.isBlank())
-      .map(UUID::fromString);
+    return Lists.newArray(ids).filter(s -> !s.isBlank()).map(UUID::fromString);
+  }
+
+  public static UuidNamespace md5(final byte[] namespace) {
+    return new UuidNamespace(3, UuidNamespace.toUuid(3, namespace));
   }
 
   public static UuidNamespace md5(final String namespace) {
@@ -64,8 +88,7 @@ public class Uuid {
 
   public static String toBase64(final UUID uuid) {
     final byte[] bytes = toBytes(uuid);
-    return Base64.getEncoder()
-      .encodeToString(bytes);
+    return Base64.getEncoder().encodeToString(bytes);
   }
 
   public static byte[] toBytes(final UUID uuid) {
