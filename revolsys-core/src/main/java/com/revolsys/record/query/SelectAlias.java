@@ -29,7 +29,7 @@ public class SelectAlias implements QueryValue {
   @Override
   public void appendDefaultSelect(final QueryStatement statement, final RecordStore recordStore,
     final SqlAppendable sql) {
-    this.value.appendDefaultSelect(statement, recordStore, sql);
+    this.value.appendSelect(statement, recordStore, sql);
     sql.append(" as ");
     appendAlias(sql);
   }
@@ -95,10 +95,11 @@ public class SelectAlias implements QueryValue {
   }
 
   @Override
-  public Object getValueFromResultSet(final RecordDefinition recordDefinition,
-    int fieldIndex, final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings)
+  public Object getValueFromResultSet(final RecordDefinition recordDefinition, final int fieldIndex,
+    final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings)
     throws SQLException {
-    return this.value.getValueFromResultSet(recordDefinition, fieldIndex, resultSet, indexes, internStrings);
+    return this.value.getValueFromResultSet(recordDefinition, fieldIndex, resultSet, indexes,
+      internStrings);
   }
 
   @Override

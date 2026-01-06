@@ -27,7 +27,7 @@ public class ConditionHolder implements Condition {
   public void appendDefaultSelect(final QueryStatement statement, final RecordStore recordStore,
     final SqlAppendable sql) {
     if (this.condition != null) {
-      this.condition.appendDefaultSelect(statement, recordStore, sql);
+      this.condition.appendSelect(statement, recordStore, sql);
     }
   }
 
@@ -35,7 +35,7 @@ public class ConditionHolder implements Condition {
   public void appendDefaultSql(final QueryStatement statement, final RecordStore recordStore,
     final SqlAppendable sql) {
     if (this.condition != null) {
-      this.condition.appendDefaultSql(statement, recordStore, sql);
+      this.condition.appendSql(statement, recordStore, sql);
     }
   }
 
@@ -57,7 +57,8 @@ public class ConditionHolder implements Condition {
   }
 
   @Override
-  public void appendSql(final QueryStatement statement, final RecordStore recordStore, final SqlAppendable sql) {
+  public void appendSql(final QueryStatement statement, final RecordStore recordStore,
+    final SqlAppendable sql) {
     if (this.condition != null) {
       this.condition.appendSql(statement, recordStore, sql);
     }
@@ -136,14 +137,14 @@ public class ConditionHolder implements Condition {
   }
 
   @Override
-  public Object getValueFromResultSet(final RecordDefinition recordDefinition,
-    int fieldIndex, final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings)
+  public Object getValueFromResultSet(final RecordDefinition recordDefinition, final int fieldIndex,
+    final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings)
     throws SQLException {
     if (this.condition == null) {
       return null;
     } else {
-      return this.condition.getValueFromResultSet(recordDefinition, fieldIndex, resultSet,
-        indexes, internStrings);
+      return this.condition.getValueFromResultSet(recordDefinition, fieldIndex, resultSet, indexes,
+        internStrings);
     }
   }
 

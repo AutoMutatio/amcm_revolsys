@@ -75,6 +75,15 @@ public class TableRecordStoreQuery extends Query {
     return this.recordStore.newRecord(this.connection);
   }
 
+  @Override
+  public QueryValue newSelectClause(final Object select) {
+    if (select instanceof final CharSequence str) {
+      return this.recordStore.fieldPathToQueryValue(this, str);
+    } else {
+      return super.newSelectClause(select);
+    }
+  }
+
   public TableRecordStoreQuery selectVirtual(final Iterable<Object> fields) {
     for (final var field : fields) {
       this.recordStore.addSelect(this.connection, this, field);
@@ -87,15 +96,6 @@ public class TableRecordStoreQuery extends Query {
       this.recordStore.addSelect(this.connection, this, columnName);
     }
     return this;
-  }
-
-  @Override
-  public QueryValue newSelectClause(final Object select) {
-    if (select instanceof final String str) {
-      return this.recordStore.fieldPathToQueryValue(this, str);
-    } else {
-      return super.newSelectClause(select);
-    }
   }
 
   @Override

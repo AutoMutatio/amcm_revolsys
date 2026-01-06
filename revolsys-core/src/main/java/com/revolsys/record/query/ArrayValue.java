@@ -57,7 +57,7 @@ public class ArrayValue implements QueryValue {
           sql.append(',');
         }
         final Value value = Value.newValue(this.jdbcField, object);
-        value.appendDefaultSelect(statement, recordStore, sql);
+        value.appendDefaultSql(statement, recordStore, sql);
       }
       sql.append(']');
     }
@@ -153,7 +153,8 @@ public class ArrayValue implements QueryValue {
         this.jdbcField = JdbcFieldDefinitions.newFieldDefinition(this.values.get(0));
       }
       if (!this.dontConvert) {
-        this.values = this.values.map(this.jdbcField::toFieldValue).toList();
+        this.values = this.values.map(this.jdbcField::toFieldValue)
+          .toList();
       }
     }
   }
@@ -165,6 +166,7 @@ public class ArrayValue implements QueryValue {
 
   @Override
   public String toString() {
-    return "ARRAY[" + this.values.map(Value::toString).join(",") + ']';
+    return "ARRAY[" + this.values.map(Value::toString)
+      .join(",") + ']';
   }
 }

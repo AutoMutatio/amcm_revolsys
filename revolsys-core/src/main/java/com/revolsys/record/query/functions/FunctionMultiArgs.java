@@ -93,7 +93,7 @@ public class FunctionMultiArgs extends AbstractMultiQueryValue implements Functi
   @Override
   public String toString() {
     final var sql = new StringBuilderSqlAppendable();
-    appendDefaultSelect(null, null, sql);
+    appendSelect(null, null, sql);
     return sql.toString();
   }
 }
