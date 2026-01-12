@@ -182,6 +182,10 @@ public class UpdateStatement extends AbstractReturningQueryStatement<UpdateState
     return updateKey(fieldName, value);
   }
 
+  public Value value(final String fieldName, final Object value) {
+    return new Value(getColumn(fieldName), value);
+  }
+
   public UpdateStatement where(final Consumer<WhereConditionBuilder> action) {
     final var table = table();
     this.where = new WhereConditionBuilder(table, this.where).build(action);

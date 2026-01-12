@@ -56,8 +56,12 @@ public class UuidBuilder {
   }
 
   public UUID build() {
-    final byte[] digest = this.digester.digest();
+    final byte[] digest = digest();
     return UuidNamespace.toUuid(this.type, digest);
+  }
+
+  public byte[] digest() {
+    return this.digester.digest();
   }
 
   public Identifier newStringIdentifier() {

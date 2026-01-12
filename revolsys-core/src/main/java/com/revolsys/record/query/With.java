@@ -35,7 +35,8 @@ public class With extends FromAlias implements SqlAppendParameters {
   }
 
   @Override
-  public void appendFrom(QueryStatement statement, RecordStore recordStore, final SqlAppendable sql) {
+  public void appendFrom(final QueryStatement statement, final RecordStore recordStore,
+    final SqlAppendable sql) {
     final var alias = alias();
     sql.append(alias);
   }

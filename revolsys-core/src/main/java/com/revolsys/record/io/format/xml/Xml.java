@@ -1,7 +1,6 @@
 package com.revolsys.record.io.format.xml;
 
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.Charset;
 
@@ -12,6 +11,7 @@ import com.revolsys.io.map.MapReader;
 import com.revolsys.io.map.MapReaderFactory;
 import com.revolsys.io.map.MapWriter;
 import com.revolsys.io.map.MapWriterFactory;
+import com.revolsys.record.io.BufferedWriterEx;
 import com.revolsys.record.io.RecordWriter;
 import com.revolsys.record.io.RecordWriterFactory;
 import com.revolsys.record.schema.RecordDefinitionProxy;
@@ -57,7 +57,7 @@ public class Xml extends AbstractIoFactory
   public RecordWriter newRecordWriter(final String baseName,
     final RecordDefinitionProxy recordDefinition, final OutputStream outputStream,
     final Charset charset) {
-    final OutputStreamWriter writer = new OutputStreamWriter(outputStream, charset);
+    final var writer = BufferedWriterEx.forStream(outputStream, charset);
     return new XmlRecordWriter(recordDefinition, writer);
   }
 }

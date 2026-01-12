@@ -11,6 +11,7 @@ import com.revolsys.record.query.QueryStatement;
 import com.revolsys.record.query.QueryValue;
 import com.revolsys.record.query.SqlAppendable;
 import com.revolsys.record.query.TableReference;
+import com.revolsys.record.query.TableReferenceProxy;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordStore;
 
@@ -24,6 +25,7 @@ public class ArrayElements extends UnaryFunction implements From {
       this.column = new Column(alias);
     }
 
+    @Override
     public Column getColumn() {
       return this.column;
     }
@@ -37,9 +39,17 @@ public class ArrayElements extends UnaryFunction implements From {
     return new ArrayElements("jsonb_object_keys", parameter);
   }
 
+  public static ArrayElements jsonbObjectKeys(final TableReferenceProxy table,
+    final String fieldName) {
+    final var column = table.getColumn(fieldName);
+    return jsonbObjectKeys(column);
+  }
+
   public static ArrayElements unnest(final QueryValue parameter) {
     return new ArrayElements("unnest", parameter);
   }
+
+  private Alias alias;
 
   public ArrayElements(final String name, final QueryValue parameter) {
     super(name, parameter);
@@ -67,7 +77,14 @@ public class ArrayElements extends UnaryFunction implements From {
 
   @Override
   public Alias toFromAlias(final String alias) {
-    return new Alias(alias);
+    if (this.alias == null) {
+      this.alias = new Alias(alias);
+      return this.alias;
+    } else if (alias.equals(this.alias.getTableAlias())) {
+      return this.alias;
+    } else {
+      return new Alias(alias);
+    }
   }
 
 }

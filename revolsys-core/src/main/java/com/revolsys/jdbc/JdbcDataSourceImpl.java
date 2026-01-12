@@ -38,7 +38,7 @@ import com.revolsys.util.BaseCloseable;
 import com.revolsys.util.Property;
 import com.revolsys.util.concurrent.Concurrent;
 
-public class JdbcDataSourceImpl extends JdbcDataSource implements BaseCloseable {
+public class JdbcDataSourceImpl extends JdbcDataSource {
   public static class Builder {
 
     private final Properties connectionProperties = new Properties();

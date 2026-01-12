@@ -4,6 +4,8 @@ import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -46,6 +48,11 @@ public abstract class AbstractResource extends org.springframework.core.io.Abstr
   @Override
   public URL getURL() {
     throw new UnsupportedOperationException(getDescription() + " cannot be resolved to URL");
+  }
+
+  @Override
+  public ReadableByteChannel readableChannel() {
+    return Channels.newChannel(getInputStream());
   }
 
   protected void setParent(final Resource parent) {

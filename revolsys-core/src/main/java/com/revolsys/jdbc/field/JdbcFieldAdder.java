@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.revolsys.data.type.DataType;
+import com.revolsys.data.type.DataTypes;
 import com.revolsys.io.PathName;
 import com.revolsys.jdbc.io.AbstractJdbcRecordStore;
 import com.revolsys.jdbc.io.JdbcRecordDefinition;
@@ -145,6 +146,8 @@ public class JdbcFieldAdder {
   }
 
   private DataType dataType;
+
+  public static final JdbcFieldAdder OBJECT = new JdbcFieldAdder(DataTypes.OBJECT);
 
   public JdbcFieldAdder() {
   }

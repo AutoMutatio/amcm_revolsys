@@ -1,12 +1,10 @@
 package com.revolsys.elevation.cloud.las.tools;
 
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-
 import com.revolsys.collection.json.JsonWriter;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.elevation.cloud.PointCloud;
 import com.revolsys.elevation.cloud.las.LasPointCloud;
+import com.revolsys.record.io.BufferedWriterEx;
 import com.revolsys.spring.resource.PathResource;
 import com.revolsys.util.BaseCloseable;
 
@@ -40,10 +38,9 @@ public class LasInfo implements Runnable, BaseCloseable {
     final MapEx lasInfo = this.pointCloud.toMap();
 
     try (
-      OutputStreamWriter writer = new OutputStreamWriter(System.out);
+      var writer = BufferedWriterEx.forStream(System.out);
       JsonWriter jsonWriter = new JsonWriter(writer, true);) {
       jsonWriter.write(lasInfo);
-    } catch (final IOException e) {
     }
   }
 }

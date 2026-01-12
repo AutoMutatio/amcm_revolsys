@@ -54,6 +54,16 @@ public class TableRecordStoreQuery extends Query {
     return this.recordStore.getRecordReader(this.connection, this);
   }
 
+  @SuppressWarnings("unchecked")
+  public <RS extends AbstractTableRecordStore> RS getTableRecordStore() {
+    return (RS)this.recordStore;
+  }
+
+  @SuppressWarnings("unchecked")
+  public <RS extends AbstractTableRecordStore> RS getTableRecordStore(final CharSequence name) {
+    return (RS)this.connection.getTableRecordStore(name);
+  }
+
   @Override
   public Record insertRecord(final Supplier<Record> newRecordSupplier) {
     return transactionCall(
@@ -63,6 +73,15 @@ public class TableRecordStoreQuery extends Query {
   @Override
   public Record newRecord() {
     return this.recordStore.newRecord(this.connection);
+  }
+
+  @Override
+  public QueryValue newSelectClause(final Object select) {
+    if (select instanceof final CharSequence str) {
+      return this.recordStore.fieldPathToQueryValue(this, str);
+    } else {
+      return super.newSelectClause(select);
+    }
   }
 
   public TableRecordStoreQuery selectVirtual(final Iterable<Object> fields) {
@@ -77,15 +96,6 @@ public class TableRecordStoreQuery extends Query {
       this.recordStore.addSelect(this.connection, this, columnName);
     }
     return this;
-  }
-
-  @Override
-  public QueryValue newSelectClause(final Object select) {
-    if (select instanceof final String str) {
-      return this.recordStore.fieldPathToQueryValue(this, str);
-    } else {
-      return super.newSelectClause(select);
-    }
   }
 
   @Override

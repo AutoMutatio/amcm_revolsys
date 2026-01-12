@@ -3,7 +3,6 @@ package com.revolsys.record.io.format.kml;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.zip.ZipEntry;
@@ -29,7 +28,7 @@ public class KmzRecordWriter extends AbstractRecordWriter {
       this.zipOut = new ZipOutputStream(bufferedOutputStream, StandardCharsets.UTF_8);
       final ZipEntry entry = new ZipEntry("doc.kml");
       this.zipOut.putNextEntry(entry);
-      final OutputStreamWriter writer = FileUtil.newUtf8Writer(this.zipOut);
+      final var writer = FileUtil.newUtf8Writer(this.zipOut);
       this.kmlWriter = new KmlRecordWriter(recordDefinition, writer);
     } catch (final Throwable e) {
       throw new RuntimeException("Unable to create KMZ file", e);

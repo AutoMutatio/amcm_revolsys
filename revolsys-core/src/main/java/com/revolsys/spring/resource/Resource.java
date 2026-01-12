@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.Writer;
@@ -22,6 +21,7 @@ import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -48,6 +48,7 @@ import com.revolsys.io.channels.DataReader;
 import com.revolsys.io.file.Paths;
 import com.revolsys.net.UrlProxy;
 import com.revolsys.predicate.Predicates;
+import com.revolsys.record.io.BufferedWriterEx;
 import com.revolsys.util.Property;
 import com.revolsys.util.concurrent.Concurrent;
 
@@ -631,18 +632,17 @@ public interface Resource extends org.springframework.core.io.Resource, FileProx
   }
 
   default Writer newWriter() {
-    final OutputStream stream = newOutputStream();
-    return FileUtil.newUtf8Writer(stream);
+    return newWriter(StandardCharsets.UTF_8);
   }
 
   default Writer newWriter(final Charset charset) {
-    final OutputStream stream = newOutputStream();
-    return new OutputStreamWriter(stream, charset);
+    final var stream = newOutputStream();
+    return BufferedWriterEx.forStream(stream, charset);
   }
 
   default Writer newWriterAppend() {
-    final OutputStream stream = newOutputStreamAppend();
-    return FileUtil.newUtf8Writer(stream);
+    final var stream = newOutputStreamAppend();
+    return BufferedWriterEx.forStream(stream);
   }
 
   default Path toPath() {

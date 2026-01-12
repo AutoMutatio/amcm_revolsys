@@ -2,6 +2,7 @@ package com.revolsys.record.query;
 
 import java.util.function.BiFunction;
 
+import com.revolsys.collection.json.Json;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordStore;
 
@@ -20,6 +21,27 @@ public interface TableReferenceProxy {
     final java.util.function.Function<QueryValue, V> operator) {
     final ColumnReference column = getColumn(fieldName);
     return operator.apply(column);
+  }
+
+  default QueryValue columnByPath(final String path) {
+    final var parts = path.split("\\.");
+    final var fieldName = parts[0];
+    final var column = getColumn(fieldName);
+    if (column == null) {
+      return new UnknownColumn(fieldName);
+    }
+    QueryValue result = column;
+    if (parts.length - 0 > 1) {
+      if (column.getDataType() == Json.JSON_OBJECT || column.getDataType() == Json.JSON_TYPE) {
+        for (int i = 0 + 1; i < parts.length; i++) {
+          final var part = parts[i];
+          result = Q.jsonRawValue(result, part);
+        }
+      } else {
+        throw new IllegalStateException("Field path can only be specified for json fields");
+      }
+    }
+    return result;
   }
 
   default ColumnReference getColumn(final CharSequence name) {

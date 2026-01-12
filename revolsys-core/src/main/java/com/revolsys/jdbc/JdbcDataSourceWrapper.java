@@ -17,7 +17,6 @@ import com.revolsys.transaction.TransactionContext;
 import com.revolsys.util.BaseCloseable;
 
 public class JdbcDataSourceWrapper extends JdbcDataSource {
-
   private class ConnectionTransactionResource extends JdbcConnectionTransactionResource {
 
     public ConnectionTransactionResource(final TransactionContext context) {
@@ -55,8 +54,13 @@ public class JdbcDataSourceWrapper extends JdbcDataSource {
   }
 
   @Override
+  public void close() {
+    BaseCloseable.closeValue(this.dataSource);
+  }
+
+  @Override
   public Connection getConnection(final String username, final String password)
-      throws SQLException {
+    throws SQLException {
     throw new UnsupportedOperationException("Username/password connections are not supported");
   }
 
@@ -94,7 +98,7 @@ public class JdbcDataSourceWrapper extends JdbcDataSource {
 
   @Override
   protected JdbcConnectionTransactionResource newConnectionTransactionResource(
-      final ActiveTransactionContext context) {
+    final ActiveTransactionContext context) {
     return new ConnectionTransactionResource(context);
   }
 
@@ -108,7 +112,7 @@ public class JdbcDataSourceWrapper extends JdbcDataSource {
   }
 
   @Override
-  protected JdbcConnection newJdbcConnection(JsonObject properties) throws SQLException {
+  protected JdbcConnection newJdbcConnection(final JsonObject properties) throws SQLException {
     final var connection = newConnectionInternal();
     return new JdbcConnection(this, connection, true);
   }

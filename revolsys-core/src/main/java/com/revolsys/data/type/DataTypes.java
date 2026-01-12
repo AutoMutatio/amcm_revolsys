@@ -85,32 +85,33 @@ public final class DataTypes {
 
   public static final DataType BLOB = new SimpleDataType("blob", Blob.class);
 
-  public static final DataType BOOLEAN = new FunctionDataType("boolean", Boolean.class, value -> {
-    if (value instanceof Boolean) {
-      return (Boolean)value;
-    } else {
-      final String string = DataTypes.toString(value);
-      if ("1".equals(string)) {
-        return true;
-      } else if ("Y".equalsIgnoreCase(string)) {
-        return true;
-      } else if ("on".equals(string)) {
-        return true;
-      } else if ("true".equalsIgnoreCase(string)) {
-        return true;
-      } else if ("0".equals(string)) {
-        return false;
-      } else if ("N".equalsIgnoreCase(string)) {
-        return false;
-      } else if ("off".equals(string)) {
-        return false;
-      } else if ("false".equalsIgnoreCase(string)) {
-        return false;
+  public static final DataType BOOLEAN = new FunctionDataType("boolean", false, Boolean.class,
+    value -> {
+      if (value instanceof Boolean) {
+        return (Boolean)value;
       } else {
-        throw new IllegalArgumentException(string + " is not a valid boolean");
+        final String string = DataTypes.toString(value);
+        if ("1".equals(string)) {
+          return true;
+        } else if ("Y".equalsIgnoreCase(string)) {
+          return true;
+        } else if ("on".equals(string)) {
+          return true;
+        } else if ("true".equalsIgnoreCase(string)) {
+          return true;
+        } else if ("0".equals(string)) {
+          return false;
+        } else if ("N".equalsIgnoreCase(string)) {
+          return false;
+        } else if ("off".equals(string)) {
+          return false;
+        } else if ("false".equalsIgnoreCase(string)) {
+          return false;
+        } else {
+          throw new IllegalArgumentException(string + " is not a valid boolean");
+        }
       }
-    }
-  });
+    });
 
   public static final DataType BYTE = new ByteDataType();
 
@@ -134,10 +135,10 @@ public final class DataTypes {
       }
     });
 
-  public static final DataType UTIL_DATE = new FunctionDataType("utilDate", java.util.Date.class,
-    Dates::getDate, Dates::toDateTimeIsoString, Dates::equalsNotNull);
+  public static final DataType UTIL_DATE = new FunctionDataType("utilDate", false,
+    java.util.Date.class, Dates::getDate, Dates::toDateTimeIsoString, Dates::equalsNotNull);
 
-  public static final DataType DATE_TIME = new FunctionDataType("dateTime", Timestamp.class,
+  public static final DataType DATE_TIME = new FunctionDataType("dateTime", false, Timestamp.class,
     Dates::getTimestamp, Dates::toTimestampIsoString, Dates::equalsNotNull);
 
   public static final DataType DECIMAL = new BigDecimalDataType();
@@ -173,34 +174,35 @@ public final class DataTypes {
 
   public static final DataType SHORT = new ShortDataType();
 
-  public static final DataType SQL_DATE = new FunctionDataType("date", java.sql.Date.class,
+  public static final DataType SQL_DATE = new FunctionDataType("date", false, java.sql.Date.class,
     Dates::getSqlDate, Dates::toSqlDateString, Dates::equalsNotNull);
 
   public static final DataType STRING = new FunctionDataType("string", String.class,
     DataTypes::toString);
 
-  public static final DataType DURATION = new FunctionDataType("duration", Duration.class, v -> {
-    if (v instanceof final Number number) {
-      return Duration.ofMillis(number.longValue());
-    } else if (v instanceof final Duration duration) {
-      return duration;
-    } else if (v instanceof final CharSequence duration) {
-      return Duration.parse(duration);
-    } else {
-      return Duration.parse(v.toString());
-    }
-  });
+  public static final DataType DURATION = new FunctionDataType("duration", false, Duration.class,
+    v -> {
+      if (v instanceof final Number number) {
+        return Duration.ofMillis(number.longValue());
+      } else if (v instanceof final Duration duration) {
+        return duration;
+      } else if (v instanceof final CharSequence duration) {
+        return Duration.parse(duration);
+      } else {
+        return Duration.parse(v.toString());
+      }
+    });
 
   public static final DataType TIME = new SimpleDataType("time", Time.class);
 
-  public static final DataType TIMESTAMP = new FunctionDataType("timestamp", Timestamp.class,
+  public static final DataType TIMESTAMP = new FunctionDataType("timestamp", false, Timestamp.class,
     Dates::getTimestamp, Dates::toTimestampIsoString, Dates::equalsNotNull);
 
-  public static final DataType INSTANT = new FunctionDataType("instant", Instant.class,
+  public static final DataType INSTANT = new FunctionDataType("instant", false, Instant.class,
     Dates::getInstant, Dates::toInstantIsoString, Object::equals);
 
-  public static final DataType LOCAL_DATE = new FunctionDataType("localDate", LocalDate.class,
-    Dates::getLocalDate, Dates::toLocalDateIsoString, Object::equals);
+  public static final DataType LOCAL_DATE = new FunctionDataType("localDate", false,
+    LocalDate.class, Dates::getLocalDate, Dates::toLocalDateIsoString, Object::equals);
 
   public static final DataType URL = new FunctionDataType("url", java.net.URL.class, value -> {
     if (value instanceof URL) {
@@ -241,7 +243,7 @@ public final class DataTypes {
     }
   });
 
-  public static final DataType UUID = new FunctionDataType("uuid", UUID.class, value -> {
+  public static final DataType UUID = new FunctionDataType("uuid", false, UUID.class, value -> {
     if (value instanceof UUID) {
       return (UUID)value;
     } else {

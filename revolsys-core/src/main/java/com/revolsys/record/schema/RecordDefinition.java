@@ -89,11 +89,11 @@ public interface RecordDefinition extends Cloneable, GeometryFactoryProxy, Recor
     getRecordStore().deleteRecord(getTablePath(), id);
   }
 
-  void deleteRecord(Record record);;
+  void deleteRecord(Record record);
 
   default DeleteStatement deleteStatement() {
     return getRecordStore().deleteStatement(getPathName());
-  }
+  };
 
   void destroy();
 
@@ -371,6 +371,16 @@ public interface RecordDefinition extends Cloneable, GeometryFactoryProxy, Recor
 
   default InsertStatement insertStatement() {
     return getRecordStore().insertStatement(getPathName());
+  }
+
+  @Override
+  default boolean isFieldGenerated(final CharSequence name) {
+    final var field = getField(name);
+    if (field == null) {
+      return false;
+    } else {
+      return field.isGenerated();
+    }
   }
 
   boolean isFieldRequired(CharSequence name);

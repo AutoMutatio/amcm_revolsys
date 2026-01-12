@@ -21,19 +21,18 @@ import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -50,6 +49,7 @@ import com.revolsys.exception.Exceptions;
 import com.revolsys.io.filter.ExtensionFilenameFilter;
 import com.revolsys.io.filter.PatternFilenameFilter;
 import com.revolsys.logging.Logs;
+import com.revolsys.record.io.BufferedWriterEx;
 import com.revolsys.spring.resource.PathResource;
 import com.revolsys.spring.resource.Resource;
 import com.revolsys.util.Property;
@@ -671,7 +671,26 @@ public final class FileUtil {
 
   public static Writer getWriter(final File file) {
     try {
-      return new FileWriter(file);
+      final var out = new FileOutputStream(file);
+      return BufferedWriterEx.forStream(out);
+    } catch (final IOException e) {
+      throw new IllegalArgumentException("Unable to open file " + file, e);
+    }
+  }
+
+  public static Writer getWriter(final File file, final boolean append) {
+    try {
+      final var out = new FileOutputStream(file, append);
+      return BufferedWriterEx.forStream(out);
+    } catch (final IOException e) {
+      throw new IllegalArgumentException("Unable to open file " + file, e);
+    }
+  }
+
+  public static Writer getWriter(final File file, final Charset charset) {
+    try {
+      final var out = new FileOutputStream(file);
+      return BufferedWriterEx.forStream(out, charset);
     } catch (final IOException e) {
       throw new IllegalArgumentException("Unable to open file " + file, e);
     }
@@ -821,16 +840,16 @@ public final class FileUtil {
     return new InputStreamReader(in, StandardCharsets.UTF_8);
   }
 
-  public static OutputStreamWriter newUtf8Writer(final File file) {
+  public static BufferedWriterEx newUtf8Writer(final File file) {
     try {
-      return new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8);
+      return BufferedWriterEx.forStream(new FileOutputStream(file));
     } catch (final FileNotFoundException e) {
       return Exceptions.throwUncheckedException(e);
     }
   }
 
-  public static OutputStreamWriter newUtf8Writer(final OutputStream out) {
-    return new OutputStreamWriter(out, StandardCharsets.UTF_8);
+  public static BufferedWriterEx newUtf8Writer(final OutputStream out) {
+    return BufferedWriterEx.forStream(out);
   }
 
   public static String readString(final DataInputStream in, final int length) throws IOException {

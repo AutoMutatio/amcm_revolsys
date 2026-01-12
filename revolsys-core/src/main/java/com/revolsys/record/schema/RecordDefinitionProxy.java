@@ -232,6 +232,7 @@ public interface RecordDefinitionProxy
     }
   }
 
+  @Override
   default <R extends RecordStore> R getRecordStore() {
     final RecordDefinition recordDefinition = getRecordDefinition();
     if (recordDefinition == null) {
@@ -268,6 +269,15 @@ public interface RecordDefinitionProxy
       return false;
     } else {
       return recordDefinition.hasIdField();
+    }
+  }
+
+  default boolean isFieldGenerated(final CharSequence name) {
+    final RecordDefinition recordDefinition = getRecordDefinition();
+    if (recordDefinition == null) {
+      return false;
+    } else {
+      return recordDefinition.isFieldGenerated(name);
     }
   }
 

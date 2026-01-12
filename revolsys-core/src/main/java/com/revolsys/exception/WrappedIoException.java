@@ -7,7 +7,7 @@ public final class WrappedIoException extends WrappedRuntimeException {
     super(message, cause);
   }
 
-  WrappedIoException(final Throwable cause) {
+  public WrappedIoException(final Throwable cause) {
     super(cause);
   }
 
