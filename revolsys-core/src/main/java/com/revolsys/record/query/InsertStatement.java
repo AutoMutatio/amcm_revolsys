@@ -245,8 +245,10 @@ public class InsertStatement extends AbstractReturningQueryStatement<InsertState
   public InsertStatement insertAll(final MapEx values) {
     for (final var entry : values.entrySet()) {
       final var name = entry.getKey();
-      final var value = entry.getValue();
-      insert(name, value);
+      if (hasField(name)) {
+        final var value = entry.getValue();
+        insert(name, value);
+      }
     }
     return this;
   }
