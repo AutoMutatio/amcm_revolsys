@@ -52,6 +52,7 @@ import com.revolsys.record.schema.RecordStore;
 import com.revolsys.transaction.Transactionable;
 import com.revolsys.util.Cancellable;
 import com.revolsys.util.CancellableProxy;
+import com.revolsys.util.Debug;
 import com.revolsys.util.Property;
 import com.revolsys.util.count.LabelCounters;
 
@@ -279,7 +280,6 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
   public Query addJoin(final Join join) {
     this.joins.add(join);
     return this;
-
   }
 
   public Query addOrderBy(final CharSequence field) {
@@ -1685,9 +1685,15 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
           } else {
             return 1;
           }
+        } else if (joinType2 == JoinType.COMMA) {
+          return -1;
         }
       }
-      return -1;
+      // This is needed to retain addition order. The TimSort passes later
+      // values as the first argument
+      final int aIndex = this.joins.indexOf(a);
+      final int bIndex = this.joins.indexOf(b);
+      return aIndex - bIndex;
     });
   }
 
