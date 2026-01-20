@@ -255,7 +255,9 @@ public class BaseTreeNode implements TreeNode, Iterable<BaseTreeNode>, PropertyC
       .equals(getClass())) {
       final BaseTreeNode node = (BaseTreeNode)object;
       final Object otherUserObject1 = node.getUserObject();
-      if (DataType.equal(userObject, otherUserObject1)) {
+      if (userObject == null && otherUserObject1 == null) {
+        return getName().equals(node.getName());
+      } else if (DataType.equal(userObject, otherUserObject1)) {
         return true;
       } else {
         return false;
@@ -670,11 +672,8 @@ public class BaseTreeNode implements TreeNode, Iterable<BaseTreeNode>, PropertyC
 
   public void nodeChanged() {
     final TreeModel model = getTreeModel();
-    if (model instanceof DefaultTreeModel) {
-      Invoke.later(() -> {
-        final DefaultTreeModel treeModel = (DefaultTreeModel)model;
-        treeModel.nodeChanged(this);
-      });
+    if (model instanceof final DefaultTreeModel treeModel) {
+      Invoke.later(() -> treeModel.nodeChanged(this));
     }
   }
 
@@ -689,25 +688,29 @@ public class BaseTreeNode implements TreeNode, Iterable<BaseTreeNode>, PropertyC
 
   protected void nodesChanged(final int... indicies) {
     final TreeModel model = getTreeModel();
-    if (model instanceof DefaultTreeModel) {
-      final DefaultTreeModel treeModel = (DefaultTreeModel)model;
+    if (model instanceof final DefaultTreeModel treeModel) {
       treeModel.nodesChanged(this, indicies);
     }
   }
 
   protected void nodesInserted(final int... indicies) {
     final TreeModel model = getTreeModel();
-    if (model instanceof DefaultTreeModel) {
-      final DefaultTreeModel treeModel = (DefaultTreeModel)model;
+    if (model instanceof final DefaultTreeModel treeModel) {
       treeModel.nodesWereInserted(this, indicies);
     }
   }
 
   protected void nodesRemoved(final int[] indicies, final Object... children) {
     final TreeModel model = getTreeModel();
-    if (model instanceof DefaultTreeModel) {
-      final DefaultTreeModel treeModel = (DefaultTreeModel)model;
+    if (model instanceof final DefaultTreeModel treeModel) {
       treeModel.nodesWereRemoved(this, indicies, children);
+    }
+  }
+
+  public void nodeStructureChanged() {
+    final TreeModel model = getTreeModel();
+    if (model instanceof final DefaultTreeModel treeModel) {
+      Invoke.later(() -> treeModel.nodeStructureChanged(this));
     }
   }
 
