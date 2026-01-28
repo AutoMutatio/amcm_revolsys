@@ -29,7 +29,7 @@ public class TabbedPane extends JTabbedPane {
     final int tabIndex = getTabCount();
     addTab(title, icon, component);
 
-    final TabClosableTitle tabTitle = new TabClosableTitle(this, closeAction);
+    final TabClosableTitle tabTitle = new TabClosableTitle(this, closeAction, tabIndex);
     setTabComponentAt(tabIndex, tabTitle);
     return tabTitle;
   }
@@ -67,7 +67,8 @@ public class TabbedPane extends JTabbedPane {
       final Component component = getComponentAt(index);
       if (component instanceof JScrollPane) {
         final JScrollPane scrollPane = (JScrollPane)component;
-        return (C)scrollPane.getViewport().getView();
+        return (C)scrollPane.getViewport()
+          .getView();
       }
       return (C)component;
     }

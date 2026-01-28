@@ -89,7 +89,7 @@ public class ProgressPanel extends BasePanel {
         try {
           action.run();
         } catch (final Throwable e) {
-          Logs.error(this, "Error " + this, e);
+          Logs.error(this, e.getMessage(), e);
         } finally {
           timer.stop();
         }
