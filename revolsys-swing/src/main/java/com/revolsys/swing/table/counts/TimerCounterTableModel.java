@@ -10,6 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 import javax.swing.JTable;
+import javax.swing.table.TableColumn;
 
 import com.revolsys.date.Dates.Timer;
 import com.revolsys.record.io.format.tsv.Tsv;
@@ -48,7 +49,7 @@ public class TimerCounterTableModel extends AbstractTableModel {
 
   public TimerCounterTableModel(final String labelColumnTitle) {
     this.columnNames = new String[] {
-      labelColumnTitle, "Count", "Duration"
+      "Done", labelColumnTitle, "Count", "Duration"
     };
   }
 
@@ -75,16 +76,17 @@ public class TimerCounterTableModel extends AbstractTableModel {
   @Override
   public Class<?> getColumnClass(final int columnIndex) {
     return switch (columnIndex) {
-      case 0 -> String.class;
-      case 1 -> Long.class;
-      case 2 -> Duration.class;
+      case 0 -> Boolean.class;
+      case 1 -> String.class;
+      case 2 -> Long.class;
+      case 3 -> Duration.class;
       default -> String.class;
     };
   }
 
   @Override
   public int getColumnCount() {
-    return 3;
+    return 4;
   }
 
   @Override
@@ -103,9 +105,11 @@ public class TimerCounterTableModel extends AbstractTableModel {
       final var label = this.labels.get(rowIndex);
       final var timerCounter = this.timerByLabel.get(label);
       return switch (columnIndex) {
-        case 0 -> label;
-        case 1 -> timerCounter.count();
-        case 2 -> timerCounter.duration().truncatedTo(ChronoUnit.SECONDS);
+        case 0 -> timerCounter.isClosed();
+        case 1 -> label;
+        case 2 -> timerCounter.count();
+        case 3 -> timerCounter.duration()
+          .truncatedTo(ChronoUnit.SECONDS);
         default -> null;
       };
     }
@@ -115,9 +119,17 @@ public class TimerCounterTableModel extends AbstractTableModel {
   @Override
   public BaseJTable newTable() {
     final var table = super.newTable();
+
+    final TableColumn doneColumn = table.getColumn(0);
+    doneColumn.setCellRenderer(TimerLabelCountTableModel.BOOLEAN_RENDERER);
+    doneColumn.setMaxWidth(60);
+
+    table.getColumn(2)
+      .setMaxWidth(100);
+    table.getColumn(3)
+      .setMaxWidth(100);
+
     table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
-    table.getColumn(1).setMaxWidth(100);
-    table.getColumn(2).setMaxWidth(100);
     return table;
   }
 

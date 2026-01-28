@@ -6,8 +6,14 @@ import java.util.function.Supplier;
 import javax.swing.Icon;
 
 import com.revolsys.collection.list.Lists;
+import com.revolsys.swing.menu.MenuFactory;
 
 public interface NodeWithChildren<C> {
+
+  static void initMenu(MenuFactory menu) {
+    menu.<NodeWithChildren<?>> addMenuItem("records", "Refresh", "page:refresh",
+      NodeWithChildren::refresh, true);
+  }
 
   default List<C> children() {
     return Lists.empty();
@@ -17,14 +23,25 @@ public interface NodeWithChildren<C> {
     return null;
   }
 
+  default boolean isAllowsChildren() {
+    return true;
+  }
+
   default String name() {
     return toString();
   }
 
+  default void refresh() {
+  }
+
   default SupplierChildrenTreeNode toTreeNode() {
-    final String name = name();
-    final Icon icon = icon();
+    final var name = name();
+    final var icon = icon();
     final Supplier<List<C>> childrenLoader = this::children;
-    return new SupplierChildrenTreeNode(this, name, icon, childrenLoader);
+    final var node = new SupplierChildrenTreeNode(this, name, icon, childrenLoader);
+    if (!isAllowsChildren()) {
+      node.setAllowsChildren(false);
+    }
+    return node;
   }
 }

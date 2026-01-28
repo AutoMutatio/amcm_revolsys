@@ -17,6 +17,9 @@ public class SupplierChildrenTreeNode extends LazyLoadTreeNode {
     setName(name);
     setIcon(icon);
     this.childrenLoader = (Supplier)childrenLoader;
+    if (childrenLoader == null) {
+      setAllowsChildren(false);
+    }
   }
 
   public <I extends Iterable<?>> SupplierChildrenTreeNode(final String name, final Icon icon,
@@ -25,6 +28,9 @@ public class SupplierChildrenTreeNode extends LazyLoadTreeNode {
     setName(name);
     setIcon(icon);
     this.childrenLoader = (Supplier)childrenLoader;
+    if (childrenLoader == null) {
+      setAllowsChildren(false);
+    }
   }
 
   @Override

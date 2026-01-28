@@ -77,6 +77,10 @@ public interface Dates {
       return Duration.between(this.startTime, end);
     }
 
+    public boolean isClosed() {
+      return endTime != null;
+    }
+
     public Timer printStep(final String message) {
       this.stepStartTime = printEllapsedTime(message, this.stepStartTime);
       return this;
