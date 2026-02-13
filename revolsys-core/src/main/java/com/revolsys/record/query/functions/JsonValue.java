@@ -98,7 +98,8 @@ public class JsonValue extends SimpleFunction {
 
   @Override
   public ColumnReference getColumn() {
-    return getQueryValues().get(0).getColumn();
+    return getQueryValues().get(0)
+      .getColumn();
   }
 
   public String getPath() {
@@ -123,7 +124,7 @@ public class JsonValue extends SimpleFunction {
   }
 
   @Override
-  public Object getValueFromResultSet(final RecordDefinition recordDefinition, int fieldIndex,
+  public Object getValueFromResultSet(final RecordDefinition recordDefinition, final int fieldIndex,
     final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings)
     throws SQLException {
     if (this.alias == null) {

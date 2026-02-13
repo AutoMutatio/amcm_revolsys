@@ -10,6 +10,28 @@ import com.revolsys.exception.Exceptions;
 
 public class JsonBigDecimal extends BigDecimal implements JsonType {
 
+  public static JsonBigDecimal create(final Number value) {
+    if (value instanceof final JsonBigDecimal number) {
+      return number;
+    } else if (value instanceof final BigInteger number) {
+      return new JsonBigDecimal(number);
+    } else if (value instanceof final Byte number) {
+      return new JsonBigDecimal(number);
+    } else if (value instanceof final Short number) {
+      return new JsonBigDecimal(number);
+    } else if (value instanceof final Integer number) {
+      return new JsonBigDecimal(number);
+    } else if (value instanceof final Long number) {
+      return new JsonBigDecimal(number);
+    } else if (value instanceof final Float number) {
+      return new JsonBigDecimal(number);
+    } else if (value instanceof final Double number) {
+      return new JsonBigDecimal(number);
+    } else {
+      return new JsonBigDecimal(value.doubleValue());
+    }
+  }
+
   public JsonBigDecimal(final BigInteger val) {
     super(val);
   }
