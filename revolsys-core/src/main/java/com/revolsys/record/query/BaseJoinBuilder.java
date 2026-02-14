@@ -1,6 +1,7 @@
 package com.revolsys.record.query;
 
 import java.util.Arrays;
+import java.util.function.Function;
 
 import com.revolsys.record.RecordDataType;
 import com.revolsys.record.schema.AbstractTableRecordStore;
@@ -17,7 +18,7 @@ public abstract class BaseJoinBuilder<SELF extends BaseJoinBuilder<SELF>> {
   public BaseJoinBuilder() {
   }
 
-  public SELF addVirtualField(AbstractTableRecordStore recordStore, String name) {
+  public SELF addVirtualField(final AbstractTableRecordStore recordStore, final String name) {
     return addVirtualField(recordStore, name, name);
   }
 
@@ -29,8 +30,8 @@ public abstract class BaseJoinBuilder<SELF extends BaseJoinBuilder<SELF>> {
    * @return self
    */
   @SuppressWarnings("unchecked")
-  public SELF addVirtualField(AbstractTableRecordStore recordStore, String virtualFieldName,
-    String fieldNameFromJoinTable) {
+  public SELF addVirtualField(final AbstractTableRecordStore recordStore,
+    final String virtualFieldName, final String fieldNameFromJoinTable) {
     final var column = this.joinTable.getColumn(fieldNameFromJoinTable);
     recordStore.addVirtualField(virtualFieldName, column.getDataType(), true, (query, _, _) -> {
       final var join = getJoin(query);
@@ -39,7 +40,21 @@ public abstract class BaseJoinBuilder<SELF extends BaseJoinBuilder<SELF>> {
     return (SELF)this;
   }
 
-  public SELF addVirtualFieldTable(AbstractTableRecordStore recordStore) {
+  @SuppressWarnings("unchecked")
+  public SELF addVirtualField(final AbstractTableRecordStore recordStore,
+    final String virtualFieldName, final String fieldNameFromJoinTable,
+    final Function<ColumnReference, QueryValue> columnToValue) {
+    final var column = this.joinTable.getColumn(fieldNameFromJoinTable);
+    recordStore.addVirtualField(virtualFieldName, column.getDataType(), true, (query, _, _) -> {
+      final var join = getJoin(query);
+      final var otherColumn = join.getColumn(fieldNameFromJoinTable);
+      return columnToValue.apply(otherColumn);
+
+    });
+    return (SELF)this;
+  }
+
+  public SELF addVirtualFieldTable(final AbstractTableRecordStore recordStore) {
     final var virtualFieldName = CaseConverter.toLowerFirstChar(this.joinTable.getTableReference()
       .getTablePath()
       .getName());
@@ -48,14 +63,16 @@ public abstract class BaseJoinBuilder<SELF extends BaseJoinBuilder<SELF>> {
   }
 
   @SuppressWarnings("unchecked")
-  public SELF addVirtualFieldTable(AbstractTableRecordStore recordStore, String virtualFieldName) {
+  public SELF addVirtualFieldTable(final AbstractTableRecordStore recordStore,
+    final String virtualFieldName) {
     final var recordDefinition = (RecordDefinition)this.joinTable.getTableReference();
     final var dataType = RecordDataType.of(recordDefinition);
     recordStore.addVirtualField(virtualFieldName, dataType, false, (query, _, path) -> {
       final var join = getJoin(query);
       if (path.length > 1) {
         final var subPath = Strings.toString(".", Arrays.copyOfRange(path, 1, path.length));
-        return ((AbstractTableRecordStore)joinTable).fieldPathToQueryValue(query, join, subPath);
+        return ((AbstractTableRecordStore)this.joinTable).fieldPathToQueryValue(query, join,
+          subPath);
       } else {
         throw new IllegalArgumentException("Cannot select a table as a field");
       }
@@ -64,7 +81,7 @@ public abstract class BaseJoinBuilder<SELF extends BaseJoinBuilder<SELF>> {
   }
 
   protected void ensureEditible() {
-    if (readonly) {
+    if (this.readonly) {
       throw new IllegalStateException("Readonly");
     }
   }
@@ -72,11 +89,11 @@ public abstract class BaseJoinBuilder<SELF extends BaseJoinBuilder<SELF>> {
   public abstract Join getJoin(final Query query);
 
   public TableReferenceProxy joinTable() {
-    return joinTable;
+    return this.joinTable;
   }
 
   @SuppressWarnings("unchecked")
-  public SELF joinTable(TableReferenceProxy joinTable) {
+  public SELF joinTable(final TableReferenceProxy joinTable) {
     ensureEditible();
     this.joinTable = joinTable;
     return (SELF)this;
