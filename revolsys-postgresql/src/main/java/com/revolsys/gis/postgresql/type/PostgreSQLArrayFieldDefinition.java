@@ -16,9 +16,12 @@ import com.revolsys.data.type.CollectionDataType;
 import com.revolsys.data.type.DataType;
 import com.revolsys.jdbc.field.JdbcFieldDefinition;
 import com.revolsys.record.query.ColumnIndexes;
+import com.revolsys.record.query.ColumnReference;
+import com.revolsys.record.schema.ArrayColumnReference;
 import com.revolsys.record.schema.RecordDefinition;
 
-public class PostgreSQLArrayFieldDefinition extends JdbcFieldDefinition {
+public class PostgreSQLArrayFieldDefinition extends JdbcFieldDefinition
+  implements ArrayColumnReference {
 
   private final DataType elementDataType;
 
@@ -31,11 +34,25 @@ public class PostgreSQLArrayFieldDefinition extends JdbcFieldDefinition {
     final String dbDataType, final int length, final int scale, final boolean required,
     final String description, final JdbcFieldDefinition elementField,
     final Map<String, Object> properties) {
-    super(dbName, name, dataType, sqlType, dbDataType, length, scale, required, description,
-      properties);
+    super(
+      dbName,
+        name,
+        dataType,
+        sqlType,
+        dbDataType,
+        length,
+        scale,
+        required,
+        description,
+        properties);
     this.elementDbDataType = elementDbDataType;
     this.elementDataType = dataType.getContentType();
     this.elementField = elementField;
+  }
+
+  @Override
+  public ColumnReference arrayElementColumn() {
+    return this.elementField;
   }
 
   @Override
@@ -49,8 +66,8 @@ public class PostgreSQLArrayFieldDefinition extends JdbcFieldDefinition {
   }
 
   @Override
-  public Object getValueFromResultSet(final RecordDefinition recordDefinition,
-    int fieldIndex, final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings)
+  public Object getValueFromResultSet(final RecordDefinition recordDefinition, final int fieldIndex,
+    final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings)
     throws SQLException {
     final Object value = resultSet.getObject(indexes.incrementAndGet());
     if (value instanceof Array) {
@@ -86,13 +103,15 @@ public class PostgreSQLArrayFieldDefinition extends JdbcFieldDefinition {
       for (final Object element : elements) {
         values[i++] = this.elementDataType.toObject(element);
       }
-      final PgConnection connection = statement.getConnection().unwrap(PgConnection.class);
+      final PgConnection connection = statement.getConnection()
+        .unwrap(PgConnection.class);
       array = connection.createArrayOf(this.elementDbDataType, values);
     } else {
       final Object[] values = new Object[] {
         this.elementDataType.toObject(value)
       };
-      final PgConnection connection = statement.getConnection().unwrap(PgConnection.class);
+      final PgConnection connection = statement.getConnection()
+        .unwrap(PgConnection.class);
       array = connection.createArrayOf(this.elementDbDataType, values);
     }
 

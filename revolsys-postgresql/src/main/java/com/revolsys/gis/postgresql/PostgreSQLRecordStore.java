@@ -24,6 +24,7 @@ import com.revolsys.data.type.DataTypes;
 import com.revolsys.exception.Exceptions;
 import com.revolsys.gis.postgresql.type.PostgreSQLArrayFieldDefinition;
 import com.revolsys.gis.postgresql.type.PostgreSQLBoundingBoxWrapper;
+import com.revolsys.gis.postgresql.type.PostgreSQLCiTextFieldDefinition;
 import com.revolsys.gis.postgresql.type.PostgreSQLGeometryFieldAdder;
 import com.revolsys.gis.postgresql.type.PostgreSQLGeometryWrapper;
 import com.revolsys.gis.postgresql.type.PostgreSQLJdbcBlobFieldDefinition;
@@ -151,7 +152,9 @@ public class PostgreSQLRecordStore extends AbstractJdbcRecordStore {
     sql.append('(');
     jsonParameter.appendSql(statement, this, sql);
 
-    final String[] path = jsonValue.getPath().replaceAll("'", "''").split("\\.");
+    final String[] path = jsonValue.getPath()
+      .replaceAll("'", "''")
+      .split("\\.");
     for (int i = 1; i < path.length; i++) {
       final String propertyName = path[i];
       if (jsonValue.isText()) {
@@ -269,7 +272,6 @@ public class PostgreSQLRecordStore extends AbstractJdbcRecordStore {
     final JdbcStringFieldAdder stringFieldAdder = new JdbcStringFieldAdder();
     addFieldAdder("varchar", stringFieldAdder);
     addFieldAdder("text", stringFieldAdder);
-    addFieldAdder("citext", stringFieldAdder);
     addFieldAdder("name", stringFieldAdder);
     addFieldAdder("bpchar", stringFieldAdder);
 
@@ -303,6 +305,8 @@ public class PostgreSQLRecordStore extends AbstractJdbcRecordStore {
     addFieldAdder("interval", PostgreSQLJdbcIntevalFieldDefinition::new);
 
     addFieldAdder("bool", new JdbcFieldAdder(DataTypes.BOOLEAN));
+
+    addFieldAdder("citext", PostgreSQLCiTextFieldDefinition::new);
 
     addFieldAdder("uuid", new JdbcFieldAdder(DataTypes.UUID));
 
@@ -395,7 +399,8 @@ public class PostgreSQLRecordStore extends AbstractJdbcRecordStore {
   @Override
   public Array newArray(final Connection connection, final String typeName, final Object array) {
     try {
-      return connection.unwrap(PgConnection.class).createArrayOf(typeName, array);
+      return connection.unwrap(PgConnection.class)
+        .createArrayOf(typeName, array);
     } catch (final SQLException e) {
       throw Exceptions.toRuntimeException(e);
     }
@@ -484,8 +489,10 @@ where
     final Object[] values = new Object[size];
     int i = 0;
     for (final Object element : elements) {
-      values[i++] = field.getDataType().toObject(element);
+      values[i++] = field.getDataType()
+        .toObject(element);
     }
-    return connection.unwrap(PgConnection.class).createArrayOf(field.getDbDataType(), values);
+    return connection.unwrap(PgConnection.class)
+      .createArrayOf(field.getDbDataType(), values);
   }
 }

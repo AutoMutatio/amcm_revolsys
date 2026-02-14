@@ -3,8 +3,10 @@ package com.revolsys.record.query.functions;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import com.revolsys.record.query.AliasColumnReference;
 import com.revolsys.record.query.Column;
 import com.revolsys.record.query.ColumnIndexes;
+import com.revolsys.record.query.ColumnReference;
 import com.revolsys.record.query.From;
 import com.revolsys.record.query.FromAlias;
 import com.revolsys.record.query.QueryStatement;
@@ -12,6 +14,7 @@ import com.revolsys.record.query.QueryValue;
 import com.revolsys.record.query.SqlAppendable;
 import com.revolsys.record.query.TableReference;
 import com.revolsys.record.query.TableReferenceProxy;
+import com.revolsys.record.schema.ArrayColumnReference;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordStore;
 
@@ -73,6 +76,17 @@ public class ArrayElements extends UnaryFunction implements From {
     final QueryValue parameter = getParameter();
     return parameter.getValueFromResultSet(recordDefinition, fieldIndex, resultSet, indexes,
       internStrings);
+  }
+
+  @Override
+  public AliasColumnReference toAliasColumn(final String alias) {
+    final var value = getQueryValues().get(0);
+    ColumnReference column = value.getColumn();
+    if (column instanceof final ArrayColumnReference array) {
+      column = array.arrayElementColumn();
+    }
+
+    return new AliasColumnReference(alias, column);
   }
 
   @Override
