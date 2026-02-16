@@ -100,7 +100,7 @@ public interface QueryValue extends Cloneable, SqlAppendParameters {
     }
   }
 
-  static Object getValueFromResultSet(final RecordDefinition recordDefinition, int fieldIndex,
+  static Object getValueFromResultSet(final RecordDefinition recordDefinition, final int fieldIndex,
     final String name, final ResultSet resultSet, final ColumnIndexes indexes,
     final boolean internStrings) throws SQLException {
     final FieldDefinition field = recordDefinition.getField(name);
@@ -203,8 +203,8 @@ public interface QueryValue extends Cloneable, SqlAppendParameters {
     return dataType.toObject(value);
   }
 
-  default Object getValueFromResultSet(final RecordDefinition recordDefinition, final int fieldIndex,
-    final ResultSet resultSet, final ColumnIndexes indexes,
+  default Object getValueFromResultSet(final RecordDefinition recordDefinition,
+    final int fieldIndex, final ResultSet resultSet, final ColumnIndexes indexes,
     final boolean internStrings) throws SQLException {
     final var field = recordDefinition.getField(fieldIndex);
     return field.getValueFromResultSet(recordDefinition, fieldIndex, resultSet, indexes,
@@ -224,6 +224,10 @@ public interface QueryValue extends Cloneable, SqlAppendParameters {
     } else {
       return this;
     }
+  }
+
+  default AliasColumnReference toAliasColumn(final String alias) {
+    return new AliasColumnReference(alias, getColumn());
   }
 
   default QueryValue toCast(final String type) {

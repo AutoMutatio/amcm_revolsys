@@ -76,6 +76,8 @@ public class Join implements QueryValue, TableReferenceProxy {
   public ColumnReference asAliasColumn() {
     if (this.alias == null) {
       throw new IllegalStateException("Join doesn't have an alias");
+    } else if (this.statement != null) {
+      return this.statement.toAliasColumn(this.alias);
     } else {
       return new Column(this.alias);
     }
