@@ -17,7 +17,7 @@ public class NegativeLabelCounters extends AbstractLabelCounters {
   }
 
   @Override
-  public synchronized boolean addCount(final CharSequence label, final long count) {
+  public synchronized void addCount(final CharSequence label, final long count) {
     throw new UnsupportedOperationException();
   }
 

@@ -14,14 +14,12 @@ import java.util.function.Function;
 import com.revolsys.collection.iterator.ForEachHandler;
 import com.revolsys.collection.iterator.ForEachMethods;
 import com.revolsys.collection.iterator.RunnableMethods;
-import com.revolsys.collection.list.Lists;
 import com.revolsys.exception.Exceptions;
 import com.revolsys.logging.Logs;
 import com.revolsys.parallel.channel.Channel;
 import com.revolsys.parallel.channel.ChannelOutput;
 import com.revolsys.parallel.channel.store.Buffer;
 import com.revolsys.util.BaseCloseable;
-import com.revolsys.util.Debug;
 
 public class Parallel
   implements BaseCloseable, ForEachMethods<Parallel>, RunnableMethods<Parallel> {
@@ -187,26 +185,20 @@ public class Parallel
     try {
       try {
         this.phaser.awaitAdvanceInterruptibly(this.phaser.arrive());
-        if (!this.exceptions.isEmpty()) {
-          throw Exceptions.toRuntime(Lists.toArray(this.exceptions));
-        }
       } catch (final InterruptedException e) {
         throw Exceptions.toRuntimeException(e);
       }
     } catch (RuntimeException | Error e) {
       interruptThreads();
       if (!this.exceptions.isEmpty()) {
-        this.exceptions.forEach(suppressed -> {
-          if (e == suppressed) {
-            Debug.noOp();
-          } else if (e != suppressed) {
-            e.addSuppressed(suppressed);
-          }
-        });
+        this.exceptions.forEach(suppressed -> e.addSuppressed(suppressed));
       }
       throw e;
     } finally {
       this.terminated.set(true);
+    }
+    if (!this.exceptions.isEmpty()) {
+      throw Exceptions.toRuntime(this.exceptions);
     }
   }
 
@@ -258,7 +250,8 @@ public class Parallel
         this.threads.remove(thread);
         Parallel.this.phaser.arriveAndDeregister();
       }
-    }).start();
+    })
+      .start();
     return this;
   }
 }

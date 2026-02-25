@@ -157,6 +157,11 @@ public interface ListEx<T> extends List<T>, Cloneable, BaseIterable<T> {
     return this;
   }
 
+  default ListEx<T> addValue(final int i, final T value) {
+    add(i, value);
+    return this;
+  }
+
   default ListEx<T> addValue(final T value) {
     add(value);
     return this;
