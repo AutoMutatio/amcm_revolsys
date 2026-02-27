@@ -1,0 +1,92 @@
+package com.revolsys.mssqlserver;
+
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import com.revolsys.collection.map.RefreshableMap;
+import com.revolsys.io.PathName;
+import com.revolsys.jdbc.JdbcConnection;
+import com.revolsys.jdbc.io.JdbcRecordStoreSchema;
+import com.revolsys.logging.Logs;
+import com.revolsys.record.schema.RecordDefinitionImpl;
+
+public class MicrosoftSqlServerRecordStoreSchema extends JdbcRecordStoreSchema {
+
+  private final RefreshableMap<PathName, RecordDefinitionImpl> compositeTypes = RefreshableMap
+    .supplier(this::refreshCompositeTypes, false);
+
+  public MicrosoftSqlServerRecordStoreSchema(final MicrosoftSqlServerRecordStore recordStore) {
+    super(recordStore);
+  }
+
+  public MicrosoftSqlServerRecordStoreSchema(final MicrosoftSqlServerRecordStoreSchema schema,
+    final PathName pathName, final String dbName) {
+    super(schema, pathName, dbName);
+  }
+
+  public MicrosoftSqlServerRecordStoreSchema(final MicrosoftSqlServerRecordStoreSchema schema,
+    final PathName pathName, final String dbName, final boolean quoteName) {
+    super(schema, pathName, dbName, quoteName);
+  }
+
+  @Override
+  public void refresh() {
+    try (
+      var l = this.lock.lockX()) {
+      // this.compositeTypes.refresh();
+      super.refresh();
+    }
+  }
+
+  private Map<PathName, RecordDefinitionImpl> refreshCompositeTypes() {
+    final Map<PathName, RecordDefinitionImpl> typeByName = new LinkedHashMap<>();
+    final MicrosoftSqlServerRecordStore recordStore = getRecordStore();
+    final String sql = "SELECT udt_schema, udt_name, attribute_name, data_type, is_nullable, coalesce (character_maximum_length,numeric_precision,0) length, coalesce (numeric_scale scale,0), attribute_udt_schema, attribute_udt_name\n"
+      + "FROM information_schema.attributes a\n"
+      + "order by udt_schema, udt_name, ordinal_position ";
+    recordStore.transactionRun(() -> {
+      try (
+        JdbcConnection connection = recordStore.getJdbcConnection()) {
+        try (
+          PreparedStatement prepareStatement = connection.prepareStatement(sql);
+          ResultSet resultSet = prepareStatement.executeQuery()) {
+          while (resultSet.next()) {
+            final String udtSchema = resultSet.getString(1);
+            final String udtName = resultSet.getString(2);
+            final PathName compositeTypeName = PathName
+              .newPathName("/" + udtSchema + "/" + udtName);
+            RecordDefinitionImpl recordDefinition = typeByName.get(compositeTypeName);
+            if (recordDefinition == null) {
+              recordDefinition = new RecordDefinitionImpl();
+              typeByName.put(compositeTypeName, recordDefinition);
+            }
+
+            final String dataType = resultSet.getString(3);
+            final String fieldName = resultSet.getString(4);
+            final boolean required = "NO".equalsIgnoreCase(resultSet.getString(5));
+            final int length = resultSet.getInt(6);
+            final int scale = resultSet.getInt(7);
+            final String attrbuteUdtSchema = resultSet.getString(9);
+            final String attrbuteUdtName = resultSet.getString(9);
+
+          }
+        } catch (final SQLException e) {
+          Logs.error(this, "Error refreshing custom types", e);
+        }
+      }
+    });
+    return typeByName;
+  }
+
+  @Override
+  public void refreshIfNeeded() {
+    try (
+      var l = this.lock.lockX()) {
+      // this.compositeTypes.refreshIfNeeded();
+      super.refreshIfNeeded();
+    }
+  }
+}
