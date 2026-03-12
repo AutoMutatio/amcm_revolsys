@@ -15,6 +15,7 @@
  */
 package com.revolsys.record.io.format.xml;
 
+import module java.xml;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Writer;
@@ -26,8 +27,6 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
-import javax.xml.namespace.QName;
 
 import com.revolsys.data.type.DataTypes;
 import com.revolsys.exception.Exceptions;
