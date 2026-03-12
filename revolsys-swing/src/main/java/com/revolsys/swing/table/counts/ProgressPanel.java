@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -76,9 +77,13 @@ public class ProgressPanel extends BasePanel {
 
   }
 
-  public void run(Runnable action) {
+  public void run(final Consumer<ProgressPanel> action) {
+    run(() -> action.accept(this));
+  }
+
+  public void run(final Runnable action) {
     if (!this.appender.isStarted()) {
-      appender.start();
+      this.appender.start();
     }
     ScopedAppender.scoped(this.appender)
       .run(() -> {
@@ -148,7 +153,7 @@ public class ProgressPanel extends BasePanel {
   }
 
   public TimerLabelCountMap timerLabelCounterAdd(final String tabName, final String labelColumnName,
-    final String label, String... countNames) {
+    final String label, final String... countNames) {
     final var modelRef = new AtomicReference<TimerLabelCountTableModel>();
     final var timers = this.timerLabelCounterByLabel.computeIfAbsent(tabName, _ -> {
       final var tableModel = new TimerLabelCountTableModel(labelColumnName, countNames);
@@ -157,7 +162,7 @@ public class ProgressPanel extends BasePanel {
     });
     // Add the tab if a new table model was created
     if (modelRef.get() == timers) {
-      Invoke.later(() -> {
+      Invoke.andWait(() -> {
         final var table = timers.newTable();
         addTab(tabName, table);
       });
