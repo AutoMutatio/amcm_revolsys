@@ -154,6 +154,12 @@ public class ProgressPanel extends BasePanel {
 
   public TimerLabelCountMap timerLabelCounterAdd(final String tabName, final String labelColumnName,
     final String label, final String... countNames) {
+    final var timers = timerLabelTab(tabName, labelColumnName, countNames);
+    return timers.addTimer(label);
+  }
+
+  public TimerLabelCountTableModel timerLabelTab(final String tabName, final String labelColumnName,
+    final String... countNames) {
     final var modelRef = new AtomicReference<TimerLabelCountTableModel>();
     final var timers = this.timerLabelCounterByLabel.computeIfAbsent(tabName, _ -> {
       final var tableModel = new TimerLabelCountTableModel(labelColumnName, countNames);
@@ -167,7 +173,7 @@ public class ProgressPanel extends BasePanel {
         addTab(tabName, table);
       });
     }
-    return timers.addTimer(label);
+    return timers;
   }
 
 }

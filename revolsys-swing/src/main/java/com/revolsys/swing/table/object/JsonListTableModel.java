@@ -252,7 +252,7 @@ public class JsonListTableModel extends AbstractTableModel
   /**
    * @param objects the objects to set
    */
-  public void setObjects(final Collection<JsonObject> objects) {
+  public void setObjects(final Collection<? extends JsonObject> objects) {
     this.objects.clear();
     if (objects != null) {
       this.objects.addAll(objects);
