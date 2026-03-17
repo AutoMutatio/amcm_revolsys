@@ -401,17 +401,18 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
             columns = recordDefinition.getFields();
           } else {
             columns = queryStatement.getReturning();
-            final var rdBuilder = new RecordDefinitionBuilder(
-              queryStatement.getRecordDefinition().getName());
-            queryStatement.getReturning().forEach(column -> {
-              if (column instanceof final FieldDefinition field) {
-                rdBuilder.addField(field);
-              } else if (column instanceof final FieldDefinition field) {
-                rdBuilder.addField(field);
-              } else {
-                rdBuilder.addField(column.getName(), column.getDataType());
-              }
-            });
+            final var rdBuilder = new RecordDefinitionBuilder(queryStatement.getRecordDefinition()
+              .getName());
+            queryStatement.getReturning()
+              .forEach(column -> {
+                if (column instanceof final FieldDefinition field) {
+                  rdBuilder.addField(field);
+                } else if (column instanceof final FieldDefinition field) {
+                  rdBuilder.addField(field);
+                } else {
+                  rdBuilder.addField(column.getName(), column.getDataType());
+                }
+              });
             recordDefinition = rdBuilder.getRecordDefinition();
           }
           try (
@@ -506,7 +507,7 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
     return fieldAdder;
   }
 
-  public JdbcFieldAdder getFieldAdder(final String dataType, int typeId) {
+  public JdbcFieldAdder getFieldAdder(final String dataType, final int typeId) {
     JdbcFieldAdder fieldAdder = this.fieldDefinitionAdders.get(dataType);
     if (fieldAdder == null) {
       fieldAdder = this.fieldDefinitionAdderByTypeId.get(typeId);
@@ -635,7 +636,8 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
       query.setSql(null);
       query.clearOrderBy();
       final String sql;
-      if (query.isDistinct() || !query.getGroupBy().isEmpty()) {
+      if (query.isDistinct() || !query.getGroupBy()
+        .isEmpty()) {
         sql = "select count(mainquery.*) from (" + query.getSelectSql() + ") mainquery";
       } else {
         query.setSelect(Q.sql("count(*)"));
@@ -1039,7 +1041,8 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
         return null;
       }
     } else {
-      return Identifier.newIdentifier(UUID.randomUUID().toString());
+      return Identifier.newIdentifier(UUID.randomUUID()
+        .toString());
     }
   }
 
@@ -1242,11 +1245,13 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
               if (columnsRs.wasNull()) {
                 scale = -1;
               }
-              final boolean required = !columnsRs.getString("IS_NULLABLE").equals("YES");
+              final boolean required = !columnsRs.getString("IS_NULLABLE")
+                .equals("YES");
               final String description = columnsRs.getString("REMARKS");
               final JdbcFieldDefinition field = addField(recordDefinition, dbColumnName, name,
                 sqlType, dataType, length, scale, required, description);
-              final boolean generated = columnsRs.getString("IS_GENERATEDCOLUMN").equals("YES");
+              final boolean generated = columnsRs.getString("IS_GENERATEDCOLUMN")
+                .equals("YES");
               field.setGenerated(generated);
             }
           }
@@ -1344,9 +1349,6 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
 
   public void setPrimaryKeySql(final String primaryKeySql) {
     this.primaryKeySql = primaryKeySql;
-  }
-
-  public void setPrimaryKeyTableCondition(final String primaryKeyTableCondition) {
   }
 
   public void setQuoteNames(final boolean quoteNames) {

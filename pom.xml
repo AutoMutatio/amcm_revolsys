@@ -50,6 +50,7 @@
     <module>revolsys-geopackage</module>
     <module>revolsys-oracle</module>
     <module>revolsys-postgresql</module>
+    <module>revolsys-mssqlserver</module>
     <module>revolsys-maki</module>
     <module>revolsys-swing</module>
     <module>revolsys-web</module>
