@@ -506,8 +506,13 @@ public class JdbcDataSourceImpl extends JdbcDataSource {
     final var url = this.config.url;
     final var userSupplier = this.config.userSupplier;
     final var passwordSupplier = this.config.passwordSupplier;
-    final var connectionProperties = new Properties(this.config.connectionProperties);
-
+    final var connectionProperties = new Properties();
+    this.config.connectionProperties.forEach((name, value) -> {
+      if (value instanceof final Supplier supplier) {
+        value = supplier.get();
+      }
+      connectionProperties.put(name, value);
+    });
     if (userSupplier != null) {
       final var user = userSupplier.get();
       if (user == null) {

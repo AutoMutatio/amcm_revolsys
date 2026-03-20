@@ -1,6 +1,7 @@
 package com.revolsys.record.query;
 
 import com.revolsys.exception.Exceptions;
+import com.revolsys.jdbc.field.JdbcFieldDefinition;
 
 public class OrderBy implements Cloneable {
   private QueryValue field;
@@ -33,8 +34,13 @@ public class OrderBy implements Cloneable {
     }
 
     if (this.collate != null) {
-      sql.append(" collate ");
-      sql.append(this.collate);
+      final ColumnReference column = this.field.getColumn();
+      if (column instanceof final JdbcFieldDefinition field) {
+        if (field.isCollateable()) {
+          sql.append(" collate ");
+          sql.append(this.collate);
+        }
+      }
     }
   }
 

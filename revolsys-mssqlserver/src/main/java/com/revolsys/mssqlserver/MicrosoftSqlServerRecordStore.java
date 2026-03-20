@@ -190,7 +190,7 @@ from
   sys.tables t
     join sys.schemas s on s.schema_id = t.schema_id
     left join sys.extended_properties td on td.major_id = t.object_id  and td.name = 'MS_Description' and td.minor_id = 0
-    CROSS APPLY sys.fn_my_permissions(s.name || '.' || t.name, 'OBJECT') tp
+    CROSS APPLY sys.fn_my_permissions(concat(s.name, '.', t.name), 'OBJECT') tp
 where
   s.name = ? AND
   tp.permission_name IN (

@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.revolsys.data.type.DataType;
+import com.revolsys.data.type.DataTypes;
 import com.revolsys.jdbc.io.AbstractJdbcRecordStore;
 import com.revolsys.jdbc.io.JdbcRecordDefinition;
 import com.revolsys.record.Record;
@@ -118,10 +119,14 @@ public class JdbcFieldDefinition extends FieldDefinition {
   }
 
   @Override
-  public Object getValueFromResultSet(final RecordDefinition recordDefinition,
-    int fieldIndex, final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings)
+  public Object getValueFromResultSet(final RecordDefinition recordDefinition, final int fieldIndex,
+    final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings)
     throws SQLException {
     return resultSet.getObject(indexes.incrementAndGet());
+  }
+
+  public boolean isCollateable() {
+    return getDataType() == DataTypes.STRING;
   }
 
   public boolean isQuoteName() {
