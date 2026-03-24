@@ -19,6 +19,9 @@ public class DeleteStatement implements QueryStatement {
   private final ListEx<With> withClauses = Lists.newArray();
 
   public int appendParameters(int index, final PreparedStatement statement) {
+    for (final var with : usingClauses) {
+      index = with.appendParameters(index, statement);
+    }
     final Condition where = getWhere();
     if (!where.isEmpty()) {
       index = where.appendParameters(index, statement);
