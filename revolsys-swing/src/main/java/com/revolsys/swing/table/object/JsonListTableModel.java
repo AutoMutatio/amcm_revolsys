@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.Consumer;
 
 import jakarta.annotation.PreDestroy;
 
@@ -104,6 +105,10 @@ public class JsonListTableModel extends AbstractTableModel
   public void dispose() {
     Property.removeListener(this.objects, this);
     this.objects = null;
+  }
+
+  public void forEach(final Consumer<JsonObject> action) {
+    this.objects.forEach(action);
   }
 
   @Override

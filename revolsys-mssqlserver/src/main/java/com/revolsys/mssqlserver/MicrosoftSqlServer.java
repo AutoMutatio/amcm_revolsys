@@ -16,8 +16,12 @@ import org.springframework.dao.DataAccessException;
 import com.microsoft.sqlserver.jdbc.SQLServerDriver;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.collection.map.Maps;
+import com.revolsys.collection.value.ValueHolder;
 import com.revolsys.jdbc.io.AbstractJdbcDatabaseFactory;
 import com.revolsys.jdbc.io.JdbcRecordStore;
+import com.revolsys.net.oauth.BearerToken;
+import com.revolsys.net.oauth.BearerTokenFactory;
+import com.revolsys.net.oauth.MicrosoftOpenIdScope;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordStore;
 import com.revolsys.util.Property;
@@ -34,6 +38,14 @@ public class MicrosoftSqlServer extends AbstractJdbcDatabaseFactory {
   );
 
   private static final List<FieldDefinition> CONNECTION_FIELD_DEFINITIONS = Arrays.asList();
+
+  private static final MicrosoftOpenIdScope SCOPE = MicrosoftOpenIdScope
+    .fromResource("https://database.windows.net");
+
+  public static ValueHolder<String> activeDirectoryAccessToken(final BearerTokenFactory refresher) {
+    return refresher.lazyValue(SCOPE)
+      .then(BearerToken::getAccessToken);
+  }
 
   public MicrosoftSqlServer() {
   }

@@ -78,6 +78,30 @@ public class MicrosoftSqlServerRecordStore extends AbstractJdbcRecordStore {
   }
 
   @Override
+  protected String getSelectSql(final Query query) {
+    String sql = super.getSelectSql(query);
+    final int offset = query.getOffset();
+    final int limit = query.getLimit();
+    if (offset > 0 || limit != Integer.MAX_VALUE) {
+      if (!query.hasOrderBy()) {
+        sql += " ORDER BY ";
+        final List<String> idFieldNames = query.getRecordDefinition()
+          .getIdFieldNames();
+        for (int i = 0; i < idFieldNames.size(); i++) {
+          final var field = idFieldNames.get(i);
+          if (i > 0) {
+            sql += ",";
+          }
+          sql += field;
+        }
+      }
+      sql += " OFFSET " + offset + " ROWS";
+      sql += " FETCH NEXT " + limit + "ROWS ONLY";
+    }
+    return sql;
+  }
+
+  @Override
   public void initializeDo() {
     super.initializeDo();
     // final JdbcFieldAdder numberFieldAdder = new
@@ -138,69 +162,70 @@ public class MicrosoftSqlServerRecordStore extends AbstractJdbcRecordStore {
     // PostgreSQLGeometryFieldAdder(this);
     // addFieldAdder("geometry", geometryFieldAdder);
     setPrimaryKeySql("""
-SELECT
-  t.name "TABLE_NAME",
-  c.name "COLUMN_NAME"
-FROM
-  sys.schemas s
-  JOIN sys.tables t ON t.schema_id = s.schema_id
-  JOIN sys.indexes i ON i.object_id = t.object_id
-  JOIN sys.index_columns ic ON i.object_id = ic.object_id AND i.index_id = ic.index_id
-  JOIN sys.columns c ON ic.object_id = c.object_id AND ic.column_id = c.column_id
-WHERE
-  i.is_primary_key = 1 AND
-  s.name = ?
-order by
-  t.name,
-  ic.key_ordinal
-    """);
+        SELECT
+          t.name "TABLE_NAME",
+          c.name "COLUMN_NAME"
+        FROM
+          sys.schemas s
+          JOIN sys.tables t ON t.schema_id = s.schema_id
+          JOIN sys.indexes i ON i.object_id = t.object_id
+          JOIN sys.index_columns ic ON i.object_id = ic.object_id AND i.index_id = ic.index_id
+          JOIN sys.columns c ON ic.object_id = c.object_id AND ic.column_id = c.column_id
+        WHERE
+          i.is_primary_key = 1 AND
+          s.name = ?
+        order by
+          t.name,
+          ic.key_ordinal
+            """);
     setSchemaPermissionsSql("""
-select distinct
-  name as "SCHEMA_NAME"
-from
-  sys.schemas
-WHERE
-  name NOT in (
-    'guest',
-    'INFORMATION_SCHEMA',
-    'sys',
-    'db_owner',
-    'db_accessadmin',
-    'db_securityadmin',
-    'db_ddladmin',
-    'db_backupoperator',
-    'db_datareader',
-    'db_datawriter',
-    'db_denydatareader',
-    'db_denydatawriter'
-  )
-    """);
-    setSchemaTablePermissionsSql("""
-select
-  distinct
-  s.name as "SCHEMA_NAME",
-  t.name as "TABLE_NAME",
-  tp.permission_name as "PRIVILEGE",
-  td.value as "REMARKS",
-  CASE
-    WHEN t.type_desc = 'USER_TABLE' THEN 'TABLE'
-    ELSE t.type_desc
-  END "TABLE_TYPE"
-from
-  sys.tables t
-    join sys.schemas s on s.schema_id = t.schema_id
-    left join sys.extended_properties td on td.major_id = t.object_id  and td.name = 'MS_Description' and td.minor_id = 0
-    CROSS APPLY sys.fn_my_permissions(concat(s.name, '.', t.name), 'OBJECT') tp
-where
-  s.name = ? AND
-  tp.permission_name IN (
-    'SELECT', 'INSERT', 'UPDATE', 'DELETE'
-  )
-order by
-  s.name,
-  t.name,
-  tp.permission_name
-    """);
+        select distinct
+          name as "SCHEMA_NAME"
+        from
+          sys.schemas
+        WHERE
+          name NOT in (
+            'guest',
+            'INFORMATION_SCHEMA',
+            'sys',
+            'db_owner',
+            'db_accessadmin',
+            'db_securityadmin',
+            'db_ddladmin',
+            'db_backupoperator',
+            'db_datareader',
+            'db_datawriter',
+            'db_denydatareader',
+            'db_denydatawriter'
+          )
+            """);
+    setSchemaTablePermissionsSql(
+      """
+          select
+            distinct
+            s.name as "SCHEMA_NAME",
+            t.name as "TABLE_NAME",
+            tp.permission_name as "PRIVILEGE",
+            td.value as "REMARKS",
+            CASE
+              WHEN t.type_desc = 'USER_TABLE' THEN 'TABLE'
+              ELSE t.type_desc
+            END "TABLE_TYPE"
+          from
+            sys.tables t
+              join sys.schemas s on s.schema_id = t.schema_id
+              left join sys.extended_properties td on td.major_id = t.object_id  and td.name = 'MS_Description' and td.minor_id = 0
+              CROSS APPLY sys.fn_my_permissions(concat(s.name, '.', t.name), 'OBJECT') tp
+          where
+            s.name = ? AND
+            tp.permission_name IN (
+              'SELECT', 'INSERT', 'UPDATE', 'DELETE'
+            )
+          order by
+            s.name,
+            t.name,
+            tp.permission_name
+              """);
   }
 
   protected void initSettings() {

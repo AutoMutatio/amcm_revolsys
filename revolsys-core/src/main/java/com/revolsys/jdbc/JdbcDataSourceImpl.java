@@ -41,7 +41,7 @@ import com.revolsys.util.concurrent.Concurrent;
 public class JdbcDataSourceImpl extends JdbcDataSource {
   public static class Builder {
 
-    private final Properties connectionProperties = new Properties();
+    private final JsonObject connectionProperties = JsonObject.hash();
 
     private Driver driver;
 
@@ -73,7 +73,7 @@ public class JdbcDataSourceImpl extends JdbcDataSource {
         final Object value = property.getValue();
         try {
           if (!Property.setSimple(this, name, value)) {
-            this.connectionProperties.setProperty(name, value.toString());
+            this.connectionProperties.addValue(name, value);
           }
         } catch (final Throwable t) {
           Logs.debug(this,
