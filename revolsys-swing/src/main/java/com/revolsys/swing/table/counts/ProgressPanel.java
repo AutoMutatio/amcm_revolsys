@@ -2,6 +2,7 @@ package com.revolsys.swing.table.counts;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.GraphicsEnvironment;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -58,6 +59,12 @@ public class ProgressPanel extends BasePanel {
     this.tabs.setSelectedIndex(this.tabs.getTabCount() - 1);
   }
 
+  private void doRepaint() {
+    if (!GraphicsEnvironment.isHeadless()) {
+      repaint();
+    }
+  }
+
   protected void initDialog() {
     setLayout(new BorderLayout());
 
@@ -88,7 +95,7 @@ public class ProgressPanel extends BasePanel {
     ScopedAppender.scoped(this.appender)
       .run(() -> {
         final var timer = new javax.swing.Timer(1000,
-          new EventQueueRunnableListener(this::repaint));
+          new EventQueueRunnableListener(this::doRepaint));
         timer.start();
         final boolean updateStatus = true;
         try {
