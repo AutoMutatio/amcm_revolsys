@@ -98,6 +98,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     final JsonObject jsonSchema = JsonObject.hash()
       .addValue("typeName", recordDefinition.getPathName())
       .addValue("title", recordDefinition.getTitle())
+      .addValue("description", ((RecordDefinitionImpl)recordDefinition).getDescription())
       .addValue("idFieldName", idFieldName)
       .addValue("geometryFieldName", recordDefinition.getGeometryFieldName())
       .addValue("fields", jsonFields);

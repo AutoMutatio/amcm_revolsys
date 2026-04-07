@@ -29,7 +29,7 @@ import com.revolsys.util.count.LabelCountMap;
 
 public class TimerLabelCountTableModel extends AbstractTableModel {
 
-  public class TimerLabelCountMap extends LabelCountMap implements BaseCloseable {
+  public static class TimerLabelCountMap extends LabelCountMap implements BaseCloseable {
     private final Instant startTime = Instant.now();
 
     private Instant endTime = null;
@@ -50,7 +50,7 @@ public class TimerLabelCountTableModel extends AbstractTableModel {
     }
 
     public boolean isClosed() {
-      return endTime != null;
+      return this.endTime != null;
     }
   }
 
@@ -58,8 +58,8 @@ public class TimerLabelCountTableModel extends AbstractTableModel {
 
   public static final DefaultTableCellRenderer BOOLEAN_RENDERER = new DefaultTableCellRenderer() {
     @Override
-    public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
-      boolean hasFocus, int row, int column) {
+    public Component getTableCellRendererComponent(final JTable table, final Object value, final boolean isSelected,
+      final boolean hasFocus, final int row, final int column) {
       final Component component = super.getTableCellRendererComponent(table, value, isSelected,
         hasFocus, row, column);
       if (value == Boolean.TRUE) {
@@ -78,7 +78,7 @@ public class TimerLabelCountTableModel extends AbstractTableModel {
 
   private final List<String> labels = new ArrayList<>();
 
-  public TimerLabelCountTableModel(final String labelColumnTitle, String... countLabels) {
+  public TimerLabelCountTableModel(final String labelColumnTitle, final String... countLabels) {
     this.columnNames.addValue("Done");
     this.columnNames.addValue(labelColumnTitle);
     for (final var label : countLabels) {
@@ -88,7 +88,7 @@ public class TimerLabelCountTableModel extends AbstractTableModel {
   }
 
   public TimerLabelCountMap addTimer(final String label) {
-    var timer = timerByLabel.get(label);
+    var timer = this.timerByLabel.get(label);
     if (timer == null) {
       timer = Invoke.andWait(() -> {
         final var newTimer = this.timerByLabel.computeIfAbsent(label, newLabel -> {
@@ -154,7 +154,7 @@ public class TimerLabelCountTableModel extends AbstractTableModel {
         return timerCounter.duration()
           .truncatedTo(ChronoUnit.SECONDS);
       } else {
-        final var name = columnNames.get(columnIndex);
+        final var name = this.columnNames.get(columnIndex);
         return timerCounter.getCount(name);
       }
     }
@@ -164,7 +164,7 @@ public class TimerLabelCountTableModel extends AbstractTableModel {
   @Override
   public BaseJTable newTable() {
     final var table = super.newTable();
-    for (int i = 2; i < columnNames.size(); i++) {
+    for (int i = 2; i < this.columnNames.size(); i++) {
       table.getColumn(i)
         .setMaxWidth(100);
     }
@@ -188,8 +188,8 @@ public class TimerLabelCountTableModel extends AbstractTableModel {
       this.timerByLabel.forEach((label, timer) -> {
         row.clear();
         row.add(label);
-        for (int i = 0; i < columnNames.size() - 1; i++) {
-          final var name = columnNames.get(i);
+        for (int i = 0; i < this.columnNames.size() - 1; i++) {
+          final var name = this.columnNames.get(i);
           final var count = timer.getCount(name);
           row.add(count);
         }

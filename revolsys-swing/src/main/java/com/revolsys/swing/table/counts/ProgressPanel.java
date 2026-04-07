@@ -31,7 +31,7 @@ import com.revolsys.swing.table.BaseJTable;
 import com.revolsys.swing.table.counts.TimerCounterTableModel.TimerCounter;
 import com.revolsys.swing.table.counts.TimerLabelCountTableModel.TimerLabelCountMap;
 
-public class ProgressPanel extends BasePanel {
+public class ProgressPanel extends BasePanel implements ProgressMonitor {
 
   private static final long serialVersionUID = 1L;
 
@@ -159,6 +159,7 @@ public class ProgressPanel extends BasePanel {
     return timers.addTimer(label);
   }
 
+  @Override
   public TimerLabelCountMap timerLabelCounterAdd(final String tabName, final String labelColumnName,
     final String label, final String... countNames) {
     final var timers = timerLabelTab(tabName, labelColumnName, countNames);
