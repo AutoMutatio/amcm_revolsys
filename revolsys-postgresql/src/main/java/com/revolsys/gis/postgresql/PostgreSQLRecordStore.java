@@ -324,7 +324,6 @@ public class PostgreSQLRecordStore extends AbstractJdbcRecordStore {
       + " join pg_index i on i.indrelid = t.oid " //
       + " join pg_attribute c on c.attrelid = t.oid" //
       + " WHERE s.nspname = ? AND c.attnum = any(i.indkey) AND i.indisprimary");
-    setPrimaryKeyTableCondition(" AND r.relname = ?");
     setSchemaPermissionsSql("select distinct t.table_schema as \"SCHEMA_NAME\" "
       + "from information_schema.role_table_grants t  "
       + "where (t.grantee  in (current_user, 'PUBLIC') or "

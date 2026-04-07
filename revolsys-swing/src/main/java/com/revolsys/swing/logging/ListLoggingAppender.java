@@ -22,8 +22,7 @@ public class ListLoggingAppender extends AppenderBase<ILoggingEvent> {
 
   @Override
   public boolean equals(final Object obj) {
-    if (obj instanceof ListLoggingAppender) {
-      final ListLoggingAppender appender = (ListLoggingAppender)obj;
+    if (obj instanceof final ListLoggingAppender appender) {
       return this.tableModel == appender.tableModel;
     }
 

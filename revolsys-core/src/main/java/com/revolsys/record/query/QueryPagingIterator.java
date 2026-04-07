@@ -78,31 +78,36 @@ public class QueryPagingIterator extends AbstractIterator<Record> {
   private RecordReader nextRecordReader() {
     this.pageRecordCount = 0;
     final Query query = this.queryFactory.get()
-      .setOrderByFieldNames(this.fieldNames)
       .fetchSize(5000)
       .setLimit(this.batchSize);
+    if (!query.hasOrderBy()) {
+      query.setOrderByFieldNames(this.fieldNames);
+    }
     if (this.lastIdentifier != null) {
-      int i = 0;
+      if (this.fieldNames.size() == 1) {
+        final String name = this.fieldNames.get(0);
+        final Object value = this.lastIdentifier.getValue(0);
+        query.and(name, Q.GREATER_THAN, value);
+      } else {
+        int i = 0;
 
-      final And equalConditions = Q.and();
-      final Or or = new Or();
+        final And top = Q.and();
+        And and = top;
 
-      for (final var fieldName : this.fieldNames) {
-        final Object value = this.lastIdentifier.getValue(i);
-        final var greaterThan = query.newCondition(fieldName, Q.GREATER_THAN, value);
-        if (i == 0) {
-          or.addCondition(greaterThan);
-        } else {
-          final var condition = equalConditions.clone()
-            .addCondition(greaterThan);
-          or.addCondition(condition);
+        for (final var fieldName : this.fieldNames) {
+          final Object value = this.lastIdentifier.getValue(i);
+          if (i < this.fieldNames.size() - 1) {
+            final var newAnd = Q.and(query.newCondition(fieldName, Q.EQUAL, value));
+            final var or = Q.or(query.newCondition(fieldName, Q.GREATER_THAN, value), newAnd);
+            and.addCondition(or);
+            and = newAnd;
+          } else {
+            and.addCondition(query.newCondition(fieldName, Q.GREATER_THAN, value));
+          }
+          i++;
         }
-        if (i < this.fieldNames.size() - 1) {
-          equalConditions.addCondition(query.newCondition(fieldName, Q.EQUAL, value));
-        }
-        i++;
+        query.and(top);
       }
-      query.and(or);
     }
     return query.getRecordReader();
   }

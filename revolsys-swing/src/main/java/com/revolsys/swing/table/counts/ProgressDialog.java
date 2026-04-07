@@ -114,7 +114,7 @@ public class ProgressDialog extends BaseDialog implements WindowListener, Runnab
 
     final TabbedPane bottomTabs = new TabbedPane();
     BackgroundTaskTableModel.addNewTabPanel(bottomTabs);
-    LoggingTableModel.addNewTabPane(bottomTabs);
+    LoggingTableModel.addNewTabPane(bottomTabs, true);
     bottomTabs.setPreferredSize(new Dimension(600, 150));
 
     final JSplitPane split = new JSplitPane(JSplitPane.VERTICAL_SPLIT, this.tabs, bottomTabs);
@@ -194,7 +194,7 @@ public class ProgressDialog extends BaseDialog implements WindowListener, Runnab
   }
 
   public void setStatus(final CharSequence message) {
-    Invoke.later(() -> {
+    Invoke.andWait(() -> {
       this.statusLabel.setText("<html><body>" + message + "</body></html>");
     });
   }

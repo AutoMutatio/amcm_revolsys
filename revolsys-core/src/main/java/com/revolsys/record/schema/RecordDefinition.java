@@ -27,6 +27,7 @@ import com.revolsys.record.query.QueryStatement;
 import com.revolsys.record.query.QueryValue;
 import com.revolsys.record.query.SqlAppendable;
 import com.revolsys.record.query.TableReference;
+import com.revolsys.record.query.UpdateStatement;
 import com.revolsys.util.CaseConverter;
 
 public interface RecordDefinition extends Cloneable, GeometryFactoryProxy, RecordStoreSchemaElement,
@@ -419,6 +420,10 @@ public interface RecordDefinition extends Cloneable, GeometryFactoryProxy, Recor
   void setGeometryFactory(com.revolsys.geometry.model.GeometryFactory geometryFactory);
 
   void setTableAlias(String tableAlias);
+
+  default UpdateStatement updateStatement() {
+    return getRecordStore().updateStatement(getPathName());
+  }
 
   default void validateRecord(final MapEx record) {
     for (final FieldDefinition field : getFields()) {

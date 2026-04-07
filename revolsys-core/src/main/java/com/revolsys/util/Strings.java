@@ -685,6 +685,14 @@ public class Strings {
     }
   }
 
+  public static String strip(String s) {
+    if (s == null) {
+      return "";
+    } else {
+      return s.strip();
+    }
+  }
+
   public static String stripAccents(String s) {
     if (s == null) {
       return null;

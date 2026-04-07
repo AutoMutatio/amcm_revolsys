@@ -60,12 +60,11 @@ public class RecordStoreConnectionManager
 
   /**
    * Get an initialized record store.
-   * @param connectionProperties
+   * @param config
    * @return
    */
   @SuppressWarnings("unchecked")
   public static <T extends RecordStore> T getRecordStore(final MapEx config) {
-    @SuppressWarnings("rawtypes")
     final MapEx configClone = config.clone();
     synchronized (recordStoreByConfig) {
       RecordStore recordStore = recordStoreByConfig.get(configClone);
