@@ -20,6 +20,8 @@ import net.snowflake.client.api.driver.SnowflakeDriver;
 
 // Not snowflake uses arrow, need to add the following JVM arg
 // --add-opens java.base/java.nio=ALL-UNNAMED
+// To stop the annoying System.err.println
+// -Dsun.misc.unsafe.memory.access=allow
 public class Snowflake extends AbstractJdbcDatabaseFactory {
 
   private static final List<FieldDefinition> CONNECTION_FIELD_DEFINITIONS = Arrays.asList();
