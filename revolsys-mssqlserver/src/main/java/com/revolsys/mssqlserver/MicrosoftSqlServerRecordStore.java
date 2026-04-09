@@ -229,7 +229,6 @@ public class MicrosoftSqlServerRecordStore extends AbstractJdbcRecordStore {
   }
 
   protected void initSettings() {
-    setExcludeTablePaths();
   }
 
   @Override
