@@ -12,20 +12,14 @@ import com.revolsys.io.PathName;
 import com.revolsys.jdbc.JdbcConnection;
 import com.revolsys.jdbc.io.AbstractJdbcDatabaseFactory;
 import com.revolsys.jdbc.io.AbstractJdbcRecordStore;
+import com.revolsys.jdbc.io.JdbcRecordDefinition;
 import com.revolsys.jdbc.io.JdbcRecordStoreSchema;
-import com.revolsys.record.ArrayRecord;
-import com.revolsys.record.Record;
-import com.revolsys.record.RecordFactory;
 import com.revolsys.record.query.Query;
 import com.revolsys.record.schema.RecordDefinition;
 
 public class SnowflakeRecordStore extends AbstractJdbcRecordStore {
 
   public static final List<String> INTERNAL_SCHEMAS = Arrays.asList("INFORMATION_SCHEMA");
-
-  public SnowflakeRecordStore() {
-    this(ArrayRecord.FACTORY);
-  }
 
   public SnowflakeRecordStore(final AbstractJdbcDatabaseFactory databaseFactory,
     final Map<String, ? extends Object> connectionProperties) {
@@ -36,17 +30,6 @@ public class SnowflakeRecordStore extends AbstractJdbcRecordStore {
   public SnowflakeRecordStore(final DataSource dataSource) {
     super(dataSource);
     initSettings();
-  }
-
-  public SnowflakeRecordStore(final RecordFactory<? extends Record> recordFactory) {
-    super(recordFactory);
-    initSettings();
-  }
-
-  public SnowflakeRecordStore(final RecordFactory<? extends Record> recordFactory,
-    final DataSource dataSource) {
-    this(recordFactory);
-    setDataSource(dataSource);
   }
 
   @Override
@@ -68,6 +51,11 @@ public class SnowflakeRecordStore extends AbstractJdbcRecordStore {
     } catch (final SQLException e) {
       throw getException("Execute Query", sql, e);
     }
+  }
+
+  @Override
+  public String getCatalogueName() {
+    return getConnectionProperties().getString("db");
   }
 
   @Override
@@ -93,6 +81,9 @@ public class SnowflakeRecordStore extends AbstractJdbcRecordStore {
   }
 
   protected void initSettings() {
+    this.ignoreCatalogues.add("SNOWFLAKE");
+    this.ignoreSchemas.add("INFORMATION_SCHEMA");
+    setQuoteNames(true);
   }
 
   @Override
@@ -104,6 +95,13 @@ public class SnowflakeRecordStore extends AbstractJdbcRecordStore {
   @Override
   public boolean isSchemaExcluded(final String schemaName) {
     return INTERNAL_SCHEMAS.contains(schemaName);
+  }
+
+  @Override
+  protected JdbcRecordDefinition newRecordDefinition(final JdbcRecordStoreSchema schema,
+    final PathName pathName, final String dbTableName) {
+    final String quotedTableName = '"' + dbTableName + '"';
+    return super.newRecordDefinition(schema, pathName, quotedTableName);
   }
 
   @Override

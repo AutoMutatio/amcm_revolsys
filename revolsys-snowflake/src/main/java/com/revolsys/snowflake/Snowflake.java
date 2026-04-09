@@ -18,7 +18,10 @@ import com.revolsys.record.schema.RecordStore;
 
 import net.snowflake.client.api.driver.SnowflakeDriver;
 
+// Not snowflake uses arrow, need to add the following JVM arg
+// --add-opens java.base/java.nio=ALL-UNNAMED
 public class Snowflake extends AbstractJdbcDatabaseFactory {
+
   private static final List<FieldDefinition> CONNECTION_FIELD_DEFINITIONS = Arrays.asList();
 
   public Snowflake() {
