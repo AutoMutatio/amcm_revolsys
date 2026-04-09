@@ -30,6 +30,7 @@ import com.revolsys.collection.iterator.BaseIterable;
 import com.revolsys.collection.list.ListEx;
 import com.revolsys.collection.list.Lists;
 import com.revolsys.collection.map.Maps;
+import com.revolsys.comparator.CompareUtil;
 import com.revolsys.data.identifier.Identifier;
 import com.revolsys.data.type.DataType;
 import com.revolsys.exception.Exceptions;
@@ -81,6 +82,19 @@ import com.revolsys.util.Property;
 
 public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
   implements JdbcRecordStore, RecordStoreExtension {
+  public record CatalogueSchema(String catalog, String schema)
+    implements Comparable<CatalogueSchema> {
+    @Override
+    public int compareTo(final CatalogueSchema o) {
+      var compare = CompareUtil.compare(this.catalog, o.catalog);
+      if (compare == 0) {
+        compare = CompareUtil.compare(this.schema, o.schema);
+      }
+      return compare;
+    }
+
+  }
+
   public static final List<String> DEFAULT_PERMISSIONS = Arrays.asList("SELECT");
 
   private final Set<String> allSchemaNames = new TreeSet<>();
@@ -128,6 +142,10 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
   private final Object writerKey = new Object();
 
   private boolean useUpperCaseNames = false;
+
+  protected Set<String> ignoreCatalogues = new HashSet<>();
+
+  protected Set<String> ignoreSchemas = new HashSet<>();
 
   public AbstractJdbcRecordStore() {
     this(ArrayRecord.FACTORY);
@@ -453,13 +471,17 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
     return this.batchSize;
   }
 
+  public String getCatalogueName() {
+    return null;
+  }
+
   public List<String> getColumnNames(final String typePath) {
     final RecordDefinition recordDefinition = getRecordDefinition(typePath);
     return recordDefinition.getFieldNames();
   }
 
-  protected Set<String> getDatabaseSchemaNames() {
-    final Set<String> schemaNames = new TreeSet<>();
+  protected Set<CatalogueSchema> getDatabaseSchemaNames() {
+    final Set<CatalogueSchema> schemaNames = new TreeSet<>();
     try {
       if (Property.hasValue(this.schemaPermissionsSql)) {
         try (
@@ -471,18 +493,23 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
             final String schemaName = resultSet.getString("SCHEMA_NAME");
             addAllSchemaNames(schemaName);
             if (!isSchemaExcluded(schemaName)) {
-              schemaNames.add(schemaName);
+              schemaNames.add(new CatalogueSchema(null, schemaName));
             }
           }
         }
       } else {
+        final String baseCatalogueName = getCatalogueName();
         try (
-          final Connection connection = getJdbcConnection();
-          final ResultSet rs = connection.getMetaData()
-            .getSchemas("*", "*")) {
+          final var connection = getJdbcConnection();
+          final var rs = connection.getMetaData()
+            .getSchemas(baseCatalogueName, null)) {
           while (rs.next()) {
-            final String tableName = toUpperIfNeeded(rs.getString("TABLE_SCHEM"));
-            schemaNames.add(tableName);
+            final var catalogueName = rs.getString("TABLE_CATALOG");
+            final String schemaName = toUpperIfNeeded(rs.getString("TABLE_SCHEM"));
+            if (!this.ignoreCatalogues.contains(catalogueName)
+              && !this.ignoreSchemas.contains(schemaName)) {
+              schemaNames.add(new CatalogueSchema(catalogueName, schemaName));
+            }
           }
         }
       }
@@ -978,7 +1005,7 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
         final Map<String, Map<Integer, String>> tableSeqField = new HashMap<>();
         try (
           final ResultSet rs = connection.getMetaData()
-            .getPrimaryKeys("*", dbSchemaName, "*")) {
+            .getPrimaryKeys(null, dbSchemaName, null)) {
           while (rs.next()) {
             final String tableName = toUpperIfNeeded(rs.getString("TABLE_NAME"));
             final String idFieldName = rs.getString("COLUMN_NAME");
@@ -1058,9 +1085,10 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
           }
         }
       } else {
+        final var catalogueName = schema.getCatalogueName();
         try (
           var resultSet = connection.getMetaData()
-            .getTablePrivileges("*", dbSchemaName, "*")) {
+            .getTablePrivileges(catalogueName, dbSchemaName, "%")) {
           while (resultSet.next()) {
             final String dbTableName = resultSet.getString("TABLE_NAME");
             if (!isExcluded(dbSchemaName, dbTableName)) {
@@ -1251,12 +1279,14 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
       if (jdbcSchema == rootSchema) {
         if (this.usesSchema) {
           final Map<PathName, RecordStoreSchemaElement> schemas = new TreeMap<>();
-          final Set<String> databaseSchemaNames = getDatabaseSchemaNames();
-          for (final String dbSchemaName : databaseSchemaNames) {
+          final var databaseSchemaNames = getDatabaseSchemaNames();
+          for (final var catalogSchema : databaseSchemaNames) {
+            final String dbSchemaName = catalogSchema.schema();
             final PathName childSchemaPath = schemaPath.newChild(toUpperIfNeeded(dbSchemaName));
             RecordStoreSchema childSchema = schema.getSchema(childSchemaPath);
             if (childSchema == null) {
               childSchema = newSchema(rootSchema, dbSchemaName, childSchemaPath);
+              childSchema.setCatalogueName(catalogSchema.catalog());
             } else {
               if (childSchema.isInitialized()) {
                 childSchema.refresh();
