@@ -146,6 +146,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
       }
       jsonFields.add(jsonField);
     }
+    jsonSchema.addNotEmpty("relationships", recordDefinition.getProperty("relationships"));
     return jsonSchema;
   }
 
