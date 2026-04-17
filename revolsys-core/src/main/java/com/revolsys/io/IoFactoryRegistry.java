@@ -31,6 +31,8 @@ public class IoFactoryRegistry {
   private static final ReentrantLockEx FACTORY_LOCK = new ReentrantLockEx();
 
   static {
+    System.setProperty("net.snowflake.jdbc.loggerImpl", "net.snowflake.client.log.SLF4JLogger");
+
     ServiceInitializer.initializeServices();
     try {
       final ClassLoader classLoader = IoFactoryRegistry.class.getClassLoader();

@@ -4,8 +4,8 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd"
 >
   <modelVersion>4.0.0</modelVersion>
-  <name>RS Microsoft SQLServer</name>
-  <artifactId>revolsys-mssqlserver</artifactId>
+  <name>RS Snowflake</name>
+  <artifactId>revolsys-snowflake</artifactId>
   <url>http://www.revolsys.com</url>
   <parent>
     <groupId>com.revolsys.open</groupId>
@@ -32,8 +32,8 @@
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>com.microsoft.sqlserver</groupId>
-      <artifactId>mssql-jdbc</artifactId>
+      <groupId>net.snowflake</groupId>
+      <artifactId>snowflake-jdbc</artifactId>
     </dependency>
   </dependencies>
 </project>

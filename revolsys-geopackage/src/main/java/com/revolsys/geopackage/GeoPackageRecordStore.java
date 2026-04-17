@@ -291,7 +291,7 @@ public class GeoPackageRecordStore extends AbstractJdbcRecordStore {
   }
 
   @Override
-  protected Set<String> getDatabaseSchemaNames() {
+  protected Set<CatalogueSchema> getDatabaseSchemaNames() {
     return Collections.emptySet();
   }
 

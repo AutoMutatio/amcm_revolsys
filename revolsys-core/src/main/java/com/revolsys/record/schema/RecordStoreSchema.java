@@ -35,6 +35,8 @@ public class RecordStoreSchema extends AbstractRecordStoreSchemaElement
 
   private final ReentrantLockEx lock = new ReentrantLockEx();
 
+  private String catalogueName;
+
   public RecordStoreSchema(final AbstractRecordStore recordStore) {
     this.recordStore = recordStore;
   }
@@ -88,6 +90,10 @@ public class RecordStoreSchema extends AbstractRecordStoreSchemaElement
       refreshIfNeeded();
       return this.recordDefinitionsByPath.get(path);
     }
+  }
+
+  public String getCatalogueName() {
+    return this.catalogueName;
   }
 
   @Override
@@ -378,6 +384,10 @@ public class RecordStoreSchema extends AbstractRecordStoreSchemaElement
       removeElement(pathName);
       addElement(newElement);
     }
+  }
+
+  public void setCatalogueName(final String catalogueName) {
+    this.catalogueName = catalogueName;
   }
 
   public void setGeometryFactory(final GeometryFactory geometryFactory) {
