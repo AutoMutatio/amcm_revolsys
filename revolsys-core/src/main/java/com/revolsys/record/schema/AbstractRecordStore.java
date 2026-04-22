@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
 import com.revolsys.collection.map.MapEx;
@@ -17,6 +18,7 @@ import com.revolsys.collection.map.Maps;
 import com.revolsys.function.Consumer3;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.io.PathName;
+import com.revolsys.jdbc.io.JdbcRecordStore;
 import com.revolsys.logging.Logs;
 import com.revolsys.parallel.ReentrantLockEx;
 import com.revolsys.properties.BaseObjectWithProperties;
@@ -74,6 +76,8 @@ public abstract class AbstractRecordStore extends BaseObjectWithProperties imple
   private boolean initialized = false;
 
   protected ReentrantLockEx lock = new ReentrantLockEx();
+
+  private final Map<PathName, AbstractTableRecordStore> tableRecordStoreByName = new ConcurrentHashMap<>();
 
   protected AbstractRecordStore() {
     this(ArrayRecord.FACTORY);
@@ -286,6 +290,20 @@ public abstract class AbstractRecordStore extends BaseObjectWithProperties imple
   @Override
   public CategoryLabelCountMap getStatistics() {
     return this.statistics;
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public <TRS extends AbstractTableRecordStore> TRS getTableRecordStore(
+    final CharSequence pathName) {
+    return (TRS)this.tableRecordStoreByName.computeIfAbsent(PathName.newPathName(pathName),
+      name -> {
+        if (getRecordDefinition(pathName) == null) {
+          return null;
+        } else {
+          return new TableRecordStoreImpl(name, (JdbcRecordStore)this);
+        }
+      });
   }
 
   @Override

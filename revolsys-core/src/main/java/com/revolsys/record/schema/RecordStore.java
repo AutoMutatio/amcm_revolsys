@@ -58,7 +58,7 @@ import com.revolsys.util.count.LabelCountMap;
 import com.revolsys.util.count.LabelCounters;
 
 public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFactory, Transactionable,
-  BaseCloseable, ObjectWithProperties {
+  BaseCloseable, ObjectWithProperties, TableRecordStoreFactory {
 
   static void appendDefaultSql(final SqlAppendable sql, final Object queryValue) {
     if (queryValue == null) {
