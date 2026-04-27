@@ -11,6 +11,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.revolsys.collection.json.JsonObject;
+import com.revolsys.exception.Exceptions;
 import com.revolsys.exception.WrappedIoException;
 import com.revolsys.io.IoFactory;
 import com.revolsys.record.io.BufferedWriterEx;
@@ -150,8 +151,11 @@ public class QueryHttpMessageConverter extends AbstractHttpMessageConverter<Quer
             .buildString();
           jsonWriter.setFooter(JsonObject.hash("@odata.nextLink", nextLink));
         }
-      } catch (final WrappedIoException e) {
+      } catch (final RuntimeException e) {
         // Don't log these errors
+        if (!Exceptions.hasCause(e, WrappedIoException.class)) {
+          throw e;
+        }
       }
     }
   }

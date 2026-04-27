@@ -401,6 +401,11 @@ public abstract class Single<T> implements ValueHolder<T> {
   @Override
   public abstract <U> Single<U> map(final Function<? super T, ? extends U> mapper);
 
+  public <V> V mapOptional(final Function<Optional<T>, V> mapper) {
+    final var optional = toOptional();
+    return mapper.apply(optional);
+  }
+
   public abstract <U> Single<U> mapSingle(
     final Function<? super T, ? extends Single<? extends U>> mapper);
 
@@ -437,4 +442,5 @@ public abstract class Single<T> implements ValueHolder<T> {
   public String toString() {
     return "empty";
   }
+
 }

@@ -14,6 +14,7 @@ import com.revolsys.collection.list.ListEx;
 import com.revolsys.collection.list.Lists;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.io.PathName;
+import com.revolsys.jdbc.io.JdbcRecordStoreSchema;
 import com.revolsys.logging.Logs;
 import com.revolsys.parallel.ReentrantLockEx;
 import com.revolsys.record.io.RecordStoreExtension;
@@ -65,6 +66,13 @@ public class RecordStoreSchema extends AbstractRecordStoreSchemaElement
     } else {
       throw new IllegalArgumentException(path + " is not a parent of " + childPath);
     }
+  }
+
+  public void addToCollection(final ListEx<RecordStoreSchema> schemas) {
+    if (!(this instanceof JdbcRecordStoreSchema) || !"/".equals(getName())) {
+      schemas.add(this);
+    }
+    getSchemas().forEach(s -> s.addToCollection(schemas));
   }
 
   @Override

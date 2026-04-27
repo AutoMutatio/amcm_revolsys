@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
 import com.revolsys.collection.map.MapEx;
@@ -17,6 +18,7 @@ import com.revolsys.collection.map.Maps;
 import com.revolsys.function.Consumer3;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.io.PathName;
+import com.revolsys.jdbc.io.JdbcRecordStore;
 import com.revolsys.logging.Logs;
 import com.revolsys.parallel.ReentrantLockEx;
 import com.revolsys.properties.BaseObjectWithProperties;
@@ -74,6 +76,8 @@ public abstract class AbstractRecordStore extends BaseObjectWithProperties imple
   private boolean initialized = false;
 
   protected ReentrantLockEx lock = new ReentrantLockEx();
+
+  private final Map<PathName, AbstractTableRecordStore> tableRecordStoreByName = new ConcurrentHashMap<>();
 
   protected AbstractRecordStore() {
     this(ArrayRecord.FACTORY);
@@ -289,6 +293,24 @@ public abstract class AbstractRecordStore extends BaseObjectWithProperties imple
   }
 
   @Override
+  public <TRS extends AbstractTableRecordStore> TRS getTableRecordStore(final CharSequence name) {
+    final var pathName = PathName.newPathName(name);
+    return getTableRecordStore(pathName);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public <TRS extends AbstractTableRecordStore> TRS getTableRecordStore(final PathName pathName) {
+    return (TRS)this.tableRecordStoreByName.computeIfAbsent(pathName, name -> {
+      if (getRecordDefinition(pathName) == null) {
+        return null;
+      } else {
+        return new TableRecordStoreImpl(name, (JdbcRecordStore)this);
+      }
+    });
+  }
+
+  @Override
   public String getUrl() {
     return (String)this.connectionProperties.get("url");
   }
@@ -301,7 +323,7 @@ public abstract class AbstractRecordStore extends BaseObjectWithProperties imple
   @Override
   public final void initialize() {
     try (
-      var l = this.lock.lockX()) {
+      var _ = this.lock.lockX()) {
       if (!this.initialized) {
         this.initialized = true;
         initializeDo();
