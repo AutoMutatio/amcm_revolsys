@@ -1,6 +1,8 @@
 package com.revolsys.web;
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -63,7 +65,7 @@ public final class HttpServletUtils {
     final String serverUrl = url.toString();
     final String originatingRequestUri = new UrlPathHelper().getOriginatingRequestUri(request);
     final String requestUri = originatingRequestUri;
-    final String uri = serverUrl + requestUri;
+    final String uri = serverUrl + URLEncoder.encode(requestUri, StandardCharsets.UTF_8);
     return new UriBuilder(uri);
   }
 

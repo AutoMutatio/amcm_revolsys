@@ -24,6 +24,9 @@ public interface TableReferenceProxy {
   }
 
   default QueryValue columnByPath(final String path) {
+    if (getTableReference().hasColumn(path)) {
+      return getField(path);
+    }
     final var parts = path.split("\\.");
     final var fieldName = parts[0];
     final var column = getColumn(fieldName);

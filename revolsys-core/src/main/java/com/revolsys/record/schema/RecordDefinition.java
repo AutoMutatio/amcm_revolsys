@@ -121,6 +121,8 @@ public interface RecordDefinition extends Cloneable, GeometryFactoryProxy, Recor
 
   Map<String, Object> getDefaultValues();
 
+  String getDescription();
+
   @Override
   FieldDefinition getField(CharSequence name);
 

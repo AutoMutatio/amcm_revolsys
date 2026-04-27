@@ -292,18 +292,22 @@ public abstract class AbstractRecordStore extends BaseObjectWithProperties imple
     return this.statistics;
   }
 
+  @Override
+  public <TRS extends AbstractTableRecordStore> TRS getTableRecordStore(final CharSequence name) {
+    final var pathName = PathName.newPathName(name);
+    return getTableRecordStore(pathName);
+  }
+
   @SuppressWarnings("unchecked")
   @Override
-  public <TRS extends AbstractTableRecordStore> TRS getTableRecordStore(
-    final CharSequence pathName) {
-    return (TRS)this.tableRecordStoreByName.computeIfAbsent(PathName.newPathName(pathName),
-      name -> {
-        if (getRecordDefinition(pathName) == null) {
-          return null;
-        } else {
-          return new TableRecordStoreImpl(name, (JdbcRecordStore)this);
-        }
-      });
+  public <TRS extends AbstractTableRecordStore> TRS getTableRecordStore(final PathName pathName) {
+    return (TRS)this.tableRecordStoreByName.computeIfAbsent(pathName, name -> {
+      if (getRecordDefinition(pathName) == null) {
+        return null;
+      } else {
+        return new TableRecordStoreImpl(name, (JdbcRecordStore)this);
+      }
+    });
   }
 
   @Override
@@ -319,7 +323,7 @@ public abstract class AbstractRecordStore extends BaseObjectWithProperties imple
   @Override
   public final void initialize() {
     try (
-      var l = this.lock.lockX()) {
+      var _ = this.lock.lockX()) {
       if (!this.initialized) {
         this.initialized = true;
         initializeDo();

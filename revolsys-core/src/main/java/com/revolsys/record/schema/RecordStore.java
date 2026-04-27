@@ -18,6 +18,8 @@ import org.springframework.beans.DirectFieldAccessor;
 
 import com.revolsys.collection.iterator.BaseIterable;
 import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.list.ListEx;
+import com.revolsys.collection.list.Lists;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.data.identifier.Identifier;
 import com.revolsys.data.type.DataTypes;
@@ -765,6 +767,18 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
     if (codeTable != null) {
       codeTable.refresh();
     }
+  }
+
+  @Override
+  default RecordStoreSchema schema(final String path) {
+    return getSchema(path);
+  }
+
+  @Override
+  default ListEx<RecordStoreSchema> schemas() {
+    final ListEx<RecordStoreSchema> schemas = Lists.newArray();
+    getRootSchema().addToCollection(schemas);
+    return schemas;
   }
 
   void setLabel(String label);

@@ -59,7 +59,9 @@ import com.revolsys.record.query.TableReferenceProxy;
 import com.revolsys.record.query.UpdateStatement;
 import com.revolsys.record.query.Value;
 import com.revolsys.record.query.functions.ArrayElements;
+import com.revolsys.record.query.functions.Coalesce;
 import com.revolsys.record.query.functions.F;
+import com.revolsys.record.query.functions.JsonValue;
 import com.revolsys.util.Property;
 
 public class AbstractTableRecordStore implements RecordDefinitionProxy {
@@ -147,6 +149,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
       jsonFields.add(jsonField);
     }
     jsonSchema.addNotEmpty("relationships", recordDefinition.getProperty("relationships"));
+    jsonSchema.removeEmptyValues();
     return jsonSchema;
   }
 
@@ -356,6 +359,34 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
       return false;
     }
     return true;
+  }
+
+  protected QueryValue dateFormat(QueryValue value, final String dateFormat,
+    final String nullValue) {
+    final var column = value.getColumn();
+    FieldDefinition field = null;
+    if (column != null) {
+      field = column.getFieldDefinition();
+      final var dataType = column.getDataType();
+      if (!(dataType == DataTypes.DATE_TIME || dataType == DataTypes.INSTANT
+        || dataType == DataTypes.SQL_DATE || dataType == DataTypes.LOCAL_DATE)) {
+        if (value instanceof final JsonValue jsonValue) {
+          jsonValue.setText(true);
+        } else if (dataType != DataTypes.STRING) {
+          column.cast("text");
+        }
+
+        value = Q.sql(DataTypes.STRING, "CASE WHEN ", value, " ~ '\\d{4}-\\d{2}-\\d{2}.*' THEN (",
+          value, ")::date ELSE NULL END");
+      }
+    }
+
+    final var toChar = F.function("to_char", value, Q.literal(dateFormat));
+    if (field == null || !field.isRequired()) {
+      return new Coalesce(toChar, Q.literal(nullValue));
+    } else {
+      return toChar;
+    }
   }
 
   public boolean deleteRecord(final TableRecordStoreConnection connection, final Record record) {
@@ -805,8 +836,97 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     };
   }
 
-  protected QueryValue pathToQueryValueWrap(final QueryValue value, final String function) {
-    throw new IllegalArgumentException("Function " + function + "  not supported");
+  protected QueryValue pathToQueryValueWrap(QueryValue value, final String function) {
+    final var className = getRecordStore().getClass()
+      .getName();
+    final var snowflake = className.equals("com.revolsys.snowflake.SnowflakeRecordStore");
+    if (function.equals("day")) {
+      return dateFormat(value, "yyyy-mm-dd", "0000-00-00");
+    } else if (function.equals("month")) {
+      return dateFormat(value, "yyyy-mm", "0000-00");
+    } else if (function.equals("quarter")) {
+      if (snowflake) {
+        final var column = value.getColumn();
+        FieldDefinition field = null;
+        if (column != null) {
+          field = column.getFieldDefinition();
+          final var dataType = column.getDataType();
+          if (!(dataType == DataTypes.DATE_TIME || dataType == DataTypes.INSTANT
+            || dataType == DataTypes.SQL_DATE || dataType == DataTypes.LOCAL_DATE)) {
+            if (value instanceof final JsonValue jsonValue) {
+              jsonValue.setText(true);
+            } else if (dataType != DataTypes.STRING) {
+              column.cast("text");
+            }
+
+            value = Q.sql(DataTypes.STRING, "CASE WHEN ", value,
+              " ~ '\\d{4}-\\d{2}-\\d{2}.*' THEN (", value, ")::date ELSE NULL END");
+          }
+        }
+
+        final var toChar = F.function("CONCAT", F.function("year", value), Q.literal("-"),
+          F.function("quarter", value));
+        if (field == null || !field.isRequired()) {
+          return new Coalesce(toChar, Q.literal("0000-0"));
+        } else {
+          return toChar;
+        }
+      } else {
+        return dateFormat(value, "yyyy-q", "0000-0");
+      }
+    } else if (function.equals("year")) {
+      return dateFormat(value, "yyyy", "0000");
+    } else if (function.equals("weekStartMon")) {
+      final var weeekStartMonday = F.function("date_trunc", Q.literal("week"), value)
+        .cast("date");
+      return dateFormat(weeekStartMonday, "yyyy-mm-dd", "0000-00-00");
+    } else if (function.equals("weekEndSun")) {
+      final var weekEndSunday = Q.add(F.function("date_trunc", Q.literal("week"), value)
+        .cast("date"), Value.newValue(6));
+      return dateFormat(weekEndSunday, "yyyy-mm-dd", "0000-00-00");
+    } else if (function.equals("weekStartSat")) {
+      final QueryValue weeekStartSaturday;
+      if (snowflake) {
+        weeekStartSaturday = F.function("dateadd", Q.literal("day"), Q.literal("-2"),
+          F.function("date_trunc", Q.literal("week"),
+            F.function("dateadd", Q.literal("day"), Q.literal("2"), value)));
+        ;
+      } else {
+        weeekStartSaturday = F
+          .function("date_bin", Q.literal("7 days"), value, Q.literal("1900-01-06"))
+          .cast("date");
+      }
+      return dateFormat(weeekStartSaturday, "yyyy-mm-dd", "0000-00-00");
+    } else if (function.equals("weekEndFri")) {
+      final var weekEndFriday = Q
+        .add(F.function("date_trunc", Q.literal("week"), Q.add(value, Q.sql("interval '1 day'")))
+          .cast("date"), Value.newValue(4));
+      return dateFormat(weekEndFriday, "yyyy-mm-dd", "0000-00-00");
+    } else if (function.equals("weekStartSun")) {
+      final QueryValue weeekStartSunday;
+      if (snowflake) {
+        weeekStartSunday = F.function("dateadd", Q.literal("day"), Q.literal("-1"),
+          F.function("date_trunc", Q.literal("week"),
+            F.function("dateadd", Q.literal("day"), Q.literal("1"), value)));
+      } else {
+        weeekStartSunday = F
+          .function("date_bin", Q.literal("7 days"), value, Q.literal("1900-01-07"))
+          .cast("date");
+      }
+      return dateFormat(weeekStartSunday, "yyyy-mm-dd", "0000-00-00");
+    } else if (function.equals("weekEndSat")) {
+      final var weekEndSaturday = Q
+        .add(F.function("date_trunc", Q.literal("week"), Q.add(value, Q.sql("interval '1 day'")))
+          .cast("date"), Value.newValue(5));
+      return dateFormat(weekEndSaturday, "yyyy-mm-dd", "0000-00-00");
+    } else if (function.equals("week")) {
+      final var truncValue = F.function("date_trunc", Q.literal("week"), value);
+      return dateFormat(truncValue, "yyyy-mm-dd", "0000-00-00");
+    } else if (function.equals("dayName")) {
+      return F.function("rtrim", dateFormat(value, "Day", "000"));
+    } else {
+      throw new IllegalArgumentException("Function " + function + "  not supported");
+    }
   }
 
   /**
