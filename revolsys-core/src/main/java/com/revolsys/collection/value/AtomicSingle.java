@@ -236,6 +236,15 @@ public class AtomicSingle<V> extends Single<V> {
   }
 
   @Override
+  public Single<V> supplyEmpty(final Supplier<? extends V> supplier) {
+    var value = getOrNull();
+    if (value == null) {
+      value = supplier.get();
+    }
+    return Single.ofNullable(value);
+  }
+
+  @Override
   public AtomicSingle<V> tap(final Consumer<? super V> action) {
     if (!isEmpty()) {
       action.accept(getOrNull());

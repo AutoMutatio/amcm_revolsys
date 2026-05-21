@@ -15,6 +15,7 @@ import java.util.function.Consumer;
 
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.collection.map.Maps;
+import com.revolsys.collection.value.Single;
 import com.revolsys.function.Consumer3;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.io.PathName;
@@ -158,6 +159,17 @@ public abstract class AbstractRecordStore extends BaseObjectWithProperties imple
         Logs.error(extension.getClass(), "Unable to initialize", e);
       }
     }
+  }
+
+  @Override
+  public Single<RecordStoreSchema> addSchemaInitializer(final PathName schemaName,
+    final Consumer<RecordStoreSchema> initializer) {
+    var schema = getRootSchema();
+    for (final var path : schemaName.getParentPaths()) {
+      schema = schema.addSchemaInitializer(path);
+    }
+    schema.addSchemaInitializer(schemaName, initializer);
+    return Single.ofNullable(schema);
   }
 
   protected void addSqlQueryAppender(final Class<?> clazz,

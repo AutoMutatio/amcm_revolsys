@@ -231,15 +231,15 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
       for (String orderClause : orderBy.split(",")) {
         orderClause = orderClause.strip();
         String fieldName;
-        boolean ascending = true;
-        final int spaceIndex = orderClause.indexOf(' ');
-        if (spaceIndex == -1) {
-          fieldName = orderClause;
+        final boolean ascending = true;
+        if (orderClause.toLowerCase()
+          .endsWith(" asc")) {
+          fieldName = orderClause.substring(0, orderClause.length() - 4);
+        } else if (orderClause.toLowerCase()
+          .endsWith(" desc")) {
+          fieldName = orderClause.substring(0, orderClause.length() - 5);
         } else {
-          fieldName = orderClause.substring(0, spaceIndex);
-          if ("desc".equalsIgnoreCase(orderClause.substring(spaceIndex + 1))) {
-            ascending = false;
-          }
+          fieldName = orderClause;
         }
         Object orderField;
         if (hasField(fieldName)) {
@@ -759,7 +759,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
       final Record record = newRecord(connection);
       for (final String fieldName : values.keySet()) {
         final Object value = values.getValue(fieldName);
-        if (Property.hasValue(value)) {
+        if (value != null) {
           record.setValue(fieldName, value);
         }
       }

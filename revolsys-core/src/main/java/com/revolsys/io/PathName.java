@@ -262,6 +262,15 @@ public final class PathName implements Comparable<PathName>, CharSequence {
     }
   }
 
+  public List<PathName> getParentPaths() {
+    final LinkedList<PathName> elements = new LinkedList<>();
+    for (PathName parentPath = getParent(); parentPath != null; parentPath = parentPath
+      .getParent()) {
+      elements.addFirst(parentPath);
+    }
+    return elements;
+  }
+
   public String getPath() {
     return this.path;
   }

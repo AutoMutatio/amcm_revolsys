@@ -542,7 +542,11 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     final TableReference table = this.table;
     final List<QueryValue> select = getSelect();
     if (select.isEmpty()) {
-      table.appendSelectAll(this, sql);
+      if (table == null) {
+        sql.append('*');
+      } else {
+        table.appendSelectAll(this, sql);
+      }
     } else {
       boolean first = true;
       for (final QueryValue selectItem : select) {
@@ -573,6 +577,27 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
 
   protected void appendSql(final SqlAppendable sql, final TableReferenceProxy table,
     final List<OrderBy> orderBy) {
+    final var sqlStatement = getSql();
+    if (sqlStatement != null) {
+      final RecordDefinition recordDefinition = getRecordDefinition();
+      if (sqlStatement.toUpperCase()
+        .startsWith("SELECT * FROM ")) {
+        sql.append("SELECT ");
+        if (recordDefinition == null) {
+          sql.append("*");
+        } else {
+          recordDefinition.appendSelectAll(this, sql);
+        }
+        sql.append(" FROM ");
+        sql.append(sqlStatement.substring(14));
+      } else {
+        sql.append(sqlStatement);
+      }
+      if (!orderBy.isEmpty()) {
+        addOrderBy(sql, table, orderBy);
+      }
+      return;
+    }
     From from = getFrom();
     if (from == null && table != null) {
       from = table.getTableReference();
@@ -953,39 +978,14 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
   }
 
   public String getSelectSql() {
-    final boolean usePlaceholders = true;
-    return getSelectSql(usePlaceholders);
+    return getSelectSql(true);
   }
 
   private String getSelectSql(final boolean usePlaceholders) {
-    String sql = getSql();
-    final List<OrderBy> orderBy = getOrderBy();
-    final TableReference table = getTable();
-    final RecordDefinition recordDefinition = getRecordDefinition();
-    if (sql == null) {
-      sql = newSelectSql(orderBy, table, usePlaceholders);
-    } else {
-      if (sql.toUpperCase()
-        .startsWith("SELECT * FROM ")) {
-        final StringBuilderSqlAppendable sqlBuilder = newSqlAppendable();
-        sqlBuilder.append("SELECT ");
-        if (recordDefinition == null) {
-          sqlBuilder.append("*");
-        } else {
-          recordDefinition.appendSelectAll(this, sqlBuilder);
-        }
-        sqlBuilder.append(" FROM ");
-        sqlBuilder.append(sql.substring(14));
-        sql = sqlBuilder.toSqlString();
-      }
-      if (!orderBy.isEmpty()) {
-        final StringBuilderSqlAppendable sqlBuilder = newSqlAppendable();
-        sqlBuilder.append(sql);
-        addOrderBy(sqlBuilder, table, orderBy);
-        sql = sqlBuilder.toSqlString();
-      }
-    }
-    return sql;
+    final var sql = newSqlAppendable();
+    sql.setUsePlaceholders(usePlaceholders);
+    appendSql(sql, this.table, this.orderBy);
+    return sql.toSqlString();
   }
 
   public String getSql() {
@@ -1293,14 +1293,6 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     return selectExpression;
   }
 
-  public String newSelectSql(final List<OrderBy> orderBy, final TableReferenceProxy table,
-    final boolean usePlaceholders) {
-    final StringBuilderSqlAppendable sql = newSqlAppendable();
-    sql.setUsePlaceholders(usePlaceholders);
-    appendSql(sql, table, orderBy);
-    return sql.toSqlString();
-  }
-
   protected StringBuilderSqlAppendable newSqlAppendable() {
     final StringBuilderSqlAppendable sql = SqlAppendable.stringBuilder();
     final RecordDefinition recordDefinition = getRecordDefinition();
@@ -1372,7 +1364,7 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
   public Query readerConsume(final Consumer<RecordReader> action) {
     try (
       var reader = getRecordReader()) {
-      action.accept(getRecordReader());
+      action.accept(reader);
     }
     return this;
   }
