@@ -7,6 +7,7 @@ import java.lang.reflect.Modifier;
 import java.util.function.Consumer;
 
 import com.revolsys.exception.Exceptions;
+import com.revolsys.exception.WrappedIoException;
 import com.revolsys.io.CloseableWrapper;
 import com.revolsys.logging.Logs;
 
@@ -44,6 +45,7 @@ public interface BaseCloseable extends Closeable {
     if (closeable != null) {
       try {
         closeable.close();
+      } catch (final WrappedIoException e) {
       } catch (final IOException e) {
       } catch (final Exception e) {
         Logs.error(BaseCloseable.class, e.getMessage(), e);

@@ -21,6 +21,7 @@ import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.list.ListEx;
 import com.revolsys.collection.list.Lists;
 import com.revolsys.collection.map.MapEx;
+import com.revolsys.collection.value.Single;
 import com.revolsys.data.identifier.Identifier;
 import com.revolsys.data.type.DataTypes;
 import com.revolsys.geometry.model.BoundingBox;
@@ -217,6 +218,9 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
   }
 
   RecordStore addRecordDefinitionInitializer(PathName tableName, Consumer<RecordDefinition> action);
+
+  Single<RecordStoreSchema> addSchemaInitializer(PathName schemaName,
+    Consumer<RecordStoreSchema> initializer);
 
   default void addStatistic(final String statisticName, final Record object) {
     final CategoryLabelCountMap statistics = getStatistics();
@@ -757,6 +761,10 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
     return newRecordWriter();
   }
 
+  default RecordStoreSchema newSchema(final RecordStoreSchema parent, final PathName path) {
+    return new RecordStoreSchema(parent, path);
+  }
+
   default <R extends Record> InsertUpdateBuilder<R> newUpdate(final PathName pathName) {
     return this.<R> newInsertUpdate(pathName)
       .setInsert(false);
@@ -769,9 +777,14 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
     }
   }
 
+  default <RSS extends RecordStoreSchema> Single<RSS> schema(final PathName pathName) {
+    final RecordStoreSchema rootSchema = getRootSchema();
+    return Single.ofNullable(rootSchema.getSchema(pathName));
+  }
+
   @Override
-  default RecordStoreSchema schema(final String path) {
-    return getSchema(path);
+  default <RSS extends RecordStoreSchema> Single<RSS> schema(final String path) {
+    return Single.ofNullable(getSchema(path));
   }
 
   @Override

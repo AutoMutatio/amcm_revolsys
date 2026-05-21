@@ -128,6 +128,12 @@ public abstract class Single<T> implements ValueHolder<T> {
     }
 
     @Override
+    public Single<V> supplyEmpty(final Supplier<? extends V> supplier) {
+      final var value = supplier.get();
+      return Single.ofNullable(value);
+    }
+
+    @Override
     public Single<V> tap(final Consumer<? super V> action) {
       return this;
     }
@@ -291,6 +297,11 @@ public abstract class Single<T> implements ValueHolder<T> {
     }
 
     @Override
+    public Single<V> supplyEmpty(final Supplier<? extends V> supplier) {
+      return this;
+    }
+
+    @Override
     public Single<V> tap(final Consumer<? super V> action) {
       action.accept(this.value);
       return this;
@@ -429,6 +440,8 @@ public abstract class Single<T> implements ValueHolder<T> {
 
   @Override
   public abstract Stream<T> stream();
+
+  public abstract Single<T> supplyEmpty(final Supplier<? extends T> supplier);
 
   @Override
   public Single<T> tap(final Consumer<? super T> action) {
