@@ -78,4 +78,5 @@ public interface TableRecordStoreConnection extends Transactionable, TableRecord
     final Identifier id = record.getIdentifier();
     return updateRecord(tablePath, id, updateAction);
   }
+
 }

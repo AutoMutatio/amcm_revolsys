@@ -32,6 +32,8 @@ public class JsonValue extends SimpleFunction {
 
   private boolean text = true;
 
+  private String alias;
+
   public JsonValue(final List<QueryValue> parameters) {
     super(NAME, 2, parameters);
     final QueryValue pathParameter = parameters.get(1);
@@ -122,10 +124,16 @@ public class JsonValue extends SimpleFunction {
   }
 
   @Override
-  public Object getValueFromResultSet(final RecordDefinition recordDefinition,
-    int fieldIndex, final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings)
+  public Object getValueFromResultSet(final RecordDefinition recordDefinition, final int fieldIndex,
+    final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings)
     throws SQLException {
-    return getColumn().getValueFromResultSet(recordDefinition, fieldIndex, resultSet, indexes, internStrings);
+    if (this.alias == null) {
+      return getColumn().getValueFromResultSet(recordDefinition, fieldIndex, resultSet, indexes,
+        internStrings);
+    } else {
+      return QueryValue.getValueFromResultSet(recordDefinition, fieldIndex, this.alias, resultSet,
+        indexes, internStrings);
+    }
   }
 
   public boolean isText() {
@@ -135,6 +143,12 @@ public class JsonValue extends SimpleFunction {
   public JsonValue setText(final boolean text) {
     this.text = text;
     return this;
+  }
+
+  @Override
+  public QueryValue toAlias(final String alias) {
+    this.alias = alias;
+    return super.toAlias(alias);
   }
 
   @Override

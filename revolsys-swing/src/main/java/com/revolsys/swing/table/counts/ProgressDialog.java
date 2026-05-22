@@ -57,11 +57,13 @@ public class ProgressDialog extends BaseDialog implements WindowListener, Runnab
 
   private JButton okButton;
 
+  private final Runnable action;
+
   private final JLabel statusLabel = new JLabel();
 
   private final JTabbedPane tabs = new JTabbedPane();
 
-  public ProgressDialog(String title) {
+  public ProgressDialog(String title, Runnable action) {
     super(title, ModalityType.DOCUMENT_MODAL);
     if (!Property.hasValue(title)) {
       title = CaseConverter.toCapitalizedWords(getClass().getSimpleName());
@@ -69,6 +71,7 @@ public class ProgressDialog extends BaseDialog implements WindowListener, Runnab
     }
     SwingUtil.setSplashTitle(title);
     initDialog();
+    this.action = action;
   }
 
   protected void addTab(final String label, final BaseJTable table) {
@@ -111,7 +114,7 @@ public class ProgressDialog extends BaseDialog implements WindowListener, Runnab
 
     final TabbedPane bottomTabs = new TabbedPane();
     BackgroundTaskTableModel.addNewTabPanel(bottomTabs);
-    LoggingTableModel.addNewTabPane(bottomTabs);
+    LoggingTableModel.addNewTabPane(bottomTabs, true);
     bottomTabs.setPreferredSize(new Dimension(600, 150));
 
     final JSplitPane split = new JSplitPane(JSplitPane.VERTICAL_SPLIT, this.tabs, bottomTabs);
@@ -144,9 +147,9 @@ public class ProgressDialog extends BaseDialog implements WindowListener, Runnab
   public void run() {
     final var timer = new javax.swing.Timer(1000, new EventQueueRunnableListener(this::repaint));
     timer.start();
-    boolean updateStatus = true;
+    final boolean updateStatus = true;
     try {
-      updateStatus = runDo();
+      action.run();
     } catch (final Throwable e) {
       Logs.error(this, "Error " + this, e);
     } finally {
@@ -166,10 +169,6 @@ public class ProgressDialog extends BaseDialog implements WindowListener, Runnab
       status.append("<p>Click OK to close this dialog and continue.</p>");
       setStatus(status.toString());
     }
-  }
-
-  protected boolean runDo() {
-    return true;
   }
 
   protected void setOKButtonTitle(final String title) {
@@ -195,7 +194,7 @@ public class ProgressDialog extends BaseDialog implements WindowListener, Runnab
   }
 
   public void setStatus(final CharSequence message) {
-    Invoke.later(() -> {
+    Invoke.andWait(() -> {
       this.statusLabel.setText("<html><body>" + message + "</body></html>");
     });
   }

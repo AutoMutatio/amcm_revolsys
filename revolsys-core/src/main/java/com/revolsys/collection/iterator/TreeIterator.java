@@ -42,7 +42,10 @@ final class TreeIterator<T> extends BaseIterator<T> implements BaseCloseable {
       if (this.value != null) {
         BaseCloseable.closeValue(this.innerIterator);
         final Iterable<T> iterable = this.iteratorConstructor.apply(this.value);
-        if (iterable != null) {
+        if (iterable == null) {
+          this.innerIterator = Iterables.<T> empty()
+            .iterator();
+        } else {
           this.innerIterator = iterable.iterator();
         }
         return true;

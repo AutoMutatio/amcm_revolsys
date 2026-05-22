@@ -14,6 +14,7 @@ import com.revolsys.collection.list.ListEx;
 import com.revolsys.collection.list.Lists;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.io.PathName;
+import com.revolsys.jdbc.io.JdbcRecordStoreSchema;
 import com.revolsys.logging.Logs;
 import com.revolsys.parallel.ReentrantLockEx;
 import com.revolsys.record.io.RecordStoreExtension;
@@ -34,6 +35,8 @@ public class RecordStoreSchema extends AbstractRecordStoreSchemaElement
   private GeometryFactory geometryFactory;
 
   private final ReentrantLockEx lock = new ReentrantLockEx();
+
+  private String catalogueName;
 
   public RecordStoreSchema(final AbstractRecordStore recordStore) {
     this.recordStore = recordStore;
@@ -65,6 +68,13 @@ public class RecordStoreSchema extends AbstractRecordStoreSchemaElement
     }
   }
 
+  public void addToCollection(final ListEx<RecordStoreSchema> schemas) {
+    if (!(this instanceof JdbcRecordStoreSchema) || !"/".equals(getName())) {
+      schemas.add(this);
+    }
+    getSchemas().forEach(s -> s.addToCollection(schemas));
+  }
+
   @Override
   public void close() {
     try (
@@ -88,6 +98,10 @@ public class RecordStoreSchema extends AbstractRecordStoreSchemaElement
       refreshIfNeeded();
       return this.recordDefinitionsByPath.get(path);
     }
+  }
+
+  public String getCatalogueName() {
+    return this.catalogueName;
   }
 
   @Override
@@ -378,6 +392,10 @@ public class RecordStoreSchema extends AbstractRecordStoreSchemaElement
       removeElement(pathName);
       addElement(newElement);
     }
+  }
+
+  public void setCatalogueName(final String catalogueName) {
+    this.catalogueName = catalogueName;
   }
 
   public void setGeometryFactory(final GeometryFactory geometryFactory) {

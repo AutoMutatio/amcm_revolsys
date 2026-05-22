@@ -11,6 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.swing.JTable;
 
 import com.revolsys.date.Dates.Timer;
+import com.revolsys.parallel.ReentrantLockEx;
 import com.revolsys.record.io.format.tsv.Tsv;
 import com.revolsys.record.io.format.tsv.TsvWriter;
 import com.revolsys.swing.parallel.Invoke;
@@ -21,16 +22,23 @@ public class TimerTableModel extends AbstractTableModel {
   private static final long serialVersionUID = 1L;
 
   private static final String[] COLUMN_NAMES = {
-    "Label", "Duration"
+    "Done", "Label", "Duration"
   };
 
   private final Map<String, Timer> timerByLabel = new ConcurrentHashMap<>();
 
   private final List<String> labels = new ArrayList<>();
 
+  private final ReentrantLockEx labelsLock = new ReentrantLockEx();
+
   public Timer addTimer(final String label) {
     return this.timerByLabel.computeIfAbsent(label, newLabel -> {
-      this.labels.add(newLabel);
+      try (
+        var _ = labelsLock.lockX()) {
+        if (!labels.contains(newLabel)) {
+          this.labels.add(newLabel);
+        }
+      }
       final var timer = new Timer() {
         @Override
         public void close() {
@@ -50,15 +58,16 @@ public class TimerTableModel extends AbstractTableModel {
   @Override
   public Class<?> getColumnClass(final int columnIndex) {
     return switch (columnIndex) {
-      case 0 -> String.class;
-      case 1 -> Duration.class;
+      case 0 -> Boolean.class;
+      case 1 -> String.class;
+      case 2 -> Duration.class;
       default -> String.class;
     };
   }
 
   @Override
   public int getColumnCount() {
-    return 2;
+    return 3;
   }
 
   @Override
@@ -73,12 +82,13 @@ public class TimerTableModel extends AbstractTableModel {
 
   @Override
   public Object getValueAt(final int rowIndex, final int columnIndex) {
-    final int rowCount = getRowCount();
-    if (rowIndex >= 0 && rowIndex < rowCount) {
+    if (rowIndex >= 0 && rowIndex < this.labels.size()) {
       final var label = this.labels.get(rowIndex);
       return switch (columnIndex) {
-        case 0 -> label;
-        case 1 -> this.timerByLabel.get(label)
+        case 0 -> this.timerByLabel.get(label)
+          .isClosed();
+        case 1 -> label;
+        case 2 -> this.timerByLabel.get(label)
           .duration()
           .truncatedTo(ChronoUnit.SECONDS)
           .toString()
@@ -92,9 +102,12 @@ public class TimerTableModel extends AbstractTableModel {
   @Override
   public BaseJTable newTable() {
     final var table = super.newTable();
-    table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
-    table.getColumn(1)
+    final var doneColumn = table.getColumn(0);
+    doneColumn.setCellRenderer(TimerLabelCountTableModel.BOOLEAN_RENDERER);
+    doneColumn.setMaxWidth(60);
+    table.getColumn(2)
       .setMaxWidth(100);
+    table.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
     return table;
   }
 

@@ -38,10 +38,10 @@ import com.revolsys.util.BaseCloseable;
 import com.revolsys.util.Property;
 import com.revolsys.util.concurrent.Concurrent;
 
-public class JdbcDataSourceImpl extends JdbcDataSource implements BaseCloseable {
+public class JdbcDataSourceImpl extends JdbcDataSource {
   public static class Builder {
 
-    private final Properties connectionProperties = new Properties();
+    private final JsonObject connectionProperties = JsonObject.hash();
 
     private Driver driver;
 
@@ -73,7 +73,7 @@ public class JdbcDataSourceImpl extends JdbcDataSource implements BaseCloseable 
         final Object value = property.getValue();
         try {
           if (!Property.setSimple(this, name, value)) {
-            this.connectionProperties.setProperty(name, value.toString());
+            this.connectionProperties.addValue(name, value);
           }
         } catch (final Throwable t) {
           Logs.debug(this,
@@ -506,8 +506,13 @@ public class JdbcDataSourceImpl extends JdbcDataSource implements BaseCloseable 
     final var url = this.config.url;
     final var userSupplier = this.config.userSupplier;
     final var passwordSupplier = this.config.passwordSupplier;
-    final var connectionProperties = new Properties(this.config.connectionProperties);
-
+    final var connectionProperties = new Properties();
+    this.config.connectionProperties.forEach((name, value) -> {
+      if (value instanceof final Supplier supplier) {
+        value = supplier.get();
+      }
+      connectionProperties.put(name, value);
+    });
     if (userSupplier != null) {
       final var user = userSupplier.get();
       if (user == null) {

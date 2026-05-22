@@ -9,20 +9,35 @@ import javax.swing.Icon;
 import com.revolsys.swing.tree.BaseTreeNode;
 
 public class SupplierChildrenTreeNode extends LazyLoadTreeNode {
-  private final Supplier<Iterable<?>> children;
+  private final Supplier<Iterable<?>> childrenLoader;
 
-  public <I extends Iterable<?>> SupplierChildrenTreeNode(final String name, final Icon icon,
-    final Supplier<I> children) {
-    super(null);
+  public <I extends Iterable<?>> SupplierChildrenTreeNode(Object userData, final String name,
+    final Icon icon, final Supplier<I> childrenLoader) {
+    super(userData);
     setName(name);
     setIcon(icon);
-    this.children = (Supplier)children;
+    this.childrenLoader = (Supplier)childrenLoader;
+    if (childrenLoader == null) {
+      setAllowsChildren(false);
+    }
+  }
+
+  public <I extends Iterable<?>> SupplierChildrenTreeNode(final String name, final Icon icon,
+    final Supplier<I> childrenLoader) {
+    super(name);
+    setName(name);
+    setIcon(icon);
+    this.childrenLoader = (Supplier)childrenLoader;
+    if (childrenLoader == null) {
+      setAllowsChildren(false);
+    }
   }
 
   @Override
   protected List<BaseTreeNode> loadChildrenDo() {
     final List<BaseTreeNode> nodes = new ArrayList<>();
-    for (final Object child : this.children.get()) {
+    final Iterable<?> children = this.childrenLoader.get();
+    for (final Object child : children) {
       final BaseTreeNode node = BaseTreeNode.newTreeNode(child);
       if (node != null) {
         nodes.add(node);

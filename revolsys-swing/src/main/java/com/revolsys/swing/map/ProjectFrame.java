@@ -412,7 +412,7 @@ public class ProjectFrame extends BaseFrame {
 
   protected void addBottomTabs(final DnDTabbedPane bottomTabs) {
     addBottomTabsTasks();
-    LoggingTableModel.addNewTabPane(bottomTabs);
+    LoggingTableModel.addNewTabPane(bottomTabs, true);
   }
 
   protected void addBottomTabsTasks() {

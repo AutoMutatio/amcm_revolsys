@@ -1,12 +1,11 @@
 package com.revolsys.jdbc.io;
 
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.revolsys.io.FileUtil;
 import com.revolsys.io.PathUtil;
 import com.revolsys.number.Numbers;
 import com.revolsys.record.Record;
@@ -73,12 +72,8 @@ public abstract class JdbcDdlWriter implements Cloneable {
   }
 
   public void setOut(final File file) {
-    try {
-      final FileWriter writer = new FileWriter(file);
-      this.out = new PrintWriter(writer);
-    } catch (final IOException e) {
-      throw new RuntimeException(e);
-    }
+    final var writer = FileUtil.getWriter(file);
+    this.out = new PrintWriter(writer);
   }
 
   public void setOut(final PrintWriter out) {
@@ -205,7 +200,8 @@ public abstract class JdbcDdlWriter implements Cloneable {
 
     final FieldDefinition idField = recordDefinition.getIdField();
     if (idField != null) {
-      if (Number.class.isAssignableFrom(idField.getDataType().getJavaClass())) {
+      if (Number.class.isAssignableFrom(idField.getDataType()
+        .getJavaClass())) {
         writeCreateSequence(recordDefinition);
       }
     }
@@ -279,7 +275,8 @@ public abstract class JdbcDdlWriter implements Cloneable {
         this.out.print(Numbers.toString(number));
       } else {
         this.out.print("'");
-        this.out.print(value.toString().replaceAll("'", "''"));
+        this.out.print(value.toString()
+          .replaceAll("'", "''"));
         this.out.print("'");
       }
     }
@@ -304,7 +301,8 @@ public abstract class JdbcDdlWriter implements Cloneable {
   }
 
   public void writeTableName(final String typePath) {
-    final String schemaName = PathUtil.getPath(typePath).substring(1);
+    final String schemaName = PathUtil.getPath(typePath)
+      .substring(1);
     final String tableName = PathUtil.getName(typePath);
     writeTableName(schemaName, tableName);
   }

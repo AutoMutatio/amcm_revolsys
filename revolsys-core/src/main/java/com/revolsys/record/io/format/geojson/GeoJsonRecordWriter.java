@@ -1,6 +1,5 @@
 package com.revolsys.record.io.format.geojson;
 
-import java.io.BufferedWriter;
 import java.io.Writer;
 
 import com.revolsys.collection.json.JsonWriter;
@@ -49,7 +48,7 @@ public class GeoJsonRecordWriter extends AbstractRecordWriter {
     if (recordDefinition != null) {
       this.geometryFactory = recordDefinition.getGeometryFactory();
     }
-    this.out = new JsonWriter(new BufferedWriter(out));
+    this.out = new JsonWriter(out);
     this.out.setIndent(true);
   }
 

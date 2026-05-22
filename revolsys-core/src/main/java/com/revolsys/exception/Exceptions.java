@@ -10,7 +10,7 @@ import java.net.http.HttpTimeoutException;
 import java.nio.channels.ClosedByInterruptException;
 import java.sql.SQLException;
 import java.sql.SQLTimeoutException;
-import java.util.List;
+import java.util.Collection;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Function;
@@ -259,9 +259,23 @@ public interface Exceptions {
     }
   }
 
-  static RuntimeException toRuntime(final List<? extends Throwable> exceptions) {
+  static RuntimeException toRuntime(final Collection<? extends Throwable> exceptions) {
     if (exceptions.size() == 1) {
-      final var exception = exceptions.get(0);
+      final var exception = exceptions.iterator()
+        .next();
+      if (exception instanceof final Error error) {
+        throw error;
+      } else {
+        return toRuntimeException(exception);
+      }
+    } else {
+      return new MultipleException(exceptions);
+    }
+  }
+
+  static RuntimeException toRuntime(final Throwable[] exceptions) {
+    if (exceptions.length == 1) {
+      final var exception = exceptions[0];
       if (exception instanceof final Error error) {
         throw error;
       } else {

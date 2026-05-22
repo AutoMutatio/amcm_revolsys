@@ -1,5 +1,6 @@
 package com.revolsys.swing.logging;
 
+import java.awt.Color;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.time.Instant;
@@ -11,9 +12,11 @@ import javax.swing.JTable;
 import javax.swing.SortOrder;
 import javax.swing.SwingUtilities;
 
+import org.jdesktop.swingx.decorator.HighlightPredicate;
 import org.jdesktop.swingx.plaf.basic.core.BasicTransferable;
 import org.jdesktop.swingx.table.TableColumnExt;
 
+import com.revolsys.awt.WebColors;
 import com.revolsys.log.LogbackUtil;
 import com.revolsys.swing.Icons;
 import com.revolsys.swing.TabbedPane;
@@ -24,6 +27,7 @@ import com.revolsys.swing.parallel.Invoke;
 import com.revolsys.swing.table.AbstractTableModel;
 import com.revolsys.swing.table.BaseJTable;
 import com.revolsys.swing.table.TablePanel;
+import com.revolsys.swing.table.highlighter.OddEvenColorHighlighter;
 import com.revolsys.util.Property;
 
 import ch.qos.logback.classic.Level;
@@ -38,8 +42,8 @@ public class LoggingTableModel extends AbstractTableModel {
 
   private static final long serialVersionUID = 1L;
 
-  public static void addNewTabPane(final TabbedPane tabs) {
-    final TablePanel panel = newPanel();
+  public static ListLoggingAppender addNewTabPane(final TabbedPane tabs, boolean addRootAppender) {
+    final TablePanel panel = newPanel(addRootAppender);
 
     final LoggingTableModel tableModel = panel.getTableModel();
 
@@ -49,10 +53,11 @@ public class LoggingTableModel extends AbstractTableModel {
     final LoggingTabLabel tabLabel = new LoggingTabLabel(tabs, tableModel);
     tabs.setTabComponentAt(tabIndex, tabLabel);
     tabs.setSelectedIndex(tabIndex);
+    return tableModel.appender;
   }
 
-  private static BaseJTable newLogTable() {
-    final LoggingTableModel model = new LoggingTableModel();
+  private static BaseJTable newLogTable(boolean addAppender) {
+    final LoggingTableModel model = new LoggingTableModel(addAppender);
     final BaseJTable table = new BaseJTable(model);
     table.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
 
@@ -88,11 +93,23 @@ public class LoggingTableModel extends AbstractTableModel {
         }
       }
     });
+    final HighlightPredicate predicate = table.newPredicateModelRowColumn((rowIndex, _) -> {
+      final var row = model.rows.get(rowIndex);
+      if (row.get(1)
+        .equals(Level.ERROR)) {
+        return true;
+      } else {
+        return false;
+      }
+    });
+    final OddEvenColorHighlighter highlighter = new OddEvenColorHighlighter(predicate,
+      WebColors.Red, WebColors.Crimson).setForeground(Color.white);
+    table.addHighlighter(highlighter);
     return table;
   }
 
-  public static TablePanel newPanel() {
-    final BaseJTable table = newLogTable();
+  public static TablePanel newPanel(boolean addAppender) {
+    final var table = newLogTable(addAppender);
     return new TablePanel(table);
   }
 
@@ -103,7 +120,13 @@ public class LoggingTableModel extends AbstractTableModel {
   private boolean hasNewErrors = false;
 
   public LoggingTableModel() {
-    LogbackUtil.addRootAppender(this.appender);
+    this(true);
+  }
+
+  public LoggingTableModel(boolean addToRoot) {
+    if (addToRoot) {
+      LogbackUtil.addRootAppender(this.appender);
+    }
     final MenuFactory menu = getMenu();
     menu.addMenuItem("all", "Delete all messages", "delete", this::clear);
     addMenuItem("selected", "Delete selected messages", "delete", (final BaseJTable table) -> {
@@ -193,6 +216,10 @@ public class LoggingTableModel extends AbstractTableModel {
     super.finalize();
     final Logger logger = LogbackUtil.getRootLogger();
     LogbackUtil.removeAppender(logger, this.appender);
+  }
+
+  public ListLoggingAppender getAppender() {
+    return appender;
   }
 
   @Override

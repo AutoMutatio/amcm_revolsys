@@ -1,13 +1,10 @@
 package com.revolsys.record.io.format.csv;
 
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.io.Writer;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -16,6 +13,7 @@ import java.util.Map;
 import com.revolsys.data.type.DataTypes;
 import com.revolsys.exception.Exceptions;
 import com.revolsys.io.AbstractMapWriter;
+import com.revolsys.record.io.BufferedWriterEx;
 import com.revolsys.util.BaseCloseable;
 
 public class CsvMapWriter extends AbstractMapWriter {
@@ -31,7 +29,7 @@ public class CsvMapWriter extends AbstractMapWriter {
   private String newLine = "\n";
 
   public CsvMapWriter(final File file) throws FileNotFoundException {
-    this(new OutputStreamWriter(new FileOutputStream(file), StandardCharsets.UTF_8));
+    this(BufferedWriterEx.forStream(new FileOutputStream(file)));
   }
 
   public CsvMapWriter(final Writer out) {
@@ -39,7 +37,7 @@ public class CsvMapWriter extends AbstractMapWriter {
   }
 
   public CsvMapWriter(final Writer out, final char fieldSeparator, final boolean useQuotes) {
-    this.out = new BufferedWriter(out);
+    this.out = out;
     this.fieldSeparator = fieldSeparator;
     this.useQuotes = useQuotes;
   }

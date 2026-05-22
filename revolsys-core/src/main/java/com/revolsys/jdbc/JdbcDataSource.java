@@ -16,8 +16,9 @@ import com.revolsys.transaction.ActiveTransactionContext;
 import com.revolsys.transaction.Transaction;
 import com.revolsys.transaction.TransactionContext;
 import com.revolsys.transaction.Transactionable;
+import com.revolsys.util.BaseCloseable;
 
-public abstract class JdbcDataSource implements DataSource, Transactionable {
+public abstract class JdbcDataSource implements DataSource, Transactionable, BaseCloseable {
 
   public static interface ConnectionConsumer {
     static ConnectionConsumer EMPTY = t -> {

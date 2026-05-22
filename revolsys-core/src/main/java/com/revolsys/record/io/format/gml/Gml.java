@@ -1,7 +1,6 @@
 package com.revolsys.record.io.format.gml;
 
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
@@ -104,7 +103,7 @@ public class Gml extends GeometryRecordReaderFactory implements RecordWriterFact
   public RecordWriter newRecordWriter(final String baseName,
     final RecordDefinitionProxy recordDefinition, final OutputStream outputStream,
     final Charset charset) {
-    final OutputStreamWriter writer = FileUtil.newUtf8Writer(outputStream);
+    final var writer = FileUtil.newUtf8Writer(outputStream);
     return new GmlRecordWriter(recordDefinition, writer);
   }
 }

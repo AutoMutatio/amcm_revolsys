@@ -433,7 +433,6 @@ public class OracleRecordStore extends AbstractJdbcRecordStore {
 
     setPrimaryKeySql(
       "SELECT distinct cols.table_name, cols.column_name FROM all_constraints cons, all_cons_columns cols WHERE cons.constraint_type = 'P' AND cons.constraint_name = cols.constraint_name AND cons.owner = cols.owner AND cons.owner =?");
-    setPrimaryKeyTableCondition(" AND cols.table_name = ?");
 
     setSchemaPermissionsSql("select distinct p.owner \"SCHEMA_NAME\" "
       + "from ALL_TAB_PRIVS_RECD P "

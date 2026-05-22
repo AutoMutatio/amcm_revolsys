@@ -1,9 +1,16 @@
 package com.revolsys.web;
 
+import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.web.util.UrlPathHelper;
 
+import com.revolsys.exception.WrappedIoException;
+import com.revolsys.record.io.BufferedWriterEx;
 import com.revolsys.util.Property;
 import com.revolsys.util.UriBuilder;
 
@@ -58,8 +65,17 @@ public final class HttpServletUtils {
     final String serverUrl = url.toString();
     final String originatingRequestUri = new UrlPathHelper().getOriginatingRequestUri(request);
     final String requestUri = originatingRequestUri;
-    final String uri = serverUrl + requestUri;
+    final String uri = serverUrl + URLEncoder.encode(requestUri, StandardCharsets.UTF_8);
     return new UriBuilder(uri);
+  }
+
+  public static BufferedWriterEx getWriter(final HttpServletResponse response) {
+    try {
+      final var out = response.getOutputStream();
+      return BufferedWriterEx.forStream(out);
+    } catch (final IOException e) {
+      throw new WrappedIoException(e);
+    }
   }
 
 }

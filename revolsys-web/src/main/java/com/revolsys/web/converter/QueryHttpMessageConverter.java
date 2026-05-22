@@ -1,7 +1,6 @@
 package com.revolsys.web.converter;
 
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 
 import org.springframework.http.HttpInputMessage;
@@ -12,8 +11,10 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.revolsys.collection.json.JsonObject;
+import com.revolsys.exception.Exceptions;
 import com.revolsys.exception.WrappedIoException;
 import com.revolsys.io.IoFactory;
+import com.revolsys.record.io.BufferedWriterEx;
 import com.revolsys.record.io.RecordReader;
 import com.revolsys.record.io.RecordWriter;
 import com.revolsys.record.io.RecordWriterFactory;
@@ -117,7 +118,7 @@ public class QueryHttpMessageConverter extends AbstractHttpMessageConverter<Quer
     try (
       var out = outputMessage.getBody()) {
       try (
-        var writer = new OutputStreamWriter(out, StandardCharsets.UTF_8);
+        var writer = BufferedWriterEx.forStream(out);
         var jsonWriter = new JsonRecordWriter(reader, writer);) {
         final JsonObject header = JsonObject.hash();
         jsonWriter.setHeader(header);
@@ -150,8 +151,11 @@ public class QueryHttpMessageConverter extends AbstractHttpMessageConverter<Quer
             .buildString();
           jsonWriter.setFooter(JsonObject.hash("@odata.nextLink", nextLink));
         }
-      } catch (WrappedIoException | IOException e) {
+      } catch (final RuntimeException e) {
         // Don't log these errors
+        if (!Exceptions.hasCause(e, WrappedIoException.class)) {
+          throw e;
+        }
       }
     }
   }

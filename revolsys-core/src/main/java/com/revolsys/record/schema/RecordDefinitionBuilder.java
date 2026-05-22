@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.List;
 
 import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.list.ListEx;
 import com.revolsys.collection.list.Lists;
 import com.revolsys.data.type.DataType;
 import com.revolsys.data.type.DataTypes;
@@ -104,6 +105,13 @@ public class RecordDefinitionBuilder {
   public RecordDefinitionBuilder addField(final String fieldName, final DataType type,
     final int length, final int scale, final boolean required) {
     this.recordDefinition.addField(fieldName, type, length, scale, required);
+    return this;
+  }
+
+  public RecordDefinitionBuilder addFields(ListEx<String> names) {
+    for (final String name : names) {
+      addField(name, DataTypes.STRING);
+    }
     return this;
   }
 

@@ -194,6 +194,9 @@ public class HttpRequestBuilder {
 
   public static String getString(final HttpResponse response) {
     final var entity = response.getEntity();
+    if (entity == null) {
+      return null;
+    }
     try (
       var in = entity.getContent()) {
       return IoUtil.getString(in);
@@ -378,6 +381,11 @@ public class HttpRequestBuilder {
     for (final Header header : headers) {
       addHeader(header);
     }
+    return this;
+  }
+
+  public HttpRequestBuilder addHeaders(final ListEx<Header> headers) {
+    headers.forEach(this::addHeader);
     return this;
   }
 

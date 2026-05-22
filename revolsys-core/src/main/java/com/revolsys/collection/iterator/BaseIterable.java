@@ -229,4 +229,12 @@ public interface BaseIterable<T> extends Iterable<T>, ForEachHandler<T> {
       return () -> new TreeIterator<>(iterator(), treeWalk);
     }
   }
+
+  default <C> BaseIterable<C> walkTreeChildren(final Function<T, Iterable<C>> treeWalk) {
+    if (treeWalk == null) {
+      throw new IllegalArgumentException("Tree walk function must not be null");
+    } else {
+      return () -> new ChildrenTreeIterator<>(iterator(), treeWalk);
+    }
+  }
 }

@@ -46,10 +46,13 @@ public class SpringSwingMain implements UncaughtExceptionHandler {
       .headless(false);
 
     final var beanFactory = (GenericApplicationContext)builder.run(args);
-    beanFactory.getBean(appClass)
-      .run(beanFactory);
+    final SpringSwingMain bean = beanFactory.getBean(appClass);
+    bean.setContext(beanFactory);
+    bean.run(beanFactory);
 
   }
+
+  private GenericApplicationContext context;
 
   protected Set<File> initialFiles = new LinkedHashSet<>();
 
@@ -87,6 +90,10 @@ public class SpringSwingMain implements UncaughtExceptionHandler {
 
   protected GenericApplicationContext getBeanFactory() {
     return this.beanFactory;
+  }
+
+  public GenericApplicationContext getContext() {
+    return context;
   }
 
   public void logError(final Throwable e) {
@@ -132,6 +139,10 @@ public class SpringSwingMain implements UncaughtExceptionHandler {
         return v;
       })
       .join();
+  }
+
+  private void setContext(GenericApplicationContext context) {
+    this.context = context;
   }
 
   public void setLookAndFeelName(final String lookAndFeelName) {

@@ -279,7 +279,6 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
   public Query addJoin(final Join join) {
     this.joins.add(join);
     return this;
-
   }
 
   public Query addOrderBy(final CharSequence field) {
@@ -300,25 +299,7 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
   }
 
   public Query addOrderBy(final Object field, final boolean ascending) {
-    QueryValue queryValue;
-    if (field instanceof QueryValue) {
-      queryValue = (QueryValue)field;
-    } else if (field instanceof final CharSequence fieldName) {
-      if (hasField(fieldName)) {
-        queryValue = getColumn(fieldName);
-      } else {
-        try {
-          queryValue = new ColumnIndex(Integer.parseInt(fieldName.toString()));
-        } catch (final NumberFormatException e) {
-          queryValue = new Column(fieldName);
-        }
-      }
-    } else if (field instanceof final Integer index) {
-      queryValue = new ColumnIndex(index);
-    } else {
-      throw new IllegalArgumentException("Not a field name: " + field);
-    }
-    final OrderBy order = new OrderBy(queryValue, ascending);
+    final OrderBy order = newOrderBy(field, ascending);
     return addOrderBy(order);
   }
 
@@ -827,6 +808,25 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     return null;
   }
 
+  public Join getJoin(final String alias, final Predicate<Join> joinEqual) {
+    for (final var join : getJoins()) {
+      if (DataType.equal(alias, join.getTableAlias())) {
+        if (joinEqual.test(join)) {
+          return join;
+        }
+      }
+    }
+    return null;
+  }
+
+  public Join getJoin(final String alias, final TableReferenceProxy tableProxy) {
+    if (tableProxy != null) {
+      final var table = tableProxy.getTableReference();
+      return getJoin(alias, join -> table == join.getTable());
+    }
+    return null;
+  }
+
   public Join getJoin(final TableReferenceProxy tableProxy, final String alias) {
     if (tableProxy != null) {
       final var table = tableProxy.getTableReference();
@@ -1058,6 +1058,10 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     return false;
   }
 
+  public boolean hasOrderBy() {
+    return !this.orderBy.isEmpty();
+  }
+
   public boolean hasOrderBy(final QueryValue column) {
     for (final OrderBy orderBy : this.orderBy) {
       if (orderBy.getField()
@@ -1216,6 +1220,29 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     return sql.toSqlString();
   }
 
+  public OrderBy newOrderBy(final Object field, final boolean ascending) {
+    QueryValue queryValue;
+    if (field instanceof QueryValue) {
+      queryValue = (QueryValue)field;
+    } else if (field instanceof final CharSequence fieldName) {
+      if (hasField(fieldName)) {
+        queryValue = getColumn(fieldName);
+      } else {
+        try {
+          queryValue = new ColumnIndex(Integer.parseInt(fieldName.toString()));
+        } catch (final NumberFormatException e) {
+          queryValue = new Column(fieldName);
+        }
+      }
+    } else if (field instanceof final Integer index) {
+      queryValue = new ColumnIndex(index);
+    } else {
+      throw new IllegalArgumentException("Not a field name: " + field);
+    }
+    final OrderBy order = new OrderBy(queryValue, ascending);
+    return order;
+  }
+
   public Query newQuery(final RecordDefinition recordDefinition) {
     final Query query = clone();
     query.setRecordDefinition(recordDefinition);
@@ -1327,6 +1354,15 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     return this;
   }
 
+  public Query orderBy(final Object field, final Consumer<OrderBy> action) {
+    final var orderBy = newOrderBy(field, true);
+    if (action != null) {
+      action.accept(orderBy);
+    }
+    addOrderBy(orderBy);
+    return this;
+  }
+
   @SuppressWarnings("unchecked")
   public <R extends Reader<V>, V> R reader() {
     return (R)getRecordDefinition().getRecordStore()
@@ -1405,6 +1441,13 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     for (final String fieldName : fieldNames) {
       final ColumnReference column = table.getColumn(fieldName);
       this.selectExpressions.add(column);
+    }
+    return this;
+  }
+
+  public Query selectAdd(final Object... select) {
+    for (final Object selectItem : select) {
+      select(selectItem);
     }
     return this;
   }
@@ -1659,9 +1702,15 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
           } else {
             return 1;
           }
+        } else if (joinType2 == JoinType.COMMA) {
+          return -1;
         }
       }
-      return -1;
+      // This is needed to retain addition order. The TimSort passes later
+      // values as the first argument
+      final int aIndex = this.joins.indexOf(a);
+      final int bIndex = this.joins.indexOf(b);
+      return aIndex - bIndex;
     });
   }
 

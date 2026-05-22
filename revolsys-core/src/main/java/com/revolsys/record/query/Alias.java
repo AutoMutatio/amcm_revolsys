@@ -29,7 +29,7 @@ public class Alias implements QueryValue {
   @Override
   public void appendDefaultSelect(final QueryStatement statement, final RecordStore recordStore,
     final SqlAppendable sql) {
-    this.value.appendDefaultSelect(statement, recordStore, sql);
+    this.value.appendSelect(statement, recordStore, sql);
     sql.append(" as ");
     appendAlias(sql);
   }
@@ -37,7 +37,7 @@ public class Alias implements QueryValue {
   @Override
   public void appendDefaultSql(final QueryStatement statement, final RecordStore recordStore,
     final SqlAppendable sql) {
-    this.value.appendDefaultSql(statement, recordStore, sql);
+    this.value.appendSql(statement, recordStore, sql);
     sql.append(" as ");
     appendAlias(sql);
   }
@@ -101,16 +101,17 @@ public class Alias implements QueryValue {
   }
 
   @Override
-  public Object getValueFromResultSet(final RecordDefinition recordDefinition,
-    int fieldIndex, final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings)
+  public Object getValueFromResultSet(final RecordDefinition recordDefinition, final int fieldIndex,
+    final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings)
     throws SQLException {
-    return this.value.getValueFromResultSet(recordDefinition, fieldIndex, resultSet, indexes, internStrings);
+    return this.value.getValueFromResultSet(recordDefinition, fieldIndex, resultSet, indexes,
+      internStrings);
   }
 
   @Override
   public String toString() {
     final StringBuilderSqlAppendable sql = SqlAppendable.stringBuilder();
-    this.value.appendDefaultSelect(new Query(), null, sql);
+    this.value.appendSelect(new Query(), null, sql);
     sql.append(" as ");
     appendAlias(sql);
     return sql.toSqlString();

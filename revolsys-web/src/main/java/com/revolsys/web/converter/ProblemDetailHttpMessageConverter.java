@@ -1,7 +1,6 @@
 package com.revolsys.web.converter;
 
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 
@@ -14,6 +13,7 @@ import org.springframework.http.converter.AbstractHttpMessageConverter;
 import org.springframework.lang.Nullable;
 
 import com.revolsys.collection.json.JsonObject;
+import com.revolsys.record.io.BufferedWriterEx;
 import com.revolsys.record.io.format.xml.XmlWriter;
 import com.revolsys.util.Property;
 
@@ -66,7 +66,7 @@ public class ProblemDetailHttpMessageConverter extends AbstractHttpMessageConver
     final var contentType = headers.getContentType();
     try (
       var out = outputMessage.getBody();
-      var writer = new OutputStreamWriter(out, StandardCharsets.UTF_8)) {
+      var writer = BufferedWriterEx.forStream(out)) {
       if (MediaType.TEXT_XML.isCompatibleWith(contentType)
         || MediaType.APPLICATION_XML.isCompatibleWith(contentType)
         || MediaType.APPLICATION_PROBLEM_XML.isCompatibleWith(contentType)) {

@@ -40,10 +40,15 @@ public class PostgreSQLJdbcEnumFieldDefinition extends JdbcFieldDefinition {
   }
 
   @Override
-  public Object getValueFromResultSet(final RecordDefinition recordDefinition,
-    int fieldIndex, final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings)
+  public Object getValueFromResultSet(final RecordDefinition recordDefinition, final int fieldIndex,
+    final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings)
     throws SQLException {
     return resultSet.getString(indexes.incrementAndGet());
+  }
+
+  @Override
+  public boolean isCollateable() {
+    return false;
   }
 
   @Override

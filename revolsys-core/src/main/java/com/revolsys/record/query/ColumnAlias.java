@@ -41,7 +41,7 @@ public class ColumnAlias implements QueryValue, ColumnReference {
   @Override
   public void appendDefaultSelect(final QueryStatement statement, final RecordStore recordStore,
     final SqlAppendable sql) {
-    this.column.appendDefaultSelect(statement, recordStore, sql);
+    this.column.appendSelect(statement, recordStore, sql);
     sql.append(" as ");
     appendAlias(sql);
   }
@@ -129,8 +129,8 @@ public class ColumnAlias implements QueryValue, ColumnReference {
   }
 
   @Override
-  public Object getValueFromResultSet(final RecordDefinition recordDefinition,
-    int fieldIndex, final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings)
+  public Object getValueFromResultSet(final RecordDefinition recordDefinition, final int fieldIndex,
+    final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings)
     throws SQLException {
     return this.column.getValueFromResultSet(recordDefinition, fieldIndex, resultSet, indexes,
       internStrings, this.alias);

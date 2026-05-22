@@ -65,7 +65,9 @@ public class BasePanel extends JXPanel {
   public BasePanel(final LayoutManager layout, final Component... components) {
     this(layout);
     for (final Component component : components) {
-      add(component);
+      if (component != null) {
+        add(component);
+      }
     }
   }
 

@@ -506,6 +506,7 @@ public class RecordDefinitionImpl extends AbstractRecordStoreSchemaElement
     return this.defaultValues;
   }
 
+  @Override
   public String getDescription() {
     return this.description;
   }

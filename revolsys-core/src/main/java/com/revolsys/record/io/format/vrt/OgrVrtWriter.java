@@ -1,7 +1,6 @@
 package com.revolsys.record.io.format.vrt;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Arrays;
 
@@ -11,6 +10,7 @@ import com.revolsys.data.type.DataType;
 import com.revolsys.data.type.DataTypes;
 import com.revolsys.geometry.model.Geometry;
 import com.revolsys.geometry.model.GeometryFactory;
+import com.revolsys.io.FileUtil;
 import com.revolsys.record.io.format.xml.XmlWriter;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
@@ -19,7 +19,7 @@ public class OgrVrtWriter {
   public static void write(final File file, final RecordDefinition recordDefinition,
     final String dataSource) throws IOException {
     try (
-      XmlWriter writer = new XmlWriter(new FileWriter(file))) {
+      XmlWriter writer = new XmlWriter(FileUtil.getWriter(file))) {
       writer.setIndent(true);
       writer.startDocument("UTF-8", "1.1");
       writer.startTag("OGRVRTDataSource");

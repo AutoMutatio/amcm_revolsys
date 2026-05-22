@@ -1037,11 +1037,16 @@ public interface SwingUtil {
 
   static void setSize(final Window window, final int minusX, final int minusY) {
     final Toolkit toolkit = Toolkit.getDefaultToolkit();
+    final var gc = window.getGraphicsConfiguration();
     final Dimension screenSize = toolkit.getScreenSize();
-    final double screenWidth = screenSize.getWidth();
-    final double screenHeight = screenSize.getHeight();
-    final Dimension size = new Dimension((int)(screenWidth - minusX), (int)(screenHeight - minusY));
-    window.setBounds(minusX / 2, minusY / 2, size.width, size.height);
+    final Insets screenInsets = toolkit.getScreenInsets(gc);
+    final int screenWidth = screenSize.width - screenInsets.right - screenInsets.left;
+    final int screenHeight = screenSize.height - screenInsets.bottom - screenInsets.top;
+    final int width = screenWidth - minusX;
+    final int height = screenHeight - minusY;
+    final Dimension size = new Dimension(width, height);
+    window.setBounds(screenInsets.left + minusX / 2, screenInsets.top + minusY / 2, size.width,
+      size.height);
     window.setPreferredSize(size);
   }
 

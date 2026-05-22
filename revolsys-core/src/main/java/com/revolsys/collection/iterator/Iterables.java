@@ -103,6 +103,12 @@ public interface Iterables {
     return fromIterator(iterator);
   }
 
+  static <V> BaseIterable<V> multiple(
+    @SuppressWarnings("unchecked") final Iterable<V>... iterables) {
+    final var iterator = Lists.newArray(iterables);
+    return multiple(iterator);
+  }
+
   static <V> V next(final Iterator<V> iterator) {
     if (iterator == null || !iterator.hasNext()) {
       return null;

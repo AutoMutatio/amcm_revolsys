@@ -20,7 +20,6 @@ package org.apache.olingo.server.core.serializer.json;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.net.URI;
 import java.util.HashSet;
 import java.util.List;
@@ -1234,7 +1233,7 @@ public class ODataJsonSerializer implements ODataSerializer {
     final OutputStream outputStream) throws SerializerException {
     final boolean pagination = false;
     try (
-      JsonWriter json = new JsonWriter(new OutputStreamWriter(outputStream))) {
+      JsonWriter json = new JsonWriter(outputStream)) {
       json.startObject();
       ContextURL contextUrl = null;
       if (options != null) {

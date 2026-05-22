@@ -17,6 +17,16 @@ import com.revolsys.record.schema.RecordDefinition;
 
 public class PostgreSQLJdbcIntevalFieldDefinition extends JdbcFieldDefinition {
 
+  public static Duration toDuration(final PGInterval interval) {
+    final var start = new GregorianCalendar();
+    start.setTimeInMillis(0);
+
+    final var finish = new GregorianCalendar();
+    finish.setTimeInMillis(0);
+    interval.add(finish);
+    return Duration.between(start.toInstant(), finish.toInstant());
+  }
+
   public PostgreSQLJdbcIntevalFieldDefinition(final String dbName, final String name,
     final int sqlType, final String dbDataType, final int length, final int scale,
     final boolean required, final String description, final Map<String, Object> properties) {
@@ -43,19 +53,12 @@ public class PostgreSQLJdbcIntevalFieldDefinition extends JdbcFieldDefinition {
   }
 
   @Override
-  public Object getValueFromResultSet(final RecordDefinition recordDefinition,
-    int fieldIndex, final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings)
+  public Object getValueFromResultSet(final RecordDefinition recordDefinition, final int fieldIndex,
+    final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings)
     throws SQLException {
     final Object value = resultSet.getObject(indexes.incrementAndGet());
     if (value instanceof final PGInterval interval) {
-      final var start = new GregorianCalendar();
-      start.setTimeInMillis(0);
-
-      final var finish = new GregorianCalendar();
-      finish.setTimeInMillis(0);
-      interval.add(finish);
-      final var duration = Duration.between(start.toInstant(), finish.toInstant());
-      return duration;
+      return toDuration(interval);
     }
     return value;
   }

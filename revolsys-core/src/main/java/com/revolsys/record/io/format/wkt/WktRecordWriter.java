@@ -1,6 +1,5 @@
 package com.revolsys.record.io.format.wkt;
 
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.Writer;
 
@@ -22,9 +21,9 @@ public class WktRecordWriter extends AbstractRecordWriter {
 
   private GeometryFactory geometryFactory;
 
-  public WktRecordWriter(final RecordDefinitionProxy recordDefinition, final Writer out) {
+  public WktRecordWriter(final RecordDefinitionProxy recordDefinition, final Writer writer) {
     super(recordDefinition);
-    this.out = new BufferedWriter(out);
+    this.out = writer;
     final FieldDefinition geometryField = recordDefinition.getGeometryField();
     if (geometryField != null) {
       this.geometryFactory = geometryField.getGeometryFactory();

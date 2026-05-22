@@ -28,10 +28,11 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 
 import com.revolsys.collection.iterator.BaseIterable;
 import com.revolsys.collection.list.ListEx;
+import com.revolsys.collection.list.Lists;
 import com.revolsys.collection.map.Maps;
+import com.revolsys.comparator.CompareUtil;
 import com.revolsys.data.identifier.Identifier;
 import com.revolsys.data.type.DataType;
-import com.revolsys.data.type.DataTypes;
 import com.revolsys.exception.Exceptions;
 import com.revolsys.io.PathName;
 import com.revolsys.io.PathUtil;
@@ -81,6 +82,19 @@ import com.revolsys.util.Property;
 
 public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
   implements JdbcRecordStore, RecordStoreExtension {
+  public record CatalogueSchema(String catalog, String schema)
+    implements Comparable<CatalogueSchema> {
+    @Override
+    public int compareTo(final CatalogueSchema o) {
+      var compare = CompareUtil.compare(this.catalog, o.catalog);
+      if (compare == 0) {
+        compare = CompareUtil.compare(this.schema, o.schema);
+      }
+      return compare;
+    }
+
+  }
+
   public static final List<String> DEFAULT_PERMISSIONS = Arrays.asList("SELECT");
 
   private final Set<String> allSchemaNames = new TreeSet<>();
@@ -105,6 +119,8 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
 
   private final Map<String, JdbcFieldAdder> fieldDefinitionAdders = new HashMap<>();
 
+  private final Map<Integer, JdbcFieldAdder> fieldDefinitionAdderByTypeId = new HashMap<>();
+
   private boolean flushBetweenTypes;
 
   private boolean lobAsString = false;
@@ -126,6 +142,10 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
   private final Object writerKey = new Object();
 
   private boolean useUpperCaseNames = false;
+
+  protected Set<String> ignoreCatalogues = new HashSet<>();
+
+  protected Set<String> ignoreSchemas = new HashSet<>();
 
   public AbstractJdbcRecordStore() {
     this(ArrayRecord.FACTORY);
@@ -178,7 +198,7 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
   protected JdbcFieldDefinition addField(final JdbcRecordDefinition recordDefinition,
     final String dbColumnName, final String name, final int sqlType, final String dbDataType,
     final int length, final int scale, final boolean required, final String description) {
-    final JdbcFieldAdder fieldAdder = getFieldAdder(dbDataType);
+    final JdbcFieldAdder fieldAdder = getFieldAdder(dbDataType, sqlType);
     return (JdbcFieldDefinition)fieldAdder.addField(this, recordDefinition, dbColumnName, name,
       sqlType, dbDataType, length, scale, required, description);
   }
@@ -194,6 +214,11 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
     final String fieldName = toUpperIfNeeded(name);
     addField(recordDefinition, name, fieldName, sqlType, dataType, length, scale, required,
       description);
+  }
+
+  public void addFieldAdder(final int typeId, final JdbcFieldFactory fieldFactory) {
+    final var fieldAdder = new JdbcFieldFactoryAdder(fieldFactory);
+    this.fieldDefinitionAdderByTypeId.put(typeId, fieldAdder);
   }
 
   protected void addFieldAdder(final String sqlTypeName, final DataType dataType) {
@@ -246,7 +271,7 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
   @PreDestroy
   public void close() {
     try (
-      var l = this.lock.lockX()) {
+      var _ = this.lock.lockX()) {
       try {
         super.close();
         if (this.databaseFactory != null && this.dataSource != null) {
@@ -446,23 +471,45 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
     return this.batchSize;
   }
 
+  public String getCatalogueName() {
+    return null;
+  }
+
   public List<String> getColumnNames(final String typePath) {
     final RecordDefinition recordDefinition = getRecordDefinition(typePath);
     return recordDefinition.getFieldNames();
   }
 
-  protected Set<String> getDatabaseSchemaNames() {
-    final Set<String> schemaNames = new TreeSet<>();
+  protected Set<CatalogueSchema> getDatabaseSchemaNames() {
+    final Set<CatalogueSchema> schemaNames = new TreeSet<>();
     try {
-      try (
-        final Connection connection = getJdbcConnection();
-        final PreparedStatement statement = connection.prepareStatement(this.schemaPermissionsSql);
-        final ResultSet resultSet = statement.executeQuery();) {
-        while (resultSet.next()) {
-          final String schemaName = resultSet.getString("SCHEMA_NAME");
-          addAllSchemaNames(schemaName);
-          if (!isSchemaExcluded(schemaName)) {
-            schemaNames.add(schemaName);
+      if (Property.hasValue(this.schemaPermissionsSql)) {
+        try (
+          final Connection connection = getJdbcConnection();
+          final PreparedStatement statement = connection
+            .prepareStatement(this.schemaPermissionsSql);
+          final ResultSet resultSet = statement.executeQuery();) {
+          while (resultSet.next()) {
+            final String schemaName = resultSet.getString("SCHEMA_NAME");
+            addAllSchemaNames(schemaName);
+            if (!isSchemaExcluded(schemaName)) {
+              schemaNames.add(new CatalogueSchema(null, schemaName));
+            }
+          }
+        }
+      } else {
+        final String baseCatalogueName = getCatalogueName();
+        try (
+          final var connection = getJdbcConnection();
+          final var rs = connection.getMetaData()
+            .getSchemas(baseCatalogueName, null)) {
+          while (rs.next()) {
+            final var catalogueName = rs.getString("TABLE_CATALOG");
+            final String schemaName = toUpperIfNeeded(rs.getString("TABLE_SCHEM"));
+            if (!this.ignoreCatalogues.contains(catalogueName)
+              && !this.ignoreSchemas.contains(schemaName)) {
+              schemaNames.add(new CatalogueSchema(catalogueName, schemaName));
+            }
           }
         }
       }
@@ -496,7 +543,18 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
   public JdbcFieldAdder getFieldAdder(final String dataType) {
     JdbcFieldAdder fieldAdder = this.fieldDefinitionAdders.get(dataType);
     if (fieldAdder == null) {
-      fieldAdder = new JdbcFieldAdder(DataTypes.OBJECT);
+      fieldAdder = JdbcFieldAdder.OBJECT;
+    }
+    return fieldAdder;
+  }
+
+  public JdbcFieldAdder getFieldAdder(final String dataType, final int typeId) {
+    JdbcFieldAdder fieldAdder = this.fieldDefinitionAdders.get(dataType);
+    if (fieldAdder == null) {
+      fieldAdder = this.fieldDefinitionAdderByTypeId.get(typeId);
+      if (fieldAdder == null) {
+        fieldAdder = JdbcFieldAdder.OBJECT;
+      }
     }
     return fieldAdder;
   }
@@ -814,7 +872,7 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
   protected void initializePost() {
     transactionRun(() -> {
       try (
-        JdbcConnection connection = getJdbcConnection()) {
+        JdbcConnection _ = getJdbcConnection()) {
         // Get a connection to test that the database works
       }
     });
@@ -921,35 +979,54 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
   protected Map<String, List<String>> loadIdFieldNames(final Connection connection,
     final String dbSchemaName) {
     try (
-      var l = this.lock.lockX()) {
+      var _ = this.lock.lockX()) {
       final String schemaName = "/" + toUpperIfNeeded(dbSchemaName);
       final Map<String, List<String>> idFieldNames = new HashMap<>();
       if (Property.hasValue(this.primaryKeySql)) {
-        try {
+        try (
+          final PreparedStatement statement = connection.prepareStatement(this.primaryKeySql);) {
+          if (this.primaryKeySql.indexOf('?') != -1) {
+            statement.setString(1, dbSchemaName);
+          }
           try (
-            final PreparedStatement statement = connection.prepareStatement(this.primaryKeySql);) {
-            if (this.primaryKeySql.indexOf('?') != -1) {
-              statement.setString(1, dbSchemaName);
-            }
-            try (
-              final ResultSet rs = statement.executeQuery()) {
-              while (rs.next()) {
-                final String tableName = toUpperIfNeeded(rs.getString("TABLE_NAME"));
-                final String idFieldName = rs.getString("COLUMN_NAME");
-                if (Property.hasValue(dbSchemaName)) {
-                  Maps.addToList(idFieldNames, schemaName + "/" + tableName, idFieldName);
-                } else {
-                  Maps.addToList(idFieldNames, "/" + tableName, idFieldName);
-                }
+            final ResultSet rs = statement.executeQuery()) {
+            while (rs.next()) {
+              final String tableName = toUpperIfNeeded(rs.getString("TABLE_NAME"));
+              final String idFieldName = rs.getString("COLUMN_NAME");
+              if (Property.hasValue(dbSchemaName)) {
+                Maps.addToList(idFieldNames, schemaName + "/" + tableName, idFieldName);
+              } else {
+                Maps.addToList(idFieldNames, "/" + tableName, idFieldName);
               }
             }
           }
-        } catch (final Throwable e) {
-          throw new IllegalArgumentException("Unable to primary keys for schema " + dbSchemaName,
-            e);
         }
+      } else {
+        final Map<String, Map<Integer, String>> tableSeqField = new HashMap<>();
+        try (
+          final ResultSet rs = connection.getMetaData()
+            .getPrimaryKeys(null, dbSchemaName, null)) {
+          while (rs.next()) {
+            final String tableName = toUpperIfNeeded(rs.getString("TABLE_NAME"));
+            final String idFieldName = rs.getString("COLUMN_NAME");
+            final int seq = rs.getInt("KEY_SEQ");
+            String key;
+            if (Property.hasValue(dbSchemaName)) {
+              key = schemaName + "/" + tableName;
+            } else {
+              key = "/" + tableName;
+            }
+            tableSeqField.computeIfAbsent(key, _ -> new TreeMap<>())
+              .put(seq, idFieldName);
+          }
+        }
+        tableSeqField.forEach((tableName, fields) -> {
+          idFieldNames.put(tableName, Lists.toArray(fields.values()));
+        });
       }
       return idFieldNames;
+    } catch (final Throwable e) {
+      throw new IllegalArgumentException("Unable to primary keys for schema " + dbSchemaName, e);
     }
   }
 
@@ -957,59 +1034,94 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
     final Connection connection, final JdbcRecordStoreSchema schema) {
     final PathName schemaPath = schema.getPathName();
     final String dbSchemaName = schema.getDbName();
-    try (
-      final PreparedStatement statement = connection
-        .prepareStatement(this.schemaTablePermissionsSql)) {
-      if (this.schemaTablePermissionsSql.indexOf('?') != -1) {
-        statement.setString(1, dbSchemaName);
-      }
-      try (
+    final Map<PathName, JdbcRecordDefinition> recordDefinitionMap = new TreeMap<>();
+    try {
+      if (Property.hasValue(this.schemaTablePermissionsSql)) {
+        try (
+          final PreparedStatement statement = connection
+            .prepareStatement(this.schemaTablePermissionsSql)) {
+          if (this.schemaTablePermissionsSql.indexOf('?') != -1) {
+            statement.setString(1, dbSchemaName);
+          }
+          try (
+            final ResultSet resultSet = statement.executeQuery()) {
+            while (resultSet.next()) {
+              final String dbTableName = resultSet.getString("TABLE_NAME");
+              if (!isExcluded(dbSchemaName, dbTableName)) {
+                final String tableName = toUpperIfNeeded(dbTableName);
+                final PathName pathName = schemaPath.newChild(tableName);
 
-        final ResultSet resultSet = statement.executeQuery()) {
-        final Map<PathName, JdbcRecordDefinition> recordDefinitionMap = new TreeMap<>();
-        while (resultSet.next()) {
-          final String dbTableName = resultSet.getString("TABLE_NAME");
-          if (!isExcluded(dbSchemaName, dbTableName)) {
-            final String tableName = toUpperIfNeeded(dbTableName);
-            final PathName pathName = schemaPath.newChild(tableName);
+                JdbcRecordDefinition recordDefinition = recordDefinitionMap.get(pathName);
+                Set<String> tablePermissions;
+                if (recordDefinition == null) {
+                  recordDefinition = newRecordDefinition(schema, pathName, dbTableName);
+                  recordDefinitionMap.put(pathName, recordDefinition);
 
-            JdbcRecordDefinition recordDefinition = recordDefinitionMap.get(pathName);
-            Set<String> tablePermissions;
-            if (recordDefinition == null) {
-              recordDefinition = newRecordDefinition(schema, pathName, dbTableName);
-              recordDefinitionMap.put(pathName, recordDefinition);
+                  tablePermissions = new LinkedHashSet<>();
+                  recordDefinition.setProperty("permissions", tablePermissions);
 
-              tablePermissions = new LinkedHashSet<>();
-              recordDefinition.setProperty("permissions", tablePermissions);
+                  final String description = resultSet.getString("REMARKS");
+                  recordDefinition.setDescription(description);
 
-              final String description = resultSet.getString("REMARKS");
-              recordDefinition.setDescription(description);
-
-              try {
-                final String tableType = resultSet.getString("TABLE_TYPE");
-                recordDefinition.setProperty("tableType", tableType);
-              } catch (final SQLException e) {
+                  try {
+                    final String tableType = resultSet.getString("TABLE_TYPE");
+                    recordDefinition.setProperty("tableType", tableType);
+                  } catch (final SQLException e) {
+                  }
+                } else {
+                  tablePermissions = recordDefinition.getProperty("permissions");
+                }
+                final String privilege = resultSet.getString("PRIVILEGE");
+                if ("ALL".equals(privilege)) {
+                  tablePermissions.add("SELECT");
+                  tablePermissions.add("INSERT");
+                  tablePermissions.add("UPDATE");
+                  tablePermissions.add("DELETE");
+                } else {
+                  tablePermissions.add(privilege);
+                }
               }
-            } else {
-              tablePermissions = recordDefinition.getProperty("permissions");
             }
-            final String privilege = resultSet.getString("PRIVILEGE");
-            if ("ALL".equals(privilege)) {
-              tablePermissions.add("SELECT");
-              tablePermissions.add("INSERT");
-              tablePermissions.add("UPDATE");
-              tablePermissions.add("DELETE");
-            } else {
-              tablePermissions.add(privilege);
-            }
-
           }
         }
-        return recordDefinitionMap;
+      } else {
+        final var catalogueName = schema.getCatalogueName();
+        try (
+          var resultSet = connection.getMetaData()
+            .getTablePrivileges(catalogueName, dbSchemaName, "%")) {
+          while (resultSet.next()) {
+            final String dbTableName = resultSet.getString("TABLE_NAME");
+            if (!isExcluded(dbSchemaName, dbTableName)) {
+              final String tableName = toUpperIfNeeded(dbTableName);
+              final PathName pathName = schemaPath.newChild(tableName);
+
+              JdbcRecordDefinition recordDefinition = recordDefinitionMap.get(pathName);
+              Set<String> tablePermissions;
+              if (recordDefinition == null) {
+                recordDefinition = newRecordDefinition(schema, pathName, dbTableName);
+                recordDefinitionMap.put(pathName, recordDefinition);
+                tablePermissions = new LinkedHashSet<>();
+                recordDefinition.setProperty("permissions", tablePermissions);
+              } else {
+                tablePermissions = recordDefinition.getProperty("permissions");
+              }
+              final String privilege = resultSet.getString("PRIVILEGE");
+              if ("ALL".equals(privilege)) {
+                tablePermissions.add("SELECT");
+                tablePermissions.add("INSERT");
+                tablePermissions.add("UPDATE");
+                tablePermissions.add("DELETE");
+              } else {
+                tablePermissions.add(privilege);
+              }
+            }
+          }
+        }
       }
     } catch (final Throwable e) {
       throw Exceptions.wrap("Unable to get schema and table permissions: " + dbSchemaName, e);
     }
+    return recordDefinitionMap;
   }
 
   protected Identifier newPrimaryIdentifier(final JdbcRecordDefinition recordDefinition) {
@@ -1167,12 +1279,14 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
       if (jdbcSchema == rootSchema) {
         if (this.usesSchema) {
           final Map<PathName, RecordStoreSchemaElement> schemas = new TreeMap<>();
-          final Set<String> databaseSchemaNames = getDatabaseSchemaNames();
-          for (final String dbSchemaName : databaseSchemaNames) {
+          final var databaseSchemaNames = getDatabaseSchemaNames();
+          for (final var catalogSchema : databaseSchemaNames) {
+            final String dbSchemaName = catalogSchema.schema();
             final PathName childSchemaPath = schemaPath.newChild(toUpperIfNeeded(dbSchemaName));
             RecordStoreSchema childSchema = schema.getSchema(childSchemaPath);
             if (childSchema == null) {
               childSchema = newSchema(rootSchema, dbSchemaName, childSchemaPath);
+              childSchema.setCatalogueName(catalogSchema.catalog());
             } else {
               if (childSchema.isInitialized()) {
                 childSchema.refresh();
@@ -1332,9 +1446,6 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
 
   public void setPrimaryKeySql(final String primaryKeySql) {
     this.primaryKeySql = primaryKeySql;
-  }
-
-  public void setPrimaryKeyTableCondition(final String primaryKeyTableCondition) {
   }
 
   public void setQuoteNames(final boolean quoteNames) {

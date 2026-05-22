@@ -74,8 +74,8 @@ public interface Reader<T>
 
   @Override
   @SuppressWarnings("unchecked")
-  default <V extends T> Iterable<V> i() {
-    return (Iterable<V>)this;
+  default <V extends T> BaseIterable<V> i() {
+    return (BaseIterable<V>)this;
   }
 
   @Override
