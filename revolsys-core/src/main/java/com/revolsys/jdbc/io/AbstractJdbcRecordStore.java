@@ -1236,6 +1236,11 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
     return new JdbcRecordStoreSchema(rootSchema, childSchemaPath, dbSchemaName);
   }
 
+  @Override
+  public RecordStoreSchema newSchema(final RecordStoreSchema parent, final PathName path) {
+    return new JdbcRecordStoreSchema((JdbcRecordStoreSchema)parent, path, path.getName());
+  }
+
   protected void postProcess(final JdbcRecordStoreSchema schema) {
   }
 

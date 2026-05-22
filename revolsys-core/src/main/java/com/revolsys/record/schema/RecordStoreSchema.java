@@ -2,16 +2,21 @@ package com.revolsys.record.schema;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.function.Consumer;
 
 import com.revolsys.collection.Parent;
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.list.ListEx;
 import com.revolsys.collection.list.Lists;
+import com.revolsys.collection.set.Sets;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.io.PathName;
 import com.revolsys.jdbc.io.JdbcRecordStoreSchema;
@@ -22,9 +27,15 @@ import com.revolsys.util.Property;
 
 public class RecordStoreSchema extends AbstractRecordStoreSchemaElement
   implements Parent<RecordStoreSchemaElement> {
+  private String catalogueName;
+
   private final Map<PathName, RecordStoreSchemaElement> elementsByPath = new TreeMap<>();
 
+  private GeometryFactory geometryFactory;
+
   private boolean initialized = false;
+
+  private final ReentrantLockEx lock = new ReentrantLockEx();
 
   private final Map<PathName, RecordDefinition> recordDefinitionsByPath = new TreeMap<>();
 
@@ -32,11 +43,7 @@ public class RecordStoreSchema extends AbstractRecordStoreSchemaElement
 
   private final Map<PathName, RecordStoreSchema> schemasByPath = new TreeMap<>();
 
-  private GeometryFactory geometryFactory;
-
-  private final ReentrantLockEx lock = new ReentrantLockEx();
-
-  private String catalogueName;
+  private final Map<PathName, Set<Consumer<RecordStoreSchema>>> schemaInitializers = new HashMap<>();
 
   public RecordStoreSchema(final AbstractRecordStore recordStore) {
     this.recordStore = recordStore;
@@ -52,20 +59,46 @@ public class RecordStoreSchema extends AbstractRecordStoreSchemaElement
     final PathName childPath = element.getPathName();
     if (path.isParentOf(childPath)) {
       this.elementsByPath.put(childPath, element);
-      if (element instanceof RecordDefinition) {
-        final RecordDefinition recordDefinition = (RecordDefinition)element;
+      if (element instanceof final RecordDefinition recordDefinition) {
         this.recordDefinitionsByPath.put(childPath, recordDefinition);
         final AbstractRecordStore recordStore = getRecordStore();
         recordStore.initializeRecordDefinition(recordDefinition);
         recordStore.addRecordDefinitionProperties((RecordDefinitionImpl)recordDefinition);
-      }
-      if (element instanceof RecordStoreSchema) {
-        final RecordStoreSchema schema = (RecordStoreSchema)element;
+      } else if (element instanceof final RecordStoreSchema schema) {
         this.schemasByPath.put(childPath, schema);
+        this.schemaInitializers.getOrDefault(childPath, Collections.emptySet())
+          .forEach(initializer -> initializer.accept(schema));
       }
     } else {
       throw new IllegalArgumentException(path + " is not a parent of " + childPath);
     }
+  }
+
+  public RecordStoreSchema addSchemaInitializer(final PathName path) {
+    return addSchemaInitializer(path, null);
+  }
+
+  public RecordStoreSchema addSchemaInitializer(final PathName path,
+    final Consumer<RecordStoreSchema> initializer) {
+    var schema = getSchema(path);
+    if (schema == null) {
+      try (
+        var _ = this.lock.lockX()) {
+        final var initializers = this.schemaInitializers.computeIfAbsent(path,
+          _ -> Sets.newLinkedHash());
+        schema = getSchema(path);
+        if (schema == null) {
+          schema = newSchema(path);
+        }
+        if (initializer != null) {
+          if (initializers.add(initializer)) {
+            initializer.accept(schema);
+          }
+        }
+
+      }
+    }
+    return schema;
   }
 
   public void addToCollection(final ListEx<RecordStoreSchema> schemas) {
@@ -75,10 +108,26 @@ public class RecordStoreSchema extends AbstractRecordStoreSchemaElement
     getSchemas().forEach(s -> s.addToCollection(schemas));
   }
 
+  public RecordDefinition addView(final String viewName, final JsonObject viewConfig) {
+    try (
+      var _ = this.lock.lockX()) {
+      final var pathName = getPathName().newChild(viewName);
+      final var querySql = viewConfig.getString("query");
+      final var viewQuery = getRecordStore().newQuery()
+        .setSql(querySql);
+      final var recordDefinition = new ViewRecordDefinition(this, pathName, viewQuery);
+      addElement(recordDefinition);
+      return recordDefinition;
+    } catch (final Exception e) {
+      e.printStackTrace();
+      return null;
+    }
+  }
+
   @Override
   public void close() {
     try (
-      var l = this.lock.lockX()) {
+      var _ = this.lock.lockX()) {
       if (this.recordDefinitionsByPath != null) {
         for (final RecordDefinition recordDefinition : this.recordDefinitionsByPath.values()) {
           recordDefinition.destroy();
@@ -94,7 +143,7 @@ public class RecordStoreSchema extends AbstractRecordStoreSchemaElement
 
   public RecordDefinition findRecordDefinition(final PathName path) {
     try (
-      var l = this.lock.lockX()) {
+      var _ = this.lock.lockX()) {
       refreshIfNeeded();
       return this.recordDefinitionsByPath.get(path);
     }
@@ -127,7 +176,7 @@ public class RecordStoreSchema extends AbstractRecordStoreSchemaElement
               childElement = this.elementsByPath.get(path);
               if (childElement == null) {
                 try (
-                  var l = this.lock.lockX()) {
+                  var _ = this.lock.lockX()) {
                   refreshIfNeeded();
                   childElement = this.elementsByPath.get(path);
                   if (childElement == null || childElement instanceof NonExistingSchemaElement) {
@@ -236,12 +285,16 @@ public class RecordStoreSchema extends AbstractRecordStoreSchemaElement
 
   public List<PathName> getSchemaPaths() {
     refreshIfNeeded();
-    return new ArrayList<>(this.schemasByPath.keySet());
+    final var paths = new ArrayList<>(this.schemasByPath.keySet());
+    paths.sort(null);
+    return paths;
   }
 
   public List<RecordStoreSchema> getSchemas() {
     refreshIfNeeded();
-    return new ArrayList<>(this.schemasByPath.values());
+    final var list = new ArrayList<>(this.schemasByPath.values());
+    Collections.sort(list);
+    return list;
   }
 
   public List<String> getTypeNames() {
@@ -302,24 +355,26 @@ public class RecordStoreSchema extends AbstractRecordStoreSchemaElement
   }
 
   public RecordStoreSchema newSchema(final PathName path) {
-    final RecordStoreSchemaElement element = getElement(path);
-    if (element == null) {
-      final RecordStoreSchema schema = new RecordStoreSchema(this, path);
-      addElement(schema);
-      return schema;
-    } else if (element instanceof RecordStoreSchema) {
-      final RecordStoreSchema schema = (RecordStoreSchema)element;
-      return schema;
-    } else {
-      throw new IllegalArgumentException(
-        "Non schema element with path " + path + " already exists");
+    try (
+      var _ = this.lock.lockX()) {
+      final RecordStoreSchemaElement element = getElement(path);
+      if (element == null) {
+        final var schema = getRecordStore().newSchema(this, path);
+        addElement(schema);
+        return schema;
+      } else if (element instanceof final RecordStoreSchema schema) {
+        return schema;
+      } else {
+        throw new IllegalArgumentException(
+          "Non schema element with path " + path + " already exists");
+      }
     }
   }
 
   @Override
   public void refresh() {
     try (
-      var l = this.lock.lockX()) {
+      var _ = this.lock.lockX()) {
       this.initialized = true;
       final AbstractRecordStore recordStore = getRecordStore();
       if (recordStore != null) {
@@ -351,7 +406,10 @@ public class RecordStoreSchema extends AbstractRecordStoreSchemaElement
             }
           }
           for (final PathName removedPath : removedPaths) {
-            removeElement(removedPath);
+            if (!this.schemaInitializers.containsKey(removedPath)) {
+              // Don't remove virtual schemas
+              removeElement(removedPath);
+            }
           }
           for (final RecordDefinition recordDefinition : getRecordDefinitions()) {
             recordStore.initRecordDefinition(recordDefinition);

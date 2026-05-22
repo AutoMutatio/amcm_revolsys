@@ -20,7 +20,7 @@ public interface TableRecordStoreFactory extends RecordDefinitionFactory {
     return null;
   }
 
-  RecordStoreSchema schema(String schemaName);
+  <RSS extends RecordStoreSchema> Single<RSS> schema(String schemaName);
 
   ListEx<RecordStoreSchema> schemas();
 
