@@ -231,13 +231,14 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
       for (String orderClause : orderBy.split(",")) {
         orderClause = orderClause.strip();
         String fieldName;
-        final boolean ascending = true;
+        boolean ascending = true;
         if (orderClause.toLowerCase()
           .endsWith(" asc")) {
           fieldName = orderClause.substring(0, orderClause.length() - 4);
         } else if (orderClause.toLowerCase()
           .endsWith(" desc")) {
           fieldName = orderClause.substring(0, orderClause.length() - 5);
+          ascending = false;
         } else {
           fieldName = orderClause;
         }
