@@ -229,6 +229,7 @@ public class MicrosoftSqlServerRecordStore extends AbstractJdbcRecordStore {
   }
 
   protected void initSettings() {
+    setQuoteNames(true);
   }
 
   @Override
