@@ -46,6 +46,7 @@ import com.revolsys.record.query.ColumnIndexes;
 import com.revolsys.record.query.Condition;
 import com.revolsys.record.query.DeleteStatement;
 import com.revolsys.record.query.InsertStatement;
+import com.revolsys.record.query.InsertStatement.InsertStatementBatch;
 import com.revolsys.record.query.Q;
 import com.revolsys.record.query.Query;
 import com.revolsys.record.query.QueryStatement;
@@ -314,6 +315,11 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
   default <V> V executeInsertRecords(final InsertStatement insertStatement,
     final Function<BaseIterable<Record>, V> action) {
     throw new UnsupportedOperationException("InsertStatement not implemented");
+  }
+
+  default long executeInsertStatementBatch(InsertStatement insertStatement,
+    Consumer<InsertStatementBatch> action) {
+    throw new UnsupportedOperationException();
   }
 
   default int executeUpdateCount(final UpdateStatement queryStatement) {

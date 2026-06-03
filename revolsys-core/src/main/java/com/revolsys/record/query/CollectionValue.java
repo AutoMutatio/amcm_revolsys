@@ -5,6 +5,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.data.type.DataType;
@@ -77,7 +78,7 @@ public class CollectionValue extends AbstractMultiQueryValue {
   }
 
   @Override
-  public int appendParameters(int index, final PreparedStatement statement) {
+  public int appendParameters(int index, Map<String, Object> parameters, final PreparedStatement statement) {
     for (final QueryValue queryValue : this.values) {
       JdbcFieldDefinition jdbcField = this.jdbcField;
       if (queryValue instanceof Value) {
@@ -92,7 +93,7 @@ public class CollectionValue extends AbstractMultiQueryValue {
           throw Exceptions.toRuntimeException(e);
         }
       } else {
-        index = queryValue.appendParameters(index, statement);
+        index = queryValue.appendParameters(index, parameters, statement);
       }
     }
     return index;

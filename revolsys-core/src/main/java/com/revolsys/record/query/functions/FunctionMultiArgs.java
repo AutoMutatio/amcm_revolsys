@@ -2,6 +2,7 @@ package com.revolsys.record.query.functions;
 
 import java.sql.PreparedStatement;
 import java.util.List;
+import java.util.Map;
 
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.data.type.DataType;
@@ -41,10 +42,10 @@ public class FunctionMultiArgs extends AbstractMultiQueryValue implements Functi
   }
 
   @Override
-  public int appendParameters(int index, final PreparedStatement statement) {
+  public int appendParameters(int index, Map<String, Object> parameters, final PreparedStatement statement) {
     for (final QueryValue value : this.values) {
       if (value != null) {
-        index = value.appendParameters(index, statement);
+        index = value.appendParameters(index, parameters, statement);
       }
     }
     return index;

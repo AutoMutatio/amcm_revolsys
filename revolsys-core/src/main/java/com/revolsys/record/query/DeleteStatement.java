@@ -1,6 +1,7 @@
 package com.revolsys.record.query;
 
 import java.sql.PreparedStatement;
+import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -18,13 +19,14 @@ public class DeleteStatement implements QueryStatement {
 
   private final ListEx<With> withClauses = Lists.newArray();
 
-  public int appendParameters(int index, final PreparedStatement statement) {
+  public int appendParameters(int index, Map<String, Object> parameters,
+    final PreparedStatement statement) {
     for (final var with : usingClauses) {
-      index = with.appendParameters(index, statement);
+      index = with.appendParameters(index, parameters, statement);
     }
     final Condition where = getWhere();
     if (!where.isEmpty()) {
-      index = where.appendParameters(index, statement);
+      index = where.appendParameters(index, parameters, statement);
     }
     return index;
   }

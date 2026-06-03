@@ -3,6 +3,7 @@ package com.revolsys.record.query.functions;
 import java.sql.PreparedStatement;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import com.revolsys.data.type.DataType;
 import com.revolsys.record.query.AbstractUnaryQueryValue;
@@ -42,8 +43,8 @@ public class UnaryFunction extends AbstractUnaryQueryValue implements Function {
   }
 
   @Override
-  public int appendParameters(final int index, final PreparedStatement statement) {
-    return getValue().appendParameters(index, statement);
+  public int appendParameters(final int index, Map<String, Object> parameters, final PreparedStatement statement) {
+    return getValue().appendParameters(index, parameters, statement);
   }
 
   @Override

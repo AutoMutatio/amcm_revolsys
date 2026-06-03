@@ -4,6 +4,7 @@ import java.sql.PreparedStatement;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -542,7 +543,7 @@ public class Q {
       }
 
       @Override
-      public int appendParameters(final int index, final PreparedStatement statement) {
+      public int appendParameters(final int index, Map<String, Object> parameters, final PreparedStatement statement) {
         throw new UnsupportedOperationException(
           "Predicate conditions cannot be used to append SQL parameters");
       }
