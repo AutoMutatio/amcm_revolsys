@@ -803,6 +803,15 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
       alias = parts[2];
     }
 
+    boolean filterInvalidValues = true;
+    if (parts.length > 3) {
+      final var option = parts[3];
+      final var prefix = "filterInvalidValues=";
+      if (option.startsWith(prefix)) {
+        filterInvalidValues = Boolean.parseBoolean(option.substring(prefix.length()));
+      }
+    }
+
     return switch (functionName) {
       case "count": {
         yield Count.STAR.toAlias(alias);
@@ -822,11 +831,15 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
           columnClass = fieldDefinition.getTypeClass();
         }
         if (JsonType.class.isAssignableFrom(columnClass)) {
-          query.and(Q.equal(F.function("jsonb_typeof", field), "number"));
+          if (filterInvalidValues) {
+            query.and(Q.equal(F.function("jsonb_typeof", field), "number"));
+          }
           field = field.toCast("decimal");
         } else if (!Number.class.isAssignableFrom(columnClass)) {
-          query
-            .and(Q.equal(F.function("pg_input_is_valid", field, Value.newValue("decimal")), true));
+          if (filterInvalidValues) {
+            query.and(
+              Q.equal(F.function("pg_input_is_valid", field, Value.newValue("decimal")), true));
+          }
           field = field.toCast("decimal");
         }
         yield F.function(functionName, field)
