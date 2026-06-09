@@ -40,6 +40,7 @@ import com.revolsys.record.Record;
 import com.revolsys.record.code.CodeTable;
 import com.revolsys.record.io.RecordReader;
 import com.revolsys.record.io.RecordWriter;
+import com.revolsys.record.query.Case;
 import com.revolsys.record.query.Cast;
 import com.revolsys.record.query.Column;
 import com.revolsys.record.query.ColumnReference;
@@ -803,15 +804,6 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
       alias = parts[2];
     }
 
-    boolean filterInvalidValues = true;
-    if (parts.length > 3) {
-      final var option = parts[3];
-      final var prefix = "filterInvalidValues=";
-      if (option.startsWith(prefix)) {
-        filterInvalidValues = Boolean.parseBoolean(option.substring(prefix.length()));
-      }
-    }
-
     return switch (functionName) {
       case "count": {
         yield Count.STAR.toAlias(alias);
@@ -831,16 +823,14 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
           columnClass = fieldDefinition.getTypeClass();
         }
         if (JsonType.class.isAssignableFrom(columnClass)) {
-          if (filterInvalidValues) {
-            query.and(Q.equal(F.function("jsonb_typeof", field), "number"));
-          }
-          field = field.toCast("decimal");
+          field = new Case()
+            .addWhen(Q.equal(F.function("jsonb_typeof", field), "number"), field.toCast("decimal"))
+            .setElse(Value.newValue(null));
         } else if (!Number.class.isAssignableFrom(columnClass)) {
-          if (filterInvalidValues) {
-            query.and(
-              Q.equal(F.function("pg_input_is_valid", field, Value.newValue("decimal")), true));
-          }
-          field = field.toCast("decimal");
+          field = new Case()
+            .addWhen(Q.equal(F.function("pg_input_is_valid", field, Q.literal("decimal")), true),
+              field.toCast("decimal"))
+            .setElse(Value.newValue(null));
         }
         yield F.function(functionName, field)
           .toAlias(alias);
