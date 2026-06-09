@@ -16,7 +16,7 @@ public class Case implements QueryValue {
 
   private QueryValue elseValue;
 
-  public Case addWhen(final Condition condition, final QueryValue value) {
+  public Case when(final Condition condition, final QueryValue value) {
     this.whens.add(new When(condition, value));
     return this;
   }
@@ -56,10 +56,10 @@ public class Case implements QueryValue {
   public QueryValue clone(final TableReference oldTable, final TableReference newTable) {
     final Case clone = new Case();
     this.whens.forEach(when -> {
-      clone.addWhen(when.condition.clone(oldTable, newTable), when.value.clone(oldTable, newTable));
+      clone.when(when.condition.clone(oldTable, newTable), when.value.clone(oldTable, newTable));
     });
     if (this.elseValue != null) {
-      clone.setElse(this.elseValue.clone(oldTable, newTable));
+      clone.elseValue(this.elseValue.clone(oldTable, newTable));
     }
     return clone;
   }
@@ -78,7 +78,7 @@ public class Case implements QueryValue {
     }
   }
 
-  public Case setElse(final QueryValue elseValue) {
+  public Case elseValue(final QueryValue elseValue) {
     this.elseValue = elseValue;
     return this;
   }
