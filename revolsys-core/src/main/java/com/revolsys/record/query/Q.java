@@ -515,6 +515,10 @@ public class Q {
     return not(exists(expression));
   }
 
+  public static NullValue nullValue() {
+    return NullValue.INSTANCE;
+  }
+
   public static Or or(final Condition... conditions) {
     final List<Condition> list = Arrays.asList(conditions);
     return or(list);

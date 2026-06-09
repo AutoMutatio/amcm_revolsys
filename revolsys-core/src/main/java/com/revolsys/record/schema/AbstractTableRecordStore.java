@@ -40,6 +40,7 @@ import com.revolsys.record.Record;
 import com.revolsys.record.code.CodeTable;
 import com.revolsys.record.io.RecordReader;
 import com.revolsys.record.io.RecordWriter;
+import com.revolsys.record.query.Case;
 import com.revolsys.record.query.Cast;
 import com.revolsys.record.query.Column;
 import com.revolsys.record.query.ColumnReference;
@@ -822,12 +823,16 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
           columnClass = fieldDefinition.getTypeClass();
         }
         if (JsonType.class.isAssignableFrom(columnClass)) {
-          query.and(Q.equal(F.function("jsonb_typeof", field), "number"));
-          field = field.toCast("decimal");
-        } else if (!Number.class.isAssignableFrom(columnClass)) {
-          query
-            .and(Q.equal(F.function("pg_input_is_valid", field, Value.newValue("decimal")), true));
-          field = field.toCast("decimal");
+          if (field instanceof final JsonValue jsonValue) {
+            jsonValue.setText(true);
+          }
+        }
+
+        if (!Number.class.isAssignableFrom(columnClass)) {
+          field = new Case()
+            .when(Q.equal(F.function("pg_input_is_valid", field, Q.literal("decimal")), true),
+              field.toCast("decimal"))
+            .elseValue(Q.nullValue());
         }
         yield F.function(functionName, field)
           .toAlias(alias);
