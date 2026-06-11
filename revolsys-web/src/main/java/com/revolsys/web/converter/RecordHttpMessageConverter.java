@@ -45,12 +45,12 @@ public class RecordHttpMessageConverter extends AbstractHttpMessageConverter<Rec
   }
 
   @Override
-  protected boolean canRead(MediaType mediaType) {
+  protected boolean canRead(final MediaType mediaType) {
     return false;
   }
 
   @Override
-  protected Record readInternal(Class<? extends Record> clazz, HttpInputMessage inputMessage)
+  protected Record readInternal(final Class<? extends Record> clazz, final HttpInputMessage inputMessage)
     throws IOException, HttpMessageNotReadableException {
     throw new UnsupportedOperationException();
   }
