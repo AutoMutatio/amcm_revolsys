@@ -1,6 +1,7 @@
 package com.revolsys.record.query;
 
 import java.sql.PreparedStatement;
+import java.util.Map;
 
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.record.schema.RecordStore;
@@ -35,7 +36,7 @@ public interface From extends TableReferenceProxy, QueryValue {
   }
 
   @Override
-  default int appendParameters(final int index, final PreparedStatement statement) {
+  default int appendParameters(final int index, Map<String, Object> parameters, final PreparedStatement statement) {
     return appendFromParameters(index, statement);
   }
 

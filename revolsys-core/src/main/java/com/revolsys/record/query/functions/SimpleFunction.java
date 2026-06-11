@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.function.BiFunction;
 
 import com.revolsys.collection.map.MapEx;
@@ -72,9 +73,9 @@ public class SimpleFunction extends AbstractMultiQueryValue implements Function 
   }
 
   @Override
-  public int appendParameters(int index, final PreparedStatement statement) {
+  public int appendParameters(int index, Map<String, Object> parameters, final PreparedStatement statement) {
     for (final QueryValue value : getParameters()) {
-      index = value.appendParameters(index, statement);
+      index = value.appendParameters(index, parameters, statement);
     }
     return index;
   }

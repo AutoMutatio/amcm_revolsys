@@ -9,6 +9,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
 
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.data.identifier.Identifier;
@@ -201,7 +202,7 @@ public class Value implements QueryValue {
   }
 
   @Override
-  public int appendParameters(final int index, final PreparedStatement statement) {
+  public int appendParameters(final int index, Map<String, Object> parameters, final PreparedStatement statement) {
     try {
       try {
         return this.jdbcField.setPreparedStatementValue(statement, index, this.queryValue);

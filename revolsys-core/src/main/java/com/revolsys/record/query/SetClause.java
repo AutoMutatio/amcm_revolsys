@@ -1,6 +1,7 @@
 package com.revolsys.record.query;
 
 import java.sql.PreparedStatement;
+import java.util.Map;
 
 import com.revolsys.collection.iterator.BaseIterable;
 
@@ -34,10 +35,10 @@ public record SetClause(QueryStatement statement, ColumnReference column, QueryV
   }
 
   @Override
-  public int appendParameters(int index, final PreparedStatement statement) {
-    index = this.column.appendParameters(index, statement);
+  public int appendParameters(int index, Map<String, Object> parameters, final PreparedStatement statement) {
+    index = this.column.appendParameters(index, parameters, statement);
     if (this.value != null) {
-      index = this.value.appendParameters(index, statement);
+      index = this.value.appendParameters(index, parameters, statement);
     }
     return index;
   }

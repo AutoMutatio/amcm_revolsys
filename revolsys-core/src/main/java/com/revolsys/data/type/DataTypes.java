@@ -12,11 +12,11 @@ import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.file.Path;
 import java.sql.Blob;
-import java.sql.Time;
 import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Base64;
 import java.util.Collection;
 import java.util.HashMap;
@@ -74,10 +74,8 @@ public final class DataTypes {
   public static final DataType BASE64_BINARY = new SimpleDataType("base64Binary", byte[].class);
 
   public static final DataType BASE64_URL_BINARY = new FunctionDataType("base64UrlBinary",
-    byte[].class, s -> Base64.getUrlDecoder()
-      .decode(s.toString()),
-    v -> Base64.getUrlEncoder()
-      .encodeToString((byte[])v));
+    byte[].class, s -> Base64.getUrlDecoder().decode(s.toString()),
+    v -> Base64.getUrlEncoder().encodeToString((byte[])v));
 
   public static final DataType BINARY = new SimpleDataType("binary", byte[].class);
 
@@ -193,7 +191,8 @@ public final class DataTypes {
       }
     });
 
-  public static final DataType TIME = new SimpleDataType("time", Time.class);
+  public static final DataType TIME = new FunctionDataType("time", LocalTime.class, Dates::getTime,
+    Dates::toTimeIsoString, Dates::equalsNotNull);
 
   public static final DataType TIMESTAMP = new FunctionDataType("timestamp", false, Timestamp.class,
     Dates::getTimestamp, Dates::toTimestampIsoString, Dates::equalsNotNull);
@@ -228,8 +227,7 @@ public final class DataTypes {
     } else if (value instanceof Path) {
       final Path path = (Path)value;
       try {
-        return path.toUri()
-          .toURL();
+        return path.toUri().toURL();
       } catch (final MalformedURLException e) {
         throw new IllegalArgumentException("Cannot get url " + path, e);
       }
@@ -360,8 +358,7 @@ public final class DataTypes {
   }
 
   public static void register(final DataType type) {
-    final String name = type.getName()
-      .toLowerCase();
+    final String name = type.getName().toLowerCase();
     if (!NAME_TYPE_MAP.containsKey(name)) {
       NAME_TYPE_MAP.put(name, type);
     }

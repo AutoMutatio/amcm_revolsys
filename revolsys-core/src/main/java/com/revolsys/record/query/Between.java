@@ -3,6 +3,7 @@ package com.revolsys.record.query;
 import java.sql.PreparedStatement;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 
 import com.revolsys.collection.map.MapEx;
@@ -39,10 +40,10 @@ public class Between extends AbstractUnaryQueryValue implements Condition {
   }
 
   @Override
-  public int appendParameters(int index, final PreparedStatement statement) {
-    index = super.appendParameters(index, statement);
-    index = this.min.appendParameters(index, statement);
-    index = this.max.appendParameters(index, statement);
+  public int appendParameters(int index, Map<String, Object> parameters, final PreparedStatement statement) {
+    index = super.appendParameters(index, parameters, statement);
+    index = this.min.appendParameters(index, parameters, statement);
+    index = this.max.appendParameters(index, parameters, statement);
     return index;
   }
 

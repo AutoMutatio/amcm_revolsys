@@ -3,6 +3,7 @@ package com.revolsys.record.query;
 import java.sql.PreparedStatement;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 
 import com.revolsys.data.type.DataType;
@@ -13,6 +14,8 @@ public abstract class AbstractBinaryQueryValue implements QueryValue {
   private QueryValue left;
 
   private QueryValue right;
+
+  private ColumnReference column;
 
   public AbstractBinaryQueryValue(final List<QueryValue> parameters) {
     final int parameterCount = parameters.size();
@@ -41,14 +44,14 @@ public abstract class AbstractBinaryQueryValue implements QueryValue {
   }
 
   @Override
-  public int appendParameters(int index, final PreparedStatement statement) {
+  public int appendParameters(int index, Map<String, Object> parameters, final PreparedStatement statement) {
     if (this.left != null) {
       if (this.right instanceof final ColumnReference column
         && !(this.left instanceof ColumnReference)) {
         final var c = column.getColumn();
         this.left.setColumn(c);
       }
-      index = this.left.appendParameters(index, statement);
+      index = this.left.appendParameters(index, parameters, statement);
     }
     if (this.right != null) {
       if (this.left instanceof final ColumnReference column
@@ -56,7 +59,7 @@ public abstract class AbstractBinaryQueryValue implements QueryValue {
         final var c = column.getColumn();
         this.right.setColumn(c);
       }
-      index = this.right.appendParameters(index, statement);
+      index = this.right.appendParameters(index, parameters, statement);
     }
     return index;
   }
@@ -113,6 +116,11 @@ public abstract class AbstractBinaryQueryValue implements QueryValue {
     return false;
   }
 
+  @Override
+  public ColumnReference getColumn() {
+    return column;
+  }
+
   @SuppressWarnings("unchecked")
   public <V extends QueryValue> V getLeft() {
     return (V)this.left;
@@ -137,6 +145,11 @@ public abstract class AbstractBinaryQueryValue implements QueryValue {
         value.setColumn(column);
       }
     }
+  }
+
+  @Override
+  public void setColumn(ColumnReference column) {
+    this.column = column;
   }
 
   public void setLeft(final QueryValue left) {

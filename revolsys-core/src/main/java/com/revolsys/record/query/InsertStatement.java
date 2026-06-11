@@ -1,6 +1,7 @@
 package com.revolsys.record.query;
 
 import java.sql.PreparedStatement;
+import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -9,10 +10,19 @@ import com.revolsys.collection.iterator.BaseIterable;
 import com.revolsys.collection.list.ListEx;
 import com.revolsys.collection.list.Lists;
 import com.revolsys.collection.map.MapEx;
+import com.revolsys.jdbc.field.JdbcFieldDefinition;
 import com.revolsys.record.Record;
 import com.revolsys.record.schema.RecordDefinition;
 
 public class InsertStatement extends AbstractReturningQueryStatement<InsertStatement> {
+
+  public interface InsertStatementBatch {
+
+    InsertStatementBatch addRowToBatch(Map<String, Object> values);
+
+    int[] executeBatch();
+
+  }
 
   private final ListEx<ColumnReference> columns = Lists.newArray();
 
@@ -21,6 +31,11 @@ public class InsertStatement extends AbstractReturningQueryStatement<InsertState
   private OnConflictAction onConflictAction;
 
   private final ListEx<ColumnReference> conflictColumns = Lists.newArray();
+
+  private JdbcFieldPlaceholder addPlaceholder(String name) {
+    final var field = (JdbcFieldDefinition)getColumn(name);
+    return new JdbcFieldPlaceholder(name, field);
+  }
 
   private void appendColumns(final SqlAppendable sql) {
     final var columns = this.columns;
@@ -34,19 +49,20 @@ public class InsertStatement extends AbstractReturningQueryStatement<InsertState
   }
 
   @Override
-  public int appendParameters(int index, final PreparedStatement statement) {
+  public int appendParameters(int index, Map<String, Object> parameters,
+    final PreparedStatement statement) {
     for (final var column : this.columns) {
-      index = column.appendParameters(index, statement);
+      index = column.appendParameters(index, parameters, statement);
     }
     for (final var valuesRow : this.values) {
       for (final var value : valuesRow) {
-        index = value.appendParameters(index, statement);
+        index = value.appendParameters(index, parameters, statement);
       }
     }
     if (this.onConflictAction != null) {
-      index = this.onConflictAction.appendParameters(index, statement);
+      index = this.onConflictAction.appendParameters(index, parameters, statement);
     }
-    appendReturningParameters(index, statement);
+    appendReturningParameters(index, parameters, statement);
     return index;
   }
 
@@ -190,6 +206,10 @@ public class InsertStatement extends AbstractReturningQueryStatement<InsertState
     return executeInsertCount() > 0;
   }
 
+  public long executeInsertBatch(Consumer<InsertStatementBatch> action) {
+    return getRecordStore().executeInsertStatementBatch(this, action);
+  }
+
   public int executeInsertCount() {
     return getRecordStore().executeInsertCount(this);
   }
@@ -304,6 +324,17 @@ public class InsertStatement extends AbstractReturningQueryStatement<InsertState
     return insertKey(name, value);
   }
 
+  public InsertStatement insertKeyPlaceholder(final String name) {
+    insertPlaceholder(name);
+    conflictColumn(name);
+    return this;
+  }
+
+  private void insertPlaceholder(final String name) {
+    final var placeholder = addPlaceholder(name);
+    insert(name, placeholder);
+  }
+
   public InsertStatement into(final TableReference table) {
     table(table);
     return this;
@@ -384,6 +415,13 @@ public class InsertStatement extends AbstractReturningQueryStatement<InsertState
     return this;
   }
 
+  public InsertStatement updatePlaceholder(final String name) {
+    final var placeholder = addPlaceholder(name);
+    final var column = getColumn(name);
+    onConflictDoUpdate().set(column, placeholder);
+    return this;
+  }
+
   public InsertStatement updateWhere(final Consumer<WhereConditionBuilder> where) {
     onConflictDoUpdate().where(where);
     return this;
@@ -426,6 +464,12 @@ public class InsertStatement extends AbstractReturningQueryStatement<InsertState
       final var value = values.get(name);
       upsert(name, value);
     }
+    return this;
+  }
+
+  public InsertStatement upsertPlaceholder(final String name) {
+    insertPlaceholder(name);
+    update(name);
     return this;
   }
 

@@ -1,6 +1,7 @@
 package com.revolsys.record.query;
 
 import java.sql.PreparedStatement;
+import java.util.Map;
 import java.util.function.Consumer;
 
 import com.revolsys.collection.map.MapEx;
@@ -65,8 +66,8 @@ public class Join implements QueryValue, TableReferenceProxy {
   }
 
   @Override
-  public int appendParameters(final int index, final PreparedStatement statement) {
-    return this.condition.appendParameters(index, statement);
+  public int appendParameters(final int index, Map<String, Object> parameters, final PreparedStatement statement) {
+    return this.condition.appendParameters(index, parameters, statement);
   }
 
   /**
