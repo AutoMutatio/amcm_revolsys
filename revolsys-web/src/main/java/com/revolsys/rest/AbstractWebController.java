@@ -16,6 +16,7 @@ import com.revolsys.collection.json.JsonList;
 import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.json.JsonParser;
 import com.revolsys.collection.json.JsonWriter;
+import com.revolsys.exception.Exceptions;
 import com.revolsys.io.IoConstants;
 import com.revolsys.io.IoFactory;
 import com.revolsys.record.Record;
@@ -93,13 +94,13 @@ public class AbstractWebController {
     response.setContentType(contentType);
   }
 
-  public JsonObject readJsonBody(final HttpServletRequest request) throws IOException {
-    final JsonObject json;
+  public JsonObject readJsonBody(final HttpServletRequest request) {
     try (
       Reader reader = request.getReader()) {
-      json = JsonParser.read(reader);
+      return JsonParser.read(reader);
+    } catch (final IOException e) {
+      throw Exceptions.toRuntimeException(e);
     }
-    return json;
   }
 
   protected void responseRecords(final HttpServletResponse response, final RecordReader reader,
