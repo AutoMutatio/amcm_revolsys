@@ -6,6 +6,8 @@ import java.util.function.Consumer;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import org.springframework.http.ResponseEntity;
+
 import com.revolsys.collection.json.JsonObject;
 import com.revolsys.data.identifier.Identifier;
 import com.revolsys.io.PathName;
@@ -35,8 +37,7 @@ public class BaseTableRecordRestController extends AbstractTableRecordRestContro
   protected void handleGetRecord(final TableRecordStoreConnection connection,
     final HttpServletRequest request, final HttpServletResponse response, final String fieldName,
     final Object value) throws IOException {
-    final Query query = getTableRecordStore(connection, this.tableName).newQuery(connection)//
-      .and(fieldName, value);
+    final Query query = newQuery(connection).and(fieldName, value);
     handleGetRecord(connection, request, response, query);
   }
 
@@ -59,9 +60,20 @@ public class BaseTableRecordRestController extends AbstractTableRecordRestContro
     responseRecordJson(response, record);
   }
 
+  protected TableRecordStoreQuery newQuery(final TableRecordStoreConnection connection) {
+    return getTableRecordStore(connection, this.tableName).newQuery(connection);
+  }
+
   protected TableRecordStoreQuery newQuery(final TableRecordStoreConnection connection,
     final HttpServletRequest request) {
     return super.newQuery(connection, request, this.tablePath);
+  }
+
+  protected ResponseEntity<Record> responseEntityRecord(final TableRecordStoreConnection connection,
+    final String fieldName, final Object value) throws IOException {
+    final Query query = newQuery(connection)//
+      .and(fieldName, value);
+    return responseEntityRecord(query);
   }
 
 }

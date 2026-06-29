@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.revolsys.collection.json.JsonList;
@@ -90,6 +91,11 @@ public class AbstractTableRecordRestController extends AbstractWebController {
     final HttpServletRequest request, final CharSequence tablePath) {
     final AbstractTableRecordStore recordStore = getTableRecordStore(connection, tablePath);
     return recordStore.newQuery(connection, request, Integer.MAX_VALUE);
+  }
+
+  protected ResponseEntity<Record> responseEntityRecord(final Query query) throws IOException {
+    final Record record = query.getRecord();
+    return ResponseEntity.ofNullable(record);
   }
 
   protected void responseRecordJson(final TableRecordStoreConnection connection,

@@ -679,6 +679,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     final boolean distinct = "true".equals(request.getParameter("$distinct"));
 
     final boolean count = "true".equals(request.getParameter("$count"));
+
     int skip = 0;
     try {
       final String value = request.getParameter("$skip");
@@ -883,6 +884,9 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     } else if (function.equals("year")) {
       return dateFormat(value, "yyyy", "0000");
     } else if (function.equals("weekStartMon")) {
+      if (value instanceof JsonValue json) {
+        value = json.setText(true).cast("date");
+      }
       final var weeekStartMonday = F.function("date_trunc", Q.literal("week"), value)
         .cast("date");
       return dateFormat(weeekStartMonday, "yyyy-mm-dd", "0000-00-00");

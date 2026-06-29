@@ -5,11 +5,14 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 import java.util.function.Supplier;
 
+import com.revolsys.exception.Exceptions;
 import com.revolsys.io.DigestReadableByteChannel;
 import com.revolsys.io.stream.DigestInputStream;
 import com.revolsys.io.stream.DigestOutputStream;
@@ -62,26 +65,32 @@ public class Md5 {
     return digest.digest();
   }
 
+  public static byte[] md5(final Path file) {
+    try (
+      InputStream in = Files.newInputStream(file)) {
+      return md5(in);
+    } catch (final IOException e) {
+      throw Exceptions.toRuntimeException(e);
+    }
+  }
+
   public static byte[] md5(final String data) {
     return md5(data.getBytes(StandardCharsets.UTF_8));
   }
 
   public static String md5Base64(final byte[] data) {
     final byte[] md5 = md5(data);
-    return Base64.getEncoder()
-      .encodeToString(md5);
+    return Base64.getEncoder().encodeToString(md5);
   }
 
   public static String md5Base64(final InputStream data) throws IOException {
     final byte[] md5 = md5(data);
-    return Base64.getEncoder()
-      .encodeToString(md5);
+    return Base64.getEncoder().encodeToString(md5);
   }
 
   public static String md5Base64(final String data) {
     final byte[] md5 = md5(data);
-    return Base64.getEncoder()
-      .encodeToString(md5);
+    return Base64.getEncoder().encodeToString(md5);
   }
 
   public static String md5Hex(final byte[] data) {

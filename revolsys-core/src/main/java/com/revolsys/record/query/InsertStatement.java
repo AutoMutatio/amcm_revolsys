@@ -9,6 +9,7 @@ import com.revolsys.collection.iterator.BaseIterable;
 import com.revolsys.collection.list.ListEx;
 import com.revolsys.collection.list.Lists;
 import com.revolsys.collection.map.MapEx;
+import com.revolsys.collection.value.Single;
 import com.revolsys.record.Record;
 import com.revolsys.record.schema.RecordDefinition;
 
@@ -200,6 +201,11 @@ public class InsertStatement extends AbstractReturningQueryStatement<InsertState
 
   public <V> V executeInsertRecords(final Function<BaseIterable<Record>, V> action) {
     return getRecordStore().executeInsertRecords(this, action);
+  }
+
+  public Single<Record> executeInsertRecordSingle() {
+    final var record = executeInsertRecords(BaseIterable::getFirst);
+    return Single.ofNullable(record);
   }
 
   public ListEx<ColumnReference> getColumns() {

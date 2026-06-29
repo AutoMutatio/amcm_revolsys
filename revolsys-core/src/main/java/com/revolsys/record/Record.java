@@ -133,16 +133,12 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
   static String toString(final Record record) {
     final RecordDefinition recordDefinition = record.getRecordDefinition();
     final StringBuilder s = new StringBuilder();
-    s.append(recordDefinition.getPath())
-      .append("(\n");
+    s.append(recordDefinition.getPath()).append("(\n");
     for (int i = 0; i < recordDefinition.getFieldCount(); i++) {
       final Object value = record.getValue(i);
       if (value != null) {
         final String fieldName = recordDefinition.getFieldName(i);
-        s.append(fieldName)
-          .append('=')
-          .append(value)
-          .append('\n');
+        s.append(fieldName).append('=').append(value).append('\n');
       }
     }
     s.append(')');
@@ -496,8 +492,7 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
     } else {
       if (map instanceof Record) {
         final Record record = (Record)map;
-        if (!record.getPathName()
-          .equals(getPathName())) {
+        if (!record.getPathName().equals(getPathName())) {
           return false;
         }
       }
@@ -645,7 +640,11 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
         final Number number = (Number)value;
         return number.doubleValue();
       } else {
-        return Double.valueOf(value.toString());
+        final String s = value.toString();
+        if (s.isBlank()) {
+          return null;
+        }
+        return Double.valueOf(s);
       }
     } else {
       return null;
@@ -935,8 +934,7 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
     final int fieldIndex = getFieldIndex(path);
     if (fieldIndex == -1) {
       final RecordDefinition recordDefinition = getRecordDefinition();
-      final String[] propertyPath = path.toString()
-        .split("\\.");
+      final String[] propertyPath = path.toString().split("\\.");
       Object propertyValue = this;
       for (int i = 0; i < propertyPath.length && propertyValue != null; i++) {
         final String propertyName = propertyPath[i];
@@ -1120,9 +1118,8 @@ public interface Record extends MapEx, Comparable<Object>, Identifiable, RecordD
     } else if (excludeFieldNames.contains(Record.EXCLUDE_ID)
       && ("OBJECTID".equals(fieldName) || recordDefinition.isIdField(fieldName))) {
       return true;
-    } else if (excludeFieldNames.contains(Record.EXCLUDE_GEOMETRY)
-      && ("OBJECTID".equals(fieldName) || recordDefinition.getGeometryFieldNames()
-        .contains(fieldName))) {
+    } else if (excludeFieldNames.contains(Record.EXCLUDE_GEOMETRY) && ("OBJECTID".equals(fieldName)
+      || recordDefinition.getGeometryFieldNames().contains(fieldName))) {
       return true;
     } else {
       return false;
