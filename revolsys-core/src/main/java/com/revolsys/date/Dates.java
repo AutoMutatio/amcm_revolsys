@@ -42,9 +42,11 @@ import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.revolsys.collection.json.JsonObject;
 import com.revolsys.data.type.DataTypes;
 import com.revolsys.logging.Logs;
 import com.revolsys.util.BaseCloseable;
+import com.revolsys.util.Property;
 
 public interface Dates {
   public static class Timer implements BaseCloseable {
@@ -942,6 +944,22 @@ public interface Dates {
       return null;
     } else {
       return DateTimeFormatter.ISO_INSTANT.format(date.toInstant());
+    }
+  }
+
+  static DateTimeFormatter createDateTimeFomatter(final JsonObject config,
+    final DateTimeFormatter defaultFormatter, final ZoneId defaultZoneId) {
+    final var datePattern = config.getString("datePattern");
+    final var timezone = config.getString("timezone");
+    if (Property.hasValue(datePattern)) {
+      ZoneId zoneId = defaultZoneId;
+      if (timezone != null) {
+        zoneId = ZoneId.of(timezone);
+      }
+      return DateTimeFormatter.ofPattern(datePattern)
+        .withZone(zoneId);
+    } else {
+      return defaultFormatter;
     }
   }
 }
