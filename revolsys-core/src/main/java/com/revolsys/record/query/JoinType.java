@@ -2,7 +2,8 @@ package com.revolsys.record.query;
 
 public enum JoinType {
 
-  CROSS_JOIN, INNER_JOIN, LEFT_OUTER_JOIN, RIGHT_OUTER_JOIN, FULL_OUTER_JOIN, COMMA(", ");
+  CROSS_JOIN, INNER_JOIN, LEFT_JOIN, LEFT_OUTER_JOIN, RIGHT_OUTER_JOIN, FULL_OUTER_JOIN, COMMA(
+    ", ");
 
   public static final JoinType JOIN = INNER_JOIN;
 
