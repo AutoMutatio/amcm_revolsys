@@ -17,6 +17,8 @@ public class Join implements QueryValue, TableReferenceProxy {
 
   private String tableName;
 
+  private boolean lateral = false;
+
   private TableReference table;
 
   private QueryValue statement;
@@ -40,6 +42,9 @@ public class Join implements QueryValue, TableReferenceProxy {
     sql.append(' ');
     sql.append(this.joinType.toString());
     sql.append(' ');
+    if (this.lateral) {
+      sql.append("LATERAL ");
+    }
     if (this.table != null) {
       if (this.alias == null) {
         statement.appendFromWithAlias(sql, this.table);
@@ -170,6 +175,19 @@ public class Join implements QueryValue, TableReferenceProxy {
 
   public JoinType joinType() {
     return this.joinType;
+  }
+
+  public boolean lateral() {
+    return this.lateral;
+  }
+
+  public Join lateral(final boolean lateral) {
+    this.lateral = lateral;
+    return this;
+  }
+
+  public Join on(final Condition condition) {
+    return and(condition);
   }
 
   public Join on(final Consumer<WhereConditionBuilder> action) {

@@ -22,6 +22,10 @@ import com.revolsys.record.schema.RecordStore;
 import com.revolsys.util.Property;
 
 public class Q {
+  public static final BooleanCondition FALSE = BooleanCondition.FALSE;
+
+  public static final BooleanCondition TRUE = BooleanCondition.TRUE;
+
   public static BiFunction<QueryValue, QueryValue, QueryValue> ADD = Add::new;
 
   public static BiFunction<QueryValue, QueryValue, Condition> ILIKE = ILike::create;

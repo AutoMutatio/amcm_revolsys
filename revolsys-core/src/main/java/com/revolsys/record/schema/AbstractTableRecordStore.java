@@ -27,7 +27,7 @@ import com.revolsys.data.type.DataType;
 import com.revolsys.data.type.DataTypes;
 import com.revolsys.exception.ExceptionWithProperties;
 import com.revolsys.exception.Exceptions;
-import com.revolsys.function.Function3;
+import com.revolsys.function.Function4;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.io.PathName;
 import com.revolsys.jdbc.JdbcConnection;
@@ -68,11 +68,12 @@ import com.revolsys.util.Property;
 public class AbstractTableRecordStore implements RecordDefinitionProxy {
   public record VirtualField(AbstractTableRecordStore recordStore, String name,
     Consumer<RecordDefinitionBuilder> addToSchema,
-    Function3<Query, VirtualField, String[], QueryValue> newQueryValue, boolean autoExtraPath) {
+    Function4<Query, TableReferenceProxy, VirtualField, String[], QueryValue> newQueryValue,
+    boolean autoExtraPath) {
 
     public VirtualField(final AbstractTableRecordStore recordStore, final String name,
       final Consumer<RecordDefinitionBuilder> addToSchema,
-      final Function3<Query, VirtualField, String[], QueryValue> newQueryValue) {
+      final Function4<Query, TableReferenceProxy, VirtualField, String[], QueryValue> newQueryValue) {
       this(recordStore, name, addToSchema, newQueryValue, false);
     }
 
@@ -80,8 +81,9 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
       this.addToSchema.accept(builder);
     }
 
-    public QueryValue newQueryValue(final Query query, final String... path) {
-      QueryValue result = this.newQueryValue.apply(query, this, path);
+    public QueryValue newQueryValue(final Query query, final TableReferenceProxy table,
+      final String... path) {
+      QueryValue result = this.newQueryValue.apply(query, table, this, path);
       if (this.autoExtraPath && path.length > 1) {
         for (int i = 1; i < path.length; i++) {
           final var part = path[i];
@@ -303,14 +305,14 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
   }
 
   public void addStringVirtualField(final String name,
-    final Function3<Query, VirtualField, String[], QueryValue> newQueryValue) {
+    final Function4<Query, TableReferenceProxy, VirtualField, String[], QueryValue> newQueryValue) {
     final var field = new VirtualField(this, name, rd -> rd.addField(name), newQueryValue);
     addVirtualField(field);
   }
 
   public VirtualField addVirtualField(final String name, final DataType dataType,
     final boolean autoPath,
-    final Function3<Query, VirtualField, String[], QueryValue> newQueryValue) {
+    final Function4<Query, TableReferenceProxy, VirtualField, String[], QueryValue> newQueryValue) {
     final var field = new VirtualField(this, name, rd -> rd.addField(name, dataType), newQueryValue,
       autoPath);
     addVirtualField(field);
@@ -318,7 +320,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
   }
 
   public VirtualField addVirtualField(final String name, final DataType dataType,
-    final Function3<Query, VirtualField, String[], QueryValue> newQueryValue) {
+    final Function4<Query, TableReferenceProxy, VirtualField, String[], QueryValue> newQueryValue) {
     final var field = new VirtualField(this, name, rd -> rd.addField(name, dataType),
       newQueryValue);
     addVirtualField(field);
@@ -443,7 +445,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     final var parts = path.split("\\.");
     final var virtualField = this.virtualFieldByName.get(parts[0]);
     if (virtualField != null) {
-      return virtualField.newQueryValue(query, parts);
+      return virtualField.newQueryValue(query, table, parts);
     }
     return table.columnByPath(path);
   }
@@ -884,8 +886,9 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     } else if (function.equals("year")) {
       return dateFormat(value, "yyyy", "0000");
     } else if (function.equals("weekStartMon")) {
-      if (value instanceof JsonValue json) {
-        value = json.setText(true).cast("date");
+      if (value instanceof final JsonValue json) {
+        value = json.setText(true)
+          .cast("date");
       }
       final var weeekStartMonday = F.function("date_trunc", Q.literal("week"), value)
         .cast("date");
