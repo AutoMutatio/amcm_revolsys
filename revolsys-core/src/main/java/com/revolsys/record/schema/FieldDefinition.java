@@ -9,6 +9,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.function.Function;
 
 import com.revolsys.beans.ObjectPropertyException;
 import com.revolsys.collection.json.JsonObject;
@@ -91,6 +92,8 @@ public class FieldDefinition extends BaseObjectWithProperties implements CharSeq
   private DataType type = DataTypes.STRING;
 
   private boolean generated;
+
+  private Function<Object, Object> valueConverter;
 
   public FieldDefinition() {
   }
@@ -869,6 +872,7 @@ public class FieldDefinition extends BaseObjectWithProperties implements CharSeq
     }
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public <V> V toFieldValueException(Object value) {
     if (value == null) {
@@ -888,8 +892,11 @@ public class FieldDefinition extends BaseObjectWithProperties implements CharSeq
           }
         }
 
-        final V fieldValue = this.type.toObject(value);
-        return fieldValue;
+        if (this.valueConverter == null) {
+          return this.type.toObject(value);
+        } else {
+          return (V)this.valueConverter.apply(value);
+        }
       } catch (final IllegalArgumentException e) {
         throw e;
       } catch (final Throwable e) {
@@ -1068,5 +1075,14 @@ public class FieldDefinition extends BaseObjectWithProperties implements CharSeq
     } catch (final Throwable e) {
       throw new ObjectPropertyException(record, fieldName, e.getMessage(), e);
     }
+  }
+
+  public Function<Object, Object> valueConverter() {
+    return this.valueConverter;
+  }
+
+  public FieldDefinition valueConverter(final Function<Object, Object> valueConverter) {
+    this.valueConverter = valueConverter;
+    return this;
   }
 }
