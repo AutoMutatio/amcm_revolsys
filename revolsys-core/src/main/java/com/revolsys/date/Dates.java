@@ -82,7 +82,7 @@ public interface Dates {
     }
 
     public boolean isClosed() {
-      return endTime != null;
+      return this.endTime != null;
     }
 
     public Timer printStep(final String message) {
@@ -128,9 +128,27 @@ public interface Dates {
     .toFormatter()
     .withZone(UTC);
 
-  DateTimeFormatter ISO_DATE = DateTimeFormatter.ofPattern("yyyy-MM-dd").withZone(UTC);
+  DateTimeFormatter ISO_DATE = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+    .withZone(UTC);
 
-  DateTimeFormatter ISO_TIME = DateTimeFormatter.ofPattern("HH:mm:ss").withZone(UTC);
+  DateTimeFormatter ISO_TIME = DateTimeFormatter.ofPattern("HH:mm:ss")
+    .withZone(UTC);
+
+  static DateTimeFormatter createDateTimeFomatter(final JsonObject config,
+    final DateTimeFormatter defaultFormatter, final ZoneId defaultZoneId) {
+    final var datePattern = config.getString("datePattern");
+    final var timezone = config.getString("timezone");
+    if (Property.hasValue(datePattern)) {
+      ZoneId zoneId = defaultZoneId;
+      if (timezone != null) {
+        zoneId = ZoneId.of(timezone);
+      }
+      return DateTimeFormatter.ofPattern(datePattern)
+        .withZone(zoneId);
+    } else {
+      return defaultFormatter;
+    }
+  }
 
   static Set<DayOfWeek> days(final int... days) {
     final Set<DayOfWeek> daysOfWeek = new TreeSet<>();
@@ -198,7 +216,8 @@ public interface Dates {
     if (date == null) {
       return null;
     } else {
-      return DateTimeFormatter.ofPattern(pattern).format(date);
+      return DateTimeFormatter.ofPattern(pattern)
+        .format(date);
     }
   }
 
@@ -221,7 +240,8 @@ public interface Dates {
         final Calendar calendar = new GregorianCalendar(year, month, day, hour, minute, second);
         if (millisecond != 0) {
           BigDecimal number = new BigDecimal("0." + millisecond);
-          number = number.multiply(BigDecimal.valueOf(100)).setScale(0, RoundingMode.HALF_DOWN);
+          number = number.multiply(BigDecimal.valueOf(100))
+            .setScale(0, RoundingMode.HALF_DOWN);
           millisecond = number.intValue();
           calendar.set(Calendar.MILLISECOND, millisecond);
         }
@@ -288,7 +308,8 @@ public interface Dates {
         final Calendar calendar = new GregorianCalendar(year, month, day, hour, minute, second);
         if (millisecond != 0) {
           BigDecimal number = new BigDecimal("0." + millisecond);
-          number = number.multiply(BigDecimal.valueOf(1000)).setScale(0, RoundingMode.HALF_DOWN);
+          number = number.multiply(BigDecimal.valueOf(1000))
+            .setScale(0, RoundingMode.HALF_DOWN);
           millisecond = number.intValue();
           calendar.set(Calendar.MILLISECOND, millisecond);
         }
@@ -304,6 +325,32 @@ public interface Dates {
   static Date getDate(final String pattern, final String dateString) {
     final DateFormat format = new SimpleDateFormat(pattern);
     return getDate(format, dateString);
+  }
+
+  static Instant getInstant(final DateTimeFormatter formatter, final Object value) {
+    if (value == null) {
+      return null;
+    } else if (value instanceof final Instant instant) {
+      return instant;
+    } else if (value instanceof final OffsetDateTime offset) {
+      return offset.toInstant();
+    } else if (value instanceof final java.sql.Date date) {
+      final LocalDate localDate = date.toLocalDate();
+      return getInstant(localDate);
+    } else if (value instanceof final Date date) {
+      return date.toInstant();
+    } else if (value instanceof final Calendar calendar) {
+      return calendar.toInstant();
+    } else if (value instanceof final LocalDate date) {
+      final ZoneId zoneId = ZoneId.systemDefault();
+      return date.atStartOfDay(zoneId)
+        .toInstant();
+    } else if (value instanceof final TemporalAccessor temporal) {
+      return Instant.from(temporal);
+    } else {
+      final String string = value.toString();
+      return formatter.parse(string, Instant::from);
+    }
   }
 
   static Instant getInstant(final Object value) {
@@ -328,7 +375,8 @@ public interface Dates {
     } else if (value instanceof LocalDate) {
       final LocalDate date = (LocalDate)value;
       final ZoneId zoneId = ZoneId.systemDefault();
-      return date.atStartOfDay(zoneId).toInstant();
+      return date.atStartOfDay(zoneId)
+        .toInstant();
     } else if (value instanceof TemporalAccessor) {
       final TemporalAccessor temporal = (TemporalAccessor)value;
       return Instant.from(temporal);
@@ -463,13 +511,36 @@ public interface Dates {
     return new Timestamp(time);
   }
 
+  static LocalDate getLocalDate(final DateTimeFormatter formatter, final Object value) {
+    if (value == null) {
+      return null;
+    } else if (value instanceof final LocalDate localDate) {
+      return localDate;
+    } else if (value instanceof final Instant instant) {
+      return instant.atZone(UTC)
+        .toLocalDate();
+    } else if (value instanceof final java.sql.Date date) {
+      return date.toLocalDate();
+    } else if (value instanceof final Date date) {
+      return getLocalDate(date.toInstant());
+    } else if (value instanceof final Calendar calendar) {
+      return getLocalDate(calendar.toInstant());
+    } else if (value instanceof final TemporalAccessor temporal) {
+      return LocalDate.from(temporal);
+    } else {
+      final var s = value.toString();
+      return formatter.parse(s, LocalDate::from);
+    }
+  }
+
   static LocalDate getLocalDate(final Object value) {
     if (value == null) {
       return null;
     } else if (value instanceof LocalDate) {
       return (LocalDate)value;
     } else if (value instanceof final Instant instant) {
-      return instant.atZone(UTC).toLocalDate();
+      return instant.atZone(UTC)
+        .toLocalDate();
     } else if (value instanceof final java.sql.Date date) {
       return date.toLocalDate();
     } else if (value instanceof final Date date) {
@@ -502,7 +573,8 @@ public interface Dates {
       return date;
     } else if (value instanceof Instant) {
       final Instant instant = (Instant)value;
-      final LocalDate date = instant.atZone(UTC).toLocalDate();
+      final LocalDate date = instant.atZone(UTC)
+        .toLocalDate();
       return getSqlDate(date);
     } else if (value instanceof LocalDate) {
       final LocalDate date = (LocalDate)value;
@@ -530,7 +602,8 @@ public interface Dates {
         final Calendar calendar = new GregorianCalendar(year, month, day);
         if (millisecond != 0) {
           BigDecimal number = new BigDecimal("0." + millisecond);
-          number = number.multiply(BigDecimal.valueOf(1000)).setScale(0, RoundingMode.HALF_DOWN);
+          number = number.multiply(BigDecimal.valueOf(1000))
+            .setScale(0, RoundingMode.HALF_DOWN);
           millisecond = number.intValue();
           calendar.set(Calendar.MILLISECOND, millisecond);
         }
@@ -944,22 +1017,6 @@ public interface Dates {
       return null;
     } else {
       return DateTimeFormatter.ISO_INSTANT.format(date.toInstant());
-    }
-  }
-
-  static DateTimeFormatter createDateTimeFomatter(final JsonObject config,
-    final DateTimeFormatter defaultFormatter, final ZoneId defaultZoneId) {
-    final var datePattern = config.getString("datePattern");
-    final var timezone = config.getString("timezone");
-    if (Property.hasValue(datePattern)) {
-      ZoneId zoneId = defaultZoneId;
-      if (timezone != null) {
-        zoneId = ZoneId.of(timezone);
-      }
-      return DateTimeFormatter.ofPattern(datePattern)
-        .withZone(zoneId);
-    } else {
-      return defaultFormatter;
     }
   }
 }
