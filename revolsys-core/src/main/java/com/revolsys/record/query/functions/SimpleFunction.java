@@ -12,10 +12,13 @@ import com.revolsys.collection.map.MapEx;
 import com.revolsys.data.type.DataType;
 import com.revolsys.record.query.AbstractMultiQueryValue;
 import com.revolsys.record.query.ColumnIndexes;
+import com.revolsys.record.query.ColumnReference;
 import com.revolsys.record.query.QueryStatement;
 import com.revolsys.record.query.QueryValue;
 import com.revolsys.record.query.SqlAppendable;
+import com.revolsys.record.query.Value;
 import com.revolsys.record.schema.RecordDefinition;
+import com.revolsys.record.schema.RecordDefinitionProxy;
 import com.revolsys.record.schema.RecordStore;
 import com.revolsys.util.Strings;
 
@@ -52,6 +55,24 @@ public class SimpleFunction extends AbstractMultiQueryValue implements Function 
 
   public void add(final QueryValue value) {
     addValue(value);
+  }
+
+  public SimpleFunction addParameter(final QueryValue value) {
+    addValue(value);
+    return this;
+  }
+
+  public SimpleFunction addParameter(final RecordDefinitionProxy table,
+    final CharSequence fieldName, final Object value) {
+    final ColumnReference left = table.getColumn(fieldName);
+    QueryValue queryValue;
+    if (value instanceof final QueryValue qv) {
+      queryValue = qv;
+    } else {
+      queryValue = new Value(left, value);
+    }
+    addValue(queryValue);
+    return this;
   }
 
   @Override

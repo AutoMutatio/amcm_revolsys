@@ -42,6 +42,7 @@ import com.revolsys.record.io.RecordReader;
 import com.revolsys.record.io.RecordStoreConnection;
 import com.revolsys.record.io.RecordStoreFactory;
 import com.revolsys.record.io.RecordWriter;
+import com.revolsys.record.query.Call;
 import com.revolsys.record.query.ColumnIndexes;
 import com.revolsys.record.query.Condition;
 import com.revolsys.record.query.DeleteStatement;
@@ -305,6 +306,10 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
 
   default DeleteStatement deleteStatement(final PathName pathName) {
     return new DeleteStatement().from(getRecordDefinition(pathName));
+  }
+
+  default void executeCall(final Call queryStatement) {
+    throw new UnsupportedOperationException("executeCall not implemented");
   }
 
   default int executeInsertCount(final InsertStatement insertStatement) {
