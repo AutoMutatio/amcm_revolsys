@@ -2,6 +2,7 @@ package com.revolsys.record.query.functions;
 
 import java.util.List;
 
+import com.revolsys.record.query.Call;
 import com.revolsys.record.query.QueryValue;
 
 public interface Function extends QueryValue {
@@ -21,4 +22,7 @@ public interface Function extends QueryValue {
 
   List<QueryValue> getParameters();
 
+  default Call toCall() {
+    return new Call(this);
+  }
 }

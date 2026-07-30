@@ -24,17 +24,15 @@ public abstract class AbstractMultiQueryValue implements QueryValue {
     }
   }
 
-  protected boolean addValue(final QueryValue value) {
-    if (value == null) {
-      return false;
-    } else {
+  protected AbstractMultiQueryValue addValue(final QueryValue value) {
+    if (value != null) {
       final QueryValue[] oldValues = this.values;
       final QueryValue[] values = new QueryValue[oldValues.length + 1];
       System.arraycopy(oldValues, 0, values, 0, oldValues.length);
       values[oldValues.length] = value;
       this.values = values;
-      return true;
     }
+    return this;
   }
 
   @Override

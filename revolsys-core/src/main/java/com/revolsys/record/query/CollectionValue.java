@@ -48,8 +48,9 @@ public class CollectionValue extends AbstractMultiQueryValue {
   }
 
   @Override
-  public boolean addValue(final QueryValue value) {
-    return super.addValue(value);
+  public CollectionValue addValue(final QueryValue value) {
+    super.addValue(value);
+    return this;
   }
 
   @Override

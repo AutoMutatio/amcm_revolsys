@@ -28,6 +28,10 @@ public class TableRecordStoreQuery extends Query {
     return (TableRecordStoreQuery)super.clone();
   }
 
+  public TableRecordStoreConnection connection() {
+    return this.connection;
+  }
+
   @Override
   public int deleteRecords() {
     return transactionCall(() -> this.recordStore.getRecordStore()

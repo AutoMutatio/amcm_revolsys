@@ -93,7 +93,7 @@ public class AbstractTableRecordRestController extends AbstractWebController {
     return recordStore.newQuery(connection, request, Integer.MAX_VALUE);
   }
 
-  protected ResponseEntity<Record> responseEntityRecord(final Query query) throws IOException {
+  protected ResponseEntity<Record> responseEntityRecord(final Query query) {
     final Record record = query.getRecord();
     return ResponseEntity.ofNullable(record);
   }
