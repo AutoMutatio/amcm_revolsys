@@ -331,7 +331,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     this.virtualFieldByName.put(field.name(), field);
   }
 
-  protected Condition alterCondition(final HttpServletRequest request,
+  public Condition alterCondition(final HttpServletRequest request,
     final TableRecordStoreConnection connection, final Query query, final Condition condition) {
     return condition;
   }
