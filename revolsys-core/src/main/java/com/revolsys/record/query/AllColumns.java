@@ -3,6 +3,7 @@ package com.revolsys.record.query;
 import java.sql.PreparedStatement;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 
 import com.revolsys.collection.map.MapEx;
@@ -30,7 +31,7 @@ public class AllColumns implements QueryValue {
   }
 
   @Override
-  public int appendParameters(final int index, final PreparedStatement statement) {
+  public int appendParameters(final int index, Map<String, Object> parameters, final PreparedStatement statement) {
     return index;
   }
 

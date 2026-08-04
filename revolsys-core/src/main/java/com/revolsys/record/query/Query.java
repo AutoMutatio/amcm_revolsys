@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
@@ -486,7 +487,8 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
 
   @Override
   public int appendFromParameters(final int index, final PreparedStatement statement) {
-    return appendParameters(index, statement);
+    final var parameters = Collections.<String, Object> emptyMap();
+    return appendParameters(index, parameters, statement);
   }
 
   public SqlAppendable appendOrderByFields(final SqlAppendable sql, final TableReferenceProxy table,
@@ -504,10 +506,11 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
   }
 
   @Override
-  public int appendParameters(int index, final PreparedStatement statement) {
+  public int appendParameters(int index, Map<String, Object> parameters,
+    final PreparedStatement statement) {
     if (!this.withQueries.isEmpty()) {
       for (final var with : this.withQueries) {
-        index = with.appendParameters(index, statement);
+        index = with.appendParameters(index, parameters, statement);
       }
     }
     for (final Object parameter : getParameters()) {
@@ -523,17 +526,17 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
       index = this.from.appendFromParameters(index, statement);
     }
     for (final Join join : getJoins()) {
-      index = join.appendParameters(index, statement);
+      index = join.appendParameters(index, parameters, statement);
     }
     final Condition where = getWhereCondition();
     if (!where.isEmpty()) {
-      index = where.appendParameters(index, statement);
+      index = where.appendParameters(index, parameters, statement);
     }
     if (!this.having.isEmpty()) {
-      index = this.having.appendParameters(index, statement);
+      index = this.having.appendParameters(index, parameters, statement);
     }
     if (this.union != null) {
-      index = this.union.appendParameters(index, statement);
+      index = this.union.appendParameters(index, parameters, statement);
     }
     return index;
   }
@@ -565,8 +568,9 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
   }
 
   public int appendSelectParameters(int index, final PreparedStatement statement) {
+    final var parameters = Collections.<String, Object> emptyMap();
     for (final QueryValue select : this.selectExpressions) {
-      index = select.appendParameters(index, statement);
+      index = select.appendParameters(index, parameters, statement);
     }
     return index;
   }

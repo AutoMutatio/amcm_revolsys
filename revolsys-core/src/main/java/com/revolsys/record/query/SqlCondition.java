@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.function.BiFunction;
 
 import com.revolsys.data.type.DataType;
@@ -79,7 +80,7 @@ public class SqlCondition implements Condition {
   }
 
   @Override
-  public int appendParameters(int index, final PreparedStatement statement) {
+  public int appendParameters(int index, Map<String, Object> parameters, final PreparedStatement statement) {
     for (int i = 0; i < this.parameterValues.size(); i++) {
       final Object value = this.parameterValues.get(i);
       JdbcFieldDefinition jdbcAttribute = null;

@@ -3,6 +3,7 @@ package com.revolsys.record.query.functions;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 
 import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.map.MapEx;
@@ -50,13 +51,13 @@ public class JsonContainsKey extends AbstractUnaryQueryValue implements Conditio
   }
 
   @Override
-  public int appendParameters(int index, final PreparedStatement statement) {
+  public int appendParameters(int index, Map<String, Object> parameters, final PreparedStatement statement) {
     final var left = getValue();
     if (left != null) {
-      index = left.appendParameters(index, statement);
+      index = left.appendParameters(index, parameters, statement);
     }
     if (this.keyValue != null) {
-      index = this.keyValue.appendParameters(index, statement);
+      index = this.keyValue.appendParameters(index, parameters, statement);
     } else {
       try {
         statement.setString(index++, this.key);

@@ -2,6 +2,7 @@ package com.revolsys.record.query;
 
 import java.sql.PreparedStatement;
 import java.util.List;
+import java.util.Map;
 
 import com.revolsys.data.type.DataType;
 import com.revolsys.record.schema.RecordStore;
@@ -65,10 +66,10 @@ public abstract class AbstractMultiCondition extends AbstractMultiQueryValue
   }
 
   @Override
-  public int appendParameters(int index, final PreparedStatement statement) {
+  public int appendParameters(int index, Map<String, Object> parameters, final PreparedStatement statement) {
     for (final QueryValue value : this.values) {
       if (value != null) {
-        index = value.appendParameters(index, statement);
+        index = value.appendParameters(index, parameters, statement);
       }
     }
     return index;

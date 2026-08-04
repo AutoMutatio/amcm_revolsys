@@ -4,6 +4,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 
 import com.revolsys.collection.json.Json;
 import com.revolsys.collection.json.JsonObject;
@@ -73,9 +74,9 @@ public class JsonValue extends SimpleFunction {
   }
 
   @Override
-  public int appendParameters(int index, final PreparedStatement statement) {
+  public int appendParameters(int index, Map<String, Object> parameters, final PreparedStatement statement) {
     final QueryValue jsonParameter = getParameter(0);
-    index = jsonParameter.appendParameters(index, statement);
+    index = jsonParameter.appendParameters(index, parameters, statement);
     return index;
   }
 

@@ -3,6 +3,7 @@ package com.revolsys.record.query;
 import java.sql.PreparedStatement;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 
 import com.revolsys.collection.map.MapEx;
@@ -27,9 +28,9 @@ public abstract class AbstractUnaryQueryValue implements QueryValue {
   }
 
   @Override
-  public int appendParameters(int index, final PreparedStatement statement) {
+  public int appendParameters(int index, Map<String, Object> parameters, final PreparedStatement statement) {
     if (this.value != null) {
-      index = this.value.appendParameters(index, statement);
+      index = this.value.appendParameters(index, parameters, statement);
     }
     return index;
   }

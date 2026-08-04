@@ -26,6 +26,11 @@ public abstract class BinaryArithmatic extends AbstractBinaryQueryValue {
   }
 
   @Override
+  public Cast cast(String typeName) {
+    return new Parenthesis(this).cast(typeName);
+  }
+
+  @Override
   public BinaryArithmatic clone() {
     return (BinaryArithmatic)super.clone();
   }

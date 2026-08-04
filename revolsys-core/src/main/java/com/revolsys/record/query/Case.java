@@ -1,6 +1,7 @@
 package com.revolsys.record.query;
 
 import java.sql.PreparedStatement;
+import java.util.Map;
 
 import com.revolsys.collection.list.ListEx;
 import com.revolsys.collection.list.Lists;
@@ -15,11 +16,6 @@ public class Case implements QueryValue {
   private final ListEx<When> whens = Lists.newArray();
 
   private QueryValue elseValue;
-
-  public Case when(final Condition condition, final QueryValue value) {
-    this.whens.add(new When(condition, value));
-    return this;
-  }
 
   @Override
   public void appendDefaultSql(final QueryStatement statement, final RecordStore recordStore,
@@ -41,13 +37,14 @@ public class Case implements QueryValue {
   }
 
   @Override
-  public int appendParameters(int index, final PreparedStatement statement) {
+  public int appendParameters(int index, Map<String, Object> parameters,
+    final PreparedStatement statement) {
     for (final var when : this.whens) {
-      index = when.condition.appendParameters(index, statement);
-      index = when.value.appendParameters(index, statement);
+      index = when.condition.appendParameters(index, parameters, statement);
+      index = when.value.appendParameters(index, parameters, statement);
     }
     if (this.elseValue != null) {
-      index = this.elseValue.appendParameters(index, statement);
+      index = this.elseValue.appendParameters(index, parameters, statement);
     }
     return index;
   }
@@ -64,6 +61,11 @@ public class Case implements QueryValue {
     return clone;
   }
 
+  public Case elseValue(final QueryValue elseValue) {
+    this.elseValue = elseValue;
+    return this;
+  }
+
   @Override
   public <V> V getValue(final MapEx record) {
     for (final var when : this.whens) {
@@ -78,8 +80,8 @@ public class Case implements QueryValue {
     }
   }
 
-  public Case elseValue(final QueryValue elseValue) {
-    this.elseValue = elseValue;
+  public Case when(final Condition condition, final QueryValue value) {
+    this.whens.add(new When(condition, value));
     return this;
   }
 }
