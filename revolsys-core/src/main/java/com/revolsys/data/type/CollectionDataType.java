@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -117,6 +118,24 @@ public class CollectionDataType extends SimpleDataType {
     final DataType contentType) {
     super(name, javaClass);
     this.contentType = contentType;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (!super.equals(obj)) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    final CollectionDataType other = (CollectionDataType)obj;
+    return Objects.equals(this.contentType, other.contentType);
   }
 
   public DataType getContentType() {
