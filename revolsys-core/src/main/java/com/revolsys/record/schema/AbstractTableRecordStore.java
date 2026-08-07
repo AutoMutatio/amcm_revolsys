@@ -285,8 +285,14 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     }
   }
 
-  protected void addSelect(final TableRecordStoreConnection connection, final Query query,
-    final Object selectItem) {
+  protected void addSelect(final TableRecordStoreConnection connection,
+    final TableRecordStoreQuery query, final CharSequence selectItem) {
+    final QueryValue selectClause = fieldPathToSelect(query, selectItem.toString());
+    query.select(selectClause);
+  }
+
+  protected void addSelect(final TableRecordStoreConnection connection,
+    final TableRecordStoreQuery query, final Object selectItem) {
     if (selectItem instanceof final QueryValue queryValue) {
       query.select(queryValue);
     } else if (selectItem instanceof final CharSequence fieldName) {
@@ -296,12 +302,6 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
         .property("fieldClass", selectItem.getClass())
         .property("field", selectItem);
     }
-  }
-
-  protected void addSelect(final TableRecordStoreConnection connection,
-    final TableRecordStoreQuery query, final CharSequence selectItem) {
-    final QueryValue selectClause = fieldPathToSelect(query, selectItem.toString());
-    query.select(selectClause);
   }
 
   public void addStringVirtualField(final String name,
