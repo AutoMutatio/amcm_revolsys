@@ -1,6 +1,7 @@
 package com.revolsys.data.type;
 
 import java.util.Collection;
+import java.util.Objects;
 
 public abstract class AbstractDataType implements DataType {
 
@@ -16,6 +17,22 @@ public abstract class AbstractDataType implements DataType {
     this.javaClass = javaClass;
     this.requiresQuotes = requiresQuotes;
     DataTypes.register(this);
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    final AbstractDataType other = (AbstractDataType)obj;
+    return Objects.equals(this.javaClass, other.javaClass) && Objects.equals(this.name, other.name)
+      && this.requiresQuotes == other.requiresQuotes;
   }
 
   @Override
@@ -118,7 +135,7 @@ public abstract class AbstractDataType implements DataType {
 
   @Override
   public int hashCode() {
-    return this.name.hashCode();
+    return Objects.hash(this.javaClass, this.name, this.requiresQuotes);
   }
 
   @Override
