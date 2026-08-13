@@ -414,6 +414,10 @@ public class Json {
       return new JsonBigDecimal(DataTypes.toString(number));
     } else if (value instanceof final Boolean bool) {
       return bool;
+    } else if (value instanceof final Collection<?> collection) {
+      final var array = JsonList.array();
+      collection.forEach(v -> array.add(toJson(v)));
+      return array;
     } else {
       return DataTypes.toString(value);
     }

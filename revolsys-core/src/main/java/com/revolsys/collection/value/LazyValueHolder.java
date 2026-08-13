@@ -225,14 +225,23 @@ public class LazyValueHolder<T> implements ValueHolder<T>, BaseCloseable {
   protected ValueReference<T> refreshDo(final ValueReference<T> ref) {
     final var updateRef = new ReloadValueReference<T>();
     if (this.valueRef.compareAndSet(ref, updateRef)) {
+      RuntimeException error = null;
       T value = ref.getValue();
-      if (this.valueRefresh == null) {
-        value = this.valueSupplier.get();
-      } else {
-        value = this.valueRefresh.apply(value);
+      try {
+        if (this.valueRefresh == null) {
+          value = this.valueSupplier.get();
+        } else {
+          value = this.valueRefresh.apply(value);
+        }
+      } catch (final RuntimeException e) {
+        error = e;
+        value = null;
       }
       this.loadCallback.accept(value);
       updateRef.setValue(value);
+      if (error != null) {
+        throw error;
+      }
       return updateRef;
     } else {
       return null;
