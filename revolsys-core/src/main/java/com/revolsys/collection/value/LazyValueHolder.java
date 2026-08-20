@@ -235,6 +235,7 @@ public class LazyValueHolder<T> implements ValueHolder<T>, BaseCloseable {
         }
       } catch (final RuntimeException e) {
         error = e;
+        e.printStackTrace();
         value = null;
       }
       this.loadCallback.accept(value);
