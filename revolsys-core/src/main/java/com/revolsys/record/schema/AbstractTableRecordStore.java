@@ -510,6 +510,17 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
       .getRecord();
   }
 
+  public Record getRecordById(final TableRecordStoreConnection connection, final Identifier id) {
+    final var query = newQuery(connection);
+    final var idFieldNames = getIdFieldNames();
+    for (int i = 0; i < idFieldNames.size(); i++) {
+      final var idFieldName = idFieldNames.get(i);
+      final var value = id.getValue(i);
+      query.and(idFieldName, value);
+    }
+    return query.getRecord();
+  }
+
   public Record getRecordById(final TableRecordStoreConnection connection, final Object id) {
     return getRecord(connection, "id", id);
   }
