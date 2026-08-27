@@ -53,8 +53,10 @@ public enum EdmPrimitiveTypeKind implements EdmPrimitiveType {
   Date(DataTypes.LOCAL_DATE), //
   DateTimeOffset(DataTypes.INSTANT), //
   TimeOfDay(DataTypes.TIME), //
-  Duration(new FunctionDataType("Duration", BigDecimal.class,
-    EdmPrimitiveTypeKind::stringToDuration, EdmPrimitiveTypeKind::durationToString)), //
+  Duration(FunctionDataType.builder("Duration", BigDecimal.class)
+    .toObjectFunction(EdmPrimitiveTypeKind::stringToDuration)
+    .toStringFunction(EdmPrimitiveTypeKind::durationToString)
+    .build()), //
   Decimal(DataTypes.DECIMAL), //
   Single(DataTypes.FLOAT), //
   Double(DataTypes.DOUBLE), //
@@ -64,59 +66,86 @@ public enum EdmPrimitiveTypeKind implements EdmPrimitiveType {
   Int64(DataTypes.LONG), //
   String(DataTypes.STRING), //
   Stream(DataTypes.ANY_URI), //
-  Geography(new FunctionDataType("Geography", Geometry.class, v -> {
-    throw new EdmPrimitiveTypeException("Not implemented!");
-  }, v ->
+  Geography(FunctionDataType.builder("Geography", Geometry.class)
+    .toObjectFunction(v -> {
+      throw new EdmPrimitiveTypeException("Not implemented!");
+    })
+    .toStringFunction(v ->
 
-  {
-    throw new EdmPrimitiveTypeException("Not implemented!");
-  })), //
-  GeographyPoint(new FunctionDataType("GeographyPoint", Point.class,
-    EdmGeometryFactory.GEOGRAPHY::stringToPoint, EdmGeometryFactory.GEOGRAPHY::pointToString)), //
-  GeographyLineString(new FunctionDataType("GeographyLineString", LineString.class,
-    EdmGeometryFactory.GEOGRAPHY::stringToLineString,
-    EdmGeometryFactory.GEOGRAPHY::lineStringToString)), //
-  GeographyPolygon(new FunctionDataType("GeographyPolygon", Polygon.class,
-    EdmGeometryFactory.GEOGRAPHY::stringToPolygon, EdmGeometryFactory.GEOGRAPHY::polygonToString)), //
-  GeographyMultiPoint(new FunctionDataType("GeographyMultiPoint", MultiPoint.class,
-    EdmGeometryFactory.GEOGRAPHY::stringToMultiPoint,
-    EdmGeometryFactory.GEOGRAPHY::multiPointToString)), //
-  GeographyMultiLineString(new FunctionDataType("GeographyMultiLineString", MultiLineString.class,
-    EdmGeometryFactory.GEOGRAPHY::stringToMultiLineString,
-    EdmGeometryFactory.GEOGRAPHY::multiLineStringToString)), //
-  GeographyMultiPolygon(new FunctionDataType("GeographyMultiPolygon", MultiPolygon.class,
-    EdmGeometryFactory.GEOGRAPHY::stringToMultiPolygon,
-    EdmGeometryFactory.GEOGRAPHY::multiPolygonToString)), //
-  GeographyCollection(new FunctionDataType("GeographyGeospatialCollection",
-    GeometryCollection.class, EdmGeometryFactory.GEOGRAPHY::stringToCollection,
-    EdmGeometryFactory.GEOGRAPHY::collectionToString)), //
+    {
+      throw new EdmPrimitiveTypeException("Not implemented!");
+    })
+    .build()), //
+  GeographyPoint(FunctionDataType.builder("GeographyPoint", Point.class)
+    .toObjectFunction(EdmGeometryFactory.GEOGRAPHY::stringToPoint)
+    .toStringFunction(EdmGeometryFactory.GEOGRAPHY::pointToString)
+    .build()), //
+  GeographyLineString(FunctionDataType.builder("GeographyLineString", LineString.class)
+    .toObjectFunction(EdmGeometryFactory.GEOGRAPHY::stringToLineString)
+    .toStringFunction(EdmGeometryFactory.GEOGRAPHY::lineStringToString)
+    .build()), //
+  GeographyPolygon(FunctionDataType.builder("GeographyPolygon", Polygon.class)
+    .toObjectFunction(EdmGeometryFactory.GEOGRAPHY::stringToPolygon)
+    .toStringFunction(EdmGeometryFactory.GEOGRAPHY::polygonToString)
+    .build()), //
+  GeographyMultiPoint(FunctionDataType.builder("GeographyMultiPoint", MultiPoint.class)
+    .toObjectFunction(EdmGeometryFactory.GEOGRAPHY::stringToMultiPoint)
+    .toStringFunction(EdmGeometryFactory.GEOGRAPHY::multiPointToString)
+    .build()), //
+  GeographyMultiLineString(
+    FunctionDataType.builder("GeographyMultiLineString", MultiLineString.class)
+      .toObjectFunction(EdmGeometryFactory.GEOGRAPHY::stringToMultiLineString)
+      .toStringFunction(EdmGeometryFactory.GEOGRAPHY::multiLineStringToString)
+      .build()), //
+  GeographyMultiPolygon(FunctionDataType.builder("GeographyMultiPolygon", MultiPolygon.class)
+    .toObjectFunction(EdmGeometryFactory.GEOGRAPHY::stringToMultiPolygon)
+    .toStringFunction(EdmGeometryFactory.GEOGRAPHY::multiPolygonToString)
+    .build()), //
+  GeographyCollection(
+    FunctionDataType.builder("GeographyGeospatialCollection", GeometryCollection.class)
+      .toObjectFunction(EdmGeometryFactory.GEOGRAPHY::stringToCollection)
+      .toStringFunction(EdmGeometryFactory.GEOGRAPHY::collectionToString)
+      .build()), //
 
-  Geometry(new FunctionDataType("Geometry", Geometry.class, v -> {
-    throw new EdmPrimitiveTypeException("Not implemented!");
-  }, v ->
+  Geometry(FunctionDataType.builder("Geometry", Geometry.class)
+    .toObjectFunction(v -> {
+      throw new EdmPrimitiveTypeException("Not implemented!");
+    })
+    .toStringFunction(v ->
 
-  {
-    throw new EdmPrimitiveTypeException("Not implemented!");
-  })), //
-  GeometryPoint(new FunctionDataType("GeometryPoint", Point.class,
-    EdmGeometryFactory.GEOMETRY::stringToPoint, EdmGeometryFactory.GEOMETRY::pointToString)), //
-  GeometryLineString(new FunctionDataType("GeometryLineString", LineString.class,
-    EdmGeometryFactory.GEOMETRY::stringToLineString,
-    EdmGeometryFactory.GEOMETRY::lineStringToString)), //
-  GeometryPolygon(new FunctionDataType("GeometryPolygon", Polygon.class,
-    EdmGeometryFactory.GEOMETRY::stringToPolygon, EdmGeometryFactory.GEOMETRY::polygonToString)), //
-  GeometryMultiPoint(new FunctionDataType("GeometryMultiPoint", MultiPoint.class,
-    EdmGeometryFactory.GEOMETRY::stringToMultiPoint,
-    EdmGeometryFactory.GEOMETRY::multiPointToString)), //
-  GeometryMultiLineString(new FunctionDataType("GeometryMultiLineString", MultiLineString.class,
-    EdmGeometryFactory.GEOMETRY::stringToMultiLineString,
-    EdmGeometryFactory.GEOMETRY::multiLineStringToString)), //
-  GeometryMultiPolygon(new FunctionDataType("GeometryMultiPolygon", MultiPolygon.class,
-    EdmGeometryFactory.GEOMETRY::stringToMultiPolygon,
-    EdmGeometryFactory.GEOMETRY::multiPolygonToString)), //
-  GeometryCollection(new FunctionDataType("GeometryGeospatialCollection", GeometryCollection.class,
-    EdmGeometryFactory.GEOMETRY::stringToCollection,
-    EdmGeometryFactory.GEOMETRY::collectionToString)), //
+    {
+      throw new EdmPrimitiveTypeException("Not implemented!");
+    })
+    .build()), //
+  GeometryPoint(FunctionDataType.builder("GeometryPoint", Point.class)
+    .toObjectFunction(EdmGeometryFactory.GEOMETRY::stringToPoint)
+    .toStringFunction(EdmGeometryFactory.GEOMETRY::pointToString)
+    .build()), //
+  GeometryLineString(FunctionDataType.builder("GeometryLineString", LineString.class)
+    .toObjectFunction(EdmGeometryFactory.GEOMETRY::stringToLineString)
+    .toStringFunction(EdmGeometryFactory.GEOMETRY::lineStringToString)
+    .build()), //
+  GeometryPolygon(FunctionDataType.builder("GeometryPolygon", Polygon.class)
+    .toObjectFunction(EdmGeometryFactory.GEOMETRY::stringToPolygon)
+    .toStringFunction(EdmGeometryFactory.GEOMETRY::polygonToString)
+    .build()), //
+  GeometryMultiPoint(FunctionDataType.builder("GeometryMultiPoint", MultiPoint.class)
+    .toObjectFunction(EdmGeometryFactory.GEOMETRY::stringToMultiPoint)
+    .toStringFunction(EdmGeometryFactory.GEOMETRY::multiPointToString)
+    .build()), //
+  GeometryMultiLineString(FunctionDataType.builder("GeometryMultiLineString", MultiLineString.class)
+    .toObjectFunction(EdmGeometryFactory.GEOMETRY::stringToMultiLineString)
+    .toStringFunction(EdmGeometryFactory.GEOMETRY::multiLineStringToString)
+    .build()), //
+  GeometryMultiPolygon(FunctionDataType.builder("GeometryMultiPolygon", MultiPolygon.class)
+    .toObjectFunction(EdmGeometryFactory.GEOMETRY::stringToMultiPolygon)
+    .toStringFunction(EdmGeometryFactory.GEOMETRY::multiPolygonToString)
+    .build()), //
+  GeometryCollection(
+    FunctionDataType.builder("GeometryGeospatialCollection", GeometryCollection.class)
+      .toObjectFunction(EdmGeometryFactory.GEOMETRY::stringToCollection)
+      .toStringFunction(EdmGeometryFactory.GEOMETRY::collectionToString)
+      .build()), //
 
   Untyped(DataTypes.OBJECT);
 

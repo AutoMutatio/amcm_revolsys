@@ -6,7 +6,7 @@ import com.revolsys.comparator.CompareUtil;
 public class LessThan extends BinaryCondition {
 
   public LessThan(final QueryValue left, final QueryValue right) {
-    super(left, "<", right);
+    super(left, "<", "lt", right);
   }
 
   @Override

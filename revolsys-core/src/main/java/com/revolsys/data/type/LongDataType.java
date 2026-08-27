@@ -26,6 +26,18 @@ public class LongDataType extends AbstractDataType {
   }
 
   @Override
+  public boolean isMathSupported() {
+    return true;
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  public <V> V plus(final Object value1, final Number value2) {
+    final long number1 = toObject(value1);
+    return (V)(Object)(number1 + value2.longValue());
+  }
+
+  @Override
   protected Long toObjectDo(final Object value) {
     if (value instanceof Number) {
       final Number number = (Number)value;

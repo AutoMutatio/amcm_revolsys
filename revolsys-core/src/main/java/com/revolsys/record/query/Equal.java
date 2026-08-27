@@ -6,7 +6,7 @@ import com.revolsys.data.type.DataType;
 public class Equal extends BinaryCondition {
 
   public Equal(final QueryValue left, final QueryValue right) {
-    super(left, "=", right);
+    super(left, "=", "eq", right);
   }
 
   @Override

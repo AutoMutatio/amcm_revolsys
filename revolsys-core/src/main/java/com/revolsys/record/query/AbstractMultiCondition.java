@@ -11,10 +11,13 @@ public abstract class AbstractMultiCondition extends AbstractMultiQueryValue
 
   private final String operator;
 
-  public AbstractMultiCondition(final String operator,
+  private final String odataOperator;
+
+  public AbstractMultiCondition(final String operator, final String odataOperator,
     final Iterable<? extends Condition> conditions) {
     super(conditions);
     this.operator = operator;
+    this.odataOperator = odataOperator;
   }
 
   @Override
@@ -62,6 +65,30 @@ public abstract class AbstractMultiCondition extends AbstractMultiQueryValue
       }
     }
     buffer.append(")");
+  }
+
+  @Override
+  public void appendOData(final StringBuilder s) {
+    s.append("(");
+    boolean first = true;
+
+    for (final QueryValue value : this.values) {
+      if (!(value instanceof final Condition condition) || !condition.isEmpty()) {
+        if (first) {
+          first = false;
+        } else {
+          s.append(" ");
+          s.append(this.odataOperator);
+          s.append(" ");
+        }
+        if (value == null) {
+          s.append("null");
+        } else {
+          value.appendOData(s);
+        }
+      }
+    }
+    s.append(")");
   }
 
   @Override

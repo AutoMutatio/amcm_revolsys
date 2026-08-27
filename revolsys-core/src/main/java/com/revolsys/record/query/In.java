@@ -51,6 +51,24 @@ public class In extends AbstractBinaryQueryValue implements Condition {
   }
 
   @Override
+  public void appendOData(final StringBuilder s) {
+    if (isEmpty()) {
+      s.append("1 eq 0");
+    } else {
+      getLeft().appendOData(s);
+      s.append(" in ");
+      final boolean collection = getRight() instanceof CollectionValue;
+      if (!collection) {
+        s.append('(');
+      }
+      getRight().appendOData(s);
+      if (!collection) {
+        s.append(')');
+      }
+    }
+  }
+
+  @Override
   public In clone() {
     final In clone = (In)super.clone();
     return clone;

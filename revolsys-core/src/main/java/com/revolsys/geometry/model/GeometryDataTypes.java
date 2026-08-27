@@ -14,44 +14,42 @@ import com.revolsys.record.RecordDataType;
 
 public class GeometryDataTypes {
 
-  public static final DataType BOUNDING_BOX = new FunctionDataType("boolean", BoundingBox.class,
-    BoundingBox::bboxGet);
+  public static final DataType BOUNDING_BOX = FunctionDataType.builder("boolean", BoundingBox.class)
+    .toObjectFunction(BoundingBox::bboxGet)
+    .build();
 
   public static final GeometryDataType<Geometry, GeometryCollectionImplEditor> GEOMETRY = new GeometryDataType<>(
-    Geometry.class, value -> Geometry.newGeometry(value),
-    value -> new GeometryCollectionImplEditor(value));
+    Geometry.class, Geometry::newGeometry, GeometryCollectionImplEditor::new);
 
   public static final GeometryDataType<GeometryCollection, GeometryCollectionImplEditor> GEOMETRY_COLLECTION = new GeometryDataType<>(
-    GeometryCollection.class, value -> GeometryCollection.newGeometryCollection(value),
-    value -> new GeometryCollectionImplEditor(value));
+    GeometryCollection.class, GeometryCollection::newGeometryCollection,
+    GeometryCollectionImplEditor::new);
 
-  public static final DataType GEOMETRY_FACTORY = new FunctionDataType("GeometryFactory",
-    GeometryFactory.class, value -> GeometryFactory.newGeometryFactory(value));
+  public static final DataType GEOMETRY_FACTORY = FunctionDataType
+    .builder("GeometryFactory", GeometryFactory.class)
+    .toObjectFunction(GeometryFactory::newGeometryFactory)
+    .build();
 
   public static final GeometryDataType<LineString, LineStringEditor> LINE_STRING = new GeometryDataType<>(
-    LineString.class, value -> LineString.newLineString(value),
-    value -> new LineStringEditor(value));
+    LineString.class, LineString::newLineString, LineStringEditor::new);
 
   public static final GeometryDataType<LinearRing, LinearRingEditor> LINEAR_RING = new GeometryDataType<>(
-    LinearRing.class, value -> LinearRing.newLinearRing(value),
-    value -> new LinearRingEditor(value));
+    LinearRing.class, LinearRing::newLinearRing, LinearRingEditor::new);
 
   public static final GeometryDataType<MultiLineString, MultiLineStringEditor> MULTI_LINE_STRING = new GeometryDataType<>(
-    MultiLineString.class, value -> Lineal.newLineal(value),
-    value -> new MultiLineStringEditor(value));
+    MultiLineString.class, Lineal::newLineal, MultiLineStringEditor::new);
 
   public static final GeometryDataType<MultiPoint, MultiPointEditor> MULTI_POINT = new GeometryDataType<>(
-    MultiPoint.class, value -> Punctual.newPunctual(value), value -> new MultiPointEditor(value));
+    MultiPoint.class, Punctual::newPunctual, MultiPointEditor::new);
 
   public static final GeometryDataType<MultiPolygon, MultiPolygonEditor> MULTI_POLYGON = new GeometryDataType<>(
-    MultiPolygon.class, value -> Polygonal.newPolygonal(value),
-    value -> new MultiPolygonEditor(value));
+    MultiPolygon.class, Polygonal::newPolygonal, MultiPolygonEditor::new);
 
   public static final GeometryDataType<Point, PointEditor> POINT = new GeometryDataType<>(
-    Point.class, value -> Point.newPoint(value), value -> new PointEditor(value));
+    Point.class, Point::newPoint, PointEditor::new);
 
   public static final GeometryDataType<Polygon, PolygonEditor> POLYGON = new GeometryDataType<>(
-    Polygon.class, value -> Polygon.newPolygon(value), value -> new PolygonEditor(value));
+    Polygon.class, Polygon::newPolygon, PolygonEditor::new);
 
   public static final DataType RECORD = new RecordDataType();
 

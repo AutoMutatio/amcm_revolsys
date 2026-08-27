@@ -14,38 +14,42 @@ import com.revolsys.io.FileUtil;
 
 public class RsCoreDataTypes {
 
-  public static final DataType FILE = new FunctionDataType("File", File.class, value -> {
-    if (value == null) {
-      return null;
-    } else {
-      File file = null;
-      if (value instanceof File) {
-        file = (File)value;
-      } else if (value instanceof URL) {
-        return FileUtil.getFile((URL)value);
-      } else if (value instanceof URI) {
-        return FileUtil.getFile((URI)value);
-      } else if (value instanceof FileProxy) {
-        final FileProxy proxy = (FileProxy)value;
-        file = proxy.getOrDownloadFile();
+  public static final DataType FILE = FunctionDataType.builder("File", File.class)
+    .toObjectFunction(value -> {
+      if (value == null) {
+        return null;
       } else {
-        // final String string = DataTypes.toString(value);
-        // return getFile(string);
-        file = null;
-      }
-      if (file == null) {
-        return file;
-      } else {
-        try {
-          return file.getCanonicalFile();
-        } catch (final IOException e) {
-          return file.getAbsoluteFile();
+        File file = null;
+        if (value instanceof File) {
+          file = (File)value;
+        } else if (value instanceof URL) {
+          return FileUtil.getFile((URL)value);
+        } else if (value instanceof URI) {
+          return FileUtil.getFile((URI)value);
+        } else if (value instanceof FileProxy) {
+          final FileProxy proxy = (FileProxy)value;
+          file = proxy.getOrDownloadFile();
+        } else {
+          // final String string = DataTypes.toString(value);
+          // return getFile(string);
+          file = null;
+        }
+        if (file == null) {
+          return file;
+        } else {
+          try {
+            return file.getCanonicalFile();
+          } catch (final IOException e) {
+            return file.getAbsoluteFile();
+          }
         }
       }
-    }
-  });
+    })
+    .build();
 
-  public static final DataType MEASURE = new FunctionDataType("measure", Quantity.class,
-    QuantityType::newQuantity, QuantityType::toString);
+  public static final DataType MEASURE = FunctionDataType.builder("measure", Quantity.class)
+    .toObjectFunction(QuantityType::newQuantity)
+    .toStringFunction(QuantityType::toString)
+    .build();
 
 }

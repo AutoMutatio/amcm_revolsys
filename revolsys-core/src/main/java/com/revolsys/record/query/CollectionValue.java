@@ -78,6 +78,23 @@ public class CollectionValue extends AbstractMultiQueryValue {
   }
 
   @Override
+  public void appendOData(final StringBuilder s) {
+    s.append('(');
+
+    final QueryValue[] values = this.values;
+    final int valueCount = values.length;
+    for (int i = 0; i < valueCount; i++) {
+      if (i > 0) {
+        s.append(", ");
+      }
+
+      final QueryValue queryValue = values[i];
+      queryValue.appendOData(s);
+    }
+    s.append(')');
+  }
+
+  @Override
   public int appendParameters(int index, final PreparedStatement statement) {
     for (final QueryValue queryValue : this.values) {
       JdbcFieldDefinition jdbcField = this.jdbcField;

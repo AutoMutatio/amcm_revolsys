@@ -289,8 +289,9 @@ public class Json {
   @SuppressWarnings({
     "rawtypes", "unchecked"
   })
-  public static final DataType TREE_MAP_TYPE = new FunctionDataType("TreeMap", JsonObjectTree.class,
-    true, value -> {
+  public static final DataType TREE_MAP_TYPE = FunctionDataType
+    .builder("TreeMap", JsonObjectTree.class)
+    .toObjectFunction(value -> {
       if (value instanceof JsonObjectTree) {
         return (JsonObjectTree)value;
       } else if (value instanceof Map) {
@@ -305,7 +306,8 @@ public class Json {
       } else {
         return value;
       }
-    }, value -> {
+    })
+    .toStringFunction(value -> {
       if (value instanceof Map) {
         return Json.toString((Map)value);
       } else if (value == null) {
@@ -314,7 +316,10 @@ public class Json {
         return value.toString();
       }
 
-    }, FunctionDataType.MAP_EQUALS, FunctionDataType.MAP_EQUALS_EXCLUDES);
+    })
+    .equalsFunction(FunctionDataType.MAP_EQUALS)
+    .equalsExcludesFunction(FunctionDataType.MAP_EQUALS_EXCLUDES)
+    .build();
 
   public static final DataType JSON_OBJECT = new JsonObjectDataType("JsonObject", JsonObject.class);
 

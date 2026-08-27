@@ -12,6 +12,10 @@ import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.file.Path;
 import java.sql.Blob;
+
+// TODO manage data types by classloader and allow unloading of registered classes.
+
+import java.sql.Date;
 import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.Instant;
@@ -37,45 +41,50 @@ import com.revolsys.exception.Exceptions;
 import com.revolsys.io.PathName;
 import com.revolsys.net.UrlProxy;
 
-// TODO manage data types by classloader and allow unloading of registered classes.
 public final class DataTypes {
 
   private static final Map<String, DataType> CLASS_TYPE_MAP = new HashMap<>();
 
   private static final Map<String, DataType> NAME_TYPE_MAP = new HashMap<>();
 
-  public static final DataType ANY_URI = new FunctionDataType("anyURI", URI.class, value -> {
-    try {
-      if (value instanceof URL) {
-        final URL url = (URL)value;
-        return url.toURI();
-      } else if (value instanceof UrlProxy) {
-        final UrlProxy proxy = (UrlProxy)value;
-        return proxy.getUri();
-      } else if (value instanceof File) {
-        final File file = (File)value;
-        return file.toURI();
-      } else if (value instanceof Path) {
-        final Path path = (Path)value;
-        return path.toUri();
-      } else {
-        final String string = DataTypes.toString(value);
-        try {
-          return new URI(string);
-        } catch (final URISyntaxException e) {
-          throw new IllegalArgumentException("Unknown URI: " + string, e);
+  public static final DataType ANY_URI = FunctionDataType.builder("anyURI", URI.class)
+    .toObjectFunction(value -> {
+      try {
+        if (value instanceof URL) {
+          final URL url = (URL)value;
+          return url.toURI();
+        } else if (value instanceof UrlProxy) {
+          final UrlProxy proxy = (UrlProxy)value;
+          return proxy.getUri();
+        } else if (value instanceof File) {
+          final File file = (File)value;
+          return file.toURI();
+        } else if (value instanceof Path) {
+          final Path path = (Path)value;
+          return path.toUri();
+        } else {
+          final String string = DataTypes.toString(value);
+          try {
+            return new URI(string);
+          } catch (final URISyntaxException e) {
+            throw new IllegalArgumentException("Unknown URI: " + string, e);
+          }
         }
+      } catch (final URISyntaxException e) {
+        throw Exceptions.toRuntimeException(e);
       }
-    } catch (final URISyntaxException e) {
-      throw Exceptions.toRuntimeException(e);
-    }
-  });
+    })
+    .build();
 
   public static final DataType BASE64_BINARY = new SimpleDataType("base64Binary", byte[].class);
 
-  public static final DataType BASE64_URL_BINARY = new FunctionDataType("base64UrlBinary",
-    byte[].class, s -> Base64.getUrlDecoder().decode(s.toString()),
-    v -> Base64.getUrlEncoder().encodeToString((byte[])v));
+  public static final DataType BASE64_URL_BINARY = FunctionDataType
+    .builder("base64UrlBinary", byte[].class)
+    .toObjectFunction(s -> Base64.getUrlDecoder()
+      .decode(s.toString()))
+    .toStringFunction(v -> Base64.getUrlEncoder()
+      .encodeToString((byte[])v))
+    .build();
 
   public static final DataType BINARY = new SimpleDataType("binary", byte[].class);
 
@@ -83,8 +92,9 @@ public final class DataTypes {
 
   public static final DataType BLOB = new SimpleDataType("blob", Blob.class);
 
-  public static final DataType BOOLEAN = new FunctionDataType("boolean", false, Boolean.class,
-    value -> {
+  public static final DataType BOOLEAN = FunctionDataType.builder("boolean", Boolean.class)
+    .requiresQuotes(false)
+    .toObjectFunction(value -> {
       if (value instanceof Boolean) {
         return (Boolean)value;
       } else {
@@ -109,7 +119,8 @@ public final class DataTypes {
           throw new IllegalArgumentException(string + " is not a valid boolean");
         }
       }
-    });
+    })
+    .build();
 
   public static final DataType BYTE = new ByteDataType();
 
@@ -119,11 +130,14 @@ public final class DataTypes {
 
   public static final DataType CODE = new CodeDataType();
 
-  public static final DataType COLOR = new FunctionDataType("color", Color.class,
-    WebColors::toColor, WebColors::toString);
+  public static final DataType COLOR = FunctionDataType.builder("color", Color.class)
+    .toObjectFunction(WebColors::toColor)
+    .toStringFunction(WebColors::toString)
+    .build();
 
-  public static final DataType BYTE_BUFFER = new FunctionDataType("byteBuffer", ByteBuffer.class,
-    v -> {
+  public static final DataType BYTE_BUFFER = FunctionDataType
+    .builder("byteBuffer", ByteBuffer.class)
+    .toObjectFunction(v -> {
       if (v instanceof final byte[] bytes) {
         return ByteBuffer.wrap(bytes);
       } else if (v instanceof final ByteBuffer buffer) {
@@ -131,13 +145,23 @@ public final class DataTypes {
       } else {
         return v;
       }
-    });
+    })
+    .build();
 
-  public static final DataType UTIL_DATE = new FunctionDataType("utilDate", false,
-    java.util.Date.class, Dates::getDate, Dates::toDateTimeIsoString, Dates::equalsNotNull);
+  public static final DataType UTIL_DATE = FunctionDataType
+    .builder("utilDate", java.util.Date.class)
+    .requiresQuotes(false)
+    .toObjectFunction(Dates::getDate)
+    .toStringFunction(Dates::toDateTimeIsoString)
+    .equalsFunction(Dates::equalsNotNull)
+    .build();
 
-  public static final DataType DATE_TIME = new FunctionDataType("dateTime", false, Timestamp.class,
-    Dates::getTimestamp, Dates::toTimestampIsoString, Dates::equalsNotNull);
+  public static final DataType DATE_TIME = FunctionDataType.builder("dateTime", Timestamp.class)
+    .requiresQuotes(false)
+    .toObjectFunction(Dates::getTimestamp)
+    .toStringFunction(Dates::toTimestampIsoString)
+    .equalsFunction(Dates::equalsNotNull)
+    .build();
 
   public static final DataType DECIMAL = new BigDecimalDataType();
 
@@ -145,8 +169,9 @@ public final class DataTypes {
 
   public static final DataType FLOAT = new FloatDataType();
 
-  public static final DataType IDENTIFIER = new FunctionDataType("identifier", Identifier.class,
-    Identifier::newIdentifier);
+  public static final DataType IDENTIFIER = FunctionDataType.builder("identifier", Identifier.class)
+    .toObjectFunction(Identifier::newIdentifier)
+    .build();
 
   public static final IntegerDataType INT = new IntegerDataType();
 
@@ -155,31 +180,46 @@ public final class DataTypes {
   @SuppressWarnings({
     "rawtypes",
   })
-  public static final DataType MAP = new FunctionDataType("Map", Map.class, value -> {
-    if (value instanceof Map) {
-      return (Map)value;
-    } else {
-      return value;
-    }
-  }, FunctionDataType.MAP_EQUALS, FunctionDataType.MAP_EQUALS_EXCLUDES);
+  public static final DataType MAP = FunctionDataType.builder("Map", Map.class)
+    .toObjectFunction(value -> {
+      if (value instanceof Map) {
+        return (Map)value;
+      } else {
+        return value;
+      }
+    })
+    .equalsFunction(FunctionDataType.MAP_EQUALS)
+    .equalsExcludesFunction(FunctionDataType.MAP_EQUALS_EXCLUDES)
+    .build();
 
   public static final DataType OBJECT = new ObjectDataType();
 
-  public static final DataType PATH_NAME = new FunctionDataType("pathName", PathName.class,
-    PathName::newPathName);
+  public static final DataType PATH_NAME = FunctionDataType.builder("pathName", PathName.class)
+    .toObjectFunction(PathName::newPathName)
+    .build();
 
   public static final DataType QNAME = new SimpleDataType("QName", QName.class);
 
   public static final DataType SHORT = new ShortDataType();
 
-  public static final DataType SQL_DATE = new FunctionDataType("date", false, java.sql.Date.class,
-    Dates::getSqlDate, Dates::toSqlDateString, Dates::equalsNotNull);
+  public static final DataType SQL_DATE = FunctionDataType.builder("date", java.sql.Date.class)
+    .requiresQuotes(false)
+    .toObjectFunction(Dates::getSqlDate)
+    .toStringFunction(Dates::toSqlDateString)
+    .equalsFunction(Dates::equalsNotNull)
+    .plusFunction((d, n) -> Date.valueOf(d.toLocalDate()
+      .plusDays(n.longValue())))
+    .build();
 
-  public static final DataType STRING = new FunctionDataType("string", String.class,
-    DataTypes::toString);
+  public static final DataType STRING = FunctionDataType.builder("string", String.class)
+    .toObjectFunction(DataTypes::toString)
+    .plusFunction(
+      (s, n) -> s.substring(0, s.length() - 1) + (char)(s.charAt(s.length() - 1) + n.intValue()))
+    .build();
 
-  public static final DataType DURATION = new FunctionDataType("duration", false, Duration.class,
-    v -> {
+  public static final DataType DURATION = FunctionDataType.builder("duration", Duration.class)
+    .requiresQuotes(false)
+    .toObjectFunction(v -> {
       if (v instanceof final Number number) {
         return Duration.ofMillis(number.longValue());
       } else if (v instanceof final Duration duration) {
@@ -189,67 +229,98 @@ public final class DataTypes {
       } else {
         return Duration.parse(v.toString());
       }
-    });
+    })
+    .build();
 
-  public static final DataType TIME = new FunctionDataType("time", LocalTime.class, Dates::getTime,
-    Dates::toTimeIsoString, Dates::equalsNotNull);
+  public static final DataType TIME = FunctionDataType.builder("time", LocalTime.class)
+    .requiresQuotes(false)
+    .toObjectFunction(Dates::getTime)
+    .toStringFunction(Dates::toTimeIsoString)
+    .equalsFunction(Dates::equalsNotNull)
+    .build();
 
-  public static final DataType TIMESTAMP = new FunctionDataType("timestamp", false, Timestamp.class,
-    Dates::getTimestamp, Dates::toTimestampIsoString, Dates::equalsNotNull);
+  public static final DataType TIMESTAMP = FunctionDataType.builder("timestamp", Timestamp.class)
+    .requiresQuotes(false)
+    .toObjectFunction(Dates::getTimestamp)
+    .toStringFunction(Dates::toTimestampIsoString)
+    .equalsFunction(Dates::equalsNotNull)
+    .build();
 
-  public static final DataType INSTANT = new FunctionDataType("instant", false, Instant.class,
-    Dates::getInstant, Dates::toInstantIsoString, Object::equals);
+  public static final DataType INSTANT = FunctionDataType.builder("instant", Instant.class)
+    .requiresQuotes(false)
+    .toObjectFunction(Dates::getInstant)
+    .toStringFunction(Dates::toInstantIsoString)
+    .equalsFunction(Object::equals)
+    .plusFunction((d, n) -> d.plusMillis(n.longValue()))
+    .build();
 
-  public static final DataType LOCAL_DATE = new FunctionDataType("localDate", false,
-    LocalDate.class, Dates::getLocalDate, Dates::toLocalDateIsoString, Object::equals);
+  public static final DataType LOCAL_DATE = FunctionDataType.builder("localDate", LocalDate.class)
+    .requiresQuotes(false)
+    .toObjectFunction(Dates::getLocalDate)
+    .toStringFunction(Dates::toLocalDateIsoString)
+    .equalsFunction(Object::equals)
+    .plusFunction((d, n) -> d.plusDays(n.longValue()))
+    .build();
 
-  public static final DataType URL = new FunctionDataType("url", java.net.URL.class, value -> {
-    if (value instanceof URL) {
-      return (URL)value;
-    } else if (value instanceof URI) {
-      final URI uri = (URI)value;
-      try {
-        return uri.toURL();
-      } catch (final MalformedURLException e) {
-        throw new IllegalArgumentException("Cannot get url " + uri, e);
+  public static final DataType URL = FunctionDataType.builder("url", java.net.URL.class)
+    .toObjectFunction(value -> {
+      if (value instanceof URL) {
+        return (URL)value;
+      } else if (value instanceof URI) {
+        final URI uri = (URI)value;
+        try {
+          return uri.toURL();
+        } catch (final MalformedURLException e) {
+          throw new IllegalArgumentException("Cannot get url " + uri, e);
+        }
+      } else if (value instanceof UrlProxy) {
+        final UrlProxy proxy = (UrlProxy)value;
+        return proxy.getUrl();
+      } else if (value instanceof File) {
+        final File file = (File)value;
+        try {
+          final URI uri = file.toURI();
+          return uri.toURL();
+        } catch (final MalformedURLException e) {
+          throw new IllegalArgumentException("Cannot get url " + file, e);
+        }
+      } else if (value instanceof Path) {
+        final Path path = (Path)value;
+        try {
+          return path.toUri()
+            .toURL();
+        } catch (final MalformedURLException e) {
+          throw new IllegalArgumentException("Cannot get url " + path, e);
+        }
+      } else {
+        final String string = DataTypes.toString(value);
+        try {
+          return new URL(string);
+        } catch (final MalformedURLException e) {
+          throw new IllegalArgumentException("Unknown URL", e);
+        }
       }
-    } else if (value instanceof UrlProxy) {
-      final UrlProxy proxy = (UrlProxy)value;
-      return proxy.getUrl();
-    } else if (value instanceof File) {
-      final File file = (File)value;
-      try {
-        final URI uri = file.toURI();
-        return uri.toURL();
-      } catch (final MalformedURLException e) {
-        throw new IllegalArgumentException("Cannot get url " + file, e);
-      }
-    } else if (value instanceof Path) {
-      final Path path = (Path)value;
-      try {
-        return path.toUri().toURL();
-      } catch (final MalformedURLException e) {
-        throw new IllegalArgumentException("Cannot get url " + path, e);
-      }
-    } else {
-      final String string = DataTypes.toString(value);
-      try {
-        return new URL(string);
-      } catch (final MalformedURLException e) {
-        throw new IllegalArgumentException("Unknown URL", e);
-      }
-    }
-  });
+    })
+    .build();
 
-  public static final DataType UUID = new FunctionDataType("uuid", false, UUID.class, value -> {
-    if (value instanceof UUID) {
-      return (UUID)value;
-    } else {
-      return java.util.UUID.fromString(value.toString());
-    }
-  }, Object::toString);
+  public static final DataType UUID = FunctionDataType.builder("uuid", UUID.class)
+    .toObjectFunction(value -> {
+      if (value instanceof UUID) {
+        return (UUID)value;
+      } else {
+        return java.util.UUID.fromString(value.toString());
+      }
+    })
+    .plusFunction((u, n) -> {
+      final var msb = u.getMostSignificantBits();
+      var lsb = u.getLeastSignificantBits();
+      lsb = lsb + n.longValue();
+      return new UUID(msb, lsb);
+    })
+    .build();
 
-  public static final DataType XML = new FunctionDataType("xml", String.class, Object::toString);
+  public static final DataType XML = FunctionDataType.builder("xml", String.class)
+    .build();
 
   public static final DataType COLLECTION = new CollectionDataType("Collection", Collection.class,
     OBJECT);
@@ -358,7 +429,8 @@ public final class DataTypes {
   }
 
   public static void register(final DataType type) {
-    final String name = type.getName().toLowerCase();
+    final String name = type.getName()
+      .toLowerCase();
     if (!NAME_TYPE_MAP.containsKey(name)) {
       NAME_TYPE_MAP.put(name, type);
     }

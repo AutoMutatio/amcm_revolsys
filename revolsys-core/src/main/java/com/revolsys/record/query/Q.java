@@ -168,22 +168,22 @@ public class Q {
     return new Divide(left, right);
   }
 
-  public static Condition equal(final QueryValue field, final Object value) {
+  public static Condition equal(final QueryValue column, final Object value) {
     QueryValue right;
     if (value == null) {
-      return new IsNull(field);
+      return new IsNull(column);
     } else if (value instanceof final Value queryValue) {
       if (queryValue.getValue() == null) {
-        return new IsNull(field);
+        return new IsNull(column);
       } else {
         right = queryValue;
       }
     } else if (value instanceof final QueryValue queryValue) {
       right = queryValue;
     } else {
-      right = Value.newValue(field, value);
+      right = Value.newValue(column, value);
     }
-    return new Equal(field, right);
+    return new Equal(column, right);
   }
 
   public static Condition equal(final String name, final Object value) {
@@ -240,10 +240,9 @@ public class Q {
     return new Exists(expression);
   }
 
-  public static GreaterThan greaterThan(final FieldDefinition fieldDefinition, final Object value) {
-    final String name = fieldDefinition.getName();
-    final Value valueCondition = Value.newValue(fieldDefinition, value);
-    return greaterThan(name, valueCondition);
+  public static GreaterThan greaterThan(final QueryValue column, final Object value) {
+    final Value valueCondition = Value.newValue(column, value);
+    return new GreaterThan(column, valueCondition);
   }
 
   public static GreaterThan greaterThan(final QueryValue left, final QueryValue right) {
@@ -260,11 +259,9 @@ public class Q {
     return new GreaterThan(column, right);
   }
 
-  public static GreaterThanEqual greaterThanEqual(final FieldDefinition fieldDefinition,
-    final Object value) {
-    final String name = fieldDefinition.getName();
-    final Value valueCondition = Value.newValue(fieldDefinition, value);
-    return greaterThanEqual(name, valueCondition);
+  public static GreaterThanEqual greaterThanEqual(final QueryValue column, final Object value) {
+    final Value valueCondition = Value.newValue(column, value);
+    return new GreaterThanEqual(column, valueCondition);
   }
 
   public static GreaterThanEqual greaterThanEqual(final QueryValue left, final QueryValue right) {
@@ -278,7 +275,7 @@ public class Q {
 
   public static GreaterThanEqual greaterThanEqual(final String name, final QueryValue right) {
     final Column column = new Column(name);
-    return greaterThanEqual(column, right);
+    return new GreaterThanEqual(column, right);
   }
 
   public static ILike iLike(final ColumnReference column, final Object value) {
@@ -313,14 +310,13 @@ public class Q {
     return iLike(column, value);
   }
 
-  public static In in(final ColumnReference fieldDefinition,
-    final Collection<? extends Object> values) {
-    return In.create(fieldDefinition, values);
+  public static In in(final QueryValue column, final Collection<? extends Object> values) {
+    return In.create(column, values);
   }
 
-  public static In in(final ColumnReference fieldDefinition, final Object... values) {
+  public static In in(final QueryValue column, final Object... values) {
     final List<Object> list = Arrays.asList(values);
-    return In.create(fieldDefinition, list);
+    return In.create(column, list);
   }
 
   public static In in(final String name, final Collection<? extends Object> values) {
@@ -399,10 +395,9 @@ public class Q {
     return jsonValue(column, name);
   }
 
-  public static LessThan lessThan(final FieldDefinition fieldDefinition, final Object value) {
-    final String name = fieldDefinition.getName();
-    final Value valueCondition = Value.newValue(fieldDefinition, value);
-    return lessThan(name, valueCondition);
+  public static LessThan lessThan(final QueryValue column, final Object value) {
+    final Value valueCondition = Value.newValue(column, value);
+    return new LessThan(column, valueCondition);
   }
 
   public static LessThan lessThan(final QueryValue left, final QueryValue right) {
@@ -416,14 +411,12 @@ public class Q {
 
   public static LessThan lessThan(final String name, final QueryValue right) {
     final Column column = new Column(name);
-    return lessThan(column, right);
+    return new LessThan(column, right);
   }
 
-  public static LessThanEqual lessThanEqual(final FieldDefinition fieldDefinition,
-    final Object value) {
-    final String name = fieldDefinition.getName();
-    final Value valueCondition = Value.newValue(fieldDefinition, value);
-    return lessThanEqual(name, valueCondition);
+  public static LessThanEqual lessThanEqual(final QueryValue column, final Object value) {
+    final Value valueCondition = Value.newValue(column, value);
+    return new LessThanEqual(column, valueCondition);
   }
 
   public static LessThanEqual lessThanEqual(final QueryValue left, final QueryValue right) {

@@ -168,6 +168,18 @@ public class ShortDataType extends AbstractDataType {
   }
 
   @Override
+  public boolean isMathSupported() {
+    return true;
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  public <V> V plus(final Object value1, final Number value2) {
+    final short number1 = toObject(value1);
+    return (V)(Object)(number1 + value2.shortValue());
+  }
+
+  @Override
   protected Object toObjectDo(final Object value) {
     final String string = DataTypes.toString(value);
     return toValid(string);

@@ -12,7 +12,7 @@ public class And extends AbstractMultiCondition {
   }
 
   public And(final Iterable<? extends Condition> conditions) {
-    super("AND", conditions);
+    super("AND", "and", conditions);
   }
 
   public And(final QueryValue value1, final QueryValue value2) {

@@ -9,6 +9,12 @@ public class IsNull extends RightUnaryCondition {
   }
 
   @Override
+  public void appendOData(final StringBuilder s) {
+    getValue().appendOData(s);
+    s.append(" eq null");
+  }
+
+  @Override
   public boolean test(final MapEx record) {
     final QueryValue queryValue = getValue();
     final Object value = queryValue.getValue(record);

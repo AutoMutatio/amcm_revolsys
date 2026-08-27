@@ -11,7 +11,7 @@ public class Or extends AbstractMultiCondition {
   }
 
   public Or(final Iterable<? extends Condition> conditions) {
-    super("OR", conditions);
+    super("OR", "or", conditions);
   }
 
   public Or(final QueryValue value1, final QueryValue value2) {
