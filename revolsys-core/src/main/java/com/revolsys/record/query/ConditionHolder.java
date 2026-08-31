@@ -5,6 +5,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 
 import com.revolsys.collection.map.MapEx;
@@ -40,11 +41,11 @@ public class ConditionHolder implements Condition {
   }
 
   @Override
-  public int appendParameters(final int index, final PreparedStatement statement) {
+  public int appendParameters(final int index, Map<String, Object> parameters, final PreparedStatement statement) {
     if (this.condition == null) {
       return index;
     } else {
-      return this.condition.appendParameters(index, statement);
+      return this.condition.appendParameters(index, parameters, statement);
     }
   }
 

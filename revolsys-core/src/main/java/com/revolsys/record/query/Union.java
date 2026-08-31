@@ -1,6 +1,7 @@
 package com.revolsys.record.query;
 
 import java.sql.PreparedStatement;
+import java.util.Map;
 
 public class Union {
 
@@ -13,8 +14,9 @@ public class Union {
     this.distinct = distinct;
   }
 
-  public int appendParameters(final int index, final PreparedStatement statement) {
-    return this.query.appendParameters(index, statement);
+  public int appendParameters(final int index, Map<String, Object> parameters,
+    final PreparedStatement statement) {
+    return this.query.appendParameters(index, parameters, statement);
   }
 
   void appendSql(final SqlAppendable sql) {

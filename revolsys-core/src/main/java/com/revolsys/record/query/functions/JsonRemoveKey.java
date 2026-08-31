@@ -2,6 +2,7 @@ package com.revolsys.record.query.functions;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.Map;
 
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.exception.Exceptions;
@@ -30,10 +31,10 @@ public class JsonRemoveKey extends AbstractUnaryQueryValue implements Condition 
   }
 
   @Override
-  public int appendParameters(int index, final PreparedStatement statement) {
+  public int appendParameters(int index, Map<String, Object> parameters, final PreparedStatement statement) {
     final var left = getValue();
     if (left != null) {
-      index = left.appendParameters(index, statement);
+      index = left.appendParameters(index, parameters, statement);
     }
     try {
       statement.setString(index++, this.key);

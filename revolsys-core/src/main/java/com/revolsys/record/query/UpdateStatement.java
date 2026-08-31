@@ -1,6 +1,7 @@
 package com.revolsys.record.query;
 
 import java.sql.PreparedStatement;
+import java.util.Map;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -23,9 +24,11 @@ public class UpdateStatement extends AbstractReturningQueryStatement<UpdateState
   private final ListEx<With> withClauses = Lists.newArray();
 
   @Override
-  public int appendParameters(int index, final PreparedStatement statement) {
-    index = SqlAppendParameters.appendParameters(statement, index, this.withClauses);
-    index = SqlAppendParameters.appendParameters(statement, index, this.setClauses);
+  public int appendParameters(int index, Map<String, Object> parameters,
+    final PreparedStatement statement) {
+
+    index = SqlAppendParameters.appendParameters(statement, index, parameters, this.withClauses);
+    index = SqlAppendParameters.appendParameters(statement, index, parameters, this.setClauses);
     for (final var fromClause : this.fromClauses) {
       if (!(fromClause instanceof With)) {
         index = fromClause.appendFromParameters(index, statement);
@@ -33,7 +36,7 @@ public class UpdateStatement extends AbstractReturningQueryStatement<UpdateState
     }
     final Condition where = getWhere();
     if (!where.isEmpty()) {
-      index = where.appendParameters(index, statement);
+      index = where.appendParameters(index, parameters, statement);
     }
     return index;
   }

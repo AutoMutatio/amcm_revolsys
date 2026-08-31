@@ -3,6 +3,7 @@ package com.revolsys.record.query.functions;
 import java.sql.PreparedStatement;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.data.type.DataType;
@@ -49,15 +50,15 @@ public class WithinDistance implements Condition, Function {
   }
 
   @Override
-  public int appendParameters(int index, final PreparedStatement statement) {
+  public int appendParameters(int index, Map<String, Object> parameters, final PreparedStatement statement) {
     if (this.geometry1Value != null) {
-      index = this.geometry1Value.appendParameters(index, statement);
+      index = this.geometry1Value.appendParameters(index, parameters, statement);
     }
     if (this.geometry2Value != null) {
-      index = this.geometry2Value.appendParameters(index, statement);
+      index = this.geometry2Value.appendParameters(index, parameters, statement);
     }
     if (this.distanceValue != null) {
-      index = this.distanceValue.appendParameters(index, statement);
+      index = this.distanceValue.appendParameters(index, parameters, statement);
     }
     return index;
   }
