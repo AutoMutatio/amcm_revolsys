@@ -1,6 +1,7 @@
 package com.revolsys.record.query;
 
 import java.util.Arrays;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 import com.revolsys.record.RecordDataType;
@@ -70,6 +71,25 @@ public abstract class BaseJoinBuilder<SELF extends BaseJoinBuilder<SELF>> {
     final var dataType = RecordDataType.of(recordDefinition);
     recordStore.addVirtualField(virtualFieldName, dataType, false, (query, table, _, path) -> {
       final var join = getJoin(query, table);
+      if (path.length > 1) {
+        final var subPath = Strings.toString(".", Arrays.copyOfRange(path, 1, path.length));
+        return ((AbstractTableRecordStore)this.joinTable).fieldPathToQueryValue(query, join,
+          subPath);
+      } else {
+        throw new IllegalArgumentException("Cannot select a table as a field");
+      }
+    });
+    return (SELF)this;
+  }
+
+  @SuppressWarnings("unchecked")
+  public SELF addVirtualFieldTable(final AbstractTableRecordStore recordStore,
+    final String virtualFieldName, final Consumer<Join> joinConfigurer) {
+    final var recordDefinition = (RecordDefinition)this.joinTable.getTableReference();
+    final var dataType = RecordDataType.of(recordDefinition);
+    recordStore.addVirtualField(virtualFieldName, dataType, false, (query, table, _, path) -> {
+      final var join = getJoin(query, table);
+      joinConfigurer.accept(join);
       if (path.length > 1) {
         final var subPath = Strings.toString(".", Arrays.copyOfRange(path, 1, path.length));
         return ((AbstractTableRecordStore)this.joinTable).fieldPathToQueryValue(query, join,
