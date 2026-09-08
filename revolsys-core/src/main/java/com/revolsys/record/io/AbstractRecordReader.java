@@ -219,7 +219,7 @@ public abstract class AbstractRecordReader extends AbstractIterator<Record>
    * @param row
    * @return The Record.
    */
-  protected Record parseRecord(final List<String> fieldNames, final List<String> values) {
+  protected Record parseRecord(final List<String> fieldNames, final List<? extends Object> values) {
     final Record record = this.recordFactory.newRecord(this.recordDefinition);
     record.setState(RecordState.INITIALIZING);
     final int valueCount = values.size();
@@ -227,9 +227,9 @@ public abstract class AbstractRecordReader extends AbstractIterator<Record>
     final int count = Math.min(valueCount, fieldCount);
     for (int i = 0; i < count; i++) {
       final String fieldName = fieldNames.get(i);
-      final String valueString = values.get(i);
-      if (valueString != null) {
-        record.setValue(fieldName, valueString);
+      final var value = values.get(i);
+      if (value != null) {
+        record.setValue(fieldName, value);
       }
     }
     if (this.hasPointFields) {
