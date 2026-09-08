@@ -2,7 +2,9 @@ package com.revolsys.record.io.format.xlsx;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -18,6 +20,8 @@ import org.xlsx4j.exceptions.Xlsx4jException;
 import org.xlsx4j.sml.CTRElt;
 import org.xlsx4j.sml.CTRst;
 import org.xlsx4j.sml.CTSst;
+import org.xlsx4j.sml.CTStylesheet;
+import org.xlsx4j.sml.CTXf;
 import org.xlsx4j.sml.CTXstringWhitespace;
 import org.xlsx4j.sml.Cell;
 import org.xlsx4j.sml.Row;
@@ -26,6 +30,8 @@ import org.xlsx4j.sml.Sheet;
 import org.xlsx4j.sml.SheetData;
 import org.xlsx4j.sml.Worksheet;
 
+import com.revolsys.collection.list.ListEx;
+import com.revolsys.collection.list.Lists;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.logging.Logs;
@@ -36,6 +42,10 @@ import com.revolsys.record.io.AbstractRecordReader;
 import com.revolsys.spring.resource.Resource;
 
 public class XlsxRecordReader extends AbstractRecordReader {
+  private static BigDecimal NANOSECONDS_PER_DAY = BigDecimal.valueOf(60 * 60 * 24 * 1e9);
+
+  private static final BigDecimal BD_MILISEC_RND = BigDecimal.valueOf(0.5 * 1e6);
+
   public static int getColumnIndex(final Cell cell) {
     final String cellReference = cell.getR();
     if (cellReference == null) {
@@ -67,6 +77,10 @@ public class XlsxRecordReader extends AbstractRecordReader {
 
   private List<String> fieldNames;
 
+  private List<CTXf> cellXfs;
+
+  private CTStylesheet stylesheet;
+
   public XlsxRecordReader(final Resource resource) {
     this(resource, ArrayRecord.FACTORY);
   }
@@ -93,7 +107,7 @@ public class XlsxRecordReader extends AbstractRecordReader {
 
   @Override
   protected Record getNext() {
-    final List<String> row = readNextRow();
+    final var row = readNextRow();
     if (row != null && row.size() > 0) {
       return parseRecord(this.fieldNames, row);
     } else {
@@ -108,7 +122,8 @@ public class XlsxRecordReader extends AbstractRecordReader {
       if (r != null) {
         final StringBuilder t = new StringBuilder();
         for (final CTRElt e : r) {
-          t.append(e.getT().getValue());
+          t.append(e.getT()
+            .getValue());
         }
         return t.toString();
       }
@@ -123,8 +138,11 @@ public class XlsxRecordReader extends AbstractRecordReader {
       return workbook.getWorksheet(0);
     } else {
       int i = 0;
-      for (final Sheet sheet : workbook.getJaxbElement().getSheets().getSheet()) {
-        if (sheet.getName().equals(this.tabName)) {
+      for (final Sheet sheet : workbook.getJaxbElement()
+        .getSheets()
+        .getSheet()) {
+        if (sheet.getName()
+          .equals(this.tabName)) {
           return workbook.getWorksheet(i);
         }
         i++;
@@ -144,12 +162,14 @@ public class XlsxRecordReader extends AbstractRecordReader {
       if (customProperties != null) {
         int srid = 0;
         try {
-          srid = Integer.parseInt(customProperties.getProperty("srid").getLpwstr());
+          srid = Integer.parseInt(customProperties.getProperty("srid")
+            .getLpwstr());
         } catch (final Throwable e) {
         }
         int axisCount = 2;
         try {
-          axisCount = Integer.parseInt(customProperties.getProperty("axisCount").getLpwstr());
+          axisCount = Integer.parseInt(customProperties.getProperty("axisCount")
+            .getLpwstr());
           if (axisCount > 4) {
             axisCount = 2;
           }
@@ -157,12 +177,14 @@ public class XlsxRecordReader extends AbstractRecordReader {
         }
         double scaleXy = 0;
         try {
-          scaleXy = Double.parseDouble(customProperties.getProperty("scaleXy").getLpwstr());
+          scaleXy = Double.parseDouble(customProperties.getProperty("scaleXy")
+            .getLpwstr());
         } catch (final Throwable e) {
         }
         double scaleZ = 0;
         try {
-          scaleZ = Double.parseDouble(customProperties.getProperty("scaleZ").getLpwstr());
+          scaleZ = Double.parseDouble(customProperties.getProperty("scaleZ")
+            .getLpwstr());
         } catch (final Throwable e) {
         }
         final GeometryFactory geometryFactory = GeometryFactory.fixed(srid, axisCount, scaleXy,
@@ -181,10 +203,15 @@ public class XlsxRecordReader extends AbstractRecordReader {
         final Worksheet worksheet = worksheetPart.getContents();
         final SheetData sheetData = worksheet.getSheetData();
         this.rows = sheetData.getRow();
-        final List<String> line = readNextRow();
-        this.fieldNames = new ArrayList<>(line);
+        this.stylesheet = workbook.getStylesPart()
+          .getContents();
+        this.cellXfs = this.stylesheet.getCellXfs()
+          .getXf();
+
+        this.fieldNames = readNextRow().map(Object::toString)
+          .toList();
         final String baseName = this.resource.getBaseName();
-        newRecordDefinition(baseName, line);
+        newRecordDefinition(baseName, this.fieldNames);
       }
     } catch (final IOException | Docx4JException | Xlsx4jException e) {
       Logs.error(this, "Unable to open " + this.resource, e);
@@ -204,33 +231,91 @@ public class XlsxRecordReader extends AbstractRecordReader {
    *         entry.
    * @throws IOException if bad things happen during the read
    */
-  private List<String> readNextRow() {
+  private ListEx<Object> readNextRow() {
     if (this.rowIndex < this.rows.size()) {
-      final List<String> values = new ArrayList<>();
+      final var values = Lists.newArray();
       final Row row = this.rows.get(this.rowIndex);
       final List<Cell> cells = row.getC();
       for (final Cell cell : cells) {
-        String value = null;
         final String cellValue = cell.getV();
+        final var styleIndex = cell.getS();
 
         final STCellType cellType = cell.getT();
-        switch (cellType) {
-          case S:
+        final Object value = switch (cellType) {
+          case B -> "1".equals(cellValue) || "true".equalsIgnoreCase(cellValue);
+          case S -> {
             final int stringIndex = Integer.parseInt(cellValue);
             final CTRst sharedString = this.sharedStringList.get(stringIndex);
-            value = getText(sharedString);
-          break;
-          default:
+            yield getText(sharedString);
+          }
+          case N -> {
+            final CTXf xf = this.cellXfs.get((int)styleIndex);
+            boolean isDate = false;
+            if (xf != null) {
+              final long numFmtId = xf.getNumFmtId() != null ? xf.getNumFmtId() : 0L;
+
+              if (numFmtId >= 14 && numFmtId <= 22 || numFmtId >= 27 && numFmtId <= 36
+                || numFmtId >= 45 && numFmtId <= 47) {
+                isDate = true;
+              }
+              if (this.stylesheet.getNumFmts() != null) {
+                for (final var numFmt : this.stylesheet.getNumFmts()
+                  .getNumFmt()) {
+                  if (numFmt.getNumFmtId() == numFmtId) {
+                    final String formatStr = numFmt.getFormatCode()
+                      .toLowerCase();
+                    // Search for common date/time identifier characters
+                    isDate |= formatStr.contains("y") || formatStr.contains("m")
+                      || formatStr.contains("d") || formatStr.contains("h");
+                  }
+                }
+              }
+            }
+            if (isDate) {
+              final var bd = new BigDecimal(cellValue);
+
+              final int wholeDays = bd.intValue();
+
+              final int startYear = 1900;
+              int dayAdjust = -1;
+              if (wholeDays < 61) {
+                dayAdjust = 0;
+              }
+              final long nanosTime = bd.subtract(BigDecimal.valueOf(wholeDays))
+                .multiply(NANOSECONDS_PER_DAY)
+                .add(BD_MILISEC_RND)
+                .longValue();
+
+              yield LocalDateTime.of(startYear, 1, 1, 0, 0)
+                .plusDays(wholeDays + dayAdjust - 1L)
+                .plusNanos(nanosTime)
+                .truncatedTo(ChronoUnit.MILLIS);
+            }
+            yield new BigDecimal(cellValue);
+          }
+          case INLINE_STR -> {
+            final CTRst is = cell.getIs();
+            if (is == null) {
+              yield cellValue;
+            } else {
+              yield is.getT()
+                .getValue();
+            }
+          }
+          default -> {
             if (cellValue == null) {
               final CTRst is = cell.getIs();
-              if (is != null) {
-                value = is.getT().getValue();
+              if (is == null) {
+                yield null;
+              } else {
+                yield is.getT()
+                  .getValue();
               }
             } else {
-              value = cellValue;
+              yield cellValue;
             }
-          break;
-        }
+          }
+        };
         final int columnIndex = getColumnIndex(cell);
         if (columnIndex == -1) {
           values.add(value);

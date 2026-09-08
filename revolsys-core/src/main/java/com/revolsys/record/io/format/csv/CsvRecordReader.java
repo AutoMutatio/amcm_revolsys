@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import com.revolsys.collection.list.ListEx;
+import com.revolsys.collection.list.Lists;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.logging.Logs;
 import com.revolsys.record.ArrayRecord;
@@ -46,7 +48,7 @@ public class CsvRecordReader extends AbstractRecordReader {
     this.fieldSeparator = fieldSeparator;
   }
 
-  private void addValue(final List<String> values, final boolean hadQuotes) {
+  private void addValue(final ListEx<String> values, final boolean hadQuotes) {
     final StringBuilder sb = this.sb;
     if (hadQuotes || sb.length() > 0) {
       values.add(sb.toString());
@@ -73,7 +75,7 @@ public class CsvRecordReader extends AbstractRecordReader {
   @Override
   protected Record getNext() {
     try {
-      final List<String> row = readNextRow();
+      final var row = readNextRow();
       if (row != null && row.size() > 0) {
         return parseRecord(this.fieldNames, row);
       } else {
@@ -89,7 +91,7 @@ public class CsvRecordReader extends AbstractRecordReader {
     super.initDo();
     try {
       this.in = this.resource.newBufferedReader();
-      final List<String> line = readNextRow();
+      final var line = readNextRow();
       this.fieldNames = new ArrayList<>(line);
       final String baseName = this.resource.getBaseName();
       if (getRecordDefinition() == null) {
@@ -113,7 +115,7 @@ public class CsvRecordReader extends AbstractRecordReader {
    *         entry.
    * @throws IOException if bad things happen during the read
    */
-  private List<String> readNextRow() throws IOException {
+  private ListEx<String> readNextRow() throws IOException {
     final char fieldSeparator = this.fieldSeparator;
     final BufferedReader in = this.in;
     if (in == null) {
@@ -121,7 +123,7 @@ public class CsvRecordReader extends AbstractRecordReader {
     } else {
       final StringBuilder sb = this.sb;
       sb.setLength(0);
-      final List<String> values = new ArrayList<>();
+      final var values = Lists.<String> newArray();
       boolean inQuotes = false;
       boolean hadQuotes = false;
       while (true) {
