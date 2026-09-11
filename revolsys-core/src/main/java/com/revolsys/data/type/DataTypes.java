@@ -96,6 +96,8 @@ public final class DataTypes {
           return true;
         } else if ("Y".equalsIgnoreCase(string)) {
           return true;
+        } else if ("YES".equalsIgnoreCase(string)) {
+          return true;
         } else if ("on".equals(string)) {
           return true;
         } else if ("true".equalsIgnoreCase(string)) {
@@ -103,6 +105,8 @@ public final class DataTypes {
         } else if ("0".equals(string)) {
           return false;
         } else if ("N".equalsIgnoreCase(string)) {
+          return false;
+        } else if ("NO".equalsIgnoreCase(string)) {
           return false;
         } else if ("off".equals(string)) {
           return false;

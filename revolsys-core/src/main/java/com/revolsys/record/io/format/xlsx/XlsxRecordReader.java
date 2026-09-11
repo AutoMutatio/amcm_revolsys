@@ -3,6 +3,7 @@ package com.revolsys.record.io.format.xlsx;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
@@ -33,8 +34,8 @@ import org.xlsx4j.sml.Worksheet;
 import com.revolsys.collection.list.ListEx;
 import com.revolsys.collection.list.Lists;
 import com.revolsys.collection.map.MapEx;
+import com.revolsys.exception.ExceptionWithProperties;
 import com.revolsys.geometry.model.GeometryFactory;
-import com.revolsys.logging.Logs;
 import com.revolsys.record.ArrayRecord;
 import com.revolsys.record.Record;
 import com.revolsys.record.RecordFactory;
@@ -42,6 +43,11 @@ import com.revolsys.record.io.AbstractRecordReader;
 import com.revolsys.spring.resource.Resource;
 
 public class XlsxRecordReader extends AbstractRecordReader {
+
+  private static final LocalDateTime DATE_TIME_EPOCH = LocalDateTime.of(1900, 1, 1, 0, 0);
+
+  private static final LocalDate DATE_EPOCH = LocalDate.of(1900, 1, 1);
+
   private static BigDecimal NANOSECONDS_PER_DAY = BigDecimal.valueOf(60 * 60 * 24 * 1e9);
 
   private static final BigDecimal BD_MILISEC_RND = BigDecimal.valueOf(0.5 * 1e6);
@@ -65,10 +71,20 @@ public class XlsxRecordReader extends AbstractRecordReader {
     }
   }
 
+  private int rowOffset;
+
+  /**
+   * The offset to the first column. Used where the table doesn't start in the first column
+   */
+  private int columnOffset;
+
   private Resource resource;
 
   private List<Row> rows = Collections.emptyList();
 
+  /**
+   * Offset to the first row. Used where the table doesn't start at the first row.
+   */
   private int rowIndex = 0;
 
   private List<CTRst> sharedStringList = Collections.emptyList();
@@ -105,6 +121,10 @@ public class XlsxRecordReader extends AbstractRecordReader {
     this.sharedStringList = Collections.emptyList();
   }
 
+  public int getColumnOffset() {
+    return this.columnOffset;
+  }
+
   @Override
   protected Record getNext() {
     final var row = readNextRow();
@@ -113,6 +133,10 @@ public class XlsxRecordReader extends AbstractRecordReader {
     } else {
       throw new NoSuchElementException();
     }
+  }
+
+  public int getRowOffset() {
+    return this.rowOffset;
   }
 
   protected String getText(final CTRst sharedString) {
@@ -154,6 +178,7 @@ public class XlsxRecordReader extends AbstractRecordReader {
   @Override
   protected void initDo() {
     super.initDo();
+    this.rowIndex = this.rowOffset; // skip to first row
     try (
       InputStream in = this.resource.newBufferedInputStream()) {
 
@@ -214,7 +239,7 @@ public class XlsxRecordReader extends AbstractRecordReader {
         newRecordDefinition(baseName, this.fieldNames);
       }
     } catch (final IOException | Docx4JException | Xlsx4jException e) {
-      Logs.error(this, "Unable to open " + this.resource, e);
+      throw new ExceptionWithProperties(e).property("resource", this.resource.toString());
     } catch (final NoSuchElementException e) {
     }
   }
@@ -265,31 +290,39 @@ public class XlsxRecordReader extends AbstractRecordReader {
                     final String formatStr = numFmt.getFormatCode()
                       .toLowerCase();
                     // Search for common date/time identifier characters
-                    isDate |= formatStr.contains("y") || formatStr.contains("m")
-                      || formatStr.contains("d") || formatStr.contains("h");
+                    isDate |= (formatStr.contains("y") || formatStr.contains("m")
+                      || formatStr.contains("d") || formatStr.contains("h"))
+                      && !formatStr.contains("#") && !formatStr.contains("0");
                   }
                 }
               }
             }
             if (isDate) {
+              if (cellValue == null) {
+                yield null;
+              }
               final var bd = new BigDecimal(cellValue);
 
               final int wholeDays = bd.intValue();
 
-              final int startYear = 1900;
               int dayAdjust = -1;
               if (wholeDays < 61) {
                 dayAdjust = 0;
               }
-              final long nanosTime = bd.subtract(BigDecimal.valueOf(wholeDays))
-                .multiply(NANOSECONDS_PER_DAY)
-                .add(BD_MILISEC_RND)
+              final var nanos = bd.subtract(BigDecimal.valueOf(wholeDays))
+                .multiply(NANOSECONDS_PER_DAY);
+              final long nanosTime = nanos.add(BD_MILISEC_RND)
                 .longValue();
-
-              yield LocalDateTime.of(startYear, 1, 1, 0, 0)
-                .plusDays(wholeDays + dayAdjust - 1L)
-                .plusNanos(nanosTime)
-                .truncatedTo(ChronoUnit.MILLIS);
+              if (nanos.compareTo(BigDecimal.ZERO) == 0) {
+                yield DATE_EPOCH.plusDays(wholeDays + dayAdjust - 1L);
+              } else {
+                yield DATE_TIME_EPOCH.plusDays(wholeDays + dayAdjust - 1L)
+                  .plusNanos(nanosTime)
+                  .truncatedTo(ChronoUnit.MILLIS);
+              }
+            }
+            if (cellValue == null) {
+              yield null;
             }
             yield new BigDecimal(cellValue);
           }
@@ -316,10 +349,13 @@ public class XlsxRecordReader extends AbstractRecordReader {
             }
           }
         };
-        final int columnIndex = getColumnIndex(cell);
+        int columnIndex = getColumnIndex(cell);
         if (columnIndex == -1) {
           values.add(value);
         } else {
+          if (this.columnOffset != 0) {
+            columnIndex -= this.columnOffset;
+          }
           while (values.size() < columnIndex) {
             values.add(null);
           }
@@ -331,6 +367,14 @@ public class XlsxRecordReader extends AbstractRecordReader {
     } else {
       throw new NoSuchElementException();
     }
+  }
+
+  public void setColumnOffset(final int columnOffset) {
+    this.columnOffset = columnOffset;
+  }
+
+  public void setRowOffset(final int rowOffset) {
+    this.rowOffset = rowOffset;
   }
 
   public void setTabName(final String tabName) {
