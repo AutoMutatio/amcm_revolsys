@@ -40,6 +40,26 @@
         <version>1.0-alpha1</version>
       </dependency>
       <dependency>
+        <groupId>org.apache.poi</groupId>
+        <artifactId>poi</artifactId>
+        <version>${org.apache.poi.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.poi</groupId>
+        <artifactId>poi-ooxml</artifactId>
+        <version>${org.apache.poi.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.poi</groupId>
+        <artifactId>poi-ooxml-lite</artifactId>
+        <version>${org.apache.poi.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.poi</groupId>
+        <artifactId>poi-scratchpad</artifactId>
+        <version>${org.apache.poi.version}</version>
+      </dependency>
+      <dependency>
         <groupId>commons-beanutils</groupId>
         <artifactId>commons-beanutils</artifactId>
         <version>1.11.0</version>
@@ -573,6 +593,7 @@
     <ch.qos.logback.version>1.6.0</ch.qos.logback.version>
     <org.apache.logging.log4j>2.26.1</org.apache.logging.log4j>
     <org.apache.pdfbox.version>3.0.8</org.apache.pdfbox.version>
+    <org.apache.poi.version>5.5.1</org.apache.poi.version>
     <org.apache.xmlgraphics.batik.version>1.19</org.apache.xmlgraphics.batik.version>
     <org.apache.xmlgraphics.commons.version>2.11</org.apache.xmlgraphics.commons.version>
     <org.gdal.version>2.4.0</org.gdal.version>
