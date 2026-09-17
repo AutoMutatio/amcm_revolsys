@@ -21,7 +21,7 @@ import com.revolsys.swing.table.BaseJTable;
 
 public class TimerCounterTableModel extends AbstractTableModel {
 
-  public class TimerCounter extends Timer {
+  public static class TimerCounter extends Timer {
     private final AtomicLong count = new AtomicLong();
 
     public TimerCounter add() {

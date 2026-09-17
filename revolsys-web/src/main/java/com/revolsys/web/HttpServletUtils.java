@@ -3,6 +3,8 @@ package com.revolsys.web;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -69,6 +71,13 @@ public final class HttpServletUtils {
     return new UriBuilder(uri);
   }
 
+  public static Map<String, String> getParameters(final HttpServletRequest request) {
+    final var parameters = new HashMap<String, String>();
+    request.getParameterMap()
+      .forEach((key, values) -> parameters.put(key, values[0]));
+    return parameters;
+  }
+
   public static BufferedWriterEx getWriter(final HttpServletResponse response) {
     try {
       final var out = response.getOutputStream();
@@ -77,5 +86,4 @@ public final class HttpServletUtils {
       throw new WrappedIoException(e);
     }
   }
-
 }

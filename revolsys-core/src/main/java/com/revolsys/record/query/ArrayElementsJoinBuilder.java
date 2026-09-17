@@ -17,12 +17,12 @@ public class ArrayElementsJoinBuilder {
 
   public Function<QueryValue, ArrayElements> arrayFunction = ArrayElements::unnest;
 
-  public void aArrayFunction(Function<QueryValue, ArrayElements> arrayFunction) {
+  public void aArrayFunction(final Function<QueryValue, ArrayElements> arrayFunction) {
     this.arrayFunction = arrayFunction;
   }
 
-  public ArrayElementsJoinBuilder addVirtualField(AbstractTableRecordStore recordStore,
-    String name) {
+  public ArrayElementsJoinBuilder addVirtualField(final AbstractTableRecordStore recordStore,
+    final String name) {
     return addVirtualField(recordStore, name, DataTypes.STRING);
   }
 
@@ -33,41 +33,42 @@ public class ArrayElementsJoinBuilder {
    * @param dataType The field data type
    * @return self
    */
-  public ArrayElementsJoinBuilder addVirtualField(AbstractTableRecordStore recordStore, String name,
-    DataType dataType) {
-    recordStore.addVirtualField(name, dataType, true, (query, _, _) -> {
+  public ArrayElementsJoinBuilder addVirtualField(final AbstractTableRecordStore recordStore, final String name,
+    final DataType dataType) {
+    recordStore.addVirtualField(name, dataType, true, (query, _, _, _) -> {
       getJoin(query);
-      return new Column(joinAlias);
+      return new Column(this.joinAlias);
     });
     return this;
   }
 
   public String arrayFieldName() {
-    return arrayFieldName;
+    return this.arrayFieldName;
   }
 
-  public ArrayElementsJoinBuilder arrayFieldName(String arrayFieldName) {
+  public ArrayElementsJoinBuilder arrayFieldName(final String arrayFieldName) {
     ensureEditible();
     this.arrayFieldName = arrayFieldName;
     return this;
   }
 
   public Function<QueryValue, ArrayElements> arrayFunction() {
-    return arrayFunction;
+    return this.arrayFunction;
   }
 
   private void ensureEditible() {
-    if (readonly) {
+    if (this.readonly) {
       throw new IllegalStateException("Readonly");
     }
   }
 
   public Join getJoin(final Query query) {
-    final var arrayColumn = query.getColumn(arrayFieldName);
-    var join = query.getJoin(joinAlias, j -> {
+    final var arrayColumn = query.getColumn(this.arrayFieldName);
+    var join = query.getJoin(this.joinAlias, j -> {
       final var statement = j.getStatement();
       if (statement instanceof final ArrayElements unnest) {
-        if (unnest.getParameter().equals(arrayColumn)) {
+        if (unnest.getParameter()
+          .equals(arrayColumn)) {
           return true;
         }
       }
@@ -76,16 +77,16 @@ public class ArrayElementsJoinBuilder {
     if (join == null) {
       join = query.join(JoinType.COMMA)
         .statement(this.arrayFunction.apply(arrayColumn))//
-        .setAlias(joinAlias);
+        .setAlias(this.joinAlias);
     }
     return join;
   }
 
   public String joinAlias() {
-    return joinAlias;
+    return this.joinAlias;
   }
 
-  public ArrayElementsJoinBuilder joinAlias(String joinAlias) {
+  public ArrayElementsJoinBuilder joinAlias(final String joinAlias) {
     ensureEditible();
     this.joinAlias = joinAlias;
     return this;

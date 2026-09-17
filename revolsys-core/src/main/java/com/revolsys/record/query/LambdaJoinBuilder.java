@@ -7,7 +7,7 @@ public class LambdaJoinBuilder extends BaseJoinBuilder<LambdaJoinBuilder> {
   private Function<Query, Join> joinFunction;
 
   @Override
-  public Join getJoin(final Query query) {
+  public Join getJoin(final Query query, TableReferenceProxy fromTable) {
     return joinFunction.apply(query);
   }
 

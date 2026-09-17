@@ -33,8 +33,8 @@ public abstract class BaseJoinBuilder<SELF extends BaseJoinBuilder<SELF>> {
   public SELF addVirtualField(final AbstractTableRecordStore recordStore,
     final String virtualFieldName, final String fieldNameFromJoinTable) {
     final var column = this.joinTable.getColumn(fieldNameFromJoinTable);
-    recordStore.addVirtualField(virtualFieldName, column.getDataType(), true, (query, _, _) -> {
-      final var join = getJoin(query);
+    recordStore.addVirtualField(virtualFieldName, column.getDataType(), true, (query, _, _, _) -> {
+      final var join = getJoin(query, query);
       return join.getColumn(fieldNameFromJoinTable);
     });
     return (SELF)this;
@@ -45,12 +45,13 @@ public abstract class BaseJoinBuilder<SELF extends BaseJoinBuilder<SELF>> {
     final String virtualFieldName, final String fieldNameFromJoinTable,
     final Function<ColumnReference, QueryValue> columnToValue) {
     final var column = this.joinTable.getColumn(fieldNameFromJoinTable);
-    recordStore.addVirtualField(virtualFieldName, column.getDataType(), true, (query, _, _) -> {
-      final var join = getJoin(query);
-      final var otherColumn = join.getColumn(fieldNameFromJoinTable);
-      return columnToValue.apply(otherColumn);
+    recordStore.addVirtualField(virtualFieldName, column.getDataType(), true,
+      (query, table, _, _) -> {
+        final var join = getJoin(query, table);
+        final var otherColumn = join.getColumn(fieldNameFromJoinTable);
+        return columnToValue.apply(otherColumn);
 
-    });
+      });
     return (SELF)this;
   }
 
@@ -67,8 +68,8 @@ public abstract class BaseJoinBuilder<SELF extends BaseJoinBuilder<SELF>> {
     final String virtualFieldName) {
     final var recordDefinition = (RecordDefinition)this.joinTable.getTableReference();
     final var dataType = RecordDataType.of(recordDefinition);
-    recordStore.addVirtualField(virtualFieldName, dataType, false, (query, _, path) -> {
-      final var join = getJoin(query);
+    recordStore.addVirtualField(virtualFieldName, dataType, false, (query, table, _, path) -> {
+      final var join = getJoin(query, table);
       if (path.length > 1) {
         final var subPath = Strings.toString(".", Arrays.copyOfRange(path, 1, path.length));
         return ((AbstractTableRecordStore)this.joinTable).fieldPathToQueryValue(query, join,
@@ -86,7 +87,7 @@ public abstract class BaseJoinBuilder<SELF extends BaseJoinBuilder<SELF>> {
     }
   }
 
-  public abstract Join getJoin(final Query query);
+  public abstract Join getJoin(final Query query, TableReferenceProxy fromTable);
 
   public TableReferenceProxy joinTable() {
     return this.joinTable;

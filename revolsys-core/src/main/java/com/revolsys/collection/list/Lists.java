@@ -6,6 +6,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -547,5 +548,10 @@ public interface Lists {
 
   static <V> ListEx<V> unmodifiable(@SuppressWarnings("unchecked") final V... values) {
     return new UnmodifiableArrayList<>(values);
+  }
+
+  static int randomIndex(final ListEx<?> list) {
+    return ThreadLocalRandom.current()
+      .nextInt(list.size());
   }
 }

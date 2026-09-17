@@ -56,6 +56,11 @@ public abstract class Single<T> implements ValueHolder<T> {
     }
 
     @Override
+    public void ifEmpty(final Runnable action) {
+      action.run();
+    }
+
+    @Override
     public void ifPresent(final Consumer<? super V> action) {
     }
 
@@ -386,6 +391,9 @@ public abstract class Single<T> implements ValueHolder<T> {
   @Override
   public T getValue() {
     return get();
+  }
+
+  public void ifEmpty(final Runnable action) {
   }
 
   @Override

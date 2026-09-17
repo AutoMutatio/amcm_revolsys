@@ -9,44 +9,44 @@ public class SimpleJoinBuilder extends BaseJoinBuilder<SimpleJoinBuilder> {
   private String joinAlias;
 
   public String fromJoinFieldName() {
-    return fromJoinFieldName;
+    return this.fromJoinFieldName;
   }
 
-  public SimpleJoinBuilder fromJoinFieldName(String fromJoinFieldName) {
+  public SimpleJoinBuilder fromJoinFieldName(final String fromJoinFieldName) {
     ensureEditible();
     this.fromJoinFieldName = fromJoinFieldName;
     return this;
   }
 
   @Override
-  public Join getJoin(final Query query) {
-    var join = query.getJoin(joinTable, joinAlias);
+  public Join getJoin(final Query query, final TableReferenceProxy fromTable) {
+    var join = query.getJoin(this.joinTable, this.joinAlias);
     if (join == null) {
       join = query.join(JoinType.LEFT_OUTER_JOIN)
-        .table(joinTable)//
-        .setAlias(joinAlias);
-      final var fromJoinColumn = query.getColumn(fromJoinFieldName);
-      final var toJoinColumn = join.getColumn(toJoinFieldName);
+        .table(this.joinTable)//
+        .setAlias(this.joinAlias);
+      final var fromJoinColumn = fromTable.getColumn(this.fromJoinFieldName);
+      final var toJoinColumn = join.getColumn(this.toJoinFieldName);
       join.on(fromJoinColumn, toJoinColumn);
     }
     return join;
   }
 
   public String joinAlias() {
-    return joinAlias;
+    return this.joinAlias;
   }
 
-  public SimpleJoinBuilder joinAlias(String joinAlias) {
+  public SimpleJoinBuilder joinAlias(final String joinAlias) {
     ensureEditible();
     this.joinAlias = joinAlias;
     return this;
   }
 
   public String toJoinFieldName() {
-    return toJoinFieldName;
+    return this.toJoinFieldName;
   }
 
-  public SimpleJoinBuilder toJoinFieldName(String toJoinFieldName) {
+  public SimpleJoinBuilder toJoinFieldName(final String toJoinFieldName) {
     ensureEditible();
     this.toJoinFieldName = toJoinFieldName;
     return this;

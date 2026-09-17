@@ -16,6 +16,7 @@ import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Base64;
 import java.util.Collection;
@@ -74,8 +75,10 @@ public final class DataTypes {
   public static final DataType BASE64_BINARY = new SimpleDataType("base64Binary", byte[].class);
 
   public static final DataType BASE64_URL_BINARY = new FunctionDataType("base64UrlBinary",
-    byte[].class, s -> Base64.getUrlDecoder().decode(s.toString()),
-    v -> Base64.getUrlEncoder().encodeToString((byte[])v));
+    byte[].class, s -> Base64.getUrlDecoder()
+      .decode(s.toString()),
+    v -> Base64.getUrlEncoder()
+      .encodeToString((byte[])v));
 
   public static final DataType BINARY = new SimpleDataType("binary", byte[].class);
 
@@ -93,6 +96,8 @@ public final class DataTypes {
           return true;
         } else if ("Y".equalsIgnoreCase(string)) {
           return true;
+        } else if ("YES".equalsIgnoreCase(string)) {
+          return true;
         } else if ("on".equals(string)) {
           return true;
         } else if ("true".equalsIgnoreCase(string)) {
@@ -100,6 +105,8 @@ public final class DataTypes {
         } else if ("0".equals(string)) {
           return false;
         } else if ("N".equalsIgnoreCase(string)) {
+          return false;
+        } else if ("NO".equalsIgnoreCase(string)) {
           return false;
         } else if ("off".equals(string)) {
           return false;
@@ -203,6 +210,9 @@ public final class DataTypes {
   public static final DataType LOCAL_DATE = new FunctionDataType("localDate", false,
     LocalDate.class, Dates::getLocalDate, Dates::toLocalDateIsoString, Object::equals);
 
+  public static final DataType LOCAL_DATE_TIME = new FunctionDataType("localDateTime", false,
+    LocalDateTime.class, Dates::getLocalDateTime, Dates::toLocalDateTimeIsoString, Object::equals);
+
   public static final DataType URL = new FunctionDataType("url", java.net.URL.class, value -> {
     if (value instanceof URL) {
       return (URL)value;
@@ -227,7 +237,8 @@ public final class DataTypes {
     } else if (value instanceof Path) {
       final Path path = (Path)value;
       try {
-        return path.toUri().toURL();
+        return path.toUri()
+          .toURL();
       } catch (final MalformedURLException e) {
         throw new IllegalArgumentException("Cannot get url " + path, e);
       }
@@ -358,7 +369,8 @@ public final class DataTypes {
   }
 
   public static void register(final DataType type) {
-    final String name = type.getName().toLowerCase();
+    final String name = type.getName()
+      .toLowerCase();
     if (!NAME_TYPE_MAP.containsKey(name)) {
       NAME_TYPE_MAP.put(name, type);
     }

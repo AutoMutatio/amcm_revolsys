@@ -16,7 +16,7 @@ public record VirtualSourceFieldMapping(String virtualFieldName, String sourceFi
   public void addVirtualField(final AbstractTableRecordStore recordStore,
     final Function4<Query, VirtualField, String, String[], QueryValue> newQueryValue) {
     final var field = new VirtualField(recordStore, this.virtualFieldName,
-      rd -> rd.addField(this.virtualFieldName, this.dataType), (query, virtualField,
+      rd -> rd.addField(this.virtualFieldName, this.dataType), (query, _, virtualField,
         path) -> newQueryValue.apply(query, virtualField, this.sourceFieldName, path));
     recordStore.addVirtualField(field);
   }

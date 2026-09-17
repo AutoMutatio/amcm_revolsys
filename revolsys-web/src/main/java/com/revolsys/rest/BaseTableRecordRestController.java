@@ -1,6 +1,7 @@
 package com.revolsys.rest;
 
 import java.io.IOException;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -19,6 +20,17 @@ import com.revolsys.record.schema.TableRecordStoreFactory;
 import com.revolsys.record.schema.TableRecordStoreQuery;
 
 public class BaseTableRecordRestController extends AbstractTableRecordRestController {
+
+  public static UUID getUuid(final String referenceOrId) {
+    UUID uuid = null;
+    if (referenceOrId.length() == 36) {
+      try {
+        uuid = UUID.fromString(referenceOrId);
+      } catch (final Exception e) {
+      }
+    }
+    return uuid;
+  }
 
   protected final PathName tablePath;
 
