@@ -1,6 +1,7 @@
 package com.revolsys.record.query;
 
 import java.sql.PreparedStatement;
+import java.util.Map;
 
 import com.revolsys.collection.list.ListEx;
 import com.revolsys.collection.list.Lists;
@@ -34,7 +35,8 @@ public abstract class AbstractReturningQueryStatement<QS extends QueryStatement>
     sql.append('\n');
   }
 
-  public abstract int appendParameters(int index, PreparedStatement statement);
+  public abstract int appendParameters(int index, Map<String, Object> parameters,
+    PreparedStatement statement);
 
   protected void appendReturning(final SqlAppendable sql) {
     if (this.returningAll) {
@@ -45,9 +47,10 @@ public abstract class AbstractReturningQueryStatement<QS extends QueryStatement>
     }
   }
 
-  protected int appendReturningParameters(int index, final PreparedStatement statement) {
+  protected int appendReturningParameters(int index, Map<String, Object> parameters,
+    final PreparedStatement statement) {
     for (final var column : this.returning) {
-      index = column.appendParameters(index, statement);
+      index = column.appendParameters(index, parameters, statement);
     }
     return index;
   }

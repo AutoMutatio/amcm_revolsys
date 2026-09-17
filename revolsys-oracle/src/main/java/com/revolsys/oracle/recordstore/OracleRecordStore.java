@@ -4,6 +4,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -331,7 +332,8 @@ public class OracleRecordStore extends AbstractJdbcRecordStore {
           JdbcConnection connection = getJdbcConnection()) {
           try (
             final PreparedStatement statement = connection.prepareStatement(sql)) {
-            query1.appendParameters(1, statement);
+            final var parameters = Collections.<String, Object> emptyMap();
+            query1.appendParameters(1, parameters, statement);
             try (
               final ResultSet resultSet = statement.executeQuery()) {
               if (resultSet.next()) {

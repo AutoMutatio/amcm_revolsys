@@ -18,14 +18,14 @@ public class OnConflictDoUpdate implements OnConflictAction {
   }
 
   @Override
-  public int appendParameters(int index, final PreparedStatement statement) {
+  public int appendParameters(int index, Map<String, Object> parameters, final PreparedStatement statement) {
     for (final var entry : this.setExpressions.entrySet()) {
       final var column = entry.getKey();
       final var value = entry.getValue();
-      index = column.appendParameters(index, statement);
-      index = value.appendParameters(index, statement);
+      index = column.appendParameters(index, parameters, statement);
+      index = value.appendParameters(index, parameters, statement);
     }
-    index = this.where.appendParameters(index, statement);
+    index = this.where.appendParameters(index, parameters, statement);
     return index;
   }
 

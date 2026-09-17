@@ -91,8 +91,6 @@ public class XlsxRecordReader extends AbstractRecordReader {
 
   private String tabName;
 
-  private List<String> fieldNames;
-
   private List<CTXf> cellXfs;
 
   private CTStylesheet stylesheet;
@@ -129,7 +127,8 @@ public class XlsxRecordReader extends AbstractRecordReader {
   protected Record getNext() {
     final var row = readNextRow();
     if (row != null && row.size() > 0) {
-      return parseRecord(this.fieldNames, row);
+      final List<String> fieldNames = getFieldNames();
+      return parseRecord(fieldNames, row);
     } else {
       throw new NoSuchElementException();
     }
@@ -233,10 +232,10 @@ public class XlsxRecordReader extends AbstractRecordReader {
         this.cellXfs = this.stylesheet.getCellXfs()
           .getXf();
 
-        this.fieldNames = readNextRow().map(Object::toString)
+        final var fieldNames = readNextRow().map(Object::toString)
           .toList();
         final String baseName = this.resource.getBaseName();
-        newRecordDefinition(baseName, this.fieldNames);
+        newRecordDefinition(baseName, fieldNames);
       }
     } catch (final IOException | Docx4JException | Xlsx4jException e) {
       throw new ExceptionWithProperties(e).property("resource", this.resource.toString());

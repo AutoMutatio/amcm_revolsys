@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.revolsys.collection.iterator.AbstractIterator;
 import com.revolsys.collection.map.Maps;
+import com.revolsys.collection.set.Sets;
 import com.revolsys.data.type.DataType;
 import com.revolsys.data.type.DataTypes;
 import com.revolsys.geometry.model.Geometry;
@@ -124,62 +125,76 @@ public abstract class AbstractRecordReader extends AbstractIterator<Record>
       this.pointXFieldName = null;
       this.pointYFieldName = null;
     }
+    final var targetFieldNames = Sets.<String> newHash();
     final List<FieldDefinition> fields = new ArrayList<>();
     FieldDefinition geometryField = null;
-    for (final String fieldName : fieldNames) {
-      if (fieldName != null) {
-        DataType type;
-        int length = 0;
-        boolean isGeometryField = false;
-        if (geometryColumnName != null && fieldName.equalsIgnoreCase(geometryColumnName)) {
-          type = this.geometryType;
-          isGeometryField = true;
-        } else if ("GEOMETRY".equalsIgnoreCase(fieldName)) {
-          type = GeometryDataTypes.GEOMETRY;
-          isGeometryField = true;
-        } else if ("SHAPE".equalsIgnoreCase(fieldName)) {
-          type = GeometryDataTypes.GEOMETRY;
-          isGeometryField = true;
-        } else if ("GEOMETRYCOLLECTION".equalsIgnoreCase(fieldName)
-          || "GEOMETRY_COLLECTION".equalsIgnoreCase(fieldName)) {
-          type = GeometryDataTypes.GEOMETRY_COLLECTION;
-          isGeometryField = true;
-        } else if ("POINT".equalsIgnoreCase(fieldName)) {
-          type = GeometryDataTypes.POINT;
-          isGeometryField = true;
-        } else if ("MULTI_POINT".equalsIgnoreCase(fieldName)
-          || "MULTIPOINT".equalsIgnoreCase(fieldName)) {
-          type = GeometryDataTypes.MULTI_POINT;
-          isGeometryField = true;
-        } else if ("LINE_STRING".equalsIgnoreCase(fieldName)
-          || "LINESTRING".equalsIgnoreCase(fieldName) || "LINE".equalsIgnoreCase(fieldName)) {
-          type = GeometryDataTypes.LINE_STRING;
-          isGeometryField = true;
-        } else if ("MULTI_LINESTRING".equalsIgnoreCase(fieldName)
-          || "MULTILINESTRING".equalsIgnoreCase(fieldName)
-          || "MULTILINE".equalsIgnoreCase(fieldName) || "MULTI_LINE".equalsIgnoreCase(fieldName)) {
-          type = GeometryDataTypes.MULTI_LINE_STRING;
-          isGeometryField = true;
-        } else if ("POLYGON".equalsIgnoreCase(fieldName)) {
-          type = GeometryDataTypes.POLYGON;
-          isGeometryField = true;
-        } else if ("MULTI_POLYGON".equalsIgnoreCase(fieldName)
-          || "MULTIPOLYGON".equalsIgnoreCase(fieldName)) {
-          type = GeometryDataTypes.MULTI_POLYGON;
-          isGeometryField = true;
-        } else {
-          type = DataTypes.STRING;
-          length = 0;
-        }
-        final FieldDefinition field;
-        if (isGeometryField) {
-          field = new GeometryFieldDefinition(this.geometryFactory, fieldName, type, false);
-          geometryField = field;
-        } else {
-          field = new FieldDefinition(fieldName, type, length, false);
-        }
-        fields.add(field);
+    int unnamedIndex = 0;
+    for (String baseFieldName : fieldNames) {
+      if (!Property.hasValue(baseFieldName)) {
+        baseFieldName = "Unnamed" + (++unnamedIndex);
       }
+      // Strip all leading/trailing whitespace and replace all whitespace with
+      // a single space
+      baseFieldName = baseFieldName.strip()
+        .replaceAll("\\s+", " ");
+      String fieldName = baseFieldName;
+      int fieldWithSameNameIndex = 1;
+      // If there are 2 fields with the same name then add a sequence number
+      // to the end, starting at 2 for the first duplicate
+      while (!targetFieldNames.add(fieldName)) {
+        fieldName = baseFieldName + (++fieldWithSameNameIndex);
+      }
+      DataType type;
+      int length = 0;
+      boolean isGeometryField = false;
+      if (geometryColumnName != null && fieldName.equalsIgnoreCase(geometryColumnName)) {
+        type = this.geometryType;
+        isGeometryField = true;
+      } else if ("GEOMETRY".equalsIgnoreCase(fieldName)) {
+        type = GeometryDataTypes.GEOMETRY;
+        isGeometryField = true;
+      } else if ("SHAPE".equalsIgnoreCase(fieldName)) {
+        type = GeometryDataTypes.GEOMETRY;
+        isGeometryField = true;
+      } else if ("GEOMETRYCOLLECTION".equalsIgnoreCase(fieldName)
+        || "GEOMETRY_COLLECTION".equalsIgnoreCase(fieldName)) {
+        type = GeometryDataTypes.GEOMETRY_COLLECTION;
+        isGeometryField = true;
+      } else if ("POINT".equalsIgnoreCase(fieldName)) {
+        type = GeometryDataTypes.POINT;
+        isGeometryField = true;
+      } else if ("MULTI_POINT".equalsIgnoreCase(fieldName)
+        || "MULTIPOINT".equalsIgnoreCase(fieldName)) {
+        type = GeometryDataTypes.MULTI_POINT;
+        isGeometryField = true;
+      } else if ("LINE_STRING".equalsIgnoreCase(fieldName)
+        || "LINESTRING".equalsIgnoreCase(fieldName) || "LINE".equalsIgnoreCase(fieldName)) {
+        type = GeometryDataTypes.LINE_STRING;
+        isGeometryField = true;
+      } else if ("MULTI_LINESTRING".equalsIgnoreCase(fieldName)
+        || "MULTILINESTRING".equalsIgnoreCase(fieldName) || "MULTILINE".equalsIgnoreCase(fieldName)
+        || "MULTI_LINE".equalsIgnoreCase(fieldName)) {
+        type = GeometryDataTypes.MULTI_LINE_STRING;
+        isGeometryField = true;
+      } else if ("POLYGON".equalsIgnoreCase(fieldName)) {
+        type = GeometryDataTypes.POLYGON;
+        isGeometryField = true;
+      } else if ("MULTI_POLYGON".equalsIgnoreCase(fieldName)
+        || "MULTIPOLYGON".equalsIgnoreCase(fieldName)) {
+        type = GeometryDataTypes.MULTI_POLYGON;
+        isGeometryField = true;
+      } else {
+        type = DataTypes.STRING;
+        length = 0;
+      }
+      final FieldDefinition field;
+      if (isGeometryField) {
+        field = new GeometryFieldDefinition(this.geometryFactory, fieldName, type, false);
+        geometryField = field;
+      } else {
+        field = new FieldDefinition(fieldName, type, length, false);
+      }
+      fields.add(field);
     }
     if (this.hasPointFields) {
       if (geometryField == null) {
