@@ -1,6 +1,7 @@
 package com.revolsys.record.query;
 
 import java.sql.PreparedStatement;
+import java.util.Map;
 
 import com.revolsys.collection.list.ListEx;
 import com.revolsys.collection.list.Lists;
@@ -15,8 +16,9 @@ public class WithQuery {
 
   private boolean recursive;
 
-  public int appendParameters(final int index, final PreparedStatement statement) {
-    return this.query.appendParameters(index, statement);
+  public int appendParameters(final int index, Map<String, Object> parameters,
+    final PreparedStatement statement) {
+    return this.query.appendParameters(index, parameters, statement);
   }
 
   public void appendSql(final SqlAppendable sql) {
@@ -56,7 +58,8 @@ public class WithQuery {
   }
 
   public ColumnReference getColumn(final CharSequence name) {
-    ColumnReference tableColumn = this.query.getTable().getColumn(name);
+    ColumnReference tableColumn = this.query.getTable()
+      .getColumn(name);
     if (tableColumn == null) {
       tableColumn = new Column(name);
     }
