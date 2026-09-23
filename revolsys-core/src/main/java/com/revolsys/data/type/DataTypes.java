@@ -267,8 +267,14 @@ public final class DataTypes {
     .plusFunction((d, n) -> d.plusDays(n.longValue()))
     .build();
 
-  public static final DataType LOCAL_DATE_TIME = new FunctionDataType("localDateTime", false,
-    LocalDateTime.class, Dates::getLocalDateTime, Dates::toLocalDateTimeIsoString, Object::equals);
+  public static final DataType LOCAL_DATE_TIME = FunctionDataType
+    .builder("localDateTime", LocalDateTime.class)
+    .requiresQuotes(false)
+    .toObjectFunction(Dates::getLocalDateTime)
+    .toStringFunction(Dates::toLocalDateTimeIsoString)
+    .equalsFunction(Object::equals)
+    .plusFunction((d, n) -> d.plusDays(n.longValue()))
+    .build();
 
   public static final DataType URL = FunctionDataType.builder("url", java.net.URL.class)
     .toObjectFunction(value -> {
@@ -296,8 +302,8 @@ public final class DataTypes {
         final Path path = (Path)value;
         try {
           return path.toUri()
-            
-          .toURL();
+
+            .toURL();
         } catch (final MalformedURLException e) {
           throw new IllegalArgumentException("Cannot get url " + path, e);
         }

@@ -93,31 +93,8 @@ public abstract class AbstractMultiCondition extends AbstractMultiQueryValue
   }
 
   @Override
-  public void appendOData(final StringBuilder s) {
-    s.append("(");
-    boolean first = true;
-
-    for (final QueryValue value : this.values) {
-      if (!(value instanceof final Condition condition) || !condition.isEmpty()) {
-        if (first) {
-          first = false;
-        } else {
-          s.append(" ");
-          s.append(this.odataOperator);
-          s.append(" ");
-        }
-        if (value == null) {
-          s.append("null");
-        } else {
-          value.appendOData(s);
-        }
-      }
-    }
-    s.append(")");
-  }
-
-  @Override
-  public int appendParameters(int index, Map<String, Object> parameters, final PreparedStatement statement) {
+  public int appendParameters(int index, final Map<String, Object> parameters,
+    final PreparedStatement statement) {
     for (final QueryValue value : this.values) {
       if (value != null) {
         index = value.appendParameters(index, parameters, statement);

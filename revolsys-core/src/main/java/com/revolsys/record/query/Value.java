@@ -218,23 +218,8 @@ public class Value implements QueryValue {
   }
 
   @Override
-  public void appendOData(final StringBuilder s) {
-    if (this.queryValue == null) {
-      s.append("null");
-    } else if (this.queryValue instanceof final Boolean bool) {
-      s.append(bool);
-    } else if (this.queryValue instanceof final Number number) {
-      s.append(number.toString());
-    } else {
-      s.append('\'');
-      // TODO escaping
-      s.append(this.queryValue.toString());
-      s.append('\'');
-    }
-  }
-
-  @Override
-  public int appendParameters(final int index, Map<String, Object> parameters, final PreparedStatement statement) {
+  public int appendParameters(final int index, final Map<String, Object> parameters,
+    final PreparedStatement statement) {
     try {
       try {
         return this.jdbcField.setPreparedStatementValue(statement, index, this.queryValue);
