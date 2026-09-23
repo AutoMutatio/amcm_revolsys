@@ -72,7 +72,13 @@ public class Column implements QueryValue, ColumnReference {
   }
 
   @Override
-  public int appendParameters(final int index, Map<String, Object> parameters, final PreparedStatement statement) {
+  public void appendOData(final StringBuilder s) {
+    s.append(this.name);
+  }
+
+  @Override
+  public int appendParameters(final int index, final Map<String, Object> parameters,
+    final PreparedStatement statement) {
     return index;
   }
 

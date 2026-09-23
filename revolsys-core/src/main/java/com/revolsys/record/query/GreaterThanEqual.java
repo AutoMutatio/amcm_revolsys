@@ -6,7 +6,7 @@ import com.revolsys.comparator.CompareUtil;
 public class GreaterThanEqual extends BinaryCondition {
 
   public GreaterThanEqual(final QueryValue left, final QueryValue right) {
-    super(left, ">=", right);
+    super(left, ">=", "ge", right);
   }
 
   @Override

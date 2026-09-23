@@ -3,6 +3,7 @@ package com.revolsys.data.type;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.BiFunction;
@@ -10,11 +11,76 @@ import java.util.function.Function;
 
 import com.revolsys.function.Function3;
 
-public class FunctionDataType extends AbstractDataType {
+public class FunctionDataType<O> extends AbstractDataType {
+
+  public static class Builder<O2> {
+
+    private Function3<Object, Object, Collection<? extends CharSequence>, Boolean> equalsExcludesFunction;
+
+    private BiFunction<Object, Object, Boolean> equalsFunction;
+
+    private Class<?> javaClass;
+
+    private String name;
+
+    private boolean requiresQuotes = true;
+
+    private Function<Object, ?> toObjectFunction;
+
+    private Function<Object, String> toStringFunction = Object::toString;
+
+    private BiFunction<O2, Number, O2> plusFunction;
+
+    public FunctionDataType<O2> build() {
+      return new FunctionDataType<>(this.name, this.javaClass, this.requiresQuotes,
+        this.equalsExcludesFunction, this.equalsFunction, this.toObjectFunction,
+        this.toStringFunction, this.plusFunction);
+    }
+
+    public Builder<O2> equalsExcludesFunction(
+      final Function3<Object, Object, Collection<? extends CharSequence>, Boolean> equalsExcludesFunction) {
+      this.equalsExcludesFunction = Objects.requireNonNull(equalsExcludesFunction);
+      return this;
+    }
+
+    public Builder<O2> equalsFunction(final BiFunction<Object, Object, Boolean> equalsFunction) {
+      this.equalsFunction = Objects.requireNonNull(equalsFunction);
+      return this;
+    }
+
+    public Builder<O2> javaClass(final Class<?> javaClass) {
+      this.javaClass = Objects.requireNonNull(javaClass);
+      return this;
+    }
+
+    public Builder<O2> name(final String name) {
+      this.name = Objects.requireNonNull(name);
+      return this;
+    }
+
+    public Builder<O2> plusFunction(final BiFunction<O2, Number, O2> plusFunction) {
+      this.plusFunction = Objects.requireNonNull(plusFunction);
+      return this;
+    }
+
+    public Builder<O2> requiresQuotes(final boolean requiresQuotes) {
+      this.requiresQuotes = requiresQuotes;
+      return this;
+    }
+
+    public Builder<O2> toObjectFunction(final Function<Object, ?> toObjectFunction) {
+      this.toObjectFunction = Objects.requireNonNull(toObjectFunction);
+      return this;
+    }
+
+    public Builder<O2> toStringFunction(final Function<Object, String> toStringFunction) {
+      this.toStringFunction = Objects.requireNonNull(toStringFunction);
+      return this;
+    }
+  }
 
   @SuppressWarnings("unchecked")
-  public static BiFunction<? extends Object, ? extends Object, Boolean> MAP_EQUALS = (object1,
-    object2) -> {
+  public static BiFunction<Object, Object, Boolean> MAP_EQUALS = (object1, object2) -> {
     final Map<Object, Object> map1 = (Map<Object, Object>)object1;
     final Map<Object, Object> map2 = (Map<Object, Object>)object2;
     if (map1.size() == map2.size()) {
@@ -57,60 +123,26 @@ public class FunctionDataType extends AbstractDataType {
     return true;
   };
 
-  public static FunctionDataType newToObjectEquals(final String name, final Class<?> javaClass,
-    final Function<Object, ?> toObjectFunction,
-    final BiFunction<? extends Object, ? extends Object, Boolean> equalsFunction) {
-    return new FunctionDataType(name, javaClass, true, toObjectFunction, null, equalsFunction,
-      null);
+  public static <O3> Builder<O3> builder(final String name, final Class<O3> javaClass) {
+    return new Builder<O3>().name(name)
+      .javaClass(javaClass);
   }
+
+  private final BiFunction<O, Number, O> plusFunction;
+
+  private final Function3<Object, Object, Collection<? extends CharSequence>, Boolean> equalsExcludesFunction;
+
+  private final BiFunction<Object, Object, Boolean> equalsFunction;
 
   private final Function<Object, ?> toObjectFunction;
 
   private final Function<Object, String> toStringFunction;
 
-  private final BiFunction<Object, Object, Boolean> equalsFunction;
-
-  private final Function3<Object, Object, Collection<? extends CharSequence>, Boolean> equalsExcludesFunction;
-
-  public FunctionDataType(final String name, final boolean requiresQuotes, final Class<?> javaClass,
-    final Function<Object, ?> function) {
-    this(name, javaClass, requiresQuotes, function);
-  }
-
-  public FunctionDataType(final String name, final boolean requiresQuotes, final Class<?> javaClass,
-    final Function<Object, ?> toObjectFunction, final Function<Object, String> toStringFunction) {
-    this(name, javaClass, requiresQuotes, toObjectFunction, toStringFunction);
-  }
-
-  public FunctionDataType(final String name, final boolean requiresQuotes, final Class<?> javaClass,
+  public FunctionDataType(final String name, final Class<?> javaClass, final boolean requiresQuotes,
+    final Function3<Object, Object, Collection<? extends CharSequence>, Boolean> equalsExcludesFunction,
+    final BiFunction<Object, Object, Boolean> equalsFunction,
     final Function<Object, ?> toObjectFunction, final Function<Object, String> toStringFunction,
-    final BiFunction<?, ?, Boolean> equalsFunction) {
-    this(name, javaClass, requiresQuotes, toObjectFunction, toStringFunction, equalsFunction, null);
-  }
-
-  public FunctionDataType(final String name, final Class<?> javaClass, final boolean requiresQuotes,
-    final Function<Object, ?> function) {
-    this(name, javaClass, requiresQuotes, function, null, null, null);
-  }
-
-  public FunctionDataType(final String name, final Class<?> javaClass, final boolean requireQuotes,
-    final Function<Object, ?> toObjectFunction,
-    final BiFunction<? extends Object, ? extends Object, Boolean> equalsFunction) {
-    this(name, javaClass, requireQuotes, toObjectFunction, null, equalsFunction, null);
-  }
-
-  public FunctionDataType(final String name, final Class<?> javaClass, final boolean requiresQuotes,
-    final Function<Object, ?> toObjectFunction, final Function<Object, String> toStringFunction) {
-    this(name, javaClass, requiresQuotes, toObjectFunction, toStringFunction, null, null);
-  }
-
-  @SuppressWarnings({
-    "unchecked", "rawtypes"
-  })
-  public FunctionDataType(final String name, final Class<?> javaClass, final boolean requiresQuotes,
-    final Function<Object, ?> toObjectFunction, final Function<Object, String> toStringFunction,
-    final BiFunction<?, ?, Boolean> equalsFunction,
-    final Function3<Object, Object, Collection<? extends CharSequence>, Boolean> equalsExcludesFunction) {
+    final BiFunction<O, Number, O> plusFunction) {
     super(name, javaClass, requiresQuotes);
     this.toObjectFunction = toObjectFunction;
     if (toStringFunction == null) {
@@ -126,47 +158,19 @@ public class FunctionDataType extends AbstractDataType {
           Collections.emptySet());
       }
     } else {
-      this.equalsFunction = (BiFunction)equalsFunction;
+      this.equalsFunction = equalsFunction;
     }
     if (equalsExcludesFunction == null) {
       if (equalsFunction == null) {
-        this.equalsExcludesFunction = (value1, value2, excludeFieldNames) -> value1.equals(value2);
+        this.equalsExcludesFunction = (value1, value2, _) -> value1.equals(value2);
       } else {
-        this.equalsExcludesFunction = (value1, value2, excludeFieldNames) -> this.equalsFunction
-          .apply(value1, value2);
+        this.equalsExcludesFunction = (value1, value2, _) -> this.equalsFunction.apply(value1,
+          value2);
       }
     } else {
       this.equalsExcludesFunction = equalsExcludesFunction;
     }
-  }
-
-  public FunctionDataType(final String name, final Class<?> javaClass,
-    final Function<Object, ?> function) {
-    this(name, javaClass, true, function);
-  }
-
-  public FunctionDataType(final String name, final Class<?> javaClass,
-    final Function<Object, ?> toObjectFunction,
-    final BiFunction<? extends Object, ? extends Object, Boolean> equalsFunction,
-    final Function3<Object, Object, Collection<? extends CharSequence>, Boolean> equalsExcludesFunction) {
-    this(name, javaClass, true, toObjectFunction, null, equalsFunction, equalsExcludesFunction);
-  }
-
-  public FunctionDataType(final String name, final Class<?> javaClass,
-    final Function<Object, ?> toObjectFunction, final Function<Object, String> toStringFunction) {
-    this(name, javaClass, true, toObjectFunction, toStringFunction);
-  }
-
-  public FunctionDataType(final String name, final Class<?> javaClass,
-    final Function<Object, ?> toObjectFunction, final Function<Object, String> toStringFunction,
-    final BiFunction<?, ?, Boolean> equalsFunction) {
-    this(name, javaClass, true, toObjectFunction, toStringFunction, equalsFunction, null);
-  }
-
-  public FunctionDataType(final String name, final Class<?> javaClass,
-    final Function<Object, ?> toObjectFunction,
-    final Function3<Object, Object, Collection<? extends CharSequence>, Boolean> equalsExcludesFunction) {
-    this(name, javaClass, true, toObjectFunction, null, null, equalsExcludesFunction);
+    this.plusFunction = plusFunction;
   }
 
   @Override
@@ -178,6 +182,18 @@ public class FunctionDataType extends AbstractDataType {
   protected boolean equalsNotNull(final Object value1, final Object value2,
     final Collection<? extends CharSequence> excludeFieldNames) {
     return this.equalsExcludesFunction.apply(value1, value2, excludeFieldNames);
+  }
+
+  @Override
+  public boolean isMathSupported() {
+    return this.plusFunction != null;
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public <V> V plus(final Object value, final Number number) {
+    final O n = toObject(value);
+    return (V)this.plusFunction.apply(n, number);
   }
 
   @Override

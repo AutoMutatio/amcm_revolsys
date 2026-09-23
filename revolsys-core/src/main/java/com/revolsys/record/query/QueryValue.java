@@ -139,6 +139,11 @@ public interface QueryValue extends Cloneable, SqlAppendParameters {
 
   void appendDefaultSql(QueryStatement statement, RecordStore recordStore, SqlAppendable sql);
 
+  default void appendOData(StringBuilder s) {
+    throw new UnsupportedOperationException(
+      getClass().getSimpleName() + " Doesn't yet support odata");
+  }
+
   default void appendSelect(final QueryStatement statement, final RecordStore recordStore,
     final SqlAppendable sql) {
     if (recordStore == null) {
@@ -238,11 +243,16 @@ public interface QueryValue extends Cloneable, SqlAppendParameters {
     return toString();
   }
 
+  default String toOdata() {
+    var s = new StringBuilder();
+    appendOData(s);
+    return s.toString();
+  }
+
   @SuppressWarnings("unchecked")
   default <QV extends QueryValue> QV updateQueryValues(final TableReference oldTable,
     final TableReference newTable,
     final java.util.function.Function<QueryValue, QueryValue> valueHandler) {
     return (QV)this;
   }
-
 }

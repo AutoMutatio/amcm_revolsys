@@ -40,6 +40,18 @@ public class FloatDataType extends AbstractDataType {
   }
 
   @Override
+  public boolean isMathSupported() {
+    return true;
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  public <V> V plus(final Object value1, final Number value2) {
+    final float number1 = toObject(value1);
+    return (V)(Object)(number1 + value2.floatValue());
+  }
+
+  @Override
   protected Object toObjectDo(final Object value) {
     if (value instanceof Number) {
       final Number number = (Number)value;
