@@ -9,6 +9,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 
 import org.springframework.dao.DataAccessException;
 
@@ -74,7 +75,8 @@ public interface JdbcRecordStore extends RecordStore {
 
   default ResultSet getResultSet(final PreparedStatement statement, final Query query)
     throws SQLException {
-    query.appendParameters(1, statement);
+    final var parameters = Collections.<String, Object> emptyMap();
+    query.appendParameters(1, parameters, statement);
     return statement.executeQuery();
   }
 

@@ -9,6 +9,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -18,6 +19,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.UUID;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 import javax.sql.DataSource;
@@ -59,6 +61,7 @@ import com.revolsys.record.query.ColumnIndexes;
 import com.revolsys.record.query.ColumnReference;
 import com.revolsys.record.query.DeleteStatement;
 import com.revolsys.record.query.InsertStatement;
+import com.revolsys.record.query.InsertStatement.InsertStatementBatch;
 import com.revolsys.record.query.Q;
 import com.revolsys.record.query.Query;
 import com.revolsys.record.query.QueryValue;
@@ -308,7 +311,8 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
         // rolled back.
         try (
           final PreparedStatement statement = connection.prepareStatement(sql)) {
-          delete.appendParameters(1, statement);
+          final var parameters = Collections.<String, Object> emptyMap();
+          delete.appendParameters(1, parameters, statement);
           return statement.executeUpdate();
         } catch (final SQLException e) {
           throw connection.getException("delete", sql, e);
@@ -341,8 +345,8 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
         // rolled back.
         try (
           final PreparedStatement statement = connection.prepareStatement(sql)) {
-
-          query.appendParameters(1, statement);
+          final var parameters = Collections.<String, Object> emptyMap();
+          query.appendParameters(1, parameters, statement);
           return statement.executeUpdate();
         } catch (final SQLException e) {
           throw connection.getException("delete", sql, e);
@@ -377,6 +381,30 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
     return executeReturningStatementRecords(insert, action);
   }
 
+  @Override
+  public long executeInsertStatementBatch(InsertStatement insertStatement,
+    Consumer<InsertStatementBatch> action) {
+    return transactionCall(() -> {
+      final String sql = insertStatement.toSql();
+      try (
+        JdbcConnection connection = getJdbcConnection()) {
+        // It's important to have this in an inner try. Otherwise the exceptions
+        // won't get caught on closing the writer and the transaction won't get
+        // rolled back.
+
+        try (
+          final var statement = connection.prepareStatement(sql)) {
+          final var batch = new JdbcInsertStatementBatch(insertStatement, connection, statement);
+          action.accept(batch);
+          return -1;
+        } catch (final SQLException e) {
+          final var sqlString = insertStatement.toString();
+          throw connection.getException("execute", sqlString, e);
+        }
+      }
+    });
+  }
+
   protected int executeQueryStatementCount(
     final AbstractReturningQueryStatement<?> queryStatement) {
     final String sql = queryStatement.toSql();
@@ -388,7 +416,8 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
         // rolled back.
         try (
           final PreparedStatement statement = connection.prepareStatement(sql)) {
-          queryStatement.appendParameters(1, statement);
+          final var parameters = Collections.<String, Object> emptyMap();
+          queryStatement.appendParameters(1, parameters, statement);
           return statement.executeUpdate();
         } catch (final SQLException e) {
           final var sqlString = queryStatement.toString();
@@ -412,7 +441,8 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
 
         try (
           final PreparedStatement statement = connection.prepareStatement(sql)) {
-          queryStatement.appendParameters(1, statement);
+          final var parameters = Collections.<String, Object> emptyMap();
+          queryStatement.appendParameters(1, parameters, statement);
           ListEx<? extends ColumnReference> columns;
           RecordDefinition recordDefinition;
           if (queryStatement.isReturningAll()) {
@@ -690,7 +720,8 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
           JdbcConnection connection = getJdbcConnection()) {
           try (
             final PreparedStatement statement = connection.prepareStatement(sql)) {
-            query1.appendParameters(1, statement);
+            final var parameters = Collections.<String, Object> emptyMap();
+            query1.appendParameters(1, parameters, statement);
             try (
               final ResultSet resultSet = statement.executeQuery()) {
               if (resultSet.next()) {

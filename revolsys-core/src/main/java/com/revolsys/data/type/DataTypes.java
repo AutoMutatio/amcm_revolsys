@@ -20,6 +20,7 @@ import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Base64;
 import java.util.Collection;
@@ -103,6 +104,8 @@ public final class DataTypes {
           return true;
         } else if ("Y".equalsIgnoreCase(string)) {
           return true;
+        } else if ("YES".equalsIgnoreCase(string)) {
+          return true;
         } else if ("on".equals(string)) {
           return true;
         } else if ("true".equalsIgnoreCase(string)) {
@@ -110,6 +113,8 @@ public final class DataTypes {
         } else if ("0".equals(string)) {
           return false;
         } else if ("N".equalsIgnoreCase(string)) {
+          return false;
+        } else if ("NO".equalsIgnoreCase(string)) {
           return false;
         } else if ("off".equals(string)) {
           return false;
@@ -262,6 +267,9 @@ public final class DataTypes {
     .plusFunction((d, n) -> d.plusDays(n.longValue()))
     .build();
 
+  public static final DataType LOCAL_DATE_TIME = new FunctionDataType("localDateTime", false,
+    LocalDateTime.class, Dates::getLocalDateTime, Dates::toLocalDateTimeIsoString, Object::equals);
+
   public static final DataType URL = FunctionDataType.builder("url", java.net.URL.class)
     .toObjectFunction(value -> {
       if (value instanceof URL) {
@@ -288,7 +296,8 @@ public final class DataTypes {
         final Path path = (Path)value;
         try {
           return path.toUri()
-            .toURL();
+            
+          .toURL();
         } catch (final MalformedURLException e) {
           throw new IllegalArgumentException("Cannot get url " + path, e);
         }

@@ -21,6 +21,7 @@ import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
@@ -561,6 +562,54 @@ public interface Dates {
     }
   }
 
+  static LocalDateTime getLocalDateTime(final DateTimeFormatter formatter, final Object value) {
+    if (value == null) {
+      return null;
+    } else if (value instanceof final LocalDateTime date) {
+      return date;
+    } else if (value instanceof final Instant date) {
+      return LocalDateTime.ofInstant(date, ZoneId.systemDefault());
+    } else if (value instanceof final OffsetDateTime date) {
+      return date.toLocalDateTime();
+    } else if (value instanceof final java.sql.Date date) {
+      final var localDate = date.toLocalDate();
+      return LocalDateTime.of(localDate, LocalTime.MIDNIGHT);
+    } else if (value instanceof final Date date) {
+      return getLocalDateTime(date.toInstant());
+    } else if (value instanceof final LocalDate date) {
+      return LocalDateTime.of(date, LocalTime.MIDNIGHT);
+    } else if (value instanceof TemporalAccessor) {
+      final TemporalAccessor temporal = (TemporalAccessor)value;
+      return LocalDateTime.from(temporal);
+    } else {
+      return formatter.parse(value.toString(), LocalDateTime::from);
+    }
+  }
+
+  static LocalDateTime getLocalDateTime(final Object value) {
+    if (value == null) {
+      return null;
+    } else if (value instanceof final LocalDateTime date) {
+      return date;
+    } else if (value instanceof final Instant date) {
+      return LocalDateTime.ofInstant(date, ZoneId.systemDefault());
+    } else if (value instanceof final OffsetDateTime date) {
+      return date.toLocalDateTime();
+    } else if (value instanceof final java.sql.Date date) {
+      final var localDate = date.toLocalDate();
+      return LocalDateTime.of(localDate, LocalTime.MIDNIGHT);
+    } else if (value instanceof final Date date) {
+      return getLocalDateTime(date.toInstant());
+    } else if (value instanceof final LocalDate date) {
+      return LocalDateTime.of(date, LocalTime.MIDNIGHT);
+    } else if (value instanceof TemporalAccessor) {
+      final TemporalAccessor temporal = (TemporalAccessor)value;
+      return LocalDateTime.from(temporal);
+    } else {
+      return LocalDateTime.parse(value.toString());
+    }
+  }
+
   static java.sql.Date getSqlDate() {
     return new java.sql.Date(System.currentTimeMillis());
   }
@@ -939,6 +988,15 @@ public interface Dates {
       return null;
     } else {
       final LocalDate date = getLocalDate(value);
+      return date.toString();
+    }
+  }
+
+  static String toLocalDateTimeIsoString(final Object value) {
+    if (value == null) {
+      return null;
+    } else {
+      final var date = getLocalDateTime(value);
       return date.toString();
     }
   }

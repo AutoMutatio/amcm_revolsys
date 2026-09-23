@@ -24,14 +24,14 @@ final class MapIterator<I, O> extends BaseIterator<O> {
 
   @Override
   protected boolean hasNextDo() {
-    while (this.iterator.hasNext()) {
+    if (this.iterator.hasNext()) {
       final I inValue = this.iterator.next();
-      if (inValue != null) {
+      if (inValue == null) {
+        this.value = null;
+      } else {
         this.value = this.converter.apply(inValue);
-        if (this.value != null) {
-          return true;
-        }
       }
+      return true;
     }
     return false;
   }
