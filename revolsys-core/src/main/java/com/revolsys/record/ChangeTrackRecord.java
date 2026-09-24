@@ -1,7 +1,8 @@
 package com.revolsys.record;
 
-import com.revolsys.collection.json.JsonList;
 import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.list.ListEx;
+import com.revolsys.collection.list.Lists;
 
 public interface ChangeTrackRecord extends Record {
 
@@ -16,14 +17,14 @@ public interface ChangeTrackRecord extends Record {
     return this;
   }
 
-  default JsonList getModifiedValueList() {
-    JsonList modifiedValues = JsonList.EMPTY;
+  default ListEx<JsonObject> getModifiedValueList() {
+    ListEx<JsonObject> modifiedValues = Lists.empty();
     final int fieldCount = getFieldCount();
     for (int i = 0; i < fieldCount; i++) {
       if (isModified(i)) {
         final String fieldName = getFieldName(i);
         if (modifiedValues.isEmpty()) {
-          modifiedValues = JsonList.array();
+          modifiedValues = Lists.newArray();
         }
         modifiedValues.add(JsonObject.hash()
           .addValue("fieldName", fieldName)

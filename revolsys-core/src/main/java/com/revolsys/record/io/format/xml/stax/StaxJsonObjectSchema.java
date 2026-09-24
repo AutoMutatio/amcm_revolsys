@@ -7,7 +7,8 @@ import java.util.function.Supplier;
 
 import javax.xml.namespace.QName;
 
-import com.revolsys.collection.json.JsonList;
+import com.revolsys.collection.list.ListEx;
+import com.revolsys.collection.list.Lists;
 import com.revolsys.record.io.format.xml.XmlAttribute;
 import com.revolsys.record.io.format.xml.XmlComplexType;
 import com.revolsys.record.io.format.xml.XmlElement;
@@ -73,7 +74,8 @@ public class StaxJsonObjectSchema {
         final QName xmlName = in.getAttributeName(i);
         final XmlAttribute attribute = type.getAttribute(xmlName);
         if (attribute != null) {
-          final Object value = attribute.getType().toValue(text);
+          final Object value = attribute.getType()
+            .toValue(text);
           if (value != null) {
             object.addValue(xmlName.getLocalPart(), value);
           }
@@ -93,11 +95,7 @@ public class StaxJsonObjectSchema {
       if (childElement != null) {
         final Object childValue = readElement(in, childElement);
         if (childElement.isList()) {
-          JsonList list = object.getValue(childName);
-          if (list == null) {
-            list = JsonList.array();
-            object.addValue(childName, list);
-          }
+          final ListEx<Object> list = object.ensureValue(childName, Lists.factoryArray());
           list.add(childValue);
         } else {
           object.addValue(childName, childValue);
@@ -160,7 +158,7 @@ public class StaxJsonObjectSchema {
           final List<Object> list = (List<Object>)oldValue;
           list.add(childValue);
         } else {
-          final JsonList list = JsonList.array(oldValue, childValue);
+          final var list = Lists.newArray(oldValue, childValue);
           object.addValue(childName, list);
         }
       } else {

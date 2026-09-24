@@ -104,8 +104,7 @@ public class ODataQueryIterator extends AbstractIterator<Record>
       this.results = Collections.emptyIterator();
     } else {
       this.nextURI = json.getURI("@odata.nextLink");
-      this.results = json.getJsonList("value")
-        .jsonObjects()
+      this.results = json.<JsonObject> getList("value")
         .iterator();
     }
   }
