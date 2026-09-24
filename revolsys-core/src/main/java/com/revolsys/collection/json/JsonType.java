@@ -4,6 +4,7 @@ import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 
+import com.revolsys.collection.list.Lists;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.data.type.DataTypedValue;
 import com.revolsys.exception.Exceptions;
@@ -24,7 +25,7 @@ public interface JsonType extends DataTypedValue, Jsonable, BaseCloneable {
       return (V)map;
     } else if (value instanceof List) {
       final List<?> list = (List<?>)value;
-      return (V)JsonList.array()
+      return (V)Lists.newArray()
         .addValuesClone(list);
     } else if (value instanceof BaseCloneable) {
       return (V)((BaseCloneable)value).clone();

@@ -2,6 +2,7 @@ package com.revolsys.record.query;
 
 import java.sql.PreparedStatement;
 import java.util.List;
+import java.util.Map;
 
 import com.revolsys.data.type.DataType;
 import com.revolsys.record.schema.RecordStore;
@@ -11,10 +12,13 @@ public abstract class AbstractMultiCondition extends AbstractMultiQueryValue
 
   private final String operator;
 
-  public AbstractMultiCondition(final String operator,
+  private final String odataOperator;
+
+  public AbstractMultiCondition(final String operator, final String odataOperator,
     final Iterable<? extends Condition> conditions) {
     super(conditions);
     this.operator = operator;
+    this.odataOperator = odataOperator;
   }
 
   @Override
@@ -65,10 +69,35 @@ public abstract class AbstractMultiCondition extends AbstractMultiQueryValue
   }
 
   @Override
-  public int appendParameters(int index, final PreparedStatement statement) {
+  public void appendOData(final StringBuilder s) {
+    s.append("(");
+    boolean first = true;
+
+    for (final QueryValue value : this.values) {
+      if (!(value instanceof final Condition condition) || !condition.isEmpty()) {
+        if (first) {
+          first = false;
+        } else {
+          s.append(" ");
+          s.append(this.odataOperator);
+          s.append(" ");
+        }
+        if (value == null) {
+          s.append("null");
+        } else {
+          value.appendOData(s);
+        }
+      }
+    }
+    s.append(")");
+  }
+
+  @Override
+  public int appendParameters(int index, final Map<String, Object> parameters,
+    final PreparedStatement statement) {
     for (final QueryValue value : this.values) {
       if (value != null) {
-        index = value.appendParameters(index, statement);
+        index = value.appendParameters(index, parameters, statement);
       }
     }
     return index;

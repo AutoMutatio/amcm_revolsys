@@ -64,6 +64,10 @@ public class PostgreSQLRecordStore extends AbstractJdbcRecordStore {
   public static final List<String> POSTGRESQL_INTERNAL_SCHEMAS = Arrays.asList("information_schema",
     "pg_catalog", "pg_toast_temp_1");
 
+  public static CollectionDataType newListDataType(final DataType elementDataType) {
+    return new CollectionDataType("List" + elementDataType.getName(), List.class, elementDataType);
+  }
+
   private boolean useSchemaSequencePrefix = true;
 
   public PostgreSQLRecordStore() {
@@ -110,8 +114,7 @@ public class PostgreSQLRecordStore extends AbstractJdbcRecordStore {
         dbColumnName, name, sqlType, elementDbDataType, length, scale, required, description);
 
       final DataType elementDataType = elementField.getDataType();
-      final CollectionDataType listDataType = new CollectionDataType(
-        "List" + elementDataType.getName(), List.class, elementDataType);
+      final var listDataType = newListDataType(elementDataType);
       field = new PostgreSQLArrayFieldDefinition(dbColumnName, name, listDataType,
         elementDbDataType, sqlType, dbDataType, length, scale, required, description, elementField,
         getProperties());

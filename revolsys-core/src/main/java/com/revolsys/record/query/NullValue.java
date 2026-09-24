@@ -1,6 +1,7 @@
 package com.revolsys.record.query;
 
 import java.sql.PreparedStatement;
+import java.util.Map;
 
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.record.schema.RecordStore;
@@ -19,7 +20,8 @@ public class NullValue implements QueryValue {
   }
 
   @Override
-  public int appendParameters(final int index, final PreparedStatement statement) {
+  public int appendParameters(final int index, Map<String, Object> parameters,
+    final PreparedStatement statement) {
     return index;
   }
 

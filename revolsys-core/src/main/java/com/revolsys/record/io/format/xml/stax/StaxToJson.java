@@ -14,8 +14,9 @@ import javax.xml.stream.XMLStreamConstants;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 
-import com.revolsys.collection.json.JsonList;
 import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.list.ListEx;
+import com.revolsys.collection.list.Lists;
 import com.revolsys.collection.set.Sets;
 import com.revolsys.exception.Exceptions;
 import com.revolsys.record.io.format.xml.XsiConstants;
@@ -111,7 +112,8 @@ public class StaxToJson {
               final QName qName = in.getAttributeName(i);
               if (!EXCLUDE_ATTRIBUTE_NAMESPACES.contains(qName.getPrefix())) {
                 final String attName = qName.getLocalPart();
-                final String value = in.getAttributeValue(i).strip();
+                final String value = in.getAttributeValue(i)
+                  .strip();
                 if (!value.isBlank()) {
                   this.attributes.put(attName, value);
                 }
@@ -150,8 +152,8 @@ public class StaxToJson {
     return null;
   }
 
-  private JsonList processList(final StaxReader in) {
-    final JsonList list = JsonList.array();
+  private ListEx<Object> processList(final StaxReader in) {
+    final var list = Lists.newArray();
     final int depth = in.getDepth();
     while (in.skipToStartElement(depth)) {
       final Object value = processElement(in);
@@ -177,7 +179,7 @@ public class StaxToJson {
       }
       if (value != null) {
         if (this.listElements.contains(name)) {
-          final JsonList list = object.ensureValue(name, JsonList.ARRAY_SUPPLIER);
+          final ListEx<Object> list = object.ensureValue(name, Lists.factoryArray());
           list.add(value);
         } else {
           if (object.hasValue(name) && !this.dontLogDuplicateElements.contains(name)) {

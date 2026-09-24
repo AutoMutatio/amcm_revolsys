@@ -17,6 +17,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
+import com.revolsys.collection.list.ListEx;
+import com.revolsys.collection.list.Lists;
 import com.revolsys.exception.WrappedRuntimeException;
 import com.revolsys.io.FileUtil;
 import com.revolsys.io.IoUtil;
@@ -212,10 +214,10 @@ public class JsonParser implements Iterator<JsonParser.EventType>, Closeable {
     }
   }
 
-  public JsonList getArray() {
+  public ListEx<Object> getArray() {
     if (getEvent() == EventType.startArray || hasNext() && next() == EventType.startArray) {
       EventType event = getEvent();
-      final JsonList list = JsonList.array();
+      final ListEx<Object> list = Lists.newArray();
       do {
         final Object value = getValue();
         if (value instanceof EventType) {

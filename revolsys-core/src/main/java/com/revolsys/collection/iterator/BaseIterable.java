@@ -105,16 +105,14 @@ public interface BaseIterable<T> extends Iterable<T>, ForEachHandler<T> {
   @Override
   default void forEach(final Consumer<? super T> action) {
     try (
-      var c = closeable()) {
+      var _ = closeable()) {
       final Iterator<T> iterator = iterator();
       if (iterator != null) {
         try (
-          var ic = BaseCloseable.of(iterator)) {
+          var _ = BaseCloseable.of(iterator)) {
           while (iterator.hasNext()) {
             final T item = iterator.next();
-            if (item != null) {
-              action.accept(item);
-            }
+            action.accept(item);
           }
         } catch (final ExitLoopException e) {
         }
@@ -125,15 +123,15 @@ public interface BaseIterable<T> extends Iterable<T>, ForEachHandler<T> {
   default int forEachCount(final Consumer<? super T> action) {
     int i = 0;
     try (
-      var c = closeable()) {
+      var _ = closeable()) {
       final Iterator<T> iterator = iterator();
       if (iterator != null) {
         try (
-          var ic = BaseCloseable.of(iterator)) {
+          var _ = BaseCloseable.of(iterator)) {
           while (iterator.hasNext()) {
             final T item = iterator.next();
+            action.accept(item);
             if (item != null) {
-              action.accept(item);
               i++;
             }
           }
@@ -147,16 +145,14 @@ public interface BaseIterable<T> extends Iterable<T>, ForEachHandler<T> {
   default void forEachIndex(final BiConsumer<Integer, ? super T> action) {
     int i = 0;
     try (
-      var c = closeable()) {
+      var _ = closeable()) {
       final Iterator<T> iterator = iterator();
       if (iterator != null) {
         try (
-          var ic = BaseCloseable.of(iterator)) {
+          var _ = BaseCloseable.of(iterator)) {
           while (iterator.hasNext()) {
             final T item = iterator.next();
-            if (item != null) {
-              action.accept(i++, item);
-            }
+            action.accept(i++, item);
           }
         } catch (final ExitLoopException e) {
         }

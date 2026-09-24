@@ -11,8 +11,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.revolsys.collection.json.JsonList;
 import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.list.Lists;
 import com.revolsys.data.identifier.Identifier;
 import com.revolsys.io.PathName;
 import com.revolsys.record.Record;
@@ -109,7 +109,7 @@ public class AbstractTableRecordRestController extends AbstractWebController {
     final HttpServletRequest request, final HttpServletResponse response, final Query query,
     final Long count) throws IOException {
     if (query == null) {
-      responseJson(response, JsonObject.hash("value", JsonList.array()));
+      responseJson(response, JsonObject.hash("value", Lists.empty()));
     }
     connection.transaction()
       .requiresNew()

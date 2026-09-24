@@ -95,6 +95,10 @@ public interface DataType {
     return javaClass.isInstance(value);
   }
 
+  default boolean isMathSupported() {
+    return false;
+  }
+
   default boolean isNumeric() {
     final Class<?> javaClass = getJavaClass();
     return Number.class.isAssignableFrom(javaClass);
@@ -125,6 +129,10 @@ public interface DataType {
         return DataType.this;
       }
     };
+  }
+
+  default <V> V plus(final Object value, Number number) {
+    return null;
   }
 
   @SuppressWarnings("unchecked")

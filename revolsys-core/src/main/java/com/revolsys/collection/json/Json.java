@@ -15,6 +15,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
 
+import com.revolsys.collection.list.ListEx;
+import com.revolsys.collection.list.Lists;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.data.type.AbstractDataType;
 import com.revolsys.data.type.DataType;
@@ -48,12 +50,14 @@ public class Json {
     protected Object toObjectDo(final Object value) {
       if (value instanceof JsonType) {
         return value;
+      } else if (value instanceof JsonType) {
+        return value;
       } else if (value instanceof final Jsonable jsonable) {
         return jsonable.asJson();
       } else if (value instanceof Map) {
         return new JsonObjectHash((Map<? extends String, ? extends Object>)value);
-      } else if (value instanceof final List<?> list) {
-        return JsonList.array(list);
+      } else if (value instanceof final Collection<?> collection) {
+        return Lists.toArray(collection);
       } else if (value instanceof final String string) {
         final Object read = JsonParser.read(string);
         if (read instanceof JsonType) {
@@ -84,7 +88,7 @@ public class Json {
   public static class JsonListDataType extends AbstractDataType {
 
     public JsonListDataType() {
-      super("JsonList", JsonList.class, true);
+      super("JsonList", ListEx.class, true);
     }
 
     @Override
@@ -110,32 +114,32 @@ public class Json {
     @Override
     protected boolean equalsNotNull(final Object object1, final Object object2,
       final Collection<? extends CharSequence> exclude) {
-      final JsonList list1 = (JsonList)object1;
+      final ListEx<Object> list1 = (ListEx<Object>)object1;
       return list1.equals(object2);
     }
 
     @Override
     protected Object toObjectDo(final Object value) {
-      if (value instanceof JsonList) {
+      if (value instanceof ListEx<?>) {
         return value;
       } else if (value instanceof final Jsonable jsonable) {
         return jsonable.asJson();
       } else if (value instanceof final Collection<?> collection) {
-        return JsonList.array(collection);
+        return Lists.toArray(collection);
       } else {
         final Object json = JsonParser.read(value.toString());
-        if (json instanceof JsonList) {
+        if (json instanceof ListEx<?>) {
           return json;
         } else {
-          return JsonList.array(json);
+          return Lists.newArray(json);
         }
       }
     }
 
     @Override
     protected String toStringDo(final Object value) {
-      if (value instanceof JsonList) {
-        return ((JsonList)value).toJsonString();
+      if (value instanceof final ListEx<?> list) {
+        return list.toJsonString();
       } else if (value instanceof List<?>) {
         return Json.toString(value);
       } else if (value == null) {
@@ -289,8 +293,9 @@ public class Json {
   @SuppressWarnings({
     "rawtypes", "unchecked"
   })
-  public static final DataType TREE_MAP_TYPE = new FunctionDataType("TreeMap", JsonObjectTree.class,
-    true, value -> {
+  public static final DataType TREE_MAP_TYPE = FunctionDataType
+    .builder("TreeMap", JsonObjectTree.class)
+    .toObjectFunction(value -> {
       if (value instanceof JsonObjectTree) {
         return (JsonObjectTree)value;
       } else if (value instanceof Map) {
@@ -305,7 +310,8 @@ public class Json {
       } else {
         return value;
       }
-    }, value -> {
+    })
+    .toStringFunction(value -> {
       if (value instanceof Map) {
         return Json.toString((Map)value);
       } else if (value == null) {
@@ -314,7 +320,10 @@ public class Json {
         return value.toString();
       }
 
-    }, FunctionDataType.MAP_EQUALS, FunctionDataType.MAP_EQUALS_EXCLUDES);
+    })
+    .equalsFunction(FunctionDataType.MAP_EQUALS)
+    .equalsExcludesFunction(FunctionDataType.MAP_EQUALS_EXCLUDES)
+    .build();
 
   public static final DataType JSON_OBJECT = new JsonObjectDataType("JsonObject", JsonObject.class);
 
@@ -414,6 +423,10 @@ public class Json {
       return new JsonBigDecimal(DataTypes.toString(number));
     } else if (value instanceof final Boolean bool) {
       return bool;
+    } else if (value instanceof final Collection<?> collection) {
+      final var array = Lists.newArray();
+      collection.forEach(v -> array.add(toJson(v)));
+      return array;
     } else {
       return DataTypes.toString(value);
     }

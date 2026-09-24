@@ -3,6 +3,7 @@ package com.revolsys.record.query;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Map;
 
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.data.type.DataType;
@@ -71,7 +72,13 @@ public class Column implements QueryValue, ColumnReference {
   }
 
   @Override
-  public int appendParameters(final int index, final PreparedStatement statement) {
+  public void appendOData(final StringBuilder s) {
+    s.append(this.name);
+  }
+
+  @Override
+  public int appendParameters(final int index, final Map<String, Object> parameters,
+    final PreparedStatement statement) {
     return index;
   }
 

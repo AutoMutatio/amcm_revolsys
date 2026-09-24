@@ -65,6 +65,8 @@ public class LazyValueHolder<T> implements ValueHolder<T>, BaseCloseable {
 
     private final CountDownLatch latch = new CountDownLatch(1);
 
+    private RuntimeException e;
+
     private boolean closed;
 
     @Override
@@ -93,12 +95,19 @@ public class LazyValueHolder<T> implements ValueHolder<T>, BaseCloseable {
 
     @Override
     public V getValue() {
+      if (this.e != null) {
+        throw this.e;
+      }
       return this.value;
     }
 
     @Override
     public boolean isLoaded() {
       return this.loaded;
+    }
+
+    public void setException(final RuntimeException e) {
+      this.e = e;
     }
 
     public V setValue(final V value) {
@@ -225,14 +234,24 @@ public class LazyValueHolder<T> implements ValueHolder<T>, BaseCloseable {
   protected ValueReference<T> refreshDo(final ValueReference<T> ref) {
     final var updateRef = new ReloadValueReference<T>();
     if (this.valueRef.compareAndSet(ref, updateRef)) {
+      RuntimeException error = null;
       T value = ref.getValue();
-      if (this.valueRefresh == null) {
-        value = this.valueSupplier.get();
-      } else {
-        value = this.valueRefresh.apply(value);
+      try {
+        if (this.valueRefresh == null) {
+          value = this.valueSupplier.get();
+        } else {
+          value = this.valueRefresh.apply(value);
+        }
+      } catch (final RuntimeException e) {
+        error = e;
+        updateRef.setException(e);
+        value = null;
       }
       this.loadCallback.accept(value);
       updateRef.setValue(value);
+      if (error != null) {
+        throw error;
+      }
       return updateRef;
     } else {
       return null;

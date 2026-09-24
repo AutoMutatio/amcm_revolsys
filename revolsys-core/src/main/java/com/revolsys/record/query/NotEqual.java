@@ -6,7 +6,7 @@ import com.revolsys.data.type.DataType;
 public class NotEqual extends BinaryCondition {
 
   public NotEqual(final QueryValue left, final QueryValue right) {
-    super(left, "<>", right);
+    super(left, "<>", "ne", right);
   }
 
   @Override

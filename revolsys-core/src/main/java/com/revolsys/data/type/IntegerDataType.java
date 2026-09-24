@@ -26,6 +26,18 @@ public class IntegerDataType extends AbstractDataType {
   }
 
   @Override
+  public boolean isMathSupported() {
+    return true;
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  public <V> V plus(final Object value1, final Number value2) {
+    final int number1 = toObject(value1);
+    return (V)(Object)(number1 + value2.intValue());
+  }
+
+  @Override
   protected Integer toObjectDo(final Object value) {
     if (value instanceof Integer) {
       return (Integer)value;

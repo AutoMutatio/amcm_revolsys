@@ -12,10 +12,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.revolsys.collection.json.Json;
-import com.revolsys.collection.json.JsonList;
 import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.json.JsonParser;
 import com.revolsys.collection.json.JsonWriter;
+import com.revolsys.collection.list.ListEx;
 import com.revolsys.exception.Exceptions;
 import com.revolsys.io.IoConstants;
 import com.revolsys.io.IoFactory;
@@ -146,8 +146,8 @@ public class AbstractWebController {
     }
   }
 
-  protected void responseRecordsJson(final HttpServletResponse response, final JsonList records)
-    throws IOException {
+  protected void responseRecordsJson(final HttpServletResponse response,
+    final ListEx<JsonObject> records) throws IOException {
     setContentTypeJson(response);
     response.setStatus(200);
     try (
