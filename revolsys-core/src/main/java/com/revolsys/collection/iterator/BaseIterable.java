@@ -105,16 +105,14 @@ public interface BaseIterable<T> extends Iterable<T>, ForEachHandler<T> {
   @Override
   default void forEach(final Consumer<? super T> action) {
     try (
-      var c = closeable()) {
+      var _ = closeable()) {
       final Iterator<T> iterator = iterator();
       if (iterator != null) {
         try (
-          var ic = BaseCloseable.of(iterator)) {
+          var _ = BaseCloseable.of(iterator)) {
           while (iterator.hasNext()) {
             final T item = iterator.next();
-            if (item != null) {
-              action.accept(item);
-            }
+            action.accept(item);
           }
         } catch (final ExitLoopException e) {
         }
@@ -125,15 +123,15 @@ public interface BaseIterable<T> extends Iterable<T>, ForEachHandler<T> {
   default int forEachCount(final Consumer<? super T> action) {
     int i = 0;
     try (
-      var c = closeable()) {
+      var _ = closeable()) {
       final Iterator<T> iterator = iterator();
       if (iterator != null) {
         try (
-          var ic = BaseCloseable.of(iterator)) {
+          var _ = BaseCloseable.of(iterator)) {
           while (iterator.hasNext()) {
             final T item = iterator.next();
+            action.accept(item);
             if (item != null) {
-              action.accept(item);
               i++;
             }
           }
@@ -142,6 +140,24 @@ public interface BaseIterable<T> extends Iterable<T>, ForEachHandler<T> {
       }
     }
     return i;
+  }
+
+  default void forEachIndex(final BiConsumer<Integer, ? super T> action) {
+    int i = 0;
+    try (
+      var _ = closeable()) {
+      final Iterator<T> iterator = iterator();
+      if (iterator != null) {
+        try (
+          var _ = BaseCloseable.of(iterator)) {
+          while (iterator.hasNext()) {
+            final T item = iterator.next();
+            action.accept(i++, item);
+          }
+        } catch (final ExitLoopException e) {
+        }
+      }
+    }
   }
 
   default T getFirst() {
@@ -162,7 +178,13 @@ public interface BaseIterable<T> extends Iterable<T>, ForEachHandler<T> {
 
   @SuppressWarnings("unchecked")
   default <V> BaseIterable<V> instanceOf(final Class<? super V> clazz) {
-    return filter(clazz::isInstance).map(v -> (V)v);
+    return filter(v -> {
+      if (clazz.isInstance(v)) {
+        return true;
+      } else {
+        return false;
+      }
+    }).map(v -> (V)v);
   }
 
   default String join(final String separator) {
@@ -201,6 +223,14 @@ public interface BaseIterable<T> extends Iterable<T>, ForEachHandler<T> {
       throw new IllegalArgumentException("Tree walk function must not be null");
     } else {
       return () -> new TreeIterator<>(iterator(), treeWalk);
+    }
+  }
+
+  default <C> BaseIterable<C> walkTreeChildren(final Function<T, Iterable<C>> treeWalk) {
+    if (treeWalk == null) {
+      throw new IllegalArgumentException("Tree walk function must not be null");
+    } else {
+      return () -> new ChildrenTreeIterator<>(iterator(), treeWalk);
     }
   }
 }

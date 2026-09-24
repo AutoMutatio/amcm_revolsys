@@ -17,9 +17,9 @@ import com.revolsys.collection.list.Lists;
 import com.revolsys.data.type.DataType;
 import com.revolsys.data.type.DataTypes;
 
-public interface Strings {
+public class Strings {
 
-  String UPPERCASE_ASCII = "AEIOU" // grave
+  public static String UPPERCASE_ASCII = "AEIOU" // grave
     + "AEIOUY" // acute
     + "AEIOUY" // circumflex
     + "AON" // tilde
@@ -29,7 +29,7 @@ public interface Strings {
     + "OU" // double acute
   ;
 
-  String UPPERCASE_UNICODE = "\u00C0\u00C8\u00CC\u00D2\u00D9" //
+  public static String UPPERCASE_UNICODE = "\u00C0\u00C8\u00CC\u00D2\u00D9" //
     + "\u00C1\u00C9\u00CD\u00D3\u00DA\u00DD"//
     + "\u00C2\u00CA\u00CE\u00D4\u00DB\u0176"//
     + "\u00C3\u00D5\u00D1"//
@@ -39,10 +39,68 @@ public interface Strings {
     + "\u0150\u0170"//
   ;
 
-  static final Pattern InCombiningDiacriticalMarks = Pattern
+  public static final Pattern InCombiningDiacriticalMarks = Pattern
     .compile("\\p{InCombiningDiacriticalMarks}+");
 
-  static String cleanString(String text) {
+  public static final char CHAR_REPLACEMENT = '\uFFFD';
+
+  public static final char LINE_SEPARATOR = '\u2028';
+
+  public static final char PARAGRAPH_SEPARATOR = '\u2029';
+
+  /**
+   * * Remove any control characters
+   * * Replace \r with \n and have a max of 2 \n
+   * * Replace multiple ' ' or \t with a single space
+   * * Ignore whitespace at start/end of line
+   * @param text
+   * @return
+   */
+  public static String cleanDuplicateWhitespace(final String text) {
+    final var s = new StringBuilder();
+    int newLineCount = 0;
+    char lastChar = '\u0000';
+    for (int i = 0; i < text.length(); i++) {
+      final var c = text.charAt(i);
+
+      if (c <= 0x07 || c >= 0x0E && c <= 0x1B) {
+        // Ignore control characters
+      } else if (c == '\r' || c == '\n') {
+        lastChar = '\n';
+        newLineCount++;
+      } else if (c == ' ' || c == '\t') {
+        if (lastChar == '\n' || lastChar == '\u0000') {
+          // skip
+        } else {
+          // Don't write whitespace here. The next non-whitepsace character will
+          // cause a whitespace to be written
+          lastChar = ' ';
+        }
+      } else {
+        if (lastChar == ' ') {
+          // Write out the whitsspace
+          s.append(' ');
+        } else if (lastChar == '\n') {
+          // Write out max 2 new line characters
+          s.append('\n');
+          if (newLineCount > 1) {
+            s.append('\n');
+          }
+        }
+        newLineCount = 0;
+        s.append(c);
+        lastChar = c;
+      }
+
+    }
+    if (lastChar != '\n') {
+      // Always end with a newline
+      s.append('\n');
+    }
+    return s.toString();
+  }
+
+  public static String cleanString(String text) {
     if (text == null) {
       return "";
     } else {
@@ -110,7 +168,7 @@ public interface Strings {
 
   }
 
-  static String cleanWhitespace(final String string) {
+  public static String cleanWhitespace(final String string) {
     if (string == null) {
       return null;
     } else {
@@ -146,7 +204,7 @@ public interface Strings {
     }
   }
 
-  static boolean contains(final CharSequence text, final char character) {
+  public static boolean contains(final CharSequence text, final char character) {
     if (text != null) {
       final int length = text.length();
       for (int i = 0; i < length; i++) {
@@ -159,7 +217,7 @@ public interface Strings {
     return false;
   }
 
-  static boolean contains(final String text, final String matchText) {
+  public static boolean contains(final String text, final String matchText) {
     if (text == null || matchText == null) {
       return false;
     } else {
@@ -167,7 +225,7 @@ public interface Strings {
     }
   }
 
-  static boolean containsWord(final String text, final String matchWord) {
+  public static boolean containsWord(final String text, final String matchWord) {
     if (text == null || matchWord == null) {
       return false;
     } else {
@@ -186,7 +244,7 @@ public interface Strings {
     }
   }
 
-  static boolean endsWith(final String text, final String suffix) {
+  public static boolean endsWith(final String text, final String suffix) {
     if (text != null && suffix != null) {
       return text.endsWith(suffix);
     } else {
@@ -194,7 +252,7 @@ public interface Strings {
     }
   }
 
-  static boolean equalExceptOneCharacter(final String string1, final String string2) {
+  public static boolean equalExceptOneCharacter(final String string1, final String string2) {
     final int length1 = string1.length();
     if (length1 != string2.length()) {
       return false;
@@ -213,7 +271,7 @@ public interface Strings {
     }
   }
 
-  static boolean equalExceptOneExtraCharacter(final String string1, final String string2) {
+  public static boolean equalExceptOneExtraCharacter(final String string1, final String string2) {
     final int length1 = string1.length();
     final int length2 = string2.length();
     if (length1 == length2) {
@@ -250,7 +308,7 @@ public interface Strings {
     }
   }
 
-  static boolean equals(final String string1, final String string2) {
+  public static boolean equals(final String string1, final String string2) {
     if (string1 == null) {
       return string2 == null;
     } else {
@@ -258,7 +316,7 @@ public interface Strings {
     }
   }
 
-  static boolean equalsIgnoreCase(final String string1, final String string2) {
+  public static boolean equalsIgnoreCase(final String string1, final String string2) {
     if (Property.hasValue(string1)) {
       return string1.equalsIgnoreCase(string2);
     } else {
@@ -266,7 +324,7 @@ public interface Strings {
     }
   }
 
-  static boolean equalSubstring(final String text, final int startIndex, final int endIndex,
+  public static boolean equalSubstring(final String text, final int startIndex, final int endIndex,
     final String searchText) {
     final int searchLength = searchText.length();
     if (searchLength == endIndex - startIndex) {
@@ -277,7 +335,7 @@ public interface Strings {
     }
   }
 
-  static String firstPart(final String text, final char character) {
+  public static String firstPart(final String text, final char character) {
     final int index = text.indexOf(character);
     if (index == -1) {
       return "";
@@ -286,7 +344,7 @@ public interface Strings {
     }
   }
 
-  static int indexOf(final CharSequence text, final char character) {
+  public static int indexOf(final CharSequence text, final char character) {
     if (text != null) {
       final int length = text.length();
       for (int i = 0; i < length; i++) {
@@ -299,7 +357,23 @@ public interface Strings {
     return -1;
   }
 
-  static boolean isEqualTrim(final String oldValue, final String newValue) {
+  public static boolean isBlank(final String text) {
+    if (text == null) {
+      return true;
+    } else {
+      return text.isBlank();
+    }
+  }
+
+  public static boolean isCharInBlock(final int c, final UnicodeBlock block) {
+    return UnicodeBlock.of(c) == block;
+  }
+
+  public static boolean isCharPrivate(final int c) {
+    return isCharInBlock(c, UnicodeBlock.PRIVATE_USE_AREA);
+  }
+
+  public static boolean isEqualTrim(final String oldValue, final String newValue) {
     final boolean oldHasValue = Property.hasValue(oldValue);
     final boolean newHasValue = Property.hasValue(newValue);
     if (oldHasValue) {
@@ -321,7 +395,15 @@ public interface Strings {
     }
   }
 
-  static String lastPart(final String text, final char character) {
+  public static boolean isNotBlank(final String text) {
+    if (text == null) {
+      return false;
+    } else {
+      return !text.isBlank();
+    }
+  }
+
+  public static String lastPart(final String text, final char character) {
     final int index = text.lastIndexOf(character);
     if (index == -1) {
       return "";
@@ -330,7 +412,7 @@ public interface Strings {
     }
   }
 
-  static String lowerCase(final String text) {
+  public static String lowerCase(final String text) {
     if (text == null) {
       return null;
     } else {
@@ -338,7 +420,7 @@ public interface Strings {
     }
   }
 
-  static boolean matches(final String text, final String regex) {
+  public static boolean matches(final String text, final String regex) {
     if (text == null || regex == null) {
       return false;
     } else {
@@ -346,8 +428,9 @@ public interface Strings {
     }
   }
 
+  // https://unicode.org/reports/tr15/
   // Normalize splitting characters into base + combining mark
-  static String normalize(final CharSequence text) {
+  public static String normalize(final CharSequence text) {
     if (text == null) {
       return null;
     } else {
@@ -356,7 +439,7 @@ public interface Strings {
   }
 
   // Normalize preferring combined characters
-  static String normalizeNfc(final CharSequence text) {
+  public static String normalizeNfc(final CharSequence text) {
     if (text == null) {
       return null;
     } else {
@@ -364,11 +447,27 @@ public interface Strings {
     }
   }
 
-  static String normalizeNfd(final CharSequence text) {
+  public static String normalizeNfd(final CharSequence text) {
     if (text == null) {
       return null;
     } else {
       return Normalizer.normalize(text, Form.NFD);
+    }
+  }
+
+  public static String normalizeNfkc(final CharSequence text) {
+    if (text == null) {
+      return null;
+    } else {
+      return Normalizer.normalize(text, Form.NFKC);
+    }
+  }
+
+  public static String normalizeNfkd(final CharSequence text) {
+    if (text == null) {
+      return null;
+    } else {
+      return Normalizer.normalize(text, Form.NFKD);
     }
   }
 
@@ -401,7 +500,8 @@ public interface Strings {
     }
   }
 
-  static String padStart(final String string, final int length, final char paddingCharacter) {
+  public static String padStart(final String string, final int length,
+    final char paddingCharacter) {
     if (string == null) {
       return null;
     }
@@ -416,7 +516,7 @@ public interface Strings {
     return sb.toString();
   }
 
-  static void print(final PrintStream out, final char separator, final Object... values) {
+  public static void print(final PrintStream out, final char separator, final Object... values) {
     if (values != null) {
       boolean first = true;
       for (final Object value : values) {
@@ -437,26 +537,48 @@ public interface Strings {
     out.println();
   }
 
-  static void printErr(final char separator, final Object... values) {
+  public static void printErr(final char separator, final Object... values) {
     print(System.err, separator, values);
   }
 
-  static void printOut(final char separator, final Object... values) {
+  public static void printOut(final char separator, final Object... values) {
     print(System.out, separator, values);
   }
 
-  static String removeFromEnd(String string, final int len) {
+  public static String removeFromEnd(String string, final int len) {
     final int endIndex = string.length() - len;
     string = string.substring(0, endIndex);
     return string;
   }
 
-  static String removeFromEnd(final String string, final String suffix) {
+  public static String removeFromEnd(final String string, final String suffix) {
     final int length = suffix.length();
     return removeFromEnd(string, length);
   }
 
-  static String replace(final String text, final String from, final String to) {
+  public static String removeFromLastIndexOf(final String string, final int c) {
+    if (string == null) {
+      return string;
+    }
+    final int index = string.lastIndexOf(c);
+    if (index == -1) {
+      return string;
+    } else {
+      return string.substring(0, index);
+    }
+  }
+
+  public static String removeNullTerminator(final String s) {
+    if (s == null) {
+      return null;
+    } else if (s.endsWith("\u0000")) {
+      return s.substring(0, s.length() - 1);
+    } else {
+      return s;
+    }
+  }
+
+  public static String replace(final String text, final String from, final String to) {
     if (text == null) {
       return null;
     } else {
@@ -464,7 +586,7 @@ public interface Strings {
     }
   }
 
-  static String replaceAll(String value, final Pattern pattern, final String replacement) {
+  public static String replaceAll(String value, final Pattern pattern, final String replacement) {
     final Matcher matcher = pattern.matcher(value);
     if (matcher.find()) {
       final StringBuilder sb = new StringBuilder();
@@ -477,7 +599,7 @@ public interface Strings {
     return value;
   }
 
-  static String replaceAll(final String text, final String from, final Object to) {
+  public static String replaceAll(final String text, final String from, final Object to) {
     if (text == null) {
       return null;
     } else {
@@ -491,7 +613,7 @@ public interface Strings {
     }
   }
 
-  static String replaceAll(final String text, final String from, final String to) {
+  public static String replaceAll(final String text, final String from, final String to) {
     if (text == null) {
       return null;
     } else {
@@ -499,7 +621,7 @@ public interface Strings {
     }
   }
 
-  static String replaceNullCharacters(final String string) {
+  public static String replaceNullCharacters(final String string) {
     if (string == null) {
       return null;
     } else {
@@ -508,7 +630,7 @@ public interface Strings {
     }
   }
 
-  static String replaceWord(final String text, final String oldValue, final String newValue,
+  public static String replaceWord(final String text, final String oldValue, final String newValue,
     final char... separators) {
     if (Property.hasValue(oldValue)) {
       if (Property.hasValue(text)) {
@@ -550,16 +672,24 @@ public interface Strings {
     return text;
   }
 
-  static ListEx<String> split(final String string, final String regex) {
+  public static ListEx<String> split(final String string, final String regex) {
     final String[] split = string.split(regex);
     return Lists.newArray(split);
   }
 
-  static boolean startsWith(final String text, final String prefix) {
+  public static boolean startsWith(final String text, final String prefix) {
     if (text != null && prefix != null) {
       return text.startsWith(prefix);
     } else {
       return false;
+    }
+  }
+
+  public static String strip(String s) {
+    if (s == null) {
+      return "";
+    } else {
+      return s.strip();
     }
   }
 
@@ -589,7 +719,7 @@ public interface Strings {
     }
   }
 
-  static String substring(final String text, final char character, final int toIndex) {
+  public static String substring(final String text, final char character, final int toIndex) {
     int startIndex = 0;
     for (int i = 0; i < toIndex && startIndex != -1; i++) {
       final int index = text.indexOf(character, startIndex);
@@ -605,7 +735,7 @@ public interface Strings {
     }
   }
 
-  static String substring(final String text, final char character, final int fromIndex,
+  public static String substring(final String text, final char character, final int fromIndex,
     final int toIndex) {
     if (fromIndex < 0) {
       throw new StringIndexOutOfBoundsException(fromIndex);
@@ -644,7 +774,7 @@ public interface Strings {
    * @param iterator
    * @return
    */
-  static String toListString(final Iterable<? extends Object> iterable) {
+  public static String toListString(final Iterable<? extends Object> iterable) {
     if (iterable == null) {
       return "[]";
     } else {
@@ -653,7 +783,7 @@ public interface Strings {
     }
   }
 
-  static String toListString(final Iterator<? extends Object> iterator) {
+  public static String toListString(final Iterator<? extends Object> iterator) {
     if (iterator == null) {
       return "[]";
     } else {
@@ -670,7 +800,7 @@ public interface Strings {
     }
   }
 
-  static String toString(final boolean skipNulls, final String separator,
+  public static String toString(final boolean skipNulls, final String separator,
     final Iterable<? extends Object> values) {
     if (values == null) {
       return null;
@@ -681,7 +811,8 @@ public interface Strings {
     }
   }
 
-  static String toString(final boolean skipNulls, final String separator, final Object... values) {
+  public static String toString(final boolean skipNulls, final String separator,
+    final Object... values) {
     return toString(skipNulls, separator, Arrays.asList(values));
   }
 
@@ -693,11 +824,11 @@ public interface Strings {
    * @param separator The separator.
    * @return The string.
    */
-  static String toString(final Collection<? extends Object> values) {
+  public static String toString(final Collection<? extends Object> values) {
     return toString(",", values);
   }
 
-  static String toString(final Object value) {
+  public static String toString(final Object value) {
     if (value == null) {
       return null;
     } else {
@@ -713,7 +844,7 @@ public interface Strings {
    * @param values The values.
    * @return The string.
    */
-  static String toString(final String separator, final Collection<? extends Object> values) {
+  public static String toString(final String separator, final Collection<? extends Object> values) {
     if (values == null) {
       return null;
     } else {
@@ -723,7 +854,7 @@ public interface Strings {
     }
   }
 
-  static String toString(final String separator, final int... values) {
+  public static String toString(final String separator, final int... values) {
     if (values == null) {
       return null;
     } else {
@@ -741,7 +872,7 @@ public interface Strings {
     }
   }
 
-  static String toString(final String separator, final Object... values) {
+  public static String toString(final String separator, final Object... values) {
     if (values == null) {
       return null;
     } else {
@@ -775,11 +906,11 @@ public interface Strings {
     }
   }
 
-  static String toString(final String separator, final String... values) {
+  public static String toString(final String separator, final String... values) {
     return toString(separator, Arrays.asList(values));
   }
 
-  static List<String> toStringList(final Collection<?> values) {
+  public static List<String> toStringList(final Collection<?> values) {
     final List<String> strings = new ArrayList<>();
     if (values != null) {
       for (final Object value : values) {
@@ -789,7 +920,7 @@ public interface Strings {
     return strings;
   }
 
-  static String toUpperCaseSansAccent(final String text) {
+  public static String toUpperCaseSansAccent(final String text) {
     if (text == null) {
       return null;
     } else {
@@ -809,7 +940,7 @@ public interface Strings {
     }
   }
 
-  static String trim(final String text) {
+  public static String trim(final String text) {
     if (text == null) {
       return null;
     } else {
@@ -817,7 +948,7 @@ public interface Strings {
     }
   }
 
-  static int trimLength(final String text) {
+  public static int trimLength(final String text) {
     if (text == null) {
       return 0;
     } else {
@@ -826,7 +957,7 @@ public interface Strings {
     }
   }
 
-  static String upperCase(final String text) {
+  public static String upperCase(final String text) {
     if (text == null) {
       return null;
     } else {

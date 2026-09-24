@@ -56,6 +56,11 @@ public abstract class Single<T> implements ValueHolder<T> {
     }
 
     @Override
+    public void ifEmpty(final Runnable action) {
+      action.run();
+    }
+
+    @Override
     public void ifPresent(final Consumer<? super V> action) {
     }
 
@@ -125,6 +130,12 @@ public abstract class Single<T> implements ValueHolder<T> {
     @Override
     public Stream<V> stream() {
       return Stream.empty();
+    }
+
+    @Override
+    public Single<V> supplyEmpty(final Supplier<? extends V> supplier) {
+      final var value = supplier.get();
+      return Single.ofNullable(value);
     }
 
     @Override
@@ -291,6 +302,11 @@ public abstract class Single<T> implements ValueHolder<T> {
     }
 
     @Override
+    public Single<V> supplyEmpty(final Supplier<? extends V> supplier) {
+      return this;
+    }
+
+    @Override
     public Single<V> tap(final Consumer<? super V> action) {
       action.accept(this.value);
       return this;
@@ -342,7 +358,7 @@ public abstract class Single<T> implements ValueHolder<T> {
     }
   }
 
-  private Single() {
+  Single() {
   }
 
   @Override
@@ -377,6 +393,9 @@ public abstract class Single<T> implements ValueHolder<T> {
     return get();
   }
 
+  public void ifEmpty(final Runnable action) {
+  }
+
   @Override
   public void ifPresent(final Consumer<? super T> action) {
   }
@@ -400,6 +419,11 @@ public abstract class Single<T> implements ValueHolder<T> {
 
   @Override
   public abstract <U> Single<U> map(final Function<? super T, ? extends U> mapper);
+
+  public <V> V mapOptional(final Function<Optional<T>, V> mapper) {
+    final var optional = toOptional();
+    return mapper.apply(optional);
+  }
 
   public abstract <U> Single<U> mapSingle(
     final Function<? super T, ? extends Single<? extends U>> mapper);
@@ -425,6 +449,8 @@ public abstract class Single<T> implements ValueHolder<T> {
   @Override
   public abstract Stream<T> stream();
 
+  public abstract Single<T> supplyEmpty(final Supplier<? extends T> supplier);
+
   @Override
   public Single<T> tap(final Consumer<? super T> action) {
     return this;
@@ -437,4 +463,5 @@ public abstract class Single<T> implements ValueHolder<T> {
   public String toString() {
     return "empty";
   }
+
 }

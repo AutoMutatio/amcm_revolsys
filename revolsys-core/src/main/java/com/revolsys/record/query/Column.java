@@ -3,6 +3,7 @@ package com.revolsys.record.query;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Map;
 
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.data.type.DataType;
@@ -71,7 +72,13 @@ public class Column implements QueryValue, ColumnReference {
   }
 
   @Override
-  public int appendParameters(final int index, final PreparedStatement statement) {
+  public void appendOData(final StringBuilder s) {
+    s.append(this.name);
+  }
+
+  @Override
+  public int appendParameters(final int index, final Map<String, Object> parameters,
+    final PreparedStatement statement) {
     return index;
   }
 
@@ -160,7 +167,7 @@ public class Column implements QueryValue, ColumnReference {
   }
 
   @Override
-  public Object getValueFromResultSet(final RecordDefinition recordDefinition,
+  public Object getValueFromResultSet(final RecordDefinition recordDefinition, final int fieldIndex,
     final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings)
     throws SQLException {
     var name = this.name;
@@ -168,11 +175,17 @@ public class Column implements QueryValue, ColumnReference {
       name = this.alias;
     }
     final FieldDefinition field = recordDefinition.getField(name);
-    return field.getValueFromResultSet(recordDefinition, resultSet, indexes, internStrings);
+    if (field == null) {
+      return recordDefinition.getField(fieldIndex)
+        .getValueFromResultSet(recordDefinition, fieldIndex, resultSet, indexes, internStrings);
+    } else {
+      return field.getValueFromResultSet(recordDefinition, fieldIndex, resultSet, indexes,
+        internStrings);
+    }
   }
 
   @Override
-  public Object getValueFromResultSet(final RecordDefinition recordDefinition,
+  public Object getValueFromResultSet(final RecordDefinition recordDefinition, final int fieldIndex,
     final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings,
     final String alias) throws SQLException {
     var name = this.name;
@@ -183,7 +196,11 @@ public class Column implements QueryValue, ColumnReference {
     if (field == null) {
       field = recordDefinition.getField(alias);
     }
-    return field.getValueFromResultSet(recordDefinition, resultSet, indexes, internStrings);
+    if (field == null) {
+      field = recordDefinition.getField(fieldIndex);
+    }
+    return field.getValueFromResultSet(recordDefinition, fieldIndex, resultSet, indexes,
+      internStrings);
   }
 
   @Override

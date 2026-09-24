@@ -9,13 +9,22 @@ public class BigDecimalDataType extends AbstractDataType {
   }
 
   @Override
-  protected boolean equalsNotNull(final Object value1, final Object value2) {
-    return super.equalsNotNull(value1, value2);
+  public boolean isMathSupported() {
+    return true;
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  public <V> V plus(final Object value1, final Number value2) {
+    final BigDecimal number1 = toObject(value1);
+    final BigDecimal number2 = toObject(value2);
+    return (V)number1.add(number2);
   }
 
   @Override
   protected Object toObjectDo(final Object value) {
-    final String string = DataTypes.toString(value).replaceAll(",", "");
+    final String string = DataTypes.toString(value)
+      .replaceAll(",", "");
     if ("-".equals(string) || "+".equals(string)) {
       return BigDecimal.ZERO;
     }

@@ -3,6 +3,7 @@ package com.revolsys.record.query;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Map;
 
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.data.type.DataType;
@@ -27,9 +28,9 @@ public class SqlFragments extends AbstractMultiQueryValue {
   }
 
   @Override
-  public int appendParameters(int index, final PreparedStatement statement) {
+  public int appendParameters(int index, Map<String, Object> parameters, final PreparedStatement statement) {
     for (final var queryValue : getQueryValues()) {
-      index = queryValue.appendParameters(index, statement);
+      index = queryValue.appendParameters(index, parameters, statement);
     }
     return index;
   }
@@ -41,7 +42,7 @@ public class SqlFragments extends AbstractMultiQueryValue {
 
   @Override
   public Object getValueFromResultSet(final RecordDefinition recordDefinition,
-    final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings)
+    int fieldIndex, final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings)
     throws SQLException {
     final int index = indexes.incrementAndGet();
     final Object value = resultSet.getObject(index);

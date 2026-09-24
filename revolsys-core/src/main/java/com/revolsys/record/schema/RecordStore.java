@@ -18,7 +18,10 @@ import org.springframework.beans.DirectFieldAccessor;
 
 import com.revolsys.collection.iterator.BaseIterable;
 import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.list.ListEx;
+import com.revolsys.collection.list.Lists;
 import com.revolsys.collection.map.MapEx;
+import com.revolsys.collection.value.Single;
 import com.revolsys.data.identifier.Identifier;
 import com.revolsys.data.type.DataTypes;
 import com.revolsys.geometry.model.BoundingBox;
@@ -39,10 +42,12 @@ import com.revolsys.record.io.RecordReader;
 import com.revolsys.record.io.RecordStoreConnection;
 import com.revolsys.record.io.RecordStoreFactory;
 import com.revolsys.record.io.RecordWriter;
+import com.revolsys.record.query.Call;
 import com.revolsys.record.query.ColumnIndexes;
 import com.revolsys.record.query.Condition;
 import com.revolsys.record.query.DeleteStatement;
 import com.revolsys.record.query.InsertStatement;
+import com.revolsys.record.query.InsertStatement.InsertStatementBatch;
 import com.revolsys.record.query.Q;
 import com.revolsys.record.query.Query;
 import com.revolsys.record.query.QueryStatement;
@@ -58,7 +63,7 @@ import com.revolsys.util.count.LabelCountMap;
 import com.revolsys.util.count.LabelCounters;
 
 public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFactory, Transactionable,
-  BaseCloseable, ObjectWithProperties {
+  BaseCloseable, ObjectWithProperties, TableRecordStoreFactory {
 
   static void appendDefaultSql(final SqlAppendable sql, final Object queryValue) {
     if (queryValue == null) {
@@ -216,6 +221,9 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
 
   RecordStore addRecordDefinitionInitializer(PathName tableName, Consumer<RecordDefinition> action);
 
+  Single<RecordStoreSchema> addSchemaInitializer(PathName schemaName,
+    Consumer<RecordStoreSchema> initializer);
+
   default void addStatistic(final String statisticName, final Record object) {
     final CategoryLabelCountMap statistics = getStatistics();
     if (statistics != null) {
@@ -301,6 +309,10 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
     return new DeleteStatement().from(getRecordDefinition(pathName));
   }
 
+  default void executeCall(final Call queryStatement) {
+    throw new UnsupportedOperationException("executeCall not implemented");
+  }
+
   default int executeInsertCount(final InsertStatement insertStatement) {
     throw new UnsupportedOperationException("InsertStatement not implemented");
   }
@@ -308,6 +320,11 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
   default <V> V executeInsertRecords(final InsertStatement insertStatement,
     final Function<BaseIterable<Record>, V> action) {
     throw new UnsupportedOperationException("InsertStatement not implemented");
+  }
+
+  default long executeInsertStatementBatch(InsertStatement insertStatement,
+    Consumer<InsertStatementBatch> action) {
+    throw new UnsupportedOperationException();
   }
 
   default int executeUpdateCount(final UpdateStatement queryStatement) {
@@ -755,6 +772,10 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
     return newRecordWriter();
   }
 
+  default RecordStoreSchema newSchema(final RecordStoreSchema parent, final PathName path) {
+    return new RecordStoreSchema(parent, path);
+  }
+
   default <R extends Record> InsertUpdateBuilder<R> newUpdate(final PathName pathName) {
     return this.<R> newInsertUpdate(pathName)
       .setInsert(false);
@@ -765,6 +786,23 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
     if (codeTable != null) {
       codeTable.refresh();
     }
+  }
+
+  default <RSS extends RecordStoreSchema> Single<RSS> schema(final PathName pathName) {
+    final RecordStoreSchema rootSchema = getRootSchema();
+    return Single.ofNullable(rootSchema.getSchema(pathName));
+  }
+
+  @Override
+  default <RSS extends RecordStoreSchema> Single<RSS> schema(final String path) {
+    return Single.ofNullable(getSchema(path));
+  }
+
+  @Override
+  default ListEx<RecordStoreSchema> schemas() {
+    final ListEx<RecordStoreSchema> schemas = Lists.newArray();
+    getRootSchema().addToCollection(schemas);
+    return schemas;
   }
 
   void setLabel(String label);

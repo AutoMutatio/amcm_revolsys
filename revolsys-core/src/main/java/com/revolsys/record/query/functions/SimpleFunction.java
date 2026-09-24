@@ -6,16 +6,20 @@ import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.function.BiFunction;
 
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.data.type.DataType;
 import com.revolsys.record.query.AbstractMultiQueryValue;
 import com.revolsys.record.query.ColumnIndexes;
+import com.revolsys.record.query.ColumnReference;
 import com.revolsys.record.query.QueryStatement;
 import com.revolsys.record.query.QueryValue;
 import com.revolsys.record.query.SqlAppendable;
+import com.revolsys.record.query.Value;
 import com.revolsys.record.schema.RecordDefinition;
+import com.revolsys.record.schema.RecordDefinitionProxy;
 import com.revolsys.record.schema.RecordStore;
 import com.revolsys.util.Strings;
 
@@ -54,6 +58,24 @@ public class SimpleFunction extends AbstractMultiQueryValue implements Function 
     addValue(value);
   }
 
+  public SimpleFunction addParameter(final QueryValue value) {
+    addValue(value);
+    return this;
+  }
+
+  public SimpleFunction addParameter(final RecordDefinitionProxy table,
+    final CharSequence fieldName, final Object value) {
+    final ColumnReference left = table.getColumn(fieldName);
+    QueryValue queryValue;
+    if (value instanceof final QueryValue qv) {
+      queryValue = qv;
+    } else {
+      queryValue = new Value(left, value);
+    }
+    addValue(queryValue);
+    return this;
+  }
+
   @Override
   public void appendDefaultSql(final QueryStatement statement, final RecordStore recordStore,
     final SqlAppendable buffer) {
@@ -72,9 +94,9 @@ public class SimpleFunction extends AbstractMultiQueryValue implements Function 
   }
 
   @Override
-  public int appendParameters(int index, final PreparedStatement statement) {
+  public int appendParameters(int index, Map<String, Object> parameters, final PreparedStatement statement) {
     for (final QueryValue value : getParameters()) {
-      index = value.appendParameters(index, statement);
+      index = value.appendParameters(index, parameters, statement);
     }
     return index;
   }
@@ -156,13 +178,15 @@ public class SimpleFunction extends AbstractMultiQueryValue implements Function 
   }
 
   @Override
-  public Object getValueFromResultSet(final RecordDefinition recordDefinition,
+  public Object getValueFromResultSet(final RecordDefinition recordDefinition, final int fieldIndex,
     final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings)
     throws SQLException {
-    final int index = indexes.incrementAndGet();
     if (this.valueFromResultSet == null) {
-      return resultSet.getString(index);
+      final var field = recordDefinition.getField(fieldIndex);
+      return field.getValueFromResultSet(recordDefinition, fieldIndex, resultSet, indexes,
+        internStrings);
     } else {
+      final int index = indexes.incrementAndGet();
       return this.valueFromResultSet.apply(resultSet, index);
     }
   }

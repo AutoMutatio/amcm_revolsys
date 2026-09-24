@@ -5,6 +5,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.data.type.DataType;
@@ -35,18 +36,22 @@ public class CollectionValue extends AbstractMultiQueryValue {
     this(field);
     for (final Object value : values) {
       QueryValue queryValue;
-      if (value instanceof QueryValue) {
-        queryValue = (QueryValue)value;
+      if (value instanceof final QueryValue qv) {
+        queryValue = qv;
+        if (field != null) {
+          qv.setColumn(field);
+        }
       } else {
-        queryValue = Value.newValue(value);
+        queryValue = Value.newValue(field, value);
       }
       addValue(queryValue);
     }
   }
 
   @Override
-  public boolean addValue(final QueryValue value) {
-    return super.addValue(value);
+  public CollectionValue addValue(final QueryValue value) {
+    super.addValue(value);
+    return this;
   }
 
   @Override
@@ -74,7 +79,25 @@ public class CollectionValue extends AbstractMultiQueryValue {
   }
 
   @Override
-  public int appendParameters(int index, final PreparedStatement statement) {
+  public void appendOData(final StringBuilder s) {
+    s.append('(');
+
+    final QueryValue[] values = this.values;
+    final int valueCount = values.length;
+    for (int i = 0; i < valueCount; i++) {
+      if (i > 0) {
+        s.append(", ");
+      }
+
+      final QueryValue queryValue = values[i];
+      queryValue.appendOData(s);
+    }
+    s.append(')');
+  }
+
+  @Override
+  public int appendParameters(int index, final Map<String, Object> parameters,
+    final PreparedStatement statement) {
     for (final QueryValue queryValue : this.values) {
       JdbcFieldDefinition jdbcField = this.jdbcField;
       if (queryValue instanceof Value) {
@@ -89,7 +112,7 @@ public class CollectionValue extends AbstractMultiQueryValue {
           throw Exceptions.toRuntimeException(e);
         }
       } else {
-        index = queryValue.appendParameters(index, statement);
+        index = queryValue.appendParameters(index, parameters, statement);
       }
     }
     return index;

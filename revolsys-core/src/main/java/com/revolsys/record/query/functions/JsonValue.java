@@ -4,9 +4,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 
 import com.revolsys.collection.json.Json;
 import com.revolsys.collection.json.JsonObject;
+import com.revolsys.collection.json.JsonString;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.record.query.ColumnIndexes;
 import com.revolsys.record.query.ColumnReference;
@@ -16,6 +18,7 @@ import com.revolsys.record.query.QueryStatement;
 import com.revolsys.record.query.QueryValue;
 import com.revolsys.record.query.SqlAppendable;
 import com.revolsys.record.query.StringLiteral;
+import com.revolsys.record.query.StringValue;
 import com.revolsys.record.query.Value;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordStore;
@@ -30,10 +33,14 @@ public class JsonValue extends SimpleFunction {
 
   private boolean text = true;
 
+  private String alias;
+
   public JsonValue(final List<QueryValue> parameters) {
     super(NAME, 2, parameters);
     final QueryValue pathParameter = parameters.get(1);
-    if (pathParameter instanceof final StringLiteral literal) {
+    if (pathParameter instanceof final StringValue value) {
+      this.displayPath = value.getString();
+    } else if (pathParameter instanceof final StringLiteral literal) {
       this.displayPath = literal.getString();
     } else if (Value.isString(pathParameter)) {
       this.displayPath = (String)((Value)pathParameter).getValue();
@@ -41,9 +48,10 @@ public class JsonValue extends SimpleFunction {
       throw new IllegalArgumentException(
         "JSON_VALUE path parameter is not a string: " + pathParameter);
     }
-    if (this.displayPath.matches("[\\s\\w]+(\\.[\\w\\s]+)*")) {
+    final String validCharacters = "[^.]+";
+    if (this.displayPath.matches(validCharacters + "(\\." + validCharacters + ")*")) {
       this.path = "$." + this.displayPath;
-    } else if (this.displayPath.matches("\\$(\\.[\\w\\s]+)*")) {
+    } else if (this.displayPath.matches("\\$(\\.[" + validCharacters + ")*")) {
       this.path = this.displayPath;
     } else {
       throw new IllegalArgumentException(
@@ -61,19 +69,31 @@ public class JsonValue extends SimpleFunction {
     buffer.append("(");
     jsonParameter.appendSql(statement, recordStore, buffer);
     buffer.append(", '");
-    buffer.append(this.path);
+    buffer.append(this.path.replaceAll("'", "''"));
     buffer.append("')");
   }
 
   @Override
-  public int appendParameters(int index, final PreparedStatement statement) {
+  public int appendParameters(int index, Map<String, Object> parameters, final PreparedStatement statement) {
     final QueryValue jsonParameter = getParameter(0);
-    index = jsonParameter.appendParameters(index, statement);
+    index = jsonParameter.appendParameters(index, parameters, statement);
     return index;
   }
 
+  /**
+   * Create an Equal condition for the json value. If the value was a string but contains a number it will be converted to a number. Use equalString to force string comparison.
+   * @param value
+   * @return
+   */
   public Condition equal(final Object value) {
-    final var queryValue = Value.newValue(value);
+    final var column = getColumn();
+    final var queryValue = Value.newValue(column, value);
+    return Q.equal(this, queryValue);
+  }
+
+  public Condition equalString(final String value) {
+    final var column = getColumn();
+    final var queryValue = Value.newValue(column, new JsonString(value));
     return Q.equal(this, queryValue);
   }
 
@@ -105,10 +125,16 @@ public class JsonValue extends SimpleFunction {
   }
 
   @Override
-  public Object getValueFromResultSet(final RecordDefinition recordDefinition,
+  public Object getValueFromResultSet(final RecordDefinition recordDefinition, final int fieldIndex,
     final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings)
     throws SQLException {
-    return getColumn().getValueFromResultSet(recordDefinition, resultSet, indexes, internStrings);
+    if (this.alias == null) {
+      return getColumn().getValueFromResultSet(recordDefinition, fieldIndex, resultSet, indexes,
+        internStrings);
+    } else {
+      return QueryValue.getValueFromResultSet(recordDefinition, fieldIndex, this.alias, resultSet,
+        indexes, internStrings);
+    }
   }
 
   public boolean isText() {
@@ -118,6 +144,12 @@ public class JsonValue extends SimpleFunction {
   public JsonValue setText(final boolean text) {
     this.text = text;
     return this;
+  }
+
+  @Override
+  public QueryValue toAlias(final String alias) {
+    this.alias = alias;
+    return super.toAlias(alias);
   }
 
   @Override

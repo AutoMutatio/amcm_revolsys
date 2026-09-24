@@ -57,7 +57,7 @@ public class SerializablePageValueManager<T> implements PageValueManager<T> {
   @Override
   public <V extends T> V readFromPage(final Page page) {
     final byte[] bytes = getBytes(page);
-    return getValue(bytes);
+    return (V)getValue(bytes);
   }
 
 }

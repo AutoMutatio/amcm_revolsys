@@ -1,6 +1,8 @@
 package com.revolsys.record.query;
 
 import java.sql.PreparedStatement;
+import java.util.Map;
+import java.util.function.Consumer;
 
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.exception.Exceptions;
@@ -15,6 +17,8 @@ public class Join implements QueryValue, TableReferenceProxy {
   private final JoinType joinType;
 
   private String tableName;
+
+  private boolean lateral = false;
 
   private TableReference table;
 
@@ -39,6 +43,9 @@ public class Join implements QueryValue, TableReferenceProxy {
     sql.append(' ');
     sql.append(this.joinType.toString());
     sql.append(' ');
+    if (this.lateral) {
+      sql.append("LATERAL ");
+    }
     if (this.table != null) {
       if (this.alias == null) {
         statement.appendFromWithAlias(sql, this.table);
@@ -49,7 +56,7 @@ public class Join implements QueryValue, TableReferenceProxy {
       sql.append(this.tableName);
     }
     if (this.statement != null) {
-      this.statement.appendDefaultSelect(statement, recordStore, sql);
+      this.statement.appendSql(statement, recordStore, sql);
       if (this.alias != null) {
         sql.append(" ");
         sql.append('"');
@@ -64,8 +71,22 @@ public class Join implements QueryValue, TableReferenceProxy {
   }
 
   @Override
-  public int appendParameters(final int index, final PreparedStatement statement) {
-    return this.condition.appendParameters(index, statement);
+  public int appendParameters(final int index, Map<String, Object> parameters, final PreparedStatement statement) {
+    return this.condition.appendParameters(index, parameters, statement);
+  }
+
+  /**
+   * Return a column that is the alias for the join. Useful for things link Unnest
+   * @return
+   */
+  public ColumnReference asAliasColumn() {
+    if (this.alias == null) {
+      throw new IllegalStateException("Join doesn't have an alias");
+    } else if (this.statement != null) {
+      return this.statement.toAliasColumn(this.alias);
+    } else {
+      return new Column(this.alias);
+    }
   }
 
   @Override
@@ -98,7 +119,11 @@ public class Join implements QueryValue, TableReferenceProxy {
   @Override
   public ColumnReference getColumn(final CharSequence name) {
     if (this.table == null) {
-      return new ColumnWithPrefix(this.tableName, new Column(this, name));
+      var tableName = this.tableName;
+      if (this.alias != null) {
+        tableName = this.alias;
+      }
+      return new ColumnWithPrefix(tableName, new Column(this, name));
     } else {
       final var column = this.table.getColumn(name);
       if (column != null) {
@@ -120,6 +145,10 @@ public class Join implements QueryValue, TableReferenceProxy {
     } else {
       return this.table.getField(name);
     }
+  }
+
+  public QueryValue getStatement() {
+    return this.statement;
   }
 
   public TableReference getTable() {
@@ -147,6 +176,25 @@ public class Join implements QueryValue, TableReferenceProxy {
 
   public JoinType joinType() {
     return this.joinType;
+  }
+
+  public boolean lateral() {
+    return this.lateral;
+  }
+
+  public Join lateral(final boolean lateral) {
+    this.lateral = lateral;
+    return this;
+  }
+
+  public Join on(final Condition condition) {
+    return and(condition);
+  }
+
+  public Join on(final Consumer<WhereConditionBuilder> action) {
+    final WhereConditionBuilder builder = new WhereConditionBuilder(this, this.condition);
+    this.condition = builder.build(action);
+    return this;
   }
 
   public Join on(final QueryValue left, final QueryValue right) {
@@ -201,6 +249,11 @@ public class Join implements QueryValue, TableReferenceProxy {
     return this;
   }
 
+  @SuppressWarnings("unchecked")
+  public <QV extends QueryValue> QV statement() {
+    return (QV)this.statement;
+  }
+
   public Join statement(final QueryValue statement) {
     this.statement = statement;
     return this;
@@ -234,7 +287,11 @@ public class Join implements QueryValue, TableReferenceProxy {
     sql.append(this.joinType);
     sql.append(' ');
     if (this.table != null) {
-      new Query().appendFromWithAlias(sql, this.table);
+      if (this.alias == null) {
+        new Query().appendFromWithAlias(sql, this.table);
+      } else {
+        new Query().appendFromWithAlias(sql, new FromAlias(this.table, this.alias));
+      }
     }
     if (this.statement != null) {
       this.statement.appendSql(null, null, sql);

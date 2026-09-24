@@ -33,12 +33,15 @@ public class TabClosableTitle extends JLabel implements MouseListener {
 
   private Object menuSource;
 
-  public TabClosableTitle(final JTabbedPane tabs, final Runnable closeAction) {
+  private final int tabIndex;
+
+  public TabClosableTitle(final JTabbedPane tabs, final Runnable closeAction, int tabIndex) {
     this.tabs = tabs;
     setBorder(BorderFactory.createEmptyBorder(2, 0, 0, 1));
     setOpaque(false);
     addMouseListener(this);
     this.closeAction = closeAction;
+    this.tabIndex = tabIndex;
   }
 
   @Override
@@ -142,6 +145,10 @@ public class TabClosableTitle extends JLabel implements MouseListener {
     final int y2 = y1 + 7;
     graphics2d.drawLine(x1, y1, x2, y2);
     graphics2d.drawLine(x1, y2, x2, y1);
+  }
+
+  public void select() {
+    this.tabs.setSelectedIndex(tabIndex);
   }
 
   public void setMenu(final MenuFactory menuFactory, final Object menuSource) {

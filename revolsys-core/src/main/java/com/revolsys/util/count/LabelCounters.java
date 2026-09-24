@@ -15,13 +15,13 @@ import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordDefinitionBuilder;
 import com.revolsys.util.Counter;
 
-public interface LabelCounters {
+public interface LabelCounters extends LabelBasedCounter {
 
   default void addCount(final CharSequence label) {
     addCount(label, 1);
   }
 
-  boolean addCount(CharSequence label, long count);
+  void addCount(CharSequence label, long count);
 
   default void addCount(final Enum<?> label) {
     addCount(label.name(), 1);
@@ -116,7 +116,7 @@ public interface LabelCounters {
 
   default void toTsv(final Writer out, final String... titles) {
     try (
-        TsvWriter tsv = Tsv.plainWriter(out)) {
+      TsvWriter tsv = Tsv.plainWriter(out)) {
       long total = 0;
       tsv.write(Arrays.asList(titles));
       for (final String label : getLabels()) {
@@ -134,7 +134,7 @@ public interface LabelCounters {
     recordDefinitionBuilder.addField("Count", DataTypes.LONG, 10);
     final RecordDefinition recordDefinition = recordDefinitionBuilder.getRecordDefinition();
     try (
-        RecordWriter recordWriter = RecordWriter.newRecordWriter(recordDefinition, target)) {
+      RecordWriter recordWriter = RecordWriter.newRecordWriter(recordDefinition, target)) {
       for (final String label : getLabels()) {
         final Long count = getCount(label);
         recordWriter.write(label, count);

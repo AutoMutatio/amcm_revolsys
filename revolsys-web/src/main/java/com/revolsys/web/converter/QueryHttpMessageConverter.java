@@ -1,7 +1,6 @@
 package com.revolsys.web.converter;
 
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 
 import org.springframework.http.HttpInputMessage;
@@ -12,7 +11,10 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import com.revolsys.collection.json.JsonObject;
+import com.revolsys.exception.Exceptions;
+import com.revolsys.exception.WrappedIoException;
 import com.revolsys.io.IoFactory;
+import com.revolsys.record.io.BufferedWriterEx;
 import com.revolsys.record.io.RecordReader;
 import com.revolsys.record.io.RecordWriter;
 import com.revolsys.record.io.RecordWriterFactory;
@@ -73,23 +75,30 @@ public class QueryHttpMessageConverter extends AbstractHttpMessageConverter<Quer
             final var simpleMediaType = contentType.getType() + "/" + contentType.getSubtype();
             final var writerFactory = IoFactory.factoryByMediaType(RecordWriterFactory.class,
               simpleMediaType);
-            var fileName = request.getParameter("fileName");
-            if (!Property.hasValue(fileName)) {
-              var baseFileName = query.getBaseFileName();
-              if (baseFileName == null) {
-                baseFileName = query.getTablePath()
-                  .getName();
+            if ("true".equals(request.getParameter("inline"))) {
+              headers.add("Content-Disposition", "inline");
+            } else {
+              var fileName = request.getParameter("fileName");
+              if (!Property.hasValue(fileName)) {
+                var baseFileName = query.getBaseFileName();
+                if (baseFileName == null) {
+                  baseFileName = query.getTablePath()
+                    .getName();
+                }
+                fileName = baseFileName + "." + writerFactory.getFileExtension(simpleMediaType);
               }
-              fileName = baseFileName + "." + writerFactory.getFileExtension(simpleMediaType);
+              headers.add("Content-Disposition", "attachment; filename=" + fileName);
             }
-            headers.add("Content-Disposition", "attachment; filename=" + fileName);
-
             try (
-              var out = outputMessage.getBody();
-              RecordWriter recordWriter = writerFactory.newRecordWriter("", reader, out,
-                StandardCharsets.UTF_8)) {
-              recordWriter.setProperty("maxFieldLength", 32000);
-              recordWriter.writeAll(reader);
+              var out = outputMessage.getBody()) {
+              try (
+                RecordWriter recordWriter = writerFactory.newRecordWriter("", reader, out,
+                  StandardCharsets.UTF_8)) {
+                recordWriter.setProperty("maxFieldLength", 32000);
+                recordWriter.writeAll(reader);
+              } catch (final WrappedIoException e) {
+                // Ignore these errors
+              }
             }
           }
         }
@@ -98,46 +107,55 @@ public class QueryHttpMessageConverter extends AbstractHttpMessageConverter<Quer
 
   private void writeJson(final HttpOutputMessage outputMessage, final Query query,
     final RecordReader reader) throws IOException {
+    Long count = null;
+    if (query.isReturnCount()) {
+      count = query.getRecordCount();
+    }
+    final var resultHeaders = query.getResultHeaders();
+
     final var offset = query.getOffset();
     final var limit = query.getLimit();
     try (
-      var out = outputMessage.getBody();
-      var writer = new OutputStreamWriter(out, StandardCharsets.UTF_8);
-      var jsonWriter = new JsonRecordWriter(reader, writer);) {
-      final JsonObject header = JsonObject.hash();
-      jsonWriter.setHeader(header);
-      Long count = null;
-      if (query.isReturnCount()) {
-        count = query.getRecordCount();
-      }
-      if (count != null) {
-        header.addValue("@odata.count", count);
-      }
-      final var resultHeaders = query.getResultHeaders();
-      if (resultHeaders != null) {
-        header.addValues(resultHeaders);
-      }
-      jsonWriter.setItemsPropertyName("value");
-      final int writeCount = jsonWriter.writeAll(reader);
-      final int nextSkip = offset + writeCount;
-      boolean writeNext = false;
-      if (writeCount != 0) {
-        if (count == null) {
-          if (writeCount >= limit) {
+      var out = outputMessage.getBody()) {
+      try (
+        var writer = BufferedWriterEx.forStream(out);
+        var jsonWriter = new JsonRecordWriter(reader, writer);) {
+        final JsonObject header = JsonObject.hash();
+        jsonWriter.setHeader(header);
+
+        if (count != null) {
+          header.addValue("@odata.count", count);
+        }
+        if (resultHeaders != null) {
+          header.addValues(resultHeaders);
+        }
+        jsonWriter.setItemsPropertyName("value");
+        final int writeCount = jsonWriter.writeAll(reader);
+        final int nextSkip = offset + writeCount;
+        boolean writeNext = false;
+        if (writeCount != 0) {
+          if (count == null) {
+            if (writeCount >= limit) {
+              writeNext = true;
+            }
+          } else if (offset + writeCount < count) {
             writeNext = true;
           }
-        } else if (offset + writeCount < count) {
-          writeNext = true;
         }
-      }
 
-      if (writeNext) {
-        final var request = ((ServletRequestAttributes)RequestContextHolder
-          .currentRequestAttributes()).getRequest();
-        final String nextLink = HttpServletUtils.getFullRequestUriBuilder(request)
-          .setParameter("$skip", nextSkip)
-          .buildString();
-        jsonWriter.setFooter(JsonObject.hash("@odata.nextLink", nextLink));
+        if (writeNext) {
+          final var request = ((ServletRequestAttributes)RequestContextHolder
+            .currentRequestAttributes()).getRequest();
+          final String nextLink = HttpServletUtils.getFullRequestUriBuilder(request)
+            .setParameter("$skip", nextSkip)
+            .buildString();
+          jsonWriter.setFooter(JsonObject.hash("@odata.nextLink", nextLink));
+        }
+      } catch (final RuntimeException e) {
+        // Don't log these errors
+        if (!Exceptions.hasCause(e, WrappedIoException.class)) {
+          throw e;
+        }
       }
     }
   }

@@ -2,7 +2,6 @@ package com.revolsys.elevation.gridded.esriascii;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.zip.GZIPOutputStream;
@@ -19,6 +18,7 @@ import com.revolsys.io.AbstractWriter;
 import com.revolsys.io.FileUtil;
 import com.revolsys.number.Doubles;
 import com.revolsys.number.Integers;
+import com.revolsys.record.io.BufferedWriterEx;
 import com.revolsys.spring.resource.Resource;
 import com.revolsys.util.BaseCloseable;
 
@@ -74,7 +74,7 @@ public class EsriAsciiGriddedElevationModelWriter extends AbstractWriter<Gridded
           final ZipEntry fileEntry = new ZipEntry(fileName);
           zipOut.putNextEntry(fileEntry);
 
-          this.writer = new OutputStreamWriter(zipOut, StandardCharsets.UTF_8);
+          this.writer = BufferedWriterEx.forStream(zipOut);
         } catch (final IOException e) {
           throw Exceptions.wrap("Error creating: " + this.resource, e);
         }
@@ -85,7 +85,7 @@ public class EsriAsciiGriddedElevationModelWriter extends AbstractWriter<Gridded
             fileName += "." + EsriAsciiGriddedElevation.FILE_EXTENSION;
           }
           final GZIPOutputStream zipOut = new GZIPOutputStream(bufferedOut);
-          this.writer = new OutputStreamWriter(zipOut, StandardCharsets.UTF_8);
+          this.writer = BufferedWriterEx.forStream(zipOut);
         } catch (final IOException e) {
           throw Exceptions.wrap("Error creating: " + this.resource, e);
         }

@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
@@ -67,9 +68,8 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
           final Object value = entry.getValue();
           if (value == null) {
             multipleCondition.addCondition(Q.isNull(name));
-          } else if (value instanceof Collection) {
-            final Collection<?> values = (Collection<?>)value;
-            multipleCondition.addCondition(new In(name, values));
+          } else if (value instanceof final Collection<?> values) {
+            multipleCondition.addCondition(Q.in(name, values));
           } else {
             multipleCondition.addCondition(Q.equal(name, value));
           }
@@ -77,9 +77,8 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
           final Object value = entry.getValue();
           if (value == null) {
             multipleCondition.addCondition(Q.isNull(name));
-          } else if (value instanceof Collection) {
-            final Collection<?> values = (Collection<?>)value;
-            multipleCondition.addCondition(new In(fieldDefinition, values));
+          } else if (value instanceof final Collection<?> values) {
+            multipleCondition.addCondition(Q.in(fieldDefinition, values));
           } else {
             multipleCondition.addCondition(Q.equal(fieldDefinition, value));
           }
@@ -280,18 +279,7 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
 
   public Query addJoin(final Join join) {
     this.joins.add(join);
-    this.joins.sort((a, b) -> {
-      if (a == b) {
-        return 0;
-      } else if (a.joinType() == JoinType.COMMA) {
-        if (b.joinType() != JoinType.COMMA) {
-          return 1;
-        }
-      }
-      return 1;
-    });
     return this;
-
   }
 
   public Query addOrderBy(final CharSequence field) {
@@ -312,25 +300,7 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
   }
 
   public Query addOrderBy(final Object field, final boolean ascending) {
-    QueryValue queryValue;
-    if (field instanceof QueryValue) {
-      queryValue = (QueryValue)field;
-    } else if (field instanceof final CharSequence fieldName) {
-      if (hasField(fieldName)) {
-        queryValue = getColumn(fieldName);
-      } else {
-        try {
-          queryValue = new ColumnIndex(Integer.parseInt(fieldName.toString()));
-        } catch (final NumberFormatException e) {
-          queryValue = new Column(fieldName);
-        }
-      }
-    } else if (field instanceof final Integer index) {
-      queryValue = new ColumnIndex(index);
-    } else {
-      throw new IllegalArgumentException("Not a field name: " + field);
-    }
-    final OrderBy order = new OrderBy(queryValue, ascending);
+    final OrderBy order = newOrderBy(field, ascending);
     return addOrderBy(order);
   }
 
@@ -517,7 +487,8 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
 
   @Override
   public int appendFromParameters(final int index, final PreparedStatement statement) {
-    return appendParameters(index, statement);
+    final var parameters = Collections.<String, Object> emptyMap();
+    return appendParameters(index, parameters, statement);
   }
 
   public SqlAppendable appendOrderByFields(final SqlAppendable sql, final TableReferenceProxy table,
@@ -535,10 +506,11 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
   }
 
   @Override
-  public int appendParameters(int index, final PreparedStatement statement) {
+  public int appendParameters(int index, Map<String, Object> parameters,
+    final PreparedStatement statement) {
     if (!this.withQueries.isEmpty()) {
       for (final var with : this.withQueries) {
-        index = with.appendParameters(index, statement);
+        index = with.appendParameters(index, parameters, statement);
       }
     }
     for (final Object parameter : getParameters()) {
@@ -554,17 +526,17 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
       index = this.from.appendFromParameters(index, statement);
     }
     for (final Join join : getJoins()) {
-      index = join.appendParameters(index, statement);
+      index = join.appendParameters(index, parameters, statement);
     }
     final Condition where = getWhereCondition();
     if (!where.isEmpty()) {
-      index = where.appendParameters(index, statement);
+      index = where.appendParameters(index, parameters, statement);
     }
     if (!this.having.isEmpty()) {
-      index = this.having.appendParameters(index, statement);
+      index = this.having.appendParameters(index, parameters, statement);
     }
     if (this.union != null) {
-      index = this.union.appendParameters(index, statement);
+      index = this.union.appendParameters(index, parameters, statement);
     }
     return index;
   }
@@ -573,7 +545,11 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     final TableReference table = this.table;
     final List<QueryValue> select = getSelect();
     if (select.isEmpty()) {
-      table.appendSelectAll(this, sql);
+      if (table == null) {
+        sql.append('*');
+      } else {
+        table.appendSelectAll(this, sql);
+      }
     } else {
       boolean first = true;
       for (final QueryValue selectItem : select) {
@@ -592,8 +568,9 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
   }
 
   public int appendSelectParameters(int index, final PreparedStatement statement) {
+    final var parameters = Collections.<String, Object> emptyMap();
     for (final QueryValue select : this.selectExpressions) {
-      index = select.appendParameters(index, statement);
+      index = select.appendParameters(index, parameters, statement);
     }
     return index;
   }
@@ -604,6 +581,27 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
 
   protected void appendSql(final SqlAppendable sql, final TableReferenceProxy table,
     final List<OrderBy> orderBy) {
+    final var sqlStatement = getSql();
+    if (sqlStatement != null) {
+      final RecordDefinition recordDefinition = getRecordDefinition();
+      if (sqlStatement.toUpperCase()
+        .startsWith("SELECT * FROM ")) {
+        sql.append("SELECT ");
+        if (recordDefinition == null) {
+          sql.append("*");
+        } else {
+          recordDefinition.appendSelectAll(this, sql);
+        }
+        sql.append(" FROM ");
+        sql.append(sqlStatement.substring(14));
+      } else {
+        sql.append(sqlStatement);
+      }
+      if (!orderBy.isEmpty()) {
+        addOrderBy(sql, table, orderBy);
+      }
+      return;
+    }
     From from = getFrom();
     if (from == null && table != null) {
       from = table.getTableReference();
@@ -807,6 +805,16 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     return null;
   }
 
+  @Override
+  public ColumnReference getColumn(final CharSequence name) {
+    final var tableReference = getTableReference();
+    if (tableReference == null) {
+      return new Column(name);
+    } else {
+      return tableReference.getColumn(name);
+    }
+  }
+
   public From getFrom() {
     return this.from;
   }
@@ -818,6 +826,34 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
 
   public List<QueryValue> getGroupBy() {
     return this.groupBy;
+  }
+
+  public Join getJoin(final String alias) {
+    for (final var join : getJoins()) {
+      if (DataType.equal(alias, join.getTableAlias())) {
+        return join;
+      }
+    }
+    return null;
+  }
+
+  public Join getJoin(final String alias, final Predicate<Join> joinEqual) {
+    for (final var join : getJoins()) {
+      if (DataType.equal(alias, join.getTableAlias())) {
+        if (joinEqual.test(join)) {
+          return join;
+        }
+      }
+    }
+    return null;
+  }
+
+  public Join getJoin(final String alias, final TableReferenceProxy tableProxy) {
+    if (tableProxy != null) {
+      final var table = tableProxy.getTableReference();
+      return getJoin(alias, join -> table == join.getTable());
+    }
+    return null;
   }
 
   public Join getJoin(final TableReferenceProxy tableProxy, final String alias) {
@@ -835,6 +871,7 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
   }
 
   public List<Join> getJoins() {
+    sortJoins();
     return this.joins;
   }
 
@@ -945,39 +982,14 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
   }
 
   public String getSelectSql() {
-    final boolean usePlaceholders = true;
-    return getSelectSql(usePlaceholders);
+    return getSelectSql(true);
   }
 
   private String getSelectSql(final boolean usePlaceholders) {
-    String sql = getSql();
-    final List<OrderBy> orderBy = getOrderBy();
-    final TableReference table = getTable();
-    final RecordDefinition recordDefinition = getRecordDefinition();
-    if (sql == null) {
-      sql = newSelectSql(orderBy, table, usePlaceholders);
-    } else {
-      if (sql.toUpperCase()
-        .startsWith("SELECT * FROM ")) {
-        final StringBuilderSqlAppendable sqlBuilder = newSqlAppendable();
-        sqlBuilder.append("SELECT ");
-        if (recordDefinition == null) {
-          sqlBuilder.append("*");
-        } else {
-          recordDefinition.appendSelectAll(this, sqlBuilder);
-        }
-        sqlBuilder.append(" FROM ");
-        sqlBuilder.append(sql.substring(14));
-        sql = sqlBuilder.toSqlString();
-      }
-      if (!orderBy.isEmpty()) {
-        final StringBuilderSqlAppendable sqlBuilder = newSqlAppendable();
-        sqlBuilder.append(sql);
-        addOrderBy(sqlBuilder, table, orderBy);
-        sql = sqlBuilder.toSqlString();
-      }
-    }
-    return sql;
+    final var sql = newSqlAppendable();
+    sql.setUsePlaceholders(usePlaceholders);
+    appendSql(sql, this.table, this.orderBy);
+    return sql.toSqlString();
   }
 
   public String getSql() {
@@ -1011,11 +1023,11 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
   }
 
   @Override
-  public Object getValueFromResultSet(final RecordDefinition recordDefinition,
+  public Object getValueFromResultSet(final RecordDefinition recordDefinition, final int fieldIndex,
     final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings)
     throws SQLException {
     return this.selectExpressions.get(0)
-      .getValueFromResultSet(recordDefinition, resultSet, indexes, internStrings);
+      .getValueFromResultSet(recordDefinition, fieldIndex, resultSet, indexes, internStrings);
   }
 
   public String getWhere() {
@@ -1048,6 +1060,10 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
       }
     }
     return false;
+  }
+
+  public boolean hasOrderBy() {
+    return !this.orderBy.isEmpty();
   }
 
   public boolean hasOrderBy(final QueryValue column) {
@@ -1145,8 +1161,28 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     return this;
   }
 
+  public Query join(final JoinType joinType, final TableReferenceProxy table) {
+    join(joinType).table(table);
+    return this;
+  }
+
   public Join join(final TableReferenceProxy table) {
     return join(JoinType.JOIN).table(table);
+  }
+
+  public Query joinComma(final QueryValue from) {
+    join(JoinType.COMMA).statement(from);
+    return this;
+  }
+
+  public Query joinTable(final TableReferenceProxy table) {
+    join(JoinType.JOIN).table(table);
+    return this;
+  }
+
+  public Query joinTableComma(final TableReferenceProxy table) {
+    join(JoinType.COMMA).table(table);
+    return this;
   }
 
   @Override
@@ -1186,6 +1222,29 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     appendFromWithAlias(sql, from);
     appendWhere(sql, true);
     return sql.toSqlString();
+  }
+
+  public OrderBy newOrderBy(final Object field, final boolean ascending) {
+    QueryValue queryValue;
+    if (field instanceof QueryValue) {
+      queryValue = (QueryValue)field;
+    } else if (field instanceof final CharSequence fieldName) {
+      if (hasField(fieldName)) {
+        queryValue = getColumn(fieldName);
+      } else {
+        try {
+          queryValue = new ColumnIndex(Integer.parseInt(fieldName.toString()));
+        } catch (final NumberFormatException e) {
+          queryValue = new Column(fieldName);
+        }
+      }
+    } else if (field instanceof final Integer index) {
+      queryValue = new ColumnIndex(index);
+    } else {
+      throw new IllegalArgumentException("Not a field name: " + field);
+    }
+    final OrderBy order = new OrderBy(queryValue, ascending);
+    return order;
   }
 
   public Query newQuery(final RecordDefinition recordDefinition) {
@@ -1230,18 +1289,12 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
         }
         selectExpression = selectExpression.toAlias(alias);
       }
+    } else if (select instanceof final Number number) {
+      return Value.newValue(number);
     } else {
       throw new IllegalArgumentException("Not a valid select expression :" + select);
     }
     return selectExpression;
-  }
-
-  public String newSelectSql(final List<OrderBy> orderBy, final TableReferenceProxy table,
-    final boolean usePlaceholders) {
-    final StringBuilderSqlAppendable sql = newSqlAppendable();
-    sql.setUsePlaceholders(usePlaceholders);
-    appendSql(sql, table, orderBy);
-    return sql.toSqlString();
   }
 
   protected StringBuilderSqlAppendable newSqlAppendable() {
@@ -1297,6 +1350,15 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     return this;
   }
 
+  public Query orderBy(final Object field, final Consumer<OrderBy> action) {
+    final var orderBy = newOrderBy(field, true);
+    if (action != null) {
+      action.accept(orderBy);
+    }
+    addOrderBy(orderBy);
+    return this;
+  }
+
   @SuppressWarnings("unchecked")
   public <R extends Reader<V>, V> R reader() {
     return (R)getRecordDefinition().getRecordStore()
@@ -1306,7 +1368,7 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
   public Query readerConsume(final Consumer<RecordReader> action) {
     try (
       var reader = getRecordReader()) {
-      action.accept(getRecordReader());
+      action.accept(reader);
     }
     return this;
   }
@@ -1375,6 +1437,13 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     for (final String fieldName : fieldNames) {
       final ColumnReference column = table.getColumn(fieldName);
       this.selectExpressions.add(column);
+    }
+    return this;
+  }
+
+  public Query selectAdd(final Object... select) {
+    for (final Object selectItem : select) {
+      select(selectItem);
     }
     return this;
   }
@@ -1616,6 +1685,31 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     }
   }
 
+  private void sortJoins() {
+    this.joins.sort((a, b) -> {
+      if (a == b) {
+        return 0;
+      } else {
+        final var joinType1 = a.joinType();
+        final var joinType2 = b.joinType();
+        if (joinType1 == JoinType.COMMA) {
+          if (joinType2 == JoinType.COMMA) {
+            return 0;
+          } else {
+            return 1;
+          }
+        } else if (joinType2 == JoinType.COMMA) {
+          return -1;
+        }
+      }
+      // This is needed to retain addition order. The TimSort passes later
+      // values as the first argument
+      final int aIndex = this.joins.indexOf(a);
+      final int bIndex = this.joins.indexOf(b);
+      return aIndex - bIndex;
+    });
+  }
+
   @Override
   public String toString() {
     final StringBuilder string = new StringBuilder();
@@ -1629,6 +1723,10 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
         }
         if (this.limit != Integer.MAX_VALUE) {
           string.append("\n LIMIT " + this.limit);
+        }
+        final var lockMode = getLockMode();
+        if (lockMode != LockMode.NONE) {
+          string.append(lockMode.getClause());
         }
       } else {
         string.append(this.sql);

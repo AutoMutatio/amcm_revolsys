@@ -158,6 +158,9 @@ public class ArrayListModel<T> extends ArrayList<T>
   @Override
   public boolean remove(final Object element) {
     final int index = indexOf(element);
+    if (index == -1) {
+      return false;
+    }
     final T value = remove(index);
     return value != null;
   }

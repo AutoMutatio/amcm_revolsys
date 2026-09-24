@@ -32,6 +32,21 @@ public class UuidBuilder {
     return this;
   }
 
+  public UuidBuilder append(final Iterable<String> values) {
+    if (values != null) {
+      boolean first = true;
+      for (final var string : values) {
+        if (first) {
+          first = false;
+        } else {
+          separator();
+        }
+        append(string);
+      }
+    }
+    return this;
+  }
+
   public UuidBuilder append(final Object value) {
     if (value == null) {
       append("null");
@@ -56,8 +71,12 @@ public class UuidBuilder {
   }
 
   public UUID build() {
-    final byte[] digest = this.digester.digest();
+    final byte[] digest = digest();
     return UuidNamespace.toUuid(this.type, digest);
+  }
+
+  public byte[] digest() {
+    return this.digester.digest();
   }
 
   public Identifier newStringIdentifier() {

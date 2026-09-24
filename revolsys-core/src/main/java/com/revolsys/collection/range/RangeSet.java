@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.ListIterator;
 
 import com.revolsys.collection.iterator.MultiIterator;
+import com.revolsys.collection.list.ListEx;
 import com.revolsys.collection.list.Lists;
 import com.revolsys.data.type.DataType;
 import com.revolsys.geometry.model.End;
@@ -508,7 +509,7 @@ public class RangeSet extends AbstractSet<Object>
     return this.size;
   }
 
-  public List<Object> toList() {
+  public ListEx<Object> toList() {
     return Lists.toArray(this);
   }
 

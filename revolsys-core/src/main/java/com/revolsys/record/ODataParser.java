@@ -1,6 +1,8 @@
 package com.revolsys.record;
 
 import java.math.BigDecimal;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -222,7 +224,7 @@ public class ODataParser {
     .add("mul", Multiply::new)
     .add("div", Divide::new)
     .add("mod", Mod::new)
-    .add("in", In::new)
+    .add("in", In::create)
     .add("any", AnyOperator::new)
     .add("all", AllOperator::new)
     .getMap();
@@ -715,6 +717,9 @@ public class ODataParser {
     int rt = start;
     boolean wasDigits = true;
     final int length = text.length();
+    if (text.charAt(start) == '-') {
+      rt++;
+    }
     while (rt < length) {
       final char c = text.charAt(rt);
       if (Character.isDigit(c)) {
@@ -922,11 +927,28 @@ public class ODataParser {
       } else if (token.type == TokenType.QUOTED_STRING) {
         final String value = unquote(token.value);
         values.add(value);
+      } else if (token.type == TokenType.NUMBER) {
+        final var number = new BigDecimal(token.value);
+        values.add(number);
       } else if (token.type == TokenType.WORD) {
         if ("geometry".equals(token.value)) {
         } else if ("geography".equals(token.value)) {
           throw new RuntimeException(
             "Unable to read expression with tokens: " + token + ":" + tokens);
+        }
+      } else if (token.type == TokenType.NUMBER) {
+        final String text = token.value;
+        if (text.indexOf('.') == -1) {
+          try {
+            final int value = Integer.parseInt(text);
+            values.add(value);
+          } catch (final NumberFormatException e) {
+            final long value = Long.parseLong(text);
+            values.add(value);
+          }
+        } else {
+          final double value = Double.parseDouble(text);
+          values.add(value);
         }
       } else {
         throw new RuntimeException(
@@ -977,6 +999,8 @@ public class ODataParser {
         }
       } else if (c == '\'') {
         instring = true;
+      } else if (c == '%') {
+        rt += 2;
       } else if (Character.isLetterOrDigit(c) || c == '/' || c == '_' || c == '.' || c == '*'
         || c == '~') {
       } else {
@@ -1033,7 +1057,8 @@ public class ODataParser {
         current = end;
       } else if (Character.isLetter(c) || c == '*' || c == '/') {
         final int end = readWord(value, current + 1, length);
-        final String tokenString = value.substring(current, end);
+        String tokenString = value.substring(current, end);
+        tokenString = URLDecoder.decode(tokenString, StandardCharsets.UTF_8);
         rt.add(new Token(TokenType.WORD, tokenString));
         current = end;
       } else if (Character.isDigit(c) || c == '-') {

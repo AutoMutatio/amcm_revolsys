@@ -119,7 +119,7 @@ public class BPlusTreePageValueManager<T> implements PageValueManager<T> {
         System.arraycopy(bytes, 0, valueBytes, offset, bytes.length);
         offset += bytes.length;
       }
-      return this.valueSerializer.getValue(valueBytes);
+      return (V)this.valueSerializer.getValue(valueBytes);
     } finally {
       this.pageManager.releasePage(dataPage);
     }
@@ -166,7 +166,7 @@ public class BPlusTreePageValueManager<T> implements PageValueManager<T> {
   @Override
   public <V extends T> V readFromPage(final Page page) {
     final byte[] indexBytes = getBytes(page);
-    return getValue(indexBytes);
+    return (V)getValue(indexBytes);
   }
 
 }

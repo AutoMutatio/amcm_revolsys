@@ -42,7 +42,7 @@ public class WebServiceConnectionManager
 
   /**
    * Get an initialized record store.
-   * @param connectionProperties
+   * @param config
    * @return
    */
   @SuppressWarnings("unchecked")

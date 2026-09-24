@@ -10,6 +10,28 @@ import com.revolsys.exception.Exceptions;
 
 public class JsonBigDecimal extends BigDecimal implements JsonType {
 
+  public static JsonBigDecimal create(final Number value) {
+    if (value instanceof final JsonBigDecimal number) {
+      return number;
+    } else if (value instanceof final BigInteger number) {
+      return new JsonBigDecimal(number);
+    } else if (value instanceof final Byte number) {
+      return new JsonBigDecimal(number);
+    } else if (value instanceof final Short number) {
+      return new JsonBigDecimal(number);
+    } else if (value instanceof final Integer number) {
+      return new JsonBigDecimal(number);
+    } else if (value instanceof final Long number) {
+      return new JsonBigDecimal(number);
+    } else if (value instanceof final Float number) {
+      return new JsonBigDecimal(number);
+    } else if (value instanceof final Double number) {
+      return new JsonBigDecimal(number);
+    } else {
+      return new JsonBigDecimal(value.doubleValue());
+    }
+  }
+
   public JsonBigDecimal(final BigInteger val) {
     super(val);
   }
@@ -91,6 +113,24 @@ public class JsonBigDecimal extends BigDecimal implements JsonType {
     } catch (final CloneNotSupportedException e) {
       throw new IllegalStateException(e);
     }
+  }
+
+  @Override
+  public boolean equals(final Object value) {
+    if (value == null) {
+      return false;
+    } else if (value instanceof final BigDecimal decimal) {
+      return super.equals(decimal);
+    } else if (value instanceof final BigInteger integer) {
+      return super.equals(new BigDecimal(integer));
+    } else {
+      try {
+        return super.equals(new BigDecimal(value.toString()));
+      } catch (final Exception e) {
+        return false;
+      }
+    }
+
   }
 
   @Override

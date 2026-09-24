@@ -39,7 +39,7 @@ public class JdbcTimestampFieldDefinition extends JdbcFieldDefinition {
 
   @Override
   public Object getValueFromResultSet(final RecordDefinition recordDefinition,
-    final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings)
+    int fieldIndex, final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings)
     throws SQLException {
     final int index = indexes.incrementAndGet();
     final Timestamp timestamp = resultSet.getTimestamp(index);

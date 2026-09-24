@@ -18,9 +18,9 @@ public class Coalesce extends SimpleFunction {
 
   @Override
   public Object getValueFromResultSet(final RecordDefinition recordDefinition,
-    final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings)
+    int fieldIndex, final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings)
     throws SQLException {
     final QueryValue parameter = getParameter(0);
-    return parameter.getValueFromResultSet(recordDefinition, resultSet, indexes, internStrings);
+    return parameter.getValueFromResultSet(recordDefinition, fieldIndex, resultSet, indexes, internStrings);
   }
 }

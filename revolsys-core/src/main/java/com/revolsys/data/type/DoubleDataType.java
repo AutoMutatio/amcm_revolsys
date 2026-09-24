@@ -10,10 +10,18 @@ public class DoubleDataType extends AbstractDataType {
 
   @Override
   protected boolean equalsNotNull(final Object value1, final Object value2) {
-    if (Double.compare((double)value1, (double)value2) == 0) {
-      return true;
+    final double number1 = (double)value1;
+    final double number2 = (double)value2;
+    if (Double.isNaN(number1)) {
+      return Double.isNaN(number2);
+    } else if (Double.isInfinite(number1)) {
+      return Double.isInfinite(number2);
     } else {
-      return false;
+      if (Double.compare(number1, number2) == 0) {
+        return true;
+      } else {
+        return false;
+      }
     }
   }
 
@@ -29,6 +37,18 @@ public class DoubleDataType extends AbstractDataType {
   public <V> V getMinValue() {
     final Double min = -Double.MAX_VALUE;
     return (V)min;
+  }
+
+  @Override
+  public boolean isMathSupported() {
+    return true;
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  public <V> V plus(final Object value1, final Number value2) {
+    final double number1 = toObject(value1);
+    return (V)(Object)(number1 + value2.doubleValue());
   }
 
   @Override

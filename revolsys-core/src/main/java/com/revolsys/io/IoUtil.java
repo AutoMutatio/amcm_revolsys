@@ -1,11 +1,11 @@
 package com.revolsys.io;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -24,6 +24,10 @@ import com.revolsys.util.BaseCloseable;
 import com.revolsys.util.Property;
 
 public class IoUtil {
+
+  public static void copy(final byte[] text, final File file) {
+    copy(new ByteArrayInputStream(text), file);
+  }
 
   public static void copy(final File src, final File dest) {
     if (src != null && dest != null) {
@@ -214,16 +218,12 @@ public class IoUtil {
    * @throws IOException If an I/O error occurs.
    */
   public static void copy(final Reader in, final File file) {
+    final var writer = FileUtil.getWriter(file);
     try {
-      final FileWriter out = new FileWriter(file);
-      try {
-        copy(in, out);
-      } finally {
-        BaseCloseable.closeSilent(in);
-        BaseCloseable.closeSilent(out);
-      }
-    } catch (final IOException e) {
-      throw new IllegalArgumentException("Unable to write to " + file);
+      copy(in, writer);
+    } finally {
+      BaseCloseable.closeSilent(in);
+      BaseCloseable.closeSilent(writer);
     }
   }
 
@@ -354,7 +354,7 @@ public class IoUtil {
   public static long size(final InputStream in) {
     try {
       long size = 0;
-      final byte[] buffer = new byte[8196];
+      final byte[] buffer = new byte[8192];
       while (true) {
         final int count = in.read(buffer);
         if (count >= 0) {

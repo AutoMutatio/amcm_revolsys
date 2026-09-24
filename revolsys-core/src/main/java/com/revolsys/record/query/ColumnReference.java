@@ -3,6 +3,7 @@ package com.revolsys.record.query;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Map;
 
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.data.type.DataType;
@@ -23,7 +24,7 @@ public interface ColumnReference extends QueryValue {
   }
 
   @Override
-  default int appendParameters(final int index, final PreparedStatement statement) {
+  default int appendParameters(final int index, Map<String, Object> parameters, final PreparedStatement statement) {
     return index;
   }
 
@@ -71,9 +72,9 @@ public interface ColumnReference extends QueryValue {
   }
 
   default Object getValueFromResultSet(final RecordDefinition recordDefinition,
-    final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings,
-    final String aliasName) throws SQLException {
-    return getValueFromResultSet(recordDefinition, resultSet, indexes, internStrings);
+    final int fieldIndex, final ResultSet resultSet, final ColumnIndexes indexes,
+    final boolean internStrings, final String aliasName) throws SQLException {
+    return getValueFromResultSet(recordDefinition, fieldIndex, resultSet, indexes, internStrings);
   }
 
   @SuppressWarnings("unchecked")

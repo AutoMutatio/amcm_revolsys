@@ -33,7 +33,7 @@ public class JdbcQueryIterator extends AbstractIterator<Record>
 
   private Query query;
 
-  private JdbcRecordDefinition recordDefinition;
+  private RecordDefinition recordDefinition;
 
   private RecordFactory<Record> recordFactory;
 

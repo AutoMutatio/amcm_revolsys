@@ -6,6 +6,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -374,30 +375,6 @@ public interface Lists {
     return list;
   }
 
-  static ListEx<Double> newArray(final double... values) {
-    if (values == null) {
-      return ListEx.empty();
-    } else {
-      final ListEx<Double> list = new ArrayListEx<>();
-      for (final double value : values) {
-        list.add(value);
-      }
-      return list;
-    }
-  }
-
-  static ListEx<Integer> newArray(final int... values) {
-    if (values == null) {
-      return ListEx.empty();
-    } else {
-      final ListEx<Integer> list = new ArrayListEx<>();
-      for (final int value : values) {
-        list.add(value);
-      }
-      return list;
-    }
-  }
-
   static <V> ListEx<V> newArray(@SuppressWarnings("unchecked") final V... values) {
     final ArrayListEx<V> list = new ArrayListEx<>();
     addAll(list, values);
@@ -571,5 +548,10 @@ public interface Lists {
 
   static <V> ListEx<V> unmodifiable(@SuppressWarnings("unchecked") final V... values) {
     return new UnmodifiableArrayList<>(values);
+  }
+
+  static int randomIndex(final ListEx<?> list) {
+    return ThreadLocalRandom.current()
+      .nextInt(list.size());
   }
 }

@@ -16,7 +16,7 @@ public class GeometrySegmentYIntervalIndex {
   private final SortedPackedIntervalRTree<LineSegmentDoubleXY> index;
 
   public GeometrySegmentYIntervalIndex(final Geometry geometry) {
-    this(new SortedPackedIntervalRTree<>());
+    this.index = new SortedPackedIntervalRTree<>();
     geometry.forEachSegment((x1, y1, x2, y2) -> {
       final LineSegmentDoubleXY segment = new LineSegmentDoubleXY(x1, y1, x2, y2);
       if (y1 <= y2) {

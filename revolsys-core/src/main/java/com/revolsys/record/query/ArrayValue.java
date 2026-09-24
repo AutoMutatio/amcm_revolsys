@@ -3,6 +3,7 @@ package com.revolsys.record.query;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Collection;
+import java.util.Map;
 
 import com.revolsys.collection.list.ArrayListEx;
 import com.revolsys.collection.list.ListEx;
@@ -57,14 +58,14 @@ public class ArrayValue implements QueryValue {
           sql.append(',');
         }
         final Value value = Value.newValue(this.jdbcField, object);
-        value.appendDefaultSelect(statement, recordStore, sql);
+        value.appendDefaultSql(statement, recordStore, sql);
       }
       sql.append(']');
     }
   }
 
   @Override
-  public int appendParameters(final int index, final PreparedStatement statement) {
+  public int appendParameters(final int index, Map<String, Object> parameters, final PreparedStatement statement) {
     try {
       return this.jdbcField.setPreparedStatementArray(statement, index, this.values);
     } catch (final SQLException e) {
@@ -153,7 +154,8 @@ public class ArrayValue implements QueryValue {
         this.jdbcField = JdbcFieldDefinitions.newFieldDefinition(this.values.get(0));
       }
       if (!this.dontConvert) {
-        this.values = this.values.map(this.jdbcField::toFieldValue).toList();
+        this.values = this.values.map(this.jdbcField::toFieldValue)
+          .toList();
       }
     }
   }
@@ -165,6 +167,7 @@ public class ArrayValue implements QueryValue {
 
   @Override
   public String toString() {
-    return "ARRAY[" + this.values.map(Value::toString).join(",") + ']';
+    return "ARRAY[" + this.values.map(Value::toString)
+      .join(",") + ']';
   }
 }

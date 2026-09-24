@@ -17,6 +17,7 @@ import com.revolsys.record.query.Condition;
 import com.revolsys.record.query.Query;
 import com.revolsys.record.query.TableReference;
 import com.revolsys.record.query.TableReferenceProxy;
+import com.revolsys.record.query.Value;
 import com.revolsys.util.IconNameProxy;
 
 public interface RecordDefinitionProxy
@@ -232,6 +233,7 @@ public interface RecordDefinitionProxy
     }
   }
 
+  @Override
   default <R extends RecordStore> R getRecordStore() {
     final RecordDefinition recordDefinition = getRecordDefinition();
     if (recordDefinition == null) {
@@ -268,6 +270,15 @@ public interface RecordDefinitionProxy
       return false;
     } else {
       return recordDefinition.hasIdField();
+    }
+  }
+
+  default boolean isFieldGenerated(final CharSequence name) {
+    final RecordDefinition recordDefinition = getRecordDefinition();
+    if (recordDefinition == null) {
+      return false;
+    } else {
+      return recordDefinition.isFieldGenerated(name);
     }
   }
 
@@ -318,6 +329,15 @@ public interface RecordDefinitionProxy
     return new Query(recordDefinition);
   }
 
+  default Value newQueryValue(final String name, final Object value) {
+    final var column = getFieldDefinition(name);
+    if (column == null) {
+      return null;
+    } else {
+      return Value.newValue(column, value);
+    }
+  }
+
   default RecordDefinition newRecordDefinition(final Collection<String> fieldNames) {
     final RecordDefinition recordDefinition = getRecordDefinition();
     if (recordDefinition == null) {
@@ -328,5 +348,4 @@ public interface RecordDefinitionProxy
       ;
     }
   }
-
 }

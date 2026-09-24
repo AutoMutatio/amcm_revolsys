@@ -338,7 +338,8 @@ public interface Property {
         final BeanInfo beanInfo = Introspector.getBeanInfo(beanClass);
         final PropertyDescriptor[] props = beanInfo.getPropertyDescriptors();
         for (final PropertyDescriptor property : props) {
-          if (property.getName().equals(name)) {
+          if (property.getName()
+            .equals(name)) {
             return property;
           }
         }
@@ -693,6 +694,8 @@ public interface Property {
     } else if (value instanceof Emptyable) {
       final Emptyable emptyable = (Emptyable)value;
       return !emptyable.isEmpty();
+    } else if (value instanceof final Double number) {
+      return Double.isFinite(number);
     } else {
       return true;
     }

@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Reader;
 import java.io.Writer;
@@ -22,6 +21,7 @@ import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -42,12 +42,13 @@ import com.revolsys.io.FileNames;
 import com.revolsys.io.FileProxy;
 import com.revolsys.io.FileUtil;
 import com.revolsys.io.IoUtil;
-import com.revolsys.io.channels.ChannelReader;
+import com.revolsys.io.channels.AbstractDataReader;
 import com.revolsys.io.channels.ChannelWriter;
 import com.revolsys.io.channels.DataReader;
 import com.revolsys.io.file.Paths;
 import com.revolsys.net.UrlProxy;
 import com.revolsys.predicate.Predicates;
+import com.revolsys.record.io.BufferedWriterEx;
 import com.revolsys.util.Property;
 import com.revolsys.util.concurrent.Concurrent;
 
@@ -500,25 +501,27 @@ public interface Resource extends org.springframework.core.io.Resource, FileProx
     return newChannelReader(8192, ByteOrder.BIG_ENDIAN);
   }
 
-  default ChannelReader newChannelReader(final ByteBuffer byteBuffer) {
+  default AbstractDataReader newChannelReader(final ByteBuffer byteBuffer) {
     final ReadableByteChannel in = newReadableByteChannel();
     if (in == null) {
       return null;
     } else {
-      return new ChannelReader(in, byteBuffer);
+      return DataReader.create(in, byteBuffer);
     }
   }
 
-  default DataReader newChannelReader(final int capacity) {
+  default AbstractDataReader newChannelReader(final int capacity) {
     return newChannelReader(capacity, ByteOrder.BIG_ENDIAN);
   }
 
-  default DataReader newChannelReader(final int capacity, final ByteOrder byteOrder) {
+  default AbstractDataReader newChannelReader(final int capacity, final ByteOrder byteOrder) {
     final ReadableByteChannel in = newReadableByteChannel();
     if (in == null) {
       return null;
     } else {
-      return new ChannelReader(in, capacity, byteOrder);
+      final var buffer = ByteBuffer.allocate(capacity);
+      return DataReader.create(in, buffer)
+        .setByteOrder(byteOrder);
     }
   }
 
@@ -629,18 +632,17 @@ public interface Resource extends org.springframework.core.io.Resource, FileProx
   }
 
   default Writer newWriter() {
-    final OutputStream stream = newOutputStream();
-    return FileUtil.newUtf8Writer(stream);
+    return newWriter(StandardCharsets.UTF_8);
   }
 
   default Writer newWriter(final Charset charset) {
-    final OutputStream stream = newOutputStream();
-    return new OutputStreamWriter(stream, charset);
+    final var stream = newOutputStream();
+    return BufferedWriterEx.forStream(stream, charset);
   }
 
   default Writer newWriterAppend() {
-    final OutputStream stream = newOutputStreamAppend();
-    return FileUtil.newUtf8Writer(stream);
+    final var stream = newOutputStreamAppend();
+    return BufferedWriterEx.forStream(stream);
   }
 
   default Path toPath() {

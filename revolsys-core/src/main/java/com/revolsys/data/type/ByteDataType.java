@@ -26,6 +26,18 @@ public class ByteDataType extends AbstractDataType {
   }
 
   @Override
+  public boolean isMathSupported() {
+    return true;
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  public <V> V plus(final Object value1, final Number value2) {
+    final byte number1 = toObject(value1);
+    return (V)(Object)(byte)(number1 + value2.byteValue());
+  }
+
+  @Override
   protected Object toObjectDo(final Object value) {
     final String string = DataTypes.toString(value);
     return Short.valueOf(string);

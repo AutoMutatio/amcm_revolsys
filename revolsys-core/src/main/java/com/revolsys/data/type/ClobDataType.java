@@ -16,10 +16,8 @@ public class ClobDataType extends AbstractDataType {
 
   @Override
   protected boolean equalsNotNull(final Object value1, final Object value2) {
-    if (value1 instanceof StringClob) {
-      final StringClob clob1 = (StringClob)value1;
-      if (value2 instanceof StringClob) {
-        final StringClob clob2 = (StringClob)value2;
+    if (value1 instanceof final StringClob clob1) {
+      if (value2 instanceof final StringClob clob2) {
         return clob1.equals(clob2);
       }
     }

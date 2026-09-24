@@ -5,6 +5,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 
 import com.revolsys.collection.map.MapEx;
@@ -27,7 +28,7 @@ public class ConditionHolder implements Condition {
   public void appendDefaultSelect(final QueryStatement statement, final RecordStore recordStore,
     final SqlAppendable sql) {
     if (this.condition != null) {
-      this.condition.appendDefaultSelect(statement, recordStore, sql);
+      this.condition.appendSelect(statement, recordStore, sql);
     }
   }
 
@@ -35,16 +36,16 @@ public class ConditionHolder implements Condition {
   public void appendDefaultSql(final QueryStatement statement, final RecordStore recordStore,
     final SqlAppendable sql) {
     if (this.condition != null) {
-      this.condition.appendDefaultSql(statement, recordStore, sql);
+      this.condition.appendSql(statement, recordStore, sql);
     }
   }
 
   @Override
-  public int appendParameters(final int index, final PreparedStatement statement) {
+  public int appendParameters(final int index, Map<String, Object> parameters, final PreparedStatement statement) {
     if (this.condition == null) {
       return index;
     } else {
-      return this.condition.appendParameters(index, statement);
+      return this.condition.appendParameters(index, parameters, statement);
     }
   }
 
@@ -57,7 +58,8 @@ public class ConditionHolder implements Condition {
   }
 
   @Override
-  public void appendSql(final QueryStatement statement, final RecordStore recordStore, final SqlAppendable sql) {
+  public void appendSql(final QueryStatement statement, final RecordStore recordStore,
+    final SqlAppendable sql) {
     if (this.condition != null) {
       this.condition.appendSql(statement, recordStore, sql);
     }
@@ -136,13 +138,13 @@ public class ConditionHolder implements Condition {
   }
 
   @Override
-  public Object getValueFromResultSet(final RecordDefinition recordDefinition,
+  public Object getValueFromResultSet(final RecordDefinition recordDefinition, final int fieldIndex,
     final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings)
     throws SQLException {
     if (this.condition == null) {
       return null;
     } else {
-      return this.condition.getValueFromResultSet(recordDefinition, resultSet, indexes,
+      return this.condition.getValueFromResultSet(recordDefinition, fieldIndex, resultSet, indexes,
         internStrings);
     }
   }

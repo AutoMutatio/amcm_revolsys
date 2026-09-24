@@ -31,7 +31,7 @@ import com.revolsys.util.count.CategoryLabelCountMap;
 import com.revolsys.util.count.LabelCounters;
 import com.revolsys.util.count.TotalLabelCounters;
 
-public class LabelCountMapTableModel extends AbstractTableModel {
+public class CategoryLabelCountMapTableModel extends AbstractTableModel {
   private static final long serialVersionUID = 1L;
 
   private String selectedCountName;
@@ -46,10 +46,10 @@ public class LabelCountMapTableModel extends AbstractTableModel {
 
   private int columnCount = 1;
 
-  public LabelCountMapTableModel() {
+  public CategoryLabelCountMapTableModel() {
   }
 
-  public LabelCountMapTableModel(final String labelTitle, final String... countNames) {
+  public CategoryLabelCountMapTableModel(final String labelTitle, final String... countNames) {
     if (labelTitle != null) {
       this.categoryLabelCountMap.setLabelTitle(labelTitle);
     }
@@ -59,7 +59,7 @@ public class LabelCountMapTableModel extends AbstractTableModel {
     this.columnCount += this.countNames.size();
   }
 
-  public LabelCountMapTableModel addColumnAndRow(final CharSequence columnName,
+  public CategoryLabelCountMapTableModel addColumnAndRow(final CharSequence columnName,
     final CharSequence rowLabel) {
     addCountNameColumn(columnName);
     addRowLabel(rowLabel);
@@ -75,12 +75,12 @@ public class LabelCountMapTableModel extends AbstractTableModel {
     }
   }
 
-  public LabelCountMapTableModel addCount(final CharSequence rowLabel,
+  public CategoryLabelCountMapTableModel addCount(final CharSequence rowLabel,
     final CharSequence columnLabel) {
     return addCount(rowLabel, columnLabel, 1);
   }
 
-  public LabelCountMapTableModel addCount(final CharSequence rowLabel,
+  public CategoryLabelCountMapTableModel addCount(final CharSequence rowLabel,
     final CharSequence columnLabel, final long count) {
     if (rowLabel != null && columnLabel != null && count != 0) {
       final LabelCounters labelCountMap = getLabelCounters(rowLabel, columnLabel);
@@ -89,12 +89,12 @@ public class LabelCountMapTableModel extends AbstractTableModel {
     return this;
   }
 
-  public LabelCountMapTableModel addCount(final PathNameProxy pathNameProxy,
+  public CategoryLabelCountMapTableModel addCount(final PathNameProxy pathNameProxy,
     final CharSequence countName) {
     return addCount(pathNameProxy, countName, 1);
   }
 
-  public LabelCountMapTableModel addCount(final PathNameProxy pathNameProxy,
+  public CategoryLabelCountMapTableModel addCount(final PathNameProxy pathNameProxy,
     final CharSequence countName, final long count) {
     if (pathNameProxy != null) {
       final CharSequence label = pathNameProxy.getPathName();
@@ -282,7 +282,7 @@ public class LabelCountMapTableModel extends AbstractTableModel {
     table.addHighlighter(
       new ColorHighlighter((final Component renderer, final ComponentAdapter adapter) -> {
         final int row = adapter.convertRowIndexToModel(adapter.row);
-        if (getValueAt(row, 0).equals(LabelCountMapTableModel.this.selectedLabel)) {
+        if (getValueAt(row, 0).equals(CategoryLabelCountMapTableModel.this.selectedLabel)) {
           return true;
         }
         return false;
@@ -292,8 +292,8 @@ public class LabelCountMapTableModel extends AbstractTableModel {
       new ColorHighlighter((final Component renderer, final ComponentAdapter adapter) -> {
         final int column = adapter.convertColumnIndexToModel(adapter.column);
         final int row = adapter.convertRowIndexToModel(adapter.row);
-        if (getValueAt(row, 0).equals(LabelCountMapTableModel.this.selectedLabel)) {
-          if (getColumnName(column).equals(LabelCountMapTableModel.this.selectedCountName)) {
+        if (getValueAt(row, 0).equals(CategoryLabelCountMapTableModel.this.selectedLabel)) {
+          if (getColumnName(column).equals(CategoryLabelCountMapTableModel.this.selectedCountName)) {
             return true;
           }
         }

@@ -31,6 +31,8 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 
+import com.revolsys.record.io.BufferedWriterEx;
+
 /**
  * Lowercase version of buffered writer.
  *
@@ -52,7 +54,7 @@ public class LowercaseWriter extends Writer {
   private int nextChar;
 
   public LowercaseWriter(final OutputStream out) {
-    this(new OutputStreamWriter(out));
+    this(BufferedWriterEx.forStream(out));
   }
 
   /**

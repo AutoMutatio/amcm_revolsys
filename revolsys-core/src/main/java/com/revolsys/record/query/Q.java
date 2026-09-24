@@ -4,6 +4,7 @@ import java.sql.PreparedStatement;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -22,9 +23,15 @@ import com.revolsys.record.schema.RecordStore;
 import com.revolsys.util.Property;
 
 public class Q {
+  public static final BooleanCondition FALSE = BooleanCondition.FALSE;
+
+  public static final BooleanCondition TRUE = BooleanCondition.TRUE;
+
   public static BiFunction<QueryValue, QueryValue, QueryValue> ADD = Add::new;
 
-  public static BiFunction<QueryValue, QueryValue, Condition> ILIKE = ILike::new;
+  public static BiFunction<QueryValue, QueryValue, Condition> ILIKE = ILike::create;
+
+  public static BiFunction<QueryValue, QueryValue, Condition> LIKE = Like::new;
 
   public static Function<QueryValue, Condition> IS_NOT_NULL = IsNotNull::new;
 
@@ -46,7 +53,7 @@ public class Q {
 
   public static BiFunction<QueryValue, QueryValue, Condition> LESS_THAN_EQUAL = LessThanEqual::new;
 
-  public static BiFunction<QueryValue, QueryValue, Condition> IN = In::new;
+  public static BiFunction<QueryValue, QueryValue, Condition> IN = In::create;
 
   public static Add add(final QueryValue left, final QueryValue right) {
     return new Add(left, right);
@@ -162,22 +169,22 @@ public class Q {
     return new Divide(left, right);
   }
 
-  public static Condition equal(final QueryValue field, final Object value) {
+  public static Condition equal(final QueryValue column, final Object value) {
     QueryValue right;
     if (value == null) {
-      return new IsNull(field);
+      return new IsNull(column);
     } else if (value instanceof final Value queryValue) {
       if (queryValue.getValue() == null) {
-        return new IsNull(field);
+        return new IsNull(column);
       } else {
         right = queryValue;
       }
     } else if (value instanceof final QueryValue queryValue) {
       right = queryValue;
     } else {
-      right = Value.newValue(field, value);
+      right = Value.newValue(column, value);
     }
-    return new Equal(field, right);
+    return new Equal(column, right);
   }
 
   public static Condition equal(final String name, final Object value) {
@@ -234,10 +241,9 @@ public class Q {
     return new Exists(expression);
   }
 
-  public static GreaterThan greaterThan(final FieldDefinition fieldDefinition, final Object value) {
-    final String name = fieldDefinition.getName();
-    final Value valueCondition = Value.newValue(fieldDefinition, value);
-    return greaterThan(name, valueCondition);
+  public static GreaterThan greaterThan(final QueryValue column, final Object value) {
+    final Value valueCondition = Value.newValue(column, value);
+    return new GreaterThan(column, valueCondition);
   }
 
   public static GreaterThan greaterThan(final QueryValue left, final QueryValue right) {
@@ -254,11 +260,9 @@ public class Q {
     return new GreaterThan(column, right);
   }
 
-  public static GreaterThanEqual greaterThanEqual(final FieldDefinition fieldDefinition,
-    final Object value) {
-    final String name = fieldDefinition.getName();
-    final Value valueCondition = Value.newValue(fieldDefinition, value);
-    return greaterThanEqual(name, valueCondition);
+  public static GreaterThanEqual greaterThanEqual(final QueryValue column, final Object value) {
+    final Value valueCondition = Value.newValue(column, value);
+    return new GreaterThanEqual(column, valueCondition);
   }
 
   public static GreaterThanEqual greaterThanEqual(final QueryValue left, final QueryValue right) {
@@ -272,34 +276,33 @@ public class Q {
 
   public static GreaterThanEqual greaterThanEqual(final String name, final QueryValue right) {
     final Column column = new Column(name);
-    return greaterThanEqual(column, right);
+    return new GreaterThanEqual(column, right);
   }
 
   public static ILike iLike(final ColumnReference column, final Object value) {
-    final String name = column.getName();
-    final Value valueCondition = Value.newValue(column, value);
-    return iLike(name, valueCondition);
+    final var valueCondition = stringValue(value);
+    return iLike(column, valueCondition);
   }
 
   public static ILike iLike(final QueryValue left, final Object value) {
-    final Value valueCondition = Value.newValue(value);
-    return new ILike(left, valueCondition);
+    final var valueCondition = stringValue(value);
+    return ILike.create(left, valueCondition);
   }
 
   public static ILike iLike(final String name, final Object value) {
-    final Value valueCondition = Value.newValue(value);
+    final var valueCondition = stringValue(value);
     return iLike(name, valueCondition);
   }
 
   public static ILike iLike(final String left, final QueryValue right) {
     final Column leftCondition = new Column(left);
-    return new ILike(leftCondition, right);
+    return ILike.create(leftCondition, right);
   }
 
   public static Condition iLike(final String left, final String right) {
     final Column leftCondition = new Column(left);
-    final Value valueCondition = Value.newValue("%" + right + "%");
-    return new ILike(leftCondition, valueCondition);
+    final var valueCondition = Q.stringValue("%" + right + "%");
+    return ILike.create(leftCondition, valueCondition);
   }
 
   public static ILike iLike(final TableReferenceProxy table, final CharSequence fieldName,
@@ -308,31 +311,38 @@ public class Q {
     return iLike(column, value);
   }
 
-  public static In in(final ColumnReference fieldDefinition,
-    final Collection<? extends Object> values) {
-    return new In(fieldDefinition, values);
+  public static In in(final QueryValue column, final Collection<? extends Object> values) {
+    return In.create(column, values);
   }
 
-  public static In in(final ColumnReference fieldDefinition, final Object... values) {
+  public static In in(final QueryValue column, final Object... values) {
     final List<Object> list = Arrays.asList(values);
-    return new In(fieldDefinition, list);
+    return In.create(column, list);
   }
 
   public static In in(final String name, final Collection<? extends Object> values) {
     final Column left = new Column(name);
-    final CollectionValue collectionValue = new CollectionValue(values);
-    return new In(left, collectionValue);
+    return In.create(left, values);
   }
 
   public static In in(final String name, final Object... values) {
     final List<Object> list = Arrays.asList(values);
-    return new In(name, list);
+    return in(name, list);
+  }
+
+  public static In in(final TableReferenceProxy table, final CharSequence fieldName,
+    final Collection<?> values) {
+    final var column = table.getColumn(fieldName);
+    final var collection = new CollectionValue(column, values);
+    return In.create(column, collection);
   }
 
   public static In in(final TableReferenceProxy table, final CharSequence fieldName,
     final Object... values) {
     final var column = table.getColumn(fieldName);
-    return in(column, values);
+    final var list = Lists.newArray(values);
+    final var collection = new CollectionValue(column, list);
+    return In.create(column, collection);
   }
 
   public static IsNotNull isNotNull(final FieldDefinition fieldDefinition) {
@@ -363,7 +373,13 @@ public class Q {
   }
 
   public static JsonValue jsonRawValue(final QueryValue left, final String right) {
-    return jsonRawValue(left, Value.newValue(right)).setText(false);
+    return jsonRawValue(left, Q.stringValue(right));
+  }
+
+  public static JsonValue jsonRawValue(final TableReferenceProxy table, final String fieldName,
+    final String name) {
+    final var column = table.getColumn(fieldName);
+    return jsonRawValue(column, name);
   }
 
   public static JsonValue jsonValue(final QueryValue left, final QueryValue right) {
@@ -371,7 +387,7 @@ public class Q {
   }
 
   public static JsonValue jsonValue(final QueryValue left, final String right) {
-    return jsonValue(left, Q.literal(right));
+    return jsonValue(left, Q.stringValue(right));
   }
 
   public static JsonValue jsonValue(final TableReferenceProxy table, final String fieldName,
@@ -380,10 +396,9 @@ public class Q {
     return jsonValue(column, name);
   }
 
-  public static LessThan lessThan(final FieldDefinition fieldDefinition, final Object value) {
-    final String name = fieldDefinition.getName();
-    final Value valueCondition = Value.newValue(fieldDefinition, value);
-    return lessThan(name, valueCondition);
+  public static LessThan lessThan(final QueryValue column, final Object value) {
+    final Value valueCondition = Value.newValue(column, value);
+    return new LessThan(column, valueCondition);
   }
 
   public static LessThan lessThan(final QueryValue left, final QueryValue right) {
@@ -397,14 +412,12 @@ public class Q {
 
   public static LessThan lessThan(final String name, final QueryValue right) {
     final Column column = new Column(name);
-    return lessThan(column, right);
+    return new LessThan(column, right);
   }
 
-  public static LessThanEqual lessThanEqual(final FieldDefinition fieldDefinition,
-    final Object value) {
-    final String name = fieldDefinition.getName();
-    final Value valueCondition = Value.newValue(fieldDefinition, value);
-    return lessThanEqual(name, valueCondition);
+  public static LessThanEqual lessThanEqual(final QueryValue column, final Object value) {
+    final Value valueCondition = Value.newValue(column, value);
+    return new LessThanEqual(column, valueCondition);
   }
 
   public static LessThanEqual lessThanEqual(final QueryValue left, final QueryValue right) {
@@ -422,23 +435,17 @@ public class Q {
   }
 
   public static Like like(final FieldDefinition fieldDefinition, final Object value) {
-    final String name = fieldDefinition.getName();
-    final Value valueCondition = Value.newValue(fieldDefinition, value);
-    return like(name, valueCondition);
+    final var valueCondition = stringValue(value);
+    return like(fieldDefinition, valueCondition);
   }
 
   public static Like like(final QueryValue left, final Object value) {
-    final QueryValue valueCondition;
-    if (value instanceof QueryValue) {
-      valueCondition = (QueryValue)value;
-    } else {
-      valueCondition = Value.newValue(value);
-    }
+    final var valueCondition = stringValue(value);
     return new Like(left, valueCondition);
   }
 
   public static Like like(final String name, final Object value) {
-    final Value valueCondition = Value.newValue(value);
+    final var valueCondition = stringValue(value);
     return like(name, valueCondition);
   }
 
@@ -457,9 +464,9 @@ public class Q {
     } else {
       left = F.regexpReplace(F.upper(fieldName), "[^A-Z0-9]", "", "g");
     }
-    final String right = "%" + DataTypes.toString(value)
+    final var right = Q.stringValue("%" + DataTypes.toString(value)
       .toUpperCase()
-      .replaceAll("[^A-Z0-9]", "") + "%";
+      .replaceAll("[^A-Z0-9]", "") + "%");
     return Q.like(left, right);
   }
 
@@ -506,6 +513,10 @@ public class Q {
     return not(exists(expression));
   }
 
+  public static NullValue nullValue() {
+    return NullValue.INSTANCE;
+  }
+
   public static Or or(final Condition... conditions) {
     final List<Condition> list = Arrays.asList(conditions);
     return or(list);
@@ -533,7 +544,7 @@ public class Q {
       }
 
       @Override
-      public int appendParameters(final int index, final PreparedStatement statement) {
+      public int appendParameters(final int index, Map<String, Object> parameters, final PreparedStatement statement) {
         throw new UnsupportedOperationException(
           "Predicate conditions cannot be used to append SQL parameters");
       }
@@ -615,6 +626,20 @@ public class Q {
 
   public static QueryValue sqlExpression(final String sql, final DataType dataType) {
     return new SqlExpression(sql, dataType);
+  }
+
+  private static QueryValue stringValue(final Object value) {
+    final QueryValue valueCondition;
+    if (value instanceof QueryValue) {
+      valueCondition = (QueryValue)value;
+    } else {
+      valueCondition = Q.stringValue(value.toString());
+    }
+    return valueCondition;
+  }
+
+  public static StringValue stringValue(final String string) {
+    return new StringValue(string);
   }
 
   public static Subtract subtract(final QueryValue left, final QueryValue right) {

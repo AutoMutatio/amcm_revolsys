@@ -52,6 +52,11 @@ public abstract class LazyLoadTreeNode extends BaseTreeNode {
   }
 
   @Override
+  public BaseTreeNode getChildAt(int index) {
+    return children.get(index);
+  }
+
+  @Override
   public List<BaseTreeNode> getChildren() {
     return this.children;
   }
@@ -136,37 +141,21 @@ public abstract class LazyLoadTreeNode extends BaseTreeNode {
       } else {
         this.loaded = true;
       }
-      final List<BaseTreeNode> oldNodes = this.children;
-      for (int i = 0; i < oldNodes.size();) {
-        final BaseTreeNode oldNode = oldNodes.get(i);
-        if (newNodes.contains(oldNode)) {
-          i++;
-        } else {
-          oldNodes.remove(i);
-          nodeRemoved(i, oldNode);
-          oldNode.setParent(null);
+      this.children = newNodes;
+      newNodes.forEach(node -> {
+        final var parent = node.getParent();
+        if (parent != null) {
+          parent.removeChild(node);
         }
-      }
-      for (int i = 0; i < newNodes.size();) {
-        final BaseTreeNode oldNode;
-        if (i < oldNodes.size()) {
-          oldNode = oldNodes.get(i);
-        } else {
-          oldNode = null;
-        }
-        final BaseTreeNode newNode = newNodes.get(i);
-        if (!newNode.equals(oldNode)) {
-          newNode.setParent(this);
-          oldNodes.add(i, newNode);
-          nodesInserted(i);
-        }
-        i++;
-      }
+        node.setParent(this);
+      });
+      nodeStructureChanged();
     }
   }
 
   private void setLoading() {
     this.children = newLoadingNodes();
+    nodeStructureChanged();
     this.loaded = false;
   }
 }

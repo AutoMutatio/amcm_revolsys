@@ -19,7 +19,6 @@ import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.gis.grid.RectangularMapGrid;
 import com.revolsys.io.Buffers;
-import com.revolsys.io.channels.ChannelReader;
 import com.revolsys.io.channels.ChannelWriter;
 import com.revolsys.io.channels.DataReader;
 import com.revolsys.io.file.Paths;
@@ -61,8 +60,9 @@ public class ScaledIntegerGriddedDigitalElevationModelFile extends DirectFileEle
   private boolean useLocks = false;
 
   public ScaledIntegerGriddedDigitalElevationModelFile(final Path path) {
-    super(ScaledIntegerGriddedDigitalElevation.HEADER_SIZE,
-      ScaledIntegerGriddedDigitalElevation.RECORD_SIZE);
+    super(
+      ScaledIntegerGriddedDigitalElevation.HEADER_SIZE,
+        ScaledIntegerGriddedDigitalElevation.RECORD_SIZE);
     this.path = path;
     this.openOptions = Paths.OPEN_OPTIONS_READ_SET;
     readHeader();
@@ -71,8 +71,15 @@ public class ScaledIntegerGriddedDigitalElevationModelFile extends DirectFileEle
   public ScaledIntegerGriddedDigitalElevationModelFile(final Path path,
     final GeometryFactory geometryFactory, final int minX, final int minY, final int gridWidth,
     final int gridHeight, final double gridCellSize) {
-    super(geometryFactory, minX, minY, gridWidth, gridHeight, gridCellSize,
-      ScaledIntegerGriddedDigitalElevation.HEADER_SIZE, 4);
+    super(
+      geometryFactory,
+        minX,
+        minY,
+        gridWidth,
+        gridHeight,
+        gridCellSize,
+        ScaledIntegerGriddedDigitalElevation.HEADER_SIZE,
+        4);
     setModified(false);
     this.openOptions = Sets.newHash(StandardOpenOption.READ, StandardOpenOption.WRITE,
       StandardOpenOption.SYNC);
@@ -122,7 +129,7 @@ public class ScaledIntegerGriddedDigitalElevationModelFile extends DirectFileEle
     if (this.channel == null && isOpen()) {
       try {
         this.channel = FileChannel.open(this.path, this.openOptions, this.fileAttributes);
-        this.reader = new ChannelReader(this.channel);
+        this.reader = DataReader.create(this.channel);
       } catch (final NoSuchFileException e) {
         if (this.createMissing) {
           createNewFile();

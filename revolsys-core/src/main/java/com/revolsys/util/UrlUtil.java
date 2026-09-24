@@ -661,7 +661,7 @@ public final class UrlUtil {
         final String string = DataTypes.toString(value);
         return URI.create(string);
       }
-    } catch (final Throwable e) {
+    } catch (final URISyntaxException | IOException e) {
       throw Exceptions.toRuntimeException(e);
     }
   }

@@ -22,20 +22,16 @@ public class LabelCountMap extends AbstractLabelCounters {
   }
 
   @Override
-  public synchronized boolean addCount(final CharSequence label, final long count) {
-    if (label == null) {
-      return false;
-    } else {
+  public synchronized void addCount(final CharSequence label, final long count) {
+    if (label != null) {
       this.total.add(count);
       final String labelString = label.toString();
       Counter counter = this.counterByLabel.get(labelString);
       if (counter == null) {
         counter = new LongCounter(labelString, count);
         this.counterByLabel.put(labelString, counter);
-        return true;
       } else {
         counter.add(count);
-        return false;
       }
     }
   }

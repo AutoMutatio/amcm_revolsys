@@ -3,7 +3,6 @@ package com.revolsys.record.io.format.csv;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.nio.charset.Charset;
@@ -21,6 +20,7 @@ import com.revolsys.io.map.MapWriterFactory;
 import com.revolsys.record.Record;
 import com.revolsys.record.RecordFactory;
 import com.revolsys.record.io.AbstractRecordIoFactory;
+import com.revolsys.record.io.BufferedWriterEx;
 import com.revolsys.record.io.RecordReader;
 import com.revolsys.record.io.RecordWriter;
 import com.revolsys.record.io.RecordWriterFactory;
@@ -119,7 +119,8 @@ public class Csv extends AbstractRecordIoFactory implements RecordWriterFactory,
 
   @Override
   public CsvRecordWriter newRecordWriter(final RecordDefinitionProxy recordDefinition,
-    final Writer writer) {
+    Writer writer) {
+    writer = BufferedWriterEx.forWriter(writer);
     return new CsvRecordWriter(recordDefinition, writer, Csv.FIELD_SEPARATOR, true, true);
   }
 
@@ -127,7 +128,7 @@ public class Csv extends AbstractRecordIoFactory implements RecordWriterFactory,
   public RecordWriter newRecordWriter(final String baseName,
     final RecordDefinitionProxy recordDefinition, final OutputStream outputStream,
     final Charset charset) {
-    final OutputStreamWriter writer = new OutputStreamWriter(outputStream, charset);
+    final var writer = BufferedWriterEx.forStream(outputStream, charset);
 
     return new CsvRecordWriter(recordDefinition, writer, Csv.FIELD_SEPARATOR, true, true);
   }

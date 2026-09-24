@@ -1,10 +1,13 @@
 package com.revolsys.rest;
 
 import java.io.IOException;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
+import org.springframework.http.ResponseEntity;
 
 import com.revolsys.collection.json.JsonObject;
 import com.revolsys.data.identifier.Identifier;
@@ -14,16 +17,28 @@ import com.revolsys.record.query.Query;
 import com.revolsys.record.schema.AbstractTableRecordStore;
 import com.revolsys.record.schema.TableRecordStoreConnection;
 import com.revolsys.record.schema.TableRecordStoreFactory;
+import com.revolsys.record.schema.TableRecordStoreQuery;
 
 public class BaseTableRecordRestController extends AbstractTableRecordRestController {
 
+  public static UUID getUuid(final String referenceOrId) {
+    UUID uuid = null;
+    if (referenceOrId.length() == 36) {
+      try {
+        uuid = UUID.fromString(referenceOrId);
+      } catch (final Exception e) {
+      }
+    }
+    return uuid;
+  }
+
   protected final PathName tablePath;
 
-  protected final String typeName;
+  protected final String tableName;
 
   public BaseTableRecordRestController(final PathName tablePath) {
     this.tablePath = tablePath;
-    this.typeName = tablePath.getName();
+    this.tableName = tablePath.getName();
   }
 
   protected <RS extends AbstractTableRecordStore> RS getTableRecordStore(
@@ -34,8 +49,7 @@ public class BaseTableRecordRestController extends AbstractTableRecordRestContro
   protected void handleGetRecord(final TableRecordStoreConnection connection,
     final HttpServletRequest request, final HttpServletResponse response, final String fieldName,
     final Object value) throws IOException {
-    final Query query = getTableRecordStore(connection, this.typeName).newQuery(connection)//
-      .and(fieldName, value);
+    final Query query = newQuery(connection).and(fieldName, value);
     handleGetRecord(connection, request, response, query);
   }
 
@@ -58,9 +72,20 @@ public class BaseTableRecordRestController extends AbstractTableRecordRestContro
     responseRecordJson(response, record);
   }
 
-  protected Query newQuery(final TableRecordStoreConnection connection,
+  protected TableRecordStoreQuery newQuery(final TableRecordStoreConnection connection) {
+    return getTableRecordStore(connection, this.tableName).newQuery(connection);
+  }
+
+  protected TableRecordStoreQuery newQuery(final TableRecordStoreConnection connection,
     final HttpServletRequest request) {
     return super.newQuery(connection, request, this.tablePath);
+  }
+
+  protected ResponseEntity<Record> responseEntityRecord(final TableRecordStoreConnection connection,
+    final String fieldName, final Object value) throws IOException {
+    final Query query = newQuery(connection)//
+      .and(fieldName, value);
+    return responseEntityRecord(query);
   }
 
 }

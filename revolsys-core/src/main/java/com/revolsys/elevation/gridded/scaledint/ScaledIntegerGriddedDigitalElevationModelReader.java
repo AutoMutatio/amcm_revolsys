@@ -7,7 +7,6 @@ import java.nio.MappedByteBuffer;
 import java.nio.channels.ClosedByInterruptException;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
-import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
@@ -18,7 +17,8 @@ import com.revolsys.exception.Exceptions;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.io.IoFactory;
-import com.revolsys.io.channels.ChannelReader;
+import com.revolsys.io.channels.AbstractDataReader;
+import com.revolsys.io.channels.FileChannelReader;
 import com.revolsys.properties.BaseObjectWithProperties;
 import com.revolsys.spring.resource.Resource;
 
@@ -30,7 +30,7 @@ public class ScaledIntegerGriddedDigitalElevationModelReader extends BaseObjectW
 
   private ByteBuffer byteBuffer;
 
-  private ChannelReader reader;
+  private AbstractDataReader reader;
 
   private GeometryFactory geometryFactory = GeometryFactory.DEFAULT_3D;
 
@@ -60,7 +60,7 @@ public class ScaledIntegerGriddedDigitalElevationModelReader extends BaseObjectW
   @Override
   public void close() {
     super.close();
-    final ChannelReader reader = this.reader;
+    final AbstractDataReader reader = this.reader;
     this.reader = null;
     if (reader != null) {
       reader.close();
@@ -120,12 +120,11 @@ public class ScaledIntegerGriddedDigitalElevationModelReader extends BaseObjectW
     init();
     if (this.exists) {
       try {
-        final ChannelReader in = this.reader;
+        final AbstractDataReader in = this.reader;
         final int cellCount = this.gridWidth * this.gridHeight;
         final int[] elevations = new int[cellCount];
-        final ReadableByteChannel channel = in.getChannel();
-        if (isMemoryMapped() && channel instanceof FileChannel) {
-          final FileChannel fileChannel = (FileChannel)channel;
+        if (isMemoryMapped() && in instanceof final FileChannelReader fileReader) {
+          final FileChannel fileChannel = fileReader.getChannel();
           final MappedByteBuffer mappedBytes = fileChannel.map(MapMode.READ_ONLY,
             ScaledIntegerGriddedDigitalElevation.HEADER_SIZE,
             cellCount * ScaledIntegerGriddedDigitalElevation.RECORD_SIZE);

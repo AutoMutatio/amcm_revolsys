@@ -4,6 +4,7 @@ import java.sql.Array;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashSet;
@@ -23,6 +24,7 @@ import com.revolsys.data.type.DataTypes;
 import com.revolsys.exception.Exceptions;
 import com.revolsys.gis.postgresql.type.PostgreSQLArrayFieldDefinition;
 import com.revolsys.gis.postgresql.type.PostgreSQLBoundingBoxWrapper;
+import com.revolsys.gis.postgresql.type.PostgreSQLCiTextFieldDefinition;
 import com.revolsys.gis.postgresql.type.PostgreSQLGeometryFieldAdder;
 import com.revolsys.gis.postgresql.type.PostgreSQLGeometryWrapper;
 import com.revolsys.gis.postgresql.type.PostgreSQLJdbcBlobFieldDefinition;
@@ -30,6 +32,7 @@ import com.revolsys.gis.postgresql.type.PostgreSQLJdbcEnumFieldDefinition;
 import com.revolsys.gis.postgresql.type.PostgreSQLJdbcIntevalFieldDefinition;
 import com.revolsys.gis.postgresql.type.PostgreSQLJsonbFieldDefinition;
 import com.revolsys.gis.postgresql.type.PostgreSQLOidFieldDefinition;
+import com.revolsys.gis.postgresql.type.PostgreSQLStructFieldDefinition;
 import com.revolsys.gis.postgresql.type.PostgreSQLTidWrapper;
 import com.revolsys.io.PathName;
 import com.revolsys.jdbc.JdbcConnection;
@@ -51,6 +54,7 @@ import com.revolsys.record.query.SqlAppendable;
 import com.revolsys.record.query.functions.EnvelopeIntersects;
 import com.revolsys.record.query.functions.JsonValue;
 import com.revolsys.record.schema.FieldDefinition;
+import com.revolsys.record.schema.LockMode;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordStoreSchemaElement;
 import com.revolsys.util.Property;
@@ -59,6 +63,10 @@ public class PostgreSQLRecordStore extends AbstractJdbcRecordStore {
 
   public static final List<String> POSTGRESQL_INTERNAL_SCHEMAS = Arrays.asList("information_schema",
     "pg_catalog", "pg_toast_temp_1");
+
+  public static CollectionDataType newListDataType(final DataType elementDataType) {
+    return new CollectionDataType("List" + elementDataType.getName(), List.class, elementDataType);
+  }
 
   private boolean useSchemaSequencePrefix = true;
 
@@ -106,8 +114,7 @@ public class PostgreSQLRecordStore extends AbstractJdbcRecordStore {
         dbColumnName, name, sqlType, elementDbDataType, length, scale, required, description);
 
       final DataType elementDataType = elementField.getDataType();
-      final CollectionDataType listDataType = new CollectionDataType(
-        "List" + elementDataType.getName(), List.class, elementDataType);
+      final var listDataType = newListDataType(elementDataType);
       field = new PostgreSQLArrayFieldDefinition(dbColumnName, name, listDataType,
         elementDbDataType, sqlType, dbDataType, length, scale, required, description, elementField,
         getProperties());
@@ -149,6 +156,7 @@ public class PostgreSQLRecordStore extends AbstractJdbcRecordStore {
     jsonParameter.appendSql(statement, this, sql);
 
     final String[] path = jsonValue.getPath()
+      .replaceAll("'", "''")
       .split("\\.");
     for (int i = 1; i < path.length; i++) {
       final String propertyName = path[i];
@@ -212,6 +220,11 @@ public class PostgreSQLRecordStore extends AbstractJdbcRecordStore {
     if (limit != Integer.MAX_VALUE) {
       sql += " LIMIT " + limit;
     }
+    final var lockMode = query.getLockMode();
+    if (lockMode != LockMode.NONE) {
+      sql += lockMode.getClause();
+    }
+
     return sql;
   }
 
@@ -262,7 +275,6 @@ public class PostgreSQLRecordStore extends AbstractJdbcRecordStore {
     final JdbcStringFieldAdder stringFieldAdder = new JdbcStringFieldAdder();
     addFieldAdder("varchar", stringFieldAdder);
     addFieldAdder("text", stringFieldAdder);
-    addFieldAdder("citext", stringFieldAdder);
     addFieldAdder("name", stringFieldAdder);
     addFieldAdder("bpchar", stringFieldAdder);
 
@@ -297,11 +309,15 @@ public class PostgreSQLRecordStore extends AbstractJdbcRecordStore {
 
     addFieldAdder("bool", new JdbcFieldAdder(DataTypes.BOOLEAN));
 
+    addFieldAdder("citext", PostgreSQLCiTextFieldDefinition::new);
+
     addFieldAdder("uuid", new JdbcFieldAdder(DataTypes.UUID));
 
     addFieldAdder("oid", PostgreSQLJdbcBlobFieldDefinition::new);
 
     addFieldAdder("jsonb", PostgreSQLJsonbFieldDefinition::new);
+
+    addFieldAdder(Types.STRUCT, PostgreSQLStructFieldDefinition::new);
 
     final JdbcFieldAdder geometryFieldAdder = new PostgreSQLGeometryFieldAdder(this);
     addFieldAdder("geometry", geometryFieldAdder);
@@ -311,7 +327,6 @@ public class PostgreSQLRecordStore extends AbstractJdbcRecordStore {
       + " join pg_index i on i.indrelid = t.oid " //
       + " join pg_attribute c on c.attrelid = t.oid" //
       + " WHERE s.nspname = ? AND c.attnum = any(i.indkey) AND i.indisprimary");
-    setPrimaryKeyTableCondition(" AND r.relname = ?");
     setSchemaPermissionsSql("select distinct t.table_schema as \"SCHEMA_NAME\" "
       + "from information_schema.role_table_grants t  "
       + "where (t.grantee  in (current_user, 'PUBLIC') or "

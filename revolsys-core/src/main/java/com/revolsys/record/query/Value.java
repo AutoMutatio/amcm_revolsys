@@ -9,6 +9,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
 
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.data.identifier.Identifier;
@@ -42,16 +43,28 @@ public class Value implements QueryValue {
   }
 
   public static Value newValue(final ColumnReference field, final Object value) {
-    return new Value(field, value);
+    if (field == null) {
+      return newValue(value);
+    } else {
+      return new Value(field, value);
+    }
   }
 
   public static Value newValue(final FieldDefinition field, final Object value) {
-    return new Value(field, value);
+    if (field == null) {
+      return newValue(value);
+    } else {
+      return new Value(field, value);
+    }
   }
 
   public static Value newValue(final FieldDefinition field, final Object value,
     final boolean dontConvert) {
-    return new Value(field, value, dontConvert);
+    if (field == null) {
+      return newValue(value);
+    } else {
+      return new Value(field, value, dontConvert);
+    }
   }
 
   public static Value newValue(final Object value) {
@@ -189,7 +202,24 @@ public class Value implements QueryValue {
   }
 
   @Override
-  public int appendParameters(final int index, final PreparedStatement statement) {
+  public void appendOData(final StringBuilder s) {
+    if (this.queryValue == null) {
+      s.append("null");
+    } else if (this.queryValue instanceof final Boolean bool) {
+      s.append(bool);
+    } else if (this.queryValue instanceof final Number number) {
+      s.append(number.toString());
+    } else {
+      s.append('\'');
+      // TODO escaping
+      s.append(this.queryValue.toString());
+      s.append('\'');
+    }
+  }
+
+  @Override
+  public int appendParameters(final int index, final Map<String, Object> parameters,
+    final PreparedStatement statement) {
     try {
       try {
         return this.jdbcField.setPreparedStatementValue(statement, index, this.queryValue);

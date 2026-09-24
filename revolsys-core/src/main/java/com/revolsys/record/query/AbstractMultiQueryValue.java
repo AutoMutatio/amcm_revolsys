@@ -3,6 +3,7 @@ package com.revolsys.record.query;
 import java.sql.PreparedStatement;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 
 import com.revolsys.data.type.DataType;
@@ -12,6 +13,8 @@ public abstract class AbstractMultiQueryValue implements QueryValue {
   private static final QueryValue[] EMPTY_ARRAY = new QueryValue[0];
 
   protected QueryValue[] values = EMPTY_ARRAY;
+
+  private ColumnReference column;
 
   public AbstractMultiQueryValue() {
   }
@@ -24,24 +27,22 @@ public abstract class AbstractMultiQueryValue implements QueryValue {
     }
   }
 
-  protected boolean addValue(final QueryValue value) {
-    if (value == null) {
-      return false;
-    } else {
+  protected AbstractMultiQueryValue addValue(final QueryValue value) {
+    if (value != null) {
       final QueryValue[] oldValues = this.values;
       final QueryValue[] values = new QueryValue[oldValues.length + 1];
       System.arraycopy(oldValues, 0, values, 0, oldValues.length);
       values[oldValues.length] = value;
       this.values = values;
-      return true;
     }
+    return this;
   }
 
   @Override
-  public int appendParameters(int index, final PreparedStatement statement) {
+  public int appendParameters(int index, Map<String, Object> parameters, final PreparedStatement statement) {
     for (final QueryValue value : this.values) {
       if (value != null) {
-        index = value.appendParameters(index, statement);
+        index = value.appendParameters(index, parameters, statement);
       }
     }
     return index;
@@ -89,6 +90,11 @@ public abstract class AbstractMultiQueryValue implements QueryValue {
   }
 
   @Override
+  public ColumnReference getColumn() {
+    return column;
+  }
+
+  @Override
   public List<QueryValue> getQueryValues() {
     return Arrays.asList(this.values);
   }
@@ -126,12 +132,21 @@ public abstract class AbstractMultiQueryValue implements QueryValue {
     return false;
   }
 
+  @Override
+  public void setColumn(ColumnReference column) {
+    this.column = column;
+  }
+
   public void setQueryValue(final int i, final QueryValue value) {
     if (value == null) {
       removeValue(i);
     } else {
       this.values[i] = value;
     }
+  }
+
+  public int size() {
+    return this.values.length;
   }
 
   @SuppressWarnings("unchecked")

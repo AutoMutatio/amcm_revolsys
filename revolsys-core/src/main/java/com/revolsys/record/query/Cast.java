@@ -50,15 +50,15 @@ public class Cast extends AbstractUnaryQueryValue {
   }
 
   @Override
-  public Object getValueFromResultSet(final RecordDefinition recordDefinition, final ResultSet resultSet,
-      final ColumnIndexes indexes,
-      final boolean internStrings) throws SQLException {
+  public Object getValueFromResultSet(final RecordDefinition recordDefinition, int fieldIndex,
+      final ResultSet resultSet,
+      final ColumnIndexes indexes, final boolean internStrings) throws SQLException {
     if (this.convertedField == null) {
       final var recordStore = (AbstractJdbcRecordStore) recordDefinition.getRecordStore();
       this.convertedField = recordStore.getFieldAdder(this.dataType).newField(null, null, "", "", 0, this.dataType, 0,
           0, false, null);
     }
-    return this.convertedField.getValueFromResultSet(recordDefinition, resultSet, indexes, internStrings);
+    return this.convertedField.getValueFromResultSet(recordDefinition, fieldIndex, resultSet, indexes, internStrings);
   }
 
   @Override

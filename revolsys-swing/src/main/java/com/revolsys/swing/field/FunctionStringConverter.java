@@ -34,7 +34,11 @@ public class FunctionStringConverter<T> extends ObjectToStringConverter
     final int index, final boolean isSelected, final boolean cellHasFocus) {
     final String text;
     if (value == this.prototypeValue) {
-      text = this.prototypeValue.toString();
+      if (this.prototypeValue == null) {
+        text = "-";
+      } else {
+        text = this.prototypeValue.toString();
+      }
     } else {
       text = getPreferredStringForItem(value);
     }

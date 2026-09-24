@@ -2,7 +2,6 @@ package com.revolsys.data.type;
 
 import java.lang.reflect.Constructor;
 import java.util.Collection;
-import java.util.List;
 
 import com.revolsys.collection.list.ArrayListEx;
 import com.revolsys.collection.list.ListEx;
@@ -42,6 +41,23 @@ public class ListDataType extends SimpleDataType {
     } catch (final Exception e) {
       throw Exceptions.toRuntimeException(e);
     }
+  }
+
+  @Override
+  protected boolean equalsExactNotNull(final Object value1, final Object value2) {
+    final ListEx<?> list1 = (ListEx<?>)value1;
+    final ListEx<?> list2 = (ListEx<?>)value2;
+    if (list1.size() != list2.size()) {
+      return false;
+    }
+    for (int i = 0; i < list1.size(); i++) {
+      final Object value11 = list1.get(i);
+      final Object value21 = list2.get(i);
+      if (!DataType.equalExact(value11, value21)) {
+        return false;
+      }
+    }
+    return true;
   }
 
   @Override

@@ -142,8 +142,7 @@ public final class MapDatasetMerge<SR, TR, K> implements Cloneable {
       Objects.requireNonNull(this.merger.updateHandler, "updateHandler");
       Objects.requireNonNull(this.merger.sourceRecordById, "sourceRecordById");
       Objects.requireNonNull(this.merger.targetRecordById, "targetRecordById");
-      return this.merger.clone()
-        .run();
+      return this.merger.clone().run();
     }
 
     public Builder<SR2, TR2, K2> sourceRecordById(final Map<K2, ? extends SR2> sourceRecordById) {
@@ -276,12 +275,12 @@ public final class MapDatasetMerge<SR, TR, K> implements Cloneable {
     }
 
     Concurrent.virtual()
-      .scope(scope -> {
-        scope.fork(this::processRecords);
-        scope.fork(this::processDelete);
-        scope.fork(this::processInsert);
-        scope.fork(this::processUpdate);
-      });
+      .parallel(//
+        this::processRecords, //
+        this::processDelete, //
+        this::processInsert, //
+        this::processUpdate //
+      );
 
     return this.counts;
   }

@@ -18,7 +18,7 @@ public class JdbcDataSourceTest {
 
   private JdbcDataSource newDataSource() {
     final var dataSource = JdbcDatabaseFactory.dataSource(JsonObject.hash()//
-      .addValue("url", "jdbc:postgresql://localhost:42032/AmCmDevelopment")
+      .addValue("url", "jdbc:postgresql://localhost:42018/AmCmDevelopment")
       .addValue("user", "AmCmDevelopment")
       .addValue("password", "12345678")
       .addValue("maxPoolSize", 2)

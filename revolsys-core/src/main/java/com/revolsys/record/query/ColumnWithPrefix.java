@@ -3,6 +3,7 @@ package com.revolsys.record.query;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Map;
 
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.data.type.DataType;
@@ -15,9 +16,9 @@ public class ColumnWithPrefix implements QueryValue, ColumnReference {
 
   private final String columnPrefix;
 
-  private final ColumnReference column;
+  private final QueryValue column;
 
-  public ColumnWithPrefix(final CharSequence columnPrefix, final ColumnReference column) {
+  public ColumnWithPrefix(final CharSequence columnPrefix, final QueryValue column) {
     if (columnPrefix == null) {
       this.columnPrefix = null;
     } else {
@@ -28,7 +29,7 @@ public class ColumnWithPrefix implements QueryValue, ColumnReference {
 
   @Override
   public void appendColumnName(final SqlAppendable string) {
-    this.column.appendColumnName(string);
+    getColumn().appendColumnName(string);
   }
 
   @Override
@@ -54,8 +55,8 @@ public class ColumnWithPrefix implements QueryValue, ColumnReference {
   }
 
   @Override
-  public int appendParameters(final int index, final PreparedStatement statement) {
-    return this.column.appendParameters(index, statement);
+  public int appendParameters(final int index, Map<String, Object> parameters, final PreparedStatement statement) {
+    return this.column.appendParameters(index, parameters, statement);
   }
 
   @Override
@@ -70,7 +71,7 @@ public class ColumnWithPrefix implements QueryValue, ColumnReference {
   @Override
   public ColumnWithPrefix clone(final TableReference oldTable, final TableReference newTable) {
     if (oldTable != newTable) {
-      final ColumnReference clonedColumn = this.column.clone(oldTable, newTable);
+      final QueryValue clonedColumn = this.column.clone(oldTable, newTable);
       return new ColumnWithPrefix(this.columnPrefix, clonedColumn);
     }
     return clone();
@@ -89,33 +90,33 @@ public class ColumnWithPrefix implements QueryValue, ColumnReference {
 
   @Override
   public ColumnReference getColumn() {
-    return this.column;
+    return this.column.getColumn();
   }
 
   @Override
   public FieldDefinition getFieldDefinition() {
-    return this.column.getFieldDefinition();
+    return getColumn().getFieldDefinition();
   }
 
   @Override
   public int getFieldIndex() {
-    return this.column.getFieldIndex();
+    return getColumn().getFieldIndex();
   }
 
   @Override
   public String getName() {
-    return this.column.getName();
+    return getColumn().getName();
   }
 
   @Override
   public String getStringValue(final MapEx record) {
     final Object value = getValue(record);
-    return this.column.toString(value);
+    return getColumn().toString(value);
   }
 
   @Override
   public TableReferenceProxy getTable() {
-    return this.column.getTable();
+    return getColumn().getTable();
   }
 
   @Override
@@ -131,10 +132,17 @@ public class ColumnWithPrefix implements QueryValue, ColumnReference {
 
   @Override
   public Object getValueFromResultSet(final RecordDefinition recordDefinition,
-    final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings)
+    int fieldIndex, final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings)
     throws SQLException {
-    return this.column.getValueFromResultSet(recordDefinition, resultSet, indexes, internStrings,
-      null);
+    return getColumn().getValueFromResultSet(recordDefinition, fieldIndex, resultSet, indexes,
+      internStrings, null);
+  }
+
+  @Override
+  public QueryValue toAlias(final String alias) {
+    // Make sure the column knows the alias
+    this.column.toAlias(alias);
+    return ColumnReference.super.toAlias(alias);
   }
 
   @Override
@@ -142,7 +150,7 @@ public class ColumnWithPrefix implements QueryValue, ColumnReference {
     if (value == null) {
       return null;
     } else {
-      return this.column.toColumnTypeException(value);
+      return getColumn().toColumnTypeException(value);
     }
   }
 
@@ -151,7 +159,7 @@ public class ColumnWithPrefix implements QueryValue, ColumnReference {
     if (value == null) {
       return null;
     } else {
-      return this.column.toFieldValueException(value);
+      return getColumn().toFieldValueException(value);
     }
   }
 
@@ -160,7 +168,7 @@ public class ColumnWithPrefix implements QueryValue, ColumnReference {
     if (value == null) {
       return null;
     } else {
-      return this.column.toFieldValueException(state, value);
+      return getColumn().toFieldValueException(state, value);
     }
   }
 
@@ -173,6 +181,6 @@ public class ColumnWithPrefix implements QueryValue, ColumnReference {
 
   @Override
   public String toString(final Object value) {
-    return this.column.toString(value);
+    return getColumn().toString(value);
   }
 }

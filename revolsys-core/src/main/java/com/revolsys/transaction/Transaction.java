@@ -1,9 +1,9 @@
 package com.revolsys.transaction;
 
+import java.lang.ScopedValue.CallableOp;
 import java.lang.ScopedValue.Carrier;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 
 import com.revolsys.exception.Exceptions;
@@ -12,7 +12,7 @@ import com.revolsys.util.BaseCloseable;
 public class Transaction {
   public interface Builder {
 
-    <V> V call(Callable<V> action);
+    <V, T extends Exception> V call(CallableOp<V, T> action);
 
     void run(RunAction action);
 
@@ -20,7 +20,7 @@ public class Transaction {
 
   static class MandatoryBuilder implements Builder {
     @Override
-    public <V> V call(final Callable<V> action) {
+    public <V, T extends Exception> V call(final CallableOp<V, T> action) {
       if (hasContext()) {
         try {
           return action.call();
@@ -50,7 +50,7 @@ public class Transaction {
 
   static class NeverBuilder implements Builder {
     @Override
-    public <V> V call(final Callable<V> action) {
+    public <V, T extends Exception> V call(final CallableOp<V, T> action) {
       if (hasContext()) {
         throw new IllegalStateException(
           "Propagation Mandatory must run inside an existing transaction");
@@ -82,7 +82,7 @@ public class Transaction {
     private static final Carrier EMPTY_CARRIER = ScopedValue.where(CONTEXT, EMPTY);
 
     @Override
-    public <V> V call(final Callable<V> action) {
+    public <V, T extends Exception> V call(final CallableOp<V, T> action) {
       try (
         var s = suspend()) {
         try {
@@ -112,7 +112,7 @@ public class Transaction {
     }
 
     @Override
-    public <V> V call(final Callable<V> action) {
+    public <V, T extends Exception> V call(final CallableOp<V, T> action) {
       if (hasContext()) {
         try {
           return action.call();
@@ -164,7 +164,7 @@ public class Transaction {
     }
 
     @Override
-    public <V> V call(final Callable<V> action) {
+    public <V, T extends Exception> V call(final CallableOp<V, T> action) {
       try (
         var s = suspend();
         var context = new ActiveTransactionContext(this.initializers)) {
@@ -205,12 +205,11 @@ public class Transaction {
     }
 
     @Override
-    public <V> V call(final Callable<V> action) {
+    public <V, T extends Exception> V call(final CallableOp<V, T> action) {
       try (
         var s = suspend()) {
         try {
-          return ScopedValue.where(CONTEXT, this.context)
-            .call(action);
+          return ScopedValue.where(CONTEXT, this.context).call(action);
         } catch (final Throwable t) {
           return this.context.setRollbackOnly(t);
         }
@@ -223,8 +222,7 @@ public class Transaction {
         var s = suspend()) {
         try {
           final Runnable runnable = runnable(this.context, action);
-          ScopedValue.where(CONTEXT, this.context)
-            .run(runnable);
+          ScopedValue.where(CONTEXT, this.context).run(runnable);
         } catch (final Throwable t) {
           this.context.setRollbackOnly(t);
         }
@@ -235,7 +233,7 @@ public class Transaction {
   static class SupportsBuilder implements Builder {
 
     @Override
-    public <V> V call(final Callable<V> action) {
+    public <V, T extends Exception> V call(final CallableOp<V, T> action) {
       try {
         return action.call();
       } catch (final Exception e) {
@@ -279,8 +277,7 @@ public class Transaction {
   }
 
   public static boolean isActive() {
-    return hasContext() && CONTEXT.get()
-      .isActive();
+    return hasContext() && CONTEXT.get().isActive();
   }
 
   public static void rollback() {

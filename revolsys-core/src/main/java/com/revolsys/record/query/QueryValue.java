@@ -20,11 +20,13 @@ import com.revolsys.record.query.functions.EnvelopeIntersects;
 import com.revolsys.record.query.functions.WithinDistance;
 import com.revolsys.record.query.parser.JSqlParser;
 import com.revolsys.record.query.parser.SqlParser;
+import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordStore;
 import com.revolsys.util.Property;
 
 public interface QueryValue extends Cloneable, SqlAppendParameters {
+
   static <V extends QueryValue> List<V> cloneQueryValues(final TableReference oldTable,
     final TableReference newTable, final List<V> values) {
     final List<V> clonedValues = new ArrayList<>();
@@ -98,6 +100,18 @@ public interface QueryValue extends Cloneable, SqlAppendParameters {
     }
   }
 
+  static Object getValueFromResultSet(final RecordDefinition recordDefinition, final int fieldIndex,
+    final String name, final ResultSet resultSet, final ColumnIndexes indexes,
+    final boolean internStrings) throws SQLException {
+    final FieldDefinition field = recordDefinition.getField(name);
+    if (field == null) {
+      return null;
+    } else {
+      return field.getValueFromResultSet(recordDefinition, fieldIndex, resultSet, indexes,
+        internStrings);
+    }
+  }
+
   static Condition parseWhere(final RecordDefinition recordDefinition, final String whereClause) {
     if (Property.hasValue(whereClause)) {
       final SqlParser parser = new JSqlParser(recordDefinition);
@@ -124,6 +138,11 @@ public interface QueryValue extends Cloneable, SqlAppendParameters {
   }
 
   void appendDefaultSql(QueryStatement statement, RecordStore recordStore, SqlAppendable sql);
+
+  default void appendOData(StringBuilder s) {
+    throw new UnsupportedOperationException(
+      getClass().getSimpleName() + " Doesn't yet support odata");
+  }
 
   default void appendSelect(final QueryStatement statement, final RecordStore recordStore,
     final SqlAppendable sql) {
@@ -190,9 +209,15 @@ public interface QueryValue extends Cloneable, SqlAppendParameters {
   }
 
   default Object getValueFromResultSet(final RecordDefinition recordDefinition,
-    final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings)
-    throws SQLException {
-    throw new UnsupportedOperationException("getValueFromResultSet not implemented");
+    final int fieldIndex, final ResultSet resultSet, final ColumnIndexes indexes,
+    final boolean internStrings) throws SQLException {
+    final var field = recordDefinition.getField(fieldIndex);
+    return field.getValueFromResultSet(recordDefinition, fieldIndex, resultSet, indexes,
+      internStrings);
+  }
+
+  default Parenthesis parenthesis() {
+    return new Parenthesis(this);
   }
 
   default void setColumn(final ColumnReference column) {
@@ -206,6 +231,10 @@ public interface QueryValue extends Cloneable, SqlAppendParameters {
     }
   }
 
+  default AliasColumnReference toAliasColumn(final String alias) {
+    return new AliasColumnReference(alias, getColumn());
+  }
+
   default QueryValue toCast(final String type) {
     return new Cast(this, type);
   }
@@ -214,11 +243,16 @@ public interface QueryValue extends Cloneable, SqlAppendParameters {
     return toString();
   }
 
+  default String toOdata() {
+    var s = new StringBuilder();
+    appendOData(s);
+    return s.toString();
+  }
+
   @SuppressWarnings("unchecked")
   default <QV extends QueryValue> QV updateQueryValues(final TableReference oldTable,
     final TableReference newTable,
     final java.util.function.Function<QueryValue, QueryValue> valueHandler) {
     return (QV)this;
   }
-
 }

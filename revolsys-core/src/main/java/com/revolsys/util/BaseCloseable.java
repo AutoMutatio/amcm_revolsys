@@ -2,9 +2,12 @@ package com.revolsys.util;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Modifier;
 import java.util.function.Consumer;
 
 import com.revolsys.exception.Exceptions;
+import com.revolsys.exception.WrappedIoException;
 import com.revolsys.io.CloseableWrapper;
 import com.revolsys.logging.Logs;
 
@@ -42,6 +45,7 @@ public interface BaseCloseable extends Closeable {
     if (closeable != null) {
       try {
         closeable.close();
+      } catch (final WrappedIoException e) {
       } catch (final IOException e) {
       } catch (final Exception e) {
         Logs.error(BaseCloseable.class, e.getMessage(), e);
@@ -62,12 +66,26 @@ public interface BaseCloseable extends Closeable {
   }
 
   static void closeValue(final Object v) {
-    if (v instanceof final BaseCloseable closeable) {
+    if (v == null) {
+    } else if (v instanceof final BaseCloseable closeable) {
       closeable.close();
     } else if (v instanceof final AutoCloseable closeable) {
       try {
         closeable.close();
       } catch (final Exception e) {
+        throw Exceptions.toRuntimeException(e);
+      }
+    } else {
+      try {
+        final var close = v.getClass()
+          .getMethod("close");
+        if (Modifier.isPublic(close.getModifiers())) {
+          close.invoke(close);
+        }
+      } catch (final NoSuchMethodException e) {
+      } catch (final IllegalAccessException e) {
+        throw Exceptions.toRuntimeException(e);
+      } catch (final InvocationTargetException e) {
         throw Exceptions.toRuntimeException(e);
       }
     }

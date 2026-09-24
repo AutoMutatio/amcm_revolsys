@@ -270,9 +270,9 @@ public class JSqlParser extends AbstractSqlParser {
       final QueryValue subCondition = convertExpression(rightExpression);
       values.add(subCondition);
     }
-
-    final CollectionValue collectionValue = new CollectionValue(values);
-    final In in = new In(leftValue, collectionValue);
+    final var column = leftValue.getColumn();
+    final CollectionValue collectionValue = new CollectionValue(column, values);
+    final In in = In.create(leftValue, collectionValue);
     if (inExpression.isNot()) {
       return Q.not(in);
     } else {

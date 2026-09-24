@@ -27,6 +27,7 @@ import com.revolsys.record.query.QueryStatement;
 import com.revolsys.record.query.QueryValue;
 import com.revolsys.record.query.SqlAppendable;
 import com.revolsys.record.query.TableReference;
+import com.revolsys.record.query.UpdateStatement;
 import com.revolsys.util.CaseConverter;
 
 public interface RecordDefinition extends Cloneable, GeometryFactoryProxy, RecordStoreSchemaElement,
@@ -89,11 +90,11 @@ public interface RecordDefinition extends Cloneable, GeometryFactoryProxy, Recor
     getRecordStore().deleteRecord(getTablePath(), id);
   }
 
-  void deleteRecord(Record record);;
+  void deleteRecord(Record record);
 
   default DeleteStatement deleteStatement() {
     return getRecordStore().deleteStatement(getPathName());
-  }
+  };
 
   void destroy();
 
@@ -119,6 +120,8 @@ public interface RecordDefinition extends Cloneable, GeometryFactoryProxy, Recor
   Object getDefaultValue(String fieldName);
 
   Map<String, Object> getDefaultValues();
+
+  String getDescription();
 
   @Override
   FieldDefinition getField(CharSequence name);
@@ -373,6 +376,16 @@ public interface RecordDefinition extends Cloneable, GeometryFactoryProxy, Recor
     return getRecordStore().insertStatement(getPathName());
   }
 
+  @Override
+  default boolean isFieldGenerated(final CharSequence name) {
+    final var field = getField(name);
+    if (field == null) {
+      return false;
+    } else {
+      return field.isGenerated();
+    }
+  }
+
   boolean isFieldRequired(CharSequence name);
 
   /**
@@ -409,6 +422,10 @@ public interface RecordDefinition extends Cloneable, GeometryFactoryProxy, Recor
   void setGeometryFactory(com.revolsys.geometry.model.GeometryFactory geometryFactory);
 
   void setTableAlias(String tableAlias);
+
+  default UpdateStatement updateStatement() {
+    return getRecordStore().updateStatement(getPathName());
+  }
 
   default void validateRecord(final MapEx record) {
     for (final FieldDefinition field : getFields()) {

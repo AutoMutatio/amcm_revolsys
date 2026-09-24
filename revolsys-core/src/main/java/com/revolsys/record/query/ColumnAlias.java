@@ -3,6 +3,7 @@ package com.revolsys.record.query;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Map;
 
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.data.type.DataType;
@@ -41,7 +42,7 @@ public class ColumnAlias implements QueryValue, ColumnReference {
   @Override
   public void appendDefaultSelect(final QueryStatement statement, final RecordStore recordStore,
     final SqlAppendable sql) {
-    this.column.appendDefaultSelect(statement, recordStore, sql);
+    this.column.appendSelect(statement, recordStore, sql);
     sql.append(" as ");
     appendAlias(sql);
   }
@@ -53,8 +54,8 @@ public class ColumnAlias implements QueryValue, ColumnReference {
   }
 
   @Override
-  public int appendParameters(final int index, final PreparedStatement statement) {
-    return this.column.appendParameters(index, statement);
+  public int appendParameters(final int index, Map<String, Object> parameters, final PreparedStatement statement) {
+    return this.column.appendParameters(index, parameters, statement);
   }
 
   @Override
@@ -129,11 +130,11 @@ public class ColumnAlias implements QueryValue, ColumnReference {
   }
 
   @Override
-  public Object getValueFromResultSet(final RecordDefinition recordDefinition,
+  public Object getValueFromResultSet(final RecordDefinition recordDefinition, final int fieldIndex,
     final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings)
     throws SQLException {
-    return this.column.getValueFromResultSet(recordDefinition, resultSet, indexes, internStrings,
-      this.alias);
+    return this.column.getValueFromResultSet(recordDefinition, fieldIndex, resultSet, indexes,
+      internStrings, this.alias);
   }
 
   @Override

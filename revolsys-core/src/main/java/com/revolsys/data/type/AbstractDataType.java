@@ -1,8 +1,7 @@
 package com.revolsys.data.type;
 
 import java.util.Collection;
-
-import com.revolsys.util.Debug;
+import java.util.Objects;
 
 public abstract class AbstractDataType implements DataType {
 
@@ -21,6 +20,22 @@ public abstract class AbstractDataType implements DataType {
   }
 
   @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    final AbstractDataType other = (AbstractDataType)obj;
+    return Objects.equals(this.javaClass, other.javaClass) && Objects.equals(this.name, other.name)
+      && this.requiresQuotes == other.requiresQuotes;
+  }
+
+  @Override
   public boolean equals(final Object value1, final Object value2) {
     if (value1 == value2) {
       return true;
@@ -28,15 +43,20 @@ public abstract class AbstractDataType implements DataType {
       return value2 == null;
     } else if (value2 == null) {
       return false;
-    } else {
-      try {
-        final Object convertedValue1 = toObject(value1);
-        final Object convertedValue2 = toObject(value2);
-        final boolean equal = equalsNotNull(convertedValue1, convertedValue2);
-        return equal;
-      } catch (final Throwable e) {
+    } else if (value1 == value2) {
+      return true;
+    } else if (this.javaClass.isAssignableFrom(value1.getClass())) {
+      if (this.javaClass.isAssignableFrom(value2.getClass())) {
+        try {
+          return equalsExactNotNull(value1, value2);
+        } catch (final Throwable e) {
+          return false;
+        }
+      } else {
         return false;
       }
+    } else {
+      return value1.equals(value2);
     }
   }
 
@@ -59,6 +79,30 @@ public abstract class AbstractDataType implements DataType {
         return false;
       }
     }
+  }
+
+  @Override
+  public boolean equalsExact(final Object value1, final Object value2) {
+    if (value1 == value2) {
+      return true;
+    } else if (value1 == null) {
+      return value2 == null;
+    } else if (value2 == null) {
+      return false;
+    } else {
+      try {
+        final Object convertedValue1 = toObject(value1);
+        final Object convertedValue2 = toObject(value2);
+        final boolean equal = equalsNotNull(convertedValue1, convertedValue2);
+        return equal;
+      } catch (final Throwable e) {
+        return false;
+      }
+    }
+  }
+
+  protected boolean equalsExactNotNull(final Object value1, final Object value2) {
+    return equalsNotNull(value1, value2);
   }
 
   protected boolean equalsNotNull(final Object value1, final Object value2) {
@@ -91,7 +135,7 @@ public abstract class AbstractDataType implements DataType {
 
   @Override
   public int hashCode() {
-    return this.name.hashCode();
+    return Objects.hash(this.javaClass, this.name, this.requiresQuotes);
   }
 
   @Override

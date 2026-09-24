@@ -8,7 +8,7 @@ import com.revolsys.util.Property;
 
 public class Contains extends BinaryFunction {
 
-  public static final String NAME = "ends_with";
+  public static final String NAME = "contains";
 
   public Contains(final List<QueryValue> parameters) {
     super(NAME, parameters);
@@ -29,7 +29,8 @@ public class Contains extends BinaryFunction {
     final String left = getLeft().getStringValue(record);
     final String right = getRight().getStringValue(record);
     if (Property.hasValuesAll(left, right)) {
-      return (V)(Boolean)left.toUpperCase().endsWith(right.toUpperCase());
+      return (V)(Boolean)left.toUpperCase()
+        .contains(right.toUpperCase());
     } else {
       return (V)Boolean.FALSE;
     }

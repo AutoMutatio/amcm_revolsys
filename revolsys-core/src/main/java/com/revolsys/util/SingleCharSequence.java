@@ -2,15 +2,18 @@ package com.revolsys.util;
 
 public class SingleCharSequence implements CharSequence {
 
-  private static final CharSequence[] CACHE = new CharSequence[128];
+  private static final CharSequence[] CACHE = new CharSequence[256];
 
   public static final CharSequence NULL;
 
+  public static final CharSequence UNKNOWN_CHAR_SEQUENCE = new SingleCharSequence(
+    Strings.CHAR_REPLACEMENT);
+
   static {
-    NULL = CACHE[0] = new SingleCharSequence((char)0);
-    for (int i = 1; i < 128; i++) {
+    for (int i = 0; i < 256; i++) {
       CACHE[i] = new SingleCharSequence((char)i);
     }
+    NULL = CACHE[0];
   }
 
   public static CharSequence[] fromCharArray(final char[] characters) {
@@ -27,11 +30,21 @@ public class SingleCharSequence implements CharSequence {
   }
 
   public static CharSequence valueOf(final char c) {
+    if (c < 256) {
+      return CACHE[c];
+    }
     return new SingleCharSequence(c);
   }
 
   public static CharSequence valueOf(final int c) {
-    return valueOf((char)c);
+    if (c < 0) {
+      throw new IllegalArgumentException("Not a valid character code point: " + c);
+    }
+    if (c <= 65535) {
+      return valueOf((char)c);
+    } else {
+      return Character.toString(c);
+    }
   }
 
   private final char character;

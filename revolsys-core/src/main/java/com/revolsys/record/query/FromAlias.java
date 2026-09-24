@@ -76,4 +76,9 @@ public class FromAlias implements From {
   public TableReference getTableReference() {
     return this.from.getTableReference();
   }
+
+  @Override
+  public String toString() {
+    return this.from.toString() + " " + this.alias.toString();
+  }
 }

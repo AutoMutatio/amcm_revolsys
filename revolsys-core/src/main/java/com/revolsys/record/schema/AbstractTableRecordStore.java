@@ -24,8 +24,9 @@ import com.revolsys.data.identifier.Identifier;
 import com.revolsys.data.type.CollectionDataType;
 import com.revolsys.data.type.DataType;
 import com.revolsys.data.type.DataTypes;
+import com.revolsys.exception.ExceptionWithProperties;
 import com.revolsys.exception.Exceptions;
-import com.revolsys.function.Function3;
+import com.revolsys.function.Function4;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.io.PathName;
 import com.revolsys.jdbc.JdbcConnection;
@@ -38,6 +39,7 @@ import com.revolsys.record.Record;
 import com.revolsys.record.code.CodeTable;
 import com.revolsys.record.io.RecordReader;
 import com.revolsys.record.io.RecordWriter;
+import com.revolsys.record.query.Case;
 import com.revolsys.record.query.Cast;
 import com.revolsys.record.query.Column;
 import com.revolsys.record.query.ColumnReference;
@@ -45,6 +47,7 @@ import com.revolsys.record.query.Condition;
 import com.revolsys.record.query.Count;
 import com.revolsys.record.query.DeleteStatement;
 import com.revolsys.record.query.InsertStatement;
+import com.revolsys.record.query.Join;
 import com.revolsys.record.query.JoinType;
 import com.revolsys.record.query.Or;
 import com.revolsys.record.query.Parenthesis;
@@ -52,23 +55,41 @@ import com.revolsys.record.query.Q;
 import com.revolsys.record.query.Query;
 import com.revolsys.record.query.QueryValue;
 import com.revolsys.record.query.TableReference;
+import com.revolsys.record.query.TableReferenceProxy;
 import com.revolsys.record.query.UpdateStatement;
 import com.revolsys.record.query.Value;
+import com.revolsys.record.query.functions.ArrayElements;
+import com.revolsys.record.query.functions.Coalesce;
 import com.revolsys.record.query.functions.F;
-import com.revolsys.record.query.functions.Unnest;
+import com.revolsys.record.query.functions.JsonValue;
 import com.revolsys.util.Property;
 
 public class AbstractTableRecordStore implements RecordDefinitionProxy {
   public record VirtualField(AbstractTableRecordStore recordStore, String name,
     Consumer<RecordDefinitionBuilder> addToSchema,
-    Function3<Query, VirtualField, String[], QueryValue> newQueryValue) {
+    Function4<TableRecordStoreQuery, TableReferenceProxy, VirtualField, String[], QueryValue> newQueryValue,
+    boolean autoExtraPath) {
+
+    public VirtualField(final AbstractTableRecordStore recordStore, final String name,
+      final Consumer<RecordDefinitionBuilder> addToSchema,
+      final Function4<TableRecordStoreQuery, TableReferenceProxy, VirtualField, String[], QueryValue> newQueryValue) {
+      this(recordStore, name, addToSchema, newQueryValue, false);
+    }
 
     public void addToSchema(final RecordDefinitionBuilder builder) {
       this.addToSchema.accept(builder);
     }
 
-    public QueryValue newQueryValue(final Query query, final String... path) {
-      return this.newQueryValue.apply(query, this, path);
+    public QueryValue newQueryValue(final TableRecordStoreQuery query,
+      final TableReferenceProxy table, final String... path) {
+      QueryValue result = this.newQueryValue.apply(query, table, this, path);
+      if (this.autoExtraPath && path.length > 1) {
+        for (int i = 1; i < path.length; i++) {
+          final var part = path[i];
+          result = Q.jsonRawValue(result, part);
+        }
+      }
+      return result;
     }
   }
 
@@ -81,6 +102,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     final JsonObject jsonSchema = JsonObject.hash()
       .addValue("typeName", recordDefinition.getPathName())
       .addValue("title", recordDefinition.getTitle())
+      .addValue("description", ((RecordDefinitionImpl)recordDefinition).getDescription())
       .addValue("idFieldName", idFieldName)
       .addValue("geometryFieldName", recordDefinition.getGeometryFieldName())
       .addValue("fields", jsonFields);
@@ -128,7 +150,21 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
       }
       jsonFields.add(jsonField);
     }
+    jsonSchema.addNotEmpty("relationships", recordDefinition.getProperty("relationships"));
+    jsonSchema.removeEmptyValues();
     return jsonSchema;
+  }
+
+  private static QueryValue toQueryValue(final TableReferenceProxy table,
+    final Object valueOrFieldName) {
+    if (valueOrFieldName instanceof final QueryValue queryValue) {
+      return queryValue;
+    } else if (valueOrFieldName instanceof final String fieldName) {
+      return table.getColumn(fieldName);
+    } else {
+      throw new IllegalArgumentException(
+        "Must be a QueryValue or String: " + valueOrFieldName.getClass());
+    }
   }
 
   private final ValueHolder<JsonObject> schema = ValueHolder.lazy(this::schemaToJson);
@@ -173,30 +209,52 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     }
   }
 
-  public void addQueryOrderBy(final Query query, final String orderBy) {
+  public Join addJoin(final Query query, final AbstractTableRecordStore joinRs,
+    final String joinAlias, final String joinFieldName, final QueryValue sourceIdField) {
+    var join = query.getJoin(joinAlias, joinRs);
+    if (join == null) {
+      join = query.join(JoinType.LEFT_OUTER_JOIN)
+        .table(joinRs)//
+        .setAlias(joinAlias)
+        .on(joinFieldName, sourceIdField);
+    }
+    return join;
+  }
+
+  public Join addJoin(final Query query, final AbstractTableRecordStore joinRs,
+    final String joinAlias, final String joinFieldName, final TableReferenceProxy sourceTable,
+    final String sourceFieldName) {
+    final var sourceField = sourceTable.getColumn(sourceFieldName);
+    return addJoin(query, joinRs, joinAlias, joinFieldName, sourceField);
+  }
+
+  public void addQueryOrderBy(final TableRecordStoreQuery query, final String orderBy) {
     if (Property.hasValue(orderBy)) {
       for (String orderClause : orderBy.split(",")) {
         orderClause = orderClause.strip();
         String fieldName;
         boolean ascending = true;
-        final int spaceIndex = orderClause.indexOf(' ');
-        if (spaceIndex == -1) {
-          fieldName = orderClause;
+        if (orderClause.toLowerCase()
+          .endsWith(" asc")) {
+          fieldName = orderClause.substring(0, orderClause.length() - 4);
+        } else if (orderClause.toLowerCase()
+          .endsWith(" desc")) {
+          fieldName = orderClause.substring(0, orderClause.length() - 5);
+          ascending = false;
         } else {
-          fieldName = orderClause.substring(0, spaceIndex);
-          if ("desc".equalsIgnoreCase(orderClause.substring(spaceIndex + 1))) {
-            ascending = false;
-          }
+          fieldName = orderClause;
         }
         Object orderField;
         if (hasField(fieldName)) {
           orderField = getColumn(fieldName);
-        } else {
+        } else if (fieldName.matches("\\d+")) {
           try {
             orderField = Integer.parseInt(fieldName);
           } catch (final NumberFormatException e) {
-            orderField = fieldName;
+            orderField = fieldPathToQueryValue(query, fieldName);
           }
+        } else {
+          orderField = fieldPathToQueryValue(query, fieldName);
         }
         query.addOrderBy(orderField, ascending);
       }
@@ -210,8 +268,9 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     for (final String fieldName : this.searchFieldNames) {
       final var column = getTable().getColumn(fieldName);
       if (column != null && column.getDataType() instanceof CollectionDataType) {
-        or.addCondition(newQuery().select(Value.newValue(1))
-          .setFrom(new Unnest(column).toFromAlias(fieldName + "A"))
+        or.addCondition(new Query().select(Value.newValue(1))
+          .setFrom(ArrayElements.unnest(column)
+            .toFromAlias(fieldName + "A"))
           .and(new Column(fieldName + "A"), Q.ILIKE, Value.toValue(search))
           .asExists());
 
@@ -225,30 +284,53 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     }
   }
 
-  protected void addSelect(final TableRecordStoreConnection connection, final Query query,
-    final String selectItem) {
-    final QueryValue selectClause = fieldPathToSelect(query, selectItem);
+  protected void addSelect(final TableRecordStoreConnection connection,
+    final TableRecordStoreQuery query, final CharSequence selectItem) {
+    final QueryValue selectClause = fieldPathToSelect(query, selectItem.toString());
     query.select(selectClause);
   }
 
+  protected void addSelect(final TableRecordStoreConnection connection,
+    final TableRecordStoreQuery query, final Object selectItem) {
+    if (selectItem instanceof final QueryValue queryValue) {
+      query.select(queryValue);
+    } else if (selectItem instanceof final CharSequence fieldName) {
+      addSelect(connection, query, fieldName);
+    } else {
+      throw new ExceptionWithProperties("Invalid select item")
+        .property("fieldClass", selectItem.getClass())
+        .property("field", selectItem);
+    }
+  }
+
   public void addStringVirtualField(final String name,
-    final Function3<Query, VirtualField, String[], QueryValue> newQueryValue) {
+    final Function4<TableRecordStoreQuery, TableReferenceProxy, VirtualField, String[], QueryValue> newQueryValue) {
     final var field = new VirtualField(this, name, rd -> rd.addField(name), newQueryValue);
     addVirtualField(field);
   }
 
-  public void addVirtualField(final String name, final DataType dataType,
-    final Function3<Query, VirtualField, String[], QueryValue> newQueryValue) {
+  public VirtualField addVirtualField(final String name, final DataType dataType,
+    final boolean autoPath,
+    final Function4<TableRecordStoreQuery, TableReferenceProxy, VirtualField, String[], QueryValue> newQueryValue) {
+    final var field = new VirtualField(this, name, rd -> rd.addField(name, dataType), newQueryValue,
+      autoPath);
+    addVirtualField(field);
+    return field;
+  }
+
+  public VirtualField addVirtualField(final String name, final DataType dataType,
+    final Function4<TableRecordStoreQuery, TableReferenceProxy, VirtualField, String[], QueryValue> newQueryValue) {
     final var field = new VirtualField(this, name, rd -> rd.addField(name, dataType),
       newQueryValue);
     addVirtualField(field);
+    return field;
   }
 
   public void addVirtualField(final VirtualField field) {
     this.virtualFieldByName.put(field.name(), field);
   }
 
-  protected Condition alterCondition(final HttpServletRequest request,
+  public Condition alterCondition(final HttpServletRequest request,
     final TableRecordStoreConnection connection, final Query query, final Condition condition) {
     return condition;
   }
@@ -282,6 +364,34 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     return true;
   }
 
+  protected QueryValue dateFormat(QueryValue value, final String dateFormat,
+    final String nullValue) {
+    final var column = value.getColumn();
+    FieldDefinition field = null;
+    if (column != null) {
+      field = column.getFieldDefinition();
+      final var dataType = column.getDataType();
+      if (!(dataType == DataTypes.DATE_TIME || dataType == DataTypes.INSTANT
+        || dataType == DataTypes.SQL_DATE || dataType == DataTypes.LOCAL_DATE)) {
+        if (value instanceof final JsonValue jsonValue) {
+          jsonValue.setText(true);
+        } else if (dataType != DataTypes.STRING) {
+          column.cast("text");
+        }
+
+        value = Q.sql(DataTypes.STRING, "CASE WHEN ", value, " ~ '\\d{4}-\\d{2}-\\d{2}.*' THEN (",
+          value, ")::date ELSE NULL END");
+      }
+    }
+
+    final var toChar = F.function("to_char", value, Q.literal(dateFormat));
+    if (field == null || !field.isRequired()) {
+      return new Coalesce(toChar, Q.literal(nullValue));
+    } else {
+      return toChar;
+    }
+  }
+
   public boolean deleteRecord(final TableRecordStoreConnection connection, final Record record) {
     return connection.transactionCall(() -> this.recordStore.deleteRecord(record));
   }
@@ -306,14 +416,21 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     return connection.transactionCall(() -> getRecordStore().exists(query));
   }
 
-  public QueryValue fieldPathToQueryValue(final Query query, String path) {
+  public QueryValue fieldPathToQueryValue(final TableRecordStoreQuery query,
+    final CharSequence path) {
+    return fieldPathToQueryValue(query, this, path);
+  }
+
+  public QueryValue fieldPathToQueryValue(final TableRecordStoreQuery query,
+    final TableReferenceProxy table, final CharSequence path) {
+    String pathString = path.toString();
     String wrapFunction = null;
-    final int tildeIndex = path.lastIndexOf('~');
+    final int tildeIndex = pathString.lastIndexOf('~');
     if (tildeIndex != -1) {
-      wrapFunction = path.substring(tildeIndex + 1);
-      path = path.substring(0, tildeIndex);
+      wrapFunction = pathString.substring(tildeIndex + 1);
+      pathString = pathString.substring(0, tildeIndex);
     }
-    var queryValue = fieldPathToQueryValueDo(query, path);
+    var queryValue = fieldPathToQueryValueDo(query, table, pathString);
     if (queryValue == null) {
       queryValue = Q.sql("NULL");
     }
@@ -323,38 +440,17 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     return queryValue;
   }
 
-  protected QueryValue fieldPathToQueryValueDo(final Query query, final String path) {
+  private QueryValue fieldPathToQueryValueDo(final TableRecordStoreQuery query,
+    final TableReferenceProxy table, final String path) {
     final var parts = path.split("\\.");
-
     final var virtualField = this.virtualFieldByName.get(parts[0]);
     if (virtualField != null) {
-      return virtualField.newQueryValue(query, parts);
+      return virtualField.newQueryValue(query, table, parts);
     }
-    return getTable().columnByPath(path);
+    return table.columnByPath(path);
   }
 
-  protected QueryValue fieldPathToQueryValueJoin(final Query query,
-    final AbstractTableRecordStore joinRs, final String joinAlias, final String joinFieldName,
-    final String lookupFieldName, final String[] path) {
-    var join = query.getJoin(joinRs, joinAlias);
-    if (join == null) {
-      join = query.join(JoinType.LEFT_OUTER_JOIN)
-        .table(joinRs)//
-        .setAlias(joinAlias)
-        .on("id", query, joinFieldName);
-    }
-    final var column = join.getColumn(lookupFieldName);
-    QueryValue selectField = column;
-    if (path.length > 1) {
-      for (int i = 1; i < path.length; i++) {
-        final var part = path[i];
-        selectField = Q.jsonRawValue(selectField, part);
-      }
-    }
-    return selectField;
-  }
-
-  protected QueryValue fieldPathToQueryValueSubQuery(final Query query,
+  protected QueryValue fieldPathToQueryValueSubQuery(final TableRecordStoreQuery query,
     final AbstractTableRecordStore otherRs, final String joinFieldName,
     final String lookupFieldName, final String[] path) {
     final var otherField = otherRs.getField(lookupFieldName);
@@ -367,22 +463,23 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     }
 
     final var joinColumn = query.getColumn(joinFieldName);
-    final var otherQuery = otherRs.newQuery()
+    final var otherQuery = otherRs.newQuery(query.connection())
       .select(selectField)
       .and("id", joinColumn);
     return new Parenthesis(otherQuery);
   }
 
-  public QueryValue fieldPathToSelect(final Query query, final String path) {
-    var queryValue = fieldPathToQueryValue(query, path);
+  public QueryValue fieldPathToSelect(final TableRecordStoreQuery query, final CharSequence path) {
+    final String pathString = path.toString();
+    var queryValue = fieldPathToQueryValue(query, pathString);
     // Add alias if needed
     if (queryValue instanceof final ColumnReference column) {
       if (!column.getName()
-        .equals(path)) {
-        queryValue = queryValue.toAlias(path);
+        .equals(pathString)) {
+        queryValue = queryValue.toAlias(pathString);
       }
     } else {
-      queryValue = queryValue.toAlias(path);
+      queryValue = queryValue.toAlias(pathString);
     }
     return queryValue;
 
@@ -410,6 +507,17 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     final Object value) {
     return newQuery(connection).and(fieldName, value)
       .getRecord();
+  }
+
+  public Record getRecordById(final TableRecordStoreConnection connection, final Identifier id) {
+    final var query = newQuery(connection);
+    final var idFieldNames = getIdFieldNames();
+    for (int i = 0; i < idFieldNames.size(); i++) {
+      final var idFieldName = idFieldNames.get(i);
+      final var value = id.getValue(i);
+      query.and(idFieldName, value);
+    }
+    return query.getRecord();
   }
 
   public Record getRecordById(final TableRecordStoreConnection connection, final Object id) {
@@ -552,7 +660,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     return new TableRecordStoreInsertUpdateBuilder<>(this, connection);
   }
 
-  public Condition newODataFilter(final Query query, String filter) {
+  public Condition newODataFilter(final TableRecordStoreQuery query, String filter) {
     if (Property.hasValue(filter)) {
       filter = filter.replace("%2B", "+");
       return (Condition)ODataParser.parseFilter(path -> fieldPathToQueryValue(query, path), filter);
@@ -561,26 +669,35 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     }
   }
 
-  public Query newQuery(final TableRecordStoreConnection connection) {
+  @Override
+  public Query newQuery() {
+    throw new UnsupportedOperationException("Use newQuery(TableRecordStoreConnection)");
+  }
+
+  public TableRecordStoreQuery newQuery(final TableRecordStoreConnection connection) {
     final var query = new TableRecordStoreQuery(this, connection);
     query.setBaseFileName(this.typeName);
     return query;
   }
 
-  public Query newQuery(final TableRecordStoreConnection connection,
+  public TableRecordStoreQuery newQuery(final TableRecordStoreConnection connection,
     final Consumer<Query> configurer) {
-    return newQuery(connection).accept(configurer);
+    final var query = newQuery(connection);
+    query.accept(configurer);
+    return query;
   }
 
-  public Query newQuery(final TableRecordStoreConnection connection,
+  public TableRecordStoreQuery newQuery(final TableRecordStoreConnection connection,
     final HttpServletRequest request, final int maxSize) {
     final String select = request.getParameter("$select");
     final String filter = request.getParameter("$filter");
     final String search = request.getParameter("$search");
     final String orderBy = request.getParameter("$orderby");
     final String aggregate = request.getParameter("$aggregate");
+    final boolean distinct = "true".equals(request.getParameter("$distinct"));
 
     final boolean count = "true".equals(request.getParameter("$count"));
+
     int skip = 0;
     try {
       final String value = request.getParameter("$skip");
@@ -601,9 +718,11 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     } catch (final Exception e) {
     }
 
-    final Query query = newQuery(connection).setOffset(skip)
+    final var query = newQuery(connection);
+    query.setOffset(skip)
       .setLimit(top)
-      .setReturnCount(count);
+      .setReturnCount(count)
+      .setDistinct(distinct);
 
     if (Property.hasValue(select)) {
       for (String selectItem : select.split(",")) {
@@ -634,11 +753,13 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     Condition filterCondition = newODataFilter(query, filter);
     if (filterCondition != null) {
       filterCondition = alterCondition(request, connection, query, filterCondition);
-      query.and(filterCondition.clone(null, query.getTable()));
+      if (filterCondition != null) {
+        query.and(filterCondition.clone(null, query.getTable()));
+      }
     }
     applySearchCondition(query, search);
     addQueryOrderBy(query, orderBy);
-    if (!hasAggregate) {
+    if (!hasAggregate && !distinct) {
       applyDefaultSortOrder(query);
     }
     return query;
@@ -659,7 +780,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
       final Record record = newRecord(connection);
       for (final String fieldName : values.keySet()) {
         final Object value = values.getValue(fieldName);
-        if (Property.hasValue(value)) {
+        if (value != null) {
           record.setValue(fieldName, value);
         }
       }
@@ -688,7 +809,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     return UUID.randomUUID();
   }
 
-  protected QueryValue parseAggregate(final Query query, final String element) {
+  protected QueryValue parseAggregate(final TableRecordStoreQuery query, final String element) {
     final var parts = element.split(":");
     final var functionName = parts[0];
     final var fieldName = parts[1];
@@ -721,12 +842,16 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
           columnClass = fieldDefinition.getTypeClass();
         }
         if (JsonType.class.isAssignableFrom(columnClass)) {
-          query.and(Q.equal(F.function("jsonb_typeof", field), "number"));
-          field = field.toCast("decimal");
-        } else if (!Number.class.isAssignableFrom(columnClass)) {
-          query
-            .and(Q.equal(F.function("pg_input_is_valid", field, Value.newValue("decimal")), true));
-          field = field.toCast("decimal");
+          if (field instanceof final JsonValue jsonValue) {
+            jsonValue.setText(true);
+          }
+        }
+
+        if (!Number.class.isAssignableFrom(columnClass)) {
+          field = new Case()
+            .when(Q.equal(F.function("pg_input_is_valid", field, Q.literal("decimal")), true),
+              field.toCast("decimal"))
+            .elseValue(Q.nullValue());
         }
         yield F.function(functionName, field)
           .toAlias(alias);
@@ -736,8 +861,127 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     };
   }
 
-  protected QueryValue pathToQueryValueWrap(final QueryValue value, final String function) {
-    throw new IllegalArgumentException("Function " + function + "  not supported");
+  protected QueryValue pathToQueryValueWrap(QueryValue value, final String function) {
+    final var className = getRecordStore().getClass()
+      .getName();
+    final var snowflake = className.equals("com.revolsys.snowflake.SnowflakeRecordStore");
+    if (function.equals("day")) {
+      return dateFormat(value, "yyyy-mm-dd", "0000-00-00");
+    } else if (function.equals("month")) {
+      return dateFormat(value, "yyyy-mm", "0000-00");
+    } else if (function.equals("quarter")) {
+      if (snowflake) {
+        final var column = value.getColumn();
+        FieldDefinition field = null;
+        if (column != null) {
+          field = column.getFieldDefinition();
+          final var dataType = column.getDataType();
+          if (!(dataType == DataTypes.DATE_TIME || dataType == DataTypes.INSTANT
+            || dataType == DataTypes.SQL_DATE || dataType == DataTypes.LOCAL_DATE)) {
+            if (value instanceof final JsonValue jsonValue) {
+              jsonValue.setText(true);
+            } else if (dataType != DataTypes.STRING) {
+              column.cast("text");
+            }
+
+            value = Q.sql(DataTypes.STRING, "CASE WHEN ", value,
+              " ~ '\\d{4}-\\d{2}-\\d{2}.*' THEN (", value, ")::date ELSE NULL END");
+          }
+        }
+
+        final var toChar = F.function("CONCAT", F.function("year", value), Q.literal("-"),
+          F.function("quarter", value));
+        if (field == null || !field.isRequired()) {
+          return new Coalesce(toChar, Q.literal("0000-0"));
+        } else {
+          return toChar;
+        }
+      } else {
+        return dateFormat(value, "yyyy-q", "0000-0");
+      }
+    } else if (function.equals("year")) {
+      return dateFormat(value, "yyyy", "0000");
+    } else if (function.equals("weekStartMon")) {
+      if (value instanceof final JsonValue json) {
+        value = json.setText(true)
+          .cast("date");
+      }
+      final var weeekStartMonday = F.function("date_trunc", Q.literal("week"), value)
+        .cast("date");
+      return dateFormat(weeekStartMonday, "yyyy-mm-dd", "0000-00-00");
+    } else if (function.equals("weekEndSun")) {
+      final var weekEndSunday = Q.add(F.function("date_trunc", Q.literal("week"), value)
+        .cast("date"), Value.newValue(6));
+      return dateFormat(weekEndSunday, "yyyy-mm-dd", "0000-00-00");
+    } else if (function.equals("weekStartSat")) {
+      final QueryValue weeekStartSaturday;
+      if (snowflake) {
+        weeekStartSaturday = F.function("dateadd", Q.literal("day"), Q.literal("-2"),
+          F.function("date_trunc", Q.literal("week"),
+            F.function("dateadd", Q.literal("day"), Q.literal("2"), value)));
+        ;
+      } else {
+        weeekStartSaturday = F
+          .function("date_bin", Q.literal("7 days"), value, Q.literal("1900-01-06"))
+          .cast("date");
+      }
+      return dateFormat(weeekStartSaturday, "yyyy-mm-dd", "0000-00-00");
+    } else if (function.equals("weekEndFri")) {
+      final var weekEndFriday = Q
+        .add(F.function("date_trunc", Q.literal("week"), Q.add(value, Q.sql("interval '1 day'")))
+          .cast("date"), Value.newValue(4));
+      return dateFormat(weekEndFriday, "yyyy-mm-dd", "0000-00-00");
+    } else if (function.equals("weekStartSun")) {
+      final QueryValue weeekStartSunday;
+      if (snowflake) {
+        weeekStartSunday = F.function("dateadd", Q.literal("day"), Q.literal("-1"),
+          F.function("date_trunc", Q.literal("week"),
+            F.function("dateadd", Q.literal("day"), Q.literal("1"), value)));
+      } else {
+        weeekStartSunday = F
+          .function("date_bin", Q.literal("7 days"), value, Q.literal("1900-01-07"))
+          .cast("date");
+      }
+      return dateFormat(weeekStartSunday, "yyyy-mm-dd", "0000-00-00");
+    } else if (function.equals("weekEndSat")) {
+      final var weekEndSaturday = Q
+        .add(F.function("date_trunc", Q.literal("week"), Q.add(value, Q.sql("interval '1 day'")))
+          .cast("date"), Value.newValue(5));
+      return dateFormat(weekEndSaturday, "yyyy-mm-dd", "0000-00-00");
+    } else if (function.equals("week")) {
+      final var truncValue = F.function("date_trunc", Q.literal("week"), value);
+      return dateFormat(truncValue, "yyyy-mm-dd", "0000-00-00");
+    } else if (function.equals("dayName")) {
+      return F.function("rtrim", dateFormat(value, "Day", "000"));
+    } else {
+      throw new IllegalArgumentException("Function " + function + "  not supported");
+    }
+  }
+
+  /**
+   * Get or create a join between the query and the target record store with the specified alias.
+   *
+   * @param query The query to create the join for.
+   * @param queryFieldOrValue The field name or query value to create the on condition for the query.
+   * @param targetRs The target record store to join to.
+   * @param targetAlias The alias for the join.
+   * @param targetFieldOrValue The field name or query value to create the on condition for the target.
+   * @return
+   */
+  protected Join requireJoin(final Query query, final Object queryFieldOrValue,
+    final AbstractTableRecordStore targetRs, final String targetAlias,
+    final Object targetFieldOrValue) {
+    var join = query.getJoin(targetRs, targetAlias);
+    if (join == null) {
+      final QueryValue queryCondition = toQueryValue(query, queryFieldOrValue);
+
+      join = query.join(JoinType.LEFT_OUTER_JOIN)
+        .table(targetRs)//
+        .setAlias(targetAlias);
+      final QueryValue targetCondition = toQueryValue(join, targetFieldOrValue);
+      join.on(targetCondition, queryCondition);
+    }
+    return join;
   }
 
   public JsonObject schemaToJson() {

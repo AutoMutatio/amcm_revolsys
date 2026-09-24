@@ -1,6 +1,5 @@
 package com.revolsys.record.io.format.gpx;
 
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
@@ -34,7 +33,7 @@ public class GpxRecordWriter extends AbstractRecordWriter implements GpxAttribut
 
   public GpxRecordWriter(final RecordDefinitionProxy recordDefinition, final Writer writer) {
     super(recordDefinition);
-    this.out = new XmlWriter(new BufferedWriter(writer));
+    this.out = new XmlWriter(writer);
     this.out.setIndent(false);
     this.out.startDocument("UTF-8", "1.1");
     startTag(GPX);

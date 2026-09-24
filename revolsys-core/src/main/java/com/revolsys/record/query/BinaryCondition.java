@@ -8,13 +8,18 @@ public class BinaryCondition extends AbstractBinaryQueryValue implements Conditi
 
   private final String operator;
 
+  private String odataOperator;
+
   public BinaryCondition(final QueryValue left, final String operator, final QueryValue right) {
     super(left, right);
     this.operator = operator;
   }
 
-  public BinaryCondition(final String name, final String operator, final Object value) {
-    this(new Column(name), operator, Value.newValue(value));
+  public BinaryCondition(final QueryValue left, final String operator, final String odataOperator,
+    final QueryValue right) {
+    super(left, right);
+    this.operator = operator;
+    this.odataOperator = odataOperator;
   }
 
   @Override
@@ -25,6 +30,15 @@ public class BinaryCondition extends AbstractBinaryQueryValue implements Conditi
     buffer.append(this.operator);
     buffer.append(" ");
     appendRight(statement, recordStore, buffer);
+  }
+
+  @Override
+  public void appendOData(final StringBuilder s) {
+    getLeft().appendOData(s);
+    s.append(' ');
+    s.append(this.odataOperator);
+    s.append(' ');
+    getRight().appendOData(s);
   }
 
   @Override

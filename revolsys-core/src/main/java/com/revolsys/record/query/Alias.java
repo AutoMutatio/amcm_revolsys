@@ -3,6 +3,7 @@ package com.revolsys.record.query;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Map;
 
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.data.type.DataType;
@@ -22,14 +23,14 @@ public class Alias implements QueryValue {
 
   protected void appendAlias(final SqlAppendable sql) {
     sql.append('"');
-    sql.append(this.alias);
+    sql.append(this.alias.replaceAll("\"", "\"\""));
     sql.append('"');
   }
 
   @Override
   public void appendDefaultSelect(final QueryStatement statement, final RecordStore recordStore,
     final SqlAppendable sql) {
-    this.value.appendDefaultSelect(statement, recordStore, sql);
+    this.value.appendSelect(statement, recordStore, sql);
     sql.append(" as ");
     appendAlias(sql);
   }
@@ -37,14 +38,14 @@ public class Alias implements QueryValue {
   @Override
   public void appendDefaultSql(final QueryStatement statement, final RecordStore recordStore,
     final SqlAppendable sql) {
-    this.value.appendDefaultSql(statement, recordStore, sql);
+    this.value.appendSql(statement, recordStore, sql);
     sql.append(" as ");
     appendAlias(sql);
   }
 
   @Override
-  public int appendParameters(final int index, final PreparedStatement statement) {
-    return this.value.appendParameters(index, statement);
+  public int appendParameters(final int index, Map<String, Object> parameters, final PreparedStatement statement) {
+    return this.value.appendParameters(index, parameters, statement);
   }
 
   @Override
@@ -101,16 +102,17 @@ public class Alias implements QueryValue {
   }
 
   @Override
-  public Object getValueFromResultSet(final RecordDefinition recordDefinition,
+  public Object getValueFromResultSet(final RecordDefinition recordDefinition, final int fieldIndex,
     final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings)
     throws SQLException {
-    return this.value.getValueFromResultSet(recordDefinition, resultSet, indexes, internStrings);
+    return this.value.getValueFromResultSet(recordDefinition, fieldIndex, resultSet, indexes,
+      internStrings);
   }
 
   @Override
   public String toString() {
     final StringBuilderSqlAppendable sql = SqlAppendable.stringBuilder();
-    this.value.appendDefaultSelect(new Query(), null, sql);
+    this.value.appendSelect(new Query(), null, sql);
     sql.append(" as ");
     appendAlias(sql);
     return sql.toSqlString();
