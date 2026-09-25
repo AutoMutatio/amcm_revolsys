@@ -6,15 +6,14 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestAttribute;
-import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.revolsys.collection.json.JsonObject;
+import com.revolsys.record.Record;
 import com.revolsys.record.query.Query;
-import com.revolsys.record.schema.AbstractTableRecordStore;
 import com.revolsys.record.schema.TableRecordStoreConnection;
 
 public class BaseTableRest extends AbstractTableRecordRestController {
@@ -24,35 +23,24 @@ public class BaseTableRest extends AbstractTableRecordRestController {
   }
 
   @GetMapping("/app/api/{tableName}({id:[0-9]+})")
-  public void getRecordIntegral(
+  public ResponseEntity<Record> getRecordIntegral(
     @RequestAttribute("tableConnection") final TableRecordStoreConnection connection,
-    final HttpServletRequest request, final HttpServletResponse response,
-    @PathVariable final String tableName, @PathVariable() final String id) throws IOException {
-    getRecordString(connection, request, response, tableName, id);
+    @PathVariable final String tableName, @PathVariable final String id) {
+    return getRecordString(connection, tableName, id);
   }
 
   @GetMapping("/app/api/{tableName}('{id}')")
-  public void getRecordString(
+  public ResponseEntity<Record> getRecordString(
     @RequestAttribute("tableConnection") final TableRecordStoreConnection connection,
-    final HttpServletRequest request, final HttpServletResponse response,
-    @PathVariable final String tableName, @PathVariable() final String id) throws IOException {
-    final Query query = getTableRecordStore(connection, tableName).newQuery(connection)//
-      .andEqualId(id);
-    handleGetRecord(connection, request, response, query);
-  }
-
-  @GetMapping("/app/api/{tableName:[A-Za-z0-9_\\.]+}/$schema")
-  public void getSchema(
-    @RequestAttribute("tableConnection") final TableRecordStoreConnection connection,
-    final HttpServletRequest request, final HttpServletResponse response,
-    @PathVariable final String tableName) throws IOException {
-    final AbstractTableRecordStore recordStore = getTableRecordStore(connection, tableName);
-    final JsonObject jsonSchema = recordStore.schemaToJson();
-    responseJson(response, jsonSchema);
+    @PathVariable final String tableName, @PathVariable final String id) {
+    final var record = getTableRecordStore(connection, tableName).newQuery(connection)//
+      .andEqualId(id)
+      .getRecord();
+    return ResponseEntity.ofNullable(record);
   }
 
   @GetMapping(path = "/app/api/{tableName:[A-Za-z0-9_\\\\.]+}")
-  public @ResponseBody Query listRecords(
+  public Query listRecords(
     @RequestAttribute("tableConnection") final TableRecordStoreConnection connection,
     final HttpServletRequest request, final HttpServletResponse response,
     @PathVariable final String tableName) {
