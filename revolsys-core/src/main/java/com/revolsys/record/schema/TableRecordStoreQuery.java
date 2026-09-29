@@ -3,9 +3,14 @@ package com.revolsys.record.schema;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import jakarta.servlet.http.HttpServletRequest;
+
+import org.springframework.util.MultiValueMap;
+
 import com.revolsys.record.ChangeTrackRecord;
 import com.revolsys.record.Record;
 import com.revolsys.record.io.RecordReader;
+import com.revolsys.record.query.Q;
 import com.revolsys.record.query.Query;
 import com.revolsys.record.query.QueryValue;
 import com.revolsys.transaction.TransactionBuilder;
@@ -21,6 +26,22 @@ public class TableRecordStoreQuery extends Query {
     super(recordStore.getRecordDefinition());
     this.recordStore = recordStore;
     this.connection = connection;
+  }
+
+  public TableRecordStoreQuery addSelect(final HttpServletRequest request) {
+    getTableRecordStore().addSelect(this.connection, request, this);
+    return this;
+  }
+
+  public TableRecordStoreQuery andEqual(final MultiValueMap<String, String> id) {
+    // Add a filter for each of the id field names and values
+    // Must only match 1 record
+    id.forEach((fieldName, values) -> {
+      final var column = fieldPathToQueryValue(fieldName);
+      final var value = values.get(0);
+      and(column, Q.EQUAL, value);
+    });
+    return this;
   }
 
   @Override
@@ -41,6 +62,10 @@ public class TableRecordStoreQuery extends Query {
   @Override
   public boolean exists() {
     return this.recordStore.exists(this.connection, this);
+  }
+
+  public QueryValue fieldPathToQueryValue(final CharSequence path) {
+    return getTableRecordStore().fieldPathToQueryValue(this, path);
   }
 
   @Override

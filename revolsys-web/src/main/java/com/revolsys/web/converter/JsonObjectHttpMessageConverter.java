@@ -11,7 +11,6 @@ import org.springframework.http.HttpMessage;
 import org.springframework.http.HttpOutputMessage;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.AbstractHttpMessageConverter;
-import org.springframework.lang.Nullable;
 
 import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.json.JsonParser;
@@ -39,7 +38,7 @@ public class JsonObjectHttpMessageConverter extends AbstractHttpMessageConverter
 
   @Override
   protected void addDefaultHeaders(final HttpHeaders headers, final JsonObject value,
-    @Nullable final MediaType type) throws IOException {
+    final MediaType type) throws IOException {
     if (headers.getContentType() == null) {
       headers.setContentType(MediaType.APPLICATION_JSON);
     }
