@@ -10,7 +10,6 @@ import org.springframework.http.HttpOutputMessage;
 import org.springframework.http.MediaType;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.converter.AbstractHttpMessageConverter;
-import org.springframework.lang.Nullable;
 
 import com.revolsys.collection.json.JsonObject;
 import com.revolsys.record.io.BufferedWriterEx;
@@ -31,7 +30,7 @@ public class ProblemDetailHttpMessageConverter extends AbstractHttpMessageConver
 
   @Override
   protected void addDefaultHeaders(final HttpHeaders headers, final ProblemDetail value,
-    @Nullable final MediaType type) throws IOException {
+    final MediaType type) throws IOException {
     var contentType = type;
     if (contentType == null) {
       contentType = MediaType.APPLICATION_JSON;

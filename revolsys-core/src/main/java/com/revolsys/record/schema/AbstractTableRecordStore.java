@@ -284,6 +284,17 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     }
   }
 
+  public void addSelect(final TableRecordStoreConnection connection,
+    final HttpServletRequest request, final TableRecordStoreQuery query) {
+    final String select = request.getParameter("$select");
+    if (Property.hasValue(select)) {
+      for (String selectItem : select.split(",")) {
+        selectItem = selectItem.strip();
+        addSelect(connection, query, selectItem);
+      }
+    }
+  }
+
   protected void addSelect(final TableRecordStoreConnection connection,
     final TableRecordStoreQuery query, final CharSequence selectItem) {
     final QueryValue selectClause = fieldPathToSelect(query, selectItem.toString());
@@ -689,7 +700,6 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
 
   public TableRecordStoreQuery newQuery(final TableRecordStoreConnection connection,
     final HttpServletRequest request, final int maxSize) {
-    final String select = request.getParameter("$select");
     final String filter = request.getParameter("$filter");
     final String search = request.getParameter("$search");
     final String orderBy = request.getParameter("$orderby");
@@ -724,12 +734,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
       .setReturnCount(count)
       .setDistinct(distinct);
 
-    if (Property.hasValue(select)) {
-      for (String selectItem : select.split(",")) {
-        selectItem = selectItem.strip();
-        addSelect(connection, query, selectItem);
-      }
-    }
+    addSelect(connection, request, query);
 
     boolean hasAggregate = false;
     if (Property.hasValue(aggregate)) {
