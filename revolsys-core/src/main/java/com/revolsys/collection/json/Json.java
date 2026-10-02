@@ -397,10 +397,14 @@ public class Json {
   }
 
   public static Object toJson(final Object value) {
+    if (value == null) {
+      return null;
+    }
     if (value instanceof final JsonType json) {
-      return json;
-    } else if (value instanceof final Jsonable jsonable1) {
-      return jsonable1.toJson();
+      return json.toPureJson();
+    } else if (value instanceof final Jsonable jsonable) {
+      return jsonable.asJson()
+        .toPureJson();
     } else if (value instanceof final Byte number) {
       return new JsonBigDecimal(number);
     } else if (value instanceof final Short number) {

@@ -61,6 +61,11 @@ public class JsonString implements CharSequence, JsonType {
   }
 
   @Override
+  public boolean isPureJson() {
+    return true;
+  }
+
+  @Override
   public int length() {
     return this.string.length();
   }
@@ -74,6 +79,11 @@ public class JsonString implements CharSequence, JsonType {
   @Override
   public CharSequence subSequence(final int start, final int end) {
     return this.string.subSequence(start, end);
+  }
+
+  @Override
+  public JsonString toPureJson() {
+    return this;
   }
 
   @Override

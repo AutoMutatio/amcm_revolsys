@@ -16,6 +16,7 @@ import com.revolsys.exception.Exceptions;
 import com.revolsys.util.Property;
 
 public interface JsonObject extends MapEx, JsonType {
+
   JsonObject EMPTY = new JsonObject() {
     @Override
     public JsonObject clone() {
@@ -279,6 +280,20 @@ public interface JsonObject extends MapEx, JsonType {
     return MapEx.super.isEmpty();
   }
 
+  @Override
+  default boolean isPureJson() {
+    for (final var value : values()) {
+      if (value instanceof final JsonType jsonType) {
+        if (!jsonType.isPureJson()) {
+          return false;
+        }
+      } else {
+        return false;
+      }
+    }
+    return true;
+  }
+
   default <V> V mapTo(final Function<JsonObject, V> mapper) {
     return mapper.apply(this);
   }
@@ -325,6 +340,13 @@ public interface JsonObject extends MapEx, JsonType {
   @Override
   default String toJsonString(final boolean indent) {
     return Json.toString(this, indent);
+  }
+
+  @Override
+  default JsonType toPureJson() {
+    final var json = JsonObject.hash();
+    forEach((k, v) -> json.addValue(k, Json.toJson(v)));
+    return json;
   }
 
   default JsonObject withNonEmptyValues() {
