@@ -331,6 +331,20 @@ public interface ListEx<T> extends List<T>, Cloneable, BaseIterable<T>, JsonType
   }
 
   @Override
+  default boolean isPureJson() {
+    for (final var value : this) {
+      if (value instanceof final JsonType jsonType) {
+        if (!jsonType.isPureJson()) {
+          return false;
+        }
+      } else {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  @Override
   default Stream<T> parallelStream() {
     return List.super.parallelStream();
   }
@@ -415,5 +429,14 @@ public interface ListEx<T> extends List<T>, Cloneable, BaseIterable<T>, JsonType
   @Override
   default String toJsonString(final boolean indent) {
     return Json.toString(this, indent);
+  }
+
+  @Override
+  default JsonType toPureJson() {
+    if (isPureJson()) {
+      return this;
+    } else {
+      return map(Json::toJson).toList();
+    }
   }
 }

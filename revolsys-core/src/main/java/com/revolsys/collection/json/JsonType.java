@@ -67,10 +67,19 @@ public interface JsonType extends DataTypedValue, Jsonable, BaseCloneable {
 
   boolean isEmpty();
 
+  boolean isPureJson();
+
   boolean removeEmptyProperties();
 
   @Override
   default JsonType toJson() {
     return clone();
   }
+
+  /**
+   * Convert the value so that it only contains instances of JsonType
+   *
+   * @return
+   */
+  JsonType toPureJson();
 }

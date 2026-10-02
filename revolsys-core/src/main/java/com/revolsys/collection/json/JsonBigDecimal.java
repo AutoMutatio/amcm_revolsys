@@ -145,6 +145,11 @@ public class JsonBigDecimal extends BigDecimal implements JsonType {
   }
 
   @Override
+  public boolean isPureJson() {
+    return true;
+  }
+
+  @Override
   public boolean removeEmptyProperties() {
     return false;
   }
@@ -157,5 +162,10 @@ public class JsonBigDecimal extends BigDecimal implements JsonType {
   @Override
   public String toJsonString(final boolean indent) {
     return toPlainString();
+  }
+
+  @Override
+  public JsonBigDecimal toPureJson() {
+    return this;
   }
 }
