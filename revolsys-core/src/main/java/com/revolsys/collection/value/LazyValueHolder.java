@@ -179,10 +179,20 @@ public class LazyValueHolder<T> implements ValueHolder<T>, BaseCloseable {
   }
 
   public void clear() {
-    final var oldRef = this.valueRef.getAndUpdate(old -> empty());
+    final var oldRef = this.valueRef.getAndUpdate(_ -> empty());
     final var value = oldRef.getValue();
     oldRef.cancel();
     BaseCloseable.closeValue(value);
+  }
+
+  void clear(final Consumer<T> closeAction) {
+    final var oldRef = this.valueRef.getAndUpdate(_ -> empty());
+    final var value = oldRef.getValue();
+    oldRef.cancel();
+    if (value != null) {
+      BaseCloseable.closeValue(value);
+      closeAction.accept(value);
+    }
   }
 
   @Override
