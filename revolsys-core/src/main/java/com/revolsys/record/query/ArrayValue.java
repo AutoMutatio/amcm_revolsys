@@ -65,7 +65,8 @@ public class ArrayValue implements QueryValue {
   }
 
   @Override
-  public int appendParameters(final int index, Map<String, Object> parameters, final PreparedStatement statement) {
+  public int appendParameters(final int index, final Map<String, Object> parameters,
+    final PreparedStatement statement) {
     try {
       return this.jdbcField.setPreparedStatementArray(statement, index, this.values);
     } catch (final SQLException e) {
@@ -97,7 +98,7 @@ public class ArrayValue implements QueryValue {
     final ArrayValue clone = clone();
     if (oldTable != newTable && this.column.getTable() == oldTable) {
       final String name = this.column.getName();
-      if (name != JdbcFieldDefinitions.UNKNOWN) {
+      if (name != JdbcFieldDefinition.NAME_UNKNOWN) {
         final ColumnReference newColumn = newTable.getColumn(name);
         if (newColumn != null) {
           setColumn(newColumn);
@@ -148,8 +149,8 @@ public class ArrayValue implements QueryValue {
   public void setColumn(final ColumnReference column) {
     this.column = column;
     if (column != null) {
-      if (column instanceof JdbcFieldDefinition) {
-        this.jdbcField = (JdbcFieldDefinition)column;
+      if (column instanceof final JdbcFieldDefinition field) {
+        this.jdbcField = field;
       } else if (this.values.size() > 0) {
         this.jdbcField = JdbcFieldDefinitions.newFieldDefinition(this.values.get(0));
       }

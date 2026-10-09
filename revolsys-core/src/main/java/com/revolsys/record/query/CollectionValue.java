@@ -11,7 +11,7 @@ import com.revolsys.collection.map.MapEx;
 import com.revolsys.data.type.DataType;
 import com.revolsys.exception.Exceptions;
 import com.revolsys.jdbc.field.JdbcFieldDefinition;
-import com.revolsys.jdbc.field.JdbcFieldDefinitions;
+import com.revolsys.jdbc.field.JdbcPreparedStatementValueHandler;
 import com.revolsys.record.code.CodeTable;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordStore;
@@ -99,15 +99,15 @@ public class CollectionValue extends AbstractMultiQueryValue {
   public int appendParameters(int index, final Map<String, Object> parameters,
     final PreparedStatement statement) {
     for (final QueryValue queryValue : this.values) {
-      JdbcFieldDefinition jdbcField = this.jdbcField;
+      JdbcPreparedStatementValueHandler jdbcHandler = this.jdbcField;
       if (queryValue instanceof Value) {
         final Value valueWrapper = (Value)queryValue;
         final Object value = valueWrapper.getQueryValue();
-        if (jdbcField == null) {
-          jdbcField = JdbcFieldDefinitions.newFieldDefinition(value);
+        if (jdbcHandler == null) {
+          jdbcHandler = JdbcPreparedStatementValueHandler.handler(value);
         }
         try {
-          index = jdbcField.setPreparedStatementValue(statement, index, value);
+          index = jdbcHandler.setPreparedStatementValue(statement, index, value);
         } catch (final SQLException e) {
           throw Exceptions.toRuntimeException(e);
         }

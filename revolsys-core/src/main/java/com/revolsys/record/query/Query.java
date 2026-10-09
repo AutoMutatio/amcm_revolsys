@@ -31,8 +31,7 @@ import com.revolsys.data.type.DataType;
 import com.revolsys.function.Lambdaable;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.io.PathName;
-import com.revolsys.jdbc.field.JdbcFieldDefinition;
-import com.revolsys.jdbc.field.JdbcFieldDefinitions;
+import com.revolsys.jdbc.field.JdbcPreparedStatementValueHandler;
 import com.revolsys.logging.Logs;
 import com.revolsys.predicate.Predicates;
 import com.revolsys.properties.BaseObjectWithProperties;
@@ -506,7 +505,7 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
   }
 
   @Override
-  public int appendParameters(int index, Map<String, Object> parameters,
+  public int appendParameters(int index, final Map<String, Object> parameters,
     final PreparedStatement statement) {
     if (!this.withQueries.isEmpty()) {
       for (final var with : this.withQueries) {
@@ -514,9 +513,9 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
       }
     }
     for (final Object parameter : getParameters()) {
-      final JdbcFieldDefinition field = JdbcFieldDefinitions.newFieldDefinition(parameter);
       try {
-        index = field.setPreparedStatementValue(statement, index, parameter);
+        index = JdbcPreparedStatementValueHandler.handler(parameter)
+          .setPreparedStatementValue(statement, index, parameter);
       } catch (final SQLException e) {
         throw new RuntimeException("Error setting value:" + parameter, e);
       }

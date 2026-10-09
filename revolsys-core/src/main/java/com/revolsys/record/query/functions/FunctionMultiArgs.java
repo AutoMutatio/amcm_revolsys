@@ -12,6 +12,7 @@ import com.revolsys.record.query.QueryValue;
 import com.revolsys.record.query.SqlAppendable;
 import com.revolsys.record.query.StringBuilderSqlAppendable;
 import com.revolsys.record.query.TableReference;
+import com.revolsys.record.query.Value;
 import com.revolsys.record.schema.RecordStore;
 
 public class FunctionMultiArgs extends AbstractMultiQueryValue implements Function {
@@ -42,7 +43,8 @@ public class FunctionMultiArgs extends AbstractMultiQueryValue implements Functi
   }
 
   @Override
-  public int appendParameters(int index, Map<String, Object> parameters, final PreparedStatement statement) {
+  public int appendParameters(int index, final Map<String, Object> parameters,
+    final PreparedStatement statement) {
     for (final QueryValue value : this.values) {
       if (value != null) {
         index = value.appendParameters(index, parameters, statement);
@@ -89,6 +91,11 @@ public class FunctionMultiArgs extends AbstractMultiQueryValue implements Functi
   @Override
   public <V> V getValue(final MapEx record) {
     throw new UnsupportedOperationException("getValue");
+  }
+
+  public FunctionMultiArgs parameter(final Object value) {
+    addValue(Value.newValue(value));
+    return this;
   }
 
   @Override

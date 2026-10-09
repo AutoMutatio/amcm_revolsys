@@ -124,6 +124,8 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
 
   private final Map<Integer, JdbcFieldAdder> fieldDefinitionAdderByTypeId = new HashMap<>();
 
+  private final Map<DataType, JdbcFieldAdder> fieldDefinitionAdderByDataType = new HashMap<>();
+
   private boolean flushBetweenTypes;
 
   private boolean lobAsString = false;
@@ -382,8 +384,8 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
   }
 
   @Override
-  public long executeInsertStatementBatch(InsertStatement insertStatement,
-    Consumer<InsertStatementBatch> action) {
+  public long executeInsertStatementBatch(final InsertStatement insertStatement,
+    final Consumer<InsertStatementBatch> action) {
     return transactionCall(() -> {
       final String sql = insertStatement.toSql();
       try (

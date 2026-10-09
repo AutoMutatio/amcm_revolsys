@@ -23,6 +23,7 @@ import com.revolsys.collection.list.Lists;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.collection.value.Single;
 import com.revolsys.data.identifier.Identifier;
+import com.revolsys.data.type.DataType;
 import com.revolsys.data.type.DataTypes;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.geometry.model.GeometryFactoryProxy;
@@ -55,6 +56,7 @@ import com.revolsys.record.query.QueryValue;
 import com.revolsys.record.query.SqlAppendable;
 import com.revolsys.record.query.TableReferenceImpl;
 import com.revolsys.record.query.UpdateStatement;
+import com.revolsys.record.query.Value;
 import com.revolsys.transaction.Transactionable;
 import com.revolsys.util.BaseCloseable;
 import com.revolsys.util.Property;
@@ -322,8 +324,8 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
     throw new UnsupportedOperationException("InsertStatement not implemented");
   }
 
-  default long executeInsertStatementBatch(InsertStatement insertStatement,
-    Consumer<InsertStatementBatch> action) {
+  default long executeInsertStatementBatch(final InsertStatement insertStatement,
+    final Consumer<InsertStatementBatch> action) {
     throw new UnsupportedOperationException();
   }
 
@@ -818,6 +820,18 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
     if (categoryLabelCountMap != null) {
       categoryLabelCountMap.setLabelCounters(name, labelCountMap);
     }
+  }
+
+  default Value toValue(final DataType sqlType, final Object value) {
+    return Value.newValue(value);
+  }
+
+  default Value toValue(final int sqlType, final Object value) {
+    return Value.newValue(value);
+  }
+
+  default Value toValue(final String typeName, final Object value) {
+    return Value.newValue(value);
   }
 
   default Record updateRecord(final Query query, final Consumer<Record> updateAction) {

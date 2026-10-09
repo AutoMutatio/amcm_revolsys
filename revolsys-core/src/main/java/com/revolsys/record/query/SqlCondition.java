@@ -12,7 +12,7 @@ import java.util.function.BiFunction;
 import com.revolsys.data.type.DataType;
 import com.revolsys.exception.ExceptionWithProperties;
 import com.revolsys.jdbc.field.JdbcFieldDefinition;
-import com.revolsys.jdbc.field.JdbcFieldDefinitions;
+import com.revolsys.jdbc.field.JdbcPreparedStatementValueHandler;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordStore;
@@ -80,23 +80,23 @@ public class SqlCondition implements Condition {
   }
 
   @Override
-  public int appendParameters(int index, Map<String, Object> parameters, final PreparedStatement statement) {
+  public int appendParameters(int index, final Map<String, Object> parameters,
+    final PreparedStatement statement) {
     for (int i = 0; i < this.parameterValues.size(); i++) {
       final Object value = this.parameterValues.get(i);
-      JdbcFieldDefinition jdbcAttribute = null;
+      JdbcPreparedStatementValueHandler jdbcHandler = null;
       if (i < this.parameterAttributes.size()) {
-        final FieldDefinition attribute = this.parameterAttributes.get(i);
-        if (attribute instanceof JdbcFieldDefinition) {
-          jdbcAttribute = (JdbcFieldDefinition)attribute;
-
+        final FieldDefinition field = this.parameterAttributes.get(i);
+        if (field instanceof final JdbcFieldDefinition handler) {
+          jdbcHandler = handler;
         }
       }
 
-      if (jdbcAttribute == null) {
-        jdbcAttribute = JdbcFieldDefinitions.newFieldDefinition(value);
+      if (jdbcHandler == null) {
+        jdbcHandler = JdbcPreparedStatementValueHandler.handler(value);
       }
       try {
-        index = jdbcAttribute.setPreparedStatementValue(statement, index, value);
+        index = jdbcHandler.setPreparedStatementValue(statement, index, value);
       } catch (final SQLException e) {
         throw new ExceptionWithProperties("Unable to set value", e).property("value", value);
       }
@@ -136,8 +136,8 @@ public class SqlCondition implements Condition {
   }
 
   @Override
-  public Object getValueFromResultSet(final RecordDefinition recordDefinition,
-    int fieldIndex, final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings)
+  public Object getValueFromResultSet(final RecordDefinition recordDefinition, final int fieldIndex,
+    final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings)
     throws SQLException {
     final int index = indexes.incrementAndGet();
     if (this.valueFromResultSet == null) {

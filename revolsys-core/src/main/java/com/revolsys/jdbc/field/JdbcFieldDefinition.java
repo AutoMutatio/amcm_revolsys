@@ -19,7 +19,8 @@ import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordStore;
 
-public class JdbcFieldDefinition extends FieldDefinition {
+public class JdbcFieldDefinition extends FieldDefinition
+  implements JdbcPreparedStatementValueHandler {
   private String dbName;
 
   private boolean quoteName = false;
@@ -28,8 +29,10 @@ public class JdbcFieldDefinition extends FieldDefinition {
 
   private String dbDataType;
 
+  public static final String NAME_UNKNOWN = "UNKNOWN";
+
   JdbcFieldDefinition() {
-    setName(JdbcFieldDefinitions.UNKNOWN);
+    setName(JdbcFieldDefinition.NAME_UNKNOWN);
   }
 
   public JdbcFieldDefinition(final String dbName, final String name, final DataType type,
@@ -62,6 +65,7 @@ public class JdbcFieldDefinition extends FieldDefinition {
     addStatementPlaceHolder(sql);
   }
 
+  @Override
   public void addSelectStatementPlaceHolder(final SqlAppendable sql) {
     addStatementPlaceHolder(sql);
   }
@@ -88,6 +92,7 @@ public class JdbcFieldDefinition extends FieldDefinition {
     }
   }
 
+  @Override
   public void appendSqlValue(final SqlAppendable sql, final RecordStore recordStore,
     final Object queryValue) {
     if (recordStore == null) {
@@ -182,6 +187,7 @@ public class JdbcFieldDefinition extends FieldDefinition {
     throw new UnsupportedOperationException();
   }
 
+  @Override
   public int setPreparedStatementValue(final PreparedStatement statement, final int parameterIndex,
     final Object value) throws SQLException {
     if (value == null) {
