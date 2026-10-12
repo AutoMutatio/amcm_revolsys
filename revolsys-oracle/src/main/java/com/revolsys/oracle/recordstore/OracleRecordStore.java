@@ -14,7 +14,6 @@ import jakarta.annotation.PostConstruct;
 
 import com.revolsys.collection.map.IntHashMap;
 import com.revolsys.data.identifier.Identifier;
-import com.revolsys.data.type.DataTypes;
 import com.revolsys.geometry.coordinatesystem.io.WktCsParser;
 import com.revolsys.geometry.coordinatesystem.model.CoordinateSystem;
 import com.revolsys.geometry.coordinatesystem.model.systems.EpsgCoordinateSystems;
@@ -22,7 +21,7 @@ import com.revolsys.geometry.model.BoundingBoxProxy;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.geometry.model.editor.BoundingBoxEditor;
 import com.revolsys.jdbc.JdbcConnection;
-import com.revolsys.jdbc.field.JdbcFieldAdder;
+import com.revolsys.jdbc.field.JdbcDataType;
 import com.revolsys.jdbc.field.JdbcFieldDefinition;
 import com.revolsys.jdbc.io.AbstractJdbcRecordStore;
 import com.revolsys.jdbc.io.JdbcRecordDefinition;
@@ -407,20 +406,11 @@ public class OracleRecordStore extends AbstractJdbcRecordStore {
   @PostConstruct
   public void initializeDo() {
     super.initializeDo();
-    final JdbcFieldAdder fieldAdder = new JdbcFieldAdder();
-    addFieldAdder("NUMBER", fieldAdder);
-
-    addFieldAdder("CHAR", fieldAdder);
-    addFieldAdder("NCHAR", fieldAdder);
-    addFieldAdder("VARCHAR", fieldAdder);
-    addFieldAdder("VARCHAR2", fieldAdder);
-    addFieldAdder("NVARCHAR2", new JdbcFieldAdder(DataTypes.STRING));
-    addFieldAdder("LONG", fieldAdder);
-    addFieldAdder("CLOB", fieldAdder);
-    addFieldAdder("NCLOB", fieldAdder);
-
-    addFieldAdder("DATE", fieldAdder);
-    addFieldAdder("TIMESTAMP", fieldAdder);
+    addTypes(JdbcDataType.BIG_DECIMAL, "NUMBER");
+    addTypes(JdbcDataType.STRING, "CHAR", "NCHAR", "VARCHAR", "VARCHAR2", "NVARCHAR2");
+    addTypes(JdbcDataType.DATE, "DATE");
+    addTypes(JdbcDataType.TIMESTAMP, "TIMESTAMP");
+    addTypes(JdbcDataType.OBJECT, "LONG", "NCLOB");
 
     final OracleSdoGeometryFieldAdder sdoGeometryAttributeAdder = new OracleSdoGeometryFieldAdder(
       this);

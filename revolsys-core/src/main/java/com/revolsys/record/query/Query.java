@@ -31,7 +31,7 @@ import com.revolsys.data.type.DataType;
 import com.revolsys.function.Lambdaable;
 import com.revolsys.geometry.model.BoundingBox;
 import com.revolsys.io.PathName;
-import com.revolsys.jdbc.field.JdbcPreparedStatementValueHandler;
+import com.revolsys.jdbc.field.JdbcDataType;
 import com.revolsys.logging.Logs;
 import com.revolsys.predicate.Predicates;
 import com.revolsys.properties.BaseObjectWithProperties;
@@ -514,7 +514,7 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     }
     for (final Object parameter : getParameters()) {
       try {
-        index = JdbcPreparedStatementValueHandler.handler(parameter)
+        index = JdbcDataType.dataType(parameter)
           .setPreparedStatementValue(statement, index, parameter);
       } catch (final SQLException e) {
         throw new RuntimeException("Error setting value:" + parameter, e);

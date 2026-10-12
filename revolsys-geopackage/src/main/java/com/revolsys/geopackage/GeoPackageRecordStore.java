@@ -38,6 +38,7 @@ import com.revolsys.io.StringWriter;
 import com.revolsys.io.file.Paths;
 import com.revolsys.jdbc.JdbcConnection;
 import com.revolsys.jdbc.JdbcUtils;
+import com.revolsys.jdbc.field.JdbcDataType;
 import com.revolsys.jdbc.field.JdbcFieldDefinition;
 import com.revolsys.jdbc.io.AbstractJdbcRecordStore;
 import com.revolsys.jdbc.io.JdbcRecordDefinition;
@@ -383,21 +384,15 @@ public class GeoPackageRecordStore extends AbstractJdbcRecordStore {
     super.initializeDo();
     setUsesSchema(false);
 
-    addFieldAdder("BOOLEAN", DataTypes.BOOLEAN);
-    addFieldAdder("TINYINT", DataTypes.BYTE);
-    addFieldAdder("SMALLINT", DataTypes.SHORT);
-    addFieldAdder("MEDIUMINT", DataTypes.INT);
-    addFieldAdder("INT", DataTypes.LONG);
-    addFieldAdder("LONG", DataTypes.LONG);
-    addFieldAdder("BIGINT", DataTypes.LONG);
-    addFieldAdder("INTEGER", DataTypes.LONG);
-    addFieldAdder("FLOAT", DataTypes.FLOAT);
-    addFieldAdder("DOUBLE", DataTypes.DOUBLE);
-    addFieldAdder("REAL", DataTypes.DOUBLE);
-    addFieldAdder("STRING", DataTypes.STRING);
-    addFieldAdder("VARCHAR", DataTypes.STRING);
-    addFieldAdder("TEXT", DataTypes.STRING);
-    addFieldAdder("BLOB", DataTypes.BLOB);
+    // TODO addFieldAdder("BLOB", DataTypes.BLOB);
+    addTypes(JdbcDataType.BOOLEAN, "BOOLEAN");
+    addTypes(JdbcDataType.BYTE, "TINYINT");
+    addTypes(JdbcDataType.SHORT, "MEDIUMINT");
+    addTypes(JdbcDataType.INTEGER, "INT", "INTEGER");
+    addTypes(JdbcDataType.LONG, "LONG", "BIGINT");
+    addTypes(JdbcDataType.FLOAT, "FLOAT");
+    addTypes(JdbcDataType.DOUBLE, "DOUBLE", "REAL");
+    addTypes(JdbcDataType.STRING, "STRING", "VARCHAR");
 
     final GeoPackageJdbcFieldAdder dateAdder = new GeoPackageJdbcFieldAdder();
 

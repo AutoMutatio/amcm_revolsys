@@ -20,7 +20,7 @@ import com.revolsys.record.query.ColumnReference;
 import com.revolsys.record.schema.ArrayColumnReference;
 import com.revolsys.record.schema.RecordDefinition;
 
-public class PostgreSQLArrayFieldDefinition extends JdbcFieldDefinition
+public class PostgreSQLArrayFieldDefinitionOld extends JdbcFieldDefinition
   implements ArrayColumnReference {
 
   private final DataType elementDataType;
@@ -29,7 +29,7 @@ public class PostgreSQLArrayFieldDefinition extends JdbcFieldDefinition
 
   private final String elementDbDataType;
 
-  public PostgreSQLArrayFieldDefinition(final String dbName, final String name,
+  public PostgreSQLArrayFieldDefinitionOld(final String dbName, final String name,
     final CollectionDataType dataType, final String elementDbDataType, final int sqlType,
     final String dbDataType, final int length, final int scale, final boolean required,
     final String description, final JdbcFieldDefinition elementField,
@@ -56,8 +56,8 @@ public class PostgreSQLArrayFieldDefinition extends JdbcFieldDefinition
   }
 
   @Override
-  public PostgreSQLArrayFieldDefinition clone() {
-    final PostgreSQLArrayFieldDefinition clone = new PostgreSQLArrayFieldDefinition(getDbName(),
+  public PostgreSQLArrayFieldDefinitionOld clone() {
+    final PostgreSQLArrayFieldDefinitionOld clone = new PostgreSQLArrayFieldDefinitionOld(getDbName(),
       getName(), (CollectionDataType)getDataType(), this.elementDbDataType, getSqlType(),
       getDbDataType(), getLength(), getScale(), isRequired(), getDescription(), this.elementField,
       getProperties());

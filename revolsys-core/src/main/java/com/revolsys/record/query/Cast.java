@@ -4,15 +4,15 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import com.revolsys.data.type.DataType;
-import com.revolsys.jdbc.field.JdbcFieldDefinition;
-import com.revolsys.jdbc.io.AbstractJdbcRecordStore;
+import com.revolsys.jdbc.field.JdbcDataType;
+import com.revolsys.record.schema.AbstractRecordStore;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordStore;
 
 public class Cast extends AbstractUnaryQueryValue {
   private final String dataType;
 
-  private JdbcFieldDefinition convertedField;
+  private JdbcDataType jdbcDataType;
 
   public Cast(final QueryValue queryValue, final String dataType) {
     super(queryValue);
@@ -21,7 +21,7 @@ public class Cast extends AbstractUnaryQueryValue {
 
   @Override
   public void appendDefaultSql(final QueryStatement statement, final RecordStore recordStore,
-      final SqlAppendable buffer) {
+    final SqlAppendable buffer) {
     buffer.append("CAST(");
     super.appendDefaultSql(statement, recordStore, buffer);
     buffer.append(" AS ");
@@ -31,13 +31,13 @@ public class Cast extends AbstractUnaryQueryValue {
 
   @Override
   public Cast clone() {
-    return (Cast) super.clone();
+    return (Cast)super.clone();
   }
 
   @Override
   public boolean equals(final Object obj) {
     if (obj instanceof Cast) {
-      final Cast condition = (Cast) obj;
+      final Cast condition = (Cast)obj;
       if (DataType.equal(condition.getDataType(), getDataType())) {
         return super.equals(condition);
       }
@@ -50,15 +50,15 @@ public class Cast extends AbstractUnaryQueryValue {
   }
 
   @Override
-  public Object getValueFromResultSet(final RecordDefinition recordDefinition, int fieldIndex,
-      final ResultSet resultSet,
-      final ColumnIndexes indexes, final boolean internStrings) throws SQLException {
-    if (this.convertedField == null) {
-      final var recordStore = (AbstractJdbcRecordStore) recordDefinition.getRecordStore();
-      this.convertedField = recordStore.getFieldAdder(this.dataType).newField(null, null, "", "", 0, this.dataType, 0,
-          0, false, null);
+  public Object getValueFromResultSet(final RecordDefinition recordDefinition, final int fieldIndex,
+    final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings)
+    throws SQLException {
+    if (this.jdbcDataType == null) {
+      final var recordStore = (AbstractRecordStore)recordDefinition.getRecordStore();
+      this.jdbcDataType = recordStore.dataTypeByName(this.dataType);
     }
-    return this.convertedField.getValueFromResultSet(recordDefinition, fieldIndex, resultSet, indexes, internStrings);
+    return this.jdbcDataType.getValueFromResultSet(recordDefinition, fieldIndex, resultSet, indexes,
+      internStrings);
   }
 
   @Override

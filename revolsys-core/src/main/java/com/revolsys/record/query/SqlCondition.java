@@ -12,7 +12,7 @@ import java.util.function.BiFunction;
 import com.revolsys.data.type.DataType;
 import com.revolsys.exception.ExceptionWithProperties;
 import com.revolsys.jdbc.field.JdbcFieldDefinition;
-import com.revolsys.jdbc.field.JdbcPreparedStatementValueHandler;
+import com.revolsys.jdbc.field.JdbcDataType;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordStore;
@@ -84,7 +84,7 @@ public class SqlCondition implements Condition {
     final PreparedStatement statement) {
     for (int i = 0; i < this.parameterValues.size(); i++) {
       final Object value = this.parameterValues.get(i);
-      JdbcPreparedStatementValueHandler jdbcHandler = null;
+      JdbcDataType jdbcHandler = null;
       if (i < this.parameterAttributes.size()) {
         final FieldDefinition field = this.parameterAttributes.get(i);
         if (field instanceof final JdbcFieldDefinition handler) {
@@ -93,7 +93,7 @@ public class SqlCondition implements Condition {
       }
 
       if (jdbcHandler == null) {
-        jdbcHandler = JdbcPreparedStatementValueHandler.handler(value);
+        jdbcHandler = JdbcDataType.dataType(value);
       }
       try {
         index = jdbcHandler.setPreparedStatementValue(statement, index, value);

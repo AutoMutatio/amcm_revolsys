@@ -57,7 +57,7 @@ public class ArrayValue implements QueryValue {
         } else {
           sql.append(',');
         }
-        final Value value = Value.newValue(this.jdbcField, object);
+        final Value value = Value.newValue((FieldDefinition)this.jdbcField, object);
         value.appendDefaultSql(statement, recordStore, sql);
       }
       sql.append(']');

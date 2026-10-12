@@ -18,9 +18,9 @@ import com.revolsys.data.type.DataType;
 import com.revolsys.data.type.DataTypes;
 import com.revolsys.date.Dates;
 import com.revolsys.exception.Exceptions;
+import com.revolsys.jdbc.field.JdbcDataType;
 import com.revolsys.jdbc.field.JdbcFieldDefinition;
 import com.revolsys.jdbc.field.JdbcFieldDefinitions;
-import com.revolsys.jdbc.field.JdbcPreparedStatementValueHandler;
 import com.revolsys.record.code.CodeTable;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
@@ -52,6 +52,14 @@ public class Value implements QueryValue {
     }
   }
 
+  public static QueryValue newValue(final DataType type, final Object value) {
+    if (type instanceof final JdbcDataType jdbcType) {
+      return new Value(jdbcType, value);
+    } else {
+      throw new UnsupportedOperationException("Only jdbc types currently supported");
+    }
+  }
+
   public static Value newValue(final FieldDefinition field, final Object value) {
     if (field == null) {
       return newValue(value);
@@ -70,7 +78,7 @@ public class Value implements QueryValue {
   }
 
   public static Value newValue(final Object value) {
-    final var handler = JdbcPreparedStatementValueHandler.handler(value);
+    final var handler = JdbcDataType.dataType(value);
     return new Value(handler, value);
   }
 
@@ -78,7 +86,7 @@ public class Value implements QueryValue {
     if (fieldValue instanceof final ColumnReference column) {
       return new Value(column, value);
     } else {
-      final var handler = JdbcPreparedStatementValueHandler.handler(value);
+      final var handler = JdbcDataType.dataType(value);
       return new Value(handler, value);
     }
   }
@@ -131,7 +139,7 @@ public class Value implements QueryValue {
 
   private Object displayValue;
 
-  private JdbcPreparedStatementValueHandler jdbcHandler;
+  private JdbcDataType jdbcDataType;
 
   private Object queryValue;
 
@@ -139,8 +147,8 @@ public class Value implements QueryValue {
 
   public Value(final ColumnReference column, Object value) {
     this.column = column;
-    if (column instanceof final JdbcPreparedStatementValueHandler jdbcHandler) {
-      this.jdbcHandler = jdbcHandler;
+    if (column instanceof final JdbcDataType jdbcDataType) {
+      this.jdbcDataType = jdbcDataType;
     }
     value = toValue(value);
     this.displayValue = column.toColumnType(value);
@@ -149,8 +157,8 @@ public class Value implements QueryValue {
 
   protected Value(final FieldDefinition field, final Object value) {
     this.column = field;
-    if (this.column instanceof final JdbcPreparedStatementValueHandler jdbcHandler) {
-      this.jdbcHandler = jdbcHandler;
+    if (this.column instanceof final JdbcDataType jdbcDataType) {
+      this.jdbcDataType = jdbcDataType;
     }
     this.queryValue = toValue(value);
     this.displayValue = this.queryValue;
@@ -159,8 +167,8 @@ public class Value implements QueryValue {
 
   public Value(final FieldDefinition field, final Object value, final boolean dontConvert) {
     this.column = field;
-    if (this.column instanceof final JdbcPreparedStatementValueHandler jdbcHandler) {
-      this.jdbcHandler = jdbcHandler;
+    if (this.column instanceof final JdbcDataType jdbcDataType) {
+      this.jdbcDataType = jdbcDataType;
     }
     this.dontConvert = dontConvert;
     if (dontConvert) {
@@ -168,10 +176,10 @@ public class Value implements QueryValue {
       this.displayValue = this.queryValue;
       if (field != null) {
         this.column = field;
-        if (field instanceof final JdbcPreparedStatementValueHandler jdbcHandler) {
-          this.jdbcHandler = jdbcHandler;
+        if (field instanceof final JdbcDataType jdbcDataType) {
+          this.jdbcDataType = jdbcDataType;
         } else {
-          this.jdbcHandler = JdbcPreparedStatementValueHandler.handler(this.queryValue);
+          this.jdbcDataType = JdbcDataType.dataType(this.queryValue);
         }
       }
     } else {
@@ -181,8 +189,8 @@ public class Value implements QueryValue {
     }
   }
 
-  protected Value(final JdbcPreparedStatementValueHandler jdbcHandler, final Object value) {
-    this.jdbcHandler = jdbcHandler;
+  protected Value(final JdbcDataType jdbcDataType, final Object value) {
+    this.jdbcDataType = jdbcDataType;
     setQueryValue(value);
     this.displayValue = this.queryValue;
   }
@@ -191,20 +199,20 @@ public class Value implements QueryValue {
   public void appendDefaultSql(final QueryStatement statement, final RecordStore recordStore,
     final SqlAppendable sql) {
     if (sql.isUsePlaceholders()) {
-      if (this.jdbcHandler == null) {
+      if (this.jdbcDataType == null) {
         sql.append('?');
       } else {
-        this.jdbcHandler.addSelectStatementPlaceHolder(sql);
+        this.jdbcDataType.addSelectStatementPlaceHolder(sql);
       }
     } else {
-      if (this.jdbcHandler == null) {
+      if (this.jdbcDataType == null) {
         if (recordStore == null) {
           RecordStore.appendDefaultSql(sql, this.queryValue);
         } else {
           recordStore.appendSqlValue(sql, this.queryValue);
         }
       } else {
-        this.jdbcHandler.appendSqlValue(sql, recordStore, this.queryValue);
+        this.jdbcDataType.appendSqlValue(sql, recordStore, this.queryValue);
       }
     }
   }
@@ -230,9 +238,9 @@ public class Value implements QueryValue {
     final PreparedStatement statement) {
     try {
       try {
-        return this.jdbcHandler.setPreparedStatementValue(statement, index, this.queryValue);
+        return this.jdbcDataType.setPreparedStatementValue(statement, index, this.queryValue);
       } catch (final IllegalArgumentException e) {
-        return this.jdbcHandler.setPreparedStatementValue(statement, index, null);
+        return this.jdbcDataType.setPreparedStatementValue(statement, index, null);
       }
     } catch (final SQLException e) {
       throw Exceptions.wrap("Unable to set value", e)
@@ -294,10 +302,18 @@ public class Value implements QueryValue {
   }
 
   public void convert(final FieldDefinition field) {
-    if (field instanceof final JdbcPreparedStatementValueHandler jdbcHandler) {
-      this.jdbcHandler = jdbcHandler;
+    if (field instanceof final JdbcDataType jdbcDataType) {
+      this.jdbcDataType = jdbcDataType;
     }
     convert(field.getDataType());
+  }
+
+  public QueryValue convertTo(final DataType dataType) {
+    if (this.jdbcDataType == dataType) {
+      return this;
+    } else {
+      return newValue(dataType);
+    }
   }
 
   @Override
@@ -343,10 +359,10 @@ public class Value implements QueryValue {
     if (column != null) {
       this.column = column;
       final FieldDefinition field = column.getFieldDefinition();
-      if (field instanceof final JdbcPreparedStatementValueHandler jdbcHandler) {
-        this.jdbcHandler = jdbcHandler;
+      if (field instanceof final JdbcDataType jdbcDataType) {
+        this.jdbcDataType = jdbcDataType;
       } else {
-        this.jdbcHandler = JdbcPreparedStatementValueHandler.handler(this.queryValue);
+        this.jdbcDataType = JdbcDataType.dataType(this.queryValue);
       }
       if (!this.dontConvert) {
         this.queryValue = column.toFieldValue(this.queryValue);

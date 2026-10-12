@@ -10,10 +10,10 @@ import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.geopackage.GeoPackageRecordStore;
 import com.revolsys.io.PathName;
 import com.revolsys.jdbc.field.JdbcFieldAdder;
+import com.revolsys.jdbc.field.JdbcFieldDefinition;
 import com.revolsys.jdbc.io.AbstractJdbcRecordStore;
 import com.revolsys.jdbc.io.JdbcRecordDefinition;
 import com.revolsys.logging.Logs;
-import com.revolsys.record.schema.FieldDefinition;
 
 public class GeoPackageGeometryFieldAdder extends JdbcFieldAdder {
   private static final Map<String, DataType> DATA_TYPE_MAP = new HashMap<>();
@@ -32,7 +32,7 @@ public class GeoPackageGeometryFieldAdder extends JdbcFieldAdder {
   }
 
   @Override
-  public FieldDefinition addField(final AbstractJdbcRecordStore recordStore,
+  public JdbcFieldDefinition newField(final AbstractJdbcRecordStore recordStore,
     final JdbcRecordDefinition recordDefinition, final String dbName, final String name,
     final int sqlType, final String columnDataType, final int length, final int scale,
     final boolean required, final String description) {
@@ -68,8 +68,8 @@ public class GeoPackageGeometryFieldAdder extends JdbcFieldAdder {
         final double[] scales = recordDefinitionGeometryFactory.newScales(axisCount);
         geometryFactory = GeometryFactory.fixed(srid, axisCount, scales);
       }
-      final FieldDefinition field = new GeoPackageGeometryJdbcFieldDefinition(dbName, name,
-        dataType, required, description, null, srid, axisCount, geometryFactory);
+      final var field = new GeoPackageGeometryJdbcFieldDefinition(dbName, name, dataType, required,
+        description, null, srid, axisCount, geometryFactory);
       recordDefinition.addField(field);
       return field;
     } catch (final Throwable e) {

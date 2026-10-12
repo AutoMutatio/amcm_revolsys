@@ -31,6 +31,7 @@ import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.io.PathName;
 import com.revolsys.jdbc.JdbcConnection;
 import com.revolsys.jdbc.field.JdbcFieldDefinition;
+import com.revolsys.jdbc.io.AbstractJdbcRecordStore;
 import com.revolsys.jdbc.io.JdbcRecordStore;
 import com.revolsys.record.ArrayChangeTrackRecord;
 import com.revolsys.record.ChangeTrackRecord;
@@ -61,6 +62,7 @@ import com.revolsys.record.query.Value;
 import com.revolsys.record.query.functions.ArrayElements;
 import com.revolsys.record.query.functions.Coalesce;
 import com.revolsys.record.query.functions.F;
+import com.revolsys.record.query.functions.FunctionDefinition;
 import com.revolsys.record.query.functions.JsonValue;
 import com.revolsys.util.Property;
 
@@ -494,6 +496,10 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     }
     return queryValue;
 
+  }
+
+  public final FunctionDefinition function(final String name) {
+    return ((AbstractJdbcRecordStore)getRecordStore()).function(name);
   }
 
   public Map<QueryValue, Boolean> getDefaultSortOrder() {

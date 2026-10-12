@@ -16,9 +16,12 @@ import java.util.function.Consumer;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.collection.map.Maps;
 import com.revolsys.collection.value.Single;
+import com.revolsys.data.type.DataType;
 import com.revolsys.function.Consumer3;
 import com.revolsys.geometry.model.GeometryFactory;
 import com.revolsys.io.PathName;
+import com.revolsys.jdbc.field.JdbcDataType;
+import com.revolsys.jdbc.field.JdbcDataTypeRegistry;
 import com.revolsys.jdbc.io.JdbcRecordStore;
 import com.revolsys.logging.Logs;
 import com.revolsys.parallel.ReentrantLockEx;
@@ -47,6 +50,8 @@ public abstract class AbstractRecordStore extends BaseObjectWithProperties imple
   private List<RecordDefinitionProperty> commonRecordDefinitionProperties = new ArrayList<>();
 
   private Map<String, Object> connectionProperties = new HashMap<>();
+
+  protected final JdbcDataTypeRegistry typeRegistry = JdbcDataType.newRegistry();
 
   private RecordStoreConnection recordStoreConnection;
 
@@ -177,6 +182,18 @@ public abstract class AbstractRecordStore extends BaseObjectWithProperties imple
     this.sqlQueryAppenderByClass.put(clazz, appender);
   }
 
+  /**
+   * Add the data type and also add an array dataType for _[name]
+   *
+   * @param dataType
+   * @param names
+   */
+  protected void addTypes(final JdbcDataType dataType, final String... names) {
+    for (final var name : names) {
+      this.typeRegistry.addType(dataType, name);
+    }
+  }
+
   @Override
   public void appendQueryValue(final QueryStatement statement, final SqlAppendable sql,
     final QueryValue queryValue) {
@@ -216,6 +233,22 @@ public abstract class AbstractRecordStore extends BaseObjectWithProperties imple
   protected RecordDefinition createRecordDefinitionDo(final RecordDefinition recordDefinition) {
     throw new UnsupportedOperationException(
       "Creating new record definitions (tables) is not supported");
+  }
+
+  public JdbcDataType dataTypeByJavaClass(final Class<?> javaClass) {
+    return this.typeRegistry.byJavaClass(javaClass);
+  }
+
+  public JdbcDataType dataTypeByName(final String name) {
+    return this.typeRegistry.byName(name);
+  }
+
+  public JdbcDataType dataTypeBySqlType(final int sqlType) {
+    return this.typeRegistry.bySqlType(sqlType);
+  }
+
+  public JdbcDataType dataTypeByType(final DataType dataType) {
+    return this.typeRegistry.byType(dataType);
   }
 
   @Override

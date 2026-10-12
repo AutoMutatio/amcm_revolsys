@@ -4,7 +4,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import com.revolsys.data.type.DataType;
-import com.revolsys.jdbc.field.JdbcFieldDefinition;
+import com.revolsys.jdbc.field.JdbcDataType;
 import com.revolsys.jdbc.io.AbstractJdbcRecordStore;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordStore;
@@ -12,7 +12,7 @@ import com.revolsys.record.schema.RecordStore;
 public class JsonCast extends AbstractUnaryQueryValue {
   private final String dataType;
 
-  private JdbcFieldDefinition convertedField;
+  private JdbcDataType jdbcDataType;
 
   public JsonCast(final QueryValue queryValue, final String dataType) {
     super(queryValue);
@@ -52,13 +52,12 @@ public class JsonCast extends AbstractUnaryQueryValue {
   public Object getValueFromResultSet(final RecordDefinition recordDefinition, final int fieldIndex,
     final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings)
     throws SQLException {
-    if (this.convertedField == null) {
+    if (this.jdbcDataType == null) {
       final var recordStore = (AbstractJdbcRecordStore)recordDefinition.getRecordStore();
-      this.convertedField = recordStore.getFieldAdder(this.dataType)
-        .newField(null, null, "", "", 0, this.dataType, 0, 0, false, null);
+      this.jdbcDataType = recordStore.dataTypeByName(this.dataType);
     }
-    return this.convertedField.getValueFromResultSet(recordDefinition, fieldIndex, resultSet,
-      indexes, internStrings);
+    return this.jdbcDataType.getValueFromResultSet(recordDefinition, fieldIndex, resultSet, indexes,
+      internStrings);
   }
 
   @Override

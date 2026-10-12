@@ -12,6 +12,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -34,7 +35,7 @@ import com.revolsys.collection.list.Lists;
 import com.revolsys.collection.map.Maps;
 import com.revolsys.comparator.CompareUtil;
 import com.revolsys.data.identifier.Identifier;
-import com.revolsys.data.type.DataType;
+import com.revolsys.exception.ExceptionWithProperties;
 import com.revolsys.exception.Exceptions;
 import com.revolsys.io.PathName;
 import com.revolsys.io.PathUtil;
@@ -42,6 +43,8 @@ import com.revolsys.jdbc.JdbcConnection;
 import com.revolsys.jdbc.JdbcDataSource;
 import com.revolsys.jdbc.JdbcDataSourceWrapper;
 import com.revolsys.jdbc.JdbcDatabaseFactory;
+import com.revolsys.jdbc.field.JdbcDataType;
+import com.revolsys.jdbc.field.JdbcDataTypeFieldDefinition;
 import com.revolsys.jdbc.field.JdbcFieldAdder;
 import com.revolsys.jdbc.field.JdbcFieldDefinition;
 import com.revolsys.jdbc.field.JdbcFieldFactory;
@@ -69,6 +72,7 @@ import com.revolsys.record.query.SqlAppendable;
 import com.revolsys.record.query.StringBuilderSqlAppendable;
 import com.revolsys.record.query.TableReference;
 import com.revolsys.record.query.UpdateStatement;
+import com.revolsys.record.query.functions.FunctionDefinition;
 import com.revolsys.record.schema.AbstractRecordStore;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
@@ -100,6 +104,8 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
 
   public static final List<String> DEFAULT_PERMISSIONS = Arrays.asList("SELECT");
 
+  private final Map<String, ListEx<FunctionDefinition>> functionsByName = new LinkedHashMap<>();
+
   private final Set<String> allSchemaNames = new TreeSet<>();
 
   private boolean quoteNames = false;
@@ -123,8 +129,6 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
   private final Map<String, JdbcFieldAdder> fieldDefinitionAdders = new HashMap<>();
 
   private final Map<Integer, JdbcFieldAdder> fieldDefinitionAdderByTypeId = new HashMap<>();
-
-  private final Map<DataType, JdbcFieldAdder> fieldDefinitionAdderByDataType = new HashMap<>();
 
   private boolean flushBetweenTypes;
 
@@ -200,12 +204,16 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
       false, null);
   }
 
-  protected JdbcFieldDefinition addField(final JdbcRecordDefinition recordDefinition,
+  protected final JdbcFieldDefinition addField(final JdbcRecordDefinition recordDefinition,
     final String dbColumnName, final String name, final int sqlType, final String dbDataType,
     final int length, final int scale, final boolean required, final String description) {
-    final JdbcFieldAdder fieldAdder = getFieldAdder(dbDataType, sqlType);
-    return (JdbcFieldDefinition)fieldAdder.addField(this, recordDefinition, dbColumnName, name,
-      sqlType, dbDataType, length, scale, required, description);
+    final var field = newField(recordDefinition, dbColumnName, name, sqlType, dbDataType, length,
+      scale, required, description);
+    if (isQuoteNames()) {
+      field.setQuoteName(true);
+    }
+    recordDefinition.addField(field);
+    return field;
   }
 
   protected void addField(final ResultSetMetaData resultSetMetaData,
@@ -226,11 +234,6 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
     this.fieldDefinitionAdderByTypeId.put(typeId, fieldAdder);
   }
 
-  protected void addFieldAdder(final String sqlTypeName, final DataType dataType) {
-    final JdbcFieldAdder adder = new JdbcFieldAdder(dataType);
-    this.fieldDefinitionAdders.put(sqlTypeName, adder);
-  }
-
   public void addFieldAdder(final String sqlTypeName, final JdbcFieldAdder adder) {
     this.fieldDefinitionAdders.put(sqlTypeName, adder);
   }
@@ -238,6 +241,15 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
   protected void addFieldAdder(final String sqlTypeName, final JdbcFieldFactory fieldFactory) {
     final JdbcFieldFactoryAdder fieldAdder = new JdbcFieldFactoryAdder(fieldFactory);
     addFieldAdder(sqlTypeName, fieldAdder);
+  }
+
+  public AbstractJdbcRecordStore addFunction(final FunctionDefinition function) {
+    final var functions = this.functionsByName.computeIfAbsent(function.name(),
+      _ -> Lists.newArray());
+    if (!functions.contains(function)) {
+      functions.add(function);
+    }
+    return this;
   }
 
   /**
@@ -495,6 +507,18 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
     return executeReturningStatementRecords(update, action);
   }
 
+  public final FunctionDefinition function(final String name) {
+    final var functions = this.functionsByName.get(name);
+    if (functions == null || functions.isEmpty()) {
+      throw new ExceptionWithProperties("Function doesn't exist").property("name", name);
+    }
+    if (functions.size() > 1) {
+      throw new ExceptionWithProperties("Too many functions with the same name").property("name",
+        name);
+    }
+    return functions.get(0);
+  }
+
   public Set<String> getAllSchemaNames() {
     return this.allSchemaNames;
   }
@@ -572,21 +596,10 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
     }
   }
 
-  public JdbcFieldAdder getFieldAdder(final String dataType) {
-    JdbcFieldAdder fieldAdder = this.fieldDefinitionAdders.get(dataType);
+  protected JdbcFieldAdder getFieldAdder(final int sqlType, final String dbDataType) {
+    JdbcFieldAdder fieldAdder = this.fieldDefinitionAdders.get(dbDataType);
     if (fieldAdder == null) {
-      fieldAdder = JdbcFieldAdder.OBJECT;
-    }
-    return fieldAdder;
-  }
-
-  public JdbcFieldAdder getFieldAdder(final String dataType, final int typeId) {
-    JdbcFieldAdder fieldAdder = this.fieldDefinitionAdders.get(dataType);
-    if (fieldAdder == null) {
-      fieldAdder = this.fieldDefinitionAdderByTypeId.get(typeId);
-      if (fieldAdder == null) {
-        fieldAdder = JdbcFieldAdder.OBJECT;
-      }
+      fieldAdder = this.fieldDefinitionAdderByTypeId.get(sqlType);
     }
     return fieldAdder;
   }
@@ -669,6 +682,14 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
     } catch (final SQLException e) {
       throw getException("connection", null, e);
     }
+  }
+
+  protected JdbcDataType getJdbcDataType(final int sqlType, final String dbDataType) {
+    var jdbcDataType = this.typeRegistry.byName(dbDataType);
+    if (jdbcDataType == null) {
+      jdbcDataType = this.typeRegistry.bySqlType(sqlType);
+    }
+    return jdbcDataType;
   }
 
   protected Identifier getNextPrimaryKey(final String typePath) {
@@ -1155,6 +1176,23 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
       throw Exceptions.wrap("Unable to get schema and table permissions: " + dbSchemaName, e);
     }
     return recordDefinitionMap;
+  }
+
+  protected JdbcFieldDefinition newField(final JdbcRecordDefinition recordDefinition,
+    final String dbColumnName, final String name, final int sqlType, final String dbDataType,
+    final int length, final int scale, final boolean required, final String description) {
+    final JdbcFieldAdder fieldAdder = getFieldAdder(sqlType, dbDataType);
+    if (fieldAdder != null) {
+      return fieldAdder.newField(this, recordDefinition, dbColumnName, name, sqlType, dbDataType,
+        length, scale, required, description);
+    }
+
+    var jdbcDataType = getJdbcDataType(sqlType, dbDataType);
+    if (jdbcDataType == null) {
+      jdbcDataType = JdbcDataType.OBJECT;
+    }
+    return new JdbcDataTypeFieldDefinition(dbColumnName, name, sqlType, dbDataType, jdbcDataType,
+      length, scale, required, description, null);
   }
 
   protected Identifier newPrimaryIdentifier(final JdbcRecordDefinition recordDefinition) {

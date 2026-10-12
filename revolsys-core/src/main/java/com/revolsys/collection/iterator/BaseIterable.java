@@ -18,6 +18,7 @@ package com.revolsys.collection.iterator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -198,6 +199,14 @@ public interface BaseIterable<T> extends Iterable<T>, ForEachHandler<T> {
       throw new IllegalArgumentException("Converter must not be null");
     } else {
       return () -> new MapIterator<>(iterator(), converter);
+    }
+  }
+
+  default <V> BaseIterable<V> mapIndex(final BiFunction<Integer, ? super T, V> converter) {
+    if (converter == null) {
+      throw new IllegalArgumentException("Converter must not be null");
+    } else {
+      return () -> new MapIteratorWithIndex<>(iterator(), converter);
     }
   }
 

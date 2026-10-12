@@ -19,8 +19,9 @@ import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordStore;
 
-public class JdbcFieldDefinition extends FieldDefinition
-  implements JdbcPreparedStatementValueHandler {
+public class JdbcFieldDefinition extends FieldDefinition implements JdbcDataType {
+  public static final String NAME_UNKNOWN = "UNKNOWN";
+
   private String dbName;
 
   private boolean quoteName = false;
@@ -28,8 +29,6 @@ public class JdbcFieldDefinition extends FieldDefinition
   private int sqlType;
 
   private String dbDataType;
-
-  public static final String NAME_UNKNOWN = "UNKNOWN";
 
   JdbcFieldDefinition() {
     setName(JdbcFieldDefinition.NAME_UNKNOWN);
@@ -109,6 +108,11 @@ public class JdbcFieldDefinition extends FieldDefinition
       getProperties());
     postClone(clone);
     return clone;
+  }
+
+  @Override
+  public DataType dataType() {
+    return super.getDataType();
   }
 
   public String getDbDataType() {
@@ -204,6 +208,11 @@ public class JdbcFieldDefinition extends FieldDefinition
 
   public void setSqlType(final int sqlType) {
     this.sqlType = sqlType;
+  }
+
+  @Override
+  public int sqlType() {
+    return this.sqlType;
   }
 
 }

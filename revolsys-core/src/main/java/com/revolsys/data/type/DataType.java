@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.function.Supplier;
 
-public interface DataType {
+public interface DataType extends DataTypeProxy {
   static boolean equal(final Object object1, final Object object2) {
     final DataType dataType = DataTypes.getDataType(object1);
     return dataType.equals(object1, object2);
@@ -57,14 +57,21 @@ public interface DataType {
     }
   }
 
+  @Override
   boolean equals(final Object object1, final Object object2);
 
+  @Override
   default boolean equals(final Object object1, final Object object2,
     final Collection<? extends CharSequence> excludeFieldNames) {
     return equals(object1, object2);
   }
 
   boolean equalsExact(Object value1, Object value2);
+
+  @Override
+  default DataType getDataType() {
+    return this;
+  }
 
   Class<?> getJavaClass();
 
@@ -131,10 +138,11 @@ public interface DataType {
     };
   }
 
-  default <V> V plus(final Object value, Number number) {
+  default <V> V plus(final Object value, final Number number) {
     return null;
   }
 
+  @Override
   @SuppressWarnings("unchecked")
   default <V> V toObject(final Object value) {
     return (V)value;

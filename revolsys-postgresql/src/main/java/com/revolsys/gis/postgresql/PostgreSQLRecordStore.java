@@ -22,7 +22,8 @@ import com.revolsys.data.type.CollectionDataType;
 import com.revolsys.data.type.DataType;
 import com.revolsys.data.type.DataTypes;
 import com.revolsys.exception.Exceptions;
-import com.revolsys.gis.postgresql.type.PostgreSQLArrayFieldDefinition;
+import com.revolsys.gis.postgresql.type.PostgreSQLArrayDataType;
+import com.revolsys.gis.postgresql.type.PostgreSQLArrayFieldDefinitionOld;
 import com.revolsys.gis.postgresql.type.PostgreSQLBoundingBoxWrapper;
 import com.revolsys.gis.postgresql.type.PostgreSQLCiTextFieldDefinition;
 import com.revolsys.gis.postgresql.type.PostgreSQLGeometryFieldAdder;
@@ -36,9 +37,9 @@ import com.revolsys.gis.postgresql.type.PostgreSQLStructFieldDefinition;
 import com.revolsys.gis.postgresql.type.PostgreSQLTidWrapper;
 import com.revolsys.io.PathName;
 import com.revolsys.jdbc.JdbcConnection;
+import com.revolsys.jdbc.field.JdbcDataType;
 import com.revolsys.jdbc.field.JdbcFieldAdder;
 import com.revolsys.jdbc.field.JdbcFieldDefinition;
-import com.revolsys.jdbc.field.JdbcStringFieldAdder;
 import com.revolsys.jdbc.io.AbstractJdbcDatabaseFactory;
 import com.revolsys.jdbc.io.AbstractJdbcRecordStore;
 import com.revolsys.jdbc.io.JdbcRecordDefinition;
@@ -52,6 +53,7 @@ import com.revolsys.record.query.QueryStatement;
 import com.revolsys.record.query.QueryValue;
 import com.revolsys.record.query.SqlAppendable;
 import com.revolsys.record.query.functions.EnvelopeIntersects;
+import com.revolsys.record.query.functions.FunctionDefinition;
 import com.revolsys.record.query.functions.JsonValue;
 import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.LockMode;
@@ -96,38 +98,20 @@ public class PostgreSQLRecordStore extends AbstractJdbcRecordStore {
     setDataSource(dataSource);
   }
 
+  /**
+   * Add the data type and also add an array dataType for _[name]
+   *
+   * @param dataType
+   * @param names
+   */
   @Override
-  protected JdbcFieldDefinition addField(final JdbcRecordDefinition recordDefinition,
-    final String dbColumnName, final String name, final int sqlType, final String dbDataType,
-    final int length, final int scale, final boolean required, final String description) {
-    final var dbType = PathName.fromDotSeparated(dbDataType.replaceAll("\"", ""));
-    final JdbcFieldDefinition field;
-    if (((JdbcRecordStoreSchema)recordDefinition.getSchema()).isEnum(dbType)) {
-      field = new PostgreSQLJdbcEnumFieldDefinition(dbColumnName, name, sqlType, dbDataType, length,
-        scale, required, description, getProperties());
-      field.setQuoteName(isQuoteNames());
-      recordDefinition.addField(field);
-    } else if (dbDataType.charAt(0) == '_') {
-      final String elementDbDataType = dbDataType.substring(1);
-      final JdbcFieldAdder fieldAdder = getFieldAdder(elementDbDataType);
-      final JdbcFieldDefinition elementField = fieldAdder.newField(this, recordDefinition,
-        dbColumnName, name, sqlType, elementDbDataType, length, scale, required, description);
-
-      final DataType elementDataType = elementField.getDataType();
-      final var listDataType = newListDataType(elementDataType);
-      field = new PostgreSQLArrayFieldDefinition(dbColumnName, name, listDataType,
-        elementDbDataType, sqlType, dbDataType, length, scale, required, description, elementField,
-        getProperties());
-      field.setQuoteName(isQuoteNames());
-      recordDefinition.addField(field);
-    } else {
-      field = super.addField(recordDefinition, dbColumnName, name, sqlType, dbDataType, length,
-        scale, required, description);
+  protected void addTypes(final JdbcDataType dataType, final String... names) {
+    final var listDataType = newListDataType(dataType);
+    for (final var name : names) {
+      this.typeRegistry.addType(dataType, name);
+      final var arrayDataType = new PostgreSQLArrayDataType(listDataType, dataType, name);
+      this.typeRegistry.addType(arrayDataType, "_" + name);
     }
-    if (!dbColumnName.equals(dbColumnName.toLowerCase())) {
-      field.setQuoteName(true);
-    }
-    return field;
   }
 
   private void appendEnvelopeIntersects(final QueryStatement statement, final SqlAppendable sql,
@@ -269,55 +253,37 @@ public class PostgreSQLRecordStore extends AbstractJdbcRecordStore {
   @Override
   public void initializeDo() {
     super.initializeDo();
-    final JdbcFieldAdder numberFieldAdder = new JdbcFieldAdder(DataTypes.DECIMAL);
-    addFieldAdder("numeric", numberFieldAdder);
-
-    final JdbcStringFieldAdder stringFieldAdder = new JdbcStringFieldAdder();
-    addFieldAdder("varchar", stringFieldAdder);
-    addFieldAdder("text", stringFieldAdder);
-    addFieldAdder("name", stringFieldAdder);
-    addFieldAdder("bpchar", stringFieldAdder);
-
-    final JdbcFieldAdder longFieldAdder = new JdbcFieldAdder(DataTypes.LONG);
-    addFieldAdder("int8", longFieldAdder);
-    addFieldAdder("bigint", longFieldAdder);
-    addFieldAdder("bigserial", longFieldAdder);
-    addFieldAdder("serial8", longFieldAdder);
-
-    final JdbcFieldAdder intFieldAdder = new JdbcFieldAdder(DataTypes.INT);
-    addFieldAdder("int4", intFieldAdder);
-    addFieldAdder("integer", intFieldAdder);
-    addFieldAdder("serial", intFieldAdder);
-    addFieldAdder("serial4", intFieldAdder);
-
-    final JdbcFieldAdder shortFieldAdder = new JdbcFieldAdder(DataTypes.SHORT);
-    addFieldAdder("int2", shortFieldAdder);
-    addFieldAdder("smallint", shortFieldAdder);
-
-    final JdbcFieldAdder floatFieldAdder = new JdbcFieldAdder(DataTypes.FLOAT);
-    addFieldAdder("float4", floatFieldAdder);
-
-    final JdbcFieldAdder doubleFieldAdder = new JdbcFieldAdder(DataTypes.DOUBLE);
-    addFieldAdder("float8", doubleFieldAdder);
-    addFieldAdder("double precision", doubleFieldAdder);
-
-    addFieldAdder("date", new JdbcFieldAdder(DataTypes.DATE_TIME));
-    addFieldAdder("timestamp", new JdbcFieldAdder(DataTypes.TIMESTAMP));
-    addFieldAdder("timestamptz", new JdbcFieldAdder(DataTypes.TIMESTAMP));
+    addTypes(JdbcDataType.STRING, "varchar", "text", "name", "bpchar");
+    addTypes(JdbcDataType.BOOLEAN, "bool");
+    addTypes(JdbcDataType.BIG_DECIMAL, "numeric", "decimal");
+    addTypes(JdbcDataType.SHORT, "int2", "smallint");
+    addTypes(JdbcDataType.INTEGER, "int4", "integer");
+    addTypes(JdbcDataType.LONG, "int8", "bigint", "bigserial", "serial8");
+    addTypes(JdbcDataType.FLOAT, "float4", "real");
+    addTypes(JdbcDataType.DOUBLE, "float8", "double precision");
+    addTypes(JdbcDataType.DATE, "date");
+    addTypes(JdbcDataType.TIMESTAMP, "timestamp", "timestamptz");
 
     addFieldAdder("interval", PostgreSQLJdbcIntevalFieldDefinition::new);
-
-    addFieldAdder("bool", new JdbcFieldAdder(DataTypes.BOOLEAN));
+    // TODO
 
     addFieldAdder("citext", PostgreSQLCiTextFieldDefinition::new);
+    // TODO
 
-    addFieldAdder("uuid", new JdbcFieldAdder(DataTypes.UUID));
+    addTypes(JdbcDataType.createObject(DataTypes.UUID), "uuid");
 
     addFieldAdder("oid", PostgreSQLJdbcBlobFieldDefinition::new);
+    // TODO
 
     addFieldAdder("jsonb", PostgreSQLJsonbFieldDefinition::new);
+    // TODO
 
     addFieldAdder(Types.STRUCT, PostgreSQLStructFieldDefinition::new);
+    // TODO
+
+    // TODO support different data types for to_char
+    addFunction(new FunctionDefinition("to_char", JdbcDataType.STRING, JdbcDataType.DATE,
+      JdbcDataType.STRING));
 
     final JdbcFieldAdder geometryFieldAdder = new PostgreSQLGeometryFieldAdder(this);
     addFieldAdder("geometry", geometryFieldAdder);
@@ -409,6 +375,42 @@ public class PostgreSQLRecordStore extends AbstractJdbcRecordStore {
   }
 
   @Override
+  protected JdbcFieldDefinition newField(final JdbcRecordDefinition recordDefinition,
+    final String dbColumnName, final String name, final int sqlType, final String dbDataType,
+    final int length, final int scale, final boolean required, final String description) {
+    final var dbType = PathName.fromDotSeparated(dbDataType.replaceAll("\"", ""));
+    JdbcFieldDefinition field = null;
+    if (((JdbcRecordStoreSchema)recordDefinition.getSchema()).isEnum(dbType)) {
+      field = new PostgreSQLJdbcEnumFieldDefinition(dbColumnName, name, sqlType, dbDataType, length,
+        scale, required, description, getProperties());
+    } else {
+      if (dbDataType.charAt(0) == '_') {
+        final var jdbcDataType = getJdbcDataType(sqlType, dbDataType);
+        if (jdbcDataType == null) {
+
+          final String elementDbDataType = dbDataType.substring(1);
+          final JdbcFieldDefinition elementField = newField(recordDefinition, dbColumnName, name,
+            sqlType, elementDbDataType, length, scale, required, description);
+
+          final DataType elementDataType = elementField.getDataType();
+          final var listDataType = newListDataType(elementDataType);
+          field = new PostgreSQLArrayFieldDefinitionOld(dbColumnName, name, listDataType,
+            elementDbDataType, sqlType, dbDataType, length, scale, required, description,
+            elementField, getProperties());
+        }
+      }
+      if (field == null) {
+        field = super.newField(recordDefinition, dbColumnName, name, sqlType, dbDataType, length,
+          scale, required, description);
+      }
+    }
+    if (!dbColumnName.equals(dbColumnName.toLowerCase())) {
+      field.setQuoteName(true);
+    }
+    return field;
+  }
+
+  @Override
   protected JdbcRecordDefinition newRecordDefinition(final JdbcRecordStoreSchema schema,
     final PathName pathName, String dbTableName) {
     if (dbTableName != null && dbTableName.charAt(0) != '"'
@@ -491,8 +493,7 @@ where
     final Object[] values = new Object[size];
     int i = 0;
     for (final Object element : elements) {
-      values[i++] = field.getDataType()
-        .toObject(element);
+      values[i++] = field.toObject(element);
     }
     return connection.unwrap(PgConnection.class)
       .createArrayOf(field.getDbDataType(), values);

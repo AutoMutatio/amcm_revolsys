@@ -25,7 +25,7 @@ import com.revolsys.collection.json.JsonObject;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.io.PathName;
 import com.revolsys.io.PathUtil;
-import com.revolsys.jdbc.field.JdbcPreparedStatementValueHandler;
+import com.revolsys.jdbc.field.JdbcDataType;
 import com.revolsys.logging.Logs;
 import com.revolsys.record.query.Query;
 import com.revolsys.record.query.SqlAppendable;
@@ -357,7 +357,7 @@ public final class JdbcUtils {
 
   public static int setValue(final PreparedStatement statement, final int index, final Object value)
     throws SQLException {
-    return JdbcPreparedStatementValueHandler.handler(value)
+    return JdbcDataType.dataType(value)
       .setPreparedStatementValue(statement, index, value);
   }
 

@@ -9,53 +9,38 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.time.Instant;
+import java.util.Collection;
+import java.util.function.Supplier;
 
 import com.revolsys.data.identifier.Identifier;
 import com.revolsys.data.identifier.TypedIdentifier;
+import com.revolsys.data.type.DataType;
+import com.revolsys.data.type.DataTypeValueFactory;
+import com.revolsys.data.type.DataTypes;
 import com.revolsys.date.Dates;
+import com.revolsys.exception.Exceptions;
+import com.revolsys.record.query.ColumnIndexes;
 import com.revolsys.record.query.SqlAppendable;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordStore;
 
-public interface JdbcPreparedStatementValueHandler {
+public interface JdbcDataType extends DataType {
 
-  public class Handlers {
+  public static class Util {
+    private static JdbcDataTypeRegistry REGISTRY = new JdbcDataTypeRegistry();
 
-    private static final JdbcPreparedStatementValueHandler HANDLER_BOOLEAN = new LambaJdbcPreparedStatementValueHandler(
-      Types.BOOLEAN, Handlers::getBoolean, Handlers::setBoolean);
-
-    private static final JdbcPreparedStatementValueHandler HANDLER_TIMESTAMP = new LambaJdbcPreparedStatementValueHandler(
-      Types.TIMESTAMP, Handlers::getTimestamp, Handlers::setTimestamp);
-
-    private static final JdbcPreparedStatementValueHandler HANDLER_DATE = new LambaJdbcPreparedStatementValueHandler(
-      Types.DATE, Handlers::getDate, Handlers::setDate);
-
-    private static final JdbcPreparedStatementValueHandler HANDLER_BIG_DECIMAL = new LambaJdbcPreparedStatementValueHandler(
-      Types.NUMERIC, Handlers::getBigDecimal, Handlers::setBigDecimal);
-
-    private static final JdbcPreparedStatementValueHandler HANDLER_FLOAT = new LambaJdbcPreparedStatementValueHandler(
-      Types.FLOAT, Handlers::getFloat, Handlers::setFloat);
-
-    private static final JdbcPreparedStatementValueHandler HANDLER_DOUBLE = new LambaJdbcPreparedStatementValueHandler(
-      Types.DOUBLE, Handlers::getDouble, Handlers::setDouble);
-
-    private static final JdbcPreparedStatementValueHandler HANDLER_BYTE = new LambaJdbcPreparedStatementValueHandler(
-      Types.TINYINT, Handlers::getByte, Handlers::setByte);
-
-    private static final JdbcPreparedStatementValueHandler HANDLER_SHORT = new LambaJdbcPreparedStatementValueHandler(
-      Types.SMALLINT, Handlers::getShort, Handlers::setShort);
-
-    private static final JdbcPreparedStatementValueHandler HANDLER_INTEGER = new LambaJdbcPreparedStatementValueHandler(
-      Types.INTEGER, Handlers::getInteger, Handlers::setInteger);
-
-    private static final JdbcPreparedStatementValueHandler HANDLER_LONG = new LambaJdbcPreparedStatementValueHandler(
-      Types.BIGINT, Handlers::getLong, Handlers::setLong);
-
-    private static final JdbcPreparedStatementValueHandler HANDLER_STRING = new LambaJdbcPreparedStatementValueHandler(
-      Types.CHAR, Handlers::getString, Handlers::setString);
-
-    private static final JdbcPreparedStatementValueHandler HANDLER_OBJECT = new LambaJdbcPreparedStatementValueHandler(
-      Types.OTHER, Handlers::getObject, Handlers::setObject);
+    static {
+      for (final var field : JdbcDataType.class.getDeclaredFields()) {
+        try {
+          final var value = field.get(null);
+          if (value instanceof final JdbcDataType type) {
+            REGISTRY.addType(type);
+          }
+        } catch (IllegalArgumentException | IllegalAccessException e) {
+          throw Exceptions.toRuntimeException(e);
+        }
+      }
+    }
 
     public static BigDecimal getBigDecimal(final RecordDefinition recordDefinition,
       final int fieldIndex, final ResultSet resultSet, final int parameterIndex,
@@ -294,50 +279,227 @@ public interface JdbcPreparedStatementValueHandler {
 
   }
 
-  static JdbcPreparedStatementValueHandler handler(Object value) {
+  JdbcDataType BIG_DECIMAL = new LambaJdbcDataType(DataTypes.DECIMAL, Types.NUMERIC,
+    Util::getBigDecimal, Util::setBigDecimal);
+
+  JdbcDataType BOOLEAN = new LambaJdbcDataType(DataTypes.BOOLEAN, Types.BOOLEAN, Util::getBoolean,
+    Util::setBoolean);
+
+  JdbcDataType BYTE = new LambaJdbcDataType(DataTypes.BYTE, Types.TINYINT, Util::getByte,
+    Util::setByte);
+
+  JdbcDataType DATE = new LambaJdbcDataType(DataTypes.SQL_DATE, Types.DATE, Util::getDate,
+    Util::setDate);
+
+  JdbcDataType DOUBLE = new LambaJdbcDataType(DataTypes.DOUBLE, Types.DOUBLE, Util::getDouble,
+    Util::setDouble);
+
+  JdbcDataType FLOAT = new LambaJdbcDataType(DataTypes.FLOAT, Types.FLOAT, Util::getFloat,
+    Util::setFloat);
+
+  JdbcDataType INTEGER = new LambaJdbcDataType(DataTypes.INT, Types.INTEGER, Util::getInteger,
+    Util::setInteger);
+
+  JdbcDataType LONG = new LambaJdbcDataType(DataTypes.LONG, Types.BIGINT, Util::getLong,
+    Util::setLong);
+
+  JdbcDataType OBJECT = createObject(DataTypes.OBJECT);
+
+  JdbcDataType SHORT = new LambaJdbcDataType(DataTypes.SHORT, Types.SMALLINT, Util::getShort,
+    Util::setShort);
+
+  JdbcDataType STRING = new LambaJdbcDataType(DataTypes.STRING, Types.CHAR, Util::getString,
+    Util::setString);
+
+  JdbcDataType TIMESTAMP = new LambaJdbcDataType(DataTypes.TIMESTAMP, Types.TIMESTAMP,
+    Util::getTimestamp, Util::setTimestamp);
+
+  static JdbcDataType byJavaClass(final Class<?> javaClass) {
+    return Util.REGISTRY.byJavaClass(javaClass);
+  }
+
+  static JdbcDataType byName(final String name) {
+    return Util.REGISTRY.byName(name);
+  }
+
+  static JdbcDataType bySqlType(final int sqlType) {
+    return Util.REGISTRY.bySqlType(sqlType);
+  }
+
+  static JdbcDataType byType(final DataType dataType) {
+    return Util.REGISTRY.byType(dataType);
+  }
+
+  static LambaJdbcDataType createObject(final DataType dataType) {
+    return new LambaJdbcDataType(dataType, Types.OTHER, Util::getObject, Util::setObject);
+  }
+
+  static JdbcDataType dataType(Object value) {
     if (value instanceof TypedIdentifier) {
-      return Handlers.HANDLER_STRING;
+      return JdbcDataType.STRING;
     } else if (value instanceof final Identifier identifier) {
       value = identifier.toSingleValue();
     }
     if (value == null) {
-      return Handlers.HANDLER_OBJECT;
+      return JdbcDataType.OBJECT;
     } else if (value instanceof CharSequence) {
-      return Handlers.HANDLER_STRING;
+      return JdbcDataType.STRING;
     } else if (value instanceof BigInteger) {
-      return Handlers.HANDLER_LONG;
+      return JdbcDataType.LONG;
     } else if (value instanceof Long) {
-      return Handlers.HANDLER_LONG;
+      return JdbcDataType.LONG;
     } else if (value instanceof Integer) {
-      return Handlers.HANDLER_INTEGER;
+      return JdbcDataType.INTEGER;
     } else if (value instanceof Short) {
-      return Handlers.HANDLER_SHORT;
+      return JdbcDataType.SHORT;
     } else if (value instanceof Byte) {
-      return Handlers.HANDLER_BYTE;
+      return JdbcDataType.BYTE;
     } else if (value instanceof Double) {
-      return Handlers.HANDLER_DOUBLE;
+      return JdbcDataType.DOUBLE;
     } else if (value instanceof Float) {
-      return Handlers.HANDLER_FLOAT;
+      return JdbcDataType.FLOAT;
     } else if (value instanceof BigDecimal) {
-      return Handlers.HANDLER_BIG_DECIMAL;
+      return JdbcDataType.BIG_DECIMAL;
     } else if (value instanceof Date) {
-      return Handlers.HANDLER_DATE;
+      return JdbcDataType.DATE;
     } else if (value instanceof Instant) {
-      return Handlers.HANDLER_TIMESTAMP;
+      return JdbcDataType.TIMESTAMP;
     } else if (value instanceof java.util.Date) {
-      return Handlers.HANDLER_TIMESTAMP;
+      return JdbcDataType.TIMESTAMP;
     } else if (value instanceof Boolean) {
-      return Handlers.HANDLER_BOOLEAN;
+      return JdbcDataType.BOOLEAN;
     } else {
-      return Handlers.HANDLER_OBJECT;
+      return JdbcDataType.OBJECT;
     }
+  }
+
+  /**
+   * Create a new registry that uses the data types defined on this interface as a default registry.
+   *
+   * @return
+   */
+  public static JdbcDataTypeRegistry newRegistry() {
+    return Util.REGISTRY.newRegistry();
   }
 
   void addSelectStatementPlaceHolder(SqlAppendable sql);
 
   void appendSqlValue(SqlAppendable sql, RecordStore recordStore, Object queryValue);
 
+  @Override
+  default int compareNullFirst(final Object object1, final Object object2) {
+    return dataType().compareNullFirst(object1, object2);
+  }
+
+  DataType dataType();
+
+  @Override
+  default boolean equals(final Object object1, final Object object2) {
+    return dataType().equals(object1, object2);
+  }
+
+  @Override
+  default boolean equals(final Object object1, final Object object2,
+    final Collection<? extends CharSequence> excludeFieldNames) {
+    return dataType().equals(object1, object2, excludeFieldNames);
+  }
+
+  @Override
+  default boolean equalsExact(final Object value1, final Object value2) {
+    return DataType.equalExact(value1, value2);
+  }
+
+  @Override
+  default Class<?> getJavaClass() {
+    return dataType().getJavaClass();
+  }
+
+  @Override
+  default <V> V getMaxValue() {
+    return dataType().getMaxValue();
+  }
+
+  @Override
+  default <V> V getMinValue() {
+    return dataType().getMinValue();
+  }
+
+  @Override
+  default String getName() {
+    return dataType().getName();
+  }
+
+  @Override
+  default String getValidationName() {
+    return dataType().getValidationName();
+  }
+
+  Object getValueFromResultSet(RecordDefinition recordDefinition, int fieldIndex,
+    ResultSet resultSet, ColumnIndexes indexes, boolean internStrings) throws SQLException;
+
+  @Override
+  default boolean isAssignableFrom(final Class<?> valueClass) {
+    return dataType().isAssignableFrom(valueClass);
+  }
+
+  @Override
+  default boolean isAssignableTo(final Class<?> valueClass) {
+    return dataType().isAssignableTo(valueClass);
+  }
+
+  @Override
+  default boolean isInstance(final Object value) {
+    return dataType().isInstance(value);
+  }
+
+  @Override
+  default boolean isMathSupported() {
+    return dataType().isMathSupported();
+  }
+
+  @Override
+  default boolean isNumeric() {
+    return dataType().isNumeric();
+  }
+
+  @Override
+  default boolean isRequiresQuotes() {
+    // TODO Auto-generated method stub
+    return dataType().isRequiresQuotes();
+  }
+
+  @Override
+  default boolean isValid(final Object value) {
+    return dataType().isValid(value);
+  }
+
+  @Override
+  default <V> DataTypeValueFactory<V> newFactory(final Supplier<V> supplier) {
+    return dataType().newFactory(supplier);
+  }
+
+  @Override
+  default <V> V plus(final Object value, final Number number) {
+    return dataType().plus(value, number);
+  }
+
   int setPreparedStatementValue(PreparedStatement statement, int parameterIndex, Object value)
     throws SQLException;
 
+  int sqlType();
+
+  @Override
+  default <V> V toObject(final Object value) {
+    return dataType().toObject(value);
+  }
+
+  @Override
+  default <V> V toObject(final String value) {
+    return dataType().toObject(value);
+  }
+
+  @Override
+  default String toString(final Object value) {
+    return dataType().toString(value);
+  }
 }

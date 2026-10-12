@@ -104,63 +104,7 @@ public class MicrosoftSqlServerRecordStore extends AbstractJdbcRecordStore {
   @Override
   public void initializeDo() {
     super.initializeDo();
-    // final JdbcFieldAdder numberFieldAdder = new
-    // JdbcFieldAdder(DataTypes.DECIMAL);
-    // addFieldAdder("numeric", numberFieldAdder);
-    //
-    // final JdbcStringFieldAdder stringFieldAdder = new JdbcStringFieldAdder();
-    // addFieldAdder("varchar", stringFieldAdder);
-    // addFieldAdder("text", stringFieldAdder);
-    // addFieldAdder("name", stringFieldAdder);
-    // addFieldAdder("bpchar", stringFieldAdder);
-    //
-    // final JdbcFieldAdder longFieldAdder = new JdbcFieldAdder(DataTypes.LONG);
-    // addFieldAdder("int8", longFieldAdder);
-    // addFieldAdder("bigint", longFieldAdder);
-    // addFieldAdder("bigserial", longFieldAdder);
-    // addFieldAdder("serial8", longFieldAdder);
-    //
-    // final JdbcFieldAdder intFieldAdder = new JdbcFieldAdder(DataTypes.INT);
-    // addFieldAdder("int4", intFieldAdder);
-    // addFieldAdder("integer", intFieldAdder);
-    // addFieldAdder("serial", intFieldAdder);
-    // addFieldAdder("serial4", intFieldAdder);
-    //
-    // final JdbcFieldAdder shortFieldAdder = new
-    // JdbcFieldAdder(DataTypes.SHORT);
-    // addFieldAdder("int2", shortFieldAdder);
-    // addFieldAdder("smallint", shortFieldAdder);
-    //
-    // final JdbcFieldAdder floatFieldAdder = new
-    // JdbcFieldAdder(DataTypes.FLOAT);
-    // addFieldAdder("float4", floatFieldAdder);
-    //
-    // final JdbcFieldAdder doubleFieldAdder = new
-    // JdbcFieldAdder(DataTypes.DOUBLE);
-    // addFieldAdder("float8", doubleFieldAdder);
-    // addFieldAdder("double precision", doubleFieldAdder);
-    //
-    // addFieldAdder("date", new JdbcFieldAdder(DataTypes.DATE_TIME));
-    // addFieldAdder("timestamp", new JdbcFieldAdder(DataTypes.TIMESTAMP));
-    // addFieldAdder("timestamptz", new JdbcFieldAdder(DataTypes.TIMESTAMP));
-    //
-    // addFieldAdder("interval", PostgreSQLJdbcIntevalFieldDefinition::new);
-    //
-    // addFieldAdder("bool", new JdbcFieldAdder(DataTypes.BOOLEAN));
-    //
-    // addFieldAdder("citext", PostgreSQLCiTextFieldDefinition::new);
-    //
-    // addFieldAdder("uuid", new JdbcFieldAdder(DataTypes.UUID));
-    //
-    // addFieldAdder("oid", PostgreSQLJdbcBlobFieldDefinition::new);
-    //
-    // addFieldAdder("jsonb", PostgreSQLJsonbFieldDefinition::new);
-    //
-    // addFieldAdder(Types.STRUCT, PostgreSQLStructFieldDefinition::new);
-    //
-    // final JdbcFieldAdder geometryFieldAdder = new
-    // PostgreSQLGeometryFieldAdder(this);
-    // addFieldAdder("geometry", geometryFieldAdder);
+
     setPrimaryKeySql("""
         SELECT
           t.name "TABLE_NAME",
@@ -199,8 +143,7 @@ public class MicrosoftSqlServerRecordStore extends AbstractJdbcRecordStore {
             'db_denydatawriter'
           )
             """);
-    setSchemaTablePermissionsSql(
-      """
+    setSchemaTablePermissionsSql("""
           select
             distinct
             s.name as "SCHEMA_NAME",
