@@ -7,6 +7,7 @@ import java.util.Map;
 import com.revolsys.collection.map.MapEx;
 import com.revolsys.data.type.DataType;
 import com.revolsys.exception.Exceptions;
+import com.revolsys.jdbc.field.JdbcDataType;
 import com.revolsys.record.schema.RecordStore;
 
 public class StringValue implements QueryValue {
@@ -24,7 +25,8 @@ public class StringValue implements QueryValue {
   }
 
   @Override
-  public int appendParameters(final int index, Map<String, Object> parameters, final PreparedStatement statement) {
+  public int appendParameters(final int index, final Map<String, Object> parameters,
+    final PreparedStatement statement) {
     try {
       statement.setString(index, this.string);
       return index + 1;
@@ -45,6 +47,11 @@ public class StringValue implements QueryValue {
   @Override
   public QueryValue clone(final TableReference oldTable, final TableReference newTable) {
     return this;
+  }
+
+  @Override
+  public DataType dataType() {
+    return JdbcDataType.STRING;
   }
 
   @Override

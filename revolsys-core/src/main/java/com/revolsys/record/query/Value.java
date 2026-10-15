@@ -202,7 +202,7 @@ public class Value implements QueryValue {
       if (this.jdbcDataType == null) {
         sql.append('?');
       } else {
-        this.jdbcDataType.addSelectStatementPlaceHolder(sql);
+        recordStore.addSelectStatementPlaceHolder(sql, this.jdbcDataType);
       }
     } else {
       if (this.jdbcDataType == null) {
@@ -212,7 +212,7 @@ public class Value implements QueryValue {
           recordStore.appendSqlValue(sql, this.queryValue);
         }
       } else {
-        this.jdbcDataType.appendSqlValue(sql, recordStore, this.queryValue);
+        recordStore.appendSqlValue(sql, this.jdbcDataType, this.queryValue);
       }
     }
   }

@@ -24,7 +24,8 @@ public interface ColumnReference extends QueryValue {
   }
 
   @Override
-  default int appendParameters(final int index, Map<String, Object> parameters, final PreparedStatement statement) {
+  default int appendParameters(final int index, final Map<String, Object> parameters,
+    final PreparedStatement statement) {
     return index;
   }
 
@@ -32,6 +33,11 @@ public interface ColumnReference extends QueryValue {
 
   @Override
   ColumnReference clone(TableReference oldTable, TableReference newTable);
+
+  @Override
+  default DataType dataType() {
+    return getDataType();
+  }
 
   default String getAliasName() {
     return getName();

@@ -5,6 +5,7 @@ import java.sql.SQLException;
 import java.util.Map;
 
 import com.revolsys.collection.map.MapEx;
+import com.revolsys.data.type.DataType;
 import com.revolsys.exception.Exceptions;
 import com.revolsys.jdbc.field.JdbcFieldDefinition;
 import com.revolsys.record.schema.RecordStore;
@@ -14,11 +15,16 @@ public record JdbcFieldPlaceholder(String key, JdbcFieldDefinition field) implem
   @Override
   public void appendDefaultSql(final QueryStatement statement, final RecordStore recordStore,
     final SqlAppendable sql) {
-    this.field.addSelectStatementPlaceHolder(sql);
+    recordStore.addSelectStatementPlaceHolder(sql, this.field);
   }
 
   @Override
-  public int appendParameters(final int index, Map<String, Object> parameters,
+  public DataType dataType() {
+    return this.field.dataType();
+  }
+
+  @Override
+  public int appendParameters(final int index, final Map<String, Object> parameters,
     final PreparedStatement statement) {
     final var value = parameters.get(this.key);
     try {

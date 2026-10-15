@@ -3,6 +3,8 @@ package com.revolsys.record.query;
 import java.util.function.Predicate;
 
 import com.revolsys.collection.map.MapEx;
+import com.revolsys.data.type.DataType;
+import com.revolsys.jdbc.field.JdbcDataType;
 import com.revolsys.util.Emptyable;
 import com.revolsys.util.Property;
 
@@ -24,6 +26,11 @@ public interface Condition extends QueryValue, Predicate<MapEx>, Emptyable {
 
   @Override
   Condition clone(TableReference oldTable, TableReference newTable);
+
+  @Override
+  default DataType dataType() {
+    return JdbcDataType.BOOLEAN;
+  }
 
   @SuppressWarnings("unchecked")
   @Override

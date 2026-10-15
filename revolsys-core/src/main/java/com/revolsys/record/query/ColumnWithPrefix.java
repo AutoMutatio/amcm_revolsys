@@ -12,7 +12,7 @@ import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordStore;
 
-public class ColumnWithPrefix implements QueryValue, ColumnReference {
+public class ColumnWithPrefix implements ColumnReference {
 
   private final String columnPrefix;
 
@@ -55,7 +55,8 @@ public class ColumnWithPrefix implements QueryValue, ColumnReference {
   }
 
   @Override
-  public int appendParameters(final int index, Map<String, Object> parameters, final PreparedStatement statement) {
+  public int appendParameters(final int index, final Map<String, Object> parameters,
+    final PreparedStatement statement) {
     return this.column.appendParameters(index, parameters, statement);
   }
 
@@ -75,6 +76,11 @@ public class ColumnWithPrefix implements QueryValue, ColumnReference {
       return new ColumnWithPrefix(this.columnPrefix, clonedColumn);
     }
     return clone();
+  }
+
+  @Override
+  public DataType dataType() {
+    return this.column.dataType();
   }
 
   @Override
@@ -131,8 +137,8 @@ public class ColumnWithPrefix implements QueryValue, ColumnReference {
   }
 
   @Override
-  public Object getValueFromResultSet(final RecordDefinition recordDefinition,
-    int fieldIndex, final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings)
+  public Object getValueFromResultSet(final RecordDefinition recordDefinition, final int fieldIndex,
+    final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings)
     throws SQLException {
     return getColumn().getValueFromResultSet(recordDefinition, fieldIndex, resultSet, indexes,
       internStrings, null);

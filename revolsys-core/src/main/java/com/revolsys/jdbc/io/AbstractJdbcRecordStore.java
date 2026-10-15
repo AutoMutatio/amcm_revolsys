@@ -285,6 +285,11 @@ public abstract class AbstractJdbcRecordStore extends AbstractRecordStore
   }
 
   @Override
+  public void appendSqlValue(final SqlAppendable sql, final JdbcDataType jdbcDataType, final Object queryValue) {
+    jdbcDataType.appendSqlValue(sql, this, queryValue);
+  }
+
+  @Override
   @PreDestroy
   public void close() {
     try (

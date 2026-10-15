@@ -40,8 +40,8 @@ public class Parenthesis extends AbstractUnaryQueryValue implements Condition {
   }
 
   @Override
-  public Object getValueFromResultSet(final RecordDefinition recordDefinition,
-    int fieldIndex, final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings)
+  public Object getValueFromResultSet(final RecordDefinition recordDefinition, final int fieldIndex,
+    final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings)
     throws SQLException {
     return getQueryValues().get(0)
       .getValueFromResultSet(recordDefinition, fieldIndex, resultSet, indexes, internStrings);

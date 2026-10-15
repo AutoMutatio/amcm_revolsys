@@ -31,6 +31,7 @@ import com.revolsys.io.FileUtil;
 import com.revolsys.io.IoFactory;
 import com.revolsys.io.PathName;
 import com.revolsys.io.PathNameProxy;
+import com.revolsys.jdbc.field.JdbcDataType;
 import com.revolsys.properties.ObjectWithProperties;
 import com.revolsys.record.ArrayChangeTrackRecord;
 import com.revolsys.record.ArrayRecord;
@@ -226,6 +227,10 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
   Single<RecordStoreSchema> addSchemaInitializer(PathName schemaName,
     Consumer<RecordStoreSchema> initializer);
 
+  default void addSelectStatementPlaceHolder(final SqlAppendable sql, final JdbcDataType jdbcDataType) {
+    jdbcDataType.addSelectStatementPlaceHolder(sql);
+  }
+
   default void addStatistic(final String statisticName, final Record object) {
     final CategoryLabelCountMap statistics = getStatistics();
     if (statistics != null) {
@@ -248,6 +253,11 @@ public interface RecordStore extends GeometryFactoryProxy, RecordDefinitionFacto
   default void appendSelect(final QueryStatement statement, final SqlAppendable sql,
     final QueryValue queryValue) {
     queryValue.appendDefaultSelect(statement, this, sql);
+  }
+
+  default void appendSqlValue(final SqlAppendable sql, final JdbcDataType jdbcDataType,
+    final Object queryValue) {
+    appendDefaultSql(sql, queryValue);
   }
 
   default void appendSqlValue(final SqlAppendable sql, final Object queryValue) {

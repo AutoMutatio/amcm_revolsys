@@ -12,7 +12,7 @@ import com.revolsys.record.schema.FieldDefinition;
 import com.revolsys.record.schema.RecordDefinition;
 import com.revolsys.record.schema.RecordStore;
 
-public class ColumnAlias implements QueryValue, ColumnReference {
+public class ColumnAlias implements ColumnReference {
 
   private final String alias;
 
@@ -54,7 +54,8 @@ public class ColumnAlias implements QueryValue, ColumnReference {
   }
 
   @Override
-  public int appendParameters(final int index, Map<String, Object> parameters, final PreparedStatement statement) {
+  public int appendParameters(final int index, final Map<String, Object> parameters,
+    final PreparedStatement statement) {
     return this.column.appendParameters(index, parameters, statement);
   }
 
@@ -74,6 +75,11 @@ public class ColumnAlias implements QueryValue, ColumnReference {
       return new ColumnAlias(clonedColumn, this.alias);
     }
     return clone();
+  }
+
+  @Override
+  public DataType dataType() {
+    return this.column.dataType();
   }
 
   @Override

@@ -139,7 +139,7 @@ public interface QueryValue extends Cloneable, SqlAppendParameters {
 
   void appendDefaultSql(QueryStatement statement, RecordStore recordStore, SqlAppendable sql);
 
-  default void appendOData(StringBuilder s) {
+  default void appendOData(final StringBuilder s) {
     throw new UnsupportedOperationException(
       getClass().getSimpleName() + " Doesn't yet support odata");
   }
@@ -183,6 +183,10 @@ public interface QueryValue extends Cloneable, SqlAppendParameters {
   }
 
   QueryValue clone(TableReference oldTable, TableReference newTable);
+
+  default DataType dataType() {
+    return null;
+  }
 
   default ColumnReference getColumn() {
     return null;
@@ -244,7 +248,7 @@ public interface QueryValue extends Cloneable, SqlAppendParameters {
   }
 
   default String toOdata() {
-    var s = new StringBuilder();
+    final var s = new StringBuilder();
     appendOData(s);
     return s.toString();
   }

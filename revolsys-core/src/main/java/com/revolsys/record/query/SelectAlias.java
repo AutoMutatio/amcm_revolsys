@@ -42,7 +42,8 @@ public class SelectAlias implements QueryValue {
   }
 
   @Override
-  public int appendParameters(final int index, Map<String, Object> parameters, final PreparedStatement statement) {
+  public int appendParameters(final int index, final Map<String, Object> parameters,
+    final PreparedStatement statement) {
     return this.value.appendParameters(index, parameters, statement);
   }
 
@@ -62,6 +63,11 @@ public class SelectAlias implements QueryValue {
       return new SelectAlias(clonedColumn, this.alias);
     }
     return clone();
+  }
+
+  @Override
+  public DataType dataType() {
+    return this.value.dataType();
   }
 
   @Override
