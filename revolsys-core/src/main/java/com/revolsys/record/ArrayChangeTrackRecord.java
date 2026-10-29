@@ -26,7 +26,10 @@ public class ArrayChangeTrackRecord extends ArrayRecord implements ChangeTrackRe
   private final ReentrantLockEx lock = new ReentrantLockEx();
 
   public ArrayChangeTrackRecord(final Record record) {
-    super(record);
+    super(record.getRecordDefinition());
+    setState(RecordState.INITIALIZING);
+    setValuesAll(record);
+    setState(record.getState());
   }
 
   public ArrayChangeTrackRecord(final RecordDefinition recordDefinition) {
