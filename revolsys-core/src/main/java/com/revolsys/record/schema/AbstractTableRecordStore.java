@@ -1,5 +1,7 @@
 package com.revolsys.record.schema;
 
+import java.sql.Date;
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -852,7 +854,11 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
           }
         }
 
-        if (!Number.class.isAssignableFrom(columnClass)) {
+        if (LocalDate.class.isAssignableFrom(columnClass)) {
+
+        } else if (Date.class.isAssignableFrom(columnClass)) {
+
+        } else if (!Number.class.isAssignableFrom(columnClass)) {
           field = new Case()
             .when(Q.equal(F.function("pg_input_is_valid", field, Q.literal("decimal")), true),
               field.toCast("decimal"))
@@ -869,29 +875,38 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
   protected QueryValue pathToQueryValueWrap(QueryValue value, final String function) {
     final var className = getRecordStore().getClass()
       .getName();
+    DataType dataType = null;
+    final var column = value.getColumn();
+    FieldDefinition field = null;
+    if (column != null) {
+      field = column.getFieldDefinition();
+      dataType = column.getDataType();
+    }
     final var snowflake = className.equals("com.revolsys.snowflake.SnowflakeRecordStore");
-    if (function.equals("day")) {
+    if (function.equals("date")) {
+      if (dataType == DataTypes.INSTANT || dataType == DataTypes.LOCAL_DATE_TIME
+        || dataType == DataTypes.DATE_TIME) {
+        return dateFormat(value, "yyyy-mm-dd", "0000-00-00");
+      } else if (dataType == DataTypes.LOCAL_DATE || dataType == DataTypes.SQL_DATE) {
+        return value;
+      }
+    } else if (function.equals("instant") && dataType == DataTypes.INSTANT) {
+      return value;
+    } else if (function.equals("day")) {
       return dateFormat(value, "yyyy-mm-dd", "0000-00-00");
     } else if (function.equals("month")) {
       return dateFormat(value, "yyyy-mm", "0000-00");
     } else if (function.equals("quarter")) {
       if (snowflake) {
-        final var column = value.getColumn();
-        FieldDefinition field = null;
-        if (column != null) {
-          field = column.getFieldDefinition();
-          final var dataType = column.getDataType();
-          if (!(dataType == DataTypes.DATE_TIME || dataType == DataTypes.INSTANT
-            || dataType == DataTypes.SQL_DATE || dataType == DataTypes.LOCAL_DATE)) {
-            if (value instanceof final JsonValue jsonValue) {
-              jsonValue.setText(true);
-            } else if (dataType != DataTypes.STRING) {
-              column.cast("text");
-            }
-
-            value = Q.sql(DataTypes.STRING, "CASE WHEN ", value,
-              " ~ '\\d{4}-\\d{2}-\\d{2}.*' THEN (", value, ")::date ELSE NULL END");
+        if (!(dataType == DataTypes.DATE_TIME || dataType == DataTypes.INSTANT
+          || dataType == DataTypes.SQL_DATE || dataType == DataTypes.LOCAL_DATE)) {
+          if (value instanceof final JsonValue jsonValue) {
+            jsonValue.setText(true);
+          } else if (dataType != DataTypes.STRING) {
+            column.cast("text");
           }
+          value = Q.sql(DataTypes.STRING, "CASE WHEN ", value, " ~ '\\d{4}-\\d{2}-\\d{2}.*' THEN (",
+            value, ")::date ELSE NULL END");
         }
 
         final var toChar = F.function("CONCAT", F.function("year", value), Q.literal("-"),
@@ -958,9 +973,8 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
       return dateFormat(truncValue, "yyyy-mm-dd", "0000-00-00");
     } else if (function.equals("dayName")) {
       return F.function("rtrim", dateFormat(value, "Day", "000"));
-    } else {
-      throw new IllegalArgumentException("Function " + function + "  not supported");
     }
+    throw new IllegalArgumentException("Date function " + function + " not supported");
   }
 
   /**
@@ -1080,7 +1094,7 @@ public class AbstractTableRecordStore implements RecordDefinitionProxy {
     return query.updateRecord(updateAction);
   }
 
-  protected Record updateRecord(final TableRecordStoreConnection connection, final Query query,
+  public Record updateRecord(final TableRecordStoreConnection connection, final Query query,
     final Consumer<Record> updateAction) {
     return connection.transactionCall(() -> {
       query.setRecordFactory(ArrayChangeTrackRecord.FACTORY);

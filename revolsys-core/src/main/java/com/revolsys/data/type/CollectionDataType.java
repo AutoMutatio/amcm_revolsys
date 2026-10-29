@@ -107,7 +107,7 @@ public class CollectionDataType extends SimpleDataType {
       if ("null".equalsIgnoreCase(s)) {
         newCollection.add(null);
       } else {
-        newCollection.add(text);
+        newCollection.add(s);
       }
     }
   }
