@@ -36,13 +36,19 @@ public interface From extends TableReferenceProxy, QueryValue {
   }
 
   @Override
-  default int appendParameters(final int index, Map<String, Object> parameters, final PreparedStatement statement) {
+  default int appendParameters(final int index, final Map<String, Object> parameters,
+    final PreparedStatement statement) {
     return appendFromParameters(index, statement);
   }
 
   @Override
   default QueryValue clone(final TableReference oldTable, final TableReference newTable) {
     return this;
+  }
+
+  @Override
+  default ColumnReference getColumn(final CharSequence name) {
+    return TableReferenceProxy.super.getColumn(name);
   }
 
   @Override

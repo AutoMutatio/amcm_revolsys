@@ -71,7 +71,8 @@ public class Join implements QueryValue, TableReferenceProxy {
   }
 
   @Override
-  public int appendParameters(final int index, Map<String, Object> parameters, final PreparedStatement statement) {
+  public int appendParameters(final int index, final Map<String, Object> parameters,
+    final PreparedStatement statement) {
     return this.condition.appendParameters(index, parameters, statement);
   }
 
@@ -123,7 +124,14 @@ public class Join implements QueryValue, TableReferenceProxy {
       if (this.alias != null) {
         tableName = this.alias;
       }
-      return new ColumnWithPrefix(tableName, new Column(this, name));
+      ColumnReference column = null;
+      if (this.statement != null) {
+        column = this.statement.getColumn(name);
+      }
+      if (column == null) {
+        column = new Column(this, name);
+      }
+      return new ColumnWithPrefix(tableName, column);
     } else {
       final var column = this.table.getColumn(name);
       if (column != null) {
