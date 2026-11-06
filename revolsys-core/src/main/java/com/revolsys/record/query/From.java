@@ -36,7 +36,8 @@ public interface From extends TableReferenceProxy, QueryValue {
   }
 
   @Override
-  default int appendParameters(final int index, Map<String, Object> parameters, final PreparedStatement statement) {
+  default int appendParameters(final int index, final Map<String, Object> parameters,
+    final PreparedStatement statement) {
     return appendFromParameters(index, statement);
   }
 
@@ -46,11 +47,20 @@ public interface From extends TableReferenceProxy, QueryValue {
   }
 
   @Override
+  default ColumnReference getColumn(final CharSequence name) {
+    return TableReferenceProxy.super.getColumn(name);
+  }
+
+  @Override
   default <V> V getValue(final MapEx record) {
     return null;
   }
 
   default FromAlias toFromAlias(final String alias) {
     return new FromAlias(this, alias);
+  }
+
+  default From withoutAlias() {
+    return this;
   }
 }

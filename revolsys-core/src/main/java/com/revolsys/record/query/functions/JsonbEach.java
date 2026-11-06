@@ -5,6 +5,7 @@ import java.sql.SQLException;
 
 import com.revolsys.record.query.Column;
 import com.revolsys.record.query.ColumnIndexes;
+import com.revolsys.record.query.ColumnReference;
 import com.revolsys.record.query.ColumnWithPrefix;
 import com.revolsys.record.query.From;
 import com.revolsys.record.query.FromAlias;
@@ -26,6 +27,17 @@ public class JsonbEach extends UnaryFunction implements From {
       super(JsonbEach.this, alias);
       this.key = new ColumnWithPrefix(alias, new Column("key"));
       this.value = new ColumnWithPrefix(alias, new Column("value"));
+    }
+
+    @Override
+    public ColumnReference getColumn(final CharSequence name) {
+      if ("key".equals(name)) {
+        return this.key;
+      } else if ("value".equals(name)) {
+        return this.value;
+      } else {
+        return null;
+      }
     }
 
     public ColumnWithPrefix key() {
@@ -55,8 +67,9 @@ public class JsonbEach extends UnaryFunction implements From {
   }
 
   @Override
-  public Object getValueFromResultSet(RecordDefinition recordDefinition, int fieldIndex,
-    ResultSet resultSet, ColumnIndexes indexes, boolean internStrings) throws SQLException {
+  public Object getValueFromResultSet(final RecordDefinition recordDefinition, final int fieldIndex,
+    final ResultSet resultSet, final ColumnIndexes indexes, final boolean internStrings)
+    throws SQLException {
     throw new UnsupportedOperationException("jsonb_each can only be used in a from clause");
   }
 

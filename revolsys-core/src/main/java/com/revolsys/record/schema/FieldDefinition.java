@@ -408,6 +408,11 @@ public class FieldDefinition extends BaseObjectWithProperties implements CharSeq
     return (V)value;
   }
 
+  @Override
+  public ColumnReference getColumn(final CharSequence name) {
+    return RecordDefinitionProxy.super.getColumn(name);
+  }
+
   /**
    * Get the data type of the field value.
    *

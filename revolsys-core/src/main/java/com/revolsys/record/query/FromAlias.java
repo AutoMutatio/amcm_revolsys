@@ -67,6 +67,10 @@ public class FromAlias implements From {
     return this.from.getField(name);
   }
 
+  public From getFrom() {
+    return this.from;
+  }
+
   @Override
   public String getTableAlias() {
     return this.alias;
@@ -78,7 +82,17 @@ public class FromAlias implements From {
   }
 
   @Override
+  public FromAlias toFromAlias(final String alias) {
+    return new FromAlias(this.from, alias);
+  }
+
+  @Override
   public String toString() {
     return this.from.toString() + " " + this.alias.toString();
+  }
+
+  @Override
+  public From withoutAlias() {
+    return this.from;
   }
 }
