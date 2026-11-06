@@ -59,4 +59,8 @@ public interface From extends TableReferenceProxy, QueryValue {
   default FromAlias toFromAlias(final String alias) {
     return new FromAlias(this, alias);
   }
+
+  default From withoutAlias() {
+    return this;
+  }
 }

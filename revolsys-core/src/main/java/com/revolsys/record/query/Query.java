@@ -506,7 +506,7 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
   }
 
   @Override
-  public int appendParameters(int index, Map<String, Object> parameters,
+  public int appendParameters(int index, final Map<String, Object> parameters,
     final PreparedStatement statement) {
     if (!this.withQueries.isEmpty()) {
       for (final var with : this.withQueries) {
@@ -851,7 +851,7 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
   public Join getJoin(final String alias, final TableReferenceProxy tableProxy) {
     if (tableProxy != null) {
       final var table = tableProxy.getTableReference();
-      return getJoin(alias, join -> table == join.getTable());
+      return getJoin(alias, join -> join.isFrom(table));
     }
     return null;
   }
@@ -860,7 +860,7 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     if (tableProxy != null) {
       final var table = tableProxy.getTableReference();
       for (final var join : getJoins()) {
-        if (join.getTable() == table) {
+        if (join.isFrom(table)) {
           if (DataType.equal(alias, join.getTableAlias())) {
             return join;
           }
@@ -1052,7 +1052,7 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     if (tableProxy != null) {
       final var table = tableProxy.getTableReference();
       for (final var join : getJoins()) {
-        if (join.getTable() == table) {
+        if (join.isFrom(table)) {
           if (DataType.equal(alias, join.getTableAlias())) {
             return true;
           }
@@ -1170,8 +1170,8 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
     return join(JoinType.JOIN).table(table);
   }
 
-  public Query joinComma(final QueryValue from) {
-    join(JoinType.COMMA).statement(from);
+  public Query joinComma(final From from) {
+    join(JoinType.COMMA).from(from);
     return this;
   }
 
@@ -1512,7 +1512,7 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
   }
 
   public Query setFrom(final From from, final String alias) {
-    final var fromAlias = new FromAlias(from, alias);
+    final var fromAlias = from.toFromAlias(alias);
     return setFrom(fromAlias);
   }
 
@@ -1523,7 +1523,7 @@ public class Query extends BaseObjectWithProperties implements Cloneable, Cancel
 
   public Query setFrom(final String from, final String alias) {
     final FromSql fromSql = new FromSql(from);
-    final var fromAlias = new FromAlias(fromSql, alias);
+    final var fromAlias = fromSql.toFromAlias(alias);
     return setFrom(fromAlias);
   }
 

@@ -16,17 +16,11 @@ public class Join implements QueryValue, TableReferenceProxy {
 
   private final JoinType joinType;
 
-  private String tableName;
-
   private boolean lateral = false;
 
-  private TableReference table;
-
-  private QueryValue statement;
+  private From from;
 
   private Condition condition = Condition.ALL;
-
-  private String alias;
 
   public Join(final JoinType joinType) {
     this.joinType = joinType;
@@ -40,30 +34,16 @@ public class Join implements QueryValue, TableReferenceProxy {
   @Override
   public void appendDefaultSql(final QueryStatement statement, final RecordStore recordStore,
     final SqlAppendable sql) {
+    if (this.from == null) {
+      throw new IllegalStateException("Join must have a from clause");
+    }
     sql.append(' ');
     sql.append(this.joinType.toString());
     sql.append(' ');
     if (this.lateral) {
       sql.append("LATERAL ");
     }
-    if (this.table != null) {
-      if (this.alias == null) {
-        statement.appendFromWithAlias(sql, this.table);
-      } else {
-        statement.appendFromWithAlias(sql, new FromAlias(this.table, this.alias));
-      }
-    } else if (this.tableName != null) {
-      sql.append(this.tableName);
-    }
-    if (this.statement != null) {
-      this.statement.appendSql(statement, recordStore, sql);
-      if (this.alias != null) {
-        sql.append(" ");
-        sql.append('"');
-        sql.append(this.alias);
-        sql.append('"');
-      }
-    }
+    statement.appendFromWithAlias(sql, this.from);
     if (!this.condition.isEmpty()) {
       sql.append(" ON ");
       this.condition.appendSql(statement, recordStore, sql);
@@ -81,13 +61,7 @@ public class Join implements QueryValue, TableReferenceProxy {
    * @return
    */
   public ColumnReference asAliasColumn() {
-    if (this.alias == null) {
-      throw new IllegalStateException("Join doesn't have an alias");
-    } else if (this.statement != null) {
-      return this.statement.toAliasColumn(this.alias);
-    } else {
-      return new Column(this.alias);
-    }
+    return new Column(this.from.getTableAlias());
   }
 
   @Override
@@ -117,28 +91,22 @@ public class Join implements QueryValue, TableReferenceProxy {
     return this;
   }
 
+  public Join from(final From from) {
+    this.from = from;
+    return this;
+  }
+
   @Override
   public ColumnReference getColumn(final CharSequence name) {
-    if (this.table == null) {
-      var tableName = this.tableName;
-      if (this.alias != null) {
-        tableName = this.alias;
-      }
-      ColumnReference column = null;
-      if (this.statement != null) {
-        column = this.statement.getColumn(name);
-      }
-      if (column == null) {
-        column = new Column(this, name);
-      }
-      return new ColumnWithPrefix(tableName, column);
+    if (this.from == null) {
+      throw new IllegalStateException("Join must have a from clause");
     } else {
-      final var column = this.table.getColumn(name);
+      final var column = this.from.getColumn(name);
       if (column != null) {
-        return new ColumnWithPrefix(this.alias, column);
+        return column;
       }
     }
-    throw new IllegalArgumentException("Column not found: " + this.table.getTableReference()
+    throw new IllegalArgumentException("Column not found: " + this.from.getTableReference()
       .getTablePath() + "." + name);
   }
 
@@ -148,38 +116,45 @@ public class Join implements QueryValue, TableReferenceProxy {
 
   @Override
   public FieldDefinition getField(final CharSequence name) {
-    if (this.table == null) {
+    if (this.from == null) {
       return null;
     } else {
-      return this.table.getField(name);
+      return this.from.getField(name);
     }
   }
 
-  public QueryValue getStatement() {
-    return this.statement;
-  }
-
-  public TableReference getTable() {
-    return this.table;
+  public From getFrom() {
+    return this.from;
   }
 
   @Override
   public String getTableAlias() {
-    if (this.alias == null) {
-      return this.table.getTableAlias();
-    } else {
-      return this.alias;
-    }
+    return this.from.getTableAlias();
   }
 
   @Override
   public TableReference getTableReference() {
-    return this.table;
+    if (this.from == null) {
+      return null;
+    } else {
+      return this.from.getTableReference();
+    }
   }
 
   @Override
   public <V> V getValue(final MapEx record) {
     return null;
+  }
+
+  public boolean isFrom(final From from) {
+    if (this.from == from) {
+      return true;
+    } else if (this.from instanceof final FromAlias fromAlias) {
+      final var undelyingFrom = fromAlias.getFrom();
+      return undelyingFrom == from;
+    } else {
+      return false;
+    }
   }
 
   public JoinType joinType() {
@@ -253,17 +228,7 @@ public class Join implements QueryValue, TableReferenceProxy {
   }
 
   public Join setAlias(final String alias) {
-    this.alias = alias;
-    return this;
-  }
-
-  @SuppressWarnings("unchecked")
-  public <QV extends QueryValue> QV statement() {
-    return (QV)this.statement;
-  }
-
-  public Join statement(final QueryValue statement) {
-    this.statement = statement;
+    this.from = this.from.toFromAlias(alias);
     return this;
   }
 
@@ -272,20 +237,12 @@ public class Join implements QueryValue, TableReferenceProxy {
   }
 
   public Join table(final TableReference table) {
-    this.table = table;
-    if (table != null && this.alias == null) {
-      this.alias = table.getTableAlias();
-    }
+    this.from = table;
     return this;
   }
 
   public Join table(final TableReferenceProxy table) {
     return table(table.getTableReference());
-  }
-
-  public Join tableName(final String tableName) {
-    this.tableName = tableName;
-    return this;
   }
 
   @Override
@@ -294,16 +251,7 @@ public class Join implements QueryValue, TableReferenceProxy {
     sql.append(' ');
     sql.append(this.joinType);
     sql.append(' ');
-    if (this.table != null) {
-      if (this.alias == null) {
-        new Query().appendFromWithAlias(sql, this.table);
-      } else {
-        new Query().appendFromWithAlias(sql, new FromAlias(this.table, this.alias));
-      }
-    }
-    if (this.statement != null) {
-      this.statement.appendSql(null, null, sql);
-    }
+    new Query().appendFromWithAlias(sql, this.from);
     if (!this.condition.isEmpty()) {
       sql.append(" ON ");
       sql.append(this.condition);

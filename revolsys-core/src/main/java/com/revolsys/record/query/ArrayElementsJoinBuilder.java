@@ -33,8 +33,8 @@ public class ArrayElementsJoinBuilder {
    * @param dataType The field data type
    * @return self
    */
-  public ArrayElementsJoinBuilder addVirtualField(final AbstractTableRecordStore recordStore, final String name,
-    final DataType dataType) {
+  public ArrayElementsJoinBuilder addVirtualField(final AbstractTableRecordStore recordStore,
+    final String name, final DataType dataType) {
     recordStore.addVirtualField(name, dataType, true, (query, _, _, _) -> {
       getJoin(query);
       return new Column(this.joinAlias);
@@ -65,7 +65,8 @@ public class ArrayElementsJoinBuilder {
   public Join getJoin(final Query query) {
     final var arrayColumn = query.getColumn(this.arrayFieldName);
     var join = query.getJoin(this.joinAlias, j -> {
-      final var statement = j.getStatement();
+      final var statement = j.getFrom()
+        .withoutAlias();
       if (statement instanceof final ArrayElements unnest) {
         if (unnest.getParameter()
           .equals(arrayColumn)) {
@@ -75,8 +76,9 @@ public class ArrayElementsJoinBuilder {
       return false;
     });
     if (join == null) {
+      final var from = this.arrayFunction.apply(arrayColumn);
       join = query.join(JoinType.COMMA)
-        .statement(this.arrayFunction.apply(arrayColumn))//
+        .from(from)//
         .setAlias(this.joinAlias);
     }
     return join;
