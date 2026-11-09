@@ -659,8 +659,8 @@ public interface Dates {
         final long timeInMillis = calendar.getTimeInMillis();
         return new java.sql.Date(timeInMillis);
       }
-      throw new IllegalArgumentException("Value '" + dateString
-        + "' is not a valid date-time, expecting 'yyyy-MM-dd HH:mm:ss.SSS'.");
+      throw new IllegalArgumentException(
+        "Value '" + dateString + "' is not a valid date, expecting 'yyyy-MM-dd");
     } else {
       return null;
     }
