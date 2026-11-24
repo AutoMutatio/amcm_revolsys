@@ -32,23 +32,22 @@ public class BigDecimals {
       return toValid(value);
     }
 
-    final Number parsedNumber;
-    if (value instanceof final Number number) {
-      parsedNumber = number;
+    final BigDecimal number;
+    if (value instanceof final BigDecimal bd) {
+      number = bd;
+    } else if (value instanceof final Number n) {
+      number = toValid(n);
     } else {
       final String s = value.toString();
-      final var parsePos = new ParsePosition(0);
-      final var parsed = format.parse(s, parsePos);
-      if (!(parsed instanceof Number) || parsePos.getIndex() < s.length()) {
+      final ParsePosition parsePos = new ParsePosition(0);
+      final Number parsed = format.parse(s, parsePos);
+      if (!(parsed instanceof final BigDecimal bd) || parsePos.getIndex() < s.length()) {
         throw new IllegalArgumentException(
-          "Invalid number '" + s + "'. Must match pattern '" + format.toPattern() + "'.");
+          "Invalid number '" + value + "'. Must match pattern '" + format.toPattern() + "'.");
       }
-      parsedNumber = parsed;
+      number = bd;
     }
-
-    // Apply the formatter pattern (rounding/scale) to all inputs.
-    final String formatted = format.format(parsedNumber);
-    return new BigDecimal(formatted);
+    return number.setScale(format.getMaximumFractionDigits(), format.getRoundingMode());
   }
 
   public static BigDecimal getBigDecimal(final Object value) {
