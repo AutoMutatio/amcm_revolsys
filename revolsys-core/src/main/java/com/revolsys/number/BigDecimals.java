@@ -2,6 +2,8 @@ package com.revolsys.number;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.text.DecimalFormat;
+import java.text.ParsePosition;
 
 public class BigDecimals {
   /**
@@ -20,6 +22,33 @@ public class BigDecimals {
     } else {
       return false;
     }
+  }
+
+  public static BigDecimal getBigDecimal(final DecimalFormat format, final Object value) {
+    if (value == null) {
+      return null;
+    }
+    if (format == null) {
+      return toValid(value);
+    }
+
+    final Number parsedNumber;
+    if (value instanceof final Number number) {
+      parsedNumber = number;
+    } else {
+      final String s = value.toString();
+      final var parsePos = new ParsePosition(0);
+      final var parsed = format.parse(s, parsePos);
+      if (!(parsed instanceof Number) || parsePos.getIndex() < s.length()) {
+        throw new IllegalArgumentException(
+          "Invalid number '" + s + "'. Must match pattern '" + format.toPattern() + "'.");
+      }
+      parsedNumber = parsed;
+    }
+
+    // Apply the formatter pattern (rounding/scale) to all inputs.
+    final String formatted = format.format(parsedNumber);
+    return new BigDecimal(formatted);
   }
 
   public static BigDecimal getBigDecimal(final Object value) {
